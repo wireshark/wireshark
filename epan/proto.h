@@ -709,6 +709,8 @@ WS_DLL_PUBLIC int proto_item_get_len(const proto_item *ti);
  @return the new tree root */
 extern proto_tree* proto_tree_create_root(struct _packet_info *pinfo);
 
+void proto_tree_reset(proto_tree *tree);
+
 /** Clear memory for entry proto_tree. Clears proto_tree struct also.
  @param tree the tree to free */
 WS_DLL_PUBLIC void proto_tree_free(proto_tree *tree);

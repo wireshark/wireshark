@@ -551,6 +551,33 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 	FVALUE_CLEANUP(&finfo->value);
 }
 
+void
+proto_tree_reset(proto_tree *tree)
+{
+	tree_data_t *tree_data = PTREE_DATA(tree);
+
+	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
+
+	/* free tree data */
+	if (tree_data->interesting_hfids) {
+		/* Free all the GPtrArray's in the interesting_hfids hash. */
+		g_hash_table_foreach(tree_data->interesting_hfids,
+			free_GPtrArray_value, NULL);
+
+		/* And then destroy the hash. */
+		g_hash_table_destroy(tree_data->interesting_hfids);
+
+		tree_data->interesting_hfids = NULL;
+	}
+
+	/* Reset track of the number of children */
+	tree_data->count = 0;
+
+	wmem_free_all(tree_data->mem_pool);
+
+	PROTO_NODE_INIT(tree);
+}
+
 /* frees the resources that the dissection a proto_tree uses */
 void
 proto_tree_free(proto_tree *tree)
@@ -578,6 +605,10 @@ proto_tree_free(proto_tree *tree)
 		wmem_free_all(pool);
 		tree_pool_cache = pool;
 	}
+
+	g_slice_free(tree_data_t, tree_data);
+
+	g_slice_free(proto_tree, tree);
 }
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
@@ -4086,11 +4117,11 @@ proto_tree_create_root(packet_info *pinfo)
 	}
 
 	/* Initialize the proto_node */
-	pnode = wmem_new(pool, proto_node);
+	pnode = g_slice_new(proto_tree);
 	PROTO_NODE_INIT(pnode);
 	pnode->parent = NULL;
 	PNODE_FINFO(pnode) = NULL;
-	pnode->tree_data = wmem_new(pool, tree_data_t);
+	pnode->tree_data = g_slice_new(tree_data_t);
 
 	/* Make sure we can access pinfo everywhere */
 	pnode->tree_data->pinfo = pinfo;

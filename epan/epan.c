@@ -235,6 +235,35 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 	return edt;
 }
 
+void
+epan_dissect_reset(epan_dissect_t *edt)
+{
+	/* We have to preserve the pool pointer across the memzeroing */
+	wmem_allocator_t *tmp;
+
+	g_assert(edt);
+
+	g_slist_free(edt->pi.dependent_frames);
+
+	/* Free the data sources list. */
+	free_data_sources(&edt->pi);
+
+	if (edt->tvb) {
+		/* Free all tvb's chained from this tvb */
+		tvb_free_chain(edt->tvb);
+		edt->tvb = NULL;
+	}
+
+	if (edt->tree)
+		proto_tree_reset(edt->tree);
+
+	tmp = edt->pi.pool;
+	wmem_free_all(tmp);
+
+	memset(&edt->pi, 0, sizeof(edt->pi));
+	edt->pi.pool = tmp;
+}
+
 epan_dissect_t*
 epan_dissect_new(epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
@@ -291,8 +320,10 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 	/* Free the data sources list. */
 	free_data_sources(&edt->pi);
 
-	/* Free all tvb's chained from this tvb */
-	tvb_free_chain(edt->tvb);
+	if (edt->tvb) {
+		/* Free all tvb's chained from this tvb */
+		tvb_free_chain(edt->tvb);
+	}
 
 	if (edt->tree) {
 		proto_tree_free(edt->tree);

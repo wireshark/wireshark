@@ -152,6 +152,10 @@ WS_DLL_PUBLIC
 epan_dissect_t*
 epan_dissect_new(epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible);
 
+WS_DLL_PUBLIC
+void
+epan_dissect_reset(epan_dissect_t *edt);
+
 /** Indicate whether we should fake protocols or not */
 WS_DLL_PUBLIC
 void
