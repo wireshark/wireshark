@@ -525,6 +525,9 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS");
     col_set_str(pinfo->cinfo, COL_INFO, "MPLS Label Switched Packet");
 
+    /* Ensure structure is initialized */
+    memset(&mplsinfo, 0, sizeof(struct mplsinfo));
+
     /* Start Decoding Here. */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
@@ -538,8 +541,6 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         mplsinfo.exp   = exp;
         mplsinfo.bos   = bos;
         mplsinfo.ttl   = ttl;
-
-        pinfo->private_data = &mplsinfo;
 
         if (tree) {
             proto_item *ti;
@@ -600,8 +601,8 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     /* 1) explicit label-to-dissector binding ? */
-    found = dissector_try_uint(mpls_subdissector_table, label,
-                               next_tvb, pinfo, tree);
+    found = dissector_try_uint_new(mpls_subdissector_table, label,
+                               next_tvb, pinfo, tree, FALSE, &mplsinfo);
     if (found)
         return;
 

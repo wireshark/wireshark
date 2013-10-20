@@ -46,7 +46,7 @@ enum {
 
 /*
  * FF: private data passed from the MPLS dissector to subdissectors
- * (pinfo->private_data).
+ * (data parameter).
  */
 struct mplsinfo {
     guint32 label; /* last mpls label in label stack */
