@@ -1449,7 +1449,7 @@ dissect_tlv_atm_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
     proto_tree *ti, *val_tree;
 
     if (rem != 4){
-        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing ATM Label TLV: length is %d, should be 4");
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing ATM Label TLV: length is %d, should be 4", rem);
         return;
     }
     ti=proto_tree_add_text(tree, tvb, offset, rem, "ATM Label");
