@@ -176,9 +176,9 @@ static void report_counts_siginfo(int);
 #endif /* HAVE_LIBPCAP */
 
 static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
-static gboolean process_packet(capture_file *cf, gint64 offset,
+static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     struct wtap_pkthdr *whdr, const guchar *pd,
-    gboolean filtering_tap_listeners, guint tap_flags);
+    guint tap_flags);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
@@ -2572,6 +2572,21 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
   tap_flags = union_of_tap_listener_flags();
 
   if (do_dissection) {
+    gboolean create_proto_tree;
+    epan_dissect_t *edt;
+
+    if (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
+        (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
+      create_proto_tree = TRUE;
+    else
+      create_proto_tree = FALSE;
+
+    /* The protocol tree will be "visible", i.e., printed, only if we're
+       printing packet details, which is true if we're printing stuff
+       ("print_packet_info" is true) and we're in verbose mode
+       ("packet_details" is true). */
+    edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
+
     while (to_read-- && cf->wth) {
       wtap_cleareof(cf->wth);
       ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
@@ -2581,15 +2596,18 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
         wtap_close(cf->wth);
         cf->wth = NULL;
       } else {
-        ret = process_packet(cf, data_offset, wtap_phdr(cf->wth),
+        ret = process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
                              wtap_buf_ptr(cf->wth),
-                             filtering_tap_listeners, tap_flags);
+                             tap_flags);
       }
       if (ret != FALSE) {
         /* packet successfully read and gone through the "Read Filter" */
         packet_count++;
       }
     }
+
+    epan_dissect_free(edt);
+
   } else {
     /*
      * Dumpcap's doing all the work; we're not doing any dissection.
@@ -2750,14 +2768,12 @@ capture_cleanup(int signum _U_)
 #endif /* HAVE_LIBPCAP */
 
 static gboolean
-process_packet_first_pass(capture_file *cf,
+process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
                gint64 offset, struct wtap_pkthdr *whdr,
                const guchar *pd)
 {
   frame_data     fdlocal;
   guint32        framenum;
-  gboolean       create_proto_tree = FALSE;
-  epan_dissect_t edt;
   gboolean       passed;
 
   /* The frame number of this packet is one more than the count of
@@ -2774,25 +2790,16 @@ process_packet_first_pass(capture_file *cf,
   /* If we're going to print packet information, or we're going to
      run a read filter, or display filter, or we're going to process taps, set up to
      do a dissection and do so. */
-  if (do_dissection) {
+  if (edt) {
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    /* If we're going to be applying a filter, we'll need to
-       create a protocol tree against which to apply the filter. */
-    if (cf->rfcode)
-      create_proto_tree = TRUE;
-
-    /* We're not going to display the protocol tree on this pass,
-       so it's not going to be "visible". */
-    epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
-
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
     if (cf->rfcode)
-      epan_dissect_prime_dfilter(&edt, cf->rfcode);
+      epan_dissect_prime_dfilter(edt, cf->rfcode);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -2801,11 +2808,11 @@ process_packet_first_pass(capture_file *cf,
       ref = &ref_frame;
     }
 
-    epan_dissect_run(&edt, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
+    epan_dissect_run(edt, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
-      passed = dfilter_apply_edt(cf->rfcode, &edt);
+      passed = dfilter_apply_edt(cf->rfcode, edt);
   }
 
   if (passed) {
@@ -2816,8 +2823,8 @@ process_packet_first_pass(capture_file *cf,
      * More importantly, edt.pi.dependent_frames won't be initialized because
      * epan hasn't been initialized.
      */
-    if (do_dissection) {
-      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+    if (edt) {
+      g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
     }
 
     cf->count++;
@@ -2827,20 +2834,18 @@ process_packet_first_pass(capture_file *cf,
     frame_data_destroy(&fdlocal);
   }
 
-  if (do_dissection)
-    epan_dissect_cleanup(&edt);
+  if (edt)
+    epan_dissect_reset(edt);
 
   return passed;
 }
 
 static gboolean
-process_packet_second_pass(capture_file *cf, frame_data *fdata,
+process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fdata,
                struct wtap_pkthdr *phdr, Buffer *buf,
-               gboolean filtering_tap_listeners, guint tap_flags)
+               guint tap_flags)
 {
-  gboolean        create_proto_tree;
   column_info    *cinfo;
-  epan_dissect_t  edt;
   gboolean        passed;
 
   /* If we're not running a display filter and we're not printing any
@@ -2851,30 +2856,18 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
-  if (do_dissection) {
+  if (edt) {
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    if (cf->dfcode || print_details || filtering_tap_listeners ||
-        (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
-      create_proto_tree = TRUE;
-    else
-      create_proto_tree = FALSE;
-
-    /* The protocol tree will be "visible", i.e., printed, only if we're
-       printing packet details, which is true if we're printing stuff
-       ("print_packet_info" is true) and we're in verbose mode
-       ("packet_details" is true). */
-    epan_dissect_init(&edt, cf->epan, create_proto_tree, print_packet_info && print_details);
-
     /* If we're running a display filter, prime the epan_dissect_t with that
        filter. */
     if (cf->dfcode)
-      epan_dissect_prime_dfilter(&edt, cf->dfcode);
+      epan_dissect_prime_dfilter(edt, cf->dfcode);
 
-    col_custom_prime_edt(&edt, &cf->cinfo);
+    col_custom_prime_edt(edt, &cf->cinfo);
 
     /* We only need the columns if either
          1) some tap needs the columns
@@ -2894,11 +2887,11 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
       ref = &ref_frame;
     }
 
-    epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
+    epan_dissect_run_with_taps(edt, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
     if (cf->dfcode)
-      passed = dfilter_apply_edt(cf->dfcode, &edt);
+      passed = dfilter_apply_edt(cf->dfcode, edt);
   }
 
   if (passed) {
@@ -2907,10 +2900,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     if (print_packet_info) {
       /* We're printing packet information; print the information for
          this packet. */
-      if (do_dissection)
-        print_packet(cf, &edt);
-      else
-        print_packet(cf, NULL);
+      print_packet(cf, edt);
 
       /* The ANSI C standard does not appear to *require* that a line-buffered
          stream be flushed to the host environment whenever a newline is
@@ -2944,8 +2934,8 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
   }
   prev_cap = fdata;
 
-  if (do_dissection) {
-    epan_dissect_cleanup(&edt);
+  if (edt) {
+    epan_dissect_reset(edt);
   }
   return passed || fdata->flags.dependent_of_displayed;
 }
@@ -2968,6 +2958,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   wtapng_iface_descriptions_t *idb_inf;
   char         appname[100];
   Buffer       buf;
+  epan_dissect_t *edt = NULL;
 
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
@@ -3069,8 +3060,21 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     /* Allocate a frame_data_sequence for all the frames. */
     cf->frames = new_frame_data_sequence();
 
+    if (do_dissection) {
+       gboolean create_proto_tree = FALSE;
+
+      /* If we're going to be applying a filter, we'll need to
+         create a protocol tree against which to apply the filter. */
+      if (cf->rfcode)
+        create_proto_tree = TRUE;
+
+      /* We're not going to display the protocol tree on this pass,
+         so it's not going to be "visible". */
+      edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
+    }
+
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-      if (process_packet_first_pass(cf, data_offset, wtap_phdr(cf->wth),
+      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
                          wtap_buf_ptr(cf->wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
@@ -3084,6 +3088,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       }
     }
 
+    if (edt) {
+      epan_dissect_free(edt);
+      edt = NULL;
+    }
+
     /* Close the sequential I/O side, to free up memory it requires. */
     wtap_sequential_close(cf->wth);
 
@@ -3094,12 +3103,29 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     prev_dis = NULL;
     prev_cap = NULL;
     buffer_init(&buf, 1500);
+
+    if (do_dissection) {
+      gboolean create_proto_tree;
+
+      if (cf->dfcode || print_details || filtering_tap_listeners ||
+         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
+           create_proto_tree = TRUE;
+      else
+           create_proto_tree = FALSE;
+
+      /* The protocol tree will be "visible", i.e., printed, only if we're
+         printing packet details, which is true if we're printing stuff
+         ("print_packet_info" is true) and we're in verbose mode
+         ("packet_details" is true). */
+      edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
+    }
+
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->phdr,
           &buf, fdata->cap_len, &err, &err_info)) {
-        if (process_packet_second_pass(cf, fdata, &cf->phdr, &buf,
-                                       filtering_tap_listeners, tap_flags)) {
+        if (process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf,
+                                       tap_flags)) {
           /* Either there's no read filtering or this packet passed the
              filter, so, if we're writing to a capture file, write
              this packet out. */
@@ -3134,16 +3160,39 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
       }
     }
+
+    if (edt) {
+      epan_dissect_free(edt);
+      edt = NULL;
+    }
+
     buffer_free(&buf);
   }
   else {
     framenum = 0;
+
+    if (do_dissection) {
+      gboolean create_proto_tree;
+
+      if (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
+          (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
+        create_proto_tree = TRUE;
+      else
+        create_proto_tree = FALSE;
+
+      /* The protocol tree will be "visible", i.e., printed, only if we're
+         printing packet details, which is true if we're printing stuff
+         ("print_packet_info" is true) and we're in verbose mode
+         ("packet_details" is true). */
+      edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
+    }
+
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
       framenum++;
 
-      if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
+      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
                          wtap_buf_ptr(cf->wth),
-                         filtering_tap_listeners, tap_flags)) {
+                         tap_flags)) {
         /* Either there's no read filtering or this packet passed the
            filter, so, if we're writing to a capture file, write
            this packet out. */
@@ -3182,6 +3231,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         err = 0; /* This is not an error */
         break;
       }
+    }
+
+    if (edt) {
+      epan_dissect_free(edt);
+      edt = NULL;
     }
   }
 
@@ -3281,14 +3335,11 @@ out:
 }
 
 static gboolean
-process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
-               const guchar *pd,
-               gboolean filtering_tap_listeners, guint tap_flags)
+process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
+               const guchar *pd, guint tap_flags)
 {
   frame_data      fdata;
-  gboolean        create_proto_tree;
   column_info    *cinfo;
-  epan_dissect_t  edt;
   gboolean        passed;
 
   /* Count this packet. */
@@ -3304,30 +3355,18 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
-  if (do_dissection) {
+  if (edt) {
     if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns))
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    if (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
-        (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
-      create_proto_tree = TRUE;
-    else
-      create_proto_tree = FALSE;
-
-    /* The protocol tree will be "visible", i.e., printed, only if we're
-       printing packet details, which is true if we're printing stuff
-       ("print_packet_info" is true) and we're in verbose mode
-       ("packet_details" is true). */
-    epan_dissect_init(&edt, cf->epan, create_proto_tree, print_packet_info && print_details);
-
     /* If we're running a filter, prime the epan_dissect_t with that
        filter. */
     if (cf->dfcode)
-      epan_dissect_prime_dfilter(&edt, cf->dfcode);
+      epan_dissect_prime_dfilter(edt, cf->dfcode);
 
-    col_custom_prime_edt(&edt, &cf->cinfo);
+    col_custom_prime_edt(edt, &cf->cinfo);
 
     /* We only need the columns if either
          1) some tap needs the columns
@@ -3348,11 +3387,11 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
       ref = &ref_frame;
     }
 
-    epan_dissect_run_with_taps(&edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
+    epan_dissect_run_with_taps(edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
 
     /* Run the filter if we have it. */
     if (cf->dfcode)
-      passed = dfilter_apply_edt(cf->dfcode, &edt);
+      passed = dfilter_apply_edt(cf->dfcode, edt);
   }
 
   if (passed) {
@@ -3362,10 +3401,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     if (print_packet_info) {
       /* We're printing packet information; print the information for
          this packet. */
-      if (do_dissection)
-        print_packet(cf, &edt);
-      else
-        print_packet(cf, NULL);
+      print_packet(cf, edt);
 
       /* The ANSI C standard does not appear to *require* that a line-buffered
          stream be flushed to the host environment whenever a newline is
@@ -3404,8 +3440,8 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
   prev_cap_frame = fdata;
   prev_cap = &prev_cap_frame;
 
-  if (do_dissection) {
-    epan_dissect_cleanup(&edt);
+  if (edt) {
+    epan_dissect_reset(edt);
     frame_data_destroy(&fdata);
   }
   return passed;
