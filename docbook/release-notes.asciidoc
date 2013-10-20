@@ -58,10 +58,12 @@ ASTERIX
 BT 3DS
 CARP
 Cisco MetaData
+EXPORTED PDU
 HTTP2
 IDRP
 Kafka
 MBIM
+MiNT
 MP4 / ISOBMFF file format
 OpenFlow
 Picture Transfer Protocol Over IP
