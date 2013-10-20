@@ -2281,16 +2281,16 @@ start_over:
     /* Call IP for uncompressed*/
     if (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED) {
         if (rohc_cid_context->large_cid_present) {
-            guint8 *data;
+            guint8 *payload_data;
             gint len;
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
             len = tvb_length_remaining(tvb, offset);
             if (len >= val_len) {
                 len -= val_len;
-                data = (guint8 *)wmem_alloc(pinfo->pool, len);
-                tvb_memcpy(tvb, data, offset, 1);
-                tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
-                next_tvb = tvb_new_child_real_data(tvb, data, len, len);
+                payload_data = (guint8 *)wmem_alloc(pinfo->pool, len);
+                tvb_memcpy(tvb, payload_data, offset, 1);
+                tvb_memcpy(tvb, &payload_data[1], offset+1+val_len, len-1);
+                next_tvb = tvb_new_child_real_data(tvb, payload_data, len, len);
                 add_new_data_source(pinfo, next_tvb, "Payload");
             }
         }
