@@ -34,7 +34,7 @@
 /* We don't want the tranported data to pollute the output until
  * we know how to correctly determine the packet type and length
  */
-#define DEVELOPMENT 1
+#define MINT_DEVELOPMENT 1
 
 #define NEW_PROTO_TREE_API 1
 
@@ -62,7 +62,7 @@ static dissector_handle_t eth_handle;
 static int ett_mint_ethshim = -1;
 static int ett_mint = -1;
 static int ett_mint_header = -1;
-static int ett_mint_control = -1;
+static int ett_mint_ctrl = -1;
 static int ett_mint_data = -1;
 static int ett_mint_eth = -1;
 
@@ -173,7 +173,7 @@ dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 {
 	tvbuff_t *eth_tvb;
 
-#ifdef DEVELOPMENT
+#ifdef MINT_DEVELOPMENT
         col_set_writable(pinfo->cinfo, FALSE);
 #endif
 
@@ -186,7 +186,7 @@ dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 	} ENDTRY;
 	offset += length;
 
-#ifdef DEVELOPMENT
+#ifdef MINT_DEVELOPMENT
         col_set_writable(pinfo->cinfo, TRUE);
 #endif
 	return offset;
@@ -199,6 +199,9 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *ti;
 	proto_tree *mint_tree = NULL;
 	proto_tree *mint_header_tree = NULL;
+	proto_tree *mint_data_tree = NULL;
+	proto_tree *mint_ctrl_tree = NULL;
+	proto_tree *mint_eth_tree = NULL;
 	guint16 bytes_remaining;
 	guint16 packet_type;
 
@@ -242,7 +245,8 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case MINT_TYPE_DATA_UC:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
-		proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
+		mint_data_tree = proto_item_add_subtree(ti, ett_mint_data);
+		proto_tree_add_item(mint_data_tree, &hfi_mint_data_unknown1, tvb,
 			offset, 2, ENC_NA);
 		offset += 2;
 		/* Transported user frame */
@@ -253,15 +257,16 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case MINT_TYPE_DATA_BCMC:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
+		mint_data_tree = proto_item_add_subtree(ti, ett_mint_data);
 		/* Decode as vlan only for now. To be verified against a capture
 		 * with CoS != 0 */
-		proto_tree_add_item(mint_tree, &hfi_mint_data_vlan, tvb,
+		proto_tree_add_item(mint_data_tree, &hfi_mint_data_vlan, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(mint_tree, &hfi_mint_data_seqno, tvb,
+		proto_tree_add_item(mint_data_tree, &hfi_mint_data_seqno, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
-		proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
+		proto_tree_add_item(mint_data_tree, &hfi_mint_data_unknown1, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
 		/* Transported user frame */
@@ -274,16 +279,18 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case MINT_TYPE_CTRL_0x1e:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
+		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_tree, &hfi_mint_control_unknown1, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_unknown1, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
         case MINT_TYPE_ETH_0x22:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_eth, tvb,
 			offset, packet_length - 16, ENC_NA);
+		mint_eth_tree = proto_item_add_subtree(ti, ett_mint_eth);
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_tree, &hfi_mint_eth_unknown1, tvb,
+		proto_tree_add_item(mint_eth_tree, &hfi_mint_eth_unknown1, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
@@ -308,6 +315,13 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += bytes_remaining;
 		break;
 	}
+#if defined MINT_DEVELOPMENT
+	/* tree_expanded_set(ett_mint, TRUE); */
+	tree_expanded_set(ett_mint_header, TRUE);
+	tree_expanded_set(ett_mint_ctrl, TRUE);
+	tree_expanded_set(ett_mint_data, TRUE);
+	tree_expanded_set(ett_mint_eth, TRUE);
+#endif
 	return offset;
 }
 
@@ -467,7 +481,7 @@ proto_register_mint(void)
 		&ett_mint_ethshim,
 		&ett_mint,
 		&ett_mint_header,
-		&ett_mint_control,
+		&ett_mint_ctrl,
 		&ett_mint_data,
 		&ett_mint_eth,
 	};
