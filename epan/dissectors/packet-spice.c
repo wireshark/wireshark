@@ -1,6 +1,7 @@
 /* packet-spice.c
  * Routines for Spice protocol dissection
  * Copyright 2011, Yaniv Kaul <ykaul@redhat.com>
+ * Copyright 2013, Jonathon Jongsma <jjongsma@redhat.com>
  *
  * $Id$
  *
@@ -36,6 +37,17 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
+/* NOTE:
+ * packet-spice.h is auto-generated from a Spice protocol definition by a tool
+ * included in the spice-common repository
+ * (http://cgit.freedesktop.org/spice/spice-common/)
+ * To re-generate this file, run the following command from the root of the
+ * spice-common tree:
+ *      python ./spice_codegen.py --generate-wireshark-dissector \
+ *              spice.proto packet-spice.h
+ */
+#include "packet-spice.h"
+
 #define SPICE_MAGIC 0x52454451 /* = "REDQ" */
 
 #define SPICE_VERSION_MAJOR_1 1
@@ -69,94 +81,13 @@ typedef enum {
 static dissector_handle_t spice_handle;
 
 #define SPICE_CHANNEL_NONE      0
-#define SPICE_CHANNEL_MAIN      1
-#define SPICE_CHANNEL_DISPLAY   2
-#define SPICE_CHANNEL_INPUTS    3
-#define SPICE_CHANNEL_CURSOR    4
-#define SPICE_CHANNEL_PLAYBACK  5
-#define SPICE_CHANNEL_RECORD    6
-#define SPICE_CHANNEL_TUNNEL    7
-#define SPICE_CHANNEL_SMARTCARD 8
-
-static const value_string channel_types_vs[] = {
-    { SPICE_CHANNEL_NONE,      "Invalid" },
-    { SPICE_CHANNEL_MAIN,      "Main" },
-    { SPICE_CHANNEL_DISPLAY,   "Display" },
-    { SPICE_CHANNEL_INPUTS,    "Inputs" },
-    { SPICE_CHANNEL_CURSOR,    "Cursor" },
-    { SPICE_CHANNEL_PLAYBACK,  "Playback" },
-    { SPICE_CHANNEL_RECORD,    "Record" },
-    { SPICE_CHANNEL_TUNNEL,    "Tunnel" },
-    { SPICE_CHANNEL_SMARTCARD, "Smart Card" },
-    { 0,  NULL }
-};
-
-/* common server messages */
-#define SPICE_MIGRATE             1
-#define SPICE_MIGRATE_DATA        2
-#define SPICE_SET_ACK             3
-#define SPICE_PING                4
-#define SPICE_WAIT_FOR_CHANNELS   5
-#define SPICE_DISCONNECTING       6
-#define SPICE_NOTIFY              7
-
-/* common client messages */
-
-#define SPICEC_ACK_SYNC           1
-#define SPICEC_ACK                2
-#define SPICEC_PONG               3
-#define SPICEC_MIGRATE_FLUSH_MARK 4
-#define SPICEC_MIGRATE_DATA       5
-#define SPICEC_DISCONNECTING      6
 
 #define SPICE_FIRST_AVAIL_MESSAGE 101
-
-static const value_string common_server_message_types[] = {
-    { SPICE_MIGRATE,             "Server MIGRATE" },
-    { SPICE_MIGRATE_DATA,        "Server MIGRATE_DATA" },
-    { SPICE_SET_ACK,             "Server SET_ACK" },
-    { SPICE_PING,                "Server PING" },
-    { SPICE_WAIT_FOR_CHANNELS,   "Server WAIT_FOR_CHANNELS" },
-    { SPICE_DISCONNECTING,       "Server DISCONNECTING" },
-    { SPICE_NOTIFY,              "Server NOTIFY" },
-    { 0, NULL }
-};
-
-static const value_string common_client_message_types[] = {
-    { SPICEC_ACK_SYNC,           "Client ACK_SYNC" },
-    { SPICEC_ACK,                "Client ACK" },
-    { SPICEC_PONG,               "Client PONG" },
-    { SPICEC_MIGRATE_FLUSH_MARK, "Client MIGRATE_FLUSH_MARK" },
-    { SPICEC_MIGRATE_DATA,       "Client MIGRATE_DATA" },
-    { SPICEC_DISCONNECTING,      "Client DISCONNECTING" },
-    { 0, NULL }
-};
 
 #define sizeof_SpiceLinkHeader  16
 #define sizeof_SpiceDataHeader  18
 #define sizeof_SpiceMiniDataHeader  6
 
-/* playback server channel messages */
-#define SPICE_PLAYBACK_DATA    101
-#define SPICE_PLAYBACK_MODE    102
-#define SPICE_PLAYBACK_START   103
-#define SPICE_PLAYBACK_STOP    104
-#define SPICE_PLAYBACK_VOLUME  105
-#define SPICE_PLAYBACK_MUTE    106
-
-static const value_string playback_server_message_types[] = {
-    { SPICE_PLAYBACK_DATA,       "Server PLAYBACK_DATA" },
-    { SPICE_PLAYBACK_MODE,       "Server PLAYBACK_MODE" },
-    { SPICE_PLAYBACK_START,      "Server PLAYBACK_START" },
-    { SPICE_PLAYBACK_STOP,       "Server PLAYBACK_STOP" },
-    { SPICE_PLAYBACK_VOLUME,     "Server PLAYBACK_VOLUME" },
-    { SPICE_PLAYBACK_MUTE,       "Server PLAYBACK_MUTE" },
-    { 0, NULL }
-};
-
-#define SPICE_AUDIO_DATA_MODE_INVALID 0
-#define SPICE_AUDIO_DATA_MODE_RAW 1
-#define SPICE_AUDIO_DATA_MODE_CELT_0_5_1 2
 static const value_string playback_mode_vals[] = {
     { SPICE_AUDIO_DATA_MODE_INVALID,    "INVALID" },
     { SPICE_AUDIO_DATA_MODE_RAW,        "RAW" },
@@ -164,109 +95,76 @@ static const value_string playback_mode_vals[] = {
     { 0, NULL }
 };
 
-#define SPICE_PLAYBACK_CAP_CELT_0_5_1 0
-#define SPICE_PLAYBACK_CAP_VOLUME 1
+enum {
+    SPICE_PLAYBACK_CAP_CELT_0_5_1,
+    SPICE_PLAYBACK_CAP_VOLUME
+};
 
-#define SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1)
-#define SPICE_PLAYBACK_CAP_VOLUME_MASK     (1 << SPICE_PLAYBACK_CAP_VOLUME) /* 0x2 */
+enum {
+    SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK = (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1),
+    SPICE_PLAYBACK_CAP_VOLUME_MASK = (1 << SPICE_PLAYBACK_CAP_VOLUME)
+};
 
 /* main channel */
 
-#define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE  0
-#define SPICE_MAIN_CAP_VM_NAME_UUID           1
-#define SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS 2
-#define SPICE_MAIN_CAP_SEAMLESS_MIGRATE       3
-
-#define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK (1 << SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE)
-#define SPICE_MAIN_CAP_VM_NAME_UUID_MASK (1 << SPICE_MAIN_CAP_VM_NAME_UUID)
-#define SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS_MASK (1 << SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS)
-#define SPICE_MAIN_CAP_SEAMLESS_MIGRATE_MASK (1 << SPICE_MAIN_CAP_SEAMLESS_MIGRATE)
-
-/* main channel server messages */
-#define SPICE_MAIN_MIGRATE_BEGIN        101
-#define SPICE_MAIN_MIGRATE_CANCEL       102
-#define SPICE_MAIN_INIT                 103
-#define SPICE_MAIN_CHANNELS_LIST        104
-#define SPICE_MAIN_MOUSE_MODE           105
-#define SPICE_MAIN_MULTI_MEDIA_TIME     106
-#define SPICE_MAIN_AGENT_CONNECTED      107
-#define SPICE_MAIN_AGENT_DISCONNECTED   108
-#define SPICE_MAIN_AGENT_DATA           109
-#define SPICE_MAIN_AGENT_TOKEN          110
-#define SPICE_MAIN_MIGRATE_SWITCH_HOST  111
-#define SPICE_MAIN_MIGRATE_END          112
-#define SPICE_MAIN_NAME                 113
-#define SPICE_MAIN_UUID                 114
-
-static const value_string main_server_message_types[] = {
-    { SPICE_MAIN_MIGRATE_BEGIN,       "Server MIGRATE_BEGIN" },
-    { SPICE_MAIN_MIGRATE_CANCEL,      "Server MIGRATE_CANCEL" },
-    { SPICE_MAIN_INIT,                "Server INIT" },
-    { SPICE_MAIN_CHANNELS_LIST,       "Server CHANNELS_LIST" },
-    { SPICE_MAIN_MOUSE_MODE,          "Server MOUSE_MODE" },
-    { SPICE_MAIN_MULTI_MEDIA_TIME,    "Server MULTI_MEDIA_TIME" },
-    { SPICE_MAIN_AGENT_CONNECTED,     "Server AGENT_CONNECTED" },
-    { SPICE_MAIN_AGENT_DISCONNECTED,  "Server AGENT_DISCONNECTED" },
-    { SPICE_MAIN_AGENT_DATA,          "Server AGENT_DATA" },
-    { SPICE_MAIN_AGENT_TOKEN,         "Server AGENT_TOKEN" },
-    { SPICE_MAIN_MIGRATE_SWITCH_HOST, "Server MIGRATE_SWITCH_HOST" },
-    { SPICE_MAIN_MIGRATE_END,         "Server MIGRATE_END" },
-    { SPICE_MAIN_NAME,                "Server VM_NAME" },
-    { SPICE_MAIN_UUID,                "Server VM_UUID" },
-    { 0, NULL }
+enum {
+    SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE,
+    SPICE_MAIN_CAP_VM_NAME_UUID,
+    SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS,
+    SPICE_MAIN_CAP_SEAMLESS_MIGRATE
 };
 
-/* main channel client messages */
-#define SPICEC_MAIN_RESERVED            101
-#define SPICEC_MAIN_MIGRATE_READY       102
-#define SPICEC_MAIN_MIGRATE_ERROR       103
-#define SPICEC_MAIN_ATTACH_CHANNELS     104
-#define SPICEC_MAIN_MOUSE_MODE_REQUEST  105
-#define SPICEC_MAIN_AGENT_START         106
-#define SPICEC_MAIN_AGENT_DATA          107
-#define SPICEC_MAIN_AGENT_TOKEN         108
-
-static const value_string main_client_message_types[] = {
-    { SPICEC_MAIN_RESERVED,           "Client RESERVED" },
-    { SPICEC_MAIN_MIGRATE_READY,      "Client MIGRATE_READY" },
-    { SPICEC_MAIN_MIGRATE_ERROR,      "Client MIGRATE_ERROR" },
-    { SPICEC_MAIN_ATTACH_CHANNELS,    "Client ATTACH_CHANNELS" },
-    { SPICEC_MAIN_MOUSE_MODE_REQUEST, "Client MOUSE_MODE_REQUEST" },
-    { SPICEC_MAIN_AGENT_START,        "Client AGENT_START" },
-    { SPICEC_MAIN_AGENT_DATA,         "Client AGENT_DATA" },
-    { SPICEC_MAIN_AGENT_TOKEN,        "Client AGENT_TOKEN" },
-    { 0, NULL }
+enum
+{
+    SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK = (1 << SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE),
+    SPICE_MAIN_CAP_VM_NAME_UUID_MASK = (1 << SPICE_MAIN_CAP_VM_NAME_UUID),
+    SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS_MASK = (1 << SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS),
+    SPICE_MAIN_CAP_SEAMLESS_MIGRATE_MASK = (1 << SPICE_MAIN_CAP_SEAMLESS_MIGRATE),
 };
 
-#define VD_AGENT_MOUSE_STATE            1
-#define VD_AGENT_MONITORS_CONFIG        2
-#define VD_AGENT_REPLY                  3
-#define VD_AGENT_CLIPBOARD              4
-#define VD_AGENT_DISPLAY_CONFIG         5
-#define VD_AGENT_ANNOUNCE_CAPABILITIES  6
-#define VD_AGENT_CLIPBOARD_GRAB         7
-#define VD_AGENT_CLIPBOARD_REQUEST      8
-#define VD_AGENT_CLIPBOARD_RELEASE      9
+enum {
+    VD_AGENT_MOUSE_STATE = 1,
+    VD_AGENT_MONITORS_CONFIG,
+    VD_AGENT_REPLY,
+    VD_AGENT_CLIPBOARD,
+    VD_AGENT_DISPLAY_CONFIG,
+    VD_AGENT_ANNOUNCE_CAPABILITIES,
+    VD_AGENT_CLIPBOARD_GRAB,
+    VD_AGENT_CLIPBOARD_REQUEST,
+    VD_AGENT_CLIPBOARD_RELEASE,
+    VD_AGENT_FILE_XFER_START,
+    VD_AGENT_FILE_XFER_STATUS,
+    VD_AGENT_FILE_XFER_DATA,
+    VD_AGENT_CLIENT_DISCONNECTED,
+    VD_AGENT_END_MESSAGE,
+};
 
-static const value_string agent_message_type[] = {
-    { VD_AGENT_MOUSE_STATE,           "VD_AGENT_MOUSE_STATE" },
-    { VD_AGENT_MONITORS_CONFIG,       "VD_AGENT_MONITORS_CONFIG" },
-    { VD_AGENT_REPLY,                 "VD_AGENT_REPLY" },
-    { VD_AGENT_CLIPBOARD,             "VD_AGENT_CLIPBOARD" },
-    { VD_AGENT_DISPLAY_CONFIG,        "VD_AGENT_DISPLAY_CONFIG" },
+static const value_string agent_message_type_vs[] = {
+    { VD_AGENT_MOUSE_STATE, "VD_AGENT_MOUSE_STATE" },
+    { VD_AGENT_MONITORS_CONFIG, "VD_AGENT_MONITORS_CONFIG" },
+    { VD_AGENT_REPLY, "VD_AGENT_REPLY" },
+    { VD_AGENT_CLIPBOARD, "VD_AGENT_CLIPBOARD" },
+    { VD_AGENT_DISPLAY_CONFIG, "VD_AGENT_DISPLAY_CONFIG" },
     { VD_AGENT_ANNOUNCE_CAPABILITIES, "VD_AGENT_ANNOUNCE_CAPABILITIES" },
-    { VD_AGENT_CLIPBOARD_GRAB,        "VD_AGENT_CLIPBOARD_GRAB" },
-    { VD_AGENT_CLIPBOARD_REQUEST,     "VD_AGENT_CLIPBOARD_REQUEST" },
-    { VD_AGENT_CLIPBOARD_RELEASE,     "VD_AGENT_CLIPBOARD_RELEASE" },
+    { VD_AGENT_CLIPBOARD_GRAB, "VD_AGENT_CLIPBOARD_GRAB" },
+    { VD_AGENT_CLIPBOARD_REQUEST, "VD_AGENT_CLIPBOARD_REQUEST" },
+    { VD_AGENT_CLIPBOARD_RELEASE, "VD_AGENT_CLIPBOARD_RELEASE" },
+    { VD_AGENT_FILE_XFER_START, "VD_AGENT_FILE_XFER_START" },
+    { VD_AGENT_FILE_XFER_STATUS, "VD_AGENT_FILE_XFER_STATUS" },
+    { VD_AGENT_FILE_XFER_DATA, "VD_AGENT_FILE_XFER_DATA" },
+    { VD_AGENT_CLIENT_DISCONNECTED, "VD_AGENT_CLIENT_DISCONNECTED" },
+    { VD_AGENT_END_MESSAGE, "VD_AGENT_END_MESSAGE" },
     { 0, NULL }
 };
 
-#define VD_AGENT_CLIPBOARD_NONE         0
-#define VD_AGENT_CLIPBOARD_UTF8_TEXT    1
-#define VD_AGENT_CLIPBOARD_IMAGE_PNG    2
-#define VD_AGENT_CLIPBOARD_IMAGE_BMP    3
-#define VD_AGENT_CLIPBOARD_IMAGE_TIFF   4
-#define VD_AGENT_CLIPBOARD_IMAGE_JPG    5
+enum {
+    VD_AGENT_CLIPBOARD_NONE,
+    VD_AGENT_CLIPBOARD_UTF8_TEXT,
+    VD_AGENT_CLIPBOARD_IMAGE_PNG,
+    VD_AGENT_CLIPBOARD_IMAGE_BMP,
+    VD_AGENT_CLIPBOARD_IMAGE_TIFF,
+    VD_AGENT_CLIPBOARD_IMAGE_JPG
+};
 
 static const value_string agent_clipboard_type[] = {
     { VD_AGENT_CLIPBOARD_NONE,      "NONE" },
@@ -277,201 +175,89 @@ static const value_string agent_clipboard_type[] = {
     { VD_AGENT_CLIPBOARD_IMAGE_JPG, "IMAGE_JPG" },
     { 0, NULL }
 };
-/* record channel */
-/* record channel server messages */
-#define SPICE_RECORD_START            101
-#define SPICE_RECORD_STOP             102
-#define SPICE_RECORD_VOLUME           103
-#define SPICE_RECORD_MUTE             104
-static const value_string record_server_message_types[] = {
-    { SPICE_RECORD_START,  "Server RECORD_START" },
-    { SPICE_RECORD_STOP,   "Server RECORD_STOP" },
-    { SPICE_RECORD_VOLUME, "Server RECORD_VOLUME" },
-    { SPICE_RECORD_MUTE,   "Server RECORD_MUTE" },
+
+enum {
+    VD_AGENT_CAP_MOUSE_STATE = (1 << 0),
+    VD_AGENT_CAP_MONITORS_CONFIG = (1 << 1),
+    VD_AGENT_CAP_REPLY = (1 << 2),
+    VD_AGENT_CAP_CLIPBOARD = (1 << 3),
+    VD_AGENT_CAP_DISPLAY_CONFIG = (1 << 4),
+    VD_AGENT_CAP_CLIPBOARD_BY_DEMAND = (1 << 5),
+    VD_AGENT_CAP_CLIPBOARD_SELECTION = (1 << 6),
+    VD_AGENT_CAP_SPARSE_MONITORS_CONFIG = (1 << 7),
+    VD_AGENT_CAP_GUEST_LINEEND_LF = (1 << 8),
+    VD_AGENT_CAP_GUEST_LINEEND_CRLF = (1 << 9),
+};
+
+static const value_string vd_agent_cap_vs[] = {
+    { VD_AGENT_CAP_MOUSE_STATE, "VD_AGENT_CAP_MOUSE_STATE" },
+    { VD_AGENT_CAP_MONITORS_CONFIG, "VD_AGENT_CAP_MONITORS_CONFIG" },
+    { VD_AGENT_CAP_REPLY, "VD_AGENT_CAP_REPLY" },
+    { VD_AGENT_CAP_CLIPBOARD, "VD_AGENT_CAP_CLIPBOARD" },
+    { VD_AGENT_CAP_DISPLAY_CONFIG, "VD_AGENT_CAP_DISPLAY_CONFIG" },
+    { VD_AGENT_CAP_CLIPBOARD_BY_DEMAND, "VD_AGENT_CAP_CLIPBOARD_BY_DEMAND" },
+    { VD_AGENT_CAP_CLIPBOARD_SELECTION, "VD_AGENT_CAP_CLIPBOARD_SELECTION" },
+    { VD_AGENT_CAP_SPARSE_MONITORS_CONFIG, "VD_AGENT_CAP_SPARSE_MONITORS_CONFIG" },
+    { VD_AGENT_CAP_GUEST_LINEEND_LF, "VD_AGENT_CAP_GUEST_LINEEND_LF" },
+    { VD_AGENT_CAP_GUEST_LINEEND_CRLF, "VD_AGENT_CAP_GUEST_LINEEND_CRLF" },
     { 0, NULL }
 };
 
-/* record channel client messages */
-#define SPICEC_RECORD_DATA        101
-#define SPICEC_RECORD_MODE        102
-#define SPICEC_RECORD_START_MARK  103
 
-static const value_string record_client_message_types[] = {
-    { SPICEC_RECORD_DATA,       "Client RECORD_DATA" },
-    { SPICEC_RECORD_MODE,       "Client RECORD_MODE" },
-    { SPICEC_RECORD_START_MARK, "Client RECORD_START_MARK" },
+enum {
+    VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS = (1 << 0)
+};
+
+static const value_string vd_agent_monitors_config_flag_vs[] = {
+    { VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS, "VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS"},
+    { 0, NULL }
+};
+
+enum {
+    VD_AGENT_SUCCESS = 1,
+    VD_AGENT_ERROR
+};
+
+static const value_string vd_agent_reply_error_vs[] = {
+    { VD_AGENT_SUCCESS, "SUCCESS"},
+    { VD_AGENT_ERROR, "ERROR"},
     { 0, NULL }
 };
 
 /* record channel capabilities - same as playback */
-#define SPICE_RECORD_CAP_CELT_0_5_1 0
-#define SPICE_RECORD_CAP_VOLUME 1
+enum {
+    SPICE_RECORD_CAP_CELT_0_5_1,
+    SPICE_RECORD_CAP_VOLUME
+};
 
-#define SPICE_RECORD_CAP_CELT_0_5_1_MASK (1 << SPICE_RECORD_CAP_CELT_0_5_1)
-#define SPICE_RECORD_CAP_VOLUME_MASK     (1 << SPICE_RECORD_CAP_VOLUME)
+enum {
+    SPICE_RECORD_CAP_CELT_0_5_1_MASK = (1 << SPICE_RECORD_CAP_CELT_0_5_1),
+    SPICE_RECORD_CAP_VOLUME_MASK = (1 << SPICE_RECORD_CAP_VOLUME)
+};
 
 /* display channel */
-#define SPICE_DISPLAY_CAP_SIZED_STREAM 0
-#define SPICE_DISPLAY_CAP_MONITORS_CONFIG 1
-#define SPICE_DISPLAY_CAP_COMPOSITE 2
-#define SPICE_DISPLAY_CAP_A8_SURFACE 3
-
-#define SPICE_DISPLAY_CAP_SIZED_STREAM_MASK    (1 << SPICE_DISPLAY_CAP_SIZED_STREAM)
-#define SPICE_DISPLAY_CAP_MONITORS_CONFIG_MASK (1 << SPICE_DISPLAY_CAP_MONITORS_CONFIG)
-#define SPICE_DISPLAY_CAP_COMPOSITE_MASK       (1 << SPICE_DISPLAY_CAP_COMPOSITE)
-#define SPICE_DISPLAY_CAP_A8_SURFACE_MASK      (1 << SPICE_DISPLAY_CAP_A8_SURFACE)
-
-/* display channel server messages */
-#define SPICE_DISPLAY_MODE                  101
-#define SPICE_DISPLAY_MARK                  102
-#define SPICE_DISPLAY_RESET                 103
-#define SPICE_DISPLAY_COPY_BITS             104
-#define SPICE_DISPLAY_INVAL_LIST            105
-#define SPICE_DISPLAY_INVAL_ALL_PIXMAPS     106
-#define SPICE_DISPLAY_INVAL_PALETTE         107
-#define SPICE_DISPLAY_INVAL_ALL_PALETTES    108
-#define SPICE_DISPLAY_STREAM_CREATE         122
-#define SPICE_DISPLAY_STREAM_DATA           123
-#define SPICE_DISPLAY_STREAM_CLIP           124
-#define SPICE_DISPLAY_STREAM_DESTROY        125
-#define SPICE_DISPLAY_STREAM_DESTROY_ALL    126
-#define SPICE_DISPLAY_DRAW_FILL             302
-#define SPICE_DISPLAY_DRAW_OPAQUE           303
-#define SPICE_DISPLAY_DRAW_COPY             304
-#define SPICE_DISPLAY_DRAW_BLEND            305
-#define SPICE_DISPLAY_DRAW_BLACKNESS        306
-#define SPICE_DISPLAY_DRAW_WHITENESS        307
-#define SPICE_DISPLAY_DRAW_INVERS           308
-#define SPICE_DISPLAY_DRAW_ROP3             309
-#define SPICE_DISPLAY_DRAW_STROKE           310
-#define SPICE_DISPLAY_DRAW_TEXT             311
-#define SPICE_DISPLAY_DRAW_TRANSPARENT      312
-#define SPICE_DISPLAY_DRAW_ALPHA_BLEND      313
-#define SPICE_DISPLAY_DRAW_SURFACE_CREATE   314
-#define SPICE_DISPLAY_DRAW_SURFACE_DESTROY  315
-#define SPICE_DISPLAY_STREAM_DATA_SIZED     316
-#define SPICE_DISPLAY_MONITORS_CONFIG       317
-#define SPICE_DISPLAY_DRAW_COMPOSITE        318
-
-static const value_string display_server_message_types[] = {
-    { SPICE_DISPLAY_MODE,                 "MODE" },
-    { SPICE_DISPLAY_MARK,                 "MARK" },
-    { SPICE_DISPLAY_RESET,                "RESET" },
-    { SPICE_DISPLAY_COPY_BITS,            "COPY_BITS" },
-    { SPICE_DISPLAY_INVAL_LIST,           "INVAL_LIST" },
-    { SPICE_DISPLAY_INVAL_ALL_PIXMAPS,    "INVAL_ALL_PIXMAPS" },
-    { SPICE_DISPLAY_INVAL_PALETTE,        "INVAL_PALETTE" },
-    { SPICE_DISPLAY_INVAL_ALL_PALETTES,   "INVAL_ALL_PALETTES" },
-    { SPICE_DISPLAY_STREAM_CREATE,        "STREAM_CREATE" },
-    { SPICE_DISPLAY_STREAM_DATA,          "STREAM_DATA"    },
-    { SPICE_DISPLAY_STREAM_CLIP,          "STREAM_CLIP"    },
-    { SPICE_DISPLAY_STREAM_DESTROY,       "STREAM_DESTROY"    },
-    { SPICE_DISPLAY_STREAM_DESTROY_ALL,   "STREAM_DESTROY_ALL"    },
-    { SPICE_DISPLAY_DRAW_FILL,            "DRAW_FILL"    },
-    { SPICE_DISPLAY_DRAW_OPAQUE,          "DRAW_OPAQUE" },
-    { SPICE_DISPLAY_DRAW_COPY,            "DRAW_COPY" },
-    { SPICE_DISPLAY_DRAW_BLEND,           "DRAW_BLEND" },
-    { SPICE_DISPLAY_DRAW_BLACKNESS,       "DRAW_BLACKNESS" },
-    { SPICE_DISPLAY_DRAW_WHITENESS,       "DRAW_WHITENESS" },
-    { SPICE_DISPLAY_DRAW_INVERS,          "DRAW_INVERS" },
-    { SPICE_DISPLAY_DRAW_ROP3,            "DRAW_ROP3" },
-    { SPICE_DISPLAY_DRAW_STROKE,          "DRAW_STROKE" },
-    { SPICE_DISPLAY_DRAW_TEXT,            "DRAW_TEXT" },
-    { SPICE_DISPLAY_DRAW_TRANSPARENT,     "DRAW_TRANSPARENT" },
-    { SPICE_DISPLAY_DRAW_ALPHA_BLEND,     "DRAW_ALPHA_BLEND" },
-    { SPICE_DISPLAY_DRAW_SURFACE_CREATE,  "DRAW_SURFACE_CREATE" },
-    { SPICE_DISPLAY_DRAW_SURFACE_DESTROY, "DRAW_SURFACE_DESTROY" },
-    { SPICE_DISPLAY_STREAM_DATA_SIZED,    "STREAM_DATA_SIZED" },
-    { SPICE_DISPLAY_MONITORS_CONFIG,      "MONITORS_CONFIG" },
-    { SPICE_DISPLAY_DRAW_COMPOSITE,       "DRAW_COMPOSITE" },
-    { 0, NULL }
+enum {
+    SPICE_DISPLAY_CAP_SIZED_STREAM,
+    SPICE_DISPLAY_CAP_MONITORS_CONFIG,
+    SPICE_DISPLAY_CAP_COMPOSITE,
+    SPICE_DISPLAY_CAP_A8_SURFACE,
 };
 
-
-#define TOP_DOWN    1
-static const value_string stream_flags[] = {
-    { 0,        "None" },
-    { TOP_DOWN, "TOP DOWN" },
-    { 0, NULL }
+enum {
+    SPICE_DISPLAY_CAP_SIZED_STREAM_MASK = (1 << SPICE_DISPLAY_CAP_SIZED_STREAM),
+    SPICE_DISPLAY_CAP_MONITORS_CONFIG_MASK = (1 << SPICE_DISPLAY_CAP_MONITORS_CONFIG),
+    SPICE_DISPLAY_CAP_COMPOSITE_MASK = (1 << SPICE_DISPLAY_CAP_COMPOSITE),
+    SPICE_DISPLAY_CAP_A8_SURFACE_MASK = (1 << SPICE_DISPLAY_CAP_A8_SURFACE)
 };
 
-#define MJPEG    1
-static const value_string stream_codec_types[] = {
-    { MJPEG, "MJPEG" },
-    { 0, NULL }
-};
-
-
-/* display channel client messages */
-#define SPICEC_DISPLAY_INIT    101
-static const value_string display_client_message_types[] = {
-    { SPICEC_DISPLAY_INIT, "Client DISPLAY INIT" },
-    { 0, NULL }
-};
+/* display channel */
 
 #define sizeof_RedcDisplayInit 14
 
 /* cursor channel */
-/* cursor channel server messages */
-#define SPICE_CURSOR_INIT         101
-#define SPICE_CURSOR_RESET        102
-#define SPICE_CURSOR_SET          103
-#define SPICE_CURSOR_MOVE         104
-#define SPICE_CURSOR_HIDE         105
-#define SPICE_CURSOR_TRAIL        106
-#define SPICE_CURSOR_INVAL_ONE    107
-#define SPICE_CURSOR_INVAL_ALL    108
-
 static const value_string cursor_visible_vs[] = {
     { 1, "Visible" },
     { 0, "Invisible" },
-    { 0, NULL }
-};
-
-static const value_string cursor_server_message_types[] = {
-    { SPICE_CURSOR_INIT,      "Server CURSOR_INIT" },
-    { SPICE_CURSOR_RESET,     "Server CURSOR_RESET" },
-    { SPICE_CURSOR_SET,       "Server CURSOR_SET" },
-    { SPICE_CURSOR_MOVE,      "Server CURSOR_MOVE" },
-    { SPICE_CURSOR_HIDE,      "Server CURSOR_HIDE" },
-    { SPICE_CURSOR_TRAIL,     "Server CURSOR_TRAIL" },
-    { SPICE_CURSOR_INVAL_ONE, "Server CURSOR_INVAL_ONE" },
-    { SPICE_CURSOR_INVAL_ALL, "Server CURSOR_INVAL_ALL" },
-    { 0, NULL }
-};
-
-/* cursor channel client messages */
-static const value_string cursor_client_message_types[] = {
-    { 0, NULL }
-};
-
-#define    SPICE_CURSOR_FLAGS_NONE       1
-#define    SPICE_CURSOR_FLAGS_CACHE_ME   2
-#define    SPICE_CURSOR_FLAGS_FROM_CACHE 4
-
-static const value_string cursor_flags_vs[] = {
-    { SPICE_CURSOR_FLAGS_NONE,       "NONE" },
-    { SPICE_CURSOR_FLAGS_CACHE_ME,   "CACHE_ME" },
-    { SPICE_CURSOR_FLAGS_FROM_CACHE, "FROM_CACHE" },
-    { 0, NULL }
-};
-
-#define SPICE_CURSOR_TYPE_ALPHA   0
-#define SPICE_CURSOR_TYPE_MONO    1
-#define SPICE_CURSOR_TYPE_COLOR4  2
-#define SPICE_CURSOR_TYPE_COLOR8  3
-#define SPICE_CURSOR_TYPE_COLOR16 4
-#define SPICE_CURSOR_TYPE_COLOR24 5
-#define SPICE_CURSOR_TYPE_COLOR32 6
-
-static const value_string cursor_type_vs[] = {
-    { SPICE_CURSOR_TYPE_ALPHA,   "CURSOR_TYPE_ALPHA" },
-    { SPICE_CURSOR_TYPE_MONO,    "CURSOR_TYPE_MONO" },
-    { SPICE_CURSOR_TYPE_COLOR4,  "CURSOR_TYPE_COLOR4" },
-    { SPICE_CURSOR_TYPE_COLOR8,  "CURSOR_TYPE_COLOR8" },
-    { SPICE_CURSOR_TYPE_COLOR16, "CURSOR_TYPE_COLOR16" },
-    { SPICE_CURSOR_TYPE_COLOR24, "CURSOR_TYPE_COLOR24" },
-    { SPICE_CURSOR_TYPE_COLOR32, "CURSOR_TYPE_COLOR32" },
     { 0, NULL }
 };
 
@@ -486,96 +272,9 @@ typedef struct {
 
 #define sizeof_CursorHeader 17
 
-#define SPICE_MOUSE_MODE_SERVER 1
-#define SPICE_MOUSE_MODE_CLIENT 2
-
-static const value_string spice_mouse_modes_vs[] = {
-    { SPICE_MOUSE_MODE_SERVER, "Server mouse" },
-    { SPICE_MOUSE_MODE_CLIENT, "Client mouse" },
-    { 0, NULL }
-};
-
 static const value_string spice_agent_vs[] = {
     { 0, "Disconnected" },
     { 1, "Connected" },
-    { 0, NULL }
-};
-
-#define SPICE_NOTIFY_SEVERITY_INFO  0
-#define SPICE_NOTIFY_SEVERITY_WARN  1
-#define SPICE_NOTIFY_SEVERITY_ERROR 2
-
-static const value_string spice_severity_vs[] = {
-    { SPICE_NOTIFY_SEVERITY_INFO,  "Info" },
-    { SPICE_NOTIFY_SEVERITY_WARN,  "Warning" },
-    { SPICE_NOTIFY_SEVERITY_ERROR, "Error" },
-    { 0, NULL }
-};
-
-#define SPICE_NOTIFY_VISIBILITY_LOW    0
-#define SPICE_NOTIFY_VISIBILITY_MEDIUM 1
-#define SPICE_NOTIFY_VISIBILITY_HIGH   2
-
-static const value_string spice_visibility_vs[] = {
-    { SPICE_NOTIFY_VISIBILITY_LOW,    "Low visibility" },
-    { SPICE_NOTIFY_VISIBILITY_MEDIUM, "Medium visibility" },
-    { SPICE_NOTIFY_VISIBILITY_HIGH,   "High visibility" },
-    { 0, NULL }
-};
-
-static const value_string spice_error_codes_vs[] = {
-    { 0, "OK"                     },
-    { 1, "ERROR"                  },
-    { 2, "INVALID_MAGIC"          },
-    { 3, "INVALID_DATA"           },
-    { 4, "VERSION_MISMATCH"       },
-    { 5, "NEED_SECURED"           },
-    { 6, "NEED_UNSECURED"         },
-    { 7, "PERMISSION_DENIED"      },
-    { 8, "BAD_CONNECTION_ID"      },
-    { 9, "CHANNEL_NOT_AVAILABLE"  },
-    { 0,  NULL }
-};
-
-/* Inputs channel */
-#define SPICEC_INPUTS_KEY_DOWN        101
-#define SPICEC_INPUTS_KEY_UP          102
-#define SPICEC_INPUTS_KEY_MODIFIERS   103
-#define SPICEC_INPUTS_MOUSE_MOTION    111
-#define SPICEC_INPUTS_MOUSE_POSITION  112
-#define SPICEC_INPUTS_MOUSE_PRESS     113
-#define SPICEC_INPUTS_MOUSE_RELEASE   114
-#define SPICE_INPUTS_INIT             101
-#define SPICE_INPUTS_KEY_MODIFIERS    102
-#define SPICE_INPUTS_MOUSE_MOTION_ACK 111
-
-static const value_string inputs_client_message_types[] = {
-    { SPICEC_INPUTS_KEY_DOWN,        "Client KEY_DOWN" },
-    { SPICEC_INPUTS_KEY_UP,          "Client KEY_UP" },
-    { SPICEC_INPUTS_KEY_MODIFIERS,   "Client KEY_MODIFIERS" },
-    { SPICEC_INPUTS_MOUSE_MOTION,    "Client MOUSE_MOTION" },
-    { SPICEC_INPUTS_MOUSE_POSITION,  "Client MOUSE_POSITION" },
-    { SPICEC_INPUTS_MOUSE_PRESS,     "Client MOUSE_PRESS" },
-    { SPICEC_INPUTS_MOUSE_RELEASE,   "Client MOUSE_RELEASE" },
-    { 0, NULL }
-};
-
-static const value_string inputs_server_message_types[] = {
-    { SPICE_INPUTS_INIT,             "Server INPUTS_INIT" },
-    { SPICE_INPUTS_KEY_MODIFIERS,    "Server KEY_MODIFIERS" },
-    { SPICE_INPUTS_MOUSE_MOTION_ACK, "Server MOUSE_MOTION_ACK" },
-    { 0, NULL }
-};
-
-#define SPICE_SCROLL_LOCK_MODIFIER 1
-#define SPICE_NUM_LOCK_MODIFIER    2
-#define SPICE_CAPS_LOCK_MODIFIER   4
-
-static const value_string input_modifiers_types[] = {
-    { 0, "None" },
-    { SPICE_SCROLL_LOCK_MODIFIER, "Scroll lock" },
-    { SPICE_NUM_LOCK_MODIFIER,    "Num lock" },
-    { SPICE_CAPS_LOCK_MODIFIER,   "CAPS lock" },
     { 0, NULL }
 };
 
@@ -607,14 +306,6 @@ typedef struct {
 } SpiceRect;
 
 #define sizeof_SpiceRect 16
-#define CLIP_TYPE_NONE    0
-#define CLIP_TYPE_RECTS   1
-
-static const value_string clip_types_vs[] = {
-    { CLIP_TYPE_NONE,  "NONE" },
-    { CLIP_TYPE_RECTS, "RECTS" },
-    { 0, NULL }
-};
 
 typedef struct {
     guint8 type;
@@ -644,93 +335,18 @@ typedef struct {
     gint16 y;
 } point16_t;
 
-#define    SPICE_BRUSH_TYPE_NONE    0
-#define    SPICE_BRUSH_TYPE_SOLID   1
-#define    SPICE_BRUSH_TYPE_PATTERN 2
-
-static const value_string brush_types_vs[] = {
-    { SPICE_BRUSH_TYPE_NONE,    "NONE" },
-    { SPICE_BRUSH_TYPE_SOLID,   "SOLID" },
-    { SPICE_BRUSH_TYPE_PATTERN, "PATTERN" },
-    { 0, NULL }
-};
-
-static const value_string Mask_flags_vs[] = {
-    { 0, "MASK_FLAG_INVERS" },
-    { 0, NULL }
-};
-
 #define sizeof_Mask 13
-
-static const value_string scale_mode_vs[] = {
-    { 0, "IMAGE_SCALE_INTERPOLATE" },
-    { 1, "IMAGE_SCALE_NEAREST" },
-    { 0, NULL }
-};
 
 #define sizeof_ImageDescriptor 18
 
-#define IMAGE_TYPE_BITMAP                 0
-#define IMAGE_TYPE_QUIC                   1
-#define IMAGE_TYPE_RESERVED               2
-#define IMAGE_TYPE_LZ_PLT               100
-#define IMAGE_TYPE_LZ_RGB               101
-#define IMAGE_TYPE_GLZ_RGB              102
-#define IMAGE_TYPE_FROM_CACHE           103
-#define IMAGE_TYPE_SURFACE              104
-#define IMAGE_TYPE_JPEG                 105
-#define IMAGE_TYPE_FROM_CACHE_LOSSLESS  106
-#define IMAGE_TYPE_ZLIB_GLZ_RGB         107
-#define IMAGE_TYPE_JPEG_ALPHA           108
-
-static const value_string image_type_vs[] = {
-    { IMAGE_TYPE_BITMAP,              "BITMAP" },
-    { IMAGE_TYPE_QUIC,                "QUIC" },
-    { IMAGE_TYPE_LZ_PLT,              "LZ_PLT" },
-    { IMAGE_TYPE_LZ_RGB,              "LZ_RGB" },
-    { IMAGE_TYPE_GLZ_RGB,             "GLZ_RGB" },
-    { IMAGE_TYPE_FROM_CACHE,          "FROM_CACHE" },
-    { IMAGE_TYPE_SURFACE,             "SURFACE" },
-    { IMAGE_TYPE_JPEG,                "JPEG" },
-    { IMAGE_TYPE_FROM_CACHE_LOSSLESS, "FROM_CACHE_LOSSLESS" },
-    { IMAGE_TYPE_ZLIB_GLZ_RGB,        "ZLIB_GLZ_RGB" },
-    { IMAGE_TYPE_JPEG_ALPHA,          "JPEG_ALPHA" },
-    { 0, NULL }
+enum {
+    QUIC_IMAGE_TYPE_INVALID,
+    QUIC_IMAGE_TYPE_GRAY,
+    QUIC_IMAGE_TYPE_RGB16,
+    QUIC_IMAGE_TYPE_RGB24,
+    QUIC_IMAGE_TYPE_RGB32,
+    QUIC_IMAGE_TYPE_RGBA
 };
-
-/* FIXME - those flags should be bit-wise, I guess! */
-#define IMAGE_FLAGS_CACHE_ME      (1 << 0)
-#define IMAGE_FLAGS_HIGH_BITS_SET (1 << 1)
-#define IMAGE_FLAGS_REPLACE_ME    (1 << 2)
-static const value_string image_flags_vs[] = {
-    { 0,                         "None" },
-    { IMAGE_FLAGS_CACHE_ME,      "CACHE_ME" },
-    { IMAGE_FLAGS_HIGH_BITS_SET, "HIGH_BITS_SET" },
-    { IMAGE_FLAGS_REPLACE_ME,    "REPLACE_ME" },
-    { 0, NULL }
-};
-
-static const value_string rop_descriptor_vs[] = {
-    { (1 << 0), "SPICE_ROPD_INVERS_SRC" },
-    { (1 << 1), "SPICE_ROPD_INVERS_BRUSH" },
-    { (1 << 2), "SPICE_ROPD_INVERS_DEST" },
-    { (1 << 3), "SPICE_ROPD_OP_PUT" },
-    { (1 << 4), "SPICE_ROPD_OP_OR" },
-    { (1 << 5), "SPICE_ROPD_OP_AND" },
-    { (1 << 6), "SPICE_ROPD_OP_XOR" },
-    { (1 << 7), "SPICE_ROPD_OP_BLACKNESS" },
-    { (1 << 8), "SPICE_ROPD_OP_WHITENESS" },
-    { (1 << 9), "SPICE_ROPD_OP_INVERS" },
-    { (1 << 10), "SPICE_ROPD_INVERS_RES" },
-    { 0, NULL }
-};
-
-#define QUIC_IMAGE_TYPE_INVALID 0
-#define QUIC_IMAGE_TYPE_GRAY    1
-#define QUIC_IMAGE_TYPE_RGB16   2
-#define QUIC_IMAGE_TYPE_RGB24   3
-#define QUIC_IMAGE_TYPE_RGB32   4
-#define QUIC_IMAGE_TYPE_RGBA    5
 
 static const value_string quic_type_vs[] = {
     { QUIC_IMAGE_TYPE_INVALID, "INVALID" },
@@ -742,17 +358,20 @@ static const value_string quic_type_vs[] = {
     { 0, NULL }
 };
 
-#define LZ_IMAGE_TYPE_INVALID  0
-#define LZ_IMAGE_TYPE_PLT1_LE  1
-#define LZ_IMAGE_TYPE_PLT1_BE  2      /* PLT stands for palette */
-#define LZ_IMAGE_TYPE_PLT4_LE  3
-#define LZ_IMAGE_TYPE_PLT4_BE  4
-#define LZ_IMAGE_TYPE_PLT8     5
-#define LZ_IMAGE_TYPE_RGB16    6
-#define LZ_IMAGE_TYPE_RGB24    7
-#define LZ_IMAGE_TYPE_RGB32    8
-#define LZ_IMAGE_TYPE_RGBA     9
-#define LZ_IMAGE_TYPE_XXXA    10
+enum {
+    LZ_IMAGE_TYPE_INVALID,
+    LZ_IMAGE_TYPE_PLT1_LE,
+    LZ_IMAGE_TYPE_PLT1_BE,
+    LZ_IMAGE_TYPE_PLT4_LE,
+    LZ_IMAGE_TYPE_PLT4_BE,
+    LZ_IMAGE_TYPE_PLT8,
+    LZ_IMAGE_TYPE_RGB16,
+    LZ_IMAGE_TYPE_RGB24,
+    LZ_IMAGE_TYPE_RGB32,
+    LZ_IMAGE_TYPE_RGBA,
+    LZ_IMAGE_TYPE_XXXA
+};
+
 static const value_string LzImage_type_vs[] = {
     { LZ_IMAGE_TYPE_INVALID, "INVALID" },
     { LZ_IMAGE_TYPE_PLT1_LE, "PLT1_LE" },
@@ -768,40 +387,21 @@ static const value_string LzImage_type_vs[] = {
     { 0, NULL }
 };
 
-#define PIXMAP_FORMAT_1BIT_LE 1
-#define PIXMAP_FORMAT_1BIT_BE 2
-#define PIXMAP_FORMAT_4BIT_LE 3
-#define PIXMAP_FORMAT_4BIT_BE 4
-#define PIXMAP_FORMAT_8BIT    5
-#define PIXMAP_FORMAT_16BIT   6
-#define PIXMAP_FORMAT_24BIT   7
-#define PIXMAP_FORMAT_32BIT   8
-#define PIXMAP_FORMAT_RGBA    9
-
-static const value_string Pixmap_types_vs[] = {
-    { PIXMAP_FORMAT_1BIT_LE, "1BIT_LE" },
-    { PIXMAP_FORMAT_1BIT_BE, "1BIT_BE" },
-    { PIXMAP_FORMAT_4BIT_LE, "4BIT_LE" },
-    { PIXMAP_FORMAT_4BIT_BE, "4BIT_BE" },
-    { PIXMAP_FORMAT_8BIT,    "8BIT" },
-    { PIXMAP_FORMAT_16BIT,   "16BIT" },
-    { PIXMAP_FORMAT_24BIT,   "24BIT" },
-    { PIXMAP_FORMAT_32BIT,   "32BIT" },
-    { PIXMAP_FORMAT_RGBA,    "RGBA" },
-    { 0, NULL }
-};
-
 #define sizeof_SpiceHead 28
 
-#define SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION 0
-#define SPICE_COMMON_CAP_AUTH_SPICE              1
-#define SPICE_COMMON_CAP_AUTH_SASL               2
-#define SPICE_COMMON_CAP_MINI_HEADER             3
+enum {
+    SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION,
+    SPICE_COMMON_CAP_AUTH_SPICE,
+    SPICE_COMMON_CAP_AUTH_SASL,
+    SPICE_COMMON_CAP_MINI_HEADER
+};
 
-#define SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK (1 << SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION) /* 0x1 */
-#define SPICE_COMMON_CAP_AUTH_SPICE_MASK              (1 << SPICE_COMMON_CAP_AUTH_SPICE)              /* 0x2 */
-#define SPICE_COMMON_CAP_AUTH_SASL_MASK               (1 << SPICE_COMMON_CAP_AUTH_SASL)               /* 0x4 */
-#define SPICE_COMMON_CAP_MINI_HEADER_MASK             (1 << SPICE_COMMON_CAP_MINI_HEADER)
+enum {
+    SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK = (1 << SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION),
+    SPICE_COMMON_CAP_AUTH_SPICE_MASK = (1 << SPICE_COMMON_CAP_AUTH_SPICE),
+    SPICE_COMMON_CAP_AUTH_SASL_MASK = (1 << SPICE_COMMON_CAP_AUTH_SASL),
+    SPICE_COMMON_CAP_MINI_HEADER_MASK = (1 << SPICE_COMMON_CAP_MINI_HEADER)
+};
 
 static const value_string spice_auth_select_vs[] = {
     { SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION, "Auth Selection" },
@@ -873,6 +473,7 @@ static int hf_spice_magic  = -1;
 static int hf_major_version  = -1;
 static int hf_minor_version  = -1;
 static int hf_message_size  = -1;
+static int hf_message_type  = -1;
 static int hf_conn_id  = -1;
 static int hf_channel_type  = -1;
 static int hf_channel_id  = -1;
@@ -889,6 +490,7 @@ static int hf_link_server = -1;
 static int hf_ticket_client = -1;
 static int hf_auth_select_client = -1;
 static int hf_ticket_server = -1;
+static int hf_main_num_channels = -1;
 static int hf_main_cap_semi_migrate = -1;
 static int hf_main_cap_vm_name_uuid = -1;
 static int hf_main_cap_agent_connected_tokens = -1;
@@ -899,22 +501,31 @@ static int hf_common_cap_auth_select = -1;
 static int hf_common_cap_auth_spice = -1;
 static int hf_common_cap_auth_sasl = -1;
 static int hf_common_cap_mini_header = -1;
-static int hf_playback_record_mode_timstamp = -1;
-static int hf_playback_record_mode = -1;
+static int hf_audio_timestamp = -1;
+static int hf_audio_mode = -1;
+static int hf_audio_channels = -1;
+static int hf_audio_format = -1;
+static int hf_audio_frequency = -1;
+static int hf_audio_volume = -1;
+static int hf_audio_mute = -1;
+static int hf_audio_latency = -1;
 static int hf_red_set_ack_generation = -1;
 static int hf_red_set_ack_window = -1;
 static int hf_Clip_type = -1;
 static int hf_Mask_flag = -1;
-static int hf_Mask_bitmap = -1;
 static int hf_display_rop_descriptor = -1;
 static int hf_display_scale_mode = -1;
 static int hf_display_stream_id = -1;
+static int hf_display_stream_report_unique_id = -1;
+static int hf_display_stream_report_max_window_size = -1;
+static int hf_display_stream_report_timeout = -1;
 static int hf_display_stream_width = -1;
 static int hf_display_stream_height = -1;
 static int hf_display_stream_src_width = -1;
 static int hf_display_stream_src_height = -1;
 static int hf_display_stream_data_size = -1;
 static int hf_display_stream_codec_type = -1;
+static int hf_display_stream_stamp = -1;
 static int hf_display_stream_flags = -1;
 static int hf_red_ping_id = -1;
 static int hf_red_timestamp = -1;
@@ -962,13 +573,23 @@ static int hf_pixmap_stride = -1;
 static int hf_pixmap_address = -1;
 static int hf_pixmap_format = -1;
 static int hf_pixmap_flags = -1;
-static int hf_keyboard_bits = -1;
+static int hf_keyboard_modifiers = -1;
+static int hf_keyboard_modifier_scroll_lock = -1;
+static int hf_keyboard_modifier_num_lock = -1;
+static int hf_keyboard_modifier_caps_lock = -1;
 static int hf_keyboard_code = -1;
 static int hf_rectlist_size = -1;
+static int hf_migrate_dest_port = -1;
+static int hf_migrate_dest_sport = -1;
+static int hf_migrate_src_mig_version = -1;
 static int hf_session_id = -1;
 static int hf_display_channels_hint = -1;
 static int hf_supported_mouse_modes = -1;
 static int hf_current_mouse_mode = -1;
+static int hf_supported_mouse_modes_flags = -1;
+static int hf_supported_mouse_modes_flag_client = -1;
+static int hf_supported_mouse_modes_flag_server = -1;
+static int hf_current_mouse_mode_flags = -1;
 static int hf_agent_connected = -1;
 static int hf_agent_tokens = -1;
 static int hf_agent_protocol = -1;
@@ -978,6 +599,12 @@ static int hf_agent_size = -1;
 static int hf_agent_token = -1;
 static int hf_agent_clipboard_selection = -1;
 static int hf_agent_clipboard_type = -1;
+static int hf_agent_num_monitors = -1;
+static int hf_agent_monitor_height = -1;
+static int hf_agent_monitor_width = -1;
+static int hf_agent_monitor_depth = -1;
+static int hf_agent_monitor_x = -1;
+static int hf_agent_monitor_y = -1;
 static int hf_multi_media_time = -1;
 static int hf_ram_hint = -1;
 static int hf_button_state = -1;
@@ -1001,8 +628,9 @@ static int hf_display_cap_sized_stream = -1;
 static int hf_display_cap_monitors_config = -1;
 static int hf_display_cap_composite = -1;
 static int hf_display_cap_a8_surface = -1;
-static int hf_vm_uuid = -1;
-static int hf_vm_name = -1;
+static int hf_main_uuid = -1;
+static int hf_main_name = -1;
+static int hf_main_name_len = -1;
 static int hf_display_monitor_config_count = -1;
 static int hf_display_monitor_config_max_allowed = -1;
 static int hf_display_head_id = -1;
@@ -1024,7 +652,32 @@ static int hf_point16_x = -1;
 static int hf_point16_y = -1;
 static int hf_severity = -1;
 static int hf_visibility = -1;
+static int hf_notify_code = -1;
+static int hf_notify_message_len = -1;
+static int hf_notify_message = -1;
 static int hf_num_glyphs = -1;
+static int hf_port_opened = -1;
+static int hf_port_event = -1;
+static int hf_raw_data = -1;
+static int hf_display_inval_list_count = -1;
+static int hf_resource_type = -1;
+static int hf_resource_id = -1;
+static int hf_ref_image = -1;
+static int hf_ref_string = -1;
+static int hf_vd_agent_caps_request = -1;
+static int hf_vd_agent_cap_mouse_state = -1;
+static int hf_vd_agent_cap_monitors_config = -1;
+static int hf_vd_agent_cap_reply = -1;
+static int hf_vd_agent_cap_clipboard = -1;
+static int hf_vd_agent_cap_display_config = -1;
+static int hf_vd_agent_cap_clipboard_by_demand = -1;
+static int hf_vd_agent_cap_clipboard_selection = -1;
+static int hf_vd_agent_cap_sparse_monitors_config = -1;
+static int hf_vd_agent_cap_guest_lineend_lf = -1;
+static int hf_vd_agent_cap_guest_lineend_crlf = -1;
+static int hf_vd_agent_monitors_config_flag_use_pos = -1;
+static int hf_vd_agent_reply_type = -1;
+static int hf_vd_agent_reply_error = -1;
 
 static expert_field ei_spice_decompress_error = EI_INIT;
 
@@ -1056,12 +709,27 @@ dissect_SpiceHead(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint16
     return offset;
 }
 
+#define sizeof_AgentMonitorConfig 20
 static guint32
-dissect_ID(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
+dissect_AgentMonitorConfig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint16 num)
 {
-    const guint32 id = tvb_get_letohl(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4, "ID: %u (0x%x)", id, id);
-    return id;
+    proto_item *ti;
+    proto_tree *subtree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, sizeof_AgentMonitorConfig, "Monitor Config #%u", num);
+    subtree = proto_item_add_subtree(ti, ett_SpiceHead);
+    proto_tree_add_item(subtree, hf_agent_monitor_height, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(subtree, hf_agent_monitor_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(subtree, hf_agent_monitor_depth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(subtree, hf_agent_monitor_x, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(subtree, hf_agent_monitor_y, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    return offset;
 }
 
 /* returns the pixmap size in bytes */
@@ -1535,39 +1203,39 @@ dissect_Image(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
     offset += (int)sizeof_ImageDescriptor;
 
     switch (type) {
-        case IMAGE_TYPE_QUIC:
-            ImageSize = dissect_ImageQuic(tvb, tree, offset);
-            break;
-        case IMAGE_TYPE_GLZ_RGB:
-            ImageSize = dissect_ImageGLZ_RGB(tvb, tree, offset, 0);
-            break;
-        case IMAGE_TYPE_LZ_RGB:
-            ImageSize = dissect_ImageLZ_RGB(tvb, tree, offset);
-            break;
-        case IMAGE_TYPE_BITMAP:
+        case SPICE_IMAGE_TYPE_BITMAP:
             ImageSize = dissect_Pixmap(tvb, tree, offset);
             break;
-        case IMAGE_TYPE_FROM_CACHE:
-            proto_tree_add_text(tree, tvb, offset, 0, "Image from Cache");
+        case SPICE_IMAGE_TYPE_QUIC:
+            ImageSize = dissect_ImageQuic(tvb, tree, offset);
             break;
-        case IMAGE_TYPE_FROM_CACHE_LOSSLESS:
-            proto_tree_add_text(tree, tvb, offset, 0, "Image from Cache - lossless");
-            break;
-        case IMAGE_TYPE_ZLIB_GLZ_RGB:
-            ImageSize = dissect_ImageZLIB_GLZ(tvb, tree, pinfo, offset);
-            break;
-        case IMAGE_TYPE_JPEG:
-            ImageSize = dissect_ImageJPEG(tvb, tree, pinfo, offset);
-            break;
-        case IMAGE_TYPE_JPEG_ALPHA:
-            ImageSize = dissect_ImageJPEG_Alpha(tvb, tree, pinfo, offset);
-            break;
-        case IMAGE_TYPE_LZ_PLT:
+        case SPICE_IMAGE_TYPE_LZ_PLT:
             ImageSize = dissect_ImageLZ_PLT(tvb, tree, offset);
             break;
-        case IMAGE_TYPE_SURFACE:
+        case SPICE_IMAGE_TYPE_LZ_RGB:
+            ImageSize = dissect_ImageLZ_RGB(tvb, tree, offset);
+            break;
+        case SPICE_IMAGE_TYPE_GLZ_RGB:
+            ImageSize = dissect_ImageGLZ_RGB(tvb, tree, offset, 0);
+            break;
+        case SPICE_IMAGE_TYPE_FROM_CACHE:
+            proto_tree_add_text(tree, tvb, offset, 0, "Image from Cache");
+            break;
+        case SPICE_IMAGE_TYPE_SURFACE:
             ImageSize = 4; /* surface ID */
             proto_tree_add_text(tree, tvb, offset, ImageSize, "Surface ID: %u", tvb_get_letohl(tvb, offset));
+            break;
+        case SPICE_IMAGE_TYPE_JPEG:
+            ImageSize = dissect_ImageJPEG(tvb, tree, pinfo, offset);
+            break;
+        case SPICE_IMAGE_TYPE_FROM_CACHE_LOSSLESS:
+            proto_tree_add_text(tree, tvb, offset, 0, "Image from Cache - lossless");
+            break;
+        case SPICE_IMAGE_TYPE_ZLIB_GLZ_RGB:
+            ImageSize = dissect_ImageZLIB_GLZ(tvb, tree, pinfo, offset);
+            break;
+        case SPICE_IMAGE_TYPE_JPEG_ALPHA:
+            ImageSize = dissect_ImageJPEG_Alpha(tvb, tree, pinfo, offset);
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown image type - cannot dissect");
@@ -1712,7 +1380,7 @@ dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
         offset += 1;
         dissect_POINT32(tvb, Mask_tree, offset);
         offset += (int)sizeof(point32_t);
-        proto_tree_add_item(Mask_tree, hf_Mask_bitmap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(Mask_tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         proto_item_set_len(ti, sizeof_Mask + sizeof_ImageDescriptor);
         dissect_ImageDescriptor(tvb, Mask_tree, offset);
@@ -1722,7 +1390,7 @@ dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
         offset += 1;
         proto_tree_add_text(Mask_tree, tvb, offset, sizeof(point32_t), "Point - value irrelevant as bitmap address is 0");
         offset += (int)sizeof(point32_t);
-        proto_tree_add_item(Mask_tree, hf_Mask_bitmap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(Mask_tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     }
     return sizeof_Mask;
 }
@@ -1752,7 +1420,7 @@ dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
             /* FIXME: this is supposed to be the offset to the image to be used as the pattern.        */
             /* For now the hack is that callers check if the returned size was not 5 (therefore SOLID, */
             /* it's a pattern and later on dissect the image. That's bad. Really. */
-            dissect_ID(tvb, brush_tree, offset);
+            proto_tree_add_item(brush_tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             dissect_POINT32(tvb, brush_tree, offset);
             return (1 + 4 + 8);
@@ -1788,7 +1456,7 @@ dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     offset += (int)sizeof_SpiceRect;
     clip_type = dissect_Clip(tvb, DisplayBase_tree, offset);
     offset += (int)sizeof_Clip;
-    if (clip_type == CLIP_TYPE_RECTS) {
+    if (clip_type == SPICE_CLIP_TYPE_RECTS) {
         clip_size = dissect_RectList(tvb, DisplayBase_tree, offset);
         proto_item_set_len(ti, sizeof_DisplayBase + clip_size);
         return sizeof_DisplayBase + clip_size;
@@ -1796,55 +1464,99 @@ dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     return sizeof_DisplayBase;
 }
 
+
+#define sizeof_ResourceId 9
+static guint32
+dissect_SpiceResourceId(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint16 count)
+{
+    proto_item *ti;
+    proto_tree *resource_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, sizeof_ResourceId, "Resource #%d", count);
+    resource_tree = proto_item_add_subtree(ti, ett_cursor_header);
+    proto_tree_add_item(resource_tree, hf_resource_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(resource_tree, hf_resource_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+
+    return sizeof_ResourceId;
+}
+
+
 static const gchar* get_message_type_string(const guint16 message_type, const spice_conversation_t *spice_info,
                                             const gboolean client_message)
 {
 
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
         if (client_message) {
-            return val_to_str_const(message_type, common_client_message_types, "Unknown client message");
+            return val_to_str_const(message_type, spice_msgc_vs, "Unknown client message");
         } else {
-            return val_to_str_const(message_type, common_server_message_types, "Unknown server message");
+            return val_to_str_const(message_type, spice_msg_vs, "Unknown server message");
         }
     }
 
     switch (spice_info->channel_type) {
-        case SPICE_CHANNEL_PLAYBACK:
-            return val_to_str_const(message_type, playback_server_message_types, "Unknown playback channel server message");
-            break;
-        case SPICE_CHANNEL_RECORD:
-            if (client_message) {
-                return val_to_str_const(message_type, record_client_message_types, "Unknown record channel client message");
-            } else {
-                return val_to_str_const(message_type, record_server_message_types, "Unknown record channel server message");
-            }
-            break;
         case SPICE_CHANNEL_MAIN:
             if (client_message) {
-                return val_to_str_const(message_type, main_client_message_types, "Unknown main channel client message");
+                return val_to_str_const(message_type, spice_msgc_main_vs, "Unknown main channel client message");
             } else {
-                return val_to_str_const(message_type, main_server_message_types, "Unknown main channel server message");
-            }
-            break;
-        case SPICE_CHANNEL_CURSOR:
-            if (client_message) {
-                return val_to_str_const(message_type, cursor_client_message_types, "Unknown cursor channel client message");
-            } else {
-                return val_to_str_const(message_type, cursor_server_message_types, "Unknown cursor channel server message");
+                return val_to_str_const(message_type, spice_msg_main_vs, "Unknown main channel server message");
             }
             break;
         case SPICE_CHANNEL_DISPLAY:
             if (client_message) {
-                return val_to_str_const(message_type, display_client_message_types, "Unknown display channel client message");
+                return val_to_str_const(message_type, spice_msgc_display_vs, "Unknown display channel client message");
             } else {
-                return val_to_str_const(message_type, display_server_message_types, "Unknown display channel server message");
+                return val_to_str_const(message_type, spice_msg_display_vs, "Unknown display channel server message");
             }
             break;
         case SPICE_CHANNEL_INPUTS:
             if (client_message) {
-                return val_to_str_const(message_type, inputs_client_message_types, "Unknown inputs channel client message");
+                return val_to_str_const(message_type, spice_msgc_inputs_vs, "Unknown inputs channel client message");
             } else {
-                return val_to_str_const(message_type, inputs_server_message_types, "Unknown inputs channel server message");
+                return val_to_str_const(message_type, spice_msg_inputs_vs, "Unknown inputs channel server message");
+            }
+            break;
+        case SPICE_CHANNEL_CURSOR:
+            if (client_message) {
+                return val_to_str_const(message_type, NULL, "Unknown cursor channel client message");
+            } else {
+                return val_to_str_const(message_type, spice_msg_cursor_vs, "Unknown cursor channel server message");
+            }
+            break;
+        case SPICE_CHANNEL_PLAYBACK:
+            return val_to_str_const(message_type, spice_msg_playback_vs, "Unknown playback channel server message");
+            break;
+        case SPICE_CHANNEL_RECORD:
+            if (client_message) {
+                return val_to_str_const(message_type, spice_msgc_record_vs, "Unknown record channel client message");
+            } else {
+                return val_to_str_const(message_type, spice_msg_record_vs, "Unknown record channel server message");
+            }
+            break;
+        case SPICE_CHANNEL_TUNNEL:
+            if (client_message) {
+                return val_to_str_const(message_type, spice_msgc_tunnel_vs, "Unknown tunnel channel client message");
+            } else {
+                return val_to_str_const(message_type, spice_msg_tunnel_vs, "Unknown tunnel channel server message");
+            }
+            break;
+        case SPICE_CHANNEL_SMARTCARD:
+            if (client_message) {
+                return val_to_str_const(message_type, spice_msgc_smartcard_vs, "Unknown smartcard channel client message");
+            } else {
+                return val_to_str_const(message_type, spice_msg_smartcard_vs, "Unknown smartcard channel server message");
+            }
+            break;
+        case SPICE_CHANNEL_USBREDIR:
+            if (client_message) {
+                const value_string *values = NULL;
+                if (message_type < SPICE_MSG_END_SPICEVMC)
+                    values = spice_msg_spicevmc_vs;
+                return val_to_str_const(message_type, values, "Unknown usbredir channel client message");
+            } else {
+                const value_string *values = NULL;
+                if (message_type < SPICE_MSGC_END_SPICEVMC)
+                    values = spice_msgc_spicevmc_vs;
+                return val_to_str_const(message_type, values, "Unknown usbredir channel server message");
             }
             break;
         default:
@@ -1856,8 +1568,13 @@ static void
 dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
                                const gboolean client_message, const guint16 message_type, guint32 offset)
 {
+    proto_item* ti;
+    proto_tree* subtree;
+
     if (tree) {
-        proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
+        ti = proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
+        subtree = proto_item_add_subtree(ti, ett_common_client_message);
+        proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     }
@@ -1867,12 +1584,17 @@ static void
 dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
                           const gboolean client_message, const guint16 message_type, guint32 *sublist_size, guint32 offset)
 {
+    proto_item* ti;
+    proto_tree* subtree;
     *sublist_size = tvb_get_letohl(tvb, offset + 14);
 
     if (tree) {
         proto_tree_add_item(tree, hf_serial, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
-        proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
+        ti = proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
+        subtree = proto_item_add_subtree(ti, ett_common_client_message);
+        proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
         offset += 2;
         proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -1884,31 +1606,23 @@ dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversat
 static guint32
 dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *client_message_tree;
-
     switch (message_type) {
-        case SPICEC_ACK_SYNC:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client ACK_SYNC message");
-            client_message_tree = proto_item_add_subtree(ti, ett_common_client_message);
-            proto_tree_add_item(client_message_tree, hf_red_set_ack_generation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case SPICE_MSGC_ACK_SYNC:
+            proto_tree_add_item(tree, hf_red_set_ack_generation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICEC_ACK:
-            proto_tree_add_text(tree, tvb, offset, 0, "Client ACK message");
+        case SPICE_MSGC_ACK:
             break;
-        case SPICEC_PONG:
-            ti = proto_tree_add_text(tree, tvb, offset, 12, "Client PONG message");
-            client_message_tree = proto_item_add_subtree(ti, ett_common_client_message);
-            proto_tree_add_item(client_message_tree, hf_red_ping_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case SPICE_MSGC_PONG:
+            proto_tree_add_item(tree, hf_red_ping_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(client_message_tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             break;
         /*
-        case SPICEC_MIGRATE_FLUSH_MARK:
-        case SPICEC_MIGRATE_DATA:
-        case SPICEC_DISCONNECTING:
+        case SPICE_MSGC_MIGRATE_FLUSH_MARK:
+        case SPICE_MSGC_MIGRATE_DATA:
+        case SPICE_MSGC_DISCONNECTING:
         */
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown common client message - cannot dissect");
@@ -1921,55 +1635,46 @@ dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guin
 static guint32
 dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset, const guint32 total_message_size)
 {
-    proto_item *ti = NULL;
-    proto_tree *server_message_tree;
     guint32     message_len;
 
     switch (message_type) {
         /*
-        case SPICE_MIGRATE:
-        case SPICE_MIGRATE_DATA:
-        case SPICE_WAIT_FOR_CHANNELS:
-        case SPICE_DISCONNECTING:
+        case SPICE_MSG_MIGRATE:
+        case SPICE_MSG_MIGRATE_DATA:
+        case SPICE_MSG_WAIT_FOR_CHANNELS:
+        case SPICE_MSG_DISCONNECTING:
         */
-        case SPICE_SET_ACK:
-            ti = proto_tree_add_text(tree, tvb, offset, 8, "Server SET_ACK message");
-            server_message_tree = proto_item_add_subtree(ti, ett_common_server_message);
-            proto_tree_add_item(server_message_tree, hf_red_set_ack_generation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case SPICE_MSG_SET_ACK:
+            proto_tree_add_item(tree, hf_red_set_ack_generation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(server_message_tree, hf_red_set_ack_window, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_red_set_ack_window, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_PING:
-            ti = proto_tree_add_text(tree, tvb, offset, 12, "Server PING message");
-            server_message_tree = proto_item_add_subtree(ti, ett_common_server_message);
-            proto_tree_add_item(server_message_tree, hf_red_ping_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case SPICE_MSG_PING:
+            proto_tree_add_item(tree, hf_red_ping_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(server_message_tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             if (total_message_size > 12) {
-                proto_tree_add_text(server_message_tree, tvb, offset, total_message_size - 12,
+                proto_tree_add_text(tree, tvb, offset, total_message_size - 12,
                                     "PING DATA (%d bytes)", total_message_size - 12);
                 offset += (total_message_size - 12);
             }
             break;
-        case SPICE_NOTIFY:
-            ti = proto_tree_add_text(tree, tvb, offset, 12, "Server NOTIFY message");
-            server_message_tree = proto_item_add_subtree(ti, ett_common_server_message);
-            proto_tree_add_item(server_message_tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        case SPICE_MSG_NOTIFY:
+            proto_tree_add_item(tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
-            proto_tree_add_item(server_message_tree, hf_severity, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_severity, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(server_message_tree, hf_visibility, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_visibility, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             /*TODO: based on severity, dissect the error code */
-            proto_tree_add_text(server_message_tree, tvb, offset, 4, "error/warning/info code: %d", tvb_get_letohl(tvb, offset));
+            proto_tree_add_item(tree, hf_notify_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             message_len = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(server_message_tree, tvb, offset, 4, "message length: %d", message_len);
+            proto_tree_add_item(tree, hf_notify_message_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            /*TODO use proto_tree_add_string and get the stringz using tvb_get_stringz() */
-            proto_tree_add_text(server_message_tree, tvb, offset, message_len + 1, "Message content");
+            proto_tree_add_item(tree, hf_notify_message, tvb, offset, message_len + 1, ENC_ASCII);
             offset += (message_len + 1);
             break;
         default:
@@ -1982,16 +1687,16 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
 static guint32
 dissect_spice_record_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti;
     proto_tree *record_tree;
 
     switch (message_type) {
-        case SPICEC_RECORD_MODE:
+        case SPICE_MSGC_RECORD_MODE:
             ti = proto_tree_add_text(tree, tvb, offset, 8, "Client RECORD_MODE message"); /* size is incorrect, fixed later */
             record_tree = proto_item_add_subtree(ti, ett_record_client);
-            proto_tree_add_item(record_tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(record_tree, hf_audio_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(record_tree, hf_playback_record_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(record_tree, hf_audio_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* TODO - mode dependant, there may be more data here */
             break;
@@ -2006,20 +1711,15 @@ dissect_spice_record_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 static guint32
 dissect_spice_display_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *display_tree;
-
     switch (message_type) {
-        case SPICEC_DISPLAY_INIT:
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_RedcDisplayInit, "Client INIT message");
-            display_tree = proto_item_add_subtree(ti, ett_display_client);
-            proto_tree_add_item(display_tree, hf_spice_display_init_cache_id, tvb, offset,  1, ENC_LITTLE_ENDIAN);
+        case SPICE_MSGC_DISPLAY_INIT:
+            proto_tree_add_item(tree, hf_spice_display_init_cache_id, tvb, offset,  1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            proto_tree_add_item(display_tree, hf_spice_display_init_cache_size, tvb, offset,  8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_spice_display_init_cache_size, tvb, offset,  8, ENC_LITTLE_ENDIAN);
             offset += 8;
-            proto_tree_add_item(display_tree, hf_spice_display_init_glz_dict_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_spice_display_init_glz_dict_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            proto_tree_add_item(display_tree, hf_spice_display_init_dict_window_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_spice_display_init_dict_window_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
         default:
@@ -2040,7 +1740,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     tvbuff_t  *jpeg_tvb;
 
     switch (message_type) {
-        case SPICE_DISPLAY_MODE:
+        case SPICE_MSG_DISPLAY_MODE:
             proto_tree_add_item(tree, hf_spice_display_mode_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_spice_display_mode_height, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2048,46 +1748,54 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_spice_display_mode_depth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_DISPLAY_MARK:
+        case SPICE_MSG_DISPLAY_MARK:
             proto_tree_add_text(tree, tvb, offset, 0, "DISPLAY_MARK message");
             break;
-        case SPICE_DISPLAY_RESET:
+        case SPICE_MSG_DISPLAY_RESET:
             proto_tree_add_text(tree, tvb, offset, 0, "DISPLAY_RESET message");
             break;
-        case SPICE_DISPLAY_DRAW_ALPHA_BLEND:
+        case SPICE_MSG_DISPLAY_INVAL_LIST:
+            proto_tree_add_item(tree, hf_display_inval_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            count = tvb_get_letohs(tvb, offset);
+            offset += 2;
+            for (i = 0; i < count; i++) {
+                offset += dissect_SpiceResourceId(tvb, tree, offset, i + 1);
+            }
+            break;
+        case SPICE_MSG_DISPLAY_DRAW_ALPHA_BLEND:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             /* TODO: Flag 1 byte, Alpha 1 byte dissection*/
             offset += 2;
-            dissect_ID(tvb, tree, offset);
+            proto_tree_add_item(tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             dissect_SpiceRect(tvb, tree, offset, -1);
             offset += (int)sizeof_SpiceRect;
             data_size = dissect_Image(tvb, tree, pinfo, offset);
             offset += data_size;
             break;
-        case SPICE_DISPLAY_DRAW_BLACKNESS:
+        case SPICE_MSG_DISPLAY_DRAW_BLACKNESS:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             offset += dissect_Mask(tvb, tree, offset);
             break;
-        case SPICE_DISPLAY_COPY_BITS:
+        case SPICE_MSG_DISPLAY_COPY_BITS:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             dissect_POINT32(tvb, tree, offset);
             offset += (int)sizeof(point32_t);
             break;
-        case SPICE_DISPLAY_DRAW_WHITENESS:
+        case SPICE_MSG_DISPLAY_DRAW_WHITENESS:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             offset += dissect_Mask(tvb, tree, offset);
             break;
-        case SPICE_DISPLAY_DRAW_INVERS:
+        case SPICE_MSG_DISPLAY_DRAW_INVERS:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             offset += dissect_Mask(tvb, tree, offset);
             break;
-        case SPICE_DISPLAY_DRAW_FILL:
+        case SPICE_MSG_DISPLAY_DRAW_FILL:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             data_size = dissect_Brush(tvb, tree, offset);
@@ -2102,10 +1810,10 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
                 offset += dissect_Image(tvb, tree, pinfo, offset);
             }
             break;
-        case SPICE_DISPLAY_DRAW_TRANSPARENT:
+        case SPICE_MSG_DISPLAY_DRAW_TRANSPARENT:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
-            dissect_ID(tvb, tree, offset);
+            proto_tree_add_item(tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             /* source area */
             dissect_SpiceRect(tvb, tree, offset, -1);
@@ -2117,12 +1825,12 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             data_size = dissect_Image(tvb, tree, pinfo, offset);
             offset += data_size;
             break;
-        case SPICE_DISPLAY_DRAW_BLEND:
-        case SPICE_DISPLAY_DRAW_COPY:
+        case SPICE_MSG_DISPLAY_DRAW_BLEND:
+        case SPICE_MSG_DISPLAY_DRAW_COPY:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             /* SpiceImage *src_bitmap */
-            dissect_ID(tvb, tree, offset);
+            proto_tree_add_item(tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
             /* source area */
@@ -2140,11 +1848,11 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             data_size = dissect_Image(tvb, tree, pinfo, offset);
             offset += data_size;
             break;
-        case SPICE_DISPLAY_DRAW_ROP3:
+        case SPICE_MSG_DISPLAY_DRAW_ROP3:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
             /* SpiceImage *src_bitmap */
-            dissect_ID(tvb, tree, offset);
+            proto_tree_add_item(tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
             /* source area */
@@ -2164,13 +1872,12 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             data_size = dissect_Image(tvb, tree, pinfo, offset);
             offset += data_size;
             break;
-        case SPICE_DISPLAY_INVAL_ALL_PALETTES:
-            proto_tree_add_text(tree, tvb, offset, 0, "DISPLAY_INVAL_ALL_PALETTES message");
+        case SPICE_MSG_DISPLAY_INVAL_ALL_PALETTES:
             break;
-        case SPICE_DISPLAY_DRAW_TEXT:
+        case SPICE_MSG_DISPLAY_DRAW_TEXT:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
-            dissect_ID(tvb, tree, offset);
+            proto_tree_add_item(tree, hf_ref_string, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
             r = dissect_SpiceRect(tvb, tree, offset, -1);
@@ -2189,22 +1896,22 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_text(tree, tvb, offset, 2, "Glyph flags");
             /*TODO finish dissecting glyph list */
             break;
-        case SPICE_DISPLAY_DRAW_STROKE:
+        case SPICE_MSG_DISPLAY_DRAW_STROKE:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset  += displayBaseLen;
             /*TODO: complete and correct dissection */
 
             break;
-        case SPICE_DISPLAY_STREAM_CLIP:
+        case SPICE_MSG_DISPLAY_STREAM_CLIP:
             proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             clip_type = dissect_Clip(tvb, tree, offset);
             offset += (int)sizeof_Clip;
-            if (clip_type == CLIP_TYPE_RECTS) {
+            if (clip_type == SPICE_CLIP_TYPE_RECTS) {
                 offset += dissect_RectList(tvb, tree, offset);
             }
             break;
-        case SPICE_DISPLAY_STREAM_CREATE:
+        case SPICE_MSG_DISPLAY_STREAM_CREATE:
             proto_tree_add_item(tree, hf_display_surface_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2213,7 +1920,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             offset += 1;
             proto_tree_add_item(tree, hf_display_stream_codec_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            proto_tree_add_text(tree, tvb, offset, 8, "stamp");
+            proto_tree_add_item(tree, hf_display_stream_stamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             proto_tree_add_item(tree, hf_display_stream_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -2227,11 +1934,11 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             offset += (int)sizeof_SpiceRect;
             clip_type = dissect_Clip(tvb, tree, offset);
             offset += (int)sizeof_Clip;
-            if (clip_type == CLIP_TYPE_RECTS) {
+            if (clip_type == SPICE_CLIP_TYPE_RECTS) {
                 offset += dissect_RectList(tvb, tree, offset);
             }
             break;
-        case SPICE_DISPLAY_STREAM_DATA:
+        case SPICE_MSG_DISPLAY_STREAM_DATA:
             data_size = tvb_get_letohl(tvb, offset + 8);
             proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -2244,11 +1951,11 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             call_dissector(jpeg_handle, jpeg_tvb, pinfo, tree);
             offset += data_size;
             break;
-        case SPICE_DISPLAY_STREAM_DESTROY:
+        case SPICE_MSG_DISPLAY_STREAM_DESTROY:
             proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_DISPLAY_STREAM_DATA_SIZED:
+        case SPICE_MSG_DISPLAY_STREAM_DATA_SIZED:
             proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_multi_media_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2262,10 +1969,9 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_display_stream_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_DISPLAY_STREAM_DESTROY_ALL:
-            proto_tree_add_text(tree, tvb, offset, 0, "DISPLAY_STREAM_DESTROY_ALL message");
+        case SPICE_MSG_DISPLAY_STREAM_DESTROY_ALL:
             break;
-        case SPICE_DISPLAY_DRAW_SURFACE_CREATE:
+        case SPICE_MSG_DISPLAY_SURFACE_CREATE:
             proto_tree_add_item(tree, hf_display_surface_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_display_surface_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2277,11 +1983,11 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_display_surface_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_DISPLAY_DRAW_SURFACE_DESTROY:
+        case SPICE_MSG_DISPLAY_SURFACE_DESTROY:
             proto_tree_add_item(tree, hf_display_surface_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_DISPLAY_MONITORS_CONFIG:
+        case SPICE_MSG_DISPLAY_MONITORS_CONFIG:
             proto_tree_add_item(tree, hf_display_monitor_config_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             count = tvb_get_letohs(tvb, offset);
             offset += 2;
@@ -2291,7 +1997,17 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
                 offset = dissect_SpiceHead(tvb, tree, offset, i);
             }
             break;
-        case SPICE_DISPLAY_DRAW_COMPOSITE:
+        case SPICE_MSG_DISPLAY_DRAW_COMPOSITE:
+            break;
+        case SPICE_MSG_DISPLAY_STREAM_ACTIVATE_REPORT:
+            proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_display_stream_report_unique_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_display_stream_report_max_window_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_display_stream_report_timeout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown display server message - cannot dissect");
@@ -2303,55 +2019,55 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 static guint32
 dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, spice_conversation_t *spice_info, guint32 offset)
 {
-    guint8 num_channels, mute, i;
+    guint8 num_channels, i;
+    proto_item* ti;
+    proto_tree* subtree;
 
     switch (message_type) {
-        case SPICE_PLAYBACK_DATA:
-            proto_tree_add_item(tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case SPICE_MSG_PLAYBACK_DATA:
+            proto_tree_add_item(tree, hf_audio_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            switch (spice_info->playback_mode) {
-                case SPICE_AUDIO_DATA_MODE_RAW:
-                    proto_tree_add_text(tree, tvb, offset, message_size - 4, "RAW playback data");
-                    break;
-                case SPICE_AUDIO_DATA_MODE_CELT_0_5_1:
-                    proto_tree_add_text(tree, tvb, offset, message_size - 4, "CELT 0.5.1 encoded playback data");
-                    break;
-                default:
-                    proto_tree_add_text(tree, tvb, offset, message_size - 4, "unknown playback mode: %u", spice_info->playback_mode);
-                    break;
-            }
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size - 4, ENC_NA);
             offset += (message_size - 4);
             break;
-        case SPICE_PLAYBACK_MODE:
-            proto_tree_add_item(tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        case SPICE_MSG_PLAYBACK_MODE:
+            proto_tree_add_item(tree, hf_audio_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             spice_info->playback_mode = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(tree, hf_playback_record_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_audio_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* TODO - mode dependent, there may be more data here */
             break;
-        case SPICE_PLAYBACK_START:
-            /*TODO: no. channels (UINT32), format (UINT16), frequency (UINT32), time (UINT32)*/
-            offset += 14;
+        case SPICE_MSG_PLAYBACK_START:
+            proto_tree_add_item(tree, hf_audio_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_audio_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_audio_frequency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_audio_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
             break;
-        case SPICE_PLAYBACK_STOP:
-            proto_tree_add_text(tree, tvb, offset, 0, "PLAYBACK_STOP message");
+        case SPICE_MSG_PLAYBACK_STOP:
             break;
-        case SPICE_PLAYBACK_VOLUME:
-            proto_tree_add_text(tree, tvb, offset, 0, "PLAYBACK_VOLUME message");
+        case SPICE_MSG_PLAYBACK_VOLUME:
             num_channels = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1, "Number of channels: %u", num_channels);
+            proto_tree_add_item(tree, hf_audio_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+            ti = proto_tree_add_text(tree, tvb, offset, 2 * num_channels, "Channel volume array");
+            subtree = proto_item_add_subtree(ti, ett_record_server);
             for (i = 0; i < num_channels; i++) {
-                proto_tree_add_text(tree, tvb, offset, 2, "Channel %u volume: %u", i, tvb_get_letohs(tvb, offset));
+                proto_tree_add_item(subtree, hf_audio_volume, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
             }
             break;
-        case SPICE_PLAYBACK_MUTE:
-            proto_tree_add_text(tree, tvb, offset, 1, "PLAYBACK_MUTE message");
-            mute = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1, "Mute: %u", mute);
+        case SPICE_MSG_PLAYBACK_MUTE:
+            proto_tree_add_item(tree, hf_audio_mute, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+            break;
+        case SPICE_MSG_PLAYBACK_LATENCY:
+            proto_tree_add_item(tree, hf_audio_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown playback server message - cannot dissect");
@@ -2366,7 +2082,7 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
     guint32 RedCursorSize;
 
     switch (message_type) {
-        case SPICE_CURSOR_INIT:
+        case SPICE_MSG_CURSOR_INIT:
             dissect_POINT16(tvb, tree, offset);
             offset += (int)sizeof(point16_t);
             proto_tree_add_item(tree, hf_cursor_trail_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2378,35 +2094,32 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             RedCursorSize = dissect_RedCursor(tvb, tree, offset);
             offset += RedCursorSize;
             break;
-        case SPICE_CURSOR_RESET:
-            proto_tree_add_text(tree, tvb, offset, 0, "CURSOR_RESET message");
+        case SPICE_MSG_CURSOR_RESET:
             break;
-        case SPICE_CURSOR_SET:
+        case SPICE_MSG_CURSOR_SET:
             dissect_POINT16(tvb, tree, offset);
             offset += (int)sizeof(point16_t);
             offset +=1; /*TODO flags */
             RedCursorSize = dissect_RedCursor(tvb, tree, offset);
             offset += RedCursorSize;
             break;
-        case SPICE_CURSOR_MOVE:
+        case SPICE_MSG_CURSOR_MOVE:
             dissect_POINT16(tvb, tree, offset);
             offset += (int)sizeof(point16_t);
             break;
-        case SPICE_CURSOR_HIDE:
-            proto_tree_add_text(tree, tvb, offset, 0, "CURSOR_HIDE message");
+        case SPICE_MSG_CURSOR_HIDE:
             break;
-        case SPICE_CURSOR_TRAIL:
+        case SPICE_MSG_CURSOR_TRAIL:
             proto_tree_add_item(tree, hf_cursor_trail_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_cursor_trail_freq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
-        case SPICE_CURSOR_INVAL_ONE:
+        case SPICE_MSG_CURSOR_INVAL_ONE:
             proto_tree_add_item(tree, hf_cursor_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             break;
-        case SPICE_CURSOR_INVAL_ALL:
-            proto_tree_add_text(tree, tvb, offset, 0, "CURSOR_INVAL_ALL message");
+        case SPICE_MSG_CURSOR_INVAL_ALL:
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown cursor server message - cannot dissect");
@@ -2418,27 +2131,26 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 static guint32
 dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *record_tree;
-    guint8 num_channels, mute;
+    guint8 num_channels, i;
+    proto_item* ti;
+    proto_tree* subtree;
 
     switch (message_type) {
-        case SPICE_RECORD_STOP:
-            proto_tree_add_text(tree, tvb, offset, 0, "RECORD_STOP message");
+        case SPICE_MSG_RECORD_STOP:
             break;
-        case SPICE_RECORD_VOLUME:
-            ti = proto_tree_add_text(tree, tvb, offset, 0, "RECORD_VOLUME message"); /* TODO: fix length */
-            record_tree = proto_item_add_subtree(ti, ett_record_server);
+        case SPICE_MSG_RECORD_VOLUME:
             num_channels = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(record_tree, tvb, offset, 1, "Number of channels: %u", num_channels);
+            proto_tree_add_item(tree, hf_audio_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            /* TODO: complete dissection - go over all channels and parse the volume */
+            ti = proto_tree_add_text(tree, tvb, offset, 2 * num_channels, "Volume Array");
+            subtree = proto_item_add_subtree(ti, ett_record_server);
+            for (i = 0; i < num_channels; i++) {
+                proto_tree_add_item(subtree, hf_audio_volume, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
             break;
-        case SPICE_RECORD_MUTE:
-            ti = proto_tree_add_text(tree, tvb, offset, 1, "RECORD_MUTE message");
-            record_tree = proto_item_add_subtree(ti, ett_record_server);
-            mute = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(record_tree, tvb, offset, 1, "mute: %u", mute);
+        case SPICE_MSG_RECORD_MUTE:
+            proto_tree_add_item(tree, hf_audio_mute, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
         default:
@@ -2453,22 +2165,32 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
 {
     proto_item *ti=NULL;
     proto_tree *agent_tree;
+    guint32 n_monitors = 0, i;
 
     switch (message_type) {
         case VD_AGENT_MOUSE_STATE:
-            proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_MOUSE_STATE message");
-            offset += 4;
+            dissect_POINT32(tvb, tree, offset);
+            offset += (int)sizeof(point32_t);
+            proto_tree_add_item(tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
             break;
         case VD_AGENT_MONITORS_CONFIG:
-            proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_MONITORS_CONFIG message");
+            n_monitors = tvb_get_letohl(tvb, offset);
+            proto_tree_add_item(tree, hf_agent_num_monitors, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            proto_tree_add_item(tree, hf_vd_agent_monitors_config_flag_use_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            for (i = 0; i < n_monitors; i++) {
+                offset = dissect_AgentMonitorConfig(tvb, tree, offset, i);
+            }
             break;
         case VD_AGENT_REPLY:
-            /*ti = */proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_REPLY message");
-            /* TODO: complete dissection
-            agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
-            */
-            offset += message_len;
+            proto_tree_add_item(tree, hf_vd_agent_reply_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_vd_agent_reply_error, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
             break;
         case VD_AGENT_CLIPBOARD:
             /*ti = */proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_CLIPBOARD message");
@@ -2482,18 +2204,26 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
             offset += 4;
             break;
         case VD_AGENT_ANNOUNCE_CAPABILITIES:
-            /*ti = */proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_ANNOUNCE_CAPABILITIES message");
-            /* TODO: complete dissection
-            agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
-            */
-            offset += message_len;
+            proto_tree_add_item(tree, hf_vd_agent_caps_request, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_vd_agent_cap_mouse_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_monitors_config, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_reply, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_clipboard, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_display_config, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_clipboard_by_demand, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_clipboard_selection, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_sparse_monitors_config, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_guest_lineend_lf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_vd_agent_cap_guest_lineend_crlf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
             break;
         case VD_AGENT_CLIPBOARD_GRAB:
             ti = proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_CLIPBOARD_GRAB message");
             agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
             proto_tree_add_item(agent_tree, hf_agent_clipboard_selection, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            proto_tree_add_text(agent_tree, tvb, offset, 3, "reserverd");
+            proto_tree_add_text(agent_tree, tvb, offset, 3, "reserved");
             offset += 3;
             break;
         case VD_AGENT_CLIPBOARD_REQUEST:
@@ -2501,7 +2231,7 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
             agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
             proto_tree_add_item(agent_tree, hf_agent_clipboard_selection, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            proto_tree_add_text(agent_tree, tvb, offset, 3, "reserverd");
+            proto_tree_add_text(agent_tree, tvb, offset, 3, "reserved");
             offset += 3;
             proto_tree_add_item(agent_tree, hf_agent_clipboard_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -2516,19 +2246,64 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
     return offset;
 }
 
+/* note that the size property is necessary here because the protocol uses
+ * uint32 in the INIT message, and flags16 in the MOUSE_MODE message
+ */
+static guint32
+dissect_supported_mouse_modes(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 size)
+{
+    proto_item* ti;
+    proto_tree *sub_tree;
+    int hf = hf_supported_mouse_modes;
+
+    if (size == 2)
+        hf = hf_supported_mouse_modes_flags;
+
+    ti = proto_tree_add_item(tree, hf, tvb, offset, size, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(ti, ett_main_client);
+
+    proto_tree_add_item(sub_tree, hf_supported_mouse_modes_flag_client, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_supported_mouse_modes_flag_server, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    return offset + size;
+}
+
 static guint32
 dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    guint32 num_channels, i, agent_msg_type, agent_msg_len, name_len;
-    guint8  channel_type;
+    guint32 num_channels, i, agent_msg_type, agent_msg_len, name_len, data_size;
+    proto_tree *subtree = NULL;
+    proto_item *ti = NULL;
 
     switch (message_type) {
-        case SPICE_MAIN_INIT:
+        case SPICE_MSG_MAIN_MIGRATE_BEGIN:
+        case SPICE_MSG_MAIN_MIGRATE_SWITCH_HOST:
+        case SPICE_MSG_MAIN_MIGRATE_BEGIN_SEAMLESS:
+            proto_tree_add_item(tree, hf_migrate_dest_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_migrate_dest_sport, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            data_size = tvb_get_letohl(tvb, offset);
+            offset += 4;
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, data_size, ENC_NA);
+            offset += data_size;
+            data_size = tvb_get_letohl(tvb, offset);
+            offset += 4;
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, data_size, ENC_NA);
+            offset += data_size;
+            if (message_type == SPICE_MSG_MAIN_MIGRATE_BEGIN_SEAMLESS) {
+                proto_tree_add_item(tree, hf_migrate_src_mig_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            break;
+        case SPICE_MSG_MAIN_MIGRATE_CANCEL:
+            break;
+        case SPICE_MSG_MAIN_INIT:
             proto_tree_add_item(tree, hf_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_display_channels_hint, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_supported_mouse_modes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            dissect_supported_mouse_modes(tvb, tree, offset, 4);
             offset += 4;
             proto_tree_add_item(tree, hf_current_mouse_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -2541,43 +2316,39 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             proto_tree_add_item(tree, hf_ram_hint, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_MAIN_NAME:
-            name_len = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 4, "Name length (bytes): %u", name_len);
-            offset += 4;
-            proto_tree_add_item(tree, hf_vm_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
-            offset += name_len;
-            break;
-        case SPICE_MAIN_UUID:
-            proto_tree_add_item(tree, hf_vm_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
-            offset += 16;
-            break;
-        case SPICE_MAIN_CHANNELS_LIST:
+        case SPICE_MSG_MAIN_CHANNELS_LIST:
             num_channels = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 4, "Number of channels: %u", num_channels);
+            proto_tree_add_item(tree, hf_main_num_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            ti = proto_tree_add_text(tree, tvb, offset, 2 * num_channels, "Channel Array");
+            subtree = proto_item_add_subtree(ti, ett_main_client);
             for (i = 0; i < num_channels; i++ ) {
-                channel_type = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 1,
-                                    "Type: %s [%d]", val_to_str_const(channel_type, channel_types_vs, "Unknown"), channel_type);
+                proto_tree *subsubtree = NULL;
+
+                ti = proto_tree_add_text(subtree, tvb, offset, 2, "channels[%u]", i);
+                subsubtree = proto_item_add_subtree(ti, ett_main_client);
+
+                proto_tree_add_item(subsubtree, hf_channel_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
-                proto_tree_add_text(tree, tvb, offset, 1, "\tID: %d", tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(subsubtree, hf_channel_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
             }
             break;
-        case SPICE_MAIN_MULTI_MEDIA_TIME:
+        case SPICE_MSG_MAIN_MOUSE_MODE:
+            dissect_supported_mouse_modes(tvb, tree, offset, 2);
+            offset += 2;
+            proto_tree_add_item(tree, hf_current_mouse_mode_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            break;
+        case SPICE_MSG_MAIN_MULTI_MEDIA_TIME:
             proto_tree_add_item(tree, hf_multi_media_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_MAIN_MOUSE_MODE:
-            proto_tree_add_text(tree, tvb, offset, 4, "MOUSE_MODE message");
-            /* TODO:
-                mouse_mode supported_modes;
-                mouse_mode current_mode;
-            */
+        case SPICE_MSG_MAIN_AGENT_DISCONNECTED:
+            proto_tree_add_item(tree, hf_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICE_MAIN_AGENT_DATA:
+        case SPICE_MSG_MAIN_AGENT_DATA:
             proto_tree_add_item(tree, hf_agent_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_agent_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2590,9 +2361,27 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             offset += 4;
             offset = dissect_spice_agent_message(tvb, tree, agent_msg_type, agent_msg_len, offset);
             break;
-        case SPICE_MAIN_AGENT_TOKEN:
+        case SPICE_MSG_MAIN_AGENT_TOKEN:
+        case SPICE_MSG_MAIN_AGENT_CONNECTED_TOKENS:
             proto_tree_add_item(tree, hf_agent_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            break;
+        case SPICE_MSG_MAIN_NAME:
+            name_len = tvb_get_letohl(tvb, offset);
+            proto_tree_add_item(tree, hf_main_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_main_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
+            offset += name_len;
+            break;
+        case SPICE_MSG_MAIN_UUID:
+            proto_tree_add_item(tree, hf_main_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+            offset += 16;
+            break;
+        case SPICE_MSG_MAIN_MIGRATE_END:
+            break;
+        case SPICE_MSG_MAIN_MIGRATE_DST_SEAMLESS_ACK:
+            break;
+        case SPICE_MSG_MAIN_MIGRATE_DST_SEAMLESS_NACK:
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown main server message - cannot dissect");
@@ -2609,26 +2398,19 @@ dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
     guint32     agent_msg_type, agent_msg_len;
 
     switch (message_type) {
-        case SPICEC_MAIN_MOUSE_MODE_REQUEST:
-            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client MOUSE_MODE_REQUEST message");
-            /* TODO: complete dissection - mouse_mode, 2 bytes
-            main_tree = proto_item_add_subtree(ti, ett_main_client);
-            */
+        case SPICE_MSGC_MAIN_MOUSE_MODE_REQUEST:
+            proto_tree_add_item(tree, hf_current_mouse_mode_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
-        case SPICEC_MAIN_ATTACH_CHANNELS:
-            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client MAIN_ATTACH_CHANNEL message");
-            /* TODO: complete dissection
-            main_tree = proto_item_add_subtree(ti, ett_main_client);
-            */
+        case SPICE_MSGC_MAIN_ATTACH_CHANNELS:
             break;
-        case SPICEC_MAIN_AGENT_START:
+        case SPICE_MSGC_MAIN_AGENT_START:
             ti = proto_tree_add_text(tree, tvb, offset, 4, "Client AGENT_START message");
             main_tree = proto_item_add_subtree(ti, ett_main_client);
             proto_tree_add_item(main_tree, hf_main_client_agent_tokens, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICEC_MAIN_AGENT_DATA:
+        case SPICE_MSGC_MAIN_AGENT_DATA:
             ti = proto_tree_add_text(tree, tvb, offset, 24, "Client AGENT_DATA message");
             main_tree = proto_item_add_subtree(ti, ett_main_client);
             proto_tree_add_item(main_tree, hf_agent_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2650,6 +2432,21 @@ dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
     return offset;
 }
 
+static int
+dissect_spice_keyboard_modifiers(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    proto_item *ti = NULL;
+    proto_tree *subtree = NULL;
+
+    ti = proto_tree_add_item(tree, hf_keyboard_modifiers, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    subtree = proto_item_add_subtree(ti, ett_link_caps);
+
+    proto_tree_add_item(subtree, hf_keyboard_modifier_scroll_lock, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_keyboard_modifier_num_lock, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_keyboard_modifier_caps_lock, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    return 2;
+}
+
 static guint32
 dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
@@ -2657,25 +2454,22 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
     proto_tree *inputs_tree;
 
     switch (message_type) {
-        case SPICEC_INPUTS_KEY_DOWN:
+        case SPICE_MSGC_INPUTS_KEY_DOWN:
             ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_DOWN message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             proto_tree_add_item(inputs_tree, hf_keyboard_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICEC_INPUTS_KEY_UP:
+        case SPICE_MSGC_INPUTS_KEY_UP:
             ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_UP message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             proto_tree_add_item(inputs_tree, hf_keyboard_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
-        case SPICEC_INPUTS_KEY_MODIFIERS:
-            ti = proto_tree_add_text(tree, tvb, offset, 2, "Client KEY_MODIFIERS message");
-            inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
-            proto_tree_add_item(inputs_tree, hf_keyboard_bits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+        case SPICE_MSGC_INPUTS_KEY_MODIFIERS:
+            offset += dissect_spice_keyboard_modifiers(tvb, tree, offset);
             break;
-        case SPICEC_INPUTS_MOUSE_POSITION:
+        case SPICE_MSGC_INPUTS_MOUSE_POSITION:
             ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t) + 3, "Client MOUSE_POSITION message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             dissect_POINT32(tvb, inputs_tree, offset);
@@ -2685,7 +2479,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
-        case SPICEC_INPUTS_MOUSE_MOTION:
+        case SPICE_MSGC_INPUTS_MOUSE_MOTION:
             ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t) + 4, "Client MOUSE_MOTION message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             dissect_POINT32(tvb, inputs_tree, offset);
@@ -2693,7 +2487,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
-        case SPICEC_INPUTS_MOUSE_PRESS:
+        case SPICE_MSGC_INPUTS_MOUSE_PRESS:
             ti = proto_tree_add_text(tree, tvb, offset, 3, "Client MOUSE_PRESS message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2701,7 +2495,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_NA);
             offset += 1;
             break;
-        case SPICEC_INPUTS_MOUSE_RELEASE:
+        case SPICE_MSGC_INPUTS_MOUSE_RELEASE:
             ti = proto_tree_add_text(tree, tvb, offset, 3, "Client MOUSE_RELEASE message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2720,15 +2514,13 @@ static guint32
 dissect_spice_inputs_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
     switch (message_type) {
-        case SPICE_INPUTS_INIT:
-            proto_tree_add_item(tree, hf_keyboard_bits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+        case SPICE_MSG_INPUTS_INIT:
+            offset += dissect_spice_keyboard_modifiers(tvb, tree, offset);
             break;
-        case SPICE_INPUTS_KEY_MODIFIERS:
-            proto_tree_add_item(tree, hf_keyboard_bits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+        case SPICE_MSG_INPUTS_KEY_MODIFIERS:
+            offset += dissect_spice_keyboard_modifiers(tvb, tree, offset);
             break;
-        case SPICE_INPUTS_MOUSE_MOTION_ACK:
+        case SPICE_MSG_INPUTS_MOUSE_MOTION_ACK:
             proto_tree_add_text(tree, tvb, offset, 0, "Server INPUTS_MOUSE_MOTION_ACK message");
             break;
         default:
@@ -2737,6 +2529,134 @@ dissect_spice_inputs_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
     }
     return offset;
 }
+
+static guint32
+dissect_spice_tunnel_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+{
+    /* TODO: Not implemented yet */
+    switch (message_type) {
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_tunnel_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+{
+    /* TODO: Not implemented yet */
+    switch (message_type) {
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_smartcard_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+{
+    /* TODO: Not implemented yet */
+    switch (message_type) {
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_smartcard_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+{
+    /* TODO: Not implemented yet */
+    switch (message_type) {
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_usbredir_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+{
+    switch (message_type) {
+        case SPICE_MSGC_SPICEVMC_DATA:
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            offset += message_size;
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_usbredir_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+{
+    switch (message_type) {
+        case SPICE_MSG_SPICEVMC_DATA:
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            offset += message_size;
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_port_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+{
+    switch (message_type) {
+        case SPICE_MSGC_SPICEVMC_DATA:
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            offset += message_size;
+            break;
+        case SPICE_MSGC_PORT_EVENT:
+            proto_tree_add_item(tree, hf_port_event, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
+static guint32
+dissect_spice_port_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, guint32 offset)
+{
+    switch (message_type) {
+        case SPICE_MSG_SPICEVMC_DATA:
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            offset += message_size;
+            break;
+        case SPICE_MSG_PORT_INIT:
+            {
+                guint32 size = tvb_get_letohl(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, 4, "Name length (bytes): %u", size);
+                offset += 4;
+                proto_tree_add_item(tree, hf_main_name, tvb, offset, size, ENC_ASCII|ENC_NA);
+                offset += size;
+                proto_tree_add_item(tree, hf_port_opened, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+            }
+            break;
+        case SPICE_MSG_PORT_EVENT:
+            proto_tree_add_item(tree, hf_port_event, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, offset, 0, "Unknown message - cannot dissect");
+            break;
+    }
+    return offset;
+}
+
 
 static guint32
 dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, spice_conversation_t *spice_info, guint32 offset, const guint32 total_message_size)
@@ -2803,9 +2723,17 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
             offset = dissect_spice_inputs_server(tvb, message_tree, message_type, offset);
             break;
         case SPICE_CHANNEL_TUNNEL:
-            /* TODO: Not implemented yet */
+            offset = dissect_spice_tunnel_server(tvb, message_tree, message_type, offset);
+            break;
         case SPICE_CHANNEL_SMARTCARD:
-            /* TODO: Not implemented yet */
+            offset = dissect_spice_smartcard_server(tvb, message_tree, message_type, offset);
+            break;
+        case SPICE_CHANNEL_USBREDIR:
+            offset = dissect_spice_usbredir_server(tvb, message_tree, message_type, message_size, offset);
+            break;
+        case SPICE_CHANNEL_PORT:
+            offset = dissect_spice_port_server(tvb, message_tree, message_type, message_size, offset);
+            break;
         default:
             proto_tree_add_text(message_tree, tvb, offset, 0, "Unknown server PDU - cannot dissect");
     }
@@ -2827,7 +2755,7 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_item *ti = NULL;
     proto_tree *data_header_tree;
     guint16     message_type;
-    guint32 /** message_size,**/ sublist_size;
+    guint32     message_size = 0, sublist_size;
     guint32     header_size;
 
     if (spice_info->client_mini_header && spice_info->server_mini_header) {
@@ -2835,13 +2763,14 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         ti = proto_tree_add_item(tree, hf_data, tvb, offset, header_size, ENC_NA);
         data_header_tree = proto_item_add_subtree(ti, ett_data);
         message_type = tvb_get_letohs(tvb, offset);
+        message_size = tvb_get_letohl(tvb, offset + 2);
         dissect_spice_mini_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, offset);
     } else {
         header_size = sizeof_SpiceDataHeader;
         ti = proto_tree_add_item(tree, hf_data, tvb, offset, header_size, ENC_NA);
         data_header_tree = proto_item_add_subtree(ti, ett_data);
         message_type = tvb_get_letohs(tvb, offset + 8);
-        /** message_size = tvb_get_letohl(tvb, offset + 10);  **/
+        message_size = tvb_get_letohl(tvb, offset + 10);
         dissect_spice_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, &sublist_size, offset);
     }
     col_append_str(pinfo->cinfo, COL_INFO, get_message_type_string(message_type, spice_info, TRUE));
@@ -2867,6 +2796,18 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
             break;
         case SPICE_CHANNEL_INPUTS:
             offset = dissect_spice_inputs_client(tvb, tree, message_type, offset);
+            break;
+        case SPICE_CHANNEL_TUNNEL:
+            offset = dissect_spice_tunnel_client(tvb, tree, message_type, offset);
+            break;
+        case SPICE_CHANNEL_SMARTCARD:
+            offset = dissect_spice_smartcard_client(tvb, tree, message_type, offset);
+            break;
+        case SPICE_CHANNEL_USBREDIR:
+            offset = dissect_spice_usbredir_client(tvb, tree, message_type, message_size, offset);
+            break;
+        case SPICE_CHANNEL_PORT:
+            offset = dissect_spice_port_client(tvb, tree, message_type, message_size, offset);
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown client PDU - cannot dissect");
@@ -3544,6 +3485,11 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_message_type,
+          { "Message type", "spice.message_type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_conn_id,
           { "Session ID", "spice.conn_id",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -3576,7 +3522,7 @@ proto_register_spice(void)
         },
         { &hf_error_code,
           { "spice ERROR", "spice.error_code",
-            FT_UINT32, BASE_DEC, VALS(spice_error_codes_vs), 0x0,
+            FT_UINT32, BASE_DEC, VALS(spice_link_err_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_serial,
@@ -3601,12 +3547,12 @@ proto_register_spice(void)
         },
         { &hf_ticket_client,
           { "Ticket - client", "spice.ticket_client",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ticket_server,
           { "Link result", "spice.ticket_server",
-            FT_UINT32, BASE_DEC, VALS(spice_error_codes_vs), 0x0,
+            FT_UINT32, BASE_DEC, VALS(spice_link_err_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_auth_select_client,
@@ -3684,6 +3630,11 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_main_num_channels,
+          { "Number of Channels", "spice.main_num_channels",
+            FT_UINT32, 4, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_main_cap_semi_migrate,
           { "Semi-seamless migratation capability", "spice.main_cap_semi_migrate",
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK,
@@ -3704,14 +3655,44 @@ proto_register_spice(void)
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_MAIN_CAP_SEAMLESS_MIGRATE_MASK,
             NULL, HFILL }
         },
-        { &hf_playback_record_mode_timstamp,
-          { "Timestamp", "spice.timestamp",
+        { &hf_audio_timestamp,
+          { "Timestamp", "spice.audio_timestamp",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_playback_record_mode,
-          { "Mode", "spice.mode",
+        { &hf_audio_mode,
+          { "Mode", "spice.audio_mode",
             FT_UINT16, BASE_DEC, VALS(playback_mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_audio_channels,
+          { "Channels", "spice.audio_channels",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_audio_format,
+          { "Format", "spice.audio_format",
+            FT_UINT16, BASE_DEC, VALS(spice_audio_fmt_vs), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_audio_frequency,
+          { "Frequency", "spice.audio_frequency",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_audio_volume,
+          { "Volume", "spice.audio_volume",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_audio_mute,
+          { "Mute", "spice.audio_mute",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_audio_latency,
+          { "Latency (ms)", "spice.audio_latency",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_red_set_ack_generation,
@@ -3726,27 +3707,22 @@ proto_register_spice(void)
         },
         { &hf_Clip_type,
           { "Clip type", "spice.clip_type",
-            FT_UINT8, BASE_DEC, VALS(clip_types_vs), 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_clip_type_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_Mask_flag,
           { "Mask flag", "spice.mask_flag",
-            FT_UINT8, BASE_DEC, VALS(Mask_flags_vs), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_Mask_bitmap,
-          { "Bitmap address", "spice.mask_bitmap",
-            FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_mask_flags_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_display_rop_descriptor,
           { "ROP descriptor", "spice.display_rop_descriptor",
-            FT_UINT16, BASE_HEX, VALS(rop_descriptor_vs), 0x0,
+            FT_UINT16, BASE_HEX, VALS(spice_ropd_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_display_scale_mode,
           { "Scale mode", "spice.scale_mode",
-            FT_UINT8, BASE_DEC, VALS(scale_mode_vs), 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_image_scale_mode_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_red_ping_id,
@@ -3756,7 +3732,7 @@ proto_register_spice(void)
         },
         { &hf_red_timestamp,
           { "timestamp", "spice.timestamp",
-            FT_UINT64, BASE_HEX, NULL, 0x0,
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_spice_display_mode_width,
@@ -3781,12 +3757,12 @@ proto_register_spice(void)
         },
         { &hf_image_desc_type,
           { "Image type", "spice.image_type",
-            FT_UINT8, BASE_DEC, VALS(image_type_vs), 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_image_type_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_image_desc_flags,
           { "Flags", "spice.image_flags",
-            FT_UINT8, BASE_HEX, VALS(image_flags_vs), 0x0,
+            FT_UINT8, BASE_HEX, VALS(spice_image_flags_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_image_desc_width,
@@ -3881,7 +3857,7 @@ proto_register_spice(void)
         },
         { &hf_cursor_type,
           { "Cursor type", "spice.cursor_type",
-            FT_UINT8, BASE_HEX, VALS(cursor_type_vs), 0x0,
+            FT_UINT8, BASE_HEX, VALS(spice_cursor_type_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_cursor_width,
@@ -3906,7 +3882,7 @@ proto_register_spice(void)
         },
         { &hf_cursor_flags, /*FIXME - those are flags */
           { "Cursor flags", "spice.cursor_flags",
-            FT_UINT16, BASE_HEX, VALS(cursor_flags_vs), 0x0,
+            FT_UINT16, BASE_HEX, VALS(spice_cursor_flags_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_cursor_id,
@@ -3936,7 +3912,7 @@ proto_register_spice(void)
         },
         { &hf_brush_type,
           { "Brush type", "spice.brush_type",
-            FT_UINT8, BASE_DEC, VALS(brush_types_vs), 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_brush_type_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_brush_rgb,
@@ -3966,17 +3942,32 @@ proto_register_spice(void)
         },
         { &hf_pixmap_format,
           { "Pixmap format", "spice.pixmap_format",
-            FT_UINT8, BASE_DEC, VALS(Pixmap_types_vs), 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_bitmap_fmt_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_pixmap_flags,
           { "Pixmap flags", "spice.pixmap_flags",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_HEX, VALS(spice_bitmap_flags_vs), 0x0,
             NULL, HFILL }
         },
-        { &hf_keyboard_bits, /* FIXME - flags */
-          { "Keyboard led bits", "spice.keyboard_bits",
-            FT_UINT16, BASE_HEX, VALS(input_modifiers_types), 0x0,
+        { &hf_keyboard_modifiers,
+          { "Keyboard modifiers", "spice.keyboard_modifiers",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_keyboard_modifier_scroll_lock,
+          { "Scroll Lock", "spice.keyboard_modifier_scroll_lock",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), SPICE_KEYBOARD_MODIFIER_FLAGS_SCROLL_LOCK,
+            NULL, HFILL }
+        },
+        { &hf_keyboard_modifier_num_lock,
+          { "Num Lock", "spice.keyboard_modifier_num_lock",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), SPICE_KEYBOARD_MODIFIER_FLAGS_NUM_LOCK,
+            NULL, HFILL }
+        },
+        { &hf_keyboard_modifier_caps_lock,
+          { "Caps Lock", "spice.keyboard_modifier_caps_lock",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), SPICE_KEYBOARD_MODIFIER_FLAGS_CAPS_LOCK,
             NULL, HFILL }
         },
         { &hf_keyboard_code,
@@ -3986,6 +3977,21 @@ proto_register_spice(void)
         },
         { &hf_rectlist_size,
           { "RectList size", "spice.rectlist_size",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_migrate_dest_port,
+          { "Migrate Dest Port", "spice.migrate_dest_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_migrate_dest_sport,
+          { "Migrate Dest Secure Port", "spice.migrate_dest_sport",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_migrate_src_mig_version,
+          { "Migrate Source Migration Version", "spice.migrate_src_version",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -3999,14 +4005,34 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_supported_mouse_modes, /* FIXME: bitmask */
+        { &hf_supported_mouse_modes,
           { "Supported mouse modes", "spice.supported_mouse_modes",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_supported_mouse_modes_flags,
+          { "Supported mouse modes", "spice.supported_mouse_modes_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_current_mouse_mode,
           { "Current mouse mode", "spice.current_mouse_mode",
-            FT_UINT32, BASE_DEC, VALS(spice_mouse_modes_vs), 0x0,
+            FT_UINT32, BASE_HEX, VALS(spice_mouse_mode_vs), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_supported_mouse_modes_flag_client,
+          { "Client mode", "spice.supported_mouse_modes_flag_client",
+            FT_BOOLEAN, 2, TFS(&tfs_set_notset), SPICE_MOUSE_MODE_CLIENT,
+            NULL, HFILL }
+        },
+        { &hf_supported_mouse_modes_flag_server,
+          { "Server mode", "spice.supported_mouse_modes_flags_server",
+            FT_BOOLEAN, 2, TFS(&tfs_set_notset), SPICE_MOUSE_MODE_SERVER,
+            NULL, HFILL }
+        },
+        { &hf_current_mouse_mode_flags,
+          { "Current mouse mode", "spice.current_mouse_mode_flags",
+            FT_UINT16, BASE_HEX, VALS(spice_mouse_mode_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_agent_connected,
@@ -4021,7 +4047,7 @@ proto_register_spice(void)
         },
         { &hf_multi_media_time,
           { "Current server multimedia time", "spice.multimedia_time",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ram_hint,
@@ -4064,14 +4090,34 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_display_stream_report_unique_id,
+          { "Unique ID", "spice.display_stream_report_unique_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_display_stream_report_max_window_size,
+          { "Max window size", "spice.display_stream_report_max_window_size",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_display_stream_report_timeout,
+          { "Timeout (ms)", "spice.display_stream_report_timeout",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_display_stream_flags,
           { "Stream flags", "spice.display_stream_flags",
-            FT_UINT8, BASE_DEC, VALS(stream_flags), 0x0,
+            FT_UINT8, BASE_DEC, VALS(spice_stream_flags_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_display_stream_codec_type,
           { "Stream codec type", "spice.display_stream_codec_type",
-            FT_UINT32, BASE_DEC, VALS(stream_codec_types), 0x0,
+            FT_UINT32, BASE_DEC, VALS(spice_video_codec_type_vs), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_display_stream_stamp,
+          { "Stream stamp", "spice.display_stream_stamp",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_display_stream_data_size,
@@ -4121,7 +4167,7 @@ proto_register_spice(void)
         },
         { &hf_display_surface_flags,
           { "Surface flags", "spice.surface_flags",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, VALS(spice_surface_flags_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_tranparent_src_color,
@@ -4135,7 +4181,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_main_client_agent_tokens,
-          { "Agent Tokes", "spice.main_agent_tokens",
+          { "Agent tokens", "spice.main_agent_tokens",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4145,8 +4191,8 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_agent_type,
-          { "Agent Type", "spice.main_agent_type",
-            FT_UINT32, BASE_DEC, VALS(agent_message_type), 0x0,
+          { "Agent message type", "spice.agent_message_type",
+            FT_UINT32, BASE_DEC, VALS(agent_message_type_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_agent_opaque,
@@ -4184,13 +4230,18 @@ proto_register_spice(void)
             FT_UINT8, BASE_DEC, VALS(spice_sasl_auth_result_vs), 0x0,
             NULL, HFILL }
         },
-        { &hf_vm_uuid,
-          { "VM UUID", "spice.vm_uuid",
+        { &hf_main_uuid,
+          { "UUID", "spice.main_uuid",
             FT_GUID, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_vm_name,
-          { "VM Name", "spice.vm_name",
+        { &hf_main_name_len,
+          { "Name length", "spice.main_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_main_name,
+          { "Name", "spice.main_name",
             FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4280,18 +4331,173 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_severity,
-          { "Severity", "spice.severity",
-            FT_UINT32, BASE_DEC, VALS(spice_severity_vs), 0x0,
+          { "Severity", "spice.notify_severity",
+            FT_UINT32, BASE_DEC, VALS(spice_notify_severity_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_visibility,
-          { "Visibility", "spice.visibility",
-            FT_UINT32, BASE_DEC, VALS(spice_visibility_vs), 0x0,
+          { "Visibility", "spice.notify_visibility",
+            FT_UINT32, BASE_DEC, VALS(spice_notify_visibility_vs), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_notify_code,
+          { "error/warn/info code", "spice.notify_code",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_notify_message_len,
+          { "Message length", "spice.notify_message_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_notify_message,
+          { "Message", "spice.notify_message",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_num_glyphs,
           { "Number of glyphs", "spice.num_glyphs",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_port_opened,
+          { "Opened", "spice.port_opened",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_port_event,
+          { "Event", "spice.port_event",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_raw_data,
+          { "data", "spice.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_display_inval_list_count,
+          { "count", "spice.display_inval_list_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_resource_type,
+          { "Type", "spice.resource_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_resource_id,
+          { "id", "spice.resource_id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ref_image,
+          { "Image address", "spice.ref_image",
+            FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ref_string,
+          { "String address", "spice.ref_string",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_agent_num_monitors,
+          { "Number of monitors", "spice.agent_num_monitors",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_agent_monitor_height,
+          { "Height", "spice.agent_monitor_height",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_agent_monitor_width,
+          { "Width", "spice.agent_monitor_width",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_agent_monitor_depth,
+          { "Depth", "spice.agent_monitor_depth",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_agent_monitor_x,
+          { "x", "spice.agent_monitor_x",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_agent_monitor_y,
+          { "y", "spice.agent_monitor_y",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_caps_request,
+          { "Request", "spice.vd_agent_caps_request",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_mouse_state,
+          { "Mouse State", "spice.vd_agent_cap_mouse_state",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_MOUSE_STATE,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_monitors_config,
+          { "Monitors config", "spice.vd_agent_cap_monitors_config",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_MONITORS_CONFIG,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_reply,
+          { "Reply", "spice.vd_agent_cap_reply",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_REPLY,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_clipboard,
+          { "Clipboard", "spice.vd_agent_cap_clipboard",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_CLIPBOARD,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_display_config,
+          { "Display config", "spice.vd_agent_cap_display_config",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_DISPLAY_CONFIG,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_clipboard_by_demand,
+          { "Clipboard by demand", "spice.vd_agent_cap_clipboard_by_demand",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_CLIPBOARD_BY_DEMAND,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_clipboard_selection,
+          { "Clipboard selection", "spice.vd_agent_cap_clipboard_selection",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_CLIPBOARD_SELECTION,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_sparse_monitors_config,
+          { "Sparse monitors config", "spice.vd_agent_cap_sparese_monitors_config",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_SPARSE_MONITORS_CONFIG,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_guest_lineend_lf,
+          { "Guest line-end LF", "spice.vd_agent_cap_guest_lineend_lf",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_GUEST_LINEEND_LF,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_cap_guest_lineend_crlf,
+          { "Guest line-end CRLF", "spice.vd_agent_cap_guest_lineend_crlf",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_GUEST_LINEEND_CRLF,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_monitors_config_flag_use_pos,
+          { "Use position", "spice.vd_agent_monitors_config_flag_use_pos",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_reply_type,
+          { "Type", "spice.vd_agent_reply_type",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vd_agent_reply_error,
+          { "Error", "spice.vd_agent_reply_error",
+            FT_UINT32, BASE_DEC, VALS(vd_agent_reply_error_vs), 0x0,
             NULL, HFILL }
         },
     };
