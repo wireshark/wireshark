@@ -96,8 +96,8 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, subtree, drep,
 				    hf_nt_data_blob_len, &len);
 	}
-	proto_tree_add_text(subtree, tvb, offset, len, "Blob data");
-	offset += len;
+	proto_tree_add_text(subtree, tvb, offset, (int)len, "Blob data");
+	offset += (int)len;
 	return offset;
 }
 
