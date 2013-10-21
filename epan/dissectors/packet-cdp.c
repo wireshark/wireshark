@@ -1200,6 +1200,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
     blanks[i] = '\0';
     while (len > 0) {
         line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
+        if (line_len == 0) next++;
         data_len = next - start;
         proto_tree_add_text(tree, tvb, start, data_len, "%s%s", prefix,
            tvb_format_stringzpad(tvb, start, line_len));
