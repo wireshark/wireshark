@@ -173,16 +173,19 @@ int dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep,
                        int hfindex, guint8 *pdata);
 int PIDL_dissect_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
+int PIDL_dissect_uint8_val (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param, guint8 *pval);
 WS_DLL_PUBLIC
 int dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         int hfindex, guint16 *pdata);
 int PIDL_dissect_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
+int PIDL_dissect_uint16_val (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param, guint16 *pval);
 WS_DLL_PUBLIC
 int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         int hfindex, guint32 *pdata);
 int PIDL_dissect_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
+int PIDL_dissect_uint32_val (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param, guint32 *rval);
 WS_DLL_PUBLIC
 int dissect_ndr_duint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
@@ -191,8 +194,9 @@ int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         int hfindex, guint64 *pdata);
 int PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
+int PIDL_dissect_uint64_val (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param, guint64 *pval);
 int dissect_ndr_float (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, guint8 *drep,
+                        proto_tree *tree, guint8 *drep, 
                         int hfindex, gfloat *pdata);
 WS_DLL_PUBLIC
 int dissect_ndr_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,

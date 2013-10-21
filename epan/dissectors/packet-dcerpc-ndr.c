@@ -62,9 +62,9 @@ dissect_ndr_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, guint8 *drep,
-                   int hfindex, guint32 param _U_)
+PIDL_dissect_uint8_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, guint8 *drep,
+                       int hfindex, guint32 param, guint8 *pval)
 {
     dcerpc_info *di;
     guint8       val;
@@ -109,8 +109,19 @@ PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
+    if (pval) {
+        *pval = val;
+    }
 
     return offset;
+}
+
+int
+PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, guint8 *drep,
+                   int hfindex, guint32 param)
+{
+    return PIDL_dissect_uint8_val(tvb, offset, pinfo, tree, drep, hfindex, param, NULL);
 }
 
 
@@ -141,9 +152,9 @@ dissect_ndr_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, guint8 *drep,
-                    int hfindex, guint32 param _U_)
+PIDL_dissect_uint16_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, guint8 *drep,
+                        int hfindex, guint32 param, guint16 *pval)
 {
     dcerpc_info *di;
     guint16      val;
@@ -192,7 +203,18 @@ PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
 
+    if (pval) {
+        *pval = val;
+    }
     return offset;
+}
+
+int
+PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint32 param _U_)
+{
+    return PIDL_dissect_uint16_val(tvb, offset, pinfo, tree, drep, hfindex, param, NULL);
 }
 
 int
@@ -270,9 +292,9 @@ dissect_ndr_uint1632(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+PIDL_dissect_uint32_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
-                    int hfindex, guint32 param)
+                    int hfindex, guint32 param, guint32 *rval)
 {
     dcerpc_info *di;
     guint32      val;
@@ -320,8 +342,18 @@ PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
-
+    if (rval != NULL) {
+        *rval = val;
+    }
     return offset;
+}
+
+int
+PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint32 param)
+{
+    return PIDL_dissect_uint32_val(tvb, offset, pinfo, tree, drep, hfindex, param, NULL);
 }
 
 /* Double uint32
@@ -386,9 +418,9 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, guint8 *drep,
-                    int hfindex, guint32 param _U_)
+PIDL_dissect_uint64_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, guint8 *drep,
+                        int hfindex, guint32 param, guint64 *pval)
 {
     dcerpc_info *di;
     guint64      val;
@@ -436,7 +468,18 @@ PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
 
+    if (pval) {
+        *pval = val;
+    }
     return offset;
+}
+
+int
+PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint32 param)
+{
+    return PIDL_dissect_uint64_val(tvb, offset, pinfo, tree, drep, hfindex, param, NULL);
 }
 
 int
