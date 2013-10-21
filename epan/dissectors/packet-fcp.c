@@ -663,8 +663,8 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-static void
-dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item      *ti            = NULL;
     proto_tree      *fcp_tree      = NULL;
@@ -676,7 +676,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean         els;
     fcp_proto_data_t *proto_data;
 
-    fchdr = (fc_hdr *)pinfo->private_data;
+    fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");
@@ -752,7 +752,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (els) {
         dissect_fcp_els(tvb, pinfo, fcp_tree);
-        return;
+        return tvb_length(tvb);
     }
 
     switch (r_ctl) {
@@ -776,7 +776,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 /*xxx once the subdissectors return bytes consumed:  proto_item_set_end(ti, tvb, offset);*/
-
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1030,7 +1030,7 @@ proto_reg_handoff_fcp(void)
 {
     dissector_handle_t fcp_handle;
 
-    fcp_handle = create_dissector_handle(dissect_fcp, proto_fcp);
+    fcp_handle = new_create_dissector_handle(dissect_fcp, proto_fcp);
     dissector_add_uint("fc.ftype", FC_FTYPE_SCSI, fcp_handle);
 
     data_handle = find_dissector("data");
