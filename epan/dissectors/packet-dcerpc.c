@@ -1732,6 +1732,14 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
+int
+dissect_ndr_cstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep, int size_is,
+                    int hfindex, gboolean add_subtree, char **data)
+{
+    return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, size_is, hfindex, add_subtree, data);
+}
+
 /* Dissect an conformant varying string of chars.
    This corresponds to IDL of the form '[string] char *foo'.
 
