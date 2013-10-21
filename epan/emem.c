@@ -399,7 +399,7 @@ emem_init(void)
 		DWORDLONG dwlConditionMask = 0;
 		int op = VER_EQUAL;
 
-		ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+		SecureZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
 		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 		osvi.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
 		VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, op);
@@ -417,7 +417,7 @@ emem_init(void)
 	{
 		OSVERSIONINFO versinfo;
 
-		ZeroMemory(&versinfo, sizeof(OSVERSIONINFO));
+		SecureZeroMemory(&versinfo, sizeof(OSVERSIONINFO));
 		versinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionEx(&versinfo);
 		iswindowsplatform = (versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
