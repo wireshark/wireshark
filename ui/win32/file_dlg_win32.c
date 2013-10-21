@@ -473,6 +473,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
+    ofn->lCustData = (LPARAM) cf;
     ofn->lpfnHook = export_specified_packets_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORT_SPECIFIED_PACKETS_FILENAME_TEMPLATE");
 
