@@ -68,7 +68,9 @@ static const char dct3trace_magic_line2[] = "<dump>";
 static const char dct3trace_magic_record_start[]  = "<l1 ";
 static const char dct3trace_magic_record_end[]  = "</l1>";
 static const char dct3trace_magic_l2_start[]  = "<l2 ";
+#if 0 /* Not used ?? */
 static const char dct3trace_magic_l2_end[]  = "</l2>";
+#endif
 static const char dct3trace_magic_end[]  = "</dump>";
 
 #define MAX_PACKET_LEN 23
