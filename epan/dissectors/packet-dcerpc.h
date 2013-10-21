@@ -229,6 +229,7 @@ int dissect_ndr_uint3264 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		        int hfindex, guint3264 *pdata);
 
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+typedef int (dcerpc_dissect_fnct_blk_t)(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
 typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int start_offset, int end_offset, void *callback_args);
 
@@ -261,10 +262,16 @@ int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
-/* dissect a NDR unidimensional conformant and varying array */
+/* dissect a NDR unidimensional conformant and varying array
+ * each byte in the array is processed separately
+ */
 int dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, guint8 *drep,
-                        dcerpc_dissect_fnct_t *fnct);
+                         proto_tree *tree, guint8 *drep,
+                         dcerpc_dissect_fnct_t *fnct);
+
+int dissect_ndr_ucvarray_block(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                               proto_tree *tree, guint8 *drep,
+                               dcerpc_dissect_fnct_blk_t *fnct);
 
 /* dissect a NDR unidimensional varying array */
 int dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
