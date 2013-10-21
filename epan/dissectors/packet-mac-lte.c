@@ -244,6 +244,8 @@ static int hf_mac_lte_drx_state_long_cycle_offset = -1;
 static int hf_mac_lte_drx_state_long_cycle_on = -1;
 static int hf_mac_lte_drx_state_short_cycle_offset = -1;
 static int hf_mac_lte_drx_state_short_cycle_on = -1;
+static int hf_mac_lte_drx_state_inactivity_remaining = -1;
+static int hf_mac_lte_drx_state_onduration_remaining = -1;
 
 /* Subtrees. */
 static int ett_mac_lte = -1;
@@ -1313,30 +1315,41 @@ static void mac_lte_drx_stop_timer(drx_state_t *p_state, drx_timer_type_t timer_
 
 /* Has the specified timer expired?  */
 static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_type_t timer_type, guint8 timer_id,
+                                              gboolean before_event,
                                               guint64 *time_until_expires)
 {
+    guint64 *pTimer = NULL;
+    drx_running_state_t *state_to_use;
+    guint64 currentTime;
+
+    if (before_event) {
+        state_to_use = &p_state->state_before;
+    }
+    else {
+        state_to_use = &p_state->state_after;
+    }
+
+
     /* Get current time in ms */
     /* TODO: should this be relative to firstCycleStart to avoid overflowing? */
-    guint64 currentTime = (p_state->state_before.currentTime.secs * 1000) + (p_state->state_before.currentTime.nsecs / 1000000);
-
-    guint64 *pTimer = NULL;
+    currentTime = (state_to_use->currentTime.secs * 1000) + (state_to_use->currentTime.nsecs / 1000000);
 
     /* Get pointer to timer value */
     switch (timer_type) {
         case drx_onduration_timer:
-            pTimer = &(p_state->state_before.onDurationTimer);
+            pTimer = &(state_to_use->onDurationTimer);
             break;
         case drx_inactivity_timer:
-            pTimer = &(p_state->state_before.inactivityTimer);
+            pTimer = &(state_to_use->inactivityTimer);
             break;
         case drx_rtt_timer:
-            pTimer = &(p_state->state_before.RTT[timer_id]);
+            pTimer = &(state_to_use->RTT[timer_id]);
             break;
         case drx_retx_timer:
-            pTimer = &(p_state->state_before.retransmissionTimer[timer_id]);
+            pTimer = &(state_to_use->retransmissionTimer[timer_id]);
             break;
         case drx_short_cycle_timer:
-            pTimer = &(p_state->state_before.shortCycleTimer);
+            pTimer = &(state_to_use->shortCycleTimer);
             break;
 
         default:
@@ -1363,7 +1376,7 @@ static void mac_lte_drx_new_ulsch_data(guint16 ueid)
 
     /* Start inactivity timer */
     if (ue_state != NULL) {
-            mac_lte_drx_start_timer(ue_state, drx_inactivity_timer, 0);
+        mac_lte_drx_start_timer(ue_state, drx_inactivity_timer, 0);
     }
 }
 
@@ -1375,7 +1388,7 @@ static void mac_lte_drx_new_dlsch_data(guint16 ueid)
 
     /* Start retransmission timer */
     if (ue_state != NULL) {
-            mac_lte_drx_start_timer(ue_state, drx_inactivity_timer, 0);
+        mac_lte_drx_start_timer(ue_state, drx_inactivity_timer, 0);
     }
 }
 
@@ -1387,7 +1400,7 @@ static void mac_lte_drx_dl_crc_error(guint16 ueid)
 
     /* Start timer */
     if (ue_state != NULL) {
-            mac_lte_drx_start_timer(ue_state, drx_retx_timer, 0);
+        mac_lte_drx_start_timer(ue_state, drx_retx_timer, 0);
     }
 }
 
@@ -1452,7 +1465,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         /* TODO: add a test that ensures we are still in the correct SFN cycle! */
         while ((ue_state->state_before.currentSFN != SFN) || (ue_state->state_before.currentSF != SF)) {
 
-            /* TODO check for timers that have expired and change state accordingly */
+            /* Check for timers that have expired and change state accordingly */
 
             /* See if onDuration timer should be started */
             guint16 subframes = SFN*10 + SF;
@@ -1470,14 +1483,14 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             }
 
             /* See if onDuration has expired */
-            if (mac_lte_drx_has_timer_expired(ue_state, drx_onduration_timer, 0, &time_until_expires)) {
+            if (mac_lte_drx_has_timer_expired(ue_state, drx_onduration_timer, 0, TRUE, &time_until_expires)) {
                 ue_state->state_before.inOnDuration = FALSE;
             }
 
             /* Check for HARQ RTT Timer expiring.
                In practice only one could expire in any given subframe... */
             for (harq_id = 0 ; harq_id < 8; harq_id++) {
-                if (mac_lte_drx_has_timer_expired(ue_state, drx_rtt_timer, harq_id, &time_until_expires)) {
+                if (mac_lte_drx_has_timer_expired(ue_state, drx_rtt_timer, harq_id, TRUE, &time_until_expires)) {
                     /* Start the Retransmission timer */
                     mac_lte_drx_start_timer(ue_state, drx_retx_timer, harq_id);
                 }
@@ -1486,10 +1499,10 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             /* Reception of DRX command is dealt with separately at the moment... */
 
             /* Inactivity timer expired */
-            if (mac_lte_drx_has_timer_expired(ue_state, drx_inactivity_timer, 0, &time_until_expires)) {
+            if (mac_lte_drx_has_timer_expired(ue_state, drx_inactivity_timer, 0, TRUE, &time_until_expires)) {
                 if (ue_state->config.shortCycleConfigured) {
-                ue_state->state_before.inShortCycle = TRUE;
-                mac_lte_drx_start_timer(ue_state, drx_short_cycle_timer, 0);
+                    ue_state->state_before.inShortCycle = TRUE;
+                    mac_lte_drx_start_timer(ue_state, drx_short_cycle_timer, 0);
                 }
             }
 
@@ -1521,12 +1534,14 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
     /* Look up state of this UE */
     drx_state_t *ue_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_ue_state,
                                                                GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
+    drx_state_t *frame_result;
+
     if (ue_state != NULL) {
         /* Should only need to allocate frame_result and add to the result table when
            before PDU is processed */
         if (before_event) {
             /* Copy UE snapshot for this frame, and add to result table */
-            drx_state_t *frame_result = wmem_new(wmem_file_scope(), drx_state_t);
+            frame_result = wmem_new(wmem_file_scope(), drx_state_t);
 
             /* Deep-copy this snapshot for this frame */
             *frame_result = *ue_state;
@@ -1536,10 +1551,10 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
         }
         else {
             /* After update, so just copy ue_state 'state' info after part of frame */
-            drx_state_t *frame_result = (drx_state_t*)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                                          GUINT_TO_POINTER(pinfo->fd->num));
+            frame_result = (drx_state_t*)g_hash_table_lookup(mac_lte_drx_frame_result,
+                                                             GUINT_TO_POINTER(pinfo->fd->num));
             if (frame_result != NULL) {
-                /* Deep-copy updated state */
+                /* Deep-copy updated state from UE */
                 frame_result->state_after = ue_state->state_before;
             }
         }
@@ -1677,9 +1692,20 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
            Or complain if DRX looks like it should be on. */
 
         /* Is inactivity timer running? */
-        if (!mac_lte_drx_has_timer_expired(frame_state, drx_inactivity_timer, 0, &time_until_expires)) {
-            /* TODO: show that inactivity timer running for time_until_expires more subframes */
+        if (!mac_lte_drx_has_timer_expired(frame_state, drx_onduration_timer, 0, before_event, &time_until_expires)) {
+            ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_onduration_remaining, tvb,
+                                     0, 0, (guint16)time_until_expires);
+            PROTO_ITEM_SET_GENERATED(ti);
         }
+
+
+        /* Is inactivity timer running? */
+        if (!mac_lte_drx_has_timer_expired(frame_state, drx_inactivity_timer, 0, before_event, &time_until_expires)) {
+            ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_inactivity_remaining, tvb,
+                                     0, 0, (guint16)time_until_expires);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+
     }
 }
 
@@ -3267,16 +3293,21 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Update DRX state of UE */
     if (global_mac_lte_show_drx) {
-        if ((p_mac_lte_info->reTxCount == 0) && !pinfo->fd->flags.visited) {
+    	if (!pinfo->fd->flags.visited) {
 
             /* Update UE state to this subframe (but before this event is processed) */
             update_drx_info(pinfo, p_mac_lte_info);
 
             /* Store 'before' snapshot of UE state for this frame */
             set_drx_info(pinfo, p_mac_lte_info, TRUE);
+        }
 
-            /* Changes of state caused by events */
-            if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+        /* Show current DRX state in tree as 'before' */
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE);
+
+        /* Changes of state caused by events */
+        if (!pinfo->fd->flags.visited) {
+            if ((p_mac_lte_info->reTxCount == 0) && (p_mac_lte_info->direction == DIRECTION_UPLINK)) {
                 mac_lte_drx_new_ulsch_data(p_mac_lte_info->ueid);
             }
             else {
@@ -3284,14 +3315,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 if (p_mac_lte_info->crcStatusValid != crc_success) {
                     mac_lte_drx_dl_crc_error(p_mac_lte_info->ueid);
                 }
-                else {
+                else if (p_mac_lte_info->reTxCount == 0) {
                     mac_lte_drx_new_dlsch_data(p_mac_lte_info->ueid);
                 }
             }
         }
-
-        /* Show current DRX state in tree as 'before' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE);
     }
 
 
@@ -4151,18 +4179,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
     }
 
-    /* Can now store updated DRX info and show its info in the tree */
-    /* TODO: add and use 'after' flags to these functions */
-    if (global_mac_lte_show_drx) {
-        if (!pinfo->fd->flags.visited) {
-            /* Store 'after' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info, FALSE);
-        }
-
-        /* Show current DRX state in tree as 'after' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, FALSE);
-    }
-
     /* There might not be any data, if only headers (plus control data) were logged */
     is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
@@ -4378,6 +4394,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
+    }
+
+    /* Can now store updated DRX info and show its info in the tree */
+    if (global_mac_lte_show_drx) {
+        if (!pinfo->fd->flags.visited) {
+            /* Store 'after' snapshot of UE state for this frame */
+            set_drx_info(pinfo, p_mac_lte_info, FALSE);
+        }
+
+        /* Show current DRX state in tree as 'after' */
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, FALSE);
     }
 }
 
@@ -6537,6 +6564,19 @@ void proto_register_mac_lte(void)
               0, 0x0, NULL, HFILL
             }
         },
+        { &hf_mac_lte_drx_state_inactivity_remaining,
+            { "Inactivity remaining",
+              "mac-lte.drx-state.inactivity-remaining", FT_UINT16, BASE_DEC,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_drx_state_onduration_remaining,
+            { "Onduration remaining",
+              "mac-lte.drx-state.onduration-remaining", FT_UINT16, BASE_DEC,
+              0, 0x0, NULL, HFILL
+            }
+        },
+
     };
 
     static gint *ett[] =
