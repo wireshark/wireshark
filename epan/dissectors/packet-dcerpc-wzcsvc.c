@@ -12,7 +12,6 @@
 
 
 #include "config.h"
-
 #ifdef _MSC_VER
 #pragma warning(disable:4005)
 #pragma warning(disable:4013)

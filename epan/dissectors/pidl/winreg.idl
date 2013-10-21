@@ -2,46 +2,51 @@
   winreg interface definition
 */
 
-/* import "lsa.idl", "initshutdown.idl", "security.idl";*/
+/*import "lsa.idl", "security.idl",*/
+import "misc.idl";
 
 [ 
   uuid("338cd001-2244-31f1-aaaa-900038001003"),
   version(1.0),
   endpoint("ncacn_np:[\\pipe\\winreg]","ncacn_ip_tcp:","ncalrpc:"),
   pointer_default(unique),
-  pointer_default_top(unique),
   helpstring("Remote Registry Service")
 ] interface winreg
 {
-	declare bitmap security_secinfo;
+	typedef bitmap security_secinfo security_secinfo;
+
+	/*
+	 * Access Bits for registry ACLS
+	 */
 
 	typedef [bitmap32bit] bitmap {
 		KEY_QUERY_VALUE 		= 0x00001,
 		KEY_SET_VALUE 			= 0x00002,
 		KEY_CREATE_SUB_KEY 		= 0x00004,
-		KEY_ENUMERATE_SUB_KEYS 	= 0x00008,
-		KEY_NOTIFY 				= 0x00010,
+		KEY_ENUMERATE_SUB_KEYS		= 0x00008,
+		KEY_NOTIFY			= 0x00010,
 		KEY_CREATE_LINK 		= 0x00020,
 		KEY_WOW64_64KEY 		= 0x00100,
 		KEY_WOW64_32KEY 		= 0x00200
 	} winreg_AccessMask;
 
-	typedef [public,v1_enum] enum {
-		REG_NONE                       = 0,
-		REG_SZ                         = 1,
-		REG_EXPAND_SZ                  = 2,
-		REG_BINARY                     = 3,
-		REG_DWORD                      = 4,
-		REG_DWORD_BIG_ENDIAN           = 5,
-		REG_LINK                       = 6,
-		REG_MULTI_SZ                   = 7,
-		REG_RESOURCE_LIST              = 8,
-		REG_FULL_RESOURCE_DESCRIPTOR   = 9,
-		REG_RESOURCE_REQUIREMENTS_LIST = 10,
-		REG_QWORD                      = 11
-	} winreg_Type;
+	const int REG_KEY_READ = (	STANDARD_RIGHTS_READ_ACCESS	|
+					KEY_QUERY_VALUE			|
+					KEY_ENUMERATE_SUB_KEYS 		|
+					KEY_NOTIFY);
 
-	typedef [public,noejs] struct {
+	const int REG_KEY_EXECUTE = REG_KEY_READ;
+
+	const int REG_KEY_WRITE = (	STANDARD_RIGHTS_WRITE_ACCESS	|
+					KEY_SET_VALUE	 		|
+					KEY_CREATE_SUB_KEY);
+
+	const int REG_KEY_ALL = (	STANDARD_RIGHTS_REQUIRED_ACCESS |
+					REG_KEY_READ 			|
+					REG_KEY_WRITE 			|
+					KEY_CREATE_LINK);
+
+	typedef [public] struct {
 		[value(strlen_m_term(name)*2)] uint16 name_len;
 		[value(strlen_m_term(name)*2)] uint16 name_size;
 		[string,charset(UTF16)] uint16 *name;
@@ -50,7 +55,7 @@
 	/******************/
 	/* Function: 0x00 */
 	WERROR winreg_OpenHKCR(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -58,7 +63,7 @@
 	/******************/
 	/* Function: 0x01 */
 	WERROR winreg_OpenHKCU(
-	        [in]      uint16 *system_name,
+	        [in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -66,7 +71,7 @@
 	/******************/
 	/* Function: 0x02 */
 	[public] WERROR winreg_OpenHKLM(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -74,7 +79,7 @@
 	/******************/
 	/* Function: 0x03 */
 	WERROR winreg_OpenHKPD(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -82,7 +87,7 @@
 	/******************/
 	/* Function: 0x04 */
 	WERROR winreg_OpenHKU(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -108,6 +113,15 @@
 		boolean8  inherit;
 	} winreg_SecBuf;
 
+	const int REG_OPTION_NON_VOLATILE = 0x00000000;
+
+	typedef [bitmap32bit] bitmap {
+		REG_OPTION_VOLATILE		= 0x00000001,
+		REG_OPTION_CREATE_LINK		= 0x00000002,
+		REG_OPTION_BACKUP_RESTORE	= 0x00000004,
+		REG_OPTION_OPEN_LINK		= 0x00000008
+	} winreg_KeyOptions;
+
 	typedef [v1_enum] enum {
 		REG_ACTION_NONE         = 0, /* used by caller */
 		REG_CREATED_NEW_KEY     = 1,
@@ -118,7 +132,7 @@
 		[in,ref] policy_handle *handle,
 		[in] winreg_String name,
 		[in] winreg_String keyclass,
-		[in] uint32 options,
+		[in] winreg_KeyOptions options,
 		[in] winreg_AccessMask access_mask,
 		[in,unique] winreg_SecBuf *secdesc,
 		[out,ref] policy_handle *new_handle,
@@ -140,7 +154,7 @@
 	);
 
 	typedef struct {
-		[value(strlen_m_term(name)*2)] uint16 length; 
+		[value(strlen_m_term_null(name)*2)] uint16 length;
 		/* size cannot be auto-set by value() as it is the
 		   amount of space the server is allowed to use for this
 		   string in the reply, not its current size */
@@ -158,15 +172,24 @@
 		[in,out,unique] NTTIME           *last_changed_time
 	);
 
+	typedef struct {
+		[value(strlen_m_term(name)*2)] uint16 length;
+		/* size cannot be auto-set by value() as it is the
+		   amount of space the server is allowed to use for this
+		   string in the reply, not its current size */
+		uint16 size;
+		[size_is(size/2),length_is(length/2),charset(UTF16)] uint16 *name;
+	} winreg_ValNameBuf;
+
 	/******************/
 	/* Function: 0x0a */
 
 	[public] WERROR winreg_EnumValue(
 		[in,ref]        policy_handle *handle,
 		[in]            uint32 enum_index,
-		[in,out,ref]    winreg_StringBuf *name,
+		[in,out,ref]    winreg_ValNameBuf *name,
 		[in,out,unique] winreg_Type *type,
-		[in,out,unique,size_is(*size),length_is(*length)] uint8 *value,
+		[in,out,unique,size_is(size ? *size : 0),length_is(length ? *length : 0),range(0,0x4000000)] uint8 *value,
 		[in,out,unique] uint32 *size,
 		[in,out,unique] uint32 *length
 	);
@@ -189,19 +212,26 @@
 	/* Function: 0x0d */
 	WERROR winreg_LoadKey(
 		[in,ref] policy_handle *handle,
-		[in] winreg_String *keyname,
-		[in] winreg_String *filename
+		[in,unique] winreg_String *keyname,
+		[in,unique] winreg_String *filename
 	);
 
 	/******************/
 	/* Function: 0x0e */
+	typedef [public,bitmap32bit] bitmap {
+		REG_NOTIFY_CHANGE_NAME		= 0x00000001,
+		REG_NOTIFY_CHANGE_ATTRIBUTES	= 0x00000002,
+		REG_NOTIFY_CHANGE_LAST_SET	= 0x00000004,
+		REG_NOTIFY_CHANGE_SECURITY	= 0x00000008
+	} winreg_NotifyChangeType;
+
 	[public] WERROR winreg_NotifyChangeKeyValue(
 		[in,ref] policy_handle *handle,
-		[in] uint8 watch_subtree,
-		[in] uint32 notify_filter,
+		[in] boolean8 watch_subtree,
+		[in] winreg_NotifyChangeType notify_filter,
 		[in] uint32 unknown,
 		[in] winreg_String string1,
-		[in] winreg_String string2, 
+		[in] winreg_String string2,
 		[in] uint32 unknown2
 	);
 
@@ -210,7 +240,7 @@
 	[public] WERROR winreg_OpenKey(
 		[in,ref] policy_handle *parent_handle,
 		[in] winreg_String keyname,
-		[in] uint32 unknown,
+		[in] winreg_KeyOptions options,
 		[in] winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -222,7 +252,7 @@
 		[in,out,ref] winreg_String *classname,
 		[out,ref] uint32 *num_subkeys,
 		[out,ref] uint32 *max_subkeylen,
-		[out,ref] uint32 *max_subkeysize,
+		[out,ref] uint32 *max_classlen,
 		[out,ref] uint32 *num_values,
 		[out,ref] uint32 *max_valnamelen,
 		[out,ref] uint32 *max_valbufsize,
@@ -234,24 +264,36 @@
 	/* Function: 0x11 */
 	[public] WERROR winreg_QueryValue(
 		[in,ref] policy_handle *handle,
-		[in] winreg_String value_name,
-		[in,out] winreg_Type *type,
-		[in,out,size_is(*size),length_is(*length)] uint8 *data,
-		[in,out] uint32 *size,
-		[in,out] uint32 *length
+		[in,ref] winreg_String *value_name,
+		[in,out,unique] winreg_Type *type,
+		[in,out,unique,size_is(data_size ? *data_size : 0),length_is(data_length ? *data_length : 0),range(0,0x4000000)] uint8 *data,
+		[in,out,unique] uint32 *data_size,
+		[in,out,unique] uint32 *data_length
 	);
 
 	/******************/
 	/* Function: 0x12 */
 	WERROR winreg_ReplaceKey(
+		[in,ref] policy_handle *handle,
+		[in,ref] winreg_String *subkey,
+		[in,ref] winreg_String *new_file,
+		[in,ref] winreg_String *old_file
 	);
 
 	/******************/
 	/* Function: 0x13 */
+
+	typedef [public,bitmap32bit] bitmap {
+		REG_WHOLE_HIVE_VOLATILE		= 0x00000001,
+		REG_REFRESH_HIVE 		= 0x00000002,
+		REG_NO_LAZY_FLUSH		= 0x00000004,
+		REG_FORCE_RESTORE		= 0x00000008
+	} winreg_RestoreKeyFlags;
+
 	WERROR winreg_RestoreKey(
 		[in,ref] policy_handle *handle,
 		[in,ref] winreg_String *filename,
-		[in]     uint32 flags 
+		[in]     winreg_RestoreKeyFlags flags
 	);
 
 	/******************/
@@ -273,7 +315,7 @@
 	/* Function: 0x15 */
 	WERROR winreg_SetKeySecurity(
 		[in,ref] policy_handle *handle,
-		[in] winreg_AccessMask access_mask,
+		[in] security_secinfo sec_info,
 		[in,ref] KeySecurityData *sd
 	);
 
@@ -290,22 +332,28 @@
 	/******************/
 	/* Function: 0x17 */
 	WERROR winreg_UnLoadKey(
+		[in,ref] policy_handle *handle,
+		[in,ref] winreg_String *subkey
 	);
 
 	/******************/
 	/* Function: 0x18 */
 	WERROR winreg_InitiateSystemShutdown(
-		[in]	uint16 *hostname,
-		[in]	initshutdown_String *message,
+		[in,unique] uint16 *hostname,
+		/*
+		 * Note: lsa_String and winreg_String both result
+		 *       in WERR_INVALID_PARAM
+		 */
+		[in,unique] lsa_StringLarge *message,
 		[in]	uint32 timeout,
 		[in]	uint8 force_apps,
-		[in]	uint8 reboot
+		[in]	uint8 do_reboot
 	);
 
 	/******************/
 	/* Function: 0x19 */
 	WERROR winreg_AbortSystemShutdown(
-		[in]	uint16 *server
+		[in,unique] uint16 *server
 	);
 
 	/******************/
@@ -318,7 +366,7 @@
 	/******************/
 	/* Function: 0x1b */
 	WERROR winreg_OpenHKCC(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -326,48 +374,57 @@
 	/******************/
 	/* Function: 0x1c */
 	WERROR winreg_OpenHKDD(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
 
 	typedef struct {
-		winreg_String *name;
-		winreg_Type type;
-		uint32 offset;
-		uint32 length;
+		winreg_ValNameBuf *ve_valuename;
+		uint32 ve_valuelen;
+		uint32 ve_valueptr;
+		winreg_Type ve_type;
 	} QueryMultipleValue;
-	
+
 	/******************/
 	/* Function: 0x1d */
 	[public] WERROR winreg_QueryMultipleValues(
 		[in,ref] policy_handle *key_handle, 
-		[in,out,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values,
+		[in,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values_in,
+		[out,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values_out,
 		[in] uint32 num_values,
-		[in,out,size_is(*buffer_size),length_is(*buffer_size)] uint8 *buffer,
+		[in,out,unique,size_is(*buffer_size),length_is(*buffer_size)] uint8 *buffer,
 		[in,out,ref] uint32 *buffer_size
 	);
 
 	/******************/
 	/* Function: 0x1e */
 	WERROR winreg_InitiateSystemShutdownEx(
-		[in] uint16 *hostname,
-		[in] initshutdown_String *message,
+		[in,unique] uint16 *hostname,
+		/*
+		 * Note: lsa_String and winreg_String both result
+		 *       in WERR_INVALID_PARAM
+		 */
+		[in,unique] lsa_StringLarge *message,
 		[in] uint32 timeout,
 		[in] uint8 force_apps,
-		[in] uint8 reboot,
+		[in] uint8 do_reboot,
 		[in] uint32 reason
 	);
 
 	/******************/
 	/* Function: 0x1f */
 	WERROR winreg_SaveKeyEx(
+		[in,ref] policy_handle *handle,
+		[in,ref] winreg_String *filename,
+		[in,unique] KeySecurityAttribute *sec_attrib,
+		[in] uint32 flags
 	);
 
 	/******************/
 	/* Function: 0x20 */
 	WERROR winreg_OpenHKPT(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
@@ -375,13 +432,29 @@
 	/******************/
 	/* Function: 0x21 */
 	WERROR winreg_OpenHKPN(
-		[in]      uint16 *system_name,
+		[in,unique] uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
 	);
 
 	/******************/
 	/* Function: 0x22 */
-	WERROR winreg_QueryMultipleValues2(
+	[public] WERROR winreg_QueryMultipleValues2(
+		[in,ref] policy_handle *key_handle,
+		[in,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values_in,
+		[out,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values_out,
+		[in] uint32 num_values,
+		[in,out,unique,size_is(*offered),length_is(*offered)] uint8 *buffer,
+		[in,ref] uint32 *offered,
+		[out,ref] uint32 *needed
+	);
+
+	/******************/
+	/* Function: 0x23 */
+	WERROR winreg_DeleteKeyEx(
+		[in,ref] policy_handle *handle,
+		[in,ref] winreg_String *key,
+		[in] winreg_AccessMask access_mask,
+		[in] uint32 reserved
 	);
 }

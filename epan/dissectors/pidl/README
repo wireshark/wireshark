@@ -1,41 +1,104 @@
-The REAMDE specific to the Wireshark "copy" of the pidl sources
-==============================================================
+A note about PIDL generated files
+=================================
 
-The tree tools/pidl is a direct extract from
+Quick guide
+===========
+    rsync -av rsync.samba.org::ftp/pub/unpacked/samba_4_0_test/pidl .
 
-	svn://svnanon.samba.org/samba/branches/SAMBA_4_0/source/pidl
+    for file in *.idl; do
+        echo "Generating dissector for $file"
+        ./pidl/pidl --ws-parser -- $file;
+    done
+    cp packet-dcerpc*.* ..
 
-to allow building Wireshark pidl dissectors without having to
-*explicitly* access a remote svn repository.
+Complete infos
+==============
+
+The following files:
+../packet-dcerpc-atsvc.h
+../packet-dcerpc-budb.c
+../packet-dcerpc-budb.h
+../packet-dcerpc-butc.c
+../packet-dcerpc-butc.h
+../packet-dcerpc-dfs.h
+../packet-dcerpc-dnsserver.h
+../packet-dcerpc-drsuapi.c
+../packet-dcerpc-drsuapi.h
+../packet-dcerpc-dssetup.h
+../packet-dcerpc-efs.h
+../packet-dcerpc-eventlog.h
+../packet-dcerpc-frsrpc.h
+../packet-dcerpc-frstrans.h
+../packet-dcerpc-initshutdown.h
+../packet-dcerpc-lsa.h
+../packet-dcerpc-mapi.h
+../packet-dcerpc-misc.h
+../packet-dcerpc-nspi.h
+../packet-dcerpc-rfr.h
+../packet-dcerpc-samr.h
+../packet-dcerpc-srvsvc.h
+../packet-dcerpc-winreg.h
+../packet-dcerpc-wkssvc.h
+../packet-dcerpc-wzcsvc.h
+
+Are automatically generated via a tool called "pidl", you shouldn't modify them manually.
+
+The pidl tool is maintained by the Samba project (http://samba.org, samba-technical@samba.org)
+We recommend to fetch a copy of the git tree of Samba to get the tool:
+    git clone git://git.samba.org/samba.git
+
+Or if you are just interested to run pidl you could fetch it via rsync:
+    rsync -av rsync.samba.org::ftp/pub/unpacked/samba_4_0_test/pidl .
+
+If both solution are not applicable you can use the copy that is located in the
+tool folder but it might be a bit outdated.
+
+Running pidl
+============
+
+You have to run the pidl command inside the pidl folder of the wireshark source tree
+
+The command to compile file:
+    <path_to_pidl>pidl --ws-parser -- <idl-file>
+                                   ^^^
+                                   This is *VERY* important
+The command generate 2 files:
+    packet-dcerpc-<interfacename>.h
+    packet-dcerpc-<interfacename>.c
+
+For instance with a pidl copy in /usr/local/src/samba/pidl and the atsvc.idl, the
+command will be:
+
+    /usr/local/src/samba/pidl/pidl --ws-parser -- atsvc.idl
+
+This will generate 2 files:
+    packet-dcerpc-atsvc.h
+    packet-dcerpc-atsvc.c
+
+If you run outside the dissectors/pidl directory, this *will* result in a
+warning such as:
+
+    atsvc.idl:5:23: idl_types.h: No such file or directory
+
+and *may* result in additional warnings such as:
+
+    Warning: No conformance file `initshutdown.cnf'
+    Unable to handle string with flags STR_LEN4|STR_NOTERM at /usr/lib/perl5/site_perl/5.8.6/Parse/Pidl/Wireshark/NDR.pm line 283.
+
+Notes about the in-tree pidl
+============================
+
+To allow building Wireshark pidl dissectors without having to
+*explicitly* access a remote svn repository a copy of pidl is located in tools/pidl
 
 Don't do changes in the tools/pidl directory, do them at the samba tree!
 Changes to this tree will be overwritten the next time the sources from
 the samba tree are updated, which is basically every time you do an svn
 up in the Wireshark toplevel dir.
 
-In order to build, install yapp, then do
-
-	perl Makefile.PL && make && && make install
-
-This will build and install the binaries and the manpage (pidl.1).
-
-Yapp can be found in CPAN at
-
-	http://search.cpan.org/~fdesar/Parse-Yapp/
-
-If you are using Linux, there may be a package for Yapp for your
-distribution; on SUSE, the package is an rpm named perl-Parse-Yapp.
-
-Run pidl with:
-
-	pidl --ws-parser -- <idl-file>  (don't forget the "--")
-
-If you run outside the dissectors/pidl directory, this *will* result in a
-warning such as:
-
-	atsvc.idl:5:23: idl_types.h: No such file or directory
-
-and *may* result in additional warnings such as:
-
-	Warning: No conformance file `initshutdown.cnf'
-	Unable to handle string with flags STR_LEN4|STR_NOTERM at /usr/lib/perl5/site_perl/5.8.6/Parse/Pidl/Wireshark/NDR.pm line 283.
+Not compiling idl
+=================
+As of October 2013, the following idl have issues when generating and compiling:
+dfs.idl
+srvsvc.idl
+wkssvc.cnf

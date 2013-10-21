@@ -1,3 +1,5 @@
+TYPE lsa_StringLarge "offset=lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE winreg_Type "offset=misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
 IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
 
 
@@ -133,6 +135,7 @@ MANUAL winreg_dissect_bitmap_AccessMask
 
 
 CODE START
+ #include "packet-dcerpc-lsa.h"
 static void
 winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
@@ -159,7 +162,7 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 	guint32 len;
 	dcerpc_info *di;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info*)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -189,17 +192,6 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		&winreg_access_mask_info, NULL);
 	return offset;
 }
-
-/* FIXME: pidl generates the wrong name for external symbols */
-static int
-winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param)
-{
-        #include "packet-dcerpc-initshutdown.h"
-	return initshutdown_dissect_struct_String(tvb, offset, pinfo, parent_tree, drep, hf_index, param);
-}
-
-
-
 
 /* winreg_String :
  *	typedef [public,noejs] struct {

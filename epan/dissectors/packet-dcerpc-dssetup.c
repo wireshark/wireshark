@@ -12,6 +12,12 @@
 
 
 #include "config.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4005)
+#pragma warning(disable:4013)
+#pragma warning(disable:4018)
+#pragma warning(disable:4101)
+#endif
 
 #include <glib.h>
 #include <string.h>
@@ -88,15 +94,15 @@ static const true_false_string dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DOMAIN_GUID_P
    "DS_ROLE_PRIMARY_DOMAIN_GUID_PRESENT is SET",
    "DS_ROLE_PRIMARY_DOMAIN_GUID_PRESENT is NOT SET",
 };
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string dssetup_dssetup_DsUpgrade_vals[] = {
 	{ DS_ROLE_NOT_UPGRADING, "DS_ROLE_NOT_UPGRADING" },
 	{ DS_ROLE_UPGRADING, "DS_ROLE_UPGRADING" },
@@ -108,53 +114,62 @@ const value_string dssetup_dssetup_DsPrevious_vals[] = {
 	{ DS_ROLE_PREVIOUS_BACKUP, "DS_ROLE_PREVIOUS_BACKUP" },
 { 0, NULL }
 };
-static int dssetup_dissect_element_DsRoleUpgradeStatus_upgrading(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRoleUpgradeStatus_previous_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int dssetup_dissect_element_DsRoleUpgradeStatus_upgrading(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRoleUpgradeStatus_previous_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string dssetup_dssetup_DsRoleOp_vals[] = {
 	{ DS_ROLE_OP_IDLE, "DS_ROLE_OP_IDLE" },
 	{ DS_ROLE_OP_ACTIVE, "DS_ROLE_OP_ACTIVE" },
 	{ DS_ROLE_OP_NEEDS_REBOOT, "DS_ROLE_OP_NEEDS_REBOOT" },
 { 0, NULL }
 };
-static int dssetup_dissect_element_DsRoleOpStatus_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int dssetup_dissect_element_DsRoleOpStatus_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string dssetup_dssetup_DsRoleInfoLevel_vals[] = {
 	{ DS_ROLE_BASIC_INFORMATION, "DS_ROLE_BASIC_INFORMATION" },
 	{ DS_ROLE_UPGRADE_STATUS, "DS_ROLE_UPGRADE_STATUS" },
 	{ DS_ROLE_OP_STATUS, "DS_ROLE_OP_STATUS" },
 { 0, NULL }
 };
-static int dssetup_dissect_element_DsRoleInfo_basic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRoleInfo_upgrade(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRoleInfo_opstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
-static int dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+static int dssetup_dissect_element_DsRoleInfo_basic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRoleInfo_upgrade(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRoleInfo_opstatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	DS_ROLE_STANDALONE_WORKSTATION=0, */
 /* IDL: 	DS_ROLE_MEMBER_WORKSTATION=1, */
 /* IDL: 	DS_ROLE_STANDALONE_SERVER=2, */
 /* IDL: 	DS_ROLE_MEMBER_SERVER=3, */
 /* IDL: 	DS_ROLE_BACKUP_DC=4, */
 /* IDL: 	DS_ROLE_PRIMARY_DC=5, */
-/* IDL: } dssetup_DsRole; */
+/* IDL: } */
 
 int
-dssetup_dissect_enum_DsRole(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_enum_DsRole(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	guint1632 parameter=0;
+	if(param){
+		parameter=(guint1632)*param;
+	}
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
 
-/* IDL: typedef bitmap { */
+
+/* IDL: bitmap { */
 /* IDL: 	DS_ROLE_PRIMARY_DS_RUNNING =  0x00000001 , */
 /* IDL: 	DS_ROLE_PRIMARY_DS_MIXED_MODE =  0x00000002 , */
 /* IDL: 	DS_ROLE_UPGRADE_IN_PROGRESS =  0x00000004 , */
 /* IDL: 	DS_ROLE_PRIMARY_DOMAIN_GUID_PRESENT =  0x01000000 , */
-/* IDL: } dssetup_DsRoleFlags; */
+/* IDL: } */
 
 int
-dssetup_dissect_bitmap_DsRoleFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_bitmap_DsRoleFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -162,8 +177,8 @@ dssetup_dissect_bitmap_DsRoleFlags(tvbuff_t *tvb, int offset, packet_info *pinfo
 	guint32 flags;
 	ALIGN_TO_4_BYTES;
 
-	if(parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 		tree = proto_item_add_subtree(item,ett_dssetup_dssetup_DsRoleFlags);
 	}
 
@@ -205,24 +220,25 @@ dssetup_dissect_bitmap_DsRoleFlags(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 	flags&=(~( 0x01000000 ));
 
-	if(flags){
+	if (flags) {
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	dssetup_DsRole role; */
 /* IDL: 	dssetup_DsRoleFlags flags; */
-/* IDL: 	[unique(1)] uint16 *domain; */
-/* IDL: 	[unique(1)] uint16 *dns_domain; */
-/* IDL: 	[unique(1)] uint16 *forest; */
+/* IDL: 	[unique(1)] [charset(UTF16)] uint16 *domain; */
+/* IDL: 	[unique(1)] [charset(UTF16)] uint16 *dns_domain; */
+/* IDL: 	[unique(1)] [charset(UTF16)] uint16 *forest; */
 /* IDL: 	GUID domain_guid; */
-/* IDL: } dssetup_DsRolePrimaryDomInfoBasic; */
+/* IDL: } */
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_enum_DsRole(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_role, 0);
 
@@ -230,7 +246,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_role(tvbuff_t *tvb, int offset
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_bitmap_DsRoleFlags(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_flags, 0);
 
@@ -238,7 +254,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_flags(tvbuff_t *tvb, int offse
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_, NDR_POINTER_UNIQUE, "Pointer to Domain (uint16)",hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain);
 
@@ -246,7 +262,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain(tvbuff_t *tvb, int offs
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -257,7 +273,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_(tvbuff_t *tvb, int off
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_, NDR_POINTER_UNIQUE, "Pointer to Dns Domain (uint16)",hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_dns_domain);
 
@@ -265,7 +281,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain(tvbuff_t *tvb, int 
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -276,7 +292,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_dns_domain_(tvbuff_t *tvb, int
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_, NDR_POINTER_UNIQUE, "Pointer to Forest (uint16)",hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_forest);
 
@@ -284,7 +300,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest(tvbuff_t *tvb, int offs
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -295,7 +311,7 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_forest_(tvbuff_t *tvb, int off
 }
 
 static int
-dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain_guid, NULL);
 
@@ -303,18 +319,19 @@ dssetup_dissect_element_DsRolePrimaryDomInfoBasic_domain_guid(tvbuff_t *tvb, int
 }
 
 int
-dssetup_dissect_struct_DsRolePrimaryDomInfoBasic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_struct_DsRolePrimaryDomInfoBasic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRolePrimaryDomInfoBasic);
 	}
 	
@@ -333,41 +350,63 @@ dssetup_dissect_struct_DsRolePrimaryDomInfoBasic(tvbuff_t *tvb, int offset, pack
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
 	return offset;
 }
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	DS_ROLE_NOT_UPGRADING=0, */
 /* IDL: 	DS_ROLE_UPGRADING=1, */
-/* IDL: } dssetup_DsUpgrade; */
+/* IDL: } */
 
 int
-dssetup_dissect_enum_DsUpgrade(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_enum_DsUpgrade(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	guint32 parameter=0;
+	if(param){
+		parameter=(guint32)*param;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	DS_ROLE_PREVIOUS_UNKNOWN=0, */
 /* IDL: 	DS_ROLE_PREVIOUS_PRIMARY=1, */
 /* IDL: 	DS_ROLE_PREVIOUS_BACKUP=2, */
-/* IDL: } dssetup_DsPrevious; */
+/* IDL: } */
 
 int
-dssetup_dissect_enum_DsPrevious(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_enum_DsPrevious(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	guint1632 parameter=0;
+	if(param){
+		parameter=(guint1632)*param;
+	}
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	dssetup_DsUpgrade upgrading; */
 /* IDL: 	dssetup_DsPrevious previous_role; */
-/* IDL: } dssetup_DsRoleUpgradeStatus; */
+/* IDL: } */
 
 static int
-dssetup_dissect_element_DsRoleUpgradeStatus_upgrading(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleUpgradeStatus_upgrading(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_enum_DsUpgrade(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRoleUpgradeStatus_upgrading, 0);
 
@@ -375,7 +414,7 @@ dssetup_dissect_element_DsRoleUpgradeStatus_upgrading(tvbuff_t *tvb, int offset,
 }
 
 static int
-dssetup_dissect_element_DsRoleUpgradeStatus_previous_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleUpgradeStatus_previous_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_enum_DsPrevious(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRoleUpgradeStatus_previous_role, 0);
 
@@ -383,18 +422,19 @@ dssetup_dissect_element_DsRoleUpgradeStatus_previous_role(tvbuff_t *tvb, int off
 }
 
 int
-dssetup_dissect_struct_DsRoleUpgradeStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_struct_DsRoleUpgradeStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRoleUpgradeStatus);
 	}
 	
@@ -405,28 +445,42 @@ dssetup_dissect_struct_DsRoleUpgradeStatus(tvbuff_t *tvb, int offset, packet_inf
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
+
 	return offset;
 }
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	DS_ROLE_OP_IDLE=0, */
 /* IDL: 	DS_ROLE_OP_ACTIVE=1, */
 /* IDL: 	DS_ROLE_OP_NEEDS_REBOOT=2, */
-/* IDL: } dssetup_DsRoleOp; */
+/* IDL: } */
 
 int
-dssetup_dissect_enum_DsRoleOp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_enum_DsRoleOp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	guint1632 parameter=0;
+	if(param){
+		parameter=(guint1632)*param;
+	}
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	dssetup_DsRoleOp status; */
-/* IDL: } dssetup_DsRoleOpStatus; */
+/* IDL: } */
 
 static int
-dssetup_dissect_element_DsRoleOpStatus_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleOpStatus_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_enum_DsRoleOp(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRoleOpStatus_status, 0);
 
@@ -434,18 +488,19 @@ dssetup_dissect_element_DsRoleOpStatus_status(tvbuff_t *tvb, int offset, packet_
 }
 
 int
-dssetup_dissect_struct_DsRoleOpStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_struct_DsRoleOpStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
-	ALIGN_TO_2_BYTES;
+	ALIGN_TO_3_BYTES;
 
 	old_offset = offset;
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRoleOpStatus);
 	}
 	
@@ -454,30 +509,44 @@ dssetup_dissect_struct_DsRoleOpStatus(tvbuff_t *tvb, int offset, packet_info *pi
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_3_BYTES;
+	}
+
 	return offset;
 }
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	DS_ROLE_BASIC_INFORMATION=1, */
 /* IDL: 	DS_ROLE_UPGRADE_STATUS=2, */
 /* IDL: 	DS_ROLE_OP_STATUS=3, */
-/* IDL: } dssetup_DsRoleInfoLevel; */
+/* IDL: } */
 
 int
-dssetup_dissect_enum_DsRoleInfoLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_enum_DsRoleInfoLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+	guint1632 parameter=0;
+	if(param){
+		parameter=(guint1632)*param;
+	}
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
 
-/* IDL: typedef [switch_type(dssetup_DsRoleInfoLevel)] union { */
+
+/* IDL: [switch_type(dssetup_DsRoleInfoLevel)] union { */
 /* IDL: [case(DS_ROLE_BASIC_INFORMATION)] [case(DS_ROLE_BASIC_INFORMATION)] dssetup_DsRolePrimaryDomInfoBasic basic; */
 /* IDL: [case(DS_ROLE_UPGRADE_STATUS)] [case(DS_ROLE_UPGRADE_STATUS)] dssetup_DsRoleUpgradeStatus upgrade; */
 /* IDL: [case(DS_ROLE_OP_STATUS)] [case(DS_ROLE_OP_STATUS)] dssetup_DsRoleOpStatus opstatus; */
-/* IDL: } dssetup_DsRoleInfo; */
+/* IDL: } */
 
 static int
-dssetup_dissect_element_DsRoleInfo_basic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleInfo_basic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_struct_DsRolePrimaryDomInfoBasic(tvb,offset,pinfo,tree,drep,hf_dssetup_dssetup_DsRoleInfo_basic,0);
 
@@ -485,7 +554,7 @@ dssetup_dissect_element_DsRoleInfo_basic(tvbuff_t *tvb, int offset, packet_info 
 }
 
 static int
-dssetup_dissect_element_DsRoleInfo_upgrade(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleInfo_upgrade(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_struct_DsRoleUpgradeStatus(tvb,offset,pinfo,tree,drep,hf_dssetup_dssetup_DsRoleInfo_upgrade,0);
 
@@ -493,7 +562,7 @@ dssetup_dissect_element_DsRoleInfo_upgrade(tvbuff_t *tvb, int offset, packet_inf
 }
 
 static int
-dssetup_dissect_element_DsRoleInfo_opstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleInfo_opstatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_struct_DsRoleOpStatus(tvb,offset,pinfo,tree,drep,hf_dssetup_dssetup_DsRoleInfo_opstatus,0);
 
@@ -501,22 +570,22 @@ dssetup_dissect_element_DsRoleInfo_opstatus(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dssetup_dissect_DsRoleInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+dssetup_dissect_DsRoleInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint16 level;
-
-	ALIGN_TO_4_BYTES;
+	guint1632 level;
 
 	old_offset = offset;
-	if(parent_tree){
+	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "dssetup_DsRoleInfo");
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRoleInfo);
 	}
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &level);
+	ALIGN_TO_5_BYTES;
+
 	switch(level) {
 		case DS_ROLE_BASIC_INFORMATION:
 			offset = dssetup_dissect_element_DsRoleInfo_basic(tvb, offset, pinfo, tree, drep);
@@ -532,10 +601,11 @@ dssetup_dissect_DsRoleInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	}
 	proto_item_set_len(item, offset-old_offset);
 
+
 	return offset;
 }
 static int
-dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_enum_DsRoleInfoLevel(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_level, 0);
 
@@ -543,7 +613,7 @@ dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_level(tvbuff_t *tvb, i
 }
 
 static int
-dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info_, NDR_POINTER_UNIQUE, "Pointer to Info (dssetup_DsRoleInfo)",hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_info);
 
@@ -551,7 +621,7 @@ dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info(tvbuff_t *tvb, in
 }
 
 static int
-dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dssetup_dissect_DsRoleInfo(tvb, offset, pinfo, tree, drep, hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_info, 0);
 
@@ -560,7 +630,7 @@ dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info_(tvbuff_t *tvb, i
 
 /* IDL: WERROR dssetup_DsRoleGetPrimaryDomainInformation( */
 /* IDL: [in] dssetup_DsRoleInfoLevel level, */
-/* IDL: [unique(1)] [out] [switch_is(level)] dssetup_DsRoleInfo *info */
+/* IDL: [out] [unique(1)] [switch_is(level)] dssetup_DsRoleInfo *info */
 /* IDL: ); */
 
 static int
@@ -568,13 +638,14 @@ dssetup_dissect_DsRoleGetPrimaryDomainInformation_response(tvbuff_t *tvb _U_, in
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleGetPrimaryDomainInformation";
 	offset = dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_info(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -582,6 +653,7 @@ dssetup_dissect_DsRoleGetPrimaryDomainInformation_response(tvbuff_t *tvb _U_, in
 static int
 dssetup_dissect_DsRoleGetPrimaryDomainInformation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleGetPrimaryDomainInformation";
 	offset = dssetup_dissect_element_DsRoleGetPrimaryDomainInformation_level(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -596,10 +668,11 @@ dssetup_dissect_DsRoleDnsNameToFlatName_response(tvbuff_t *tvb _U_, int offset _
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleDnsNameToFlatName";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -607,6 +680,7 @@ dssetup_dissect_DsRoleDnsNameToFlatName_response(tvbuff_t *tvb _U_, int offset _
 static int
 dssetup_dissect_DsRoleDnsNameToFlatName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleDnsNameToFlatName";
 	return offset;
 }
 
@@ -619,10 +693,11 @@ dssetup_dissect_DsRoleDcAsDc_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleDcAsDc";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -630,6 +705,7 @@ dssetup_dissect_DsRoleDcAsDc_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 dssetup_dissect_DsRoleDcAsDc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleDcAsDc";
 	return offset;
 }
 
@@ -642,10 +718,11 @@ dssetup_dissect_DsRoleDcAsReplica_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleDcAsReplica";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -653,6 +730,7 @@ dssetup_dissect_DsRoleDcAsReplica_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 dssetup_dissect_DsRoleDcAsReplica_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleDcAsReplica";
 	return offset;
 }
 
@@ -665,10 +743,11 @@ dssetup_dissect_DsRoleDemoteDc_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleDemoteDc";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -676,6 +755,7 @@ dssetup_dissect_DsRoleDemoteDc_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 dssetup_dissect_DsRoleDemoteDc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleDemoteDc";
 	return offset;
 }
 
@@ -688,10 +768,11 @@ dssetup_dissect_DsRoleGetDcOperationProgress_response(tvbuff_t *tvb _U_, int off
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleGetDcOperationProgress";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -699,6 +780,7 @@ dssetup_dissect_DsRoleGetDcOperationProgress_response(tvbuff_t *tvb _U_, int off
 static int
 dssetup_dissect_DsRoleGetDcOperationProgress_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleGetDcOperationProgress";
 	return offset;
 }
 
@@ -711,10 +793,11 @@ dssetup_dissect_DsRoleGetDcOperationResults_response(tvbuff_t *tvb _U_, int offs
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleGetDcOperationResults";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -722,6 +805,7 @@ dssetup_dissect_DsRoleGetDcOperationResults_response(tvbuff_t *tvb _U_, int offs
 static int
 dssetup_dissect_DsRoleGetDcOperationResults_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleGetDcOperationResults";
 	return offset;
 }
 
@@ -734,10 +818,11 @@ dssetup_dissect_DsRoleCancel_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleCancel";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -745,6 +830,7 @@ dssetup_dissect_DsRoleCancel_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 dssetup_dissect_DsRoleCancel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleCancel";
 	return offset;
 }
 
@@ -757,10 +843,11 @@ dssetup_dissect_DsRoleServerSaveStateForUpgrade_response(tvbuff_t *tvb _U_, int 
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleServerSaveStateForUpgrade";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -768,6 +855,7 @@ dssetup_dissect_DsRoleServerSaveStateForUpgrade_response(tvbuff_t *tvb _U_, int 
 static int
 dssetup_dissect_DsRoleServerSaveStateForUpgrade_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleServerSaveStateForUpgrade";
 	return offset;
 }
 
@@ -780,10 +868,11 @@ dssetup_dissect_DsRoleUpgradeDownlevelServer_response(tvbuff_t *tvb _U_, int off
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleUpgradeDownlevelServer";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -791,6 +880,7 @@ dssetup_dissect_DsRoleUpgradeDownlevelServer_response(tvbuff_t *tvb _U_, int off
 static int
 dssetup_dissect_DsRoleUpgradeDownlevelServer_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleUpgradeDownlevelServer";
 	return offset;
 }
 
@@ -803,10 +893,11 @@ dssetup_dissect_DsRoleAbortDownlevelServerUpgrade_response(tvbuff_t *tvb _U_, in
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DsRoleAbortDownlevelServerUpgrade";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dssetup_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, DOS_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -814,6 +905,7 @@ dssetup_dissect_DsRoleAbortDownlevelServerUpgrade_response(tvbuff_t *tvb _U_, in
 static int
 dssetup_dissect_DsRoleAbortDownlevelServerUpgrade_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DsRoleAbortDownlevelServerUpgrade";
 	return offset;
 }
 
@@ -848,19 +940,19 @@ void proto_register_dcerpc_dssetup(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_level, 
-	  { "Level", "dssetup.dssetup_DsRoleGetPrimaryDomainInformation.level", FT_UINT16, BASE_DEC, VALS(dssetup_dssetup_DsRoleInfoLevel_vals), 0, NULL, HFILL }},
+	  { "Level", "dssetup.dssetup_DsRoleGetPrimaryDomainInformation.level", FT_UINT1632, BASE_DEC, VALS(dssetup_dssetup_DsRoleInfoLevel_vals), 0, NULL, HFILL }},
 	{ &hf_dssetup_opnum, 
 	  { "Operation", "dssetup.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_flags, 
 	  { "Flags", "dssetup.dssetup_DsRolePrimaryDomInfoBasic.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleUpgradeStatus_previous_role, 
-	  { "Previous Role", "dssetup.dssetup_DsRoleUpgradeStatus.previous_role", FT_UINT16, BASE_DEC, VALS(dssetup_dssetup_DsPrevious_vals), 0, NULL, HFILL }},
+	  { "Previous Role", "dssetup.dssetup_DsRoleUpgradeStatus.previous_role", FT_UINT1632, BASE_DEC, VALS(dssetup_dssetup_DsPrevious_vals), 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleInfo_opstatus, 
 	  { "Opstatus", "dssetup.dssetup_DsRoleInfo.opstatus", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain_guid, 
 	  { "Domain Guid", "dssetup.dssetup_DsRolePrimaryDomInfoBasic.domain_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleOpStatus_status, 
-	  { "Status", "dssetup.dssetup_DsRoleOpStatus.status", FT_UINT16, BASE_DEC, VALS(dssetup_dssetup_DsRoleOp_vals), 0, NULL, HFILL }},
+	  { "Status", "dssetup.dssetup_DsRoleOpStatus.status", FT_UINT1632, BASE_DEC, VALS(dssetup_dssetup_DsRoleOp_vals), 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleInfo_upgrade, 
 	  { "Upgrade", "dssetup.dssetup_DsRoleInfo.upgrade", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_info, 
@@ -872,7 +964,7 @@ void proto_register_dcerpc_dssetup(void)
 	{ &hf_dssetup_dssetup_DsRoleInfo_basic, 
 	  { "Basic", "dssetup.dssetup_DsRoleInfo.basic", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_role, 
-	  { "Role", "dssetup.dssetup_DsRolePrimaryDomInfoBasic.role", FT_UINT16, BASE_DEC, VALS(dssetup_dssetup_DsRole_vals), 0, NULL, HFILL }},
+	  { "Role", "dssetup.dssetup_DsRolePrimaryDomInfoBasic.role", FT_UINT1632, BASE_DEC, VALS(dssetup_dssetup_DsRole_vals), 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_RUNNING, 
 	  { "Ds Role Primary Ds Running", "dssetup.dssetup_DsRoleFlags.DS_ROLE_PRIMARY_DS_RUNNING", FT_BOOLEAN, 32, TFS(&dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_RUNNING_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_dns_domain, 
@@ -882,7 +974,7 @@ void proto_register_dcerpc_dssetup(void)
 	{ &hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain, 
 	  { "Domain", "dssetup.dssetup_DsRolePrimaryDomInfoBasic.domain", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_dssetup_werror, 
-	  { "Windows Error", "dssetup.werror", FT_UINT32, BASE_HEX, VALS(DOS_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "dssetup.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_MIXED_MODE, 
 	  { "Ds Role Primary Ds Mixed Mode", "dssetup.dssetup_DsRoleFlags.DS_ROLE_PRIMARY_DS_MIXED_MODE", FT_BOOLEAN, 32, TFS(&dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_MIXED_MODE_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_forest, 

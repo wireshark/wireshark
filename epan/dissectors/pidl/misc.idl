@@ -4,10 +4,10 @@
   miscellaneous IDL structures
 */
 
-
 [
-	pyhelper("librpc/ndr/py_misc.c"),
-	pointer_default(unique)
+  uuid("12345678-1234-1234-1234-abcdef123456"),
+  version(1.0),
+  pointer_default(unique)
 ]
 interface misc
 {

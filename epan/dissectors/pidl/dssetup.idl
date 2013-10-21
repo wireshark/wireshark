@@ -1,17 +1,14 @@
-#include "idl_types.h"
-
-#define unistr	[string] wchar_t *
-
 /*
   dssetup interface definition
 */
+
+import "misc.idl";
 
 [
 	uuid("3919286a-b10c-11d0-9ba8-00c04fd92ef5"),
 	version(0.0),
 	endpoint("ncacn_np:[\\pipe\\lsarpc]", "ncacn_np:[\\pipe\\lsass]", "ncacn_ip_tcp:", "ncalrpc:"),
 	pointer_default(unique),
-	pointer_default_top(unique),
 	helpstring("Active Directory Setup")
 ] interface dssetup
 {
@@ -37,9 +34,9 @@
 	typedef struct {
 		dssetup_DsRole		role;
 		dssetup_DsRoleFlags	flags;
-		unistr			*domain;
-		unistr			*dns_domain;
-		unistr			*forest;
+		[charset(UTF16),string] uint16			*domain;
+		[charset(UTF16),string] uint16			*dns_domain;
+		[charset(UTF16),string] uint16			*forest;
 		GUID			domain_guid;
 	} dssetup_DsRolePrimaryDomInfoBasic;
 
@@ -83,7 +80,7 @@
 
 	WERROR dssetup_DsRoleGetPrimaryDomainInformation(
 		[in] dssetup_DsRoleInfoLevel level,
-		[out,switch_is(level)] dssetup_DsRoleInfo *info
+		[out,switch_is(level),unique] dssetup_DsRoleInfo *info
 		);
 
 	/*
@@ -91,14 +88,14 @@
 	  These stubs are left here only as a way of documenting the names
 	  of the calls in case they ever turn up on the wire.
 	*/
-	WERROR dssetup_DsRoleDnsNameToFlatName();
-	WERROR dssetup_DsRoleDcAsDc();
-	WERROR dssetup_DsRoleDcAsReplica();
-	WERROR dssetup_DsRoleDemoteDc();
-	WERROR dssetup_DsRoleGetDcOperationProgress();
-	WERROR dssetup_DsRoleGetDcOperationResults();
-	WERROR dssetup_DsRoleCancel();
-	WERROR dssetup_DsRoleServerSaveStateForUpgrade();
-	WERROR dssetup_DsRoleUpgradeDownlevelServer();
-	WERROR dssetup_DsRoleAbortDownlevelServerUpgrade();
+	[todo] WERROR dssetup_DsRoleDnsNameToFlatName();
+	[todo] WERROR dssetup_DsRoleDcAsDc();
+	[todo] WERROR dssetup_DsRoleDcAsReplica();
+	[todo] WERROR dssetup_DsRoleDemoteDc();
+	[todo] WERROR dssetup_DsRoleGetDcOperationProgress();
+	[todo] WERROR dssetup_DsRoleGetDcOperationResults();
+	[todo] WERROR dssetup_DsRoleCancel();
+	[todo] WERROR dssetup_DsRoleServerSaveStateForUpgrade();
+	[todo] WERROR dssetup_DsRoleUpgradeDownlevelServer();
+	[todo] WERROR dssetup_DsRoleAbortDownlevelServerUpgrade();
 }

@@ -178,7 +178,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	guint32 type=0;
 	struct access_mask_info *ami=NULL;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info*)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -223,7 +223,7 @@ cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	guint32 len;
 	dcerpc_info *di;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info*)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -281,7 +281,7 @@ lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U
 		tree = proto_item_add_subtree(item, ett_lsarpc_names);
 	}
 
-	di=pinfo->private_data;
+	di=(dcerpc_info*)pinfo->private_data;
 
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_LookupNames3_names_);
 
@@ -363,7 +363,7 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset
 	gint len, reported_len;
 	dissector_handle_t efsblob_handle;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info*)pinfo->private_data;
 
 
 	if(di->conformant_run){

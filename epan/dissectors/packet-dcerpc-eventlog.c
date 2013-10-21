@@ -12,7 +12,6 @@
 
 
 #include "config.h"
-
 #ifdef _MSC_VER
 #pragma warning(disable:4005)
 #pragma warning(disable:4013)
@@ -408,7 +407,7 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 		int len;
 		len=eventlog_get_unicode_string_length(tvb, string_offset);
 		str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, string_offset, len, TRUE);
-		proto_tree_add_string_format_value(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "%s", str);
+		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
 		string_offset+=len*2;
 	
 		num_of_strings--;
@@ -434,7 +433,7 @@ eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, pac
 	ALIGN_TO_4_BYTES;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 		tree = proto_item_add_subtree(item,ett_eventlog_eventlogReadFlags);
 	}
 
@@ -503,7 +502,7 @@ eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb _U_, int offset _U_, pa
 	ALIGN_TO_4_BYTES;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 		tree = proto_item_add_subtree(item,ett_eventlog_eventlogEventTypes);
 	}
 
@@ -595,6 +594,7 @@ eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_2_BYTES;
@@ -602,7 +602,7 @@ eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_eventlog_eventlog_OpenUnknown0);
 	}
 	
@@ -612,6 +612,11 @@ eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_2_BYTES;
+	}
 
 	return offset;
 }
@@ -739,6 +744,7 @@ eventlog_dissect_element_Record_data_offset(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 eventlog_dissect_element_Record_strings_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_strings , 0);
 
 	return offset;
 }
@@ -746,6 +752,7 @@ eventlog_dissect_element_Record_strings_(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 eventlog_dissect_element_Record_raw_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_raw_data , 0);
 
 	return offset;
 }
@@ -755,6 +762,7 @@ eventlog_dissect_struct_Record(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -762,7 +770,7 @@ eventlog_dissect_struct_Record(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_eventlog_eventlog_Record);
 	}
 	
@@ -809,6 +817,11 @@ eventlog_dissect_struct_Record(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
+
 	return offset;
 }
 
@@ -839,6 +852,7 @@ eventlog_dissect_struct_ChangeUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -846,7 +860,7 @@ eventlog_dissect_struct_ChangeUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_eventlog_eventlog_ChangeUnknown0);
 	}
 	
@@ -856,6 +870,11 @@ eventlog_dissect_struct_ChangeUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
@@ -2302,7 +2321,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_OpenEventLogW_unknown0, 
 	  { "Unknown0", "eventlog.eventlog_OpenEventLogW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_computer_name, 
-	  { "Computer Name", "eventlog.eventlog_Record.computer_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Computer Name", "eventlog.eventlog_Record.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_handle, 
 	  { "Handle", "eventlog.eventlog_RegisterEventSourceW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_GetNumRecords_handle, 
@@ -2348,7 +2367,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_BackupEventLogW_handle, 
 	  { "Handle", "eventlog.eventlog_BackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_raw_data, 
-	  { "Raw Data", "eventlog.eventlog_Record.raw_data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Raw Data", "eventlog.eventlog_Record.raw_data", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown0, 
 	  { "Unknown0", "eventlog.eventlog_RegisterEventSourceW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_CloseEventLog_handle, 
@@ -2366,7 +2385,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_OpenEventLogW_MinorVersion, 
 	  { "Minorversion", "eventlog.eventlog_OpenEventLogW.MinorVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_source_name, 
-	  { "Source Name", "eventlog.eventlog_Record.source_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Source Name", "eventlog.eventlog_Record.source_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_GetLogIntormation_handle, 
 	  { "Handle", "eventlog.eventlog_GetLogIntormation.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_Record_length, 
@@ -2376,7 +2395,7 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_eventlog_GetOldestRecord_oldest, 
 	  { "Oldest", "eventlog.eventlog_GetOldestRecord.oldest", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_strings, 
-	  { "Strings", "eventlog.eventlog_Record.strings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Strings", "eventlog.eventlog_Record.strings", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_record_number, 
 	  { "Record Number", "eventlog.eventlog_Record.record_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenEventLogW_handle, 
