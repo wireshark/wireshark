@@ -570,7 +570,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
   proto_item *item;
   proto_tree *checksum_tree;
 
-  if (trailer_tvb && fh_tree) {
+  if (trailer_tvb) {
     guint trailer_length, trailer_reported_length;
     guint padding_length = 0;
     gboolean has_fcs = FALSE;
@@ -721,24 +721,24 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Some devices slice the packet and add their own trailer before
      putting the frame on the network. Make sure these packets get
-	 a proper trailer (even though the sliced frame might not
-	 properly dissect. */
+     a proper trailer (even though the sliced frame might not
+     properly dissect. */
   if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_length(tvb)) ) {
     tvbuff_t *next_tvb;
-	guint total_trailer_length;
+    guint total_trailer_length;
 
-	total_trailer_length = eth_trailer_length + (eth_assume_fcs ? 4 : 0);
+    total_trailer_length = eth_trailer_length + (eth_assume_fcs ? 4 : 0);
 
-	/* Dissect the tvb up to, but not including the trailer */
+    /* Dissect the tvb up to, but not including the trailer */
     next_tvb = tvb_new_subset(tvb, 0,
                               tvb_length(tvb) - total_trailer_length,
-							  tvb_reported_length(tvb) - total_trailer_length);
+                              tvb_reported_length(tvb) - total_trailer_length);
     fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0);
 
-	/* Now handle the ethernet trailer and optional FCS */
-	next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - total_trailer_length);
-	add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
-						 eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
+    /* Now handle the ethernet trailer and optional FCS */
+    next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - total_trailer_length);
+    add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
+                         eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
   } else {
     dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
   }

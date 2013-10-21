@@ -331,9 +331,6 @@ add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int t
 	guint		 length;
 	tvbuff_t	*trailer_tvb;
 
-	if (fh_tree == NULL)
-		return;	/* we're not building a protocol tree */
-
 	/* OK, how much is there in that tvbuff now? */
 	length = tvb_reported_length(next_tvb);
 
