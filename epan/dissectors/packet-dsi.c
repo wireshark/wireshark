@@ -531,10 +531,10 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				   "Unknown function (0x%02x)"),
 			dsi_requestid);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, ENC_NA);
-		dsi_tree = proto_item_add_subtree(ti, ett_dsi);
+	ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, ENC_NA);
+	dsi_tree = proto_item_add_subtree(ti, ett_dsi);
 
+	if (tree) {
 		proto_tree_add_uint(dsi_tree, hf_dsi_flags, tvb,
 			0, 1, dsi_flags);
 		proto_tree_add_uint(dsi_tree, hf_dsi_command, tvb,
@@ -559,8 +559,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
 			12, 4, dsi_reserved);
 	}
-	else
-		dsi_tree = tree;
+
 	switch (dsi_command) {
 	case DSIFUNC_OPEN:
 		if (tree) {
@@ -581,28 +580,22 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case DSIFUNC_WRITE:
 		{
 			tvbuff_t   *new_tvb;
-			void* pd_save;
 			int len = tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ);
 
 			aspinfo.reply = (dsi_flags == DSIFL_REPLY);
 			aspinfo.command = dsi_command;
 			aspinfo.seq = dsi_requestid;
 			aspinfo.code = dsi_code;
-			pd_save = pinfo->private_data;
-			pinfo->private_data = &aspinfo;
-	  		proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
+			proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
 
 			new_tvb = tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,len);
-			call_dissector(afp_handle, new_tvb, pinfo, tree);
-			pinfo->private_data = pd_save;
+			call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, &aspinfo);
 		}
 		break;
 	default:
-		if (tree) {
-			call_dissector(data_handle,
-				       tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
-				       pinfo, dsi_tree);
-		}
+		call_dissector(data_handle,
+						tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
+						pinfo, dsi_tree);
 		break;
 	}
 }

@@ -4814,10 +4814,10 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 /* ************************** */
-static void
-dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct aspinfo	*aspinfo = (struct aspinfo*)pinfo->private_data;
+	struct aspinfo	*aspinfo = (struct aspinfo*)data;
 	proto_tree	*afp_tree = NULL;
 	proto_item	*ti;
 	conversation_t	*conversation;
@@ -4863,7 +4863,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!request_val) {	/* missing request */
 		col_set_str(pinfo->cinfo, COL_INFO, "[Reply without query?]");
-		return;
+		return tvb_length(tvb);
 	}
 
 	afp_command = request_val->command;
@@ -4896,7 +4896,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->cinfo, COL_INFO,
 				    "[Error!IP port reused, you need to split the capture file]");
 			expert_add_info(pinfo, ti, &ei_afp_ip_port_reused);
-			return;
+			return tvb_length(tvb);
 		}
 
 		/*
@@ -5103,7 +5103,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_SPOTLIGHTRPC:
 			offset = dissect_query_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);
 			if (offset == -1)
-				return;	/* bogus spotlight RPC */
+				return tvb_length(tvb);	/* bogus spotlight RPC */
 			break;
 		}
 	}
@@ -5140,7 +5140,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!len) {
 			/* for some calls if the reply is an error there's no data
 			*/
-			return;
+			return tvb_length(tvb);
 		}
 
 		switch(afp_command) {
@@ -5234,7 +5234,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_SPOTLIGHTRPC:
 			offset = dissect_reply_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);
 			if (offset == -1)
-				return;	/* bogus */
+				return tvb_length(tvb);	/* bogus */
 			break;
 		}
 	}
@@ -5242,6 +5242,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
 		    pinfo, afp_tree);
 	}
+
+	return tvb_length(tvb);
 }
 
 static void afp_reinit( void)
@@ -6812,7 +6814,7 @@ proto_register_afp(void)
 
 	register_init_routine(afp_reinit);
 
-	register_dissector("afp", dissect_afp, proto_afp);
+	new_register_dissector("afp", dissect_afp, proto_afp);
 
 	afp_tap = register_tap("afp");
 }

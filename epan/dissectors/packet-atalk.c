@@ -910,12 +910,9 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (new_tvb) {
-    void* pd_save;
-    pd_save = pinfo->private_data;
-    pinfo->private_data = &aspinfo;
     /* if port == 6 it's not an ASP packet but a ZIP packet */
     if (pinfo->srcport == 6 || pinfo->destport == 6 )
-      call_dissector(zip_atp_handle, new_tvb, pinfo, tree);
+      call_dissector_with_data(zip_atp_handle, new_tvb, pinfo, tree, &aspinfo);
     else {
       /* XXX need a conversation_get_dissector function ? */
       if (!aspinfo.reply && !conversation->dissector_handle) {
@@ -935,7 +932,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         else {
           sub = asp_handle;
         }
-        call_dissector(sub, new_tvb, pinfo, tree);
+        call_dissector_with_data(sub, new_tvb, pinfo, tree, &aspinfo);
         conversation_set_dissector(conversation, sub);
       }
       else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype,
@@ -944,7 +941,6 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       }
     }
-    pinfo->private_data = pd_save;
   }
   else {
     /* Just show this as a fragment. */
@@ -1269,9 +1265,8 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    ASP protocol cf. inside appletalk chap. 11
 */
 static struct aspinfo *
-get_transaction(tvbuff_t *tvb, packet_info *pinfo)
+get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
 {
-  struct aspinfo  *aspinfo = (struct aspinfo *)pinfo->private_data;
   conversation_t  *conversation;
   asp_request_key  request_key, *new_request_key;
   asp_request_val *request_val;
@@ -1311,7 +1306,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 
 
 static int
-dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct aspinfo *aspinfo;
   int             offset   = 0;
@@ -1323,7 +1318,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  aspinfo = get_transaction(tvb, pinfo);
+  aspinfo = get_transaction(tvb, pinfo, (struct aspinfo *)data);
   if (!aspinfo)
      return 0;
 
@@ -1453,8 +1448,8 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 /* -----------------------------
    ZIP protocol cf. inside appletalk chap. 8
 */
-static void
-dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   struct aspinfo *aspinfo;
   int             offset = 0;
@@ -1468,9 +1463,9 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  aspinfo = get_transaction(tvb, pinfo);
+  aspinfo = get_transaction(tvb, pinfo, (struct aspinfo *)data);
   if (!aspinfo)
-     return;
+     return tvb_length(tvb);
 
   fn = (guint8) aspinfo->command;
 
@@ -1481,7 +1476,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
 
   if (!tree)
-    return;
+    return tvb_length(tvb);
 
   ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, ENC_NA);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
@@ -1524,6 +1519,8 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
+
+  return tvb_length(tvb);
 }
 
 static void
@@ -2467,7 +2464,7 @@ proto_reg_handoff_atalk(void)
   zip_ddp_handle = create_dissector_handle(dissect_ddp_zip, proto_zip);
   dissector_add_uint("ddp.type", DDP_ZIP, zip_ddp_handle);
 
-  zip_atp_handle = create_dissector_handle(dissect_atp_zip, proto_zip);
+  zip_atp_handle = new_create_dissector_handle(dissect_atp_zip, proto_zip);
 
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
