@@ -5,7 +5,7 @@
 # USAGE
 # osx-app [-s] [-l /path/to/libraries] -bp /path/to/wireshark/bin -p /path/to/Info.plist
 #
-# This script attempts to build an Wireshark.app package for OS X, resolving
+# This script attempts to build an Wireshark.app bundle for OS X, resolving
 # dynamic libraries, etc.
 # It strips the executable and libraries if '-s' is given.
 # It adds python modules if the '-py option' is given
@@ -29,7 +29,7 @@
 # NB:
 # This originally came from Inkscape; Inkscape's configure script has an
 # "--enable-osxapp", which causes some of Inkscape's installation data
-# files to have OS X-ish paths under Contents/Resources of the package
+# files to have OS X-ish paths under Contents/Resources of the bundle
 # or under /Library/Application Support.  We don't have such an option;
 # we just put them in "bin", "etc", "lib", and "share" directories
 # under Contents/Resources, rather than in the "bin", "etc", "lib",
@@ -62,6 +62,7 @@ binary_list="
 	text2pcap
 	tshark
 "
+cs_binary_list=
 
 # Location for libraries (macosx-setup.sh defaults to whatever the
 # various support libraries use as their standard installation location,
@@ -185,14 +186,14 @@ then
 	XCODEFLAGS="$XCODEFLAGS SDKROOT=$sdkroot"
 fi
 
-# Package always has the same name. Version information is stored in
+# Bundle always has the same name. Version information is stored in
 # the Info.plist file which is filled in by the configure script.
-package="Wireshark.app"
+bundle="Wireshark.app"
 
-# Remove a previously existing package if necessary
-if [ -d $package ]; then
-	echo "Removing previous Wireshark.app"
-	rm -Rf $package
+# Remove a previously existing bundle if necessary
+if [ -d $bundle ]; then
+	echo "Removing previous $bundle"
+	rm -Rf $bundle
 fi
 
 # Remove a previously existing utility directory if necessary
@@ -207,16 +208,16 @@ resdir=`pwd`
 
 # Prepare Package
 #----------------------------------------------------------
-pkgexec="$package/Contents/MacOS"
-pkgres="$package/Contents/Resources"
+pkgexec="$bundle/Contents/MacOS"
+pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgexec"
 if [ "$ui_toolkit" = "gtk" ] ; then
 	pkgbin="$pkgres/bin"
 fi
 # Should pkglib be Contents/Frameworks instead?
 #pkglib="$pkgres/lib"
-pkglib="$package/Contents/Frameworks"
-pkgqtplugin="$package/Contents/PlugIns"
+pkglib="$bundle/Contents/Frameworks"
+pkgqtplugin="$bundle/Contents/PlugIns"
 pkgplugin="$pkglib/wireshark/plugins"
 pkgpython="$pkglib/wireshark/python"
 
@@ -255,6 +256,7 @@ if [ "$ui_toolkit" = "gtk" ] ; then
 	for binary in $binary_list wireshark ; do
 		# Copy the binary to its destination
 		dest_path="$pkgbin/$binary-bin"
+		cs_binary_list="$cs_binary_list $dest_path"
 		cp -v "$binary_path/$binary" "$dest_path"
 		# TODO Add a "$verbose" variable and command line switch, which sets wether these commands are verbose or not
 
@@ -267,6 +269,7 @@ elif [ "$ui_toolkit" = "qt" ] ; then
 	for binary in $binary_list ; do
 		# Copy the binary to its destination
 		cp -v "$binary_path/$binary" "$pkgexec"
+		cs_binary_list="$cs_binary_list $pkgexec/$binary"
 	done
 fi
 
@@ -291,7 +294,7 @@ find "$binary_path/../lib/wireshark/plugins" -type f \
 find "$binary_path/../lib/wireshark/python" -type f \
 	-exec cp -fv "{}" "$pkgpython/" \;
 
-cp "$plist" "$package/Contents/Info.plist"
+cp "$plist" "$bundle/Contents/Info.plist"
 
 # Icons and the rest of the script framework
 res_list="
@@ -313,16 +316,16 @@ if [ "$ui_toolkit" = "gtk" ] ; then
 fi
 
 for rl_entry in $res_list ; do
-	rsync -av "$resdir"/Resources/$rl_entry "$package"/Contents/Resources/
+	rsync -av "$resdir"/Resources/$rl_entry "$bundle"/Contents/Resources/
 done
 
 # PkgInfo must match bundle type and creator code from Info.plist
-echo "APPLWshk" > $package/Contents/PkgInfo
+echo "APPLWshk" > $bundle/Contents/PkgInfo
 
 if [ "$ui_toolkit" = "gtk" ] ; then
 
 	# Pull in extra requirements for Pango and GTK
-	pkgetc="$package/Contents/Resources/etc"
+	pkgetc="$bundle/Contents/Resources/etc"
 	mkdir -p $pkgetc/pango
 	cp $LIBPREFIX/etc/pango/pangox.aliases $pkgetc/pango/
 	# Need to adjust path and quote in case of spaces in path.
@@ -347,8 +350,8 @@ END_PANGO
 	# existence here.
 	#
 	# The file is ultimately copied to the user's home directory, with
-	# the pathnames adjusted to refer to the installed package, so we
-	# always put it in the same location in the installed package,
+	# the pathnames adjusted to refer to the installed bundle, so we
+	# always put it in the same location in the installed bundle,
 	# regardless of where it lives in the machine on which it's built.
 	#
 	if [ -e $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders ]
@@ -375,9 +378,9 @@ END_PANGO
 		# put if gdk-pixbuf and GTK+ are separated.
 		#
 		# The file is ultimately copied to the user's home directory,
-		# with the pathnames adjusted to refer to the installed package,
+		# with the pathnames adjusted to refer to the installed bundle,
 		# so we always put it in the same location in the installed
-		# package, regardless of where it lives in the machine on which
+		# bundle, regardless of where it lives in the machine on which
 		# it's built.
 		#
 		if [ -e $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders.cache ]
@@ -543,7 +546,7 @@ rpathify_dir () {
 
 rpathify_files () {
 	#
-	# Fix package deps
+	# Fix bundle deps
 	#
 	rpathify_dir "$pkglib" "*.dylib"
 	if [ "$ui_toolkit" = "gtk" ] ; then
@@ -559,7 +562,7 @@ rpathify_files () {
 }
 
 if [ "$ui_toolkit" = "qt" ] ; then
-	macdeployqt "$package" -verbose=2
+	macdeployqt "$bundle" -verbose=2
 fi
 
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
@@ -572,24 +575,40 @@ else
 	echo "Could not rewrite dylib paths for bundled libraries.  This requires" >&2
 	echo "the support libraries to be installed in a PREFIX of at least 6 characters in length." >&2
 	echo "" >&2
-	echo "The package will still work if the following line is uncommented in" >&2
+	echo "The bundle will still work if the following line is uncommented in" >&2
 	echo "Wireshark.app/Contents/Resources/bin/{various scripts}:" >&2
 	echo '        export DYLD_LIBRARY_PATH="$TOP/lib"' >&2
 	exit 1
 
 fi
 
+codesign_file () {
+	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$1"
+	codesign --verify --verbose "$1" || exit 1
+	spctl --assess --type execute "$1" || exit 1
+}
+
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-	echo -n "Signing executables:"
-	for file in $pkgbin/* ; do
-		echo -n " $file"
-		codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$file"
-		codesign --verify --verbose "$file" || exit 1
+	echo "Signing executables"
+	for binary in $cs_binary_list ; do
+		codesign_file "$binary"
 	done
-	echo
-	echo "Signing $package"
-	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$package"
-	codesign --verify --verbose "$package" || exit 1
+	echo "Signing frameworks"
+	for framework in $pkglib/*.framework/Versions/*/* ; do
+		codesign_file "$framework"
+	done
+	echo "Signing libraries"
+	for library in $pkglib/*.dylib ; do
+		codesign_file "$library"
+	done
+	echo "Signing plugins"
+	for plugin in $pkgplugin/*.so ; do
+		codesign_file "$plugin"
+	done
+	echo "Signing $bundle"
+	codesign_file "$bundle"
+else
+	echo "Code signing not performed (no identity)"
 fi
 
 exit 0

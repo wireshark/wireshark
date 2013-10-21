@@ -159,6 +159,9 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	echo -e "Signing the $pkg_file"
 	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$pkg_file" || exit 1
 	codesign --verify --verbose "$pkg_file" || exit 1
+	spctl --assess --type install "$pkg_file" || exit 1
+else
+	echo "Code signing not performed (no identity)"
 fi
 
 echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
