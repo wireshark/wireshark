@@ -1552,8 +1552,6 @@ static gint ett_065_SP = -1;
 
 static dissector_handle_t asterix_handle;
 
-static dissector_handle_t data_handle = NULL;
-
 #define FIXED       0x01
 #define REPETITIVE  0x02
 #define FX          0x04
@@ -6457,7 +6455,6 @@ void proto_register_asterix (void)
 
 void proto_reg_handoff_asterix (void)
 {
-    data_handle = find_dissector ("data");
     dissector_add_uint ("udp.port", ASTERIX_PORT, asterix_handle);
 }
 

@@ -112,7 +112,6 @@ static gint ett_cpfi_header = -1;
 static gint ett_cpfi_footer = -1;
 
 static dissector_handle_t fc_handle;
-static dissector_handle_t data_handle;
 
 
 static const value_string sof_type_vals[] = {
@@ -536,7 +535,6 @@ proto_reg_handoff_cpfi(void)
   if ( !cpfi_init_complete )
   {
     fc_handle     = find_dissector("fc");
-    data_handle   = find_dissector("data");
     cpfi_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
     ttot_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
     cpfi_init_complete = TRUE;

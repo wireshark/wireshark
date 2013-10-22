@@ -35,9 +35,6 @@
 
 static int proto_hpteam = -1;
 
-/* Handle of the "data" subdissector */
-static dissector_handle_t data_handle;
-
 /* Known HP NIC teaming PID values */
 static const value_string hpteam_pid_vals[] = {
 	{ 0x0002,	"HP Teaming heartbeat" },
@@ -138,7 +135,6 @@ void proto_reg_handoff_hpteam(void)
 {
 	dissector_handle_t hpteam_handle;
 
-	data_handle   = find_dissector("data");
 	hpteam_handle = find_dissector("hpteam");
 	/* Register dissector to key off of known PID / OUI combination */
 	dissector_add_uint("llc.hpteam_pid", 0x0002, hpteam_handle);

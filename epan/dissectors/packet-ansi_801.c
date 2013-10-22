@@ -101,7 +101,6 @@ static int hf_ansi_801_offset_req = -1;
 static dissector_handle_t ansi_801_handle;
 
 static char bigbuf[1024];
-static dissector_handle_t data_handle;
 
 
 /* PARAM FUNCTIONS */
@@ -2399,6 +2398,4 @@ proto_reg_handoff_ansi_801(void)
 	dissector_add_uint("ansi_map.pld", ANSI_801_REVERSE, ansi_801_handle);
 	dissector_add_uint("ansi_a.pld",   ANSI_801_FORWARD, ansi_801_handle);
 	dissector_add_uint("ansi_a.pld",   ANSI_801_REVERSE, ansi_801_handle);
-
-	data_handle = find_dissector("data");
 }

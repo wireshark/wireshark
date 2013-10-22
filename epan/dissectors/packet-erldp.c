@@ -173,9 +173,6 @@ static gboolean erldp_desegment = TRUE;
 /* Dissectors */
 static dissector_handle_t erldp_handle = NULL;
 
-/* Subdissectors */
-static dissector_handle_t data_handle;
-
 /*--- External Term Format ---*/
 
 static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree);
@@ -692,6 +689,4 @@ void proto_register_erldp(void) {
 void proto_reg_handoff_erldp(void) {
 
   dissector_add_handle("tcp.port", erldp_handle);
-
-  data_handle = find_dissector("data");
 }

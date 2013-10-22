@@ -1680,7 +1680,6 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t sync_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
 static dissector_handle_t gtpv2_handle;
@@ -9401,7 +9400,6 @@ proto_reg_handoff_gtp(void)
         ipv6_handle          = find_dissector("ipv6");
         ppp_handle           = find_dissector("ppp");
         sync_handle          = find_dissector("sync");
-        data_handle          = find_dissector("data");
         gtpcdr_handle        = find_dissector("gtpcdr");
         sndcpxid_handle      = find_dissector("sndcpxid");
         gtpv2_handle         = find_dissector("gtpv2");

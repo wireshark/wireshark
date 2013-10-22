@@ -330,8 +330,6 @@ typedef struct _fcdns_conv_data {
 
 static GHashTable *fcdns_req_hash = NULL;
 
-static dissector_handle_t data_handle;
-
 /*
  * Hash Functions
  */
@@ -1955,6 +1953,4 @@ proto_reg_handoff_fcdns (void)
 {
     dissector_add_uint("fcct.server", FCCT_GSRVR_DNS, dns_handle);
     dissector_add_uint("fcct.server", FCCT_GSRVR_UNS, dns_handle);
-
-    data_handle = find_dissector("data");
 }

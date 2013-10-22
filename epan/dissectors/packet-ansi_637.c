@@ -204,7 +204,6 @@ static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
 static char gsm_637_bigbuf[1024];
 static char ia5_637_bigbuf[1024];
-/* static dissector_handle_t data_handle; */
 static dissector_table_t tele_dissector_table;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
@@ -2380,6 +2379,4 @@ proto_reg_handoff_ansi_637(void)
      * ANSI A-interface will push out transport layer data
      */
     dissector_add_uint("ansi_a.sms", 0, ansi_637_trans_handle);
-
-    /* data_handle = find_dissector("data"); */
 }

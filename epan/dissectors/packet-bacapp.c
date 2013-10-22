@@ -4793,7 +4793,6 @@ static gint ett_bacapp_value = -1;
 
 static expert_field ei_bacapp_bad_length = EI_INIT;
 
-static dissector_handle_t data_handle;
 static gint32 propertyIdentifier = -1;
 static gint32 propertyArrayIndex = -1;
 static guint32 object_type = 4096;
@@ -11303,12 +11302,6 @@ proto_register_bacapp(void)
     /* Register BACnet Statistic trees */
     register_bacapp_stat_trees();
     bacapp_tap = register_tap("bacapp"); /* BACnet statistics tap */
-}
-
-void
-proto_reg_handoff_bacapp(void)
-{
-    data_handle = find_dissector("data");
 }
 
 /*

@@ -62,8 +62,6 @@ static gint ett_sbc_list        = -1;
 
 static expert_field ei_sbc_syncword = EI_INIT;
 
-static dissector_handle_t data_handle;
-
 extern value_string_ext media_codec_audio_type_vals_ext;
 
 static const value_string sampling_frequency_vals[] = {
@@ -331,12 +329,6 @@ proto_register_sbc(void)
     prefs_register_static_text_preference(module, "a2dp.version",
             "Bluetooth Audio Codec SBC version based on A2DP 1.3",
             "Version of codec supported by this dissector.");
-}
-
-void
-proto_reg_handoff_sbc(void)
-{
-    data_handle   = find_dissector("data");
 }
 
 /*

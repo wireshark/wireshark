@@ -95,8 +95,6 @@ static int hf_auth_dhchap_rsp_value = -1;
 /* Initialize the subtree pointers */
 static gint ett_fcsp = -1;
 
-static dissector_handle_t data_handle;
-
 static const value_string fcauth_msgcode_vals[] = {
     {FC_AUTH_MSG_AUTH_REJECT,    "AUTH_Reject"},
     {FC_AUTH_MSG_AUTH_NEGOTIATE, "AUTH_Negotiate"},
@@ -611,11 +609,5 @@ proto_register_fcsp(void)
 
     proto_register_field_array(proto_fcsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_fcsp(void)
-{
-    data_handle = find_dissector("data");
 }
 

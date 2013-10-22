@@ -67,8 +67,6 @@ static int hf_sdh_h1 = -1;
 static int hf_sdh_h2 = -1;
 static int hf_sdh_j1 = -1;
 
-static dissector_handle_t data_handle;
-
 static gint sdh_data_rate = 1;
 
 static const enum_val_t data_rates[] = {
@@ -287,8 +285,5 @@ proto_reg_handoff_sdh(void)
 
   sdh_handle = find_dissector("sdh");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SDH, sdh_handle);
-
-  data_handle = find_dissector("data");
-
 }
 

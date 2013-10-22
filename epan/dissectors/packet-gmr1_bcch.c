@@ -44,10 +44,6 @@ static int proto_gmr1_bcch = -1;
 /* GMR-1 BCCH sub tree */
 static gint ett_gmr1_bcch = -1;
 
-/* Handoffs */
-static dissector_handle_t data_handle;
-
-
 
 /* ------------------------------------------------------------------------ */
 /* CSN1 fields                                                              */
@@ -1428,12 +1424,6 @@ proto_register_gmr1_bcch(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gmr1_bcch", dissect_gmr1_bcch, proto_gmr1_bcch);
-}
-
-void
-proto_reg_handoff_gmr1_bcch(void)
-{
-	data_handle = find_dissector("data");
 }
 
 /*

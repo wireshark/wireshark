@@ -104,7 +104,6 @@ static gint proto_brdwlk = -1;
 static guint16 packet_count = 0;
 static gboolean first_pkt = TRUE;                /* start of capture */
 
-static dissector_handle_t data_handle;
 static dissector_handle_t fc_dissector_handle;
 
 
@@ -366,9 +365,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     next_tvb = tvb_new_subset(tvb, 2, len, reported_len);
-    if (fc_dissector_handle) {
-        call_dissector(fc_dissector_handle, next_tvb, pinfo, tree);
-    }
+    call_dissector(fc_dissector_handle, next_tvb, pinfo, tree);
 }
 
 static void
@@ -463,6 +460,5 @@ proto_reg_handoff_brdwlk(void)
     brdwlk_handle = create_dissector_handle(dissect_brdwlk, proto_brdwlk);
     dissector_add_uint("ethertype", ETHERTYPE_BRDWALK, brdwlk_handle);
     dissector_add_uint("ethertype", 0xABCD, brdwlk_handle);
-    data_handle = find_dissector("data");
     fc_dissector_handle = find_dissector("fc");
 }

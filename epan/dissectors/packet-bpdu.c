@@ -185,7 +185,6 @@ static gboolean bpdu_use_system_id_extensions = TRUE;
 
 static dissector_handle_t gvrp_handle;
 static dissector_handle_t gmrp_handle;
-static dissector_handle_t data_handle;
 
 static const value_string protocol_id_vals[] = {
   { 0, "Spanning Tree Protocol" },
@@ -1471,7 +1470,6 @@ proto_reg_handoff_bpdu(void)
    * Get handle for the GMRP dissector.
    */
   gmrp_handle = find_dissector("gmrp");
-  data_handle = find_dissector("data");
 
   bpdu_handle = find_dissector("bpdu");
   dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);

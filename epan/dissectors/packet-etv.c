@@ -38,7 +38,6 @@ void proto_reg_handoff_etv(void);
 static int proto_etv_dii = -1;
 static int proto_etv_ddb = -1;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t dsmcc_handle;
 
 static int hf_etv_dii_filter_info = -1;
@@ -243,6 +242,5 @@ proto_reg_handoff_etv(void)
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DII_SECTION, etv_dii_handle);
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DDB_SECTION, etv_ddb_handle);
 	dsmcc_handle = find_dissector("mp2t-dsmcc");
-	data_handle  = find_dissector("data");
 }
 

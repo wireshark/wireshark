@@ -78,7 +78,6 @@ static int hf_ansi_683_rev_msg_type = -1;
 static int hf_ansi_683_length = -1;
 
 static char bigbuf[1024];
-static dissector_handle_t data_handle;
 
 static const char dtmf_digits[16] = {'?','1','2','3','4','5','6','7','8','9','0','?','?','?','?','?'};
 static const char bcd_digits[16]  = {'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'};
@@ -4840,6 +4839,4 @@ proto_reg_handoff_ansi_683(void)
     dissector_add_uint("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);
     dissector_add_uint("ansi_a.ota", ANSI_683_FORWARD, ansi_683_handle);
     dissector_add_uint("ansi_a.ota", ANSI_683_REVERSE, ansi_683_handle);
-
-    data_handle = find_dissector("data");
 }
