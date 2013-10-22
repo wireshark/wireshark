@@ -39,7 +39,7 @@ configure-stamp: patch
 build: build-stamp
 build-stamp: configure-stamp
 	$(MAKE)
-
+	convert image/wsicon32.png image/wsicon32.xpm
 	touch build-stamp
 
 patch: patch-stamp
