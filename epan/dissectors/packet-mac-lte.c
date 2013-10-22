@@ -248,6 +248,7 @@ static int hf_mac_lte_drx_state_inactivity_remaining = -1;
 static int hf_mac_lte_drx_state_onduration_remaining = -1;
 static int hf_mac_lte_drx_state_retransmission_remaining = -1;
 static int hf_mac_lte_drx_state_rtt_remaining = -1;
+static int hf_mac_lte_drx_state_short_cycle_remaining = -1;
 
 /* Subtrees. */
 static int ett_mac_lte = -1;
@@ -1205,7 +1206,7 @@ typedef struct drx_running_state_t
     gboolean     inShortCycle;
 
     /* Timers */
-    nstime_t     currentTime;  /* in ticks, where 0 (0,0) from the first config sfn */
+    nstime_t     currentTime;  /* absolute time of last PDU */
     guint16      currentSFN;
     guint16      currentSF;
 
@@ -1232,11 +1233,13 @@ typedef struct drx_state_t {
 static GHashTable *mac_lte_drx_frame_result = NULL;
 
 /* Initialise the UE DRX state */
-static void init_drx_ue_state(drx_state_t *drx_state)
+static void init_drx_ue_state(drx_state_t *drx_state, gboolean at_init)
 {
     int i;
     drx_state->state_before.inShortCycle = FALSE;
-    drx_state->state_before.onDurationTimer = G_GUINT64_CONSTANT(0);
+    if (at_init) {
+        drx_state->state_before.onDurationTimer = G_GUINT64_CONSTANT(0);
+    }
     drx_state->state_before.inactivityTimer = G_GUINT64_CONSTANT(0);
     for (i=0; i < 8; i++) {
         drx_state->state_before.RTT[i] = G_GUINT64_CONSTANT(0);
@@ -1452,7 +1455,6 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             ue_state->state_before.firstCycleStartSet = TRUE;
 
             /* Set current time to now */
-            ue_state->state_before.currentTime = pinfo->fd->abs_ts;
             ue_state->state_before.currentSFN = SFN;
             ue_state->state_before.currentSF = SF;
         }
@@ -1462,8 +1464,11 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         /* It *should* be possible to just deal with the elapsed time all at once,
            but much harder to get right, so loop. */
 
-        /* TODO: what to do if there is a huge gap between previous frame and now?? */
-        /*       if > ~10s since last PDU, just zero all timers (except onDuration)  */
+        /* If > ~10s since last PDU, just zero all timers (except onDuration) */
+        if ((pinfo->fd->abs_ts.secs - ue_state->state_before.currentTime.secs) >= 9) {
+            init_drx_ue_state(ue_state, FALSE);
+        }
+
         while ((ue_state->state_before.currentSFN != SFN) || (ue_state->state_before.currentSF != SF)) {
 
             /* Check for timers that have expired and change state accordingly */
@@ -1688,6 +1693,14 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
             proto_item_append_text(drx_state_ti, " (Offset-into-Short=%u, Long-cycle-on=%s)",
                                    offset_into_short_cycle, state_to_show->inOnDuration ? "True" : "False");
+
+            /* Is short-cycle-timer running? */
+            /* TODO: do we need this and the boolean above? */
+            if (!mac_lte_drx_has_timer_expired(frame_state, drx_short_cycle_timer, 0, before_event, &time_until_expires)) {
+                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_remaining, tvb,
+                                         0, 0, (guint16)time_until_expires);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
         }
 
         /* Show which timers are still running and how long they have to go.
@@ -5490,7 +5503,7 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
         }
 
         /* Clearing state when new config comes in... */
-        init_drx_ue_state(ue_state);
+        init_drx_ue_state(ue_state, TRUE);
 
         /* Copy in new config */
         ue_state->config = *drx_config;
@@ -6608,6 +6621,12 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_drx_state_rtt_remaining,
             { "RTT remaining",
               "mac-lte.drx-state.rtt-remaining", FT_UINT16, BASE_DEC,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_drx_state_short_cycle_remaining,
+            { "Short-cycle timer remaining",
+              "mac-lte.drx-state.short-cycle-remaining", FT_UINT16, BASE_DEC,
               0, 0x0, NULL, HFILL
             }
         },
