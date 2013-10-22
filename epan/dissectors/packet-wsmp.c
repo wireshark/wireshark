@@ -134,6 +134,8 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else if(psidLen ==4)
             psid = tvb_get_ntohl(tvb, offset);
 
+        wsmlength = 0;
+
         if (tree) {
                 proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_psid, tvb, offset, psidLen, ENC_BIG_ENDIAN);
