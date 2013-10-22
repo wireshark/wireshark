@@ -229,6 +229,11 @@ scan_local_interfaces(void (*update_cb)(void))
                 device.links = g_list_append(device.links, link);
                 linktype_count++;
             }
+            if (linktype_count > 0) {
+                if ((device.active_dlt = capture_dev_user_linktype_find(if_info->name)) == -1) {
+                    device.active_dlt = global_capture_opts.default_options.linktype;
+                }
+            }
         } else {
 #if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = FALSE;
