@@ -246,6 +246,8 @@ static int hf_mac_lte_drx_state_short_cycle_offset = -1;
 static int hf_mac_lte_drx_state_short_cycle_on = -1;
 static int hf_mac_lte_drx_state_inactivity_remaining = -1;
 static int hf_mac_lte_drx_state_onduration_remaining = -1;
+static int hf_mac_lte_drx_state_retransmission_remaining = -1;
+static int hf_mac_lte_drx_state_rtt_remaining = -1;
 
 /* Subtrees. */
 static int ett_mac_lte = -1;
@@ -1461,8 +1463,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
            but much harder to get right, so loop. */
 
         /* TODO: what to do if there is a huge gap between previous frame and now?? */
-
-        /* TODO: add a test that ensures we are still in the correct SFN cycle! */
+        /*       if > ~10s since last PDU, just zero all timers (except onDuration)  */
         while ((ue_state->state_before.currentSFN != SFN) || (ue_state->state_before.currentSF != SF)) {
 
             /* Check for timers that have expired and change state accordingly */
@@ -1568,6 +1569,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     drx_state_t         *frame_state;
     drx_running_state_t *state_to_show;
     guint64             time_until_expires;
+    guint               n;
 
     /* Look up entry by frame number in result table */
     frame_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_frame_result,
@@ -1641,7 +1643,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         drx_state_ti = proto_tree_add_string_format(tree, hf_mac_lte_drx_state,
                                                     tvb, 0, 0, "",
                                                     (before_event) ? "DRX State Before" : "DRX State After");
-        /* TODO: get and use appropriate state pointer and use below! */
+        /* Get appropriate state pointer to use below */
         if (before_event) {
             state_to_show = &frame_state->state_before;
         }
@@ -1688,10 +1690,12 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                    offset_into_short_cycle, state_to_show->inOnDuration ? "True" : "False");
         }
 
-        /* TODO: Show which timers are still running and how long they have to go.
-           Or complain if DRX looks like it should be on. */
+        /* Show which timers are still running and how long they have to go.
+           TODO: Complain if it looks like DRX looks like it should be on
+           TODO: if PDU is a retranmission, would be good to check to see if DRX
+                 would have been on for original Tx! */
 
-        /* Is inactivity timer running? */
+        /* Is onduration timer running? */
         if (!mac_lte_drx_has_timer_expired(frame_state, drx_onduration_timer, 0, before_event, &time_until_expires)) {
             ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_onduration_remaining, tvb,
                                      0, 0, (guint16)time_until_expires);
@@ -1706,6 +1710,25 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             PROTO_ITEM_SET_GENERATED(ti);
         }
 
+        /* Are any of the Retransmission timers running? */
+        for (n=0; n < 8; n++) {
+            if (!mac_lte_drx_has_timer_expired(frame_state, drx_retx_timer, n, before_event, &time_until_expires)) {
+                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_retransmission_remaining, tvb,
+                                         0, 0, (guint16)time_until_expires);
+                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_append_text(ti, " (harqid=%u)", n);
+            }
+        }
+
+        /* Are any of the RTT timers running? */
+        for (n=0; n < 8; n++) {
+            if (!mac_lte_drx_has_timer_expired(frame_state, drx_rtt_timer, n, before_event, &time_until_expires)) {
+                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_rtt_remaining, tvb,
+                                         0, 0, (guint16)time_until_expires);
+                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_append_text(ti, " (harqid=%u)", n);
+            }
+        }
     }
 }
 
@@ -6576,7 +6599,18 @@ void proto_register_mac_lte(void)
               0, 0x0, NULL, HFILL
             }
         },
-
+        { &hf_mac_lte_drx_state_retransmission_remaining,
+            { "Retransmission remaining",
+              "mac-lte.drx-state.retransmission-remaining", FT_UINT16, BASE_DEC,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_drx_state_rtt_remaining,
+            { "RTT remaining",
+              "mac-lte.drx-state.rtt-remaining", FT_UINT16, BASE_DEC,
+              0, 0x0, NULL, HFILL
+            }
+        },
     };
 
     static gint *ett[] =
