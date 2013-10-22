@@ -92,7 +92,7 @@ void proto_register_hci_usb(void);
 void proto_reg_handoff_hci_usb(void);
 
 static int
-dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item     *ttree = NULL;
     proto_tree     *titem = NULL;
@@ -113,7 +113,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    usb_data = (usb_data_t *) pinfo->private_data;
+    usb_data = (usb_data_t *)data;
 
     p2p_dir_save = pinfo->p2p_dir;
     pinfo->p2p_dir = usb_data->direction;

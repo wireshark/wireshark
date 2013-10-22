@@ -2547,7 +2547,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint                bus_id = 0;
     guint                device_address = 0;
     usb_data_t           *usb_data;
-    void                 *pd_save;
     tvbuff_t             *next_tvb = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
@@ -2626,9 +2625,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     } else {
         usb_data->direction = P2P_DIR_SENT;
     }
-
-    pd_save = pinfo->private_data;
-    pinfo->private_data = usb_data;
 
     /* Set up addresses and ports. */
     if (is_request) {
@@ -3297,7 +3293,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if (!dissector_try_uint(device_to_dissector, (guint32) (bus_id << 8 | device_address), next_tvb, pinfo, parent)) {
+    if (!dissector_try_uint_new(device_to_dissector, (guint32) (bus_id << 8 | device_address), next_tvb, pinfo, parent, FALSE, usb_data)) {
         wmem_tree_key_t         key[4];
         guint32                 k_frame_number;
         guint32                 k_device_address;
@@ -3320,7 +3316,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
         if (device_protocol_data && device_protocol_data->bus_id == bus_id &&
                 device_protocol_data->device_address == device_address &&
-                dissector_try_uint(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent)) {
+                dissector_try_uint_new(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent, FALSE, usb_data)) {
             offset += tvb_length_remaining(tvb, offset);
         } else {
             device_product_data_t   *device_product_data;
@@ -3328,7 +3324,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
             if (device_product_data && device_product_data->bus_id == bus_id &&
                     device_product_data->device_address == device_address &&
-                    dissector_try_uint(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product), next_tvb, pinfo, parent)) {
+                    dissector_try_uint_new(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product),
+                                           next_tvb, pinfo, parent, FALSE, usb_data)) {
                 offset += tvb_length_remaining(tvb, offset);
             }
         }
@@ -3340,8 +3337,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         /* There is leftover capture data to add (padding?) */
         proto_tree_add_item(parent, hf_usb_capdata, tvb, offset, -1, ENC_NA);
     }
-
-    pinfo->private_data = pd_save;
 }
 
 static void
