@@ -1636,10 +1636,10 @@ afs_init_protocol(void)
  * Dissection routines
  */
 
-static void
-dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	struct rxinfo *rxinfo = (struct rxinfo *)pinfo->private_data;
+	struct rxinfo *rxinfo = (struct rxinfo *)data;
 	int reply = 0;
 	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;
@@ -1839,7 +1839,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_str(pinfo->cinfo, COL_INFO, " [AFS reassembled]");
 		} else {
 			col_set_str(pinfo->cinfo, COL_INFO, "[AFS segment of a reassembled PDU]");
-			return;
+			return tvb_length(tvb);
 		}
 	}
 
@@ -1915,6 +1915,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( rxinfo->flags & RX_LAST_PACKET && reply ){
 
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -3836,7 +3838,7 @@ proto_register_afs(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&afs_init_protocol);
 
-	register_dissector("afs", dissect_afs, proto_afs);
+	new_register_dissector("afs", dissect_afs, proto_afs);
 }
 
 /*
