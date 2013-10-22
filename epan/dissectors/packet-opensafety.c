@@ -726,7 +726,7 @@ findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLeng
 static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
 {
     guint    ctr, rem_length;
-    guint16  crc, calcCrc;
+    guint16  crc, f2crc, calcCrc;
     guint8   b_Length, crcOffset;
     guint8   *bytes;
     guint    b_ID;
@@ -755,63 +755,110 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                  *  bit is set */
                 if ( ( b_ID != 0xFF ) && ( b_ID & 0x80 ) )
                 {
-                    /* The calculated length must fit, but for the CRC16 check, also the calculated length
-                    * plus the CRC16 end position must fit in the remaining length */
-                    if ( ( b_Length <= (guint) 8 && ( b_Length <= rem_length ) ) ||
-                        ( b_Length > (guint) 8 && ( ( b_Length + (guint) 5 ) <= rem_length ) ) )
+                    /* The rem_length value might be poluted, due to the else statement of
+                     * above if-decision (frame at end position detection). Therefore we
+                     * calculate it here again, to have a sane value */
+                    rem_length = tvb_reported_length_remaining(message_tvb, ctr);
+
+                    /* Plausability check on length */
+                    if ( (guint)( b_Length * 2 ) < ( rem_length + OSS_MINIMUM_LENGTH ) )
                     {
-                        /* Ensure, that the correct length for CRC calculation
-                         * still exists in byte stream, so that we can calculate the crc */
-                        if ( tvb_bytes_exist(message_tvb, ctr - 1, b_Length + 5) )
+
+                        /* The calculated length must fit, but for the CRC16 check, also the calculated length
+                        * plus the CRC16 end position must fit in the remaining length */
+                        if ( ( b_Length <= (guint) 8 && ( b_Length <= rem_length ) ) ||
+                            ( b_Length > (guint) 8 && ( ( b_Length + (guint) 5 ) <= rem_length ) ) )
                         {
-                            /* An openSAFETY command has to have a high-byte range between 0x0A and 0x0E
-                             *  b_ID 0x80 took care of everything underneath, we check for 0x09 and 0x0F,
-                             *  as they remain the only values left, which are not valid */
-                            if ( ( ( b_ID >> 4 ) != 0x09 ) && ( ( b_ID >> 4 ) != 0x0F ) )
+                            /* Ensure, that the correct length for CRC calculation
+                             * still exists in byte stream, so that we can calculate the crc */
+                            if ( tvb_bytes_exist(message_tvb, ctr - 1, b_Length + 5) )
                             {
-                                /* Find CRC position and calculate checksum */
-                                calcCrc = 0;
-                                crc = tvb_get_guint8(message_tvb, ctr + 3 + b_Length );
-
-                                bytes = (guint8 *)ep_tvb_memdup(message_tvb, ctr - 1, b_Length + 5 );
-                                if ( b_Length > 8 ) {
-                                    crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
-                                    crcOffset = 1;
-
-                                    if ( crc != 0x00 )
-                                        calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
-                                } else {
-                                    if ( crc != 0x00 )
-                                        calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
-                                }
-
-                                if ( ( crc != 0x00 ) && ( crc ^ calcCrc ) == 0 )
+                                /* An openSAFETY command has to have a high-byte range between 0x0A and 0x0E
+                                 *  b_ID & 0x80 took care of everything underneath, we check for 0x09 and 0x0F,
+                                 *  as they remain the only values left, which are not valid */
+                                if ( ( ( b_ID >> 4 ) != 0x09 ) && ( ( b_ID >> 4 ) != 0x0F ) )
                                 {
-                                    /* We have found a Slim frame. Those are not correctly identified yet */
-                                    if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
-                                    {
-                                        *u_frameOffset = ( ctr - 1 );
-                                        *u_frameLength = b_Length + 2 * crcOffset + 11;
-                                        found = 1;
-                                        break;
+                                    /* Find CRC position and calculate checksum */
+                                    crc = tvb_get_guint8(message_tvb, ctr + 3 + b_Length );
+
+                                    bytes = (guint8 *)ep_tvb_memdup(message_tvb, ctr - 1, b_Length + 5 );
+                                    if ( b_Length > 8 ) {
+                                        crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
+                                        crcOffset = 1;
+
+                                        calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
+                                    } else {
+                                        calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
                                     }
-                                    else
+
+                                    if ( ( crc ^ calcCrc ) == 0 )
                                     {
-                                        *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
-                                        *u_frameOffset = ( ctr - 1 );
-                                        /* EPL SoC messages can be falsely detected as openSAFETY frames,
-                                        *  so we check if both checksums have no lower byte of 0x00. This
-                                        *  check remains, although SoC and SoA messages get sorted out in
-                                        *  the dissector */
-                                        if ( tvb_get_guint8(message_tvb,  *u_frameOffset + *u_frameLength - 2 ) != 0x00 ||
-                                            tvb_get_guint8(message_tvb,  *u_frameOffset + *u_frameLength - 1 ) != 0x00 )
+                                        /* Check if this is a Slim SSDO message */
+                                        if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
                                         {
+                                            /* Slim SSDO messages must have a length != 0, as the first byte
+                                             * in the payload contains the SOD access command */
+                                            if ( b_Length > 0 )
+                                            {
+                                                *u_frameOffset = ( ctr - 1 );
+                                                *u_frameLength = b_Length + 2 * crcOffset + 11;
+
+                                                /* It is highly unlikely, that both frame 1 and frame 2 generate
+                                                 * a crc == 0 or equal crc's. Therefore we check, if both crc's are
+                                                 * equal. If so, it is a falsely detected frame. */
+                                                f2crc = tvb_get_guint8 ( message_tvb, ctr + 3 + 5 + b_Length );
+                                                if ( b_Length > 8 )
+                                                    f2crc = tvb_get_letohs ( message_tvb, ctr + 3 + 5 + b_Length );
+                                                if ( crc != f2crc )
+                                                {
+                                                    found = 1;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
+                                            *u_frameOffset = ( ctr - 1 );
+
+                                            /* At this point frames had been checked for SoC and SoA types of
+                                             * EPL. This is no longer necessary and leads to false-negatives.
+                                             * SoC and SoA frames get filtered out at the EPL entry point. */
                                             found = 1;
                                             break;
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                else
+                {
+                    /* There exist frames, where the last openSAFETY frame is sitting in the
+                     * very last bytes of the frame, and the complete frame itself contains
+                     * more than one openSAFETY frame. It so happens that in such a case, the
+                     * last openSAFETY frame will miss detection.
+                     *
+                     * If so we look at the transported length, calculate the frame length,
+                     * and take a look if the calculated frame length, might be a fit for the
+                     * remaining length. If such is the case, we increment ctr and increment
+                     * rem_length (to hit the while loop one more time) and the frame will be
+                     * detected correctly. */
+                    if ( rem_length == OSS_MINIMUM_LENGTH )
+                    {
+                        b_ID = tvb_get_guint8(message_tvb, ctr );
+                        b_Length = tvb_get_guint8(message_tvb, ctr + 2 );
+                        if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
+                            b_Length = ( 11 + ( b_Length > 8 ? 2 : 0 ) + b_Length );
+                        else
+                            b_Length = ( 11 + ( b_Length > 8 ? 2 : 0 ) + 2 * b_Length );
+
+                        if ( rem_length == b_Length )
+                        {
+                            ctr++;
+                            rem_length++;
+                            continue;
                         }
                     }
                 }
