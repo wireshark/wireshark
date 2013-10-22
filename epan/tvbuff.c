@@ -467,7 +467,7 @@ tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 void
 tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 {
-	guint abs_offset, abs_length;
+	guint real_offset, end_offset;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -484,7 +484,56 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 	if (length < 0) {
 		THROW(ReportedBoundsError);
 	}
-	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+
+	/* XXX: Below this point could be replaced with a call to
+	 * check_offset_length with no functional change, however this is a
+	 * *very* hot path and check_offset_length is not well-optimized for
+	 * this case, so we eat some code duplication for a lot of speedup. */
+
+	if (offset >= 0) {
+		/* Positive offset - relative to the beginning of the packet. */
+		if ((guint) offset <= tvb->length) {
+			real_offset = offset;
+		} else if ((guint) offset <= tvb->reported_length) {
+			THROW(BoundsError);
+		} else if (tvb->flags & TVBUFF_FRAGMENT) {
+			THROW(FragmentBoundsError);
+		} else {
+			THROW(ReportedBoundsError);
+		}
+	}
+	else {
+		/* Negative offset - relative to the end of the packet. */
+		if ((guint) -offset <= tvb->length) {
+			real_offset = tvb->length + offset;
+		} else if ((guint) -offset <= tvb->reported_length) {
+			THROW(BoundsError);
+		} else if (tvb->flags & TVBUFF_FRAGMENT) {
+			THROW(FragmentBoundsError);
+		} else {
+			THROW(ReportedBoundsError);
+		}
+	}
+
+	/*
+	 * Compute the offset of the first byte past the length.
+	 */
+	end_offset = real_offset + length;
+
+	/*
+	 * Check for an overflow
+	 */
+	if (end_offset < real_offset)
+		THROW(BoundsError);
+
+	if (G_LIKELY(end_offset <= tvb->length))
+		return;
+	else if (end_offset <= tvb->reported_length)
+		THROW(BoundsError);
+	else if (tvb->flags & TVBUFF_FRAGMENT)
+		THROW(FragmentBoundsError);
+	else
+		THROW(ReportedBoundsError);
 }
 
 gboolean
