@@ -136,15 +136,29 @@ static int hf_openflow_v4_flowmod_flags_reset_counts = -1;
 static int hf_openflow_v4_flowmod_flags_no_packet_counts = -1;
 static int hf_openflow_v4_flowmod_flags_no_byte_counts = -1;
 static int hf_openflow_v4_flowmod_pad = -1;
+static int hf_openflow_v4_bucket_length = -1;
+static int hf_openflow_v4_bucket_weight = -1;
+static int hf_openflow_v4_bucket_watch_port = -1;
+static int hf_openflow_v4_bucket_watch_port_reserved = -1;
+static int hf_openflow_v4_bucket_watch_group = -1;
+static int hf_openflow_v4_bucket_watch_group_reserved = -1;
+static int hf_openflow_v4_bucket_pad = -1;
+static int hf_openflow_v4_groupmod_command = -1;
+static int hf_openflow_v4_groupmod_type = -1;
+static int hf_openflow_v4_groupmod_pad = -1;
+static int hf_openflow_v4_groupmod_group_id = -1;
+static int hf_openflow_v4_groupmod_group_id_reserved = -1;
 static int hf_openflow_v4_multipart_type = -1;
 static int hf_openflow_v4_multipart_request_flags = -1;
 static int hf_openflow_v4_multipart_reply_flags = -1;
-
 static gint ett_openflow_v4 = -1;
 static gint ett_openflow_v4_path_id = -1;
 static gint ett_openflow_v4_cap = -1;
 static gint ett_openflow_v4_flowmod_flags = -1;
 static gint ett_openflow_v4_flowmod_instructions = -1;
+static gint ett_openflow_v4_bucket = -1;
+static gint ett_openflow_v4_bucket_actions = -1;
+static gint ett_openflow_v4_groupmod_buckets = -1;
 static gint ett_openflow_v4_oxm = -1;
 static gint ett_openflow_v4_match = -1;
 static gint ett_openflow_v4_match_oxm_fields = -1;
@@ -1132,6 +1146,115 @@ dissect_openflow_flowmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     }
 }
 
+static int
+dissect_openflow_bucket_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+    proto_item *ti;
+    proto_tree *bucket_tree, *actions_tree;
+    guint16 bucket_length;
+    guint16 acts_end;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Bucket");
+    bucket_tree = proto_item_add_subtree(ti, ett_openflow_v4_bucket);
+
+    /* uint16_t len; */
+    bucket_length = tvb_get_ntohs(tvb, offset);
+    proto_item_set_len(ti, bucket_length);
+    proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint16_t weight; */
+    proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_weight, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint32_t watch_port; */
+    if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
+        proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_watch_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_watch_port_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* uint32_t watch_group; */
+    if (tvb_get_ntohl(tvb, offset) <= OFPG_MAX) {
+        proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_watch_group, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_watch_group_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* uint8_t pad[4]; */
+    proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /*struct ofp_action_header actions[0]; */
+    acts_end = offset + bucket_length - 16;
+
+    if (offset < acts_end) {
+        ti = proto_tree_add_text(bucket_tree, tvb, offset, bucket_length - 16, "Actions");
+        actions_tree = proto_item_add_subtree(ti, ett_openflow_v4_bucket_actions);
+
+        while (offset < acts_end) {
+            offset = dissect_openflow_action_v4(tvb, pinfo, actions_tree, offset, length);
+        }
+    }
+
+    return offset;
+}
+
+
+static const value_string openflow_v4_groupmod_command_values[] = {
+    { 0, "OFPGC_ADD" },
+    { 1, "OFPGC_MODIFY" },
+    { 2, "OFPGC_DELETE" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_group_type_values[] = {
+    { 0, "OFPGT_ALL" },
+    { 1, "OFPGT_SELECT" },
+    { 2, "OFPGT_INDIRECT" },
+    { 3, "OFPGT_FF" },
+    { 0, NULL }
+};
+
+static void
+dissect_openflow_groupmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+    proto_item *ti;
+    proto_tree *buckets_tree;
+
+    /* uint16_t command; */
+    proto_tree_add_item(tree, hf_openflow_v4_groupmod_command, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint8_t type; */
+    proto_tree_add_item(tree, hf_openflow_v4_groupmod_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint8_t pad; */
+    proto_tree_add_item(tree, hf_openflow_v4_groupmod_pad, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint32_t group_id; */
+    if (tvb_get_ntohl(tvb, offset) <= OFPG_MAX) {
+        proto_tree_add_item(tree, hf_openflow_v4_groupmod_group_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_openflow_v4_groupmod_group_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* struct ofp_bucket buckets[0]; */
+    if (offset < length) {
+        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Buckets");
+        buckets_tree = proto_item_add_subtree(ti, ett_openflow_v4_groupmod_buckets);
+
+        while (offset < length) {
+            offset = dissect_openflow_bucket_v4(tvb, pinfo, buckets_tree, offset, length);
+        }
+    }
+}
+
 /* enum ofp_multipart_types { */
 /* Description of this OpenFlow switch.
 * The request body is empty.
@@ -1355,6 +1478,10 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         dissect_openflow_flowmod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
 
+    case OFPT_V4_GROUP_MOD: /* 15 */
+        dissect_openflow_groupmod_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
+
     case OFPT_V4_MULTIPART_REQUEST: /* 18 */
         dissect_openflow_multipart_request_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
@@ -1485,6 +1612,11 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_oxm_mask_ipv4addr,
             { "Mask", "openflow_v4.oxm.value",
                FT_IPv4, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_mask_ipv6addr,
+            { "Mask", "openflow_v4.oxm.value",
+               FT_IPv6, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_match_type,
@@ -1879,7 +2011,67 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_flowmod_pad,
             { "Padding", "openflow_v4.flowmod.pad",
-               FT_UINT16, BASE_HEX, NULL, 0x0,
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_length,
+            { "Length", "openflow_v4.bucket.length",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_weight,
+            { "Weight", "openflow_v4.bucket.weight",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_watch_port,
+            { "Watch port", "openflow_v4.bucket.watch_port",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_watch_port_reserved,
+            { "Watch port", "openflow_v4.bucket.watch_port",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_port_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_watch_group,
+            { "Watch group", "openflow_v4.bucket.watch_group",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_watch_group_reserved,
+            { "Watch group", "openflow_v4.bucket.watch_group",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_group_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_bucket_pad,
+            { "Padding", "openflow_v4.bucket.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_groupmod_command,
+            { "Command", "openflow_v4.groupmod.command",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_groupmod_command_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_groupmod_type,
+            { "Type", "openflow_v4.groupmod.type",
+               FT_UINT8, BASE_DEC, VALS(openflow_v4_group_type_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_groupmod_pad,
+            { "Padding", "openflow_v4.groupmod.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_groupmod_group_id,
+            { "Group ID", "openflow_v4.groupmod.group_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_groupmod_group_id_reserved,
+            { "Group ID", "openflow_v4.groupmod.group_id",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_group_reserved_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_multipart_type,
@@ -1905,6 +2097,9 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_cap,
         &ett_openflow_v4_flowmod_flags,
         &ett_openflow_v4_flowmod_instructions,
+        &ett_openflow_v4_bucket,
+        &ett_openflow_v4_bucket_actions,
+        &ett_openflow_v4_groupmod_buckets,
         &ett_openflow_v4_oxm,
         &ett_openflow_v4_match,
         &ett_openflow_v4_match_oxm_fields,
