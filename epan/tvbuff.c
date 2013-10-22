@@ -1542,37 +1542,13 @@ tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const guin
  * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
-
-/* Requires the tvb length and abs_offset to be computed before it is called */
-static gint
-tvb_pbrk_guint8_within_tvb(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
-{
-    const guint8 *result;
-
-    /* If we have real data, perform our search now. */
-    if (tvb->real_data) {
-        result = guint8_pbrk(tvb->real_data + abs_offset, limit, needles, found_needle);
-        if (result == NULL) {
-            return -1;
-        }
-        else {
-            return (gint) (result - tvb->real_data);
-        }
-    }
-
-    if (tvb->ops->tvb_pbrk_guint8){
-        return tvb->ops->tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
-    }
-
-    return tvb_pbrk_guint8_generic(tvb, abs_offset, limit, needles, found_needle);
-
-}
 gint
 tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const guint8 *needles, guchar *found_needle)
 {
-    guint	      abs_offset;
-    guint	      tvbufflen;
-    guint	      limit;
+	const guint8 *result;
+	guint	      abs_offset;
+	guint	      tvbufflen;
+	guint	      limit;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -1594,8 +1570,21 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 		limit = maxlength;
 	}
 
-	return tvb_pbrk_guint8_within_tvb(tvb, abs_offset, limit, needles, found_needle);
+	/* If we have real data, perform our search now. */
+	if (tvb->real_data) {
+		result = guint8_pbrk(tvb->real_data + abs_offset, limit, needles, found_needle);
+		if (result == NULL) {
+			return -1;
+		}
+		else {
+			return (gint) (result - tvb->real_data);
+		}
+	}
 
+	if (tvb->ops->tvb_pbrk_guint8)
+		return tvb->ops->tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
+
+	return tvb_pbrk_guint8_generic(tvb, abs_offset, limit, needles, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -1906,41 +1895,13 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 guint8 *
 tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
 {
-    guint abs_offset, abs_length;
-    guint8       *strbuf;
+	guint8       *strbuf;
 
-    /*tvb_ensure_bytes_exist(tvb, offset, length);*/ /* make sure length = -1 fails */
-    DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-    /*
-     * -1 doesn't mean "until end of buffer", as that's pointless
-     * for this routine.  We must treat it as a Really Large Positive
-     * Number, so that we throw an exception; we throw
-     * ReportedBoundsError, as if it were past even the end of a
-     * reassembled packet, and past the end of even the data we
-     * didn't capture.
-     *
-     * We do the same with other negative lengths.
-     */
-    if (length < 0) {
-        THROW(ReportedBoundsError);
-    }
-    check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
-    /* end tvb_ensure_bytes_exist */
-    strbuf = (guint8 *)wmem_alloc(scope, length + 1);
-    /* tvb_memcpy(tvb, strbuf, offset, length); */
-    if (tvb->real_data) {
-        memcpy(strbuf, tvb->real_data + abs_offset, abs_length);
-    }else if (tvb->ops->tvb_memcpy){
-        tvb->ops->tvb_memcpy(tvb, strbuf, abs_offset, abs_length);
-	}else{
-        /* XXX, fallback to slower method */
-        DISSECTOR_ASSERT_NOT_REACHED();
-    }
-    /* end tvb_memcpy( */
-
-    strbuf[length] = '\0';
-    return strbuf;
+	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
+	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
+	tvb_memcpy(tvb, strbuf, offset, length);
+	strbuf[length] = '\0';
+	return strbuf;
 }
 
 /*
@@ -2381,45 +2342,23 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 gint
 tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, const gboolean desegment)
 {
-    guint	      abs_offset;
-    guint	      tvbufflen;
-    guint	      limit;
-
 	gint   eob_offset;
 	gint   eol_offset;
 	int    linelen;
 	guchar found_needle = 0;
 
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	check_offset_length(tvb, offset, -1, &abs_offset, &tvbufflen);
-
-	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (len == -1) {
-		/* No maximum length specified; search to end of tvbuff. */
-		limit = tvbufflen;
-	}
-	else if (tvbufflen < (guint) len) {
-		/* Maximum length goes past end of tvbuff; search to end
-		   of tvbuff. */
-		limit = tvbufflen;
-	}
-	else {
-		/* Maximum length doesn't go past end of tvbuff; search
-		   to that value. */
-		limit = len;
-	}
-
+	if (len == -1)
+		len = tvb_length_remaining(tvb, offset);
 	/*
 	 * XXX - what if "len" is still -1, meaning "offset is past the
 	 * end of the tvbuff"?
 	 */
-	eob_offset = offset + limit;
+	eob_offset = offset + len;
 
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_guint8_within_tvb(tvb, abs_offset, limit, "\r\n", &found_needle);
+	eol_offset = tvb_pbrk_guint8(tvb, offset, len, "\r\n", &found_needle);
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -2473,14 +2412,11 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 					return -1;
 				}
 			} else {
-				const guint8 *ptr;
 				/*
 				 * Well, we can at least look at the next
 				 * byte.
 				 */
-				/* tvb_get_guint8() */
-				ptr=tvb->real_data + eol_offset + 1;
-				if ((*ptr) == '\n') {
+				if (tvb_get_guint8(tvb, eol_offset + 1) == '\n') {
 					/*
 					 * It's an LF; skip over the CR.
 					 */
