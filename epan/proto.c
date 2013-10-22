@@ -1785,30 +1785,15 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
  * start (pos/neg). Throws an exception if they aren't.
  */
 static void
-test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
-	    gint start, gint length, const guint encoding)
+test_length(header_field_info *hfinfo, tvbuff_t *tvb,
+	    gint start, gint length)
 {
 	gint size = length;
 
 	if (!tvb)
 		return;
 
-	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
-		guint32 n;
-
-		n = get_uint_value(tree, tvb, start, length, encoding);
-		if (n > size + n) {
-			/* If n > size + n then we have an integer overflow, so
-			 * set size to -1, which will force the
-			 * tvb_ensure_bytes_exist call below to throw a
-			 * ReportedBoundsError
-			 */
-			size = -1;
-		}
-		else {
-			size += n;
-		}
-	} else if (hfinfo->type == FT_STRINGZ) {
+	if (hfinfo->type == FT_STRINGZ) {
 		/* If we're fetching until the end of the TVB, only validate
 		 * that the offset is within range.
 		 */
@@ -1831,7 +1816,7 @@ proto_tree_add_item_new(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *t
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
 	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
-	test_length(hfinfo, tree, tvb, start, item_length, encoding);
+	test_length(hfinfo, tvb, start, item_length);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
 
@@ -7035,7 +7020,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 
 	octet_length = (no_of_bits + 7) >> 3;
 	octet_offset = bit_offset >> 3;
-	test_length(hfinfo, tree, tvb, octet_offset, octet_length, encoding);
+	test_length(hfinfo, tvb, octet_offset, octet_length);
 
 	/* Yes, we try to fake this item again in proto_tree_add_bits_ret_val()
 	 * but only after doing a bunch more work (which we can, in the common
