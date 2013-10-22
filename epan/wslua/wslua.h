@@ -463,4 +463,6 @@ extern int wslua_set_tap_enums(lua_State* L);
 
 extern int luaopen_bit(lua_State *L);
 
+extern int wslua_is_field_available(lua_State* L, const char* field_abbr);
+
 #endif

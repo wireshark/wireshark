@@ -483,7 +483,7 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
 
     if (!name) return 0;
 
-    if (!proto_registrar_get_byname(name))
+    if (!proto_registrar_get_byname(name) && !wslua_is_field_available(L, name))
         WSLUA_ARG_ERROR(Field_new,FIELDNAME,"a field with this name must exist");
 
     if (!wanted_fields)

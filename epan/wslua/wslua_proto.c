@@ -1595,6 +1595,36 @@ int Proto_register(lua_State* L) {
     return 1;
 }
 
+/**
+ * Query field abbr that is defined and bound to a Proto in lua.
+ * They are not registered untill the end of the initialization.
+ */
+int wslua_is_field_available(lua_State* L, const char* field_abbr) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
+    lua_pushnil(L);
+    while (lua_next(L, -2)) {
+        Proto proto;
+        proto = checkProto(L, -1);
+        
+        lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
+        
+        lua_pushnil(L);
+        while (lua_next(L, -2)) {
+            ProtoField f = checkProtoField(L, -1);
+            if (strcmp(field_abbr, f->abbr) == 0) {
+                /* found! */
+                lua_pop(L, 6);
+                return 1;
+            }
+            lua_pop(L, 1); /* table value */
+        }
+        lua_pop(L, 2); /* proto->fields and table value */
+    }
+    lua_pop(L, 1); /* protocols_table_ref */
+    
+    return 0;
+}
+
 int Proto_commit(lua_State* L) {
     lua_settop(L,0);
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
