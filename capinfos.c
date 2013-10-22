@@ -826,6 +826,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 static int
 process_cap_file(wtap *wth, const char *filename)
 {
+  int                   status = 0;
   int                   err;
   gchar                *err_info;
   gint64                size;
@@ -907,16 +908,24 @@ process_cap_file(wtap *wth, const char *filename)
         packet, filename, wtap_strerror(err));
     switch (err) {
 
+      case WTAP_ERR_SHORT_READ:
+        status = 1;
+        fprintf(stderr,
+          "  (will continue anyway, checksums might be incorrect)\n");
+        break;
+
       case WTAP_ERR_UNSUPPORTED:
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_BAD_FILE:
       case WTAP_ERR_DECOMPRESS:
         fprintf(stderr, "(%s)\n", err_info);
         g_free(err_info);
-        break;
+        /* fallthrough */
+
+      default:
+        g_free(cf_info.encap_counts);
+        return 1;
     }
-    g_free(cf_info.encap_counts);
-    return 1;
   }
 
   /* File size */
@@ -1001,7 +1010,7 @@ process_cap_file(wtap *wth, const char *filename)
   g_free(cf_info.encap_counts);
   g_free(cf_info.comment);
 
-  return 0;
+  return status;
 }
 
 static void
