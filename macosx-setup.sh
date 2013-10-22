@@ -24,6 +24,29 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #
+# To set up Qt
+#
+# curl -O http://download.qt-project.org/official_releases/qt/5.1/5.1.1/single/qt-everywhere-opensource-src-5.1.1.tar.gz
+#
+# Choose one of:
+# TARGET_PLATFORM=macx-clang
+# TARGET_PLATFORM=macx-clang-32
+#
+# Qt 5.1.x sets QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
+# in qtbase/mkspecs/$TARGET_PLATFORM/qmake.conf
+# We may need to adjust this manually in the future.
+#
+# The -no-c++11 flag is needed to work around
+# https://bugreports.qt-project.org/browse/QTBUG-30487
+#
+#./configure \
+#  -platform $TARGET_PLATFORM \
+#  -opensource -confirm-license \
+#  -no-c++11
+#
+# make
+
+#
 # To set up a GTK3 environment
 GTK3=1
 # To build cmake
