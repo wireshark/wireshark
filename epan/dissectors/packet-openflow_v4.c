@@ -99,6 +99,25 @@ static int hf_openflow_v4_instruction_write_metadata_mask = -1;
 static int hf_openflow_v4_instruction_actions_pad = -1;
 static int hf_openflow_v4_instruction_meter_meter_id = -1;
 static int hf_openflow_v4_instruction_meter_meter_id_reserved = -1;
+static int hf_openflow_v4_error_type = -1;
+static int hf_openflow_v4_error_hello_failed_code = -1;
+static int hf_openflow_v4_error_bad_request_code = -1;
+static int hf_openflow_v4_error_bad_action_code = -1;
+static int hf_openflow_v4_error_bad_instruction_code = -1;
+static int hf_openflow_v4_error_bad_match_code = -1;
+static int hf_openflow_v4_error_flow_mod_failed_code = -1;
+static int hf_openflow_v4_error_group_mod_failed_code = -1;
+static int hf_openflow_v4_error_port_mod_failed_code = -1;
+static int hf_openflow_v4_error_table_mod_failed_code = -1;
+static int hf_openflow_v4_error_queue_op_failed_code = -1;
+static int hf_openflow_v4_error_switch_config_failed_code = -1;
+static int hf_openflow_v4_error_role_request_failed_code = -1;
+static int hf_openflow_v4_error_meter_mod_failed_code = -1;
+static int hf_openflow_v4_error_table_features_failed_code = -1;
+static int hf_openflow_v4_error_code = -1;
+static int hf_openflow_v4_error_data_text = -1;
+static int hf_openflow_v4_error_data_body = -1;
+static int hf_openflow_v4_error_experimenter = -1;
 static int hf_openflow_v4_datapath_id = -1;
 static int hf_openflow_datapath_v4_mac = -1;
 static int hf_openflow_v4_datapath_impl = -1;
@@ -165,11 +184,13 @@ static gint ett_openflow_v4_match_oxm_fields = -1;
 static gint ett_openflow_v4_action = -1;
 static gint ett_openflow_v4_instruction = -1;
 static gint ett_openflow_v4_instruction_actions_actions = -1;
+static gint ett_openflow_v4_error_data = -1;
 
 static expert_field ei_openflow_v4_match_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_oxm_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_action_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_instruction_undecoded = EI_INIT;
+static expert_field ei_openflow_v4_error_undecoded = EI_INIT;
 
 static const value_string openflow_v4_version_values[] = {
     { 0x01, "1.0" },
@@ -263,6 +284,28 @@ static const value_string openflow_v4_type_values[] = {
     { 29, "OFPT_METER_MOD" },                /* Controller/switch message */
     { 0, NULL }
 };
+
+static int
+dissect_openflow_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    /* uint8_t version; */
+    proto_tree_add_item(tree, hf_openflow_v4_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* uint8_t type; */
+    proto_tree_add_item(tree, hf_openflow_v4_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* uint16_t length; */
+    proto_tree_add_item(tree, hf_openflow_v4_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint32_t xid; */
+    proto_tree_add_item(tree, hf_openflow_v4_xid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    return offset;
+}
 
 #define OFPP_MAX   0xffffff00  /* Last usable port number. */
 static const value_string openflow_v4_port_reserved_values[] = {
@@ -615,6 +658,319 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
 
     return offset;
+}
+
+#define OFPET_HELLO_FAILED            0
+#define OFPET_BAD_REQUEST             1
+#define OFPET_BAD_ACTION              2
+#define OFPET_BAD_INSTRUCTION         3
+#define OFPET_BAD_MATCH               4
+#define OFPET_FLOW_MOD_FAILED         5
+#define OFPET_GROUP_MOD_FAILED        6
+#define OFPET_PORT_MOD_FAILED         7
+#define OFPET_TABLE_MOD_FAILED        8
+#define OFPET_QUEUE_OP_FAILED         9
+#define OFPET_SWITCH_CONFIG_FAILED   10
+#define OFPET_ROLE_REQUEST_FAILED    11
+#define OFPET_METER_MOD_FAILED       12
+#define OFPET_TABLE_FEATURES_FAILED  13
+#define OFPET_EXPERIMENTER           0xffff
+static const value_string openflow_v4_error_type_values[] = {
+    {      0, "OFPET_HELLO_FAILED" },
+    {      1, "OFPET_BAD_REQUEST" },
+    {      2, "OFPET_BAD_ACTION" },
+    {      3, "OFPET_BAD_INSTRUCTION" },
+    {      4, "OFPET_BAD_MATCH" },
+    {      5, "OFPET_FLOW_MOD_FAILED" },
+    {      6, "OFPET_GROUP_MOD_FAILED" },
+    {      7, "OFPET_PORT_MOD_FAILED" },
+    {      8, "OFPET_TABLE_MOD_FAILED" },
+    {      9, "OFPET_QUEUE_OP_FAILED" },
+    {     10, "OFPET_SWITCH_CONFIG_FAILED" },
+    {     11, "OFPET_ROLE_REQUEST_FAILED" },
+    {     12, "OFPET_METER_MOD_FAILED" },
+    {     13, "OFPET_TABLE_FEATURES_FAILED" },
+    { 0xffff, "OFPET_EXPERIMENTER" },
+    {      0, NULL}
+};
+
+static const value_string openflow_v4_error_hello_failed_code_values[] = {
+    { 0, "OFPHFC_INCOMPATIBLE" },
+    { 1, "OFPHFC_EPERM" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_bad_request_code_values[] =  {
+    {  0, "OFPBRC_BAD_VERSION" },
+    {  1, "OFPBRC_BAD_TYPE" },
+    {  2, "OFPBRC_BAD_MULTIPART" },
+    {  3, "OFPBRC_BAD_EXPERIMENTER" },
+    {  4, "OFPBRC_BAD_EXP_TYPE" },
+    {  5, "OFPBRC_EPERM" },
+    {  6, "OFPBRC_BAD_LEN" },
+    {  7, "OFPBRC_BUFFER_EMPTY" },
+    {  8, "OFPBRC_BUFFER_UNKNOWN" },
+    {  9, "OFPBRC_BAD_TABLE_ID" },
+    { 10, "OFPBRC_IS_SLAVE" },
+    { 11, "OFPBRC_BAD_PORT" },
+    { 12, "OFPBRC_BAD_PACKET" },
+    { 13, "OFPBRC_MULTIPART_BUFFER_OVERFLOW" },
+    {  0, NULL }
+};
+
+static const value_string openflow_v4_error_bad_action_code_values[] =  {
+    {  0, "OFPBAC_BAD_TYPE" },
+    {  1, "OFPBAC_BAD_LEN" },
+    {  2, "OFPBAC_BAD_EXPERIMENTER" },
+    {  3, "OFPBAC_BAD_EXP_TYPE" },
+    {  4, "OFPBAC_BAD_OUT_PORT" },
+    {  5, "OFPBAC_BAD_ARGUMENT" },
+    {  6, "OFPBAC_EPERM" },
+    {  7, "OFPBAC_TOO_MANY" },
+    {  8, "OFPBAC_BAD_QUEUE" },
+    {  9, "OFPBAC_BAD_OUT_GROUP" },
+    { 10, "OFPBAC_MATCH_INCONSISTENT" },
+    { 11, "OFPBAC_UNSUPPORTED_ORDER" },
+    { 12, "OFPBAC_BAD_TAG" },
+    { 13, "OFPBAC_BAD_SET_TYPE" },
+    { 14, "OFPBAC_BAD_SET_LEN" },
+    { 15, "OFPBAC_BAD_SET_ARGUMENT" },
+    {  0, NULL }
+};
+
+static const value_string openflow_v4_error_bad_instruction_code_values[] =  {
+    { 0, "OFPBIC_UNKNOWN_INST" },
+    { 1, "OFPBIC_UNSUP_INST" },
+    { 2, "OFPBIC_BAD_TABLE_ID" },
+    { 3, "OFPBIC_UNSUP_METADATA" },
+    { 4, "OFPBIC_UNSUP_METADATA_MASK" },
+    { 5, "OFPBIC_BAD_EXPERIMENTER" },
+    { 6, "OFPBIC_BAD_EXP_TYPE" },
+    { 7, "OFPBIC_BAD_LEN" },
+    { 8, "OFPBIC_EPERM" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_bad_match_code_values[] =  {
+    {  0, "OFPBMC_BAD_TYPE" },
+    {  1, "OFPBMC_BAD_LEN" },
+    {  2, "OFPBMC_BAD_TAG" },
+    {  3, "OFPBMC_BAD_DL_ADDR_MASK" },
+    {  4, "OFPBMC_BAD_NW_ADDR_MASK" },
+    {  5, "OFPBMC_BAD_WILDCARDS" },
+    {  6, "OFPBMC_BAD_FIELD" },
+    {  7, "OFPBMC_BAD_VALUE" },
+    {  8, "OFPBMC_BAD_MASK" },
+    {  9, "OFPBMC_BAD_PREREQ" },
+    { 10, "OFPBMC_DUP_FIELD" },
+    { 11, "OFPBMC_EPERM" },
+    {  0, NULL }
+};
+
+static const value_string openflow_v4_error_flow_mod_failed_code_values[] =  {
+    { 0, "OFPFMFC_UNKNOWN" },
+    { 1, "OFPFMFC_TABLE_FULL" },
+    { 2, "OFPFMFC_BAD_TABLE_ID" },
+    { 3, "OFPFMFC_OVERLAP" },
+    { 4, "OFPFMFC_EPERM" },
+    { 5, "OFPFMFC_BAD_TIMEOUT" },
+    { 6, "OFPFMFC_BAD_COMMAND" },
+    { 7, "OFPFMFC_BAD_FLAGS" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_group_mod_failed_code_values[] =  {
+    {  0, "OFPGMFC_GROUP_EXISTS" },
+    {  1, "OFPGMFC_INVALID_GROUP" },
+    {  2, "OFPGMFC_WEIGHT_UNSUPPORTED" },
+    {  3, "OFPGMFC_OUT_OF_GROUPS" },
+    {  4, "OFPGMFC_OUT_OF_BUCKETS" },
+    {  5, "OFPGMFC_CHAINING_UNSUPPORTED" },
+    {  6, "OFPGMFC_WATCH_UNSUPPORTED" },
+    {  7, "OFPGMFC_LOOP" },
+    {  8, "OFPGMFC_UNKNOWN_GROUP" },
+    {  9, "OFPGMFC_CHAINED_GROUP" },
+    { 10, "OFPGMFC_BAD_TYPE" },
+    { 11, "OFPGMFC_BAD_COMMAND" },
+    { 12, "OFPGMFC_BAD_BUCKET" },
+    { 13, "OFPGMFC_BAD_WATCH" },
+    { 14, "OFPGMFC_EPERM" },
+    {  0, NULL }
+};
+
+static const value_string openflow_v4_error_port_mod_failed_code_values[] =  {
+    { 0, "OFPPMFC_BAD_PORT" },
+    { 1, "OFPPMFC_BAD_HW_ADDR" },
+    { 2, "OFPPMFC_BAD_CONFIG" },
+    { 3, "OFPPMFC_BAD_ADVERTISE" },
+    { 4, "OFPPMFC_EPERM" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_table_mod_failed_code_values[] =  {
+    { 0, "OFPTMFC_BAD_TABLE" },
+    { 1, "OFPTMFC_BAD_CONFIG" },
+    { 2, "OFPTMFC_EPERM" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_queue_op_failed_code_values[] =  {
+    { 0, "OFPQOFC_BAD_PORT" },
+    { 1, "OFPQOFC_BAD_QUEUE" },
+    { 2, "OFPQOFC_EPERM" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_switch_config_failed_code_values[] =  {
+    { 0, "OFPSCFC_BAD_FLAGS" },
+    { 1, "OFPSCFC_BAD_LEN" },
+    { 2, "OFPQCFC_EPERM" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_role_request_failed_code_values[] =  {
+    { 0, "OFPRRFC_STALE" },
+    { 1, "OFPRRFC_UNSUP" },
+    { 2, "OFPRRFC_BAD_ROLE" },
+    { 0, NULL }
+};
+
+static const value_string openflow_v4_error_meter_mod_failed_code_values[] =  {
+    {   0, "OFPMMFC_UNKNOWN" },
+    {   1, "OFPMMFC_METER_EXISTS" },
+    {   2, "OFPMMFC_INVALID_METER" },
+    {   3, "OFPMMFC_UNKNOWN_METER" },
+    {   4, "OFPMMFC_BAD_COMMAND" },
+    {   5, "OFPMMFC_BAD_FLAGS" },
+    {   6, "OFPMMFC_BAD_RATE" },
+    {   7, "OFPMMFC_BAD_BURST" },
+    {   8, "OFPMMFC_BAD_BAND" },
+    {   9, "OFPMMFC_BAD_BAND_VALUE" },
+    {  10, "OFPMMFC_OUT_OF_METERS" },
+    {  11, "OFPMMFC_OUT_OF_BANDS" },
+    {  0, NULL }
+};
+
+static const value_string openflow_v4_error_table_features_failed_code_values[] =  {
+    { 0, "OFPTFFC_BAD_TABLE" },
+    { 1, "OFPTFFC_BAD_METADATA" },
+    { 2, "OFPTFFC_BAD_TYPE" },
+    { 3, "OFPTFFC_BAD_LEN" },
+    { 4, "OFPTFFC_BAD_ARGUMENT" },
+    { 5, "OFPTFFC_EPERM" },
+    { 0, NULL }
+};
+
+static void
+dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+    proto_item *ti;
+    proto_tree *data_tree;
+    guint16 error_type;
+
+    /* uint16_t type; */
+    error_type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_v4_error_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset +=2;
+
+    /* uint16_t code; */
+    switch(error_type) {
+    case OFPET_HELLO_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_hello_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_BAD_REQUEST:
+        proto_tree_add_item(tree, hf_openflow_v4_error_bad_request_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_BAD_ACTION:
+        proto_tree_add_item(tree, hf_openflow_v4_error_bad_action_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_BAD_INSTRUCTION:
+        proto_tree_add_item(tree, hf_openflow_v4_error_bad_instruction_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_BAD_MATCH:
+        proto_tree_add_item(tree, hf_openflow_v4_error_bad_match_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_FLOW_MOD_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_flow_mod_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_GROUP_MOD_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_group_mod_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_PORT_MOD_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_port_mod_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_TABLE_MOD_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_table_mod_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_QUEUE_OP_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_queue_op_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_SWITCH_CONFIG_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_switch_config_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_ROLE_REQUEST_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_role_request_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_METER_MOD_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_meter_mod_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_TABLE_FEATURES_FAILED:
+        proto_tree_add_item(tree, hf_openflow_v4_error_table_features_failed_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case OFPET_EXPERIMENTER:
+    default:
+        proto_tree_add_item(tree, hf_openflow_v4_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    }
+    offset +=2;
+
+    switch(error_type) {
+    case OFPET_HELLO_FAILED:
+        /* uint8_t data[0]; contains an ASCII text string */
+        proto_tree_add_item(tree, hf_openflow_v4_error_data_text, tvb, offset, length - 12, ENC_NA|ENC_ASCII);
+        offset += length - 12;
+        break;
+
+    case OFPET_BAD_REQUEST:
+    case OFPET_BAD_ACTION:
+    case OFPET_BAD_INSTRUCTION:
+    case OFPET_BAD_MATCH:
+    case OFPET_FLOW_MOD_FAILED:
+    case OFPET_GROUP_MOD_FAILED:
+    case OFPET_PORT_MOD_FAILED:
+    case OFPET_TABLE_MOD_FAILED:
+    case OFPET_QUEUE_OP_FAILED:
+    case OFPET_SWITCH_CONFIG_FAILED:
+    case OFPET_ROLE_REQUEST_FAILED:
+    case OFPET_METER_MOD_FAILED:
+    case OFPET_TABLE_FEATURES_FAILED:
+        /* uint8_t data[0]; contains at least the first 64 bytes of the failed request. */
+        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Data");
+        data_tree = proto_item_add_subtree(ti, ett_openflow_v4_error_data);
+
+        offset = dissect_openflow_header_v4(tvb, pinfo, data_tree, offset, length);
+
+        proto_tree_add_item(data_tree, hf_openflow_v4_error_data_body, tvb, offset, length - 20, ENC_NA);
+        offset += length - 12;
+        break;
+
+    case OFPET_EXPERIMENTER:
+        /* uint32_t experimenter */
+        proto_tree_add_item(tree, hf_openflow_v4_error_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        /* uint8_t data[0]; */
+        proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_error_undecoded,
+                                     tvb, offset, length - 16, "Experimenter error body.");
+        offset += length - 16;
+        break;
+
+    default:
+        /* uint8_t data[0]; */
+        proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_error_undecoded,
+                                     tvb, offset, length - 12, "Unknown error body.");
+        offset += length - 12;
+        break;
+    }
 }
 
 
@@ -1424,7 +1780,8 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint8 type;
     guint16 length;
 
-    type    = tvb_get_guint8(tvb, 1);
+    type   = tvb_get_guint8(tvb, 1);
+    length = tvb_get_ntohs(tvb, 2);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_const(type, openflow_v4_type_values, "Unknown Messagetype"));
@@ -1438,25 +1795,7 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     ti = proto_tree_add_item(tree, proto_openflow_v4, tvb, 0, -1, ENC_NA);
     openflow_tree = proto_item_add_subtree(ti, ett_openflow_v4);
 
-    /* A.1 OpenFlow Header. */
-    /* OFP_VERSION. */
-    proto_tree_add_item(openflow_tree, hf_openflow_v4_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-
-    /* One of the OFPT_ constants. */
-    proto_tree_add_item(openflow_tree, hf_openflow_v4_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-
-    /* Length including this ofp_header. */
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(openflow_tree, hf_openflow_v4_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
-
-    /* Transaction id associated with this packet. Replies use the same id as was in the request
-     * to facilitate pairing.
-     */
-    proto_tree_add_item(openflow_tree, hf_openflow_v4_xid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset+=4;
+    offset = dissect_openflow_header_v4(tvb, pinfo, openflow_tree, offset, length);
 
     switch(type){
     case OFPT_V4_HELLO: /* 0 */
@@ -1464,6 +1803,11 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
          * The OFPT_HELLO message has no body;
          */
         break;
+
+    case OFPT_V4_ERROR: /* 1 */
+        dissect_openflow_error_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
+
     case OFPT_V4_FEATURES_REQUEST: /* 5 */
         /* 5.3.1 Handshake
          * Upon TLS session establishment, the controller sends an OFPT_FEATURES_REQUEST
@@ -1829,6 +2173,101 @@ proto_register_openflow_v4(void)
                FT_UINT32, BASE_HEX, VALS(openflow_v4_meter_id_reserved_values), 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_v4_error_type,
+            { "Type", "openflow_v4.error.type",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_type_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_hello_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_hello_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_bad_request_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_bad_request_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_bad_action_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_bad_action_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_bad_instruction_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_bad_instruction_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_bad_match_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_bad_match_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_flow_mod_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_flow_mod_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_group_mod_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_group_mod_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_port_mod_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_port_mod_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_table_mod_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_table_mod_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_queue_op_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_queue_op_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_switch_config_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_switch_config_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_role_request_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_role_request_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_meter_mod_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_meter_mod_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_table_features_failed_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_error_table_features_failed_code_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_code,
+            { "Code", "openflow_v4.error.code",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_data_text,
+            { "Data", "openflow_v4.error.data",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_data_body,
+            { "Body", "openflow_v4.error.data.body",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_error_experimenter,
+            { "Experimenter", "openflow_v4.error.experimenter",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
         { &hf_openflow_v4_datapath_id,
             { "Datapath unique ID", "openflow_v4.datapath_id",
                FT_UINT64, BASE_HEX, NULL, 0x0,
@@ -2105,7 +2544,8 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_match_oxm_fields,
         &ett_openflow_v4_action,
         &ett_openflow_v4_instruction,
-        &ett_openflow_v4_instruction_actions_actions
+        &ett_openflow_v4_instruction_actions_actions,
+        &ett_openflow_v4_error_data
     };
 
     static ei_register_info ei[] = {
@@ -2124,6 +2564,10 @@ proto_register_openflow_v4(void)
         { &ei_openflow_v4_instruction_undecoded,
             { "openflow_v4.instruction.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown instruction body.", EXPFILL }
+        },
+        { &ei_openflow_v4_error_undecoded,
+            { "openflow_v4.error.undecoded", PI_UNDECODED, PI_NOTE,
+              "Unknown error data.", EXPFILL }
         }
     };
 
