@@ -106,10 +106,11 @@
 		<command name="MIP6"				code="325" vendor-id="None"/>		<!--(MIR/MIA) [RFC5778] -->
 		<command name="QoS-Authorization"		code="326" vendor-id="None"/>		<!--(QAR/QAA) [RFC5866] -->
 		<command name="QoS-Install"			code="327" vendor-id="None"/>		<!--(QIR/QIA) [RFC5866] -->
-		<command name="Capabilities-Update"		code="328" vendor-id="None"/>		<!--[RFC-ietf-dime-capablities-update-07] -->
-		<command name="IKEv2-SK"			code="329" vendor-id="None"/>		<!--[RFC-ietf-dime-ikev2-psk-diameter-11] -->
-		<!--
-			330-8388607 Unassigned
+		<command name="Capabilities-Update"		code="328" vendor-id="None"/>		<!--[RFC6737] -->
+		<command name="IKEv2-SK"			code="329" vendor-id="None"/>		<!--[RFC6738] -->
+    <command name="NAT-Control"			code="330" vendor-id="None"/>   <!--[RFC6736] -->
+    <!--
+			331-8388607 Unassigned
 			8388608 WIMAX-HRPD-SFF Request/Answer [http://www.3gpp2.org/Public_html/specs/tsgx.cfm][3GPP2 X.S0058-0 v1.0][Avi_Lior]
 			8388609 WiMAX-Diameter-EAP-Request/Answer (WDER/WDEA) WDE [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
 			8388610 WiMAX-Change-of-Authorization-Request/Answer (WCAR/WCAA) WCA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
@@ -147,17 +148,31 @@
 		<!--
 		8388637	TDF-Session-Request/Answer (TSR/TSA) [3GPP TS 29.212][Kimmo_Kymalainen]
 		8388638 3GPP-Update-VCSG-Location-Request/Answer (UVR/UVA) [3GPP TS 29.272][Kimmo_Kymalainen]
-
-		8388629-16777213 Unassigned
+    -->
+    <command name="3GPP-Device-Action"		code="8388639" vendor-id="None"/>     <!--[3GPP TS 29.368][RFC5719] -->
+    <command name="3GPP-Device-Notification"	code="8388640" vendor-id="None"/>    <!--[3GPP TS 29.368][RFC5719] -->
+    <command name="3GPP-Subscriber-Information"	code="8388641" vendor-id="None"/>     <!-- 3GPP TS 29.336 -->
+    <command name="Cancel-VCSG-Location"	code="8388642" vendor-id="None"/>
+    <command name="3GPP-Device-Trigger"		code="8388643" vendor-id="None"/>     <!-- 3GPP TS 29.337 -->
+    <command name="3GPP-Delivery-Report"		code="8388644" vendor-id="None"/>   <!-- 3GPP TS 29.337 -->
+    <!--
+    8388645 MO-Forward-Short-Message Request/Answer (OFR/OFA) [3GPP TS 29.338][Kimmo_Kymalainen] 
+    8388646 MT-Forward-Short-Message Request/Answer (TFR/TFA) [3GPP TS 29.338][Kimmo_Kymalainen] 
+    8388647 Send-Routing-Info-for-SM-Request/Answer (SRR/SRA) [3GPP TS 29.338][Kimmo_Kymalainen] 
+    8388648 Alert-Service-Centre-Request/Answer (ALR/ALA) [3GPP TS 29.338][Kimmo_Kymalainen] 
+    8388649 Report-SM-Delivery-Status-Request/Answer (RDR/RDA) [3GPP TS 29.338][Kimmo_Kymalainen] 
+    8388650 NSN Cancel-LocationMS-Request/Answer (CLR/CLA) [Hannes_Tschofenig] 
+    8388651 NSN User-DataMS-Request/Answer (UDR/UDA) [Hannes_Tschofenig] 
+    8388652 NSN Profile-UpdateMS-Request/Answer (PUR/PUA) [Hannes_Tschofenig] 
+    8388653 NSN Subscribe-NotificationsMS-Request/Answer (SNR/SNA) [Hannes_Tschofenig] 
+    8388654 NSN Push-NotificationMS-Request/Answer (PNR/PNA) [Hannes_Tschofenig] 
+    8388655 Get Gateway Request/Answer (GGR/GGA) [Steve_Donovan] 
+    8388656 Trigger-Establishment-Request/Answer (TER/TEA) [3GPP TS 29.215][Kimmo_Kymalainen] 
+    8388657-16777213 Unassigned  
 		16777214 Experimental code [RFC3588]
 		16777215 Experimental code [RFC3588]
 		-->
-		<command name="3GPP-Device-Action"		code="8388639" vendor-id="None"/>	<!--[3GPP TS 29.368][RFC5719] -->
-		<command name="3GPP-Device-Notification"	code="8388640" vendor-id="None"/>	<!--[3GPP TS 29.368][RFC5719] -->
-		<command name="3GPP-Subscriber-Information"	code="8388641" vendor-id="None"/>	<!-- 3GPP TS 29.336 -->
 
-		<command name="3GPP-Device-Trigger"		code="8388643" vendor-id="None"/>	<!-- 3GPP TS 29.337 -->
-		<command name="3GPP-Delivery-Report"		code="8388644" vendor-id="None"/>	<!-- 3GPP TS 29.337 -->
 		<!-- ************************************************************** -->
 		<!-- ********************** End Commands ************************** -->
 		<!-- ************************************************************** -->
