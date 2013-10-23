@@ -215,7 +215,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
 
 FILE_DISSECTOR_SRC = \
-	file-elf.c \
+#	file-elf.c \
 	file-mp4.c
 
 #
