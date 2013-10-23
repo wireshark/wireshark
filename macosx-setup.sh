@@ -28,7 +28,7 @@
 # To set up GTK+ 3, set TOOLKIT to gtk3
 # To set up GTK+ 2, set TOOLKIT to gtk2
 #
-TOOLKIT=qt
+TOOLKIT=gtk3
 
 #
 # To build cmake
