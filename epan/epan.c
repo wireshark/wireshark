@@ -128,6 +128,9 @@ epan_cleanup(void)
 	prefs_cleanup();
 	packet_cleanup();
 	expert_cleanup();
+#ifdef HAVE_LUA
+	wslua_cleanup();
+#endif
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_deinit();
 #endif

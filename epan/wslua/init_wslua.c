@@ -486,6 +486,13 @@ int wslua_init(register_cb cb, gpointer client_data) {
     return 0;
 }
 
+int wslua_cleanup(void) {
+    /* cleanup lua */
+    lua_close(L);
+    L = NULL;
+    return 0;
+}
+
 lua_State* wslua_state(void) { return L; }
 
 /*
