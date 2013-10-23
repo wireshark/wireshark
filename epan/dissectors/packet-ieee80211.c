@@ -7657,6 +7657,17 @@ rsni_base_custom(gchar *result, guint32 rsni)
    g_snprintf(result, ITEM_LABEL_LENGTH, "%f dB", (temp_double / 2));
 }
 
+static void
+vht_tpe_custom(gchar *result, guint8 txpwr) 
+{
+
+  gint8 txpwr_db;
+
+  txpwr_db = (gint8)(txpwr);
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm", (txpwr_db/2.0)); 
+
+}
+
 /* WPA / WME */
 static const value_string ieee802111_wfa_ie_type_vals[] = {
   { 1, "WPA Information Element" },
@@ -9073,6 +9084,8 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset += 1;
 
   /* Power Constraint info is mandatory only for 20MHz, others are optional*/
+  /* Power is expressed in terms of 0.5dBm from -64 to 63 and is encoded
+   * as 8-bit 2's compliment */
   for (i = 0; i <= opt_ie_cnt; i++) {
     switch(i) {
     case 0:
@@ -18355,23 +18368,23 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_20,
-     {"Local Max Tx Pwr Constraint 20MHz", "wlan_mgt.vht.tpe.pwr_constr_20",
-      FT_UINT8, BASE_DEC, NULL , 0,
+     {"Local Max Tx Pwr Constraint 20MHz           ", "wlan_mgt.vht.tpe.pwr_constr_20",
+      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_40,
-     {"Local Max Tx Pwr Constraint 40MHz", "wlan_mgt.vht.tpe.pwr_constr_40",
-      FT_UINT8, BASE_DEC, NULL , 0,
+     {"Local Max Tx Pwr Constraint 40MHz           ", "wlan_mgt.vht.tpe.pwr_constr_40",
+      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_80,
-     {"Local Max Tx Pwr Constraint 80MHz", "wlan_mgt.vht.tpe.pwr_constr_80",
-      FT_UINT8, BASE_DEC, NULL , 0,
+     {"Local Max Tx Pwr Constraint 80MHz           ", "wlan_mgt.vht.tpe.pwr_constr_80",
+      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_160,
      {"Local Max Tx Pwr Constraint 160MHz/80+80 MHz", "wlan_mgt.vht.tpe.pwr_constr_160",
-      FT_UINT8, BASE_DEC, NULL , 0,
+      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_csi_num_bf_ant,
