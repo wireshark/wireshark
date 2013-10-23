@@ -7658,13 +7658,13 @@ rsni_base_custom(gchar *result, guint32 rsni)
 }
 
 static void
-vht_tpe_custom(gchar *result, guint8 txpwr) 
+vht_tpe_custom(gchar *result, guint8 txpwr)
 {
 
   gint8 txpwr_db;
 
   txpwr_db = (gint8)(txpwr);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm", (txpwr_db/2.0)); 
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm", (txpwr_db/2.0));
 
 }
 
@@ -18368,17 +18368,17 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_20,
-     {"Local Max Tx Pwr Constraint 20MHz           ", "wlan_mgt.vht.tpe.pwr_constr_20",
+     {"Local Max Tx Pwr Constraint 20MHz", "wlan_mgt.vht.tpe.pwr_constr_20",
       FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_40,
-     {"Local Max Tx Pwr Constraint 40MHz           ", "wlan_mgt.vht.tpe.pwr_constr_40",
+     {"Local Max Tx Pwr Constraint 40MHz", "wlan_mgt.vht.tpe.pwr_constr_40",
       FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_80,
-     {"Local Max Tx Pwr Constraint 80MHz           ", "wlan_mgt.vht.tpe.pwr_constr_80",
+     {"Local Max Tx Pwr Constraint 80MHz", "wlan_mgt.vht.tpe.pwr_constr_80",
       FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
       NULL, HFILL }},
 
