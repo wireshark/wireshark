@@ -229,12 +229,14 @@ static const value_string cba_acco_conn_state_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string cba_acco_serversrt_action_vals[] = {
     { 0x00, "Activate" },
     { 0x01, "Deactivate" },
     { 0x02, "Remove" },
     { 0, NULL }
 };
+#endif
 
 static const value_string cba_acco_serversrt_last_connect_vals[] = {
     { 0x00, "CR not complete" },

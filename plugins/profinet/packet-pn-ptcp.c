@@ -153,11 +153,13 @@ static const value_string pn_ptcp_master_prio1_vals_active[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string pn_ptcp_master_prio1_short_vals[] = {
     { 0x01, "Primary" },
     { 0x02, "Secondary" },
     { 0, NULL }
 };
+#endif
 
 static const value_string pn_ptcp_master_prio2_vals[] = {
     { 0xFF, "Default" },

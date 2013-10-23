@@ -107,11 +107,14 @@ static gboolean pn_rt_summary_in_tree = TRUE;
 static heur_dissector_list_t heur_subdissector_list;
 
 
+#if 0
 static const value_string pn_rt_position_control[] = {
     { 0x00, "CRC16 and CycleCounter shall not be checked" },
     { 0x80, "CRC16 and CycleCounter valid" },
     { 0, NULL }
 };
+#endif
+
 static const value_string pn_rt_ds_redundancy[] = {
     { 0x00, "One primary AR of a given AR-set is present" },
     { 0x01, "None primary AR of a given AR-set is present" },

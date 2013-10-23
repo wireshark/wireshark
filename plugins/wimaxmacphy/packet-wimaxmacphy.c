@@ -407,6 +407,7 @@ static const value_string wimaxmacphy_prim_txstart_indication_status_vals[]=
 
 /* ------------------------------------------------------------------------- */
 
+#if 0
 static const value_string wimaxmacphy_prim_sub_burst_burst_split_point_vals[]=
 {
     { 0x00, "all 10 bits for burst number"},
@@ -419,15 +420,18 @@ static const value_string wimaxmacphy_prim_sub_burst_burst_split_point_vals[]=
     { 0x07, "7 bit sub-burst and 3 bits burst number"},
     { 0,    NULL}
 };
+#endif
 
 /* ------------------------------------------------------------------------- */
 
+#if 0
 static const value_string wimaxmacphy_prim_phy_request_vals[]=
 {
     { 0x0, "LW 1 not present"},
     { 0x1, "AAS calibration request present in LW 1"},
     { 0,    NULL}
 };
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -960,12 +964,14 @@ static const value_string wimaxmacphy_ul_sub_burst_ctype_vals[]=
 
 /* ------------------------------------------------------------------------- */
 
+#if 0
 static const value_string wimaxmacphy_ul_sub_burst_feedback_sub_type_vals[]=
 {
     { 0, "CQI (CINR) measurement"},
     { 1, "Control feedback"},
     { 0, NULL}
 };
+#endif
 
 /* ------------------------------------------------------------------------- */
 

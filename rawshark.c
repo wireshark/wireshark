@@ -114,11 +114,13 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
+#if 0
 /*
  * This is the template for the decode as option; it is shared between the
  * various functions that output the usage for this parameter.
  */
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
+#endif
 
 static guint32 cum_bytes;
 static const frame_data *ref;

@@ -488,10 +488,12 @@ static const value_string action_vals[] = {
   {0, NULL},
 };
 
+#if 0
 static const true_false_string verify_tfs = {
   "Don't Verify",
   "Verify"
 };
+#endif
 
 static const value_string rng_tech_vals[] = {
   {0, "Perform initial maintenance on new channel"},

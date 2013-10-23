@@ -85,6 +85,8 @@ static const value_string pn_mrp_port_role_vals[] = {
 
     { 0, NULL }
 };
+
+#if 0
 static const value_string pn_mrp_role_vals[] = {
     { 0x0000, "Media redundancy disabled" },
     { 0x0001, "Media redundancy client" },
@@ -94,6 +96,7 @@ static const value_string pn_mrp_role_vals[] = {
 
     { 0, NULL }
 };
+#endif
 
 static const value_string pn_mrp_ring_state_vals[] = {
     { 0x0000, "Ring open" },
@@ -104,11 +107,14 @@ static const value_string pn_mrp_ring_state_vals[] = {
 };
 
 
+#if 0
 static const value_string pn_mrp_prio_vals[] = {
     { 0x8000, "Default priority for redundancy manager" },
 
     { 0, NULL }
 };
+#endif
+
 /* routine disecting an uint16 and returning that item as well */
 /* dissect a 16 bit unsigned integer */
 int
