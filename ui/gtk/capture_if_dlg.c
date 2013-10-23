@@ -787,6 +787,7 @@ capture_if_refresh_if_list(void)
     if (get_ip_addr_count(device.if_info.addrs) > 1) {
       /* More than one IP address, make it possible to toggle */
       g_object_set_data(G_OBJECT(eb), CAPTURE_IF_IP_ADDR_LABEL, data.ip_lb);
+      gtk_widget_set_tooltip_text(eb, "Click to see additional IP addresses");
       g_signal_connect(eb, "enter-notify-event", G_CALLBACK(ip_label_enter_cb), NULL);
       g_signal_connect(eb, "leave-notify-event", G_CALLBACK(ip_label_leave_cb), NULL);
       g_signal_connect(eb, "button-press-event", G_CALLBACK(ip_label_press_cb), device.if_info.addrs);
