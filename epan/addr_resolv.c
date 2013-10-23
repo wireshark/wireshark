@@ -263,8 +263,8 @@ static GHashTable   *ipxnet_hash_table = NULL;
 static GHashTable   *ipv4_hash_table = NULL;
 static GHashTable   *ipv6_hash_table = NULL;
 
-static GSList *manual_resolved_ipv4_list = NULL;
-static GSList *manual_resolved_ipv6_list = NULL;
+static GSList *manually_resolved_ipv4_list = NULL;
+static GSList *manually_resolved_ipv6_list = NULL;
 
 typedef struct _resolved_ipv4
 {
@@ -2188,12 +2188,12 @@ add_ip_name_from_string (const char *addr, const char *name)
         resolved_ipv6_entry = g_new(resolved_ipv6_t, 1);
         memcpy(&(resolved_ipv6_entry->ip6_addr), &ip6_addr, 16);
         g_strlcpy(resolved_ipv6_entry->name, name, MAXNAMELEN);
-        manual_resolved_ipv6_list = g_slist_prepend(manual_resolved_ipv6_list, resolved_ipv6_entry);
+        manually_resolved_ipv6_list = g_slist_prepend(manually_resolved_ipv6_list, resolved_ipv6_entry);
     } else {
         resolved_ipv4_entry = g_new(resolved_ipv4_t, 1);
         resolved_ipv4_entry->host_addr = host_addr[0];
         g_strlcpy(resolved_ipv4_entry->name, name, MAXNAMELEN);
-        manual_resolved_ipv4_list = g_slist_prepend(manual_resolved_ipv4_list, resolved_ipv4_entry);
+        manually_resolved_ipv4_list = g_slist_prepend(manually_resolved_ipv4_list, resolved_ipv4_entry);
     }
 
     return TRUE;
@@ -2779,12 +2779,12 @@ add_manually_resolved_ipv6(gpointer data, gpointer user_data _U_)
 static void
 add_manually_resolved(void)
 {
-    if(manual_resolved_ipv4_list){
-        g_slist_foreach(manual_resolved_ipv4_list, add_manually_resolved_ipv4, NULL);
+    if(manually_resolved_ipv4_list){
+        g_slist_foreach(manually_resolved_ipv4_list, add_manually_resolved_ipv4, NULL);
     }
 
-    if(manual_resolved_ipv6_list){
-        g_slist_foreach(manual_resolved_ipv6_list, add_manually_resolved_ipv6, NULL);
+    if(manually_resolved_ipv6_list){
+        g_slist_foreach(manually_resolved_ipv6_list, add_manually_resolved_ipv6, NULL);
     }
 }
 
@@ -2929,16 +2929,37 @@ host_name_lookup_cleanup(void)
     new_resolved_objects = FALSE;
 }
 
-void
-manual_resolve_cleanup(void)
+static void
+free_manually_resolved_ipv4(gpointer data, gpointer user_data _U_)
 {
-    if(manual_resolved_ipv4_list){
-        g_slist_free_full(manual_resolved_ipv4_list, g_free);
-		manual_resolved_ipv4_list = NULL;
-    }
-    if(manual_resolved_ipv6_list){
-        g_slist_free_full(manual_resolved_ipv6_list, g_free);
-		manual_resolved_ipv6_list = NULL;
+    resolved_ipv4_t *resolved_ipv4_entry = (resolved_ipv4_t *)data;
+
+	g_free(resolved_ipv4_entry);
+
+}
+
+static void
+free_manually_resolved_ipv6(gpointer data, gpointer user_data _U_)
+{
+    resolved_ipv6_t *resolved_ipv6_entry = (resolved_ipv6_t *)data;
+
+	g_free(resolved_ipv6_entry);
+
+}
+
+void
+manually_resolve_cleanup(void)
+{
+    if(manually_resolved_ipv4_list){
+		g_slist_foreach(manually_resolved_ipv4_list, free_manually_resolved_ipv4, NULL);
+        g_slist_free(manually_resolved_ipv4_list);
+		manually_resolved_ipv4_list = NULL;
+	}
+
+    if(manually_resolved_ipv6_list){
+		g_slist_foreach(manually_resolved_ipv6_list, free_manually_resolved_ipv6, NULL);
+        g_slist_free(manually_resolved_ipv6_list);
+		manually_resolved_ipv6_list = NULL;
     }
 
 }

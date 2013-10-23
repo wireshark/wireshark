@@ -357,7 +357,7 @@ WS_DLL_LOCAL
 void addr_resolv_cleanup(void);
 
 WS_DLL_PUBLIC
-void manual_resolve_cleanup(void);
+void manually_resolve_cleanup(void);
 
 #ifdef __cplusplus
 }
