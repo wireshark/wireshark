@@ -720,7 +720,7 @@ dissect_dsmcc_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static gboolean
+static int
 dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *data _U_)
 {
     proto_item *pi;
@@ -736,6 +736,8 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 
     pi = proto_tree_add_item(tree_in, proto_dsmcc, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(pi, ett_dsmcc);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
 
     tid = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_dsmcc_table_id, tvb,
@@ -821,15 +823,9 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
             crc_len, 4, ENC_BIG_ENDIAN);
     }
 
-    return TRUE;
+    return tvb_reported_length(tvb);
 }
 
-static void
-dissect_dsmcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
-    dissect_dsmcc_ts(tvb, pinfo, tree, NULL);
-}
 
 static int dissect_dsmcc_tcp(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data _U_)
@@ -1228,7 +1224,6 @@ proto_register_dsmcc(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_dsmcc = expert_register_protocol(proto_dsmcc);
     expert_register_field_array(expert_dsmcc, ei, array_length(ei));
-    new_register_dissector("mp2t-dsmcc", dissect_dsmcc_ts, proto_dsmcc);
 
     dsmcc_module = prefs_register_protocol(proto_dsmcc, NULL);
 
@@ -1242,16 +1237,16 @@ proto_register_dsmcc(void)
 void
 proto_reg_handoff_dsmcc(void)
 {
-    dissector_handle_t dsmcc_handle, dsmcc_tcp_handle;
+    dissector_handle_t dsmcc_ts_handle, dsmcc_tcp_handle;
 
-    dsmcc_handle = create_dissector_handle(dissect_dsmcc, proto_dsmcc);
+    dsmcc_ts_handle = new_create_dissector_handle(dissect_dsmcc_ts, proto_dsmcc);
     dsmcc_tcp_handle = new_create_dissector_handle(dissect_dsmcc_tcp, proto_dsmcc);
 
-    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_LLCSNAP, dsmcc_handle);
-    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_UN_MSG, dsmcc_handle);
-    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DD_MSG, dsmcc_handle);
-    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DESC_LIST, dsmcc_handle);
-    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_handle);
+    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_LLCSNAP, dsmcc_ts_handle);
+    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_UN_MSG, dsmcc_ts_handle);
+    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DD_MSG, dsmcc_ts_handle);
+    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DESC_LIST, dsmcc_ts_handle);
+    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_ts_handle);
 
     dissector_add_uint("tcp.port", DSMCC_TCP_PORT, dsmcc_tcp_handle);
 
