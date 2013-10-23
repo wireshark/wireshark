@@ -311,6 +311,13 @@ extern gchar *create_user_window_title(const gchar *caption);
  */
 extern void set_window_title(GtkWidget *win, const gchar *caption);
 
+/** Collapses tree item and his expanded children
+ *
+ * @param tree_view A GtkTreeView
+ * @param path Path to the field
+ */
+extern void tree_collapse_path_all(GtkTreeView *tree_view, GtkTreePath *path);
+
 /** Renders a float with two decimals precission, called from gtk_tree_view_column_set_cell_data_func().
  * the user data must be the column number.
  * Present floats with two decimals

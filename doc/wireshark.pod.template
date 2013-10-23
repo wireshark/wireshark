@@ -1113,9 +1113,9 @@ Reset the zoom factor of zoom in / zoom out back to normal font size.
 
 Resize all columns to best fit the current packet display.
 
-=item View:Expand Subtrees
+=item View:Expand / Collapse Subtrees
 
-Expands the currently selected item and it's subtrees in the packet details.
+Expands / Collapses the currently selected item and it's subtrees in the packet details.
 
 =item View:Expand All
 

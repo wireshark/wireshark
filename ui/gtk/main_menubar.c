@@ -1085,6 +1085,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='DisplayedColumns' action='/View/DisplayedColumns'/>\n"
 "      <separator/>\n"
 "      <menuitem name='ExpandSubtrees' action='/View/ExpandSubtrees'/>\n"
+"      <menuitem name='CollapseSubtrees' action='/View/CollapseSubtrees'/>\n"
 "      <menuitem name='ExpandAll' action='/View/ExpandAll'/>\n"
 "      <menuitem name='CollapseAll' action='/View/CollapseAll'/>\n"
 "      <separator/>\n"
@@ -1567,6 +1568,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/View/ResizeAllColumns",      WIRESHARK_STOCK_RESIZE_COLUMNS, "Resize All Columns",           "<shift><control>R",        NULL,           G_CALLBACK(packet_list_resize_columns_cb) },
    { "/View/DisplayedColumns",      NULL,                   "Displayed Columns",                    NULL,                       NULL,           NULL },
    { "/View/ExpandSubtrees",        NULL,                   "E_xpand Subtrees",                      "<shift>Right",             NULL,           G_CALLBACK(expand_tree_cb) },
+   { "/View/CollapseSubtrees",      NULL,                   "Collapse Subtrees",                     "<shift>Left",              NULL,           G_CALLBACK(collapse_tree_cb) },
    { "/View/ExpandAll",             NULL,                   "_Expand All",                           "<control>Right",           NULL,           G_CALLBACK(expand_all_cb) },
    { "/View/CollapseAll",           NULL,                   "Collapse _All",                         "<control>Left",            NULL,           G_CALLBACK(collapse_all_cb) },
    { "/View/ColorizeConversation",  NULL,                   "Colorize Conversation",NULL,                   NULL,           NULL },
@@ -2926,6 +2928,7 @@ static const char *ui_desc_tree_view_menu_popup =
 "<ui>\n"
 "  <popup name='TreeViewPopup' action='PopupAction'>\n"
 "     <menuitem name='ExpandSubtrees' action='/ExpandSubtrees'/>\n"
+"     <menuitem name='CollapseSubtrees' action='/CollapseSubtrees'/>\n"
 "     <menuitem name='ExpandAll' action='/ExpandAll'/>\n"
 "     <menuitem name='CollapseAll' action='/CollapseAll'/>\n"
 "     <separator/>\n"
@@ -2997,6 +3000,7 @@ static const char *ui_desc_tree_view_menu_popup =
 
 static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/ExpandSubtrees",                  NULL,                           "Expand Subtrees",         NULL,                   NULL,           G_CALLBACK(expand_tree_cb) },
+  { "/CollapseSubtrees",                NULL,                           "Collapse Subtrees",       NULL,                   NULL,           G_CALLBACK(collapse_tree_cb) },
   { "/ExpandAll",                       NULL,                           "Expand All",              NULL,                   NULL,           G_CALLBACK(expand_all_cb) },
   { "/CollapseAll",                     NULL,                           "Collapse All",            NULL,                   NULL,           G_CALLBACK(collapse_all_cb) },
   { "/Apply as Column",                 NULL,                           "Apply as Column",         NULL,                   NULL,           G_CALLBACK(apply_as_custom_column_cb) },
@@ -5616,6 +5620,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              (id == -1) ? FALSE : proto_can_toggle_protocol(id));
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees",
                              cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseSubtrees",
+                             cf->finfo_selected->tree_type != -1);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
@@ -5640,6 +5646,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees",
                              cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/CollapseSubtrees",
+                             cf->finfo_selected->tree_type != -1);
         prev_abbrev = (char *)g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
             /* No previous protocol or protocol changed - update Protocol Preferences menu */
@@ -5661,6 +5669,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              FALSE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol", FALSE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees", FALSE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseSubtrees", FALSE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
                              FALSE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
@@ -5677,6 +5686,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyAsFilter", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/CollapseSubtrees", FALSE);
     }
 }
 

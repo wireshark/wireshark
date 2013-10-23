@@ -878,12 +878,14 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     proto_help_menu_modify(sel, &cfile);
 }
 
-void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
+void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
     if (cfile.edt->tree)
         collapse_all_tree(cfile.edt->tree, tree_view_gbl);
 }
 
-void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
+void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
     if (cfile.edt->tree)
         expand_all_tree(cfile.edt->tree, tree_view_gbl);
 }
@@ -902,7 +904,8 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
     }
 }
 
-void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
+void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
     GtkTreePath  *path;
 
     path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view_gbl), cfile.finfo_selected);
@@ -913,7 +916,21 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
     }
 }
 
-void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
+void collapse_tree_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+    GtkTreePath  *path;
+
+    path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view_gbl), cfile.finfo_selected);
+    if(path) {
+        /* the mouse position is at an entry, expand that one */
+
+        tree_collapse_path_all(GTK_TREE_VIEW(tree_view_gbl), path);
+        gtk_tree_path_free(path);
+    }
+}
+
+void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
     static const e_addr_resolve resolv_flags = {TRUE, TRUE, TRUE, TRUE, TRUE, FALSE};
 
     if (cfile.edt->tree) {

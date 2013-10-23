@@ -507,6 +507,15 @@
         </entry>
           </row>
           <row>
+        <entry><command>Collapse Subtrees</command></entry>
+        <entry>View</entry>
+        <entry>
+        <para>
+          Collapse the currently selected subtree. 
+        </para>
+        </entry>
+          </row>
+          <row>
         <entry><command>Expand All</command></entry>
         <entry>View</entry>
         <entry>

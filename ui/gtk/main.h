@@ -238,6 +238,13 @@ extern void export_carrays_cmd_cb(GtkWidget *widget, gpointer data);
  */
 extern void expand_tree_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Collapse Tree" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void collapse_tree_cb(GtkWidget *widget, gpointer data);
+
 /** User requested "Expand All" by menu.
  *
  * @param widget parent widget (unused)

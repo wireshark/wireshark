@@ -1136,6 +1136,47 @@ set_window_title(GtkWidget   *win,
 }
 
 /*
+ * Collapse row and his children
+ */
+static void
+tree_collapse_row_with_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path,
+                   GtkTreeIter *iter)
+{
+    GtkTreeIter child;
+
+    if (gtk_tree_view_row_expanded(tree_view, path)) {
+        if (gtk_tree_model_iter_children(model, &child, iter)) {
+            gtk_tree_path_down(path);
+
+        do {
+
+                if (gtk_tree_view_row_expanded(tree_view, path)) {
+                    tree_collapse_row_with_children(tree_view, model, path, &child);
+                }
+
+                gtk_tree_path_next(path);
+            } while (gtk_tree_model_iter_next(model, &child));
+
+            gtk_tree_path_up(path);
+
+            gtk_tree_view_collapse_row(tree_view, path);
+        }
+    }
+}
+
+void
+tree_collapse_path_all(GtkTreeView *tree_view, GtkTreePath *path)
+{
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+
+    model = gtk_tree_view_get_model(tree_view);
+    gtk_tree_model_get_iter(model, &iter, path);
+
+    tree_collapse_row_with_children(tree_view, model, path, &iter);
+}
+
+/*
  * This callback is invoked when keyboard focus is within either
  * the packetlist view or the detail view.  The keystrokes processed
  * within this callback are attempting to modify the detail view.
@@ -1165,11 +1206,11 @@ tree_view_key_pressed_cb(GtkWidget   *tree,
                          GdkEventKey *event,
                          gpointer     user_data _U_)
 {
-    GtkTreeSelection* selection;
+    GtkTreeSelection *selection;
     GtkTreeIter iter;
     GtkTreeIter parent;
-    GtkTreeModel* model;
-    GtkTreePath* path;
+    GtkTreeModel *model;
+    GtkTreePath *path;
     gboolean    expanded, expandable;
     int rc = FALSE;
 
@@ -1195,7 +1236,12 @@ tree_view_key_pressed_cb(GtkWidget   *tree,
         case GDK_Left:
             if(expanded) {
                 /* Subtree is expanded. Collapse it. */
-                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
+                if (event->state & GDK_SHIFT_MASK)
+                {
+                    tree_collapse_row_with_children(GTK_TREE_VIEW(tree), model, path, &iter);
+                }
+                else
+                    gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
                 rc = TRUE;
                 break;
             }

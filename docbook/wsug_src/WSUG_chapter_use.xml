@@ -1148,6 +1148,14 @@
           </para></entry>
           </row>
           <row>
+        <entry><command>Collapse Subtrees</command></entry>
+        <entry>Shift+Left</entry>
+        <entry><para>
+            This menu item collapses the currently selected subtree in the
+            packet details tree.
+          </para></entry>
+          </row>
+          <row>
         <entry><command>Expand All</command></entry>
         <entry>Ctrl+Right</entry>
         <entry><para>
