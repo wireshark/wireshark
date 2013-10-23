@@ -292,6 +292,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 )
 
 set(DISSECTOR_SRC
+	dissectors/file-elf.c
 	dissectors/file-mp4.c
 	dissectors/packet-2dparityfec.c
 	dissectors/packet-3com-njack.c
@@ -1461,6 +1462,7 @@ set(LIBWIRESHARK_FILES
 	crc8-tvb.c
 	disabled_protos.c
 	dissector_filters.c
+	dwarf.c
 	emem.c
 	epan.c
 	ex-opt.c

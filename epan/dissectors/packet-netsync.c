@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "dwarf.h"
 #include "packet-tcp.h"
 
 /*
@@ -157,30 +158,9 @@ static int ett_netsync = -1;
 static guint global_tcp_port_netsync = TCP_PORT_NETSYNC;
 static gboolean netsync_desegment = TRUE;
 
-static gint dissect_uleb128( tvbuff_t *tvb, gint offset, guint* size)
-{
-	guint shift = 0;
-	guint8 tmp;
-	guint start_offset = offset;
-
-	*size = 0;
-
-	/* get size */
-	do {
-		tmp = tvb_get_guint8(tvb, offset);
-		offset += 1;
-
-		*size |= (tmp & 0x7F) << shift;
-		shift += 7;
-	} while (tmp & 0x80);
-
-
-	return offset - start_offset;
-}
-
 static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	offset += dissect_uleb128( tvb, offset, &len );
 
@@ -199,7 +179,7 @@ static gint dissect_netsync_cmd_bye(tvbuff_t *tvb _U_,  gint offset, proto_tree 
 
 static gint dissect_netsync_cmd_hello(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	offset += dissect_uleb128( tvb, offset, &len );
 
@@ -224,7 +204,7 @@ static gint dissect_netsync_cmd_hello(tvbuff_t *tvb,  gint offset, proto_tree *t
 
 static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_anonymous_role, tvb,
 				offset, 1, ENC_BIG_ENDIAN );
@@ -246,7 +226,7 @@ static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tre
 
 static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_role, tvb,
 				offset, 1, ENC_BIG_ENDIAN );
@@ -287,7 +267,7 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 
 static gint dissect_netsync_cmd_confirm(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	offset += dissect_uleb128( tvb, offset, &len );
 
@@ -312,7 +292,7 @@ static gint dissect_netsync_cmd_refine(tvbuff_t *tvb,  gint offset, proto_tree *
 
 static gint dissect_netsync_cmd_done(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 	guint bytes = 0;
 
 	bytes = dissect_uleb128( tvb, offset, &len );
@@ -364,7 +344,7 @@ static gint dissect_netsync_cmd_send_delta(tvbuff_t *tvb,  gint offset, proto_tr
 
 static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_type, tvb,
 				offset, 1, ENC_BIG_ENDIAN );
@@ -390,7 +370,7 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 
 static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = 0;
+	guint64 len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_type, tvb,
 				offset, 1, ENC_BIG_ENDIAN );
@@ -434,7 +414,8 @@ static gint dissect_netsync_cmd_nonexistent(tvbuff_t *tvb,  gint offset, proto_t
 static guint
 get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	guint size = 0, size_bytes;
+	guint64 size = 0;
+	guint   size_bytes;
 
 	/* skip version and command */
 	offset += 2;
