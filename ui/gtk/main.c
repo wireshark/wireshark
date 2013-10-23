@@ -1389,7 +1389,8 @@ main_cf_cb_file_closing(capture_file *cf)
                                   simple_dialog_primary_end());
         gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
     }
-
+	/* Clear maunally resolved addresses */
+	manual_resolve_cleanup();
     /* Destroy all windows that refer to the
        capture file we're closing. */
     destroy_packet_wins();
@@ -1411,6 +1412,7 @@ main_cf_cb_file_closing(capture_file *cf)
     main_set_for_capture_file(FALSE);
 
     main_window_update();
+
 }
 
 static void

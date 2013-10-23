@@ -263,6 +263,21 @@ static GHashTable   *ipxnet_hash_table = NULL;
 static GHashTable   *ipv4_hash_table = NULL;
 static GHashTable   *ipv6_hash_table = NULL;
 
+static GSList *manual_resolved_ipv4_list = NULL;
+static GSList *manual_resolved_ipv6_list = NULL;
+
+typedef struct _resolved_ipv4
+{
+    guint32          host_addr;
+    char             name[MAXNAMELEN];
+} resolved_ipv4_t;
+
+typedef struct _resolved_ipv6
+{
+    struct e_in6_addr  ip6_addr;
+    char               name[MAXNAMELEN];
+} resolved_ipv6_t;
+
 static addrinfo_lists_t addrinfo_lists = { NULL, NULL};
 
 static gchar        *cb_service;
@@ -291,7 +306,7 @@ static void add_serv_port_cb(const guint32 port);
 static guint32 
 ipv6_oat_hash(gconstpointer key)
 {
-	int len = 16;
+    int len = 16;
     const unsigned char *p = (const unsigned char *)key;
     guint32 h = 0;
     int i;
@@ -313,11 +328,11 @@ static gboolean
 ipv6_equal(gconstpointer v1, gconstpointer v2)
 {
 
-	if( memcmp(v1, v2, sizeof (struct e_in6_addr)) == 0 ) {
-		return TRUE;
-	}
+    if( memcmp(v1, v2, sizeof (struct e_in6_addr)) == 0 ) {
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 /*
@@ -675,14 +690,14 @@ static gchar
         } /* proto */
     }
 
-	/* getservbyport() was used here but it was to expensive, if the functionality is desired
-	 * it would be better to pre parse etc/services or C:\Windows\System32\drivers\etc at
-	 * startup
-	 */
+    /* getservbyport() was used here but it was to expensive, if the functionality is desired
+     * it would be better to pre parse etc/services or C:\Windows\System32\drivers\etc at
+     * startup
+     */
     name = (gchar*)g_malloc(16);
     guint32_to_str_buf(port, name, 16);
 
-	if(serv_port_table == NULL){
+    if(serv_port_table == NULL){
         int *key;
 
         key = (int *)g_new(int, 1);
@@ -726,7 +741,7 @@ static void
 initialize_services(void)
 {
 #ifdef _WIN32
-	char *hostspath;
+    char *hostspath;
     char *sysroot;
     static char rootpath_nt[] = "\\system32\\drivers\\etc\\services";
 #endif /* _WIN32 */
@@ -745,12 +760,12 @@ initialize_services(void)
          * If this is Windows NT (NT 4.0,2K,XP,Server2K3), it's in
          * %WINDIR%\system32\drivers\etc\services.
          */
-		hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
-		parse_services_file(hostspath);
-		g_free(hostspath);
-	}
+        hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
+        parse_services_file(hostspath);
+        g_free(hostspath);
+    }
 #else
-		parse_services_file("/etc/services");
+        parse_services_file("/etc/services");
 
 #endif /*  _WIN32 */
 
@@ -956,11 +971,11 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
 
     tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addr);
     if(tp == NULL){
-		struct e_in6_addr *addr_key;
+        struct e_in6_addr *addr_key;
 
-		addr_key = g_new(struct e_in6_addr,1);
+        addr_key = g_new(struct e_in6_addr,1);
         tp = new_ipv6(addr);
-		memcpy(addr_key, addr, 16);
+        memcpy(addr_key, addr, 16);
         g_hash_table_insert(ipv6_hash_table, addr_key, tp);
     }else{
         if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) ==  DUMMY_ADDRESS_ENTRY){
@@ -1741,7 +1756,7 @@ static guint8 *
 eth_addr_lookup(const gchar *name _U_)
 {
 #if 0
-	/* XXX Do we need reverse lookup??? */
+    /* XXX Do we need reverse lookup??? */
     ether_t      *eth;
     hashether_t  *tp;
     hashether_t **table = eth_table;
@@ -1946,7 +1961,7 @@ ipx_name_lookup_cleanup(void)
 {
     if(ipxnet_hash_table){
         g_hash_table_destroy(ipxnet_hash_table);
-		ipxnet_hash_table = NULL;
+        ipxnet_hash_table = NULL;
     }
 
 }
@@ -2017,10 +2032,10 @@ ipxnet_name_lookup(const guint addr)
 static guint
 ipxnet_addr_lookup(const gchar *name _U_, gboolean *success)
 {
-	*success = FALSE;
-	return 0;
+    *success = FALSE;
+    return 0;
 #if 0
-	/* XXX Do we need reverse lookup??? */
+    /* XXX Do we need reverse lookup??? */
     ipxnet_t *ipxnet;
     hashipxnet_t *tp;
     hashipxnet_t **table = ipxnet_table;
@@ -2151,6 +2166,8 @@ add_ip_name_from_string (const char *addr, const char *name)
     struct e_in6_addr ip6_addr; /* IPv6 */
     gboolean is_ipv6;
     int ret;
+    resolved_ipv4_t *resolved_ipv4_entry;
+    resolved_ipv6_t *resolved_ipv6_entry;
 
     ret = inet_pton(AF_INET6, addr, &ip6_addr);
     if (ret < 0)
@@ -2168,9 +2185,15 @@ add_ip_name_from_string (const char *addr, const char *name)
     }
 
     if (is_ipv6) {
-        add_ipv6_name(&ip6_addr, name);
+        resolved_ipv6_entry = g_new(resolved_ipv6_t, 1);
+        memcpy(&(resolved_ipv6_entry->ip6_addr), &ip6_addr, 16);
+        g_strlcpy(resolved_ipv6_entry->name, name, MAXNAMELEN);
+        manual_resolved_ipv6_list = g_slist_prepend(manual_resolved_ipv6_list, resolved_ipv6_entry);
     } else {
-        add_ipv4_name(host_addr[0], name);
+        resolved_ipv4_entry = g_new(resolved_ipv4_t, 1);
+        resolved_ipv4_entry->host_addr = host_addr[0];
+        g_strlcpy(resolved_ipv4_entry->name, name, MAXNAMELEN);
+        manual_resolved_ipv4_list = g_slist_prepend(manual_resolved_ipv4_list, resolved_ipv4_entry);
     }
 
     return TRUE;
@@ -2371,7 +2394,7 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
 
     tp->next = NULL;
     tp->addr = subnet_addr;
-	/* Clear DUMMY_ADDRESS_ENTRY */
+    /* Clear DUMMY_ADDRESS_ENTRY */
     tp->flags = tp->flags & 0xfe; /*Never used again...*/
     g_strlcpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
     have_subnet_entry = TRUE;
@@ -2722,11 +2745,11 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
     if(tp){
         g_strlcpy(tp->name, name, MAXNAMELEN);
     }else{
-		struct e_in6_addr *addr_key;
+        struct e_in6_addr *addr_key;
 
-		addr_key = g_new(struct e_in6_addr,1);
+        addr_key = g_new(struct e_in6_addr,1);
         tp = new_ipv6(addrp);
-		memcpy(addr_key, addrp, 16);
+        memcpy(addr_key, addrp, 16);
         g_strlcpy(tp->name, name, MAXNAMELEN);
         g_hash_table_insert(ipv6_hash_table, addr_key, tp);
     }
@@ -2736,6 +2759,34 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
     new_resolved_objects = TRUE;
 
 } /* add_ipv6_name */
+
+static void
+add_manually_resolved_ipv4(gpointer data, gpointer user_data _U_)
+{
+    resolved_ipv4_t *resolved_ipv4_entry = (resolved_ipv4_t *)data;
+
+    add_ipv4_name(resolved_ipv4_entry->host_addr, resolved_ipv4_entry->name);
+}
+
+static void
+add_manually_resolved_ipv6(gpointer data, gpointer user_data _U_)
+{
+    resolved_ipv6_t *resolved_ipv6_entry = (resolved_ipv6_t *)data;
+
+    add_ipv6_name(&(resolved_ipv6_entry->ip6_addr), resolved_ipv6_entry->name);
+}
+
+static void
+add_manually_resolved(void)
+{
+    if(manual_resolved_ipv4_list){
+        g_slist_foreach(manual_resolved_ipv4_list, add_manually_resolved_ipv4, NULL);
+    }
+
+    if(manual_resolved_ipv6_list){
+        g_slist_foreach(manual_resolved_ipv6_list, add_manually_resolved_ipv6, NULL);
+    }
+}
 
 void
 host_name_lookup_init(void)
@@ -2848,6 +2899,8 @@ host_name_lookup_init(void)
     }
 
     subnet_name_lookup_init();
+
+    add_manually_resolved();
 }
 
 void
@@ -2857,23 +2910,37 @@ host_name_lookup_cleanup(void)
 
     if(ipxnet_hash_table){
         g_hash_table_destroy(ipxnet_hash_table);
-		ipxnet_hash_table = NULL;
+        ipxnet_hash_table = NULL;
     }
 
     if(ipv4_hash_table){
         g_hash_table_destroy(ipv4_hash_table);
-		ipv4_hash_table = NULL;
+        ipv4_hash_table = NULL;
     }
 
     if(ipv6_hash_table){
         g_hash_table_destroy(ipv6_hash_table);
-		ipv6_hash_table = NULL;
+        ipv6_hash_table = NULL;
     }
 
     memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
 
     have_subnet_entry = FALSE;
     new_resolved_objects = FALSE;
+}
+
+void
+manual_resolve_cleanup(void)
+{
+    if(manual_resolved_ipv4_list){
+        g_slist_free_full(manual_resolved_ipv4_list, g_free);
+		manual_resolved_ipv4_list = NULL;
+    }
+    if(manual_resolved_ipv6_list){
+        g_slist_free_full(manual_resolved_ipv6_list, g_free);
+		manual_resolved_ipv6_list = NULL;
+    }
+
 }
 
 gchar *
