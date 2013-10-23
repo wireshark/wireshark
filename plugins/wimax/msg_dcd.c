@@ -186,18 +186,22 @@ static const value_string vals_dcd_power_adjustmnt[] =
     {0,  NULL}
 };
 
+#if 0
 static const true_false_string tfs_dcd_power_adjustment =
 {
     "Preserve Mean Power",
     "Preserve Peak Power"
 };
+#endif
 
+#if 0
 static const value_string vals_reg_rsp_status[] =
 {
     {0, "OK"},
     {1, "Message authentication failure"},
     {0,  NULL}
 };
+#endif
 
 static const value_string vals_dcd_burst_tcs[] =
 {
@@ -206,11 +210,13 @@ static const value_string vals_dcd_burst_tcs[] =
     {0,  NULL}
 };
 
+#if 0
 static const true_false_string tfs_dcd_burst_tcs =
 {
     "TCS enabled",
     "TCS disabled"
 };
+#endif
 
 static const value_string vals_dcd_frame_duration[] =
 {

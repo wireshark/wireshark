@@ -169,15 +169,19 @@ static const true_false_string tfs_reg_ss_mgmt_support = {
     "no secondary management connection"
 };
 
+#if 0
 static const true_false_string tfs_arq_enable = {
 	    "ARQ Requested/Accepted",
 	        "ARQ Not Requested/Accepted"
 };
+#endif
 
+#if 0
 static const true_false_string tfs_arq_deliver_in_order = {
 	    "Order of delivery is preserved",
 	        "Order of delivery is not preserved"
 };
+#endif
 
 static const true_false_string tfs_reg_fbss_mdho_ho_disable = {
     "Disable",

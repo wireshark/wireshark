@@ -139,11 +139,13 @@ static const value_string vals_arq_enable[] =
 	{1, "ARQ requested/accepted"},
 	{0,  NULL}
 };
+#if 0
 static const value_string vals_arq_block_lifetime[] =
 {
 	{0, "Infinite"},
 	{0, NULL}
 };
+#endif
 static const value_string vals_arq_sync_loss_timeout[] =
 {
 	{0, "Infinite"},
@@ -294,17 +296,21 @@ static const true_false_string tfs_supported =
     "not supported"
 };
 
+#if 0
 static const true_false_string disabled_enabled =
 {
 	"enabled",
 	"disabled"
 };
+#endif
 
+#if 0
 static const true_false_string default_enabled =
 {
 	"enabled",
 	"use default action"
 };
+#endif
 
 static const value_string vals_pkm_attr_error_codes[] =
 {	/* table 373 */
@@ -333,12 +339,14 @@ static const value_string va_key_push_modes[] =
 	{0,  NULL}
 };
 
+#if 0
 static const value_string vals_pkm_version[] =
 {
 	{0, "Reserved"},
 	{1, "PKM (Initial standard release"},
 	{0,  NULL}
 };
+#endif
 
 static const value_string vs_success_reject[] =
 {

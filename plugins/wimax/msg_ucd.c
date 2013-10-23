@@ -123,12 +123,14 @@ static gint hf_ucd_periodic_ranging_backoff_end = -1;
 /* static gint hf_ucd_unknown_type = -1; */
 static gint hf_ucd_invalid_tlv = -1;
 
+#if 0
 static const value_string vals_dcd_burst_tcs[] =
 {
 	{0, "TCS disabled"},
 	{1, "TCS enabled"},
 	{0,  NULL}
 };
+#endif
 
 static const value_string vals_dcd_burst_fec[] =
 {

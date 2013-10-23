@@ -163,6 +163,7 @@ static gint ett_315d = -1;
 #define UL_MAP_NCT_DM   1
 #define UL_MAP_NCT_PTP  2
 
+#if 0
 /* NCT messages */
 static const value_string nct_msgs[] =
 {
@@ -171,7 +172,9 @@ static const value_string nct_msgs[] =
     { UL_MAP_NCT_PMP, "PTP" },
     { 0,  NULL }
 };
+#endif
 
+#if 0
 /* Repetition Coding Indications */
 static const value_string rep_msgs[] =
 {
@@ -181,7 +184,9 @@ static const value_string rep_msgs[] =
     { 3, "Repetition Coding of 6 Used" },
     { 0,  NULL }
 };
+#endif
 
+#if 0
 /* DL Frame Prefix Coding Indications */
 static const value_string boost_msgs[] =
 {
@@ -195,6 +200,7 @@ static const value_string boost_msgs[] =
     { 7, "-12dB" },
     { 0,  NULL }
 };
+#endif
 
 /* ul-map fields */
 static gint hf_ulmap_reserved = -1;

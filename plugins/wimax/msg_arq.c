@@ -78,15 +78,19 @@ static gint hf_arq_reset_reserved	= -1;
 
 /* STRING RESOURCES */
 
+#if 0
 static const true_false_string tfs_present = {
 	"present",
 	"absent"
 };
+#endif
 
+#if 0
 static const true_false_string tfs_rng_req_aas_broadcast = {
 	"SS cannot receive broadcast messages",
 	"SS can receive broadcast messages"
 };
+#endif
 
 static const true_false_string tfs_arq_last = {
 	"Last ARQ feedback IE in the list",

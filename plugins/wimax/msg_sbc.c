@@ -296,18 +296,24 @@ static const true_false_string tfs_sbc_bw_alloc_support_duplex =
     "Half-Duplex"
 };
 
+#if 0
 static const value_string vals_sbc_mac_pdu_fsn[] =
 {
     {0, "Only 11-bit FSN values are supported"},
     {1, "Only 3-bit FSN values are supported"},
     {0,  NULL}
 };
+#endif
+
+#if 0
 static const true_false_string tfs_sbc_mac_pdu_fsn =
 {
     "Only 3-bit FSN values are supported",
     "Only 11-bit FSN values are supported"
 };
+#endif
 
+#if 0
 /* DCD DIUC messages (table 143) */
 static const value_string diuc_msgs[] =
 {
@@ -329,7 +335,9 @@ static const value_string diuc_msgs[] =
     { 15, "End of DL-MAP" },
     {0,   NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_type[] =
 {
     {0, "CINR metric"},
@@ -338,7 +346,9 @@ static const value_string vals_sbc_type[] =
     {3, "Reserved"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_function[] =
 {
     {0, "Reserved"},
@@ -351,7 +361,9 @@ static const value_string vals_sbc_function[] =
     {7, "Reserved"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_action[] =
 {
     {0, "Reserved"},
@@ -361,40 +373,52 @@ static const value_string vals_sbc_action[] =
     {4, "Reserved"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_power_adjustmnt[] =
 {
     {0, "Preserve Peak Power"},
     {1, "Preserve Mean Power"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const true_false_string tfs_sbc_power_adjustment =
 {
     "Preserve Mean Power",
     "Preserve Peak Power"
 };
+#endif
 
+#if 0
 static const value_string vals_reg_rsp_status[] =
 {
     {0, "OK"},
     {1, "Message authentication failure"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_burst_tcs[] =
 {
     {0, "TCS disabled"},
     {1, "TCS enabled"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const true_false_string tfs_sbc_burst_tcs =
 {
     "TCS enabled",
     "TCS disabled"
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_frame_duration[] =
 {
     {0, "2.5"},
@@ -406,7 +430,9 @@ static const value_string vals_sbc_frame_duration[] =
     {6, "20"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_mac_version[] =
 {
     {1, "Conformance with IEEE Std 802.16-2001"},
@@ -417,7 +443,9 @@ static const value_string vals_sbc_mac_version[] =
     {6, "reserved"},
     {0, NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_burst_fec[] =
 {
     {0, "QPSK (CC) 1/2"},
@@ -475,7 +503,9 @@ static const value_string vals_sbc_burst_fec[] =
     {52, "64-QAM (LDPC) 5/6"},
     {0,  NULL}
 };
+#endif
 
+#if 0
 static const value_string vals_sbc_permutation_type[] =
 {
     {0, "PUSC" },
@@ -484,6 +514,7 @@ static const value_string vals_sbc_permutation_type[] =
     {3, "AMC"},
     {0,  NULL}
 };
+#endif
 
 static const value_string vals_sbc_harq_parameters_set[] =
 {
