@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/emem.h>
 
@@ -102,14 +103,12 @@ static int proto_iec104asdu = -1;
 
 /* Type I is only lowest bit set to 0 */
 #define I_TYPE		0
-#define I_TYPE2		2
 #define S_TYPE		1
 #define U_TYPE		3
 #define APCI_TYPE_UNKNOWN 4
 static const value_string apci_types [] = {
 	{ I_TYPE,		"I" },
 	{ S_TYPE,		"S" },
-	{ I_TYPE2,		"I" },
 	{ U_TYPE,		"U" },
 	{ 0, NULL }
 };
@@ -389,10 +388,10 @@ static const value_string causetx_types [] = {
 };
 
 static const value_string diq_types[] = {
-	{ 0,		"IPOS0" },
+	{ 0,		"Indeterminate or Intermediate" },
 	{ 1,		"OFF" },
 	{ 2,		"ON" },
-	{ 3,		"IPOS3" },
+	{ 3,		"Indeterminate" },
 	{ 0, NULL }
 };
 
@@ -426,6 +425,7 @@ static const true_false_string tfs_blocked_not_blocked = { "Blocked", "Not block
 static const true_false_string tfs_substituted_not_substituted = { "Substituted", "Not Substituted" };
 static const true_false_string tfs_not_topical_topical = { "Not Topical", "Topical" };
 static const true_false_string tfs_invalid_valid = { "Invalid", "Valid" };
+static const true_false_string tfs_transient_not_transient = { "Transient", "Not Transient" };
 static const true_false_string tfs_overflow_no_overflow = { "Overflow", "No overflow" };
 static const true_false_string tfs_select_execute = { "Select", "Execute" };
 
@@ -448,13 +448,13 @@ static int hf_numix  = -1;
 static int hf_sq  = -1;
 static int hf_cp56time  = -1;
 static int hf_siq  = -1;
-static int hf_siq_on  = -1;
+static int hf_siq_spi  = -1;
 static int hf_siq_bl  = -1;
 static int hf_siq_sb  = -1;
 static int hf_siq_nt  = -1;
 static int hf_siq_iv  = -1;
 static int hf_diq  = -1;
-static int hf_diq_value  = -1;
+static int hf_diq_dpi  = -1;
 static int hf_diq_bl  = -1;
 static int hf_diq_sb  = -1;
 static int hf_diq_nt  = -1;
@@ -466,7 +466,9 @@ static int hf_qds_sb  = -1;
 static int hf_qds_nt  = -1;
 static int hf_qds_iv  = -1;
 static int hf_vti  = -1;
-static int hf_vti_tr  = -1;
+static int hf_vti_v  = -1;
+static int hf_vti_t  = -1;
+static int hf_qos  = -1;
 static int hf_qos_ql  = -1;
 static int hf_qos_se  = -1;
 static int hf_sco  = -1;
@@ -485,13 +487,16 @@ static int hf_rco_se  = -1;
 static gint hf_asdu_bitstring = -1;
 static gint hf_asdu_float = -1;
 static gint hf_asdu_normval = -1;
+static gint hf_asdu_scalval = -1;
 
 static gint ett_apci = -1;
 static gint ett_asdu = -1;
 static gint ett_asdu_objects = -1;
 static gint ett_siq = -1;
 static gint ett_diq = -1;
+static gint ett_vti = -1;
 static gint ett_qds = -1;
+static gint ett_qos = -1;
 static gint ett_sco = -1;
 static gint ett_dco = -1;
 static gint ett_rco = -1;
@@ -503,43 +508,53 @@ static gint ett_rco = -1;
 
     Dissects the CP56Time2a time (Seven octet binary time)
     that starts 'offset' bytes in 'tvb'.
-    The time and date is put in struct 'cp56t'
    ==================================================================== */
-static void get_CP56Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_CP56Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
   guint16 ms;
-  guint8 valid;
+  guint8 value;
+  guint8 su;
   struct tm tm;
   nstime_t  datetime;
-  proto_item* ti;
 
   ms = tvb_get_letohs( tvb , *offset );
-  (*offset) += 2;
   tm.tm_sec = ms / 1000;
-  datetime.nsecs = ms * 1000000;
+  datetime.nsecs = (ms % 1000) * 1000000;
+  (*offset) += 2;
 
-  tm.tm_min = tvb_get_guint8(tvb, *offset);
-  /* "Invalid" -- Todo: test */
-  valid = tm.tm_min & 0x80;
-
-  tm.tm_min &= 0x3F;
-  (*offset)++;
-  tm.tm_hour = 0x1F & tvb_get_guint8(tvb, *offset);
-  (*offset)++;
-  tm.tm_mday = tvb_get_guint8(tvb, *offset) & 0x1F;
-  (*offset)++;
-  tm.tm_mon = 0x0F & tvb_get_guint8(tvb, *offset);
-  (*offset)++;
-  tm.tm_year = 0x7F & tvb_get_guint8(tvb, *offset);
+  value = tvb_get_guint8(tvb, *offset);
+  tm.tm_min = value & 0x3F;
   (*offset)++;
 
-  tm.tm_isdst = -1; /* there's no info on whether DST was in force; assume it's
-                    * the same as currently */
+  value = tvb_get_guint8(tvb, *offset);
+  tm.tm_hour = value & 0x1F;
+  su = value & 0x80;
+  (*offset)++;
+
+  value = tvb_get_guint8(tvb, *offset);
+  tm.tm_mday = value & 0x1F;
+  (*offset)++;
+  
+  value = tvb_get_guint8(tvb, *offset);
+  tm.tm_mon = (value & 0x0F) - 1;
+  (*offset)++;
+  
+  value = tvb_get_guint8(tvb, *offset);	 
+  tm.tm_year = value & 0x7F;
+  if (tm.tm_year < 70) 
+  	tm.tm_year += 100;
+
+  (*offset)++;
+
+  if (su)
+    tm.tm_isdst = 1;
+  else
+    tm.tm_isdst = -1; /* there's no info on whether DST was in force; assume it's
+                       * the same as currently */
 
   datetime.secs = mktime(&tm);
 
-  ti = proto_tree_add_time(iec104_header_tree, hf_cp56time, tvb, (*offset)-7, 7, &datetime);
-  proto_item_append_text(ti, "%s", valid ? "Invalid":"Valid");
+  proto_tree_add_time(iec104_header_tree, hf_cp56time, tvb, (*offset)-7, 7, &datetime);
 }
 
 
@@ -573,7 +588,7 @@ static void get_SIQ( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   ti = proto_tree_add_item(iec104_header_tree, hf_siq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   siq_tree = proto_item_add_subtree( ti, ett_siq );
 
-  proto_tree_add_item(siq_tree, hf_siq_on, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(siq_tree, hf_siq_spi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(siq_tree, hf_siq_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(siq_tree, hf_siq_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(siq_tree, hf_siq_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -593,7 +608,7 @@ static void get_DIQ( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   ti = proto_tree_add_item(iec104_header_tree, hf_diq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   diq_tree = proto_item_add_subtree( ti, ett_diq );
 
-  proto_tree_add_item(diq_tree, hf_diq_value, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(diq_tree, hf_diq_dpi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(diq_tree, hf_diq_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(diq_tree, hf_diq_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(diq_tree, hf_diq_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -640,8 +655,12 @@ static void get_QDP( tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_h
    ==================================================================== */
 static void get_VTI( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_tree_add_item(iec104_header_tree, hf_vti, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(iec104_header_tree, hf_vti_tr, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item* ti;
+  proto_tree* vti_tree;
+  ti = proto_tree_add_item(iec104_header_tree, hf_vti, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  vti_tree = proto_item_add_subtree(ti, ett_vti);
+  proto_tree_add_bits_item(vti_tree, hf_vti_v, tvb, *offset * 8 + 1, 7, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(vti_tree, hf_vti_t, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
 }
@@ -651,20 +670,26 @@ static void get_VTI( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
    ==================================================================== */
 static void get_NVA( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
+  gint16 value;
+  float fvalue;
+  value = (gint16)tvb_get_letohs(tvb, *offset);
+  fvalue = (float)value / 32768;
   /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
-  /* todo ... presentation as float +/- 1 (val/32767) ... */
 
   (*offset) += 2;
 }
 
 static void get_NVAspt( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
+  gint16 value;
+  float fvalue;
+  value = (gint16)tvb_get_letohs(tvb, *offset);
+  fvalue = (float)value / 32768;
   /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
-  /* todo ... presentation as float +/- 1 */
 
   (*offset) += 2;
 }
@@ -675,7 +700,7 @@ static void get_NVAspt( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header
 static void get_SVA( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   /* Scaled value I16[1..16]<-2^15..+2^15-1> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(iec104_header_tree, hf_asdu_scalval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 
   (*offset) += 2;
 }
@@ -683,7 +708,7 @@ static void get_SVA( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
 static void get_SVAspt( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   /* Scaled value I16[1..16]<-2^15..+2^15-1> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(iec104_header_tree, hf_asdu_scalval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 
   (*offset) += 2;
 }
@@ -746,8 +771,12 @@ static void get_SEP( tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_h
    ==================================================================== */
 static void get_QOS( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
-  proto_tree_add_item(iec104_header_tree, hf_qos_ql, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(iec104_header_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item* ti;
+  proto_tree* qos_tree;
+  ti = proto_tree_add_item(iec104_header_tree, hf_qos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  qos_tree = proto_item_add_subtree(ti, ett_qos);
+  proto_tree_add_item(qos_tree, hf_qos_ql, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(qos_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
 }
@@ -836,7 +865,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	struct asduheader asduh;
 	proto_item *it104, *ioa_item;
 	proto_tree *it104tree;
-
+	emem_strbuf_t * res;
 
 	guint8 offset = 0;  /* byte offset, signal dissection */
 	guint8 offset_start_ioa = 0; /* position first ioa */
@@ -846,55 +875,61 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree * trSignal;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
-	col_clear(pinfo->cinfo, COL_INFO);
 
 	it104 = proto_tree_add_item(tree, proto_iec104asdu, tvb, 0, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_asdu);
 
+	res = ep_strbuf_new_label(NULL);
+	/* Type identification */
 	asduh.TypeId = tvb_get_guint8(tvb, 0);
 	proto_tree_add_item(it104tree, hf_typeid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	/* Variable structure qualifier */
 	Bytex = tvb_get_guint8(tvb, 1);
-	asduh.NumIx = Bytex & 0x7F;
 	asduh.SQ = Bytex & F_SQ;
-	proto_tree_add_item(it104tree, hf_numix, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	if (asduh.NumIx > 1)
+	asduh.NumIx = Bytex & 0x7F;
 		proto_tree_add_item(it104tree, hf_sq, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(it104tree, hf_numix, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	/* Cause of transmission */
 	asduh.TNCause = tvb_get_guint8(tvb, 2);
 	proto_tree_add_item(it104tree, hf_causetx, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(it104tree, hf_nega, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(it104tree, hf_test, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	/* Originator address */
 	asduh.OA = tvb_get_guint8(tvb, 3);
 	proto_tree_add_item(it104tree, hf_oa, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	/* Common address of ASDU */
 	asduh.Addr = tvb_get_letohs(tvb, 4);
 	proto_tree_add_item(it104tree, hf_addr, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+	/* Information object address */
 	asduh.IOA = tvb_get_letoh24(tvb, 6);
-	proto_tree_add_item(it104tree, hf_ioa, tvb, 6, 3, ENC_LITTLE_ENDIAN);
 
 	cause_str = val_to_str(asduh.TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>");
-	col_append_fstr( pinfo->cinfo, COL_INFO, "%u %s %u %s %s", asduh.Addr, pinfo->srcport == IEC104_PORT ? "->" : "<-",
-					asduh.OA, val_to_str(asduh.TypeId, asdu_types, "<TypeId=%u>"), cause_str);
+
+	ep_strbuf_append_printf(res, "ASDU=%u %s %s", asduh.Addr, val_to_str(asduh.TypeId, asdu_types, "<TypeId=%u>"), cause_str);
 	if (asduh.TNCause & F_NEGA)
-		col_append_str( pinfo->cinfo, COL_INFO, "_NEGA");
+		ep_strbuf_append(res, "_NEGA");
 	if (asduh.TNCause & F_TEST)
-		col_append_str( pinfo->cinfo, COL_INFO, "_TEST");
+		ep_strbuf_append(res, "_TEST");
 
-	if (asduh.TNCause & (F_TEST | F_NEGA))  {
+	if ((asduh.TNCause & (F_TEST | F_NEGA)) == 0) {
 		for (Ind=strlen(cause_str); Ind< 7; Ind++)
-			col_append_str( pinfo->cinfo, COL_INFO, " ");
+			ep_strbuf_append(res, " ");
 	}
 
-	col_append_fstr( pinfo->cinfo, COL_INFO, " IOA=%d", asduh.IOA);
 	if (asduh.NumIx > 1)   {
+		ep_strbuf_append_printf(res, " IOA[%d]=%d", asduh.NumIx, asduh.IOA);
 		if (asduh.SQ == F_SQ)
-			col_append_fstr( pinfo->cinfo, COL_INFO, "-%d", asduh.IOA + asduh.NumIx - 1);
+			ep_strbuf_append_printf(res, "-%d", asduh.IOA + asduh.NumIx - 1);
 		else
-			col_append_str( pinfo->cinfo, COL_INFO, ",...");
-		col_append_fstr( pinfo->cinfo, COL_INFO, " (%u) ", asduh.NumIx);
+			ep_strbuf_append(res, ",...");
 	} else {
-		col_append_str( pinfo->cinfo, COL_INFO, " ");
+		ep_strbuf_append_printf(res, " IOA=%d", asduh.IOA);
 	}
 
+	col_append_str(pinfo->cinfo, COL_INFO, res->str);
 	col_set_fence(pinfo->cinfo, COL_INFO);
+	/* 'ASDU Details': ROOT ITEM */
+	proto_item_append_text(it104, ": %s '%s'", res->str, Len >= ASDU_HEAD_LEN ? val_to_str_const(asduh.TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
 
 	/* 'Signal Details': TREE */
 	offset = 6;  /* offset position after DUI, already stored in asduh struct */
@@ -1248,6 +1283,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			} /* end 'for(i = 0; i < dui.asdu_vsq_no_of_obj; i++)' */
 			break;
 		default:
+			proto_tree_add_item(it104tree, hf_ioa, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 			break;
 	} /* end 'switch (asdu_typeid)' */
 
@@ -1259,68 +1295,80 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint TcpLen = tvb_reported_length(tvb);
-	guint8 Start = 0, len, type = 0, temp8;
-	guint8 temp16;
+	guint8 Start, len, type, temp8;
+	guint16 temp16;
 	guint Off;
 	proto_item *it104, *ti;
 	proto_tree *it104tree;
+	emem_strbuf_t * res;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
-	col_clear(pinfo->cinfo, COL_INFO);
 
 	it104 = proto_tree_add_item(tree, proto_iec104apci, tvb, 0, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_apci);
 
+	res = ep_strbuf_new_label(NULL);
 	for (Off = 0; Off <= TcpLen - 2; Off++)  {
 		Start = tvb_get_guint8(tvb, Off);
 		if (Start == APCI_START)  {
 			if (Off > 0)
 			{
 				proto_tree_add_item(it104tree, hf_apcidata, tvb, 0, Off, ENC_NA);
-				col_append_fstr( pinfo->cinfo, COL_INFO, "<ERR prefix %u bytes> ", Off);
+				ep_strbuf_append_printf(res, "<ERR prefix %u bytes> ", Off);
 			}
 
 			proto_item_set_len(it104, Off + APCI_LEN);
 
 			proto_tree_add_text(it104tree, tvb, Off, 1, "START");
 			ti = proto_tree_add_item(it104tree, hf_apdulen, tvb, Off + 1, 1, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(it104tree, hf_apcitype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
 
 			len = tvb_get_guint8(tvb, Off + 1);
 			if (len < APDU_MIN_LEN)  {
 				expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "APDU less than %d bytes", APDU_MIN_LEN);
-				col_append_fstr( pinfo->cinfo, COL_INFO, "<ERR ApduLen=%u bytes> ", len);
+				ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
 				return;
 			}
 
 			temp8 = tvb_get_guint8(tvb, Off + 2);
+			if ((temp8 & 0x01) == 0)
+				type = 0;
+			else
 			type = temp8 & 0x03;
 
+			if (type == I_TYPE)
+				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 7, 1, ENC_LITTLE_ENDIAN);
+			else
+				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_LITTLE_ENDIAN);
 			if (len <= APDU_MAX_LEN) {
-				col_append_fstr( pinfo->cinfo, COL_INFO, "%s %s (",
+				ep_strbuf_append_printf(res, "%s %s (",
 					(pinfo->srcport == IEC104_PORT ? "->" : "<-"),
 					val_to_str_const(type, apci_types, "<ERR>"));
 			}
 			else {
-				col_append_fstr( pinfo->cinfo, COL_INFO, "<ERR ApduLen=%u bytes> ", len);
+				ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
 			}
 
 			switch(type)  {
 			case I_TYPE:
-			case I_TYPE2:
 				temp16 = tvb_get_letohs(tvb, Off + 2) >> 1;
-				col_append_fstr( pinfo->cinfo, COL_INFO, "%2.2d,", temp16);
+				ep_strbuf_append_printf(res, "%d,", temp16);
 				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, temp16);
 			case S_TYPE:
 				temp16 = tvb_get_letohs(tvb, Off + 4) >> 1;
-				col_append_fstr( pinfo->cinfo, COL_INFO, "%2.2d) ", temp16);
+				ep_strbuf_append_printf(res, "%d) ", temp16);
 				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, temp16);
 				break;
 			case U_TYPE:
-				col_append_fstr( pinfo->cinfo, COL_INFO, "%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
+				ep_strbuf_append_printf(res, "%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
 				proto_tree_add_item(it104tree, hf_apciutype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
 				break;
 			}
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", res->str);
+			col_set_fence(pinfo->cinfo, COL_INFO);
+			proto_item_append_text(it104, ": %s", res->str);
+			if (type == I_TYPE)
+				call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);
 			/* Don't search more the APCI_START */
 			break;
 		}
@@ -1332,11 +1380,6 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		return;
 	}
 
-	if ((type == I_TYPE) || (type == I_TYPE2))  {
-		call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);
-	} else {
-		col_set_fence(pinfo->cinfo, COL_INFO);
-	}
 }
 
 
@@ -1364,7 +1407,7 @@ proto_register_iec104apci(void)
 		    "APDU Len", HFILL }},
 
 		{ &hf_apcitype,
-		  { "Type", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x03,
+		  { "Type", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x00,
 		    "APCI type", HFILL }},
 
 		{ &hf_apciutype,
@@ -1451,9 +1494,9 @@ proto_register_iec104asdu(void)
 		  { "SIQ", "104asdu.siq", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
-		{ &hf_siq_on,
-		  { "SQ", "104asdu.siq.on", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
-		    "SIQ SQ", HFILL }},
+		{ &hf_siq_spi,
+		  { "SPI", "104asdu.siq.spi", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
+		    "SIQ SPI", HFILL }},
 
 		{ &hf_siq_bl,
 		  { "BL", "104asdu.siq.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x10,
@@ -1475,9 +1518,9 @@ proto_register_iec104asdu(void)
 		  { "DIQ", "104asdu.diq", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
-		{ &hf_diq_value,
-		  { "Value", "104asdu.diq.value", FT_UINT8, BASE_DEC, VALS(diq_types), 0x03,
-		    "DIQ Value", HFILL }},
+		{ &hf_diq_dpi,
+		  { "DPI", "104asdu.diq.dpi", FT_UINT8, BASE_DEC, VALS(diq_types), 0x03,
+		    "DIQ DPI", HFILL }},
 
 		{ &hf_diq_bl,
 		  { "BL", "104asdu.diq.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x10,
@@ -1520,81 +1563,90 @@ proto_register_iec104asdu(void)
 		    "QDS IV", HFILL }},
 
 		{ &hf_vti,
-		  { "VTI", "104asdu.vti", FT_UINT8, BASE_DEC, NULL, 0x7F,
+		  { "VTI", "104asdu.vti", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
-		{ &hf_vti_tr,
-		  { "VTI Transient", "104asdu.vti.ov", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+		{ &hf_vti_v,
+		  { "Value", "104asdu.vti.v", FT_INT8, BASE_DEC, NULL, 0,
+		    "VTI Value", HFILL }},
+		{ &hf_vti_t,
+		  { "T", "104asdu.vti.t", FT_BOOLEAN, 8, TFS(&tfs_transient_not_transient), 0x80,
+		    "VTI T", HFILL }},
+		{ &hf_qos,
+		  { "QOS", "104asdu.qos", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_qos_ql,
-		  { "QOS Qualifier", "104asdu.qos_ql", FT_UINT8, BASE_DEC, NULL, 0x7F,
-		    NULL, HFILL }},
+		  { "QL", "104asdu.qos.ql", FT_UINT8, BASE_DEC, NULL, 0x7F,
+		    "QOS QL", HFILL }},
 
 		{ &hf_qos_se,
-		  { "QOS S/E", "104asdu.qos_se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
-		    NULL, HFILL }},
+		  { "S/E", "104asdu.qos.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
+		    "QOS S/E", HFILL }},
 
 		{ &hf_sco,
 		  { "SCO", "104asdu.sco", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_sco_on,
-		  { "SCO ON/OFF", "104asdu.sco.on", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
-		    NULL, HFILL }},
+		  { "ON/OFF", "104asdu.sco.on", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
+		    "SCO SCS", HFILL }},
 
 		{ &hf_sco_qu,
-		  { "SCO QU", "104asdu.sco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
-		    NULL, HFILL }},
+		  { "QU", "104asdu.sco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
+		    "SCO QU", HFILL }},
 
 		{ &hf_sco_se,
-		  { "SCO S/E", "104asdu.sco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
-		    NULL, HFILL }},
+		  { "S/E", "104asdu.sco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
+		    "SCO S/E", HFILL }},
 
 		{ &hf_dco,
 		  { "DCO", "104asdu.dco", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_dco_on,
-		  { "DCO ON/OFF", "104asdu.dco.on", FT_UINT8, BASE_DEC, VALS(dco_on_types), 0x03,
-		    NULL, HFILL }},
+		  { "ON/OFF", "104asdu.dco.on", FT_UINT8, BASE_DEC, VALS(dco_on_types), 0x03,
+		    "DCO DCS", HFILL }},
 
 		{ &hf_dco_qu,
-		  { "DCO QU", "104asdu.dco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
-		    NULL, HFILL }},
+		  { "QU", "104asdu.dco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
+		    "DCO QU", HFILL }},
 
 		{ &hf_dco_se,
-		  { "DCO S/E", "104asdu.dco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
-		    NULL, HFILL }},
+		  { "S/E", "104asdu.dco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
+		    "DCO S/E", HFILL }},
 
 		{ &hf_rco,
 		  { "RCO", "104asdu.rco", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_rco_up,
-		  { "RCO UP/DOWN", "104asdu.rco.up", FT_UINT8, BASE_DEC, VALS(rco_up_types), 0x03,
-		    NULL, HFILL }},
+		  { "UP/DOWN", "104asdu.rco.up", FT_UINT8, BASE_DEC, VALS(rco_up_types), 0x03,
+		    "RCO RCS", HFILL }},
 
 		{ &hf_rco_qu,
-		  { "RCO QU", "104asdu.rco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
-		    NULL, HFILL }},
+		  { "QU", "104asdu.rco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
+		    "RCO QU", HFILL }},
 
 		{ &hf_rco_se,
-		  { "RCO S/E", "104asdu.rco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
-		    NULL, HFILL }},
+		  { "S/E", "104asdu.rco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
+		    "RCO S/E", HFILL }},
 
 		{ &hf_asdu_bitstring,
-		  { "Object value", "104asdu.bitstring", FT_UINT32, BASE_HEX, NULL, 0x0,
-		 NULL, HFILL }},
+		  { "Value", "104asdu.bitstring", FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "BSI value", HFILL }},
 
 		{ &hf_asdu_float,
-		  { "Object value", "104asdu.float", FT_FLOAT, BASE_NONE, NULL, 0x0,
-		 NULL, HFILL }},
+		  { "Value", "104asdu.float", FT_FLOAT, BASE_NONE, NULL, 0x0,
+		    "Float value", HFILL }},
 
 		{ &hf_asdu_normval,
-		  { "Object value", "104asdu.normval", FT_INT16, BASE_DEC, NULL, 0x0,
-		 NULL, HFILL }},
+		  { "Value", "104asdu.normval", FT_FLOAT, BASE_NONE, NULL, 0x0,
+		    "Normalised value", HFILL }},
 
+		{ &hf_asdu_scalval,
+		  { "Value", "104asdu.scalval", FT_INT16, BASE_DEC, NULL, 0x0,
+		    "Scaled value", HFILL }},
 	};
 
 	static gint *ett_as[] = {
@@ -1603,9 +1655,11 @@ proto_register_iec104asdu(void)
 		&ett_siq,
 		&ett_diq,
 		&ett_qds,
+		&ett_qos,
+		&ett_vti,
 		&ett_sco,
 		&ett_dco,
-		&ett_rco
+		&ett_rco,
 	};
 
 	proto_iec104asdu = proto_register_protocol(
