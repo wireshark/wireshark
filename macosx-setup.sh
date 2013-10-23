@@ -24,39 +24,25 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #
-# To set up Qt
+# To set up Qt, set TOOLKIT to qt
+# To set up GTK+ 3, set TOOLKIT to gtk3
+# To set up GTK+ 2, set TOOLKIT to gtk2
 #
-# curl -O http://download.qt-project.org/official_releases/qt/5.1/5.1.1/single/qt-everywhere-opensource-src-5.1.1.tar.gz
-#
-# Choose one of:
-# TARGET_PLATFORM=macx-clang
-# TARGET_PLATFORM=macx-clang-32
-#
-# Qt 5.1.x sets QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
-# in qtbase/mkspecs/$TARGET_PLATFORM/qmake.conf
-# We may need to adjust this manually in the future.
-#
-# The -no-c++11 flag is needed to work around
-# https://bugreports.qt-project.org/browse/QTBUG-30487
-#
-#./configure \
-#  -platform $TARGET_PLATFORM \
-#  -opensource -confirm-license \
-#  -no-c++11
-#
-# make
+TOOLKIT=qt
 
 #
-# To set up a GTK3 environment
-GTK3=1
 # To build cmake
 # CMAKE=1
 #
 # To build all libraries as 32-bit libraries uncomment the following three lines.
+#
 # export CFLAGS="$CFLAGS -arch i386"
 # export CXXFLAGS="$CXXFLAGS -arch i386"
 # export LDFLAGS="$LDFLAGS -arch i386"
 #
+# and change "macx-clang" to "macx-clang-32" in the line below.
+#
+TARGET_PLATFORM=macx-clang
 
 #
 # Versions to download and install.
@@ -66,17 +52,25 @@ GTK3=1
 GETTEXT_VERSION=0.18.2
 GLIB_VERSION=2.36.0
 PKG_CONFIG_VERSION=0.28
-ATK_VERSION=2.8.0
-PANGO_VERSION=1.30.1
-PNG_VERSION=1.5.17
-PIXMAN_VERSION=0.26.0
-CAIRO_VERSION=1.12.2
-GDK_PIXBUF_VERSION=2.28.0
-if [ -z "$GTK3" ]; then
-    GTK_VERSION=2.24.17
-else
-    GTK_VERSION=3.5.2
-fi
+case "$TOOLKIT" in
+qt)
+    QT_VERSION=5.1.1
+    ;;
+
+gtk*)
+    ATK_VERSION=2.8.0
+    PANGO_VERSION=1.30.1
+    PNG_VERSION=1.5.17
+    PIXMAN_VERSION=0.26.0
+    CAIRO_VERSION=1.12.2
+    GDK_PIXBUF_VERSION=2.28.0
+    if [ "$TOOLKIT" = gtk2 ]; then
+        GTK_VERSION=2.24.17
+    else
+        GTK_VERSION=3.5.2
+    fi
+    ;;
+esac
 
 #
 # Some package need xz to unpack their current source.
@@ -629,22 +623,34 @@ then
 fi
 
 #
-# You need Xcode installed to get the compilers.
+# You need Xcode or the command-line tools installed to get the compilers.
 #
 if [ ! -x /usr/bin/xcodebuild ]; then
     echo "Please install Xcode first (should be available on DVD or from http://developer.apple.com/xcode/index.php)."
     exit 1
 fi
 
-#
-# You also need the X11 SDK; with at least some versions of OS X and
-# Xcode, that is, I think, an optional install.  (Or it might be
-# installed with X11, but I think *that* is an optional install on
-# at least some versions of OS X.)
-#
-if [ ! -d /usr/X11/include ]; then
-    echo "Please install X11 and the X11 SDK first."
-    exit 1
+if [[ $TOOLKIT = qt ]]; then
+    #
+    # We need Xcode, not just the command-line tools, installed to build
+    # Qt.
+    #
+    if ! /usr/bin/xcrun -find xcrun >/dev/null 2>&1; then
+        echo "Please install Xcode first (should be available on DVD or from http://developer.apple.com/xcode/index.php)."
+        echo "The command-line build tools are not sufficient to build Qt."
+        exit 1
+    fi
+else
+    #
+    # If we're building with GTK+, you also need the X11 SDK; with at least
+    # some versions of OS X and Xcode, that is, I think, an optional install.
+    # (Or it might be installed with X11, but I think *that* is an optional
+    # install on at least some versions of OS X.)
+    #
+    if [ ! -d /usr/X11/include ]; then
+        echo "Please install X11 and the X11 SDK first."
+        exit 1
+    fi
 fi
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig
@@ -841,224 +847,259 @@ fi
 # Now we have reached a point where we can build everything but
 # the GUI (Wireshark).
 #
-# GTK+ 3 requires a newer Cairo build than the one that comes with
-# 10.6, so we build Cairo if we are using GTK+ 3.
-#
-# In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
-# rather than X11 GTK+, we might have to build and install Cairo.
-# In 10.8 and later, there is no X11, but it's included in Xquartz;
-# again, if we build with "native" GTK+, we'd have to build and install
-# it.
-#
-if [[ -n "$GTK3" || "$cairo_not_in_the_os" = yes ]]; then
-    #
-    # Requirements for Cairo first
-    #
-    # The libpng that comes with the X11 for leopard has a bogus
-    # pkg-config file that lies about where the header files are,
-    # which causes other packages not to be able to find its
-    # headers.
-    #
-#    if [ ! -f libpng-$PNG_VERSION-done ] ; then
-#        echo "Downloading, building, and installing libpng:"
-#        #
-#        # The FTP site puts libpng x.y.* into a libpngxy directory.
-#        #
-#        subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
-#        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
-#        xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
-#        cd libpng-$PNG_VERSION
-#        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-#        make $MAKE_BUILD_OPTS || exit 1
-#        $DO_MAKE_INSTALL || exit 1
-#        cd ..
-#        touch libpng-$PNG_VERSION-done
-#    fi
-
-    #
-    # The libpixman that comes with the X11 for Leopard is too old
-    # to support Cairo's image surface backend feature (which requires
-    # pixman-1 >= 0.22.0).
-    #
-#    if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
-#        echo "Downloading, building, and installing pixman:"
-#        [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
-#        gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
-#        cd pixman-$PIXMAN_VERSION
-#        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-#        make $MAKE_BUILD_OPTS || exit 1
-#        $DO_MAKE_INSTALL || exit 1
-#        cd ..
-#        touch pixman-$PIXMAN_VERSION-done
-#    fi
-
-    #
-    # And now Cairo itself.
-    #
-    if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
-        echo "Downloading, building, and installing Cairo:"
-        CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
-        CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
-              $CAIRO_MINOR_VERSION -gt 12 ||
-              ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
-        then
-            #
-            # Starting with Cairo 1.12.2, the tarballs are compressed with
-            # xz rather than gzip.
-            #
-            [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
-            xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
-        else
-            [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
-            gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
-        fi
-        cd cairo-$CAIRO_VERSION
-        # CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=no || exit 1
-        # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=yes || exit 1
+case "$TOOLKIT" in
+qt)
+    if [ ! -f qt-$QT_VERSION-done ] ; then
+        echo "Downloading, building, and installing Qt:"
+        QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
+        QT_MINOR_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        QT_DOTDOT_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
         #
-        # We must avoid the version of libpng that comes with X11; the
-        # only way I've found to force that is to forcibly set INCLUDES
-        # when we do the build, so that this comes before CAIRO_CFLAGS,
-        # which has -I/usr/X11/include added to it before anything
-        # connected to libpng is.
+        # What you get for this URL might just be a 302 Found reply, so use
+        # -L so we get redirected.
         #
-        INCLUDES="-I/usr/local/include/libpng15" make $MAKE_BUILD_OPTS || exit 1
+        curl -L -O http://download.qt-project.org/official_releases/qt/$QT_MAJOR_MINOR_VERSION/$QT_VERSION/single/qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+        #
+        # Qt 5.1.x sets QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
+        # in qtbase/mkspecs/$TARGET_PLATFORM/qmake.conf
+        # We may need to adjust this manually in the future.
+        #
+        # The -no-c++11 flag is needed to work around
+        # https://bugreports.qt-project.org/browse/QTBUG-30487
+        #
+        tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+        cd qt-everywhere-opensource-src-$QT_VERSION
+        ./configure -platform $TARGET_PLATFORM -opensource -confirm-license -no-c++11
+        make || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch cairo-$CAIRO_VERSION-done
+        touch qt-$QT_VERSION-done
     fi
-fi
+    ;;
 
-if [ ! -f atk-$ATK_VERSION-done ] ; then
-    echo "Downloading, building, and installing ATK:"
-    atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-    ATK_MAJOR_VERSION="`expr $ATK_VERSION : '\([0-9][0-9]*\).*'`"
-    ATK_MINOR_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    ATK_DOTDOT_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    if [[ $ATK_MAJOR_VERSION -gt 2 ||
-          ($ATK_MAJOR_VERSION -eq 2 && $ATK_MINOR_VERSION -gt 0) ||
-          ($ATK_MANOR_VERSION -eq 2 && $ATK_MINOR_VERSION -eq 0 && $ATK_DOTDOT_VERSION -ge 1) ]]
-    then
-        #
-        # Starting with ATK 2.0.1, xz-compressed tarballs are available.
-        #
-        [ -f atk-$ATK_VERSION.tar.xz ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
-        xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
-    else
-        [ -f atk-$ATK_VERSION.tar.bz2 ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
-        bzcat atk-$ATK_VERSION.tar.bz2 | tar xf - || exit 1
-    fi
-    cd atk-$ATK_VERSION
-    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-    make $MAKE_BUILD_OPTS || exit 1
-    $DO_MAKE_INSTALL || exit 1
-    cd ..
-    touch atk-$ATK_VERSION-done
-fi
-
-if [ ! -f pango-$PANGO_VERSION-done ] ; then
-    echo "Downloading, building, and installing Pango:"
-    pango_dir=`expr $PANGO_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-    PANGO_MAJOR_VERSION="`expr $PANGO_VERSION : '\([0-9][0-9]*\).*'`"
-    PANGO_MINOR_VERSION="`expr $PANGO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    if [[ $PANGO_MAJOR_VERSION -gt 1 ||
-          $PANGO_MINOR_VERSION -ge 29 ]]
-    then
-        #
-        # Starting with Pango 1.29, the tarballs are compressed with
-        # xz rather than bzip2.
-        #
-        [ -f pango-$PANGO_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz || exit 1
-        xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
-    else
-        [ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
-        bzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
-    fi
-    cd pango-$PANGO_VERSION
-    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-    make $MAKE_BUILD_OPTS || exit 1
-    $DO_MAKE_INSTALL || exit 1
-    cd ..
-    touch pango-$PANGO_VERSION-done
-fi
-
-if [ "$GDK_PIXBUF_VERSION" -a ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
-    echo "Downloading, building, and installing gdk-pixbuf:"
-    gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-    [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
-    xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
-    cd gdk-pixbuf-$GDK_PIXBUF_VERSION
+gtk*)
     #
-    # If we're building for 10.6, use libpng12; if you have 10.7.5, including
-    # X11, and Xcode 4.3.3, the system has libpng15, complete with pkg-config
-    # files, as part of X11, but 10.6's X11 has only libpng12, and the 10.6
-    # SDK in Xcode 4.3.3 also has only libpng12, and has no pkg-config files
-    # of its own, so we have to explicitly set LIBPNG to override the
-    # configure script, and also force the CFLAGS to look for the header
-    # files for libpng12 (note that -isysroot doesn't affect the arguments
-    # to -I, so we need to include the SDK path explicitly).
+    # GTK+ 3 requires a newer Cairo build than the one that comes with
+    # 10.6, so we build Cairo if we are using GTK+ 3.
     #
-    if [[ "$min_osx_target" = 10.6 ]]
-    then
-        LIBPNG="-L/usr/X11/lib -lpng12" CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I$SDKPATH/usr/X11/include/libpng12" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
-    else
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
-    fi
-    make $MAKE_BUILD_OPTS || exit 1
-    $DO_MAKE_INSTALL || exit 1
-    cd ..
-    touch gdk-pixbuf-$GDK_PIXBUF_VERSION-done
-fi
+    # In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
+    # rather than X11 GTK+, we might have to build and install Cairo.
+    # In 10.8 and later, there is no X11, but it's included in Xquartz;
+    # again, if we build with "native" GTK+, we'd have to build and install
+    # it.
+    #
+    if [[ "$TOOLKIT" = gtk3 || "$cairo_not_in_the_os" = yes ]]; then
+        #
+        # Requirements for Cairo first
+        #
+        # The libpng that comes with the X11 for leopard has a bogus
+        # pkg-config file that lies about where the header files are,
+        # which causes other packages not to be able to find its
+        # headers.
+        #
+#        if [ ! -f libpng-$PNG_VERSION-done ] ; then
+#            echo "Downloading, building, and installing libpng:"
+#            #
+#            # The FTP site puts libpng x.y.* into a libpngxy directory.
+#            #
+#            subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
+#            [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
+#            xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
+#            cd libpng-$PNG_VERSION
+#            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+#            make $MAKE_BUILD_OPTS || exit 1
+#            $DO_MAKE_INSTALL || exit 1
+#            cd ..
+#            touch libpng-$PNG_VERSION-done
+#        fi
 
-if [ ! -f gtk+-$GTK_VERSION-done ] ; then
-    echo "Downloading, building, and installing GTK+:"
-    gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-    GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
-    GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    if [[ $GTK_MAJOR_VERSION -gt 2 ||
-          $GTK_MINOR_VERSION -gt 24 ||
-         ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
-    then
         #
-        # Starting with GTK+ 2.24.5, the tarballs are compressed with
-        # xz rather than gzip, in addition to bzip2; use xz, as we've
-        # built and installed it, and as xz compresses better than
-        # bzip2 so the tarballs take less time to download.
+        # The libpixman that comes with the X11 for Leopard is too old
+        # to support Cairo's image surface backend feature (which requires
+        # pixman-1 >= 0.22.0).
         #
-        [ -f gtk+-$GTK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz || exit 1
-        xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
-    else
-        [ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
-        bzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
+#        if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
+#            echo "Downloading, building, and installing pixman:"
+#            [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+#            gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
+#            cd pixman-$PIXMAN_VERSION
+#            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+#            make $MAKE_BUILD_OPTS || exit 1
+#            $DO_MAKE_INSTALL || exit 1
+#            cd ..
+#            touch pixman-$PIXMAN_VERSION-done
+#        fi
+
+        #
+        # And now Cairo itself.
+        #
+        if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
+            echo "Downloading, building, and installing Cairo:"
+            CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
+            CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+            CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+            if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
+                  $CAIRO_MINOR_VERSION -gt 12 ||
+                  ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
+            then
+                #
+                # Starting with Cairo 1.12.2, the tarballs are compressed with
+                # xz rather than gzip.
+                #
+                [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+                xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
+            else
+                [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+                gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
+            fi
+            cd cairo-$CAIRO_VERSION
+            # CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=no || exit 1
+            # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
+            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=yes || exit 1
+            #
+            # We must avoid the version of libpng that comes with X11; the
+            # only way I've found to force that is to forcibly set INCLUDES
+            # when we do the build, so that this comes before CAIRO_CFLAGS,
+            # which has -I/usr/X11/include added to it before anything
+            # connected to libpng is.
+            #
+            INCLUDES="-I/usr/local/include/libpng15" make $MAKE_BUILD_OPTS || exit 1
+            $DO_MAKE_INSTALL || exit 1
+            cd ..
+            touch cairo-$CAIRO_VERSION-done
+        fi
     fi
-    cd gtk+-$GTK_VERSION
-    if [ $DARWIN_MAJOR_VERSION -ge "12" ]
-    then
-        #
-        # GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
-        # CUPS printing backend - either the CUPS API changed incompatibly
-        # or the backend was depending on non-API implementation details.
-        #
-        # Configure it out, on Mountain Lion and later, for now.
-        # (12 is the Darwin major version number in Mountain Lion.)
-        #
-        # Also, configure out libtiff and libjpeg; configure scripts
-        # just ignore unknown --enable/--disable and --with/--without
-        # options (at least they've always do so up to now).
-        #
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups --without-libtiff --without-libjpeg || exit 1
-    else
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+
+    if [ ! -f atk-$ATK_VERSION-done ] ; then
+        echo "Downloading, building, and installing ATK:"
+        atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+        ATK_MAJOR_VERSION="`expr $ATK_VERSION : '\([0-9][0-9]*\).*'`"
+        ATK_MINOR_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        ATK_DOTDOT_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        if [[ $ATK_MAJOR_VERSION -gt 2 ||
+              ($ATK_MAJOR_VERSION -eq 2 && $ATK_MINOR_VERSION -gt 0) ||
+              ($ATK_MANOR_VERSION -eq 2 && $ATK_MINOR_VERSION -eq 0 && $ATK_DOTDOT_VERSION -ge 1) ]]
+        then
+            #
+            # Starting with ATK 2.0.1, xz-compressed tarballs are available.
+            #
+            [ -f atk-$ATK_VERSION.tar.xz ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
+            xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
+        else
+            [ -f atk-$ATK_VERSION.tar.bz2 ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
+            bzcat atk-$ATK_VERSION.tar.bz2 | tar xf - || exit 1
+        fi
+        cd atk-$ATK_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch atk-$ATK_VERSION-done
     fi
-    make $MAKE_BUILD_OPTS || exit 1
-    $DO_MAKE_INSTALL || exit 1
-    cd ..
-    touch gtk+-$GTK_VERSION-done
-fi
+
+    if [ ! -f pango-$PANGO_VERSION-done ] ; then
+        echo "Downloading, building, and installing Pango:"
+        pango_dir=`expr $PANGO_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+        PANGO_MAJOR_VERSION="`expr $PANGO_VERSION : '\([0-9][0-9]*\).*'`"
+        PANGO_MINOR_VERSION="`expr $PANGO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        if [[ $PANGO_MAJOR_VERSION -gt 1 ||
+              $PANGO_MINOR_VERSION -ge 29 ]]
+        then
+            #
+            # Starting with Pango 1.29, the tarballs are compressed with
+            # xz rather than bzip2.
+            #
+            [ -f pango-$PANGO_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz || exit 1
+            xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
+        else
+            [ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
+            bzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
+        fi
+        cd pango-$PANGO_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch pango-$PANGO_VERSION-done
+    fi
+
+    if [ "$GDK_PIXBUF_VERSION" -a ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
+        echo "Downloading, building, and installing gdk-pixbuf:"
+        gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+        [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
+        xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
+        cd gdk-pixbuf-$GDK_PIXBUF_VERSION
+        #
+        # If we're building for 10.6, use libpng12; if you have 10.7.5, including
+        # X11, and Xcode 4.3.3, the system has libpng15, complete with pkg-config
+        # files, as part of X11, but 10.6's X11 has only libpng12, and the 10.6
+        # SDK in Xcode 4.3.3 also has only libpng12, and has no pkg-config files
+        # of its own, so we have to explicitly set LIBPNG to override the
+        # configure script, and also force the CFLAGS to look for the header
+        # files for libpng12 (note that -isysroot doesn't affect the arguments
+        # to -I, so we need to include the SDK path explicitly).
+        #
+        if [[ "$min_osx_target" = 10.6 ]]
+        then
+            LIBPNG="-L/usr/X11/lib -lpng12" CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I$SDKPATH/usr/X11/include/libpng12" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+        else
+            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+        fi
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch gdk-pixbuf-$GDK_PIXBUF_VERSION-done
+    fi
+
+    if [ ! -f gtk+-$GTK_VERSION-done ] ; then
+        echo "Downloading, building, and installing GTK+:"
+        gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+        GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
+        GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        if [[ $GTK_MAJOR_VERSION -gt 2 ||
+              $GTK_MINOR_VERSION -gt 24 ||
+             ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
+        then
+            #
+            # Starting with GTK+ 2.24.5, the tarballs are compressed with
+            # xz rather than gzip, in addition to bzip2; use xz, as we've
+            # built and installed it, and as xz compresses better than
+            # bzip2 so the tarballs take less time to download.
+            #
+            [ -f gtk+-$GTK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz || exit 1
+            xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
+        else
+            [ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
+            bzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
+        fi
+        cd gtk+-$GTK_VERSION
+        if [ $DARWIN_MAJOR_VERSION -ge "12" ]
+        then
+            #
+            # GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
+            # CUPS printing backend - either the CUPS API changed incompatibly
+            # or the backend was depending on non-API implementation details.
+            #
+            # Configure it out, on Mountain Lion and later, for now.
+            # (12 is the Darwin major version number in Mountain Lion.)
+            #
+            # Also, configure out libtiff and libjpeg; configure scripts
+            # just ignore unknown --enable/--disable and --with/--without
+            # options (at least they've always do so up to now).
+            #
+            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups --without-libtiff --without-libjpeg || exit 1
+        else
+            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+        fi
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch gtk+-$GTK_VERSION-done
+    fi
+    ;;
+esac
 
 #
 # Now we have reached a point where we can build everything including
