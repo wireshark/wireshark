@@ -870,7 +870,7 @@ qt)
         #
         tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.gz
         cd qt-everywhere-opensource-src-$QT_VERSION
-        ./configure -platform $TARGET_PLATFORM -opensource -confirm-license -no-c++11
+        ./configure -sdk macosx$min_osx_target -platform $TARGET_PLATFORM -opensource -confirm-license -no-c++11
         make || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
