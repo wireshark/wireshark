@@ -99,6 +99,10 @@ static int hf_openflow_v4_instruction_write_metadata_mask = -1;
 static int hf_openflow_v4_instruction_actions_pad = -1;
 static int hf_openflow_v4_instruction_meter_meter_id = -1;
 static int hf_openflow_v4_instruction_meter_meter_id_reserved = -1;
+static int hf_openflow_v4_hello_element_type = -1;
+static int hf_openflow_v4_hello_element_length = -1;
+static int hf_openflow_v4_hello_element_version_bitmap = -1;
+static int hf_openflow_v4_hello_element_pad = -1;
 static int hf_openflow_v4_error_type = -1;
 static int hf_openflow_v4_error_hello_failed_code = -1;
 static int hf_openflow_v4_error_bad_request_code = -1;
@@ -184,12 +188,14 @@ static gint ett_openflow_v4_match_oxm_fields = -1;
 static gint ett_openflow_v4_action = -1;
 static gint ett_openflow_v4_instruction = -1;
 static gint ett_openflow_v4_instruction_actions_actions = -1;
+static gint ett_openflow_v4_hello_element = -1;
 static gint ett_openflow_v4_error_data = -1;
 
 static expert_field ei_openflow_v4_match_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_oxm_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_action_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_instruction_undecoded = EI_INIT;
+static expert_field ei_openflow_v4_hello_element_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_error_undecoded = EI_INIT;
 
 static const value_string openflow_v4_version_values[] = {
@@ -659,6 +665,68 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     return offset;
 }
+
+
+#define OFPHET_VERSIONBITMAP  1
+static const value_string openflow_v4_hello_element_type_values[] = {
+    { 1, "OFPHET_VERSIONBITMAP" },
+    { 0, NULL }
+};
+
+static int
+dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+    proto_item *ti;
+    proto_tree *elem_tree;
+    guint16 elem_type;
+    guint16 elem_length;
+    guint16 pad_length;
+
+    ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Element");
+    elem_tree = proto_item_add_subtree(ti, ett_openflow_v4_hello_element);
+
+    /* uint16_t type; */
+    elem_type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint16_t length; */
+    elem_length = tvb_get_ntohs(tvb, offset);
+    pad_length = (elem_length + 7)/8*8 - elem_length;
+    proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    switch (elem_type) {
+    case OFPHET_VERSIONBITMAP:
+        /* bitmap */
+        proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_version_bitmap, tvb, offset, elem_length - 4, ENC_NA);
+        offset += elem_length - 4;
+        break;
+
+    default:
+        proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_hello_element_undecoded,
+                                     tvb, offset, elem_length - 4, "Unknown hello element body.");
+        offset += elem_length - 4;
+        break;
+    }
+
+    if (pad_length > 0) {
+        proto_tree_add_item(tree, hf_openflow_v4_hello_element_pad, tvb, offset, pad_length, ENC_NA);
+        offset+=pad_length;
+    }
+
+    return offset;
+}
+
+static void
+dissect_openflow_hello_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+
+    while (offset < length) {
+        offset = dissect_openflow_hello_element_v4(tvb, pinfo, tree, offset, length);
+    }
+}
+
 
 #define OFPET_HELLO_FAILED            0
 #define OFPET_BAD_REQUEST             1
@@ -1799,9 +1867,7 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     switch(type){
     case OFPT_V4_HELLO: /* 0 */
-        /* 5.5.1 Hello
-         * The OFPT_HELLO message has no body;
-         */
+        dissect_openflow_hello_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
 
     case OFPT_V4_ERROR: /* 1 */
@@ -2171,6 +2237,26 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_instruction_meter_meter_id_reserved,
             { "Meter ID", "openflow_v4.instruction.meter.meter_id",
                FT_UINT32, BASE_HEX, VALS(openflow_v4_meter_id_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_hello_element_type,
+            { "Type", "openflow_v4.hello_element.type",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_hello_element_type_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_hello_element_length,
+            { "Length", "openflow_v4.hello_element.length",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_hello_element_version_bitmap,
+            { "Bitmap", "openflow_v4.hello_element.version.bitmap",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_hello_element_pad,
+            { "Padding", "openflow_v4.hello_element.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_error_type,
@@ -2545,6 +2631,7 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_action,
         &ett_openflow_v4_instruction,
         &ett_openflow_v4_instruction_actions_actions,
+        &ett_openflow_v4_hello_element,
         &ett_openflow_v4_error_data
     };
 
@@ -2564,6 +2651,10 @@ proto_register_openflow_v4(void)
         { &ei_openflow_v4_instruction_undecoded,
             { "openflow_v4.instruction.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown instruction body.", EXPFILL }
+        },
+        { &ei_openflow_v4_hello_element_undecoded,
+            { "openflow_v4.hello_element.undecoded", PI_UNDECODED, PI_NOTE,
+              "Unknown hello element body.", EXPFILL }
         },
         { &ei_openflow_v4_error_undecoded,
             { "openflow_v4.error.undecoded", PI_UNDECODED, PI_NOTE,
