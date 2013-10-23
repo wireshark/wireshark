@@ -41,7 +41,7 @@
  *
  * Missing tables:
  * 3-1 3-2 3-3 3-4 3-6 3-7 3-8 3-9
- * 4-1 4-6 4-7 4-8 4-9 4-10 4-11 4-12 4-13 4-14 4-15 4-16 4-17 4-*
+ * 4-1 4-7 4-8 4-9 4-10 4-11 4-12 4-13 4-14 4-15 4-*
  * 5-*
  * 6-4
  * 7-5 7-8 7-10 7-12
@@ -53,6 +53,7 @@
  *
  * Dissected tables:
  * 2-1 2-4 2-6 2-7
+ * 4-6 4-16 4-17 4-34 4-35 (partly)
  * 6-1
  * 7-6 7-7
  * 9-2
@@ -92,6 +93,19 @@ static int hf_dsmcc_adaptation_ca_length = -1;
 /* table 2-7 dsmccUserId - start */
 static int hf_dsmcc_adaptation_user_id_reserved = -1;
 /* table 2-7 dsmccUserId - end */
+
+/* table 4-6 U-N user data format - start */
+static int hf_dsmcc_un_sess_uu_data_len = -1;
+static int hf_dsmcc_un_sess_uu_data = -1;
+static int hf_dsmcc_un_sess_priv_data_len = -1;
+static int hf_dsmcc_un_sess_priv_data = -1;
+/* table 4-6 U-N user data format - end */
+
+/* other tables in section 4.2 - start */
+static int hf_dsmcc_un_sess_id = -1;
+static int hf_dsmcc_un_sess_response = -1;
+static int hf_dsmcc_un_sess_reason = -1;
+/* other tables in section 4.2 - end */
 
 /* table 6-1 compatabilityDescriptor - start */
 static int hf_compat_desc_length = -1;
@@ -174,6 +188,11 @@ static expert_field ei_dsmcc_crc_invalid = EI_INIT;
 #define DSMCC_TID_DESC_LIST       0x3d
 #define DSMCC_TID_PRIVATE         0x3e
 
+#define DSMCC_TCP_PORT            13819
+
+/* DSM-CC protocol discriminator, (table 2-1) */
+#define DSMCC_PROT_DISC         0x11
+
 #define DSMCC_SSI_MASK          0x8000
 #define DSMCC_PRIVATE_MASK      0x4000
 #define DSMCC_RESERVED_MASK     0x3000
@@ -182,6 +201,11 @@ static expert_field ei_dsmcc_crc_invalid = EI_INIT;
 #define DSMCC_RESERVED2_MASK                    0xc0
 #define DSMCC_VERSION_NUMBER_MASK               0x3e
 #define DSMCC_CURRENT_NEXT_INDICATOR_MASK       0x01
+
+#define DSMCC_UN_SESS_SRV_SESS_REL_REQ 0x8020
+#define DSMCC_UN_SESS_SRV_SESS_REL_CNF 0x8021
+#define DSMCC_UN_SESS_SRV_STAT_REQ     0x8060
+#define DSMCC_UN_SESS_SRV_STAT_CNF     0x8061
 
 static const range_string dsmcc_header_type_vals[] = {
     {    0,    0, "ISO/IEC 13818-6 Reserved" },
@@ -220,6 +244,14 @@ static const value_string dsmcc_dd_message_id_vals[] = {
     { 0x1004,   "Download Data Request" },
     { 0x1005,   "Download Data Cancel" },
     { 0x1006,   "Download Server Initiate" },
+    {      0,   NULL }
+};
+
+static const value_string dsmcc_un_sess_message_id_vals[] = {
+    { DSMCC_UN_SESS_SRV_SESS_REL_REQ, "Server Session Release Request" },
+    { DSMCC_UN_SESS_SRV_SESS_REL_CNF, "Server Session Release Confirm" },
+    { DSMCC_UN_SESS_SRV_STAT_REQ,     "Server Status Request" },
+    { DSMCC_UN_SESS_SRV_STAT_CNF,     "Server Status Confirm" },
     {      0,   NULL }
 };
 
@@ -304,7 +336,7 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     sub_tree = proto_item_add_subtree(pi, ett_dsmcc_header);
     pi = proto_tree_add_item(sub_tree, hf_dsmcc_protocol_discriminator, tvb,
                  offset, 1, ENC_BIG_ENDIAN);
-    if (0x11 != prot_disc) {
+    if (DSMCC_PROT_DISC != prot_disc) {
         expert_add_info_format(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0x11");
     }
@@ -558,6 +590,106 @@ dissect_dsmcc_un_download(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+static guint dissect_dsmcc_un_session_user_data(
+        tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint offset_start;
+    guint16 uu_len, priv_len;
+
+    offset_start = offset;
+
+    uu_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dsmcc_un_sess_uu_data_len,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (uu_len>0) {
+        proto_tree_add_item(tree, hf_dsmcc_un_sess_uu_data,
+                tvb, offset, uu_len, ENC_NA);
+        offset += uu_len;
+    }
+
+    priv_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dsmcc_un_sess_priv_data_len,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (priv_len>0) {
+        proto_tree_add_item(tree, hf_dsmcc_un_sess_priv_data,
+                tvb, offset, priv_len, ENC_NA);
+        offset += priv_len;
+    }
+
+    return offset-offset_start;
+}
+
+
+static void
+dissect_dsmcc_un_session(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, proto_tree *top_tree _U_)
+{
+    proto_item *pi;
+    proto_tree *sub_tree;
+    guint16     msg_id;
+    guint       offset = 0;
+
+    msg_id = tvb_get_ntohs(tvb, offset+2);
+
+    pi = proto_tree_add_text(tree, tvb, offset, -1,
+            "User Network Message (Session) - %s",
+            val_to_str(msg_id, dsmcc_un_sess_message_id_vals, "0x%x"));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            val_to_str(msg_id, dsmcc_un_sess_message_id_vals, "0x%x"));
+    sub_tree = proto_item_add_subtree(pi, ett_dsmcc_payload);
+
+    switch (msg_id) {
+        case DSMCC_UN_SESS_SRV_SESS_REL_REQ:
+            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, FALSE);
+            proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_id,
+                tvb, offset, 10, ENC_NA);
+            offset += 10;
+            proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_reason,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            offset += dissect_dsmcc_un_session_user_data(
+                    tvb, offset, pinfo, sub_tree);
+            break;
+        case DSMCC_UN_SESS_SRV_SESS_REL_CNF:
+            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, FALSE);
+            proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_id,
+                tvb, offset, 10, ENC_NA);
+            offset += 10;
+            proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_response,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            offset += dissect_dsmcc_un_session_user_data(
+                    tvb, offset, pinfo, sub_tree);
+            break;
+        case DSMCC_UN_SESS_SRV_STAT_REQ:
+            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, FALSE);
+            proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_reason,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            /* TODO: add server id, status type, status count */
+            offset += 20;
+            /* TODO: skip status bytes */
+            break;
+        case DSMCC_UN_SESS_SRV_STAT_CNF:
+            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, FALSE);
+            proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_response,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            /* TODO: add status type, status count */
+            offset += 4;
+            /* TODO: skip status bytes */
+            break;
+        default:
+            break;
+    }
+    proto_item_set_len(pi, offset);
+}
+
+
 static void
 dissect_dsmcc_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree *top_tree)
@@ -572,7 +704,7 @@ dissect_dsmcc_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* TODO: Add support */
             break;
         case 2: /* user-to-network session */
-            /* TODO: Add support */
+            dissect_dsmcc_un_session(tvb, pinfo, tree, top_tree);
             break;
         case 3: /* user-to-network download */
             dissect_dsmcc_un_download(tvb, pinfo, tree, top_tree);
@@ -699,6 +831,27 @@ dissect_dsmcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_dsmcc_ts(tvb, pinfo, tree, NULL);
 }
 
+static int dissect_dsmcc_tcp(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data _U_)
+{
+    proto_item *pi;
+    proto_tree *sub_tree;
+
+    if (tvb_get_guint8(tvb, 0) != DSMCC_PROT_DISC)
+        return 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    pi = proto_tree_add_item(tree, proto_dsmcc, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(pi, ett_dsmcc);
+
+    dissect_dsmcc_un(tvb, pinfo, sub_tree, tree);
+
+    return tvb_reported_length(tvb);
+}
+
+
 void
 proto_register_dsmcc(void)
 {
@@ -752,7 +905,6 @@ proto_register_dsmcc(void)
         } },
         /* table 2-4 dsmccAdaptationHeader - end */
 
-
         /* table 2-6 dsmccConditionalAccess - start */
         { &hf_dsmcc_adaptation_ca_reserved, {
             "Reserved", "mpeg_dsmcc.adaptation_header.ca.reserved",
@@ -778,6 +930,44 @@ proto_register_dsmcc(void)
         } },
         /* table 2-7 dsmccUserId - start */
 
+        /* table 4-6 U-N user data format - start */
+        { &hf_dsmcc_un_sess_uu_data_len, {
+            "User data length", "mpeg_dsmcc.un_sess.uu_data_len",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_dsmcc_un_sess_uu_data, {
+            "User data", "mpeg_dsmcc.un_sess.uu_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL 
+        } },
+ 
+        { &hf_dsmcc_un_sess_priv_data_len, {
+            "Private data length", "mpeg_dsmcc.un_sess.priv_data_len",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_dsmcc_un_sess_priv_data, {
+            "Private data", "mpeg_dsmcc.un_sess.priv_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL 
+        } },
+        /* table 4-6 U-N user data format - end */
+
+        /* other tables in section 4.2 - start */
+        { &hf_dsmcc_un_sess_id, {
+            "Session ID", "mpeg_dsmcc.un_sess.session_id",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL 
+        } },
+
+        { &hf_dsmcc_un_sess_response, {
+            "Response", "mpeg_dsmcc.un_sess.response",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_dsmcc_un_sess_reason, {
+            "Reason", "mpeg_dsmcc.un_sess.reason",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+        /* other tables in section 4.2 - end */
 
         /* table 6-1 compatabilityDescriptor - start */
         { &hf_compat_desc_length, {
@@ -1052,14 +1242,19 @@ proto_register_dsmcc(void)
 void
 proto_reg_handoff_dsmcc(void)
 {
-    dissector_handle_t dsmcc_handle;
+    dissector_handle_t dsmcc_handle, dsmcc_tcp_handle;
 
     dsmcc_handle = create_dissector_handle(dissect_dsmcc, proto_dsmcc);
+    dsmcc_tcp_handle = new_create_dissector_handle(dissect_dsmcc_tcp, proto_dsmcc);
+
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_LLCSNAP, dsmcc_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_UN_MSG, dsmcc_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DD_MSG, dsmcc_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DESC_LIST, dsmcc_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_handle);
+
+    dissector_add_uint("tcp.port", DSMCC_TCP_PORT, dsmcc_tcp_handle);
+
     data_handle = find_dissector("data");
 }
 
