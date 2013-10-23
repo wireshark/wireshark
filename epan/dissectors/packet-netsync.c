@@ -165,8 +165,8 @@ static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_error_msg, tvb,
-				offset, len, ENC_ASCII|ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_ASCII|ENC_NA );
+	offset += (gint)len;
 
 	return offset;
 }
@@ -184,15 +184,15 @@ static gint dissect_netsync_cmd_hello(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_hello_keyname, tvb,
-				offset, len, ENC_ASCII|ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_ASCII|ENC_NA );
+	offset += (gint)len;
 
 
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_hello_key, tvb,
-				offset, len, ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_NA );
+	offset += (gint)len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonce, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
@@ -213,8 +213,8 @@ static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tre
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_anonymous_collection, tvb,
-				offset, len, ENC_ASCII|ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_ASCII|ENC_NA );
+	offset += (gint)len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonce, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
@@ -236,20 +236,20 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_collection, tvb,
-				offset, len, ENC_ASCII|ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_ASCII|ENC_NA );
+	offset += (gint)len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_id, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
-	offset += len;
+	offset += (gint)len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_nonce1, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
-	offset += len;
+	offset += (gint)len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_nonce2, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
@@ -258,8 +258,8 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_sig, tvb,
-				offset, len, ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_NA );
+	offset += (gint)len;
 
 	return offset;
 }
@@ -272,8 +272,8 @@ static gint dissect_netsync_cmd_confirm(tvbuff_t *tvb,  gint offset, proto_tree 
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_confirm_sig, tvb,
-				offset, len, ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_NA );
+	offset += (gint)len;
 
 
 	return offset;
@@ -298,7 +298,7 @@ static gint dissect_netsync_cmd_done(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	bytes = dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_uint(tree, hf_netsync_cmd_done_level, tvb,
-					offset, bytes, len );
+					offset, bytes, (guint32)len );
 	offset += bytes;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_done_type, tvb,
@@ -361,8 +361,8 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_payload, tvb,
-				offset, len, ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_NA );
+	offset += (gint)len;
 
 	return offset;
 }
@@ -391,8 +391,8 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_payload, tvb,
-				offset, len, ENC_NA );
-	offset += len;
+				offset, (gint)len, ENC_NA );
+	offset += (gint)len;
 
 	return offset;
 }
@@ -427,7 +427,7 @@ get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	 * length (size_bytes bytes) and checksum (4 bytes)
 	 */
 
-	return 1 + 1 + size_bytes + size + 4;
+	return 1 + 1 + size_bytes + (guint)size + 4;
 }
 
 static void
