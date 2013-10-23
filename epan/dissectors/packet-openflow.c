@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_openflow(void);
 void proto_reg_handoff_openflow(void);
 
 static int g_openflow_port = 0;

@@ -33,6 +33,7 @@
 #include <epan/ipproto.h>
 #include <epan/packet.h>
 
+void proto_register_openflow_v4(void);
 void proto_reg_handoff_openflow_v4(void);
 static int proto_openflow_v4 = -1;
 static int hf_openflow_v4_version = -1;
