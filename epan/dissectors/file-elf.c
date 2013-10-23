@@ -1417,11 +1417,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
-            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, length) : tvb_get_letohl(tvb, length));
+            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
         } else {
-            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, length) : tvb_get_letoh64(tvb, length));
+            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
         section_name = tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
@@ -1492,11 +1492,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
-            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, length) : tvb_get_letohl(tvb, length));
+            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
         } else {
-            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, length) : tvb_get_letoh64(tvb, length));
+            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
         section_name = tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
