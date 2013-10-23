@@ -68,6 +68,7 @@ static const value_string tzsp_type[] = {
 };
 
 static gint ett_tzsp = -1;
+static gint ett_tag = -1;
 
 static dissector_handle_t data_handle;
 static dissector_table_t encap_dissector_table;
@@ -76,6 +77,8 @@ static dissector_table_t encap_dissector_table;
 /*                WLAN radio header felds                                    */
 /* ************************************************************************* */
 
+static int hf_option_tag = -1;
+static int hf_option_length = -1;
 /* static int hf_status_field = -1; */
 static int hf_status_msg_type = -1;
 static int hf_status_pcf = -1;
@@ -133,6 +136,24 @@ static int hf_sensormac = -1;
 #define WLAN_RADIO_HDR_FCS_ERR		17	/* Whether packet contains an FCS error, unsigned byte. */
 #define WLAN_RADIO_HDR_CHANNEL		18	/* Channel number packet was received on, unsigned byte.*/
 
+static const value_string option_tag_vals[] = {
+	{TZSP_HDR_PAD,	"Pad"},
+	{TZSP_HDR_END,	"End"},
+	{TZSP_HDR_ORIGINAL_LENGTH,	"Original Length"},
+	{WLAN_RADIO_HDR_SIGNAL,		"Signal"},
+	{WLAN_RADIO_HDR_NOISE,		"Silence"},
+	{WLAN_RADIO_HDR_RATE,		"Rate"},
+	{WLAN_RADIO_HDR_TIMESTAMP,	"Time"},
+	{WLAN_RADIO_HDR_MSG_TYPE,	"Message Type"},
+	{WLAN_RADIO_HDR_CF,			"Point Coordination Function"},
+	{WLAN_RADIO_HDR_UN_DECR,	"Undecrypted"},
+	{WLAN_RADIO_HDR_FCS_ERR,	"Frame check sequence"},
+	{WLAN_RADIO_HDR_CHANNEL,	"Channel"},
+	{TZSP_HDR_SENSOR,			"Sensor MAC"},
+	{0,	NULL}
+};
+
+
 /* ************************************************************************* */
 /*                Add option information to the display                      */
 /* ************************************************************************* */
@@ -141,13 +162,31 @@ static int
 add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 {
 	guint8 tag, length, fcs_err = 0, encr = 0, seen_fcs_err = 0;
+	proto_tree* tag_tree;
+	proto_item* tag_item;
 
 	/*
 	 * Read all option tags in an endless loop. If the packet is malformed this
 	 * loop might be a problem.
 	 */
 	while (TRUE) {
-		tag = tvb_get_guint8(tvb, pos++);
+		tag = tvb_get_guint8(tvb, pos);
+		if ((tag != TZSP_HDR_PAD) && (tag != TZSP_HDR_END)) {
+			length = tvb_get_guint8(tvb, pos+1);
+			tag_item = proto_tree_add_text(tree, tvb, pos, 2+length, "%s", val_to_str_const(tag, option_tag_vals, "Unknown"));
+		} else {
+			tag_item = proto_tree_add_text(tree, tvb, pos, 1, "%s", val_to_str_const(tag, option_tag_vals, "Unknown"));
+			length = 0;
+		}
+
+		tag_tree = proto_item_add_subtree(tag_item, ett_tag);
+
+		proto_tree_add_item(tag_tree, hf_option_tag, tvb, pos, 1, ENC_NA);
+		pos++;
+		if ((tag != TZSP_HDR_PAD) && (tag != TZSP_HDR_END)) {
+			proto_tree_add_item(tag_tree, hf_option_length, tvb, pos, 1, ENC_NA);
+			pos++;
+		}
 
 		switch (tag) {
 		case TZSP_HDR_PAD:
@@ -156,110 +195,63 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 		case TZSP_HDR_END:
 			/* Fill in header with information from other tags. */
 			if (seen_fcs_err) {
-				if (tree)
-					proto_item_append_text(ti,"%s", fcs_err?"FCS Error":(encr?"Encrypted":"Good"));
+				proto_item_append_text(ti,"%s", fcs_err?"FCS Error":(encr?"Encrypted":"Good"));
 			}
 			return pos;
 
 		case TZSP_HDR_ORIGINAL_LENGTH:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_int (tree, hf_original_length, tvb, pos-2, 4,
-						tvb_get_ntohs(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_original_length, tvb, pos, 2, ENC_BIG_ENDIAN);
 			break;
 
 		case WLAN_RADIO_HDR_SIGNAL:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_int (tree, hf_signal, tvb, pos-2, 3,
-						(char)tvb_get_guint8(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_signal, tvb, pos, 1, ENC_NA);
 			break;
 
 		case WLAN_RADIO_HDR_NOISE:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_int (tree, hf_silence, tvb, pos-2, 3,
-						(char)tvb_get_guint8(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_silence, tvb, pos, 1, ENC_NA);
 			break;
 
 		case WLAN_RADIO_HDR_RATE:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_uint (tree, hf_rate, tvb, pos-2, 3,
-							tvb_get_guint8(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_rate, tvb, pos, 1, ENC_NA);
 			break;
 
 		case WLAN_RADIO_HDR_TIMESTAMP:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_uint (tree, hf_time, tvb, pos-2, 6,
-							tvb_get_ntohl(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_time, tvb, pos, 4, ENC_BIG_ENDIAN);
 			break;
 
 		case WLAN_RADIO_HDR_MSG_TYPE:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_uint (tree, hf_status_msg_type, tvb, pos-2, 3,
-						tvb_get_guint8(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_status_msg_type, tvb, pos, 1, ENC_NA);
 			break;
 
 		case WLAN_RADIO_HDR_CF:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_boolean (tree, hf_status_pcf, tvb, pos-2, 3,
-						tvb_get_guint8(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_status_pcf, tvb, pos, 1, ENC_NA);
 			break;
 
 		case WLAN_RADIO_HDR_UN_DECR:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_boolean (tree, hf_status_undecrypted, tvb, pos-2, 3,
-						tvb_get_guint8(tvb, pos));
+			proto_tree_add_item(tag_tree, hf_status_undecrypted, tvb, pos, 1, ENC_NA);
 			encr = tvb_get_guint8(tvb, pos);
-			pos += length;
 			break;
 
 		case WLAN_RADIO_HDR_FCS_ERR:
 			seen_fcs_err = 1;
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_boolean (tree, hf_status_fcs_error, tvb, pos-2, 3,
-						tvb_get_guint8(tvb, pos));
+			proto_tree_add_item(tag_tree, hf_status_fcs_error, tvb, pos, 1, ENC_NA);
 			fcs_err = tvb_get_guint8(tvb, pos);
-			pos += length;
 			break;
 
 		case WLAN_RADIO_HDR_CHANNEL:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_uint (tree, hf_channel, tvb, pos-2, 3,
-							tvb_get_guint8(tvb, pos));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_channel, tvb, pos, 1, ENC_NA);
 			break;
 
 		case TZSP_HDR_SENSOR:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_ether(tree, hf_sensormac, tvb, pos-2, 6,
-							tvb_get_ptr (tvb, pos, 6));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_sensormac, tvb, pos, 6, ENC_NA);
 			break;
 
 		default:
-			length = tvb_get_guint8(tvb, pos++);
-			if (tree)
-				proto_tree_add_bytes(tree, hf_unknown, tvb, pos-2, length+2,
-							tvb_get_ptr(tvb, pos, length));
-			pos += length;
+			proto_tree_add_item(tag_tree, hf_unknown, tvb, pos, length, ENC_NA);
 			break;
 		}
+
+		pos += length;
 	}
 }
 
@@ -478,6 +470,13 @@ proto_register_tzsp(void)
 		{ &hf_tzsp_encap, {
 			"Encapsulation", "tzsp.encap", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_option_tag, {
+			"Option Tag", "tzsp.option_tag", FT_UINT8, BASE_DEC,
+			VALS(option_tag_vals), 0, NULL, HFILL }},
+		{ &hf_option_length, {
+			"Option Length", "tzsp.option_length", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 #if 0
 		{ &hf_status_field, {
 			"Status", "tzsp.wlan.status", FT_UINT16, BASE_HEX,
@@ -527,7 +526,8 @@ proto_register_tzsp(void)
 	};
 
 	static gint *ett[] = {
-		&ett_tzsp
+		&ett_tzsp,
+		&ett_tag
 	};
 
 	proto_tzsp = proto_register_protocol("Tazmen Sniffer Protocol", "TZSP",
@@ -551,3 +551,16 @@ proto_reg_handoff_tzsp(void)
 
 	encap_dissector_table = find_dissector_table("wtap_encap");
 }
+
+/*
+* Editor modelines - http://www.wireshark.org/tools/modelines.html
+*
+* Local variables:
+* c-basic-offset: 4
+* tab-width: 4
+* indent-tabs-mode: t
+* End:
+*
+* vi: set shiftwidth=4 tabstop=4 noexpandtab:
+* :indentSize=4:tabSize=4:noTabs=false:
+*/ 
