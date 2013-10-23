@@ -12860,6 +12860,7 @@ dissect_qspi_unix_unlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* SMB_FIND_FILE_UNIX_INFO2 */
 
+#if 0
 static const true_false_string tfs_i2f_secure_delete = {
 	"File should be erased such that the data is not recoverable",
 	"File need not be erased such that the data is not recoverable"
@@ -12892,6 +12893,8 @@ static const true_false_string tfs_i2f_hidden = {
 	"User interface programs may ignore this file",
 	"User interface programs should not ignore this file based solely on this flag"
 };
+#endif
+
 static int
 dissect_unix_info2_file_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf)
 {

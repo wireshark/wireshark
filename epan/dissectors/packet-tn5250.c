@@ -968,10 +968,12 @@ static const struct true_false_string tn5250_field_wdsf_dsb_flag1_0 = {
   "Off: Vertical scroll bar is set to off and horizontal scroll bar is set to on."
 };
 
+#if 0
 static const struct true_false_string tn5250_field_wdsf_dsb_flag1_1 = {
   "On: The cursor is moved to the scroll bar on a pointer device scroll bar interaction",
   "Off: The cursor is moved to the scroll bar on a pointer device scroll bar interaction."
 };
+#endif
 
 static const struct true_false_string tn5250_field_wdsf_dsb_flag1_7 = {
   "On: Field MDT",
@@ -2117,6 +2119,7 @@ static const value_string vals_tn5250_qr_flag4[] = {
 };
 
 
+#if 0
 /* TN5250 Header - Data Type */
 #define TN5250_5250_DATA        0x00
 #define TN5250_BIND_IMAGE       0x03
@@ -2138,7 +2141,7 @@ static const value_string vals_tn5250_header_data_types[] = {
   { TN5250_UNBIND      ,  "UNBIND"},
   { 0x00, NULL }
 };
-
+#endif
 
 /* TN5250 Header - Record Type */
 #define GDS        0x12A0
@@ -2180,6 +2183,7 @@ static const value_string vals_tn5250_header_operation_code[] = {
   { 0x00, NULL }
 };
 
+#if 0
 /* TN5250 Header _ Response Flags - Data Type Response */
 #define TN5250_POSITIVE_RESPONSE   0x00
 #define TN5250_NEGATIVE_RESPONSE   0x01
@@ -2189,6 +2193,7 @@ static const value_string vals_tn5250_header_response_flags_response[] = {
   { TN5250_NEGATIVE_RESPONSE,  "NEGATIVE-RESPONSE"},
   { 0x00, NULL }
 };
+#endif
 
 
 static const value_string vals_tn5250_header_error_codes[] = {

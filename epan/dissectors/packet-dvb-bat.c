@@ -80,6 +80,7 @@ static const value_string dvb_bat_cur_next_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string dvb_bat_running_status_vals[] = {
     { 0, "Undefined" },
     { 1, "Not Running" },
@@ -97,6 +98,7 @@ static const value_string dvb_bat_free_ca_mode_vals[] = {
 
     { 0, NULL }
 };
+#endif
 
 static void
 dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

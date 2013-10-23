@@ -1434,13 +1434,14 @@ static gint ett_ff_lr_diagnostic_msg_req_b_to_b_status = -1;
 
 
 
+#if 0
 static const value_string names_pad_len[] = {
     { 0x00,             "No padding" },
     { OPTION_PAD_4BYTE, "pad to 4 byte boundary" },
     { OPTION_PAD_8BYTE, "pad to 8 byte boundary" },
     { 0, NULL }
 };
-
+#endif
 
 
 static const value_string names_proto[] = {

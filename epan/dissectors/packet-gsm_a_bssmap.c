@@ -411,6 +411,7 @@ static const value_string gsm_a_be_cell_id_disc_vals[] = {
 };
 static value_string_ext gsm_a_be_cell_id_disc_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_be_cell_id_disc_vals);
 
+#if 0
 static const value_string gsm_a_rr_channel_needed_vals[] = {
     { 0x00,     "Any channel"},
     { 0x01,     "SDCCH"},
@@ -418,6 +419,7 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
     { 0x03,     "TCH/H or TCH/F (Dual rate)"},
     { 0,    NULL }
 };
+#endif
 
 static const value_string bssmap_positioning_methods[] = {
     {  0, "Timing Advance" },
@@ -1619,10 +1621,12 @@ be_periodicity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 /*
  * 3.2.2.13 Extended Resource Indicator
  */
+#if 0
 static const true_false_string bssmap_tarr_vals = {
    "The total number of accessible channels is requested",
    "No extra Resource Information is requested"
 };
+#endif
 static guint16
 be_ext_res_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3241,6 +3245,7 @@ be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 /*
  * 3.2.2.75 Service Handover
  */
+#if 0
 static const value_string gsm_a_bssmap_serv_ho_inf_vals[] = {
     { 0,    "Handover to UTRAN or cdma2000 should be performed - Handover to UTRAN or cdma2000 is preferred" },
     { 1,    "Handover to UTRAN or cdma2000 should not be performed - Handover to GSM is preferred" },
@@ -3252,6 +3257,7 @@ static const value_string gsm_a_bssmap_serv_ho_inf_vals[] = {
     { 7,    "no information available for service based handover" },
     { 0, NULL }
 };
+#endif
 static guint16
 be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {

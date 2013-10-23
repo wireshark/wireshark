@@ -405,6 +405,7 @@ static const value_string submessage_id_valsv2[] = {
 };
 
 
+#if 0
 static const value_string typecode_kind_vals[] = {
   { RTI_CDR_TK_NULL,                    "(unknown)" },
   { RTI_CDR_TK_SHORT,                   "short" },
@@ -430,6 +431,7 @@ static const value_string typecode_kind_vals[] = {
   { RTI_CDR_TK_WSTRING,                 "wstring" },
   { 0,                                  NULL }
 };
+#endif
 
 static const value_string parameter_id_vals[] = {
   { PID_PAD,                            "PID_PAD" },

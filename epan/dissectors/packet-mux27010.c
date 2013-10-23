@@ -99,11 +99,13 @@ static int proto_mux27010 = -1;
 /* Handles of subdissectors */
 static dissector_handle_t ppp_handle;
 
+#if 0
 static const value_string packettypenames[] = {
     { 0, "TEXT" },
     { 1, "SOMETHING_ELSE" },
     { 0, NULL }
 };
+#endif
 
 static const value_string direction_vals[] = {
     { 0, "Direction: Application => Module" },

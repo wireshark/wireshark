@@ -672,10 +672,12 @@ static const true_false_string fec_vc_cbit = {
     "Control Word NOT Present"
 };
 
+#if 0
 static const true_false_string fec_vc_ = {
     "Control Word Present",
     "Control Word NOT Present"
 };
+#endif
 
 static const value_string tlv_atm_merge_vals[] = {
     {0, "Merge not supported"},

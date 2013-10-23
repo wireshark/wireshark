@@ -2074,7 +2074,9 @@ static const value_string valstr_008_040_FST_LST[] = {
 static const FieldPart I008_040_ORG = { 1, 1.0, FIELD_PART_UINT, &hf_008_040_ORG, NULL };
 static const FieldPart I008_040_INT = { 3, 1.0, FIELD_PART_UINT, &hf_008_040_INT, NULL };
 static const FieldPart I008_040_FST_LST = { 2, 1.0, FIELD_PART_UINT, &hf_008_040_FST_LST, NULL };
+#if 0
 static const FieldPart I008_040_CSN  = { 8, 1.0, FIELD_PART_UINT, &hf_008_040_CSN, NULL };
+#endif
 static const FieldPart *I008_040_PARTS[] = { &I008_040_ORG, &I008_040_INT, &IXXX_2bit_spare, &I008_040_FST_LST,
                                              &I008_040_FST_LST, NULL };
 
@@ -3619,6 +3621,7 @@ static const value_string valstr_062_380_09_PTYP[] = {
     { 11, "Transition altitude" },
     { 0, NULL }
 };
+#if 0
 static const value_string valstr_062_380_09_TD[] = {
 	{ 0, "N/A" },
 	{ 1, "Turn right" },
@@ -3626,6 +3629,7 @@ static const value_string valstr_062_380_09_TD[] = {
 	{ 3, "No turn" },
     { 0, NULL }
 };
+#endif
 static const value_string valstr_062_380_09_TRA[] = {
 	{ 0, "TTR not available" },
 	{ 1, "TTR available" },

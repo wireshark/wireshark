@@ -101,6 +101,7 @@ static const value_string checksum_schemes[] = {
   {0, NULL}
 };
 
+#if 0
 static const value_string alert_types[] = {
   {1, "ALERT_TYPE_PULSE"},
   {0, NULL}
@@ -110,6 +111,7 @@ static const value_string alert_reasons[] = {
   {1, "ALERT_VERIFY_NO_KEY"},
   {0, NULL}
 };
+#endif
 
 static void
 dissect_negoex_alert_message(tvbuff_t *tvb,

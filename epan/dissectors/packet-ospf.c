@@ -235,12 +235,14 @@ static const value_string grace_tlv_type_vals[] = {
 #define OPT_RI_TLV       1
 #define DYN_HOSTNAME_TLV 7
 
+#if 0
 /* The Opaque RI LSA TLV types definitions. */
 static const value_string ri_tlv_type_vals[] = {
     {OPT_RI_TLV,          "Optional Router Informational Capabilities TLV"},
     {DYN_HOSTNAME_TLV,    "Dynamic Hostname TLV"},
     {0, NULL}
 };
+#endif
 
 static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },

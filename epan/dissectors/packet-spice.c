@@ -189,6 +189,7 @@ enum {
     VD_AGENT_CAP_GUEST_LINEEND_CRLF = (1 << 9),
 };
 
+#if 0
 static const value_string vd_agent_cap_vs[] = {
     { VD_AGENT_CAP_MOUSE_STATE, "VD_AGENT_CAP_MOUSE_STATE" },
     { VD_AGENT_CAP_MONITORS_CONFIG, "VD_AGENT_CAP_MONITORS_CONFIG" },
@@ -202,16 +203,18 @@ static const value_string vd_agent_cap_vs[] = {
     { VD_AGENT_CAP_GUEST_LINEEND_CRLF, "VD_AGENT_CAP_GUEST_LINEEND_CRLF" },
     { 0, NULL }
 };
-
+#endif
 
 enum {
     VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS = (1 << 0)
 };
 
+#if 0
 static const value_string vd_agent_monitors_config_flag_vs[] = {
     { VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS, "VD_AGENT_CONFIG_MONITORS_FLAG_USE_POS"},
     { 0, NULL }
 };
+#endif
 
 enum {
     VD_AGENT_SUCCESS = 1,

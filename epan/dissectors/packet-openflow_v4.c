@@ -928,7 +928,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     case OFPET_HELLO_FAILED:
         /* uint8_t data[0]; contains an ASCII text string */
         proto_tree_add_item(tree, hf_openflow_v4_error_data_text, tvb, offset, length - 12, ENC_NA|ENC_ASCII);
-        offset += length - 12;
+        /*offset += length - 12;*/
         break;
 
     case OFPET_BAD_REQUEST:
@@ -951,7 +951,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         offset = dissect_openflow_header_v4(tvb, pinfo, data_tree, offset, length);
 
         proto_tree_add_item(data_tree, hf_openflow_v4_error_data_body, tvb, offset, length - 20, ENC_NA);
-        offset += length - 12;
+        /*offset += length - 12;*/
         break;
 
     case OFPET_EXPERIMENTER:
@@ -961,14 +961,14 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         /* uint8_t data[0]; */
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_error_undecoded,
                                      tvb, offset, length - 16, "Experimenter error body.");
-        offset += length - 16;
+        /*offset += length - 16;*/
         break;
 
     default:
         /* uint8_t data[0]; */
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_error_undecoded,
                                      tvb, offset, length - 12, "Unknown error body.");
-        offset += length - 12;
+        /*offset += length - 12;*/
         break;
     }
 }

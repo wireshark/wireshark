@@ -727,6 +727,7 @@ static const value_string transform_ike_attr_type[] = {
   { 0,	NULL },
 };
 
+#if 0
 static const value_string vs_v2_sttr[] = {
   { 1,	"SA-Life-Type" },
   { 2,	"SA-Life-Duration" },
@@ -740,6 +741,7 @@ static const value_string vs_v2_sttr[] = {
   { 10,	"ECN Tunnel" },
   { 0,	NULL },
 };
+#endif
 
 static const value_string vs_v1_trans_isakmp[] = {
   { 0,	"RESERVED" },
@@ -885,12 +887,14 @@ static const value_string transform_attr_ext_seq_nbr_type[] = {
   { 0,	NULL },
 };
 
+#if 0
 static const value_string transform_attr_sig_enco_algo_type[] = {
   { 0, "RESERVED" },
   { 1, "RSASSA-PKCS1-v1_5" },
   { 2, "RSASSA-PSS" },
   { 0,	NULL },
 };
+#endif
 
 static const value_string transform_attr_addr_preservation_type[] = {
   { 0, "Reserved" },

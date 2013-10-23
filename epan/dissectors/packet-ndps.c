@@ -527,10 +527,12 @@ static const value_string qualified_name_enum[] = {
     { 0,          NULL }
 };
 
+#if 0
 static const value_string qualified_name_enum2[] = {
     { 0x00000000, "NDS" },
     { 0,          NULL }
 };
+#endif
 
 static const value_string spx_ndps_program_vals[] = {
     { 0x00060976, "Print Program" },
@@ -913,6 +915,7 @@ static const value_string ndps_filter_enum[] = {
 };
 
 
+#if 0
 static const value_string ndps_filter_item_enum[] = {
     { 0x00000000, "Equality" },
     { 0x00000001, "Substrings" },
@@ -932,6 +935,7 @@ static const value_string ndps_match_criteria_enum[] = {
     { 0x00000003, "Approximate" },
     { 0,          NULL }
 };
+#endif
 
 static const value_string ndps_operator_enum[] = {
     { 0x00000000, "Attributes" },

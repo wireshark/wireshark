@@ -47,6 +47,7 @@ static dissector_handle_t sysex_handle;
 #define AUDIO_SUBCLASS_AUDIOSTREAMING	0x02
 #define AUDIO_SUBCLASS_MIDISTREAMING	0x03
 
+#if 0
 static const value_string usb_audio_subclass_vals[] = {
     {AUDIO_SUBCLASS_UNDEFINED,		"SUBCLASS_UNDEFINED"},
     {AUDIO_SUBCLASS_AUDIOCONTROL,	"AUDIOCONSTROL"},
@@ -54,6 +55,7 @@ static const value_string usb_audio_subclass_vals[] = {
     {AUDIO_SUBCLASS_MIDISTREAMING,	"MIDISTREAMING"},
     {0, NULL}
 };
+#endif
 
 static const value_string code_index_vals[] = {
     { 0x0, "Miscellaneous (Reserved)" },

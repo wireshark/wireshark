@@ -88,6 +88,7 @@ static const value_string opcode_names[] = {
   { 0, NULL }
 };
 
+#if 0
 static const value_string opcode_short_names[] = {
   { 0x02, "Disc_Ping" },
   { 0x03, "Disc_Pong" },
@@ -104,6 +105,7 @@ static const value_string opcode_short_names[] = {
   { 0x87, "Blk_Wr_Ans" },
   { 0, NULL }
 };
+#endif
 
 static int
 dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

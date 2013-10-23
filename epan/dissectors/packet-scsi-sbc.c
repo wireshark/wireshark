@@ -184,10 +184,12 @@ static const true_false_string fua_nv_tfs = {
     "Read from volatile cache is NOT permitted",
     "Read from volatile or non-volatile cache permitted"
 };
+#if 0
 static const true_false_string pmi_tfs = {
     "PMI is SET",
     "Pmi is CLEAR"
 };
+#endif
 
 static void
 dissect_sbc_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,

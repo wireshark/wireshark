@@ -587,11 +587,13 @@ static const value_string pkt_cccV6_opt_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string sec_tcm_vals[] = {
     { 1 << 0, "PacketCable Provisioning Server" },
     { 1 << 1, "PacketCable Call Manager Servers" },
     { 0, NULL },
 };
+#endif
 
 static const value_string modem_capabilities_encoding [] = {
     { 1,      "Concatenation Support" },

@@ -391,12 +391,14 @@ static value_string_ext mpls_echo_tlv_fec_names_ext = VALUE_STRING_EXT_INIT(mpls
 #define TLV_FEC_LABEL_STACK        2
 #define TLV_FEC_STACK_CHANGE       3
 
+#if 0
 static const value_string mpls_echo_subtlv_names[] = {
     { TLV_FEC_MULTIPATH_DATA,    "Multipath data"},
     { TLV_FEC_LABEL_STACK,       "Label stack"},
     { TLV_FEC_STACK_CHANGE,      "FEC stack change"},
     { 0, NULL}
 };
+#endif
 
 /* [RFC 6424] */
 #define TLV_MULTIPATH_NO_MULTIPATH          0
@@ -405,6 +407,7 @@ static const value_string mpls_echo_subtlv_names[] = {
 #define TLV_MULTIPATH_BIT_MASKED_IP         8
 #define TLV_MULTIPATH_BIT_MASKED_LABEL_SET  9
 
+#if 0
 static const value_string mpls_echo_multipathtlv_type[] = {
     { TLV_MULTIPATH_NO_MULTIPATH,         "Empty (Multipath Length = 0)"},
     { TLV_MULTIPATH_IP_ADDRESS,           "IP addresses"},
@@ -413,6 +416,7 @@ static const value_string mpls_echo_multipathtlv_type[] = {
     { TLV_MULTIPATH_BIT_MASKED_LABEL_SET, "Label prefix and bit mask"},
     { 0, NULL}
 };
+#endif
 
 /* [RFC 6424] */
 #define SUB_TLV_FEC_PUSH     1

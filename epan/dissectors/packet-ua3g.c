@@ -2621,12 +2621,14 @@ static const value_string str_download_req_force_mode[] = {
     {0x01, "Force Software Lock"},
     {0, NULL}
 };
+#if 0
 static const value_string str_download_req_item_id[] = {
     {0x00, "Patches File"},
     {0x01, "Application Binary"},
     {0x02, "Datas Binary"},
     {0, NULL}
 };
+#endif
 static const value_string str_download_req_mode_selection_country[] = {
     {0x00, "No Check"},
     {0x01, "For All Countries Except Chinese"},
@@ -2872,6 +2874,7 @@ static const value_string str_cs_ip_device_routing_vta_type[] = {
     {0, NULL}
 };
 
+#if 0
 static const value_string str_cs_ip_device_routing_08_compressor[] = {
     {0x00, "G.711 A-law"},
     {0x01, "G.711 mu-law"},
@@ -2880,6 +2883,7 @@ static const value_string str_cs_ip_device_routing_08_compressor[] = {
     {0x11, "G.729A 8 kbps"},
     {0, NULL}
 };
+#endif
 
 static const val64_string str_cs_ip_device_routing_0F_compressor[] = {
     {0x00, "G.711 A-law"},

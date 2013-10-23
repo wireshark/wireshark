@@ -81,6 +81,7 @@ static int hf_flip_chksum_chksum = -1;
 #define FLIP_CHKSUM_HDR_LEN        (4)
 #define FLIP_EXTENSION_HDR_MIN_LEN (4)
 
+#if 0
 static const value_string flip_short_header_names[]={
     { FLIP_BASIC,  "BASIC" },
     { FLIP_CHKSUM, "CHKSUM"},
@@ -92,6 +93,7 @@ static const value_string flip_long_header_names[] = {
     { FLIP_CHKSUM, "Checksum"},
     { 0,           NULL }
 };
+#endif
 
 static const value_string flip_boolean[] = {
     {0, "No"},

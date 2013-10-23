@@ -995,10 +995,12 @@ static const true_false_string gsm_a_gmm_net_cap_smgprs_vals = {
 	"Mobile station does not support mobile terminated point to point SMS via GPRS packet data channels"
 };
 
+#if 0
 static const true_false_string gsm_a_gmm_net_cap_ucs2_vals = {
 	"The ME has no preference between the use of the default alphabet and the use of UCS2",
 	"The ME has a preference for the default alphabet (defined in 3GPP TS 23.038 [8b]) over UCS2"
 };
+#endif
 
 static const value_string gsm_a_gmm_net_cap_ss_scr_ind_vals[]={
 	{ 0x00, "Default value of phase 1" },

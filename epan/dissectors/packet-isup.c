@@ -2232,6 +2232,7 @@ static const value_string isup_carrier_info_poihie_value[] = {
   { CARRIER_INFO_POIHIE_HIE2, "Hierarchy level 2"},
   { 0,NULL}};
 
+#if 0
 /* POICA */
 /* ODD/EVEN */
 #define CARRIER_INFO_CA_OE_0                  0
@@ -2240,7 +2241,9 @@ static const value_string isup_carrier_info_poica_oe_value[] = {
   { CARRIER_INFO_CA_OE_0, "Reserved"},
   { CARRIER_INFO_CA_OE_1, "Odd number of charge area digits"},
   { 0,NULL}};
+#endif
 
+#if 0
 /* CARID */
 /* ODD/EVEN */
 #define CARRIER_INFO_CARID_OE_0                  0
@@ -2249,6 +2252,7 @@ static const value_string isup_carrier_info_carid_oe_value[] = {
   { CARRIER_INFO_CARID_OE_0, "Even number of ID code digits"},
   { CARRIER_INFO_CARID_OE_1, "Odd number of ID code digits"},
   { 0,NULL}};
+#endif
 
 /* CARRIER INFORMATION DIGITS */
 #define CARRIER_INFO_DIGIT_0                  0
@@ -2277,6 +2281,7 @@ static const value_string isup_carrier_info_digits_value[] = {
 /*******************************/
 /*    CHARGE AREA INFORMATION  */
 /*******************************/
+#if 0
 /* ODD/EVEN */
 #define CHARGE_AREA_INFO_OE_0                  0
 #define CHARGE_AREA_INFO_OE_1                  1
@@ -2284,6 +2289,7 @@ static const value_string isup_charge_area_info_oe_value[] = {
   { CHARGE_AREA_INFO_OE_0, "Even number of Charge Area digits"},
   { CHARGE_AREA_INFO_OE_1, "Odd number of Charge Area code digits"},
   { 0,NULL}};
+#endif
 
 #define CHARGE_AREA_NAT_INFO_MA                0
 #define CHARGE_AREA_NAT_INFO_CA                1
@@ -4295,6 +4301,7 @@ static const value_string ETSI_codec_type_subfield_vals[] = {
 };
 static value_string_ext ETSI_codec_type_subfield_vals_ext = VALUE_STRING_EXT_INIT(ETSI_codec_type_subfield_vals);
 
+#if 0
 static const value_string bat_initial_codec_mode_vals[] = {
   {0x7, "12.2 kbps"},
   {0x6, "10.2 kbps"},
@@ -4306,6 +4313,7 @@ static const value_string bat_initial_codec_mode_vals[] = {
   {0x0, "4.75 kbps"},
   {0, NULL}
 };
+#endif
 
 static const value_string optimisation_mode_vals[] = {
   { 0,  "Optimisation of the ACS not supported,"},

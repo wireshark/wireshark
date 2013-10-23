@@ -464,6 +464,7 @@ static const value_string a11_ext_app[]= {
     {0, NULL},
 };
 
+#if 0
 static const value_string a11_airlink_types[]= {
     {1, "Session Setup (Y=1)"},
     {2, "Active Start (Y=2)"},
@@ -471,6 +472,7 @@ static const value_string a11_airlink_types[]= {
     {4, "Short Data Burst (Y=4)"},
     {0, NULL},
 };
+#endif
 
 static const true_false_string tfs_included_not_included = { "Included", "Not Included" };
 

@@ -387,10 +387,12 @@ static const value_string  h248_pkg_dg_signals_vals[] = {
 	{0,NULL}
 };
 
+#if 0
 static const value_string h248_pkg_dg_sig_params_vals[] = {
 	{ 0x0001, "Tone Direction (btd)" },
 	{ 0, NULL }
 };
+#endif
 
 static const value_string h248_pkg_dg_sig_btd_vals[] = {
 	{ 0x0001, "External (EXT)" },

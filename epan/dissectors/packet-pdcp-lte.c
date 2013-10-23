@@ -175,13 +175,16 @@ static const value_string pdu_type_vals[] = {
     { 0,   NULL }
 };
 
+#if 0
 static const value_string feedback_ack_vals[] = {
     { 0,   "ACK" },
     { 1,   "NACK" },
     { 2,   "STATIC-NACK" },
     { 0,   NULL }
 };
+#endif
 
+#if 0
 static const value_string feedback_option_vals[] = {
     { 1,   "CRC" },
     { 2,   "REJECT" },
@@ -192,6 +195,7 @@ static const value_string feedback_option_vals[] = {
     { 7,   "Loss" },
     { 0,   NULL }
 };
+#endif
 
 static const value_string control_pdu_type_vals[] = {
     { 0,   "PDCP Status report" },
@@ -199,17 +203,21 @@ static const value_string control_pdu_type_vals[] = {
     { 0,   NULL }
 };
 
+#if 0
 static const value_string t_vals[] = {
     { 0,   "ID message format" },
     { 1,   "TS message format" },
     { 0,   NULL }
 };
+#endif
 
+#if 0
 static const value_string ip_protocol_vals[] = {
     { 6,   "TCP" },
     { 17,  "UDP" },
     { 0,   NULL }
 };
+#endif
 
 
 static dissector_handle_t ip_handle;

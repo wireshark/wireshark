@@ -207,6 +207,7 @@ static const value_string mysql_exec_time_sign_vals[] = {
 	{0, NULL}
 };
 
+#if 0
 /* charset: pre-4.1 used the term 'charset', later changed to 'collation' */
 static const value_string mysql_charset_vals[] = {
 	{1,  "big5"},
@@ -241,6 +242,7 @@ static const value_string mysql_charset_vals[] = {
 	{29, "latin5"},
 	{0, NULL}
 };
+#endif
 
 
 /* collation codes may change over time, recreate with the following SQL

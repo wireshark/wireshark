@@ -1461,6 +1461,7 @@ static const value_string aem_memory_object_type_vals [] = {
    {0,                                       NULL}
 };
 
+#if 0
 static const value_string aem_stream_format_subtype_vals [] = {
    {IEC_61883_IIDC_SUBTYPE,      "IEC_61883_IIDC_SUBTYPE"},
    {MMA_SUBTYPE,                 "MMA_SUBTYPE"},
@@ -1491,6 +1492,7 @@ static const value_string aem_mfd_type_vals [] = {
    {MFD_TYPE_CONTROL_PROTO,     "CONTROL_PROTOCOL"},
    {0,                           NULL}
 };
+#endif
 
 static const value_string aem_clock_source_type_vals [] = {
    {AEM_CLOCK_INTERNAL          , "INTERNAL"},
@@ -1643,12 +1645,14 @@ static const value_string aem_control_type_vals [] = {
 };
 */
 
+#if 0
 static const value_string aecp_address_type_vals [] = {
    {AECP_ADDRESS_MAC  , "MAC"},
    {AECP_ADDRESS_IPV4 , "IPV4"},
    {AECP_ADDRESS_IPV6 , "IPV6"},
    {0                 , NULL}
 };
+#endif
 
 static const value_string aecp_keychain_id_type_vals [] = {
    {AECP_KEYCHAIN_NONE         , "NONE"},

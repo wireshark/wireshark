@@ -1551,9 +1551,11 @@ ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
     *cipher = NULL;
 }
 
+#if 0
 /* private key abstraction layer */
 static inline gint
 ssl_get_key_len(SSL_PRIVATE_KEY* pk) {return gcry_pk_get_nbits (pk); }
+#endif
 
 gcry_err_code_t
 _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,

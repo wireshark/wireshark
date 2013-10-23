@@ -6244,6 +6244,7 @@ static const value_string rsvp_3gpp_obj_pf_treatment_vals[] = {
     { 0, NULL}
 };
 
+#if 0
 static const value_string rsvp_3gpp_qos_result_vals[] = {
     { 0, "Successful"},
     { 1, "UE Initiated QoS is not authorized"},
@@ -6251,6 +6252,7 @@ static const value_string rsvp_3gpp_qos_result_vals[] = {
     { 3, "Requested FlowProfileIDs failed mapping"},
     { 0, NULL}
 };
+#endif
 
 static const value_string rsvp_3gpp_obj_traffic_class_vals[] = {
     { 0, "Unknown"},

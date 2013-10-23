@@ -149,12 +149,14 @@ static const value_string avp_code_names[] = {
        { 0, NULL }
 };
 
+#if 0
 static const value_string avp_resultcode_names[] = {
        { 0, "PANA_SUCCESS" },
        { 1, "PANA_AUTHENTICATION_REJECTED" },
        { 2, "PANA_AUTHORIZATION_REJECTED" },
        { 0, NULL }
 };
+#endif
 
 typedef enum {
   PANA_OCTET_STRING = 1,

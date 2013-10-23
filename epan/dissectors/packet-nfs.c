@@ -10097,11 +10097,13 @@ static const value_string iomode_names[] = {
 	{ 0, NULL }
 };
 
+#if 0
 static const value_string stripetype_names[] = {
 	{ 1, "STRIPE_SPARSE" },
 	{ 2, "STRIPE_DENSE"  },
 	{ 0, NULL }
 };
+#endif
 
 static const value_string layouttype_names[] = {
 	{ 1, "LAYOUT4_NFSV4_1_FILES" },

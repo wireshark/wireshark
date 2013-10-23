@@ -1790,11 +1790,13 @@ static const value_string zbee_zcl_pwr_prof_state_names[] = {
     { 0, NULL }
 };
 
+#if 0
 /* Options Names */
 static const value_string zbee_zcl_options_types[] = {
     { ZBEE_ZCL_OPT_PWRPROF_STIME_PRESENT,                        "PowerProfileStartTime Field Present" },
     { 0, NULL }
 };
+#endif
 
 /*************************/
 /* Function Bodies       */

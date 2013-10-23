@@ -88,10 +88,12 @@ static gboolean cops_desegment = TRUE;
 
 #define COPS_OBJECT_HDR_SIZE 4
 
+#if 0
 /* Null string of type "guchar[]". */
 static const guchar nullstring[] = "";
 
 #define SAFE_STRING(s)  (((s) != NULL) ? (s) : nullstring)
+#endif
 
 static const value_string cops_flags_vals[] = {
     { 0x00,          "None" },

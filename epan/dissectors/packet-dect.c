@@ -1125,6 +1125,7 @@ static const value_string PTInfoType_vals[]=
 	{0, NULL}
 };
 
+#if 0
 /* ETSI EN 300 175-3 V2.3.0  7.2.4.3.10 */
 static const value_string PTRFPPower_vals[]=
 {
@@ -1146,6 +1147,7 @@ static const value_string PTRFPPower_vals[]=
 	{15, "30 dBm"},
 	{0, NULL}
 };
+#endif
 
 
 static unsigned char

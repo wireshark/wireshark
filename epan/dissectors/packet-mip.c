@@ -411,6 +411,7 @@ static const value_string mip_cvse_verizon_cvse_types[]= {
 };
 
 /*http://www.3gpp2.org/public_html/X/VSA-VSE.cfm*/
+#if 0
 static const value_string mip_cvse_3gpp2_cvse_types[]= {
   {257, "Accounting/Radius"},
   {258, "Accounting/Diameter"},
@@ -421,6 +422,7 @@ static const value_string mip_cvse_3gpp2_cvse_types[]= {
   {1537, "GRE Tunnel Endpoint Extension"},
   {0, NULL}
 };
+#endif
 
 
 static const value_string mip_nvse_3gpp2_type_vals[]= {

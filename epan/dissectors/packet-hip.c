@@ -266,6 +266,7 @@ static const value_string notification_vals[] = {
         { 0, NULL }
 };
 
+#if 0
 /* RFC 5770 */
 static const value_string nat_traversal_mode_vals[] = {
         { 0, "Reserved"},
@@ -273,6 +274,7 @@ static const value_string nat_traversal_mode_vals[] = {
         { 2, "ICE-STUN-UDP"},
         { 0, NULL }
 };
+#endif
 
 /* HIPv2 draft-ietf-hip-rfc5201-bis-08 Section 5.2 */
 static const value_string cipher_vals[] = {

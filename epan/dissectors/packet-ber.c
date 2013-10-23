@@ -262,6 +262,7 @@ static const value_string ber_uni_tag_codes[] = {
 };
 static value_string_ext ber_uni_tag_codes_ext = VALUE_STRING_EXT_INIT(ber_uni_tag_codes);
 
+#if 0
 static const true_false_string ber_real_binary_vals = {
     "Binary encoding",
     "Decimal encoding"
@@ -271,6 +272,7 @@ static const true_false_string ber_real_decimal_vals = {
     "SpecialRealValue",
     "Decimal encoding "
 };
+#endif
 
 typedef struct _da_data {
     GHFunc   func;

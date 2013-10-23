@@ -557,6 +557,7 @@ static guint16 de_bssgp_ran_inf_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, 
 static guint16 de_bssgp_ran_inf_app_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 
+#if 0
 static const value_string tab_nacc_cause[]={
     { 0x00,           "Other unspecified error" },
     { 0x01,           "Syntax error in the Application Container" },
@@ -567,6 +568,7 @@ static const value_string tab_nacc_cause[]={
     { 0,              NULL },
 
 };
+#endif
 
 
 /*

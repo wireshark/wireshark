@@ -450,9 +450,11 @@ static const value_string teklink_proc_vals[] = {
 	{ 0, NULL }
 };
 
+#if 0
 static const value_string teklink_error_vals[] = {
 	{ 0, NULL }
 };
+#endif
 
 static const value_string teklink_cmd_vals[] = {
 	{ 0, "TLKFreeResources" },

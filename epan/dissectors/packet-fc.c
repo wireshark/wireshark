@@ -459,6 +459,7 @@ static const value_string abts_ack_vals[] = {
     {0x000030,  "ABTS - Imm Seq Retx"},
     {0,NULL}
 };
+#if 0
 static const value_string abts_not_ack_vals[] = {
     {0x000000,  "ABTS - Abort/MS"},
     {0x000010,  "ABTS - Abort/SS"},
@@ -466,6 +467,7 @@ static const value_string abts_not_ack_vals[] = {
     {0x000030,  "ABTS - Discard/MS/Imm Retx"},
     {0,NULL}
 };
+#endif
 static const value_string last_data_frame_vals[] = {
     {0x000000,  "Last Data Frame - No Info"},
     {0x004000,  "Last Data Frame - Seq Imm"},

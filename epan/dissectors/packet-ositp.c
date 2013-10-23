@@ -152,6 +152,7 @@ static const value_string cltp_tpdu_type_abbrev_vals[] = {
   { 0,       NULL }
 };
 
+#if 0
 static const value_string class_option_vals[] = {
   {0, "Class 0"},
   {1, "Class 1"},
@@ -160,6 +161,7 @@ static const value_string class_option_vals[] = {
   {4, "Class 4"},
   {0, NULL}
 };
+#endif
 
 /* field position */
 

@@ -221,10 +221,12 @@ static const true_false_string h264_end_bit_vals = {
   "Not the last packet of FU-A picture"
 };
 
+#if 0
 static const true_false_string h264_forbidden_bit_vals = {
   "Forbidden Bit of FU-A",
   "Not Forbidden Bit of FU-A"
 };
+#endif
 
 #define H264_SEQ_PAR_SET        7
 #define H264_PIC_PAR_SET        8

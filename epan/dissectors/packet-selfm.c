@@ -697,11 +697,13 @@ static const value_string selfm_fastser_func_code_vals[] = {
     { 0,                           NULL }
 };
 
+#if 0
 static const value_string selfm_fastser_seq_vals[] = {
   { FAST_SER_SEQ_FIN,  "FIN" },
   { FAST_SER_SEQ_FIR,  "FIR" },
   { 0,  NULL }
 };
+#endif
 
 static const value_string selfm_fastser_tagtype_vals[] = {
   { FAST_SER_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },

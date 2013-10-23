@@ -124,6 +124,7 @@ static const value_string element_type_vals[] = {
 #define BSON_ELEMENT_BINARY_TYPE_MD5      4
 #define BSON_ELEMENT_BINARY_TYPE_USER   128 /* 0x80 */
 
+#if 0
 static const value_string binary_type_vals[] = {
   { BSON_ELEMENT_BINARY_TYPE_GENERIC,  "Generic" },
   { BSON_ELEMENT_BINARY_TYPE_FUNCTION, "Function" },
@@ -133,6 +134,7 @@ static const value_string binary_type_vals[] = {
   { BSON_ELEMENT_BINARY_TYPE_USER,     "User" },
   { 0, NULL }
 };
+#endif
 
 void proto_reg_handoff_mongo(void);
 

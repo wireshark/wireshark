@@ -154,6 +154,7 @@ static const value_string siii_mdt_version_initprocvers_text[]=
   {0, NULL}
 };
 
+#if 0
 static const value_string siii_svch_data_proccmd_proccmdexec_text[]=
 {
   {0, "Interrupt procedure command execution"},
@@ -174,6 +175,7 @@ static const value_string siii_svch_data_mdt_at_text[]=
   {1, "MDT-telegram"},
   {0, NULL}
 };
+#endif
 
 #define IDN(SI, SE, type, paramset, datablock) ((SI<<24)|(SE<<16)|(type<<15)|(paramset<<12)|(datablock))
 
@@ -647,6 +649,7 @@ static const value_string siii_mst_phase_text[]=
   {0, NULL}
 };
 
+#if 0
 static const value_string siii_mst_teltype_text[]=
 {
   {0x00, "CP0"},
@@ -661,6 +664,7 @@ static const value_string siii_mst_teltype_text[]=
   {0x84, "CP4 (Phase Change)"},
   {0, NULL}
 };
+#endif
 
 static const value_string siii_mst_channel_text[]=
 {

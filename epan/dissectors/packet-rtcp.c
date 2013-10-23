@@ -4670,7 +4670,7 @@ proto_register_rtcp(void)
                 "rtcp.xr.idms.spst",
                 FT_UINT8,
                 BASE_DEC,
-                                NULL,
+                VALS(rtcp_xr_idms_spst),
                 0x0,
                 NULL, HFILL
             }

@@ -61,9 +61,11 @@
 #define CHUNKSIZE_START 3
 
 
+#if 0
 static const int RESPONSE_HEADER = 1;
 static const int RESPONSE_METADATA = 2;
 static const int RESPONSE_DATA = 3;
+#endif
 
 static guint tcp_port = 0;
 

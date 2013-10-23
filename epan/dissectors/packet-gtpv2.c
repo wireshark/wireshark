@@ -4188,12 +4188,14 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /*
  * 8.59 Source Identification
  */
+#if 0
 static const value_string gtpv2_source_ident_types[] = {
     {0, "Cell ID"},
     {1, "RNC ID"},
     {2, "eNodeB ID(Reserved, used in erlier v of proto.)"},
     {0, NULL}
 };
+#endif
 static void
 dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
@@ -4287,13 +4289,14 @@ dissect_gtpv2_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /*
  * 8.62 Fully qualified PDN Connection Set Identifier (FQ-CSID)
  */
+#if 0
 static const value_string gtpv2_fq_csid_type_vals[] = {
     {0, "Global unicast IPv4 address"},
     {1, "Global unicast IPv6 address"},
     {2, "4 octets long field"},
     {0, NULL}
 };
-
+#endif
 
 void
 dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)

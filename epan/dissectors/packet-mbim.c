@@ -1297,6 +1297,7 @@ static const value_string mbim_phonebook_write_flag_vals[] = {
     { 0, NULL}
 };
 
+#if 0
 static const value_string mbim_stk_pac_profile_vals[] = {
     { 0, "Not Handled By Function Cannot Be Handled By Host"},
     { 1, "Not Handled By Function May Be Handled By Host"},
@@ -1308,6 +1309,7 @@ static const value_string mbim_stk_pac_profile_vals[] = {
     { 7, "Handled ByHostFunction Able To Handle"},
     { 0, NULL}
 };
+#endif
 
 static const value_string mbim_stk_pac_type_vals[] = {
     { 0, "Proactive Command"},

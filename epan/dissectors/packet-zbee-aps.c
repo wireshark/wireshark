@@ -259,6 +259,7 @@ static const value_string zbee_apf_type_names[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string zbee_apf_kvp_command_names[] = {
     { ZBEE_APP_KVP_SET,         "Set" },
     { ZBEE_APP_KVP_EVENT,       "Event" },
@@ -270,7 +271,9 @@ static const value_string zbee_apf_kvp_command_names[] = {
     { ZBEE_APP_KVP_EVENT_RESP,  "Event Response" },
     { 0, NULL }
 };
+#endif
 
+#if 0
 static const value_string zbee_apf_kvp_type_names[] = {
     { ZBEE_APP_KVP_NO_DATA,     "No Data" },
     { ZBEE_APP_KVP_UINT8,       "8-bit Unsigned Integer" },
@@ -284,6 +287,7 @@ static const value_string zbee_apf_kvp_type_names[] = {
     { ZBEE_APP_KVP_OCT_STRING,  "Octet String" },
     { 0, NULL }
 };
+#endif
 
 /* ZigBee Application Profile ID Names */
 const range_string zbee_aps_apid_names[] = {

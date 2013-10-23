@@ -511,6 +511,7 @@ enum abis_nm_pcause_type {
 	NM_PCAUSE_T_MANUF	= 0x03
 };
 
+#if 0
 /* Section 9.4.36: NACK Causes */
 enum abis_nm_nack_cause {
 	/* General Nack Causes */
@@ -548,6 +549,7 @@ enum abis_nm_nack_cause {
 	NM_NACK_MEAS_NOTSUPP		= 0x2b,
 	NM_NACK_MEAS_NOTSTART		= 0x2c
 };
+#endif
 
 /* Section 9.4.1 */
 struct abis_nm_channel {
@@ -1272,6 +1274,7 @@ static const value_string oml_severity_vals[] = {
 	{ 0, NULL }
 };
 
+#if 0
 /* Section 9.4.36: NACK Causes */
 static const value_string oml_nack_cause[] = {
 	{ NM_NACK_INCORR_STRUCT,	"Incorrect message structure" },
@@ -1309,6 +1312,7 @@ static const value_string oml_nack_cause[] = {
 	{ 0xff,				"NULL" },
 	{ 0, NULL }
 };
+#endif
 
 static const value_string oml_test_no_vals[] = {
 	{ NM_IPACC_TESTNO_RLOOP_ANT,	"Radio Loop test via antenna" },

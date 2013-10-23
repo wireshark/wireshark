@@ -389,6 +389,7 @@ static const value_string status_code_trunk_status[] = {
 	{ 0, NULL}
 };
 
+#if 0
 /*Label values*/
 static const value_string vals_status_code_label_values[] = {
 	{ 0x1, "NORMAL"},
@@ -397,6 +398,7 @@ static const value_string vals_status_code_label_values[] = {
 	{ 0x5, "DEFAULT"},
 	{ 0, NULL}
 };
+#endif
 
 /*Service Control Message Sub-values*/
 static const value_string vals_service_control_message_subvalues[] = {

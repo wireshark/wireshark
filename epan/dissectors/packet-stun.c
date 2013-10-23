@@ -288,11 +288,13 @@ static const value_string attributes_reserve_next[] = {
     {0x00, NULL}
 };
 
+#if 0
 static const value_string attributes_properties_p[] = {
     {0, "All allocation"},
     {1, "Preserving allocation"},
     {0x00, NULL}
 };
+#endif
 
 static const value_string attributes_family[] = {
     {0x0001, "IPv4"},

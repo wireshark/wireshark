@@ -74,6 +74,7 @@ static gint ett_cphap = -1;
 #define UDP_PORT_CPHA        8116
 #define CPHA_MAGIC 0x1A90
 
+#if 0
 static const value_string opcode_type_short_vals[] = {
   { 0, "Unknown" },
   { 1, "FWHA_MY_STATE" },
@@ -88,6 +89,7 @@ static const value_string opcode_type_short_vals[] = {
   { 10, "FWHAP_SYNC" },
   { 0, NULL }
 };
+#endif
 
 static const value_string opcode_type_vals[] = {
   { 0, "Unknown OpCode" },

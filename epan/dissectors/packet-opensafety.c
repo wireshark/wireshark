@@ -248,7 +248,9 @@ static const value_string ssdo_sacmd_values[] = {
 #define OPENSAFETY_SSDO_SACMD_BLK  0x80
 
 static const true_false_string opensafety_sacmd_acc  = { "Write Access", "Read Access" };
+#if 0
 static const true_false_string opensafety_sacmd_res  = { "Reserved", "Reserved" };
+#endif
 static const true_false_string opensafety_sacmd_abrt = { "Abort Transfer", "Successful Transfer" };
 static const true_false_string opensafety_sacmd_seg  = { "Segmented Access", "Expedited Access" };
 static const true_false_string opensafety_on_off     = { "On", "Off" };

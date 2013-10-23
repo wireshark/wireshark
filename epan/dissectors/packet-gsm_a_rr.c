@@ -4461,11 +4461,13 @@ static const value_string gsm_a_rr_cell_barr_access_vals[] = {
     {  1, "The cell is barred"},
     {  0, NULL }
 };
+#if 0
 static const value_string gsm_a_rr_re_vals[] = {
     {  0, "Call Reestablishment allowed in the cell"},
     {  1, "Call Reestablishment not allowed in the cell"},
     {  0, NULL }
 };
+#endif
 
 static guint16
 de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -5377,10 +5379,12 @@ static const true_false_string eutran_ccn_active = {
     "The broadcast E-UTRAN_CCN_ACTIVE parameter shall apply if applicable. Otherwise, CCN towards E-UTRAN cells is disabled in the cell"
 };
 
+#if 0
 static const true_false_string eutran_rep_quant = {
     "RSRQ",
     "RSRP"
 };
+#endif
 
 static const value_string gsm_a_rr_pcid_psc_pattern_length[] = {
     { 0, "1"},
@@ -7551,6 +7555,7 @@ static const true_false_string gsm_a_rr_si_status_ind_value = {
     "The network does not support the PACKET SI STATUS message"
 };
 
+#if 0
 static const value_string gsm_a_rr_lb_ms_txpwr_max_cch_vals[] = {
     {  0, "43 dBm"},
     {  1, "41 dBm"},
@@ -7586,6 +7591,7 @@ static const value_string gsm_a_rr_lb_ms_txpwr_max_cch_vals[] = {
     { 31, "5 dBm"},
     {  0, NULL }
 };
+#endif
 
 static const value_string gsm_a_rr_si2n_support_vals[] = {
     { 0, "SI2n is not supported"},

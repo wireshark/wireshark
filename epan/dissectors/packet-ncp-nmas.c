@@ -95,6 +95,7 @@ static const value_string nmas_msgverb_enum[] = {
     { 0,          NULL }
 };
 
+#if 0
 static const value_string nmas_attribute_enum[] = {
     { 1, "User Name" },
     { 2, "Tree Name" },
@@ -102,6 +103,7 @@ static const value_string nmas_attribute_enum[] = {
     { 11, "Login Sequence" },
     { 0,          NULL }
 };
+#endif
 
 static const value_string nmas_lsmverb_enum[] = {
     { 1, "Put Login Configuration" },

@@ -1076,6 +1076,7 @@ static const value_string mpeg_descr_linkage_linkage_type_vals[] = {
 };
 static value_string_ext mpeg_descr_linkage_linkage_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_linkage_linkage_type_vals);
 
+#if 0
 static const value_string mpeg_descr_linkage_hand_over_type_vals[] = {
     { 0x01, "DVB hand-over to an identical service in a neighbouring country" },
     { 0x02, "DVB hand-over to a local variation of the same service" },
@@ -1083,6 +1084,7 @@ static const value_string mpeg_descr_linkage_hand_over_type_vals[] = {
 
     { 0x00, NULL }
 };
+#endif
 
 static const value_string mpeg_descr_linkage_origin_type_vals[] = {
     { 0x0, "NIT" },

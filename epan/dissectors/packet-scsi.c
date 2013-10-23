@@ -2074,10 +2074,12 @@ static const true_false_string reladr_tfs = {
     "Relative addressing mode is NOT supported",
 };
 
+#if 0
 static const true_false_string sync_tfs = {
     "Synchronous data transfer is SUPPORTED",
     "Synchronous data transfer is NOT supported",
 };
+#endif
 
 static const true_false_string linked_tfs = {
     "Linked Commands are SUPPORTED",

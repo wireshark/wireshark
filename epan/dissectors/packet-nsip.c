@@ -134,6 +134,7 @@ static const value_string tab_nsip_pdu_types[] = {
 #define NSIP_IE_RESET_FLAG         0x0a
 #define NSIP_IE_IP_ADDRESS         0x0b
 
+#if NSIP_DEBUG
 static const value_string tab_nsip_ieis[] = {
   { NSIP_IE_CAUSE,               "Cause" },
   { NSIP_IE_NS_VCI,              "NS-VCI" },
@@ -149,6 +150,7 @@ static const value_string tab_nsip_ieis[] = {
   { NSIP_IE_IP_ADDRESS,          "IP Address" },
   { 0,                            NULL },
 };
+#endif
 
 /* Cause values, v 5.3.0, table 10.3.2.1, p 47 */
 #define NSIP_CAUSE_TRANSIT_NETWORK_FAILURE      0x00

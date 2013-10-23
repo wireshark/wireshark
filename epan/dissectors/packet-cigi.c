@@ -1951,6 +1951,7 @@ static int hf_cigi3_3_symbol_line_definition_stipple_pattern_length = -1;
 static int hf_cigi3_3_symbol_line_definition_vertex_u[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 static int hf_cigi3_3_symbol_line_definition_vertex_v[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
+#if 0
 static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] = {
     {0, "Point"},
     {1, "Line"},
@@ -1961,6 +1962,7 @@ static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] =
     {6, "Triangle Fan"},
     {0, NULL}
 };
+#endif
 
 /* CIGI3_3 Symbol Clone */
 #define CIGI3_PACKET_SIZE_SYMBOL_CLONE_DEFINITION 8

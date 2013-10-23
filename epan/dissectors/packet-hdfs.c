@@ -54,9 +54,11 @@
 #define SECOND_READ_FRAGMENT_LEN 29
 
 
+#if 0
 static const int START = 0;
 static const int AUTHENTICATION = 1;
 static const int DATA = 2;
+#endif
 
 static guint tcp_port = 0;
 

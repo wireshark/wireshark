@@ -536,6 +536,7 @@ static const value_string psig_parametertypenames[] = {
 	{ 0, NULL }
 };
 
+#if 0
 /* Simulcrypt PSIG protocol error values */
 static const value_string psig_error_values[] = {
 	{ 0x0000, "DVB Reserved" },
@@ -567,6 +568,7 @@ static const value_string psig_error_values[] = {
 
 	{ 0, NULL }
 };
+#endif
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
 * our header fields; they are filled out when we call

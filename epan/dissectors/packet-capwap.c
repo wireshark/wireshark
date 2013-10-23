@@ -1563,7 +1563,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else if (payload_type == 0xff) {
         /* CAPWAP Keep-Alive Payload */
-        offset += dissect_capwap_data_keep_alive(next_tvb, pinfo, capwap_data_tree, 0);
+        /*offset +=*/ dissect_capwap_data_keep_alive(next_tvb, pinfo, capwap_data_tree, 0);
     }
     else
     {

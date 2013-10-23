@@ -111,6 +111,7 @@ static const value_string status_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string create_status_vals[] = {
     { 0x0000, "Success" },
     { 0x0001, "Invalid Controller ID" },
@@ -127,6 +128,7 @@ static const value_string disc_status_vals[] = {
     { 0x0002, "Failed - No Physical Link exists and no Physical Link creation is in progress" },
     { 0, NULL }
 };
+#endif
 
 void proto_register_btamp(void);
 void proto_reg_handoff_btamp(void);

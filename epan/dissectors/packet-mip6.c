@@ -585,6 +585,7 @@ static const value_string pmip6_bri_status[] = {
     { 0,        NULL},
 };
 
+#if 0
 /* Handoff Indicator values */
 static const range_string handoff_indicator[] = {
     { 0x00, 0x00,   "Reserved"                              },
@@ -596,6 +597,7 @@ static const range_string handoff_indicator[] = {
     { 0x06, 0xff,   "Unassigned"                                                    },
     { 0,    0,      NULL                                                            }
 };
+#endif
 
 /* Mobile Node Group Identifier Type
  * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#mobile-node-group-id-type

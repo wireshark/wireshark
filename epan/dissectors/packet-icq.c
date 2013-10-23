@@ -341,6 +341,7 @@ static const value_string clientCmdCode[] = {
 	{ 0, NULL }
 };
 
+#if 0
 static const value_string group_vals[] = {
 	{ 1, "Name" },
 	{ 2, "General" },
@@ -355,6 +356,7 @@ static const value_string group_vals[] = {
 	{ 11, "Women want men" },
 	{ 0, NULL }
 };
+#endif
 
 /*
  * All ICQv5 decryption code thanx to Sebastien Dault (daus01@gel.usherb.ca)

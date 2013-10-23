@@ -2616,12 +2616,14 @@ BACnetLifeSafetyOperation [] = {
    procedures and constraints described in Clause 23. */
 };
 
+#if 0
 static const value_string
 BACnetLimitEnable [] = {
     { 0, "lowLimitEnable"},
     { 1, "highLimitEnable"},
     { 0, NULL}
 };
+#endif
 
 static const value_string
 BACnetLifeSafetyState [] = {
@@ -2725,6 +2727,7 @@ BACnetUnconfirmedServiceChoice [] = {
     { 0, NULL}
 };
 
+#if 0
 static const value_string
 BACnetUnconfirmedServiceRequest [] = {
     { 0, "i-Am-Request"},
@@ -2739,6 +2742,7 @@ BACnetUnconfirmedServiceRequest [] = {
     { 9, "utcTimeSynchonization-Request"},
     { 0, NULL}
 };
+#endif
 
 static const value_string
 BACnetObjectType [] = {
@@ -5038,11 +5042,11 @@ static const fragment_items msg_frag_items = {
     "Message fragments"
 };
 
+#if 0
 /* if BACnet uses the reserved values, then patch the corresponding values here, maximum 16 values are defined */
+/* FIXME: fGetMaxAPDUSize is commented out, as it is not used. It was used to set variables which were not later used. */
 static const guint MaxAPDUSize [] = { 50, 128, 206, 480, 1024, 1476 };
 
-#if 0
-/* FIXME: fGetMaxAPDUSize is commented out, as it is not used. It was used to set variables which were not later used. */
 static guint
 fGetMaxAPDUSize(guint8 idx)
 {
