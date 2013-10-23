@@ -581,6 +581,16 @@ typedef struct _segment_info_t {
 void proto_register_elf(void);
 void proto_reg_handoff_elf(void);
 
+
+/* Wireshark support "offset" as gint, but ELF needed guint64 size, so check if there is no overflow */
+static gint
+value_guard(guint64 value)
+{
+    DISSECTOR_ASSERT_HINT(value <= G_MAXINT, "Too big file - not supported");
+
+    return (gint) value;
+}
+
 static guint8
 dissect_dwarf_encoding(tvbuff_t *tvb, gint offset, proto_item *item)
 {
@@ -639,9 +649,9 @@ static const guint8 *get_section_name_offset(tvbuff_t *tvb, guint64 shoff, guint
     if (shndx > shnum)
         return NULL;
 
-    offset = shoff + shndx * shentsize;
+    offset = value_guard(shoff + shndx * shentsize);
     sh_name = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-    return tvb_get_const_stringz(tvb, shstrtab_offset + sh_name, NULL);
+    return tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
 }
 
 static gint
@@ -712,7 +722,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
 
         pitem = proto_tree_add_item(entry_tree, hf_elf64_dynamic_tag, tvb, offset, 8, machine_encoding);
         tag = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset);
-        proto_item_append_text(pitem, " (%s)", rval_to_str(tag, dynamic_tag_rvals, "Unknown"));
+        proto_item_append_text(pitem, " (%s)", rval_to_str(value_guard(tag), dynamic_tag_rvals, "Unknown"));
         offset += 8;
 
         if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
@@ -726,7 +736,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
         offset += 8;
     }
 
-    proto_item_append_text(entry_item, ": %s", rval_to_str(tag, dynamic_tag_rvals, "Unknown"));
+    proto_item_append_text(entry_item, ": %s", rval_to_str(value_guard(tag), dynamic_tag_rvals, "Unknown"));
 
     return offset;
 }
@@ -749,7 +759,7 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tr
     pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_name_index, tvb, offset, 4, machine_encoding);
     if (strtab_offset) {
         name_index = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-        name = tvb_get_const_stringz(tvb, strtab_offset + name_index, NULL);
+        name = tvb_get_const_stringz(tvb, value_guard(strtab_offset + name_index), NULL);
         if (name) {
             proto_item_append_text(pitem, ": %s", name);
             proto_item_append_text(entry_item, ": %s", name);
@@ -914,7 +924,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
     i_entry = 0;
 
-    table_item = proto_tree_add_text(segment_tree, tvb, offset, fde_count * table_entry_length * 2, "Binary Search Table");
+    table_item = proto_tree_add_text(segment_tree, tvb, offset, value_guard(fde_count * table_entry_length * 2), "Binary Search Table");
     table_tree = proto_item_add_subtree(table_item, ett_binary_table);
 
     while (++i_entry <= fde_count) {
@@ -964,7 +974,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
 
     length_remaining = length;
 
-    record_item = proto_tree_add_text(segment_tree, tvb, offset, length + (is_extended_length ? 4 + 8 : 4), "Common Information Entry");
+    record_item = proto_tree_add_text(segment_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)), "Common Information Entry");
     record_tree = proto_item_add_subtree(record_item, ett_elf_cie);
 
     proto_tree_add_item(record_tree, hf_elf_eh_frame_length, tvb, offset, 4, machine_encoding);
@@ -1010,15 +1020,15 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
         length_remaining -= size;
         offset += size;
 
-        proto_tree_add_item(record_tree, hf_elf_eh_frame_augmentation_data, tvb, offset, unsigned_value, machine_encoding);
+        proto_tree_add_item(record_tree, hf_elf_eh_frame_augmentation_data, tvb, offset, value_guard(unsigned_value), machine_encoding);
         length_remaining -= unsigned_value;
-        offset += unsigned_value;
+        offset += value_guard(unsigned_value);
     }
 
-    proto_tree_add_item(record_tree, hf_elf_eh_frame_initial_instructions, tvb, offset, length_remaining, machine_encoding);
-    offset += length_remaining;
+    proto_tree_add_item(record_tree, hf_elf_eh_frame_initial_instructions, tvb, offset, value_guard(length_remaining), machine_encoding);
+    offset += value_guard(length_remaining);
 
-    record_item = proto_tree_add_text(segment_tree, tvb, offset, segment_size - length - 4, "Frame Description Entries");
+    record_item = proto_tree_add_text(segment_tree, tvb, offset, value_guard(segment_size - length - 4), "Frame Description Entries");
     record_tree = proto_item_add_subtree(record_item, ett_elf_fde);
 
     is_extended_length = FALSE;
@@ -1033,7 +1043,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
                     tvb_get_ntoh64(tvb, offset + 4) : tvb_get_letoh64(tvb, offset + 4);
         }
 
-        entry_item = proto_tree_add_text(record_tree, tvb, offset, length + (is_extended_length ? 4 + 8 : 4), "Entry %i", entry_number);
+        entry_item = proto_tree_add_text(record_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)), "Entry %i", entry_number);
         entry_tree = proto_item_add_subtree(entry_item, ett_elf_entry);
 
         proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_length, tvb, offset, 4, machine_encoding);
@@ -1066,13 +1076,13 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree
             length_remaining -= size;
             offset += size;
 
-            proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_augmentation_data, tvb, offset, unsigned_value, machine_encoding);
+            proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_augmentation_data, tvb, offset, value_guard(unsigned_value), machine_encoding);
             length_remaining -= unsigned_value;
-            offset += unsigned_value;
+            offset += value_guard(unsigned_value);
         }
 
-        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_call_frame_instructions, tvb, offset, length_remaining, machine_encoding);
-        offset += length_remaining;
+        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_call_frame_instructions, tvb, offset, value_guard(length_remaining), machine_encoding);
+        offset += value_guard(length_remaining);
 
         entry_number += 1;
     }
@@ -1250,11 +1260,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
     offset += 2;
 
-    program_header_item = proto_tree_add_text(main_tree, tvb, phoff,
+    program_header_item = proto_tree_add_text(main_tree, tvb, value_guard(phoff),
             phnum * phentsize, "Program Header Table [%d entries]", phnum);
     program_header_tree = proto_item_add_subtree(program_header_item, ett_elf_program_header);
 
-    section_header_item = proto_tree_add_text(main_tree, tvb, shoff,
+    section_header_item = proto_tree_add_text(main_tree, tvb, value_guard(shoff),
             shnum * shentsize, "Section Header Table [%d entries]", shnum);
     section_header_tree = proto_item_add_subtree(section_header_item, ett_elf_section_header);
 
@@ -1282,7 +1292,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         area_counter += 1;
     }
 
-    offset = phoff;
+    offset = value_guard(phoff);
 
     i_16 = phnum;
     while (i_16-- > 0) {
@@ -1378,7 +1388,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             name = wmem_strdup_printf(wmem_packet_scope(), "ProgramHeaderEntry #%u", phnum - i_16 - 1);
 
             segment_item = proto_tree_add_text(ph_entry_tree, tvb,
-                    p_offset, segment_size, "Segment");
+                    value_guard(p_offset), value_guard(segment_size), "Segment");
 
             file_size += segment_size;
 
@@ -1391,7 +1401,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
 /* Find and save some information for later */
-    offset = shoff;
+    offset = value_guard(shoff);
 
     i_16 = shnum;
     while (i_16-- > 0) {
@@ -1407,14 +1417,14 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, length) : tvb_get_letohl(tvb, length);
+            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntohl(tvb, length) : tvb_get_letohl(tvb, length));
         } else {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, length) : tvb_get_letoh64(tvb, length);
+            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntoh64(tvb, length) : tvb_get_letoh64(tvb, length));
         }
 
-        section_name = tvb_get_const_stringz(tvb, shstrtab_offset + sh_name, NULL);
+        section_name = tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
 
         if (register_size == REGISTER_64_SIZE && machine_encoding == ENC_BIG_ENDIAN) {
             offset += 4;
@@ -1450,7 +1460,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
 /* Sections */
-    offset = shoff;
+    offset = value_guard(shoff);
 
     i_16 = shnum;
     while (i_16-- > 0) {
@@ -1482,14 +1492,14 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntohl(tvb, length) : tvb_get_letohl(tvb, length);
+            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntohl(tvb, length) : tvb_get_letohl(tvb, length));
         } else {
-            shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, length) : tvb_get_letoh64(tvb, length);
+            shstrtab_offset = value_guard((machine_encoding == ENC_BIG_ENDIAN) ?
+                    tvb_get_ntoh64(tvb, length) : tvb_get_letoh64(tvb, length));
         }
 
-        section_name = tvb_get_const_stringz(tvb, shstrtab_offset + sh_name, NULL);
+        section_name = tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
         if (section_name)
             proto_item_append_text(sh_entry_item, ": %s", section_name);
 
@@ -1578,27 +1588,27 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             area_counter += 1;
 
             segment_item = proto_tree_add_text(sh_entry_tree, tvb,
-                    segment_offset, segment_size, "Segment");
+                    value_guard(segment_offset), value_guard(segment_size), "Segment");
             segment_tree = proto_item_add_subtree(segment_item, ett_elf_segment);
 
             if (g_strcmp0(section_name, ".eh_frame") == 0) {
                 next_offset = dissect_eh_frame(tvb, pinfo, segment_tree,
-                        segment_offset, segment_size, register_size,
+                        value_guard(segment_offset), value_guard(segment_size), register_size,
                         machine_encoding);
                 if (next_offset != (gint) (segment_offset + segment_size))
                     expert_add_info(pinfo, segment_item, &ei_invalid_segment_size);
             } else if (g_strcmp0(section_name, ".eh_frame_hdr") == 0) {
                 next_offset = dissect_eh_frame_hdr(tvb, pinfo, segment_tree,
-                        segment_offset, segment_size, register_size,
+                        value_guard(segment_offset), value_guard(segment_size), register_size,
                         machine_encoding);
                 if (next_offset != (gint) (segment_offset + segment_size))
                     expert_add_info(pinfo, segment_item, &ei_invalid_segment_size);
             } else if (sh_type == 0x06) { /* SHT_DYNAMIC */
                 if (sh_entsize > 0) {
-                    next_offset = segment_offset;
+                    next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         entry_item = proto_tree_add_text(segment_tree, tvb, next_offset,
-                               sh_entsize, "Entry #%d", i);
+                               value_guard(sh_entsize), "Entry #%d", i);
                         entry_tree = proto_item_add_subtree(entry_item, ett_symbol_table_entry);
 
                         next_offset = dissect_dynamic(tvb, pinfo, entry_tree, entry_item,
@@ -1609,10 +1619,10 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 }
             } else if (sh_type == 0x02 || sh_type == 0x0b) { /* SHT_SYMTAB || SHT_DYNSYM */
                 if (sh_entsize > 0) {
-                    next_offset = segment_offset;
+                    next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         entry_item = proto_tree_add_text(segment_tree, tvb, next_offset,
-                               sh_entsize, "Entry #%d", i);
+                               value_guard(sh_entsize), "Entry #%d", i);
                         entry_tree = proto_item_add_subtree(entry_item, ett_symbol_table_entry);
 
                         next_offset = dissect_symbol_table(tvb, pinfo, entry_tree, entry_item,
@@ -1623,7 +1633,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     }
                 }
             } else if (sh_type == 0x03) { /* SHT_STRTAB */
-                    next_offset = segment_offset;
+                    next_offset = value_guard(segment_offset);
                     i = 1;
                     while (next_offset < (gint) (segment_offset + segment_size)) {
                         tvb_get_const_stringz(tvb, next_offset, &len);
@@ -1634,11 +1644,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     }
             } else {
                 if (sh_entsize > 0) {
-                    next_offset = segment_offset;
+                    next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         proto_tree_add_text(segment_tree, tvb, next_offset,
-                               sh_entsize, "Entry #%d ", i);
-                        next_offset += sh_entsize;
+                               value_guard(sh_entsize), "Entry #%d ", i);
+                        next_offset += value_guard(sh_entsize);
                     }
                 }
             }
@@ -1677,13 +1687,13 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             /* blackhole */
             len = (guint) (segment_info[i].offset - segment_info[i - 1].offset - segment_info[i - 1].size);
 
-            proto_tree_add_text(blackhole_tree, tvb, segment_info[i].offset - len, len, "Blackhole between: %s and %s, size: %u",
+            proto_tree_add_text(blackhole_tree, tvb, value_guard(segment_info[i].offset - len), len, "Blackhole between: %s and %s, size: %u",
                     segment_info[i - 1].name, segment_info[i].name, len);
         } else if (segment_info[i - 1].offset + segment_info[i - 1].size > segment_info[i].offset) {
             /* overlapping */
             len = (guint) (segment_info[i - 1].offset + segment_info[i - 1].size - segment_info[i].offset);
 
-            proto_tree_add_text(overlapping_tree, tvb, segment_info[i - 1].offset + segment_info[i - 1].size - len, len, "Overlapping between: %s and %s, size: %u",
+            proto_tree_add_text(overlapping_tree, tvb, value_guard(segment_info[i - 1].offset + segment_info[i - 1].size - len), len, "Overlapping between: %s and %s, size: %u",
                     segment_info[i - 1].name, segment_info[i].name, len);
 
             file_size -= len;
@@ -1694,8 +1704,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             len = tvb_length(tvb) - (guint) (segment_info[area_counter - 1].offset - segment_info[area_counter - 1].size);
 
             proto_tree_add_text(blackhole_tree, tvb,
-                    segment_info[area_counter - 1].offset +
-                    segment_info[area_counter - 1].size,
+                    value_guard(segment_info[area_counter - 1].offset +
+                    segment_info[area_counter - 1].size),
                     len, "Blackhole between: %s and <EOF>, size: %u",
                     segment_info[area_counter - 1].name, len);
     }
