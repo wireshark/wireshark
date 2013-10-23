@@ -193,6 +193,27 @@ column_dump_column_formats(void)
   for (fmt = 0; fmt < NUM_COL_FMTS; fmt++) {
     printf("%s\t%s\n", col_format_to_string(fmt), col_format_desc(fmt));
   }
+
+  printf("\nFor example, to print Wireshark's default columns with tshark:\n\n"
+#ifdef _WIN32
+  "tshark.exe -o \"gui.column.format:"
+    "\\\"No.\\\",\\\"%%m\\\","
+    "\\\"Time\\\",\\\"%%t\\\","
+    "\\\"Source\\\",\\\"%%s\\\","
+    "\\\"Destination\\\",\\\"%%d\\\","
+    "\\\"Protocol\\\",\\\"%%p\\\","
+    "\\\"Length\\\",\\\"%%L\\\","
+    "\\\"Info\\\",\\\"%%i\\\"\"\n");
+#else
+  "tshark -o 'gui.column.format:"
+    "\"No.\",\"%%m\","
+    "\"Time\",\"%%t\","
+    "\"Source\",\"%%s\","
+    "\"Destination\",\"%%d\","
+    "\"Protocol\",\"%%p\","
+    "\"Length\",\"%%L\","
+    "\"Info\",\"%%i\"'\n");
+#endif
 }
 
 /* Marks each array element true if it can be substituted for the given
