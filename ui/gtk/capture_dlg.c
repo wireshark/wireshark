@@ -5515,6 +5515,7 @@ capture_dlg_prep(gpointer parent_w) {
   if (g_save_file && g_save_file[0]) {
     /* User specified a file to which the capture should be written. */
     global_capture_opts.save_file = g_strdup(g_save_file);
+    global_capture_opts.orig_save_file = g_strdup(g_save_file);
     /* Save the directory name for future file dialogs. */
     cf_name = g_strdup(g_save_file);
     dirname = get_dirname(cf_name);  /* Overwrites cf_name */

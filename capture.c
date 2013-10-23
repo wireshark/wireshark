@@ -646,6 +646,13 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
     ws_unlink(capture_opts->save_file);
 
+    /* If we have a ring buffer, the original save file has been overwritten
+       with the "ring filename".  Restore it before starting again */
+    if ((capture_opts->multi_files_on) && (capture_opts->orig_save_file != NULL)) {
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = g_strdup(capture_opts->orig_save_file);
+    }
+
     /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
     if(cf_is_tempfile((capture_file *)cap_session->cf)) {
       g_free(capture_opts->save_file);

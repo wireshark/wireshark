@@ -97,6 +97,7 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->show_info                       = TRUE;
   capture_opts->quit_after_cap                  = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
   capture_opts->restart                         = FALSE;
+  capture_opts->orig_save_file                  = NULL;
 
   capture_opts->multi_files_on                  = FALSE;
   capture_opts->has_file_duration               = FALSE;

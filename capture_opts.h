@@ -186,6 +186,7 @@ typedef struct capture_options_tag {
     gboolean show_info;             /**< show the info dialog */
     gboolean quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
     gboolean restart;               /**< restart after closing is done */
+    gchar    *orig_save_file;       /**< the original capture file name (saved for a restart) */
 
     /* multiple files (and ringbuffer) */
     gboolean multi_files_on;        /**< TRUE if ring buffer in use */
