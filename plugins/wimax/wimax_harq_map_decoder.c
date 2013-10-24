@@ -116,10 +116,7 @@ static void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 		dl_ie_count = ((first_24bits & WIMAX_HARQ_MAP_DL_IE_COUNT_MASK) >> WIMAX_HARQ_MAP_DL_IE_COUNT_SHIFT);
 		/* get the UL MAP appended */
 		ulmap_appended = (first_24bits & WIMAX_HARQ_UL_MAP_APPENDED_MASK);
-		if (parent_item == NULL || PITEM_FINFO(parent_item) == NULL)
-		{
-			parent_item = harq_map_item; /* Prevent crash */
-		}
+
 		/* set the offsets to Compact DL-MAP IEs */
 		offset += 2;
 		nibble_offset = 1;

@@ -55,7 +55,6 @@ extern gboolean first_gmh;			/* defined in wimax_pdu_decoder.c */
 
 extern gint8 arq_enabled;                       /* declared in packet-wmx.c */
 extern gint  scheduling_service_type;           /* declared in packet-wmx.c */
-extern gint  mac_sdu_length;                    /* declared in packet-wmx.c */
 
 extern address bs_address;			/* declared in packet-wmx.c */
 extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
