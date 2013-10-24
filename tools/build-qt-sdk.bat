@@ -62,7 +62,7 @@ echo ========
 
 rem We could probably get away with skipping several other modules, e.g.
 rem qtsensors and qtserialport
-configure -opensource -platform %QT_PLATFORM% -prefix %QT_PREFIX% ^
+configure -opensource -confirm-license -platform %QT_PLATFORM% -prefix %QT_PREFIX% ^
     -no-dbus ^
     -no-opengl -no-angle ^
     -no-sql-sqlite ^
