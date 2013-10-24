@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 
 #include "packet-zbee.h"
+#include "packet-zbee-nwk.h"
 #include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
 
@@ -41,8 +42,6 @@
  * Function Declarations *
  *************************
  */
-/* Dissector Routines */
-static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_read_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
@@ -694,7 +693,7 @@ static const value_string zbee_zcl_dis_names[] = {
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tvbuff_t *payload_tvb = NULL;
     dissector_handle_t  cluster_handle = NULL;
@@ -705,6 +704,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item  *proto_root = NULL;
     proto_item  *ti;
 
+    zbee_nwk_packet *nwk = (zbee_nwk_packet *)data;
     zbee_zcl_packet packet;
     zbee_zcl_cluster_desc *desc;
 
@@ -715,7 +715,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     memset(&packet, 0, sizeof(zbee_zcl_packet));
 
     /* Fill the zcl cluster id */
-    zcl_cluster_id = pinfo->zbee_cluster_id;
+    zcl_cluster_id = nwk->cluster_id;
     cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, zcl_cluster_id);
 
     /* Create the protocol tree */
@@ -816,8 +816,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         if (cluster_handle != NULL) {
             /* Call the specific cluster dissector registered */
-            pinfo->private_data = (void *)&packet;
-            call_dissector(cluster_handle, payload_tvb, pinfo, zcl_tree);
+            call_dissector_with_data(cluster_handle, payload_tvb, pinfo, zcl_tree, &packet);
         }
         else {
             proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u",
@@ -833,7 +832,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* Don't decode cluster-specific commands */
             zcl_dump_data(tvb, offset, pinfo, zcl_tree);
         }
-        return;
+        return tvb_length(tvb);
     }
 
     if ( zcl_tree ) {
@@ -896,7 +895,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         } /* switch */
     }
 
-    return;
+    return tvb_length(tvb);
 } /* dissect_zbee_zcl */
 
 /*FUNCTION:------------------------------------------------------
@@ -2380,7 +2379,7 @@ void proto_register_zbee_zcl(void)
 
     /* Register the ZCL dissector and subdissector list. */
     zbee_zcl_dissector_table = register_dissector_table("zbee.zcl.cluster", "ZigBee ZCL Cluster ID", FT_UINT16, BASE_HEX);
-    register_dissector(ZBEE_PROTOABBREV_ZCL, dissect_zbee_zcl, proto_zbee_zcl);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL, dissect_zbee_zcl, proto_zbee_zcl);
 
 } /* proto_register_zbee_zcl */
 

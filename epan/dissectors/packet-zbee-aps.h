@@ -229,7 +229,6 @@ typedef struct{
 
     guint8      dst;
     guint16     group;          /* ZigBee 2006 and Later    */
-    guint16     cluster;
     guint16     profile;
     guint8      src;
     guint8      counter;

@@ -211,12 +211,6 @@ typedef struct _packet_info {
   guint16 clnp_srcref;			/**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
   guint16 clnp_dstref;			/**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
 
-  guint16 zbee_cluster_id;		/**< ZigBee cluster ID, an application-specific message identifier that
-								 * happens to be included in the transport (APS) layer header.
-								 */
-  guint8 zbee_stack_vers;		/**< ZigBee stack version number, present in the ZigBee network layer, but
-                                 * impacts the packet format at all layers of the ZigBee stack.
-								 */
   int link_dir;					/**< 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
   GSList* dependent_frames;		/**< A list of frames which this one depends on */
 

@@ -807,12 +807,12 @@ static const value_string zbee_zcl_appl_evtalt_status_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
     gint              rem_len;
@@ -875,6 +875,8 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_appl_evtalt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1052,7 +1054,7 @@ void proto_register_zbee_zcl_appl_evtalt
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Control dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLEVTALT, dissect_zbee_zcl_appl_evtalt, proto_zbee_zcl_appl_evtalt);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLEVTALT, dissect_zbee_zcl_appl_evtalt, proto_zbee_zcl_appl_evtalt);
 
 } /*proto_register_zbee_zcl_appl_evtalt*/
 
@@ -1188,12 +1190,12 @@ static const value_string zbee_zcl_appl_stats_srv_tx_cmd_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
     gint              rem_len;
@@ -1261,6 +1263,8 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_appl_stats*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1476,7 +1480,7 @@ proto_register_zbee_zcl_appl_stats(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Statistics dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLSTATS, dissect_zbee_zcl_appl_stats, proto_zbee_zcl_appl_stats);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLSTATS, dissect_zbee_zcl_appl_stats, proto_zbee_zcl_appl_stats);
 
 } /* proto_register_zbee_zcl_appl_stats */
 

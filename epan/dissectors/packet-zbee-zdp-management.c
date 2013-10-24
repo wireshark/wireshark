@@ -53,7 +53,7 @@
  *---------------------------------------------------------------
  */
 void
-zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *pinfo)
+zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item      *ti = NULL;
     guint           len = 0;
@@ -62,12 +62,12 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
     guint16     pan;
     guint8      channel;
     guint8      profile;
-    guint8      version;
+    guint8      profile_version;
     guint8      beacon;
     guint8      superframe;
     gboolean    permit;
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         /* Extended PAN Identifiers are used in ZigBee 2006 & later. */
         ext_pan = tvb_get_letoh64(tvb, *offset + len);
         if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Pan: %s", eui64_to_str(ext_pan));
@@ -85,8 +85,8 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
     len += (int)sizeof(guint8);
 
     profile = (tvb_get_guint8(tvb, *offset + len) & 0x0f) >> 0;
-    version = (tvb_get_guint8(tvb, *offset + len) & 0xf0) >> 4;
-    if (tree) proto_item_append_text(ti, ", Profile: 0x%01x, Version: %d", profile, version);
+    profile_version = (tvb_get_guint8(tvb, *offset + len) & 0xf0) >> 4;
+    if (tree) proto_item_append_text(ti, ", Profile: 0x%01x, Version: %d", profile, profile_version);
     len += (int)sizeof(guint8);
 
     beacon      = (tvb_get_guint8(tvb, *offset + len) & 0x0f) >> 0;
@@ -121,7 +121,7 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
  *---------------------------------------------------------------
  */
 void
-zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *pinfo)
+zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item      *ti = NULL;
     guint           len = 0;
@@ -137,7 +137,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
     guint8  depth;
     guint8  lqi;
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         /* ZigBee 2006 & later use an extended PAN Identifier. */
         ext_pan = tvb_get_letoh64(tvb, *offset + len);
         if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Extended PAN: %s", eui64_to_str(ext_pan));
@@ -158,7 +158,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
     if (tree) proto_item_append_text(ti, ", Addr: 0x%04x", device);
     len += (int)sizeof(guint16);
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         type    = (tvb_get_guint8(tvb, *offset + len) & 0x03) >> 0;
         idle_rx = (tvb_get_guint8(tvb, *offset + len) & 0x0c) >> 2;
         rel     = (tvb_get_guint8(tvb, *offset + len) & 0x70) >> 4;
@@ -187,7 +187,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
     }
     len += (int)sizeof(guint8);
 
-    if (pinfo->zbee_stack_vers <= ZBEE_VERSION_2004) {
+    if (version <= ZBEE_VERSION_2004) {
         /* In ZigBee 2003 & earlier, the depth field is before the permit joining field. */
         depth = tvb_get_guint8(tvb, *offset + len);
         if (tree) proto_item_append_text(ti, ", Depth: %d", depth);
@@ -202,7 +202,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
     }
     len += (int)sizeof(guint8);
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         /* In ZigBee 2006 & later, the depth field is after the permit joining field. */
         depth = tvb_get_guint8(tvb, *offset + len);
         if (tree) proto_item_append_text(ti, ", Depth: %d", depth);
@@ -273,7 +273,7 @@ zdp_parse_routing_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset)
  *      void
  *---------------------------------------------------------------
  */
-extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *pinfo);
+extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version);
 
 /**************************************
  * MANAGEMENT REQUESTS
@@ -425,14 +425,14 @@ dissect_zbee_zdp_req_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     guint   offset = 0;
     guint64 ext_addr;
     guint8  flags;
 
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         /* Flags present on ZigBee 2006 & later. */
         flags    = tvb_get_guint8(tvb, offset);
         if (tree) {
@@ -592,7 +592,7 @@ dissect_zbee_zdp_req_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item  *ti;
     proto_tree  *field_tree = NULL;
@@ -614,7 +614,7 @@ dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_nwk);
     }
     for (i=0; i<table_count; i++) {
-        zdp_parse_nwk_desc(field_tree, tvb, &offset, pinfo);
+        zdp_parse_nwk_desc(field_tree, tvb, &offset, version);
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -638,7 +638,7 @@ dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_rsp_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_rsp_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item  *ti;
     proto_tree  *field_tree = NULL;
@@ -660,7 +660,7 @@ dissect_zbee_zdp_rsp_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_lqi);
     }
     for (i=0; i<table_count; i++) {
-        zdp_parse_neighbor_table_entry(field_tree, tvb, &offset, pinfo);
+        zdp_parse_neighbor_table_entry(field_tree, tvb, &offset, version);
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -730,7 +730,7 @@ dissect_zbee_zdp_rsp_mgmt_rtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_rsp_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_rsp_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item  *ti;
     proto_tree  *field_tree = NULL;
@@ -752,7 +752,7 @@ dissect_zbee_zdp_rsp_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_bind);
     }
     for (i=0; i<table_count; i++) {
-        zdp_parse_bind_table_entry(field_tree, tvb, &offset, pinfo);
+        zdp_parse_bind_table_entry(field_tree, tvb, &offset, version);
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));

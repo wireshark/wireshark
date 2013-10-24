@@ -159,12 +159,12 @@ static const value_string zbee_zcl_msg_ctrl_importance_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
     gint              rem_len;
@@ -232,6 +232,8 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_msg*/
 
  /*FUNCTION:------------------------------------------------------
@@ -480,7 +482,7 @@ proto_register_zbee_zcl_msg(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Messaging dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
 
 } /*proto_register_zbee_zcl_msg*/
 

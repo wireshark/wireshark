@@ -275,9 +275,9 @@ extern guint    zbee_parse_uint         (proto_tree *tree, int hfindex, tvbuff_t
 extern guint64  zbee_parse_eui64        (proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, guint length, proto_item **ti);
 extern void     zbee_append_info        (proto_item *item, packet_info *pinfo, const gchar *format, ...) G_GNUC_PRINTF(3, 4);
 
-extern void     zdp_parse_node_desc     (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, packet_info *pinfo);
+extern void     zdp_parse_node_desc     (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version);
 extern void     zdp_parse_power_desc    (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset);
-extern void     zdp_parse_simple_desc   (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, packet_info *pinfo);
+extern void     zdp_parse_simple_desc   (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint8 version);
 extern void     zdp_parse_complex_desc  (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint length);
 
 extern guint8   zdp_parse_status        (proto_tree *tree, tvbuff_t *tvb, guint *offset);

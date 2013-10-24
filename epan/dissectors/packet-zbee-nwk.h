@@ -147,6 +147,12 @@ typedef struct{
 
     guint8      payload_offset;
     guint8      payload_len;
+
+    guint16     cluster_id;     /* an application-specific message identifier that
+                                 * happens to be included in the transport (APS) layer header.
+                                 */
+
+    void        *private_data;  /* For ZigBee (sub)dissector specific data */
 } zbee_nwk_packet;
 
 /* Key used for link key hash table. */

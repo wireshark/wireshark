@@ -54,7 +54,7 @@
  *---------------------------------------------------------------
  */
 void
-zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *pinfo)
+zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item      *ti = NULL;
     guint           len = 0;
@@ -78,7 +78,7 @@ zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, packe
     len += (int)sizeof(guint8);
 
     /* Add the cluster ID. */
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         cluster = tvb_get_letohs(tvb, *offset + len);
         len += (int)sizeof(guint16);
     }
@@ -89,7 +89,7 @@ zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, packe
     if (tree) proto_item_append_text(ti, ", Cluster: %d", cluster);
 
     /* Get the destination address mode. */
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         mode = tvb_get_guint8(tvb, *offset + len);
         len += (int)sizeof(guint8);
     }
@@ -142,9 +142,9 @@ zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, packe
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
-    guint           sizeof_cluster = (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8);
+    guint           sizeof_cluster = (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8);
     guint           i;
     proto_item      *ti;
     proto_tree      *field_tree = NULL;
@@ -158,7 +158,7 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint8  out_count;
 
     target   = zbee_parse_uint(tree, hf_zbee_zdp_target, tvb, &offset, (guint)sizeof(guint16), NULL);
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         /* Extended address present on ZigBee 2006 & later. */
         ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (guint)sizeof(guint64), NULL);
     }
@@ -179,7 +179,7 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     }
     for (i=0; i<out_count; i++) zbee_parse_uint(field_tree, hf_zbee_zdp_out_cluster, tvb, &offset, sizeof_cluster, NULL);
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         zbee_append_info(tree, pinfo, " Src: %s", get_eui64_name(ext_addr));
     }
     zbee_append_info(tree, pinfo, ", Target: 0x%04x", target);
@@ -203,7 +203,7 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item      *ti;
 
@@ -218,8 +218,8 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     /*src_ep   =*/ zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    /*cluster  =*/ zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, ZBEE_HAS_2006(pinfo->zbee_stack_vers)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    /*cluster  =*/ zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, ZBEE_HAS_2006(version)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    if (version >= ZBEE_VERSION_2007) {
         dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
         if (tree) {
             if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP)        proto_item_append_text(ti, " (Group)");
@@ -240,7 +240,7 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*dst_ep  =*/ zbee_parse_uint(tree, hf_zbee_zdp_bind_dst_ep, tvb, &offset, (int)sizeof(guint8), NULL);
     }
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         zbee_append_info(tree, pinfo, " Src: %s", get_eui64_name(src64));
     }
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
@@ -269,7 +269,7 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item      *ti;
 
@@ -284,8 +284,8 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     /*src_ep   =*/ zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    /*cluster  =*/ zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    /*cluster  =*/ zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    if (version >= ZBEE_VERSION_2007) {
         dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
         if (tree) {
             if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP)        proto_item_append_text(ti, " (Group)");
@@ -306,7 +306,7 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*dst_ep  =*/ zbee_parse_uint(tree, hf_zbee_zdp_bind_dst_ep, tvb, &offset, (int)sizeof(guint8), NULL);
     }
 
-    if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
+    if (version >= ZBEE_VERSION_2007) {
         zbee_append_info(tree, pinfo, " Src: %s", get_eui64_name(src64));
     }
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
@@ -398,7 +398,7 @@ dissect_zbee_zdp_req_replace_device(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item      *ti;
 
@@ -410,7 +410,7 @@ dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     src_ep   = zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
     dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
 
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
@@ -450,7 +450,7 @@ dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item      *ti;
 
@@ -462,7 +462,7 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     src_ep   = zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
     dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
 
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
@@ -502,7 +502,7 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_req_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_req_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item      *ti;
     proto_tree      *field_tree = NULL;
@@ -522,7 +522,7 @@ dissect_zbee_zdp_req_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_bind);
     }
     for (i=0; i<table_count; i++) {
-        zdp_parse_bind_table_entry(field_tree, tvb, &offset, pinfo);
+        zdp_parse_bind_table_entry(field_tree, tvb, &offset, version);
     } /* for */
 
     /* Dump any leftover bytes. */
@@ -724,7 +724,7 @@ dissect_zbee_zdp_rsp_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_rsp_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_rsp_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item  *ti;
     proto_tree  *field_tree = NULL;
@@ -744,7 +744,7 @@ dissect_zbee_zdp_rsp_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_bind);
     }
     for (i=0; i<table_count; i++) {
-        zdp_parse_bind_table_entry(field_tree, tvb, &offset, pinfo);
+        zdp_parse_bind_table_entry(field_tree, tvb, &offset, version);
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -882,7 +882,7 @@ dissect_zbee_zdp_rsp_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_
  *---------------------------------------------------------------
  */
 void
-dissect_zbee_zdp_rsp_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_rsp_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     proto_item  *ti;
     proto_tree  *field_tree = NULL;
@@ -904,7 +904,7 @@ dissect_zbee_zdp_rsp_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_bind);
     }
     for (i=0; i<table_count; i++) {
-        zdp_parse_bind_table_entry(field_tree, tvb, &offset, pinfo);
+        zdp_parse_bind_table_entry(field_tree, tvb, &offset, version);
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));

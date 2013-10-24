@@ -182,10 +182,10 @@ static const value_string zbee_zcl_basic_dev_en_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
 
@@ -213,6 +213,8 @@ dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_basic*/
 
 
@@ -387,7 +389,7 @@ proto_register_zbee_zcl_basic(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Basic dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_BASIC, dissect_zbee_zcl_basic, proto_zbee_zcl_basic);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_BASIC, dissect_zbee_zcl_basic, proto_zbee_zcl_basic);
 } /*proto_register_zbee_zcl_basic*/
 
 /*FUNCTION:------------------------------------------------------
@@ -503,12 +505,12 @@ static const value_string zbee_zcl_identify_srv_tx_cmd_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
     gint              rem_len;
@@ -570,6 +572,8 @@ dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_identify*/
 
 
@@ -725,7 +729,7 @@ proto_register_zbee_zcl_identify(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Identify dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_IDENTIFY, dissect_zbee_zcl_identify, proto_zbee_zcl_identify);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_IDENTIFY, dissect_zbee_zcl_identify, proto_zbee_zcl_identify);
 
 } /*proto_register_zbee_zcl_identify*/
 
@@ -838,10 +842,10 @@ static const value_string zbee_zcl_on_off_onoff_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)data;
     guint   offset = 0;
     guint8  cmd_id = zcl->cmd_id;
 
@@ -852,12 +856,12 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str_const(cmd_id, zbee_zcl_on_off_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-        }
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
         /*offset++;*/
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_on_off*/
 
 /*FUNCTION:------------------------------------------------------
@@ -953,7 +957,7 @@ proto_register_zbee_zcl_on_off(void)
     proto_register_field_array(proto_zbee_zcl_on_off, hf, array_length(hf));
 
     /* Register the ZigBee ZCL OnOff dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF, dissect_zbee_zcl_on_off, proto_zbee_zcl_on_off);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF, dissect_zbee_zcl_on_off, proto_zbee_zcl_on_off);
 } /* proto_register_zbee_zcl_on_off */
 
 /*FUNCTION:------------------------------------------------------
@@ -1126,12 +1130,12 @@ static const value_string zbee_zcl_part_id_length_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item  *payload_root;
     proto_tree  *payload_tree;
-    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)data;
     guint       offset = 0;
     guint8      cmd_id = zcl->cmd_id;
     gint        rem_len;
@@ -1201,6 +1205,8 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_part*/
 
  /*FUNCTION:------------------------------------------------------
@@ -1551,7 +1557,7 @@ void proto_register_zbee_zcl_part(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Partition dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_PART, dissect_zbee_zcl_part, proto_zbee_zcl_part);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_PART, dissect_zbee_zcl_part, proto_zbee_zcl_part);
 
 } /* proto_register_zbee_zcl_pwr_prof */
 
@@ -1815,12 +1821,12 @@ static const value_string zbee_zcl_options_types[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_pwr_prof (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_pwr_prof (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
     gint              rem_len;
@@ -1927,6 +1933,8 @@ dissect_zbee_zcl_pwr_prof (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 } /*dissect_zbee_zcl_pwr_prof*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2707,7 +2715,7 @@ proto_register_zbee_zcl_pwr_prof(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Power Profile dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_PWRPROF, dissect_zbee_zcl_pwr_prof, proto_zbee_zcl_pwr_prof);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_PWRPROF, dissect_zbee_zcl_pwr_prof, proto_zbee_zcl_pwr_prof);
 
 } /* proto_register_zbee_zcl_pwr_prof */
 
@@ -2988,12 +2996,12 @@ static const value_string zbee_zcl_appl_ctrl_time_encoding_type_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_appl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zbee_zcl_appl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
     gint              rem_len;
@@ -3066,6 +3074,8 @@ dissect_zbee_zcl_appl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 }
 
 
@@ -3392,7 +3402,7 @@ proto_register_zbee_zcl_appl_ctrl(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Control dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLCTRL, dissect_zbee_zcl_appl_ctrl, proto_zbee_zcl_appl_ctrl);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLCTRL, dissect_zbee_zcl_appl_ctrl, proto_zbee_zcl_appl_ctrl);
 
 } /*proto_register_zbee_zcl_appl_ctrl*/
 
