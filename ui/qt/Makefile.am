@@ -138,6 +138,8 @@ profile_dialog.cpp profile_dialog.h: ui_profile_dialog.h
 
 search_frame.cpp search_frame.h: ui_search_frame.h
 
+sequence_dialog.cpp sequence_dialog.h: ui_sequence_dialog.h
+
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
 summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
