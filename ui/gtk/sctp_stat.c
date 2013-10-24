@@ -37,7 +37,7 @@
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
-#include "ui/sctp_stat.h"
+#include "ui/gtk/sctp_stat.h"
 #include "ui/gtk/main.h"
 
 #define SCTP_ABORT_CHUNK_T_BIT        0x01

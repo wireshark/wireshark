@@ -35,7 +35,6 @@ set(COMMON_UI_SRC
 	preference_utils.c
 	profile.c
 	recent.c
-	sctp_stat.c
 	ssl_key_export.c
 	software_update.c
 	tap-megaco-common.c

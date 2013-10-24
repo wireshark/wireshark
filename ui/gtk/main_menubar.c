@@ -93,7 +93,7 @@
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/hostlist_table.h"
 #include "ui/gtk/packet_history.h"
-#include "ui/sctp_stat.h"
+#include "ui/gtk/sctp_stat.h"
 #include "ui/gtk/firewall_dlg.h"
 #include "ui/gtk/macros_dlg.h"
 #include "epan/dissectors/packet-ssl-utils.h"
