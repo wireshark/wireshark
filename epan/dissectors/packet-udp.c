@@ -326,8 +326,8 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   }
 
   if (try_heuristic_first && prev_heur_found) {
-    /* do lookup with the heuristic subdissector table */
-    /* save curr_layer_num as it might be changed by subdissector */
+    /* Do lookup with the heuristic subdissector table */
+    /* Save curr_layer_num as it might be changed by subdissector */
     guint8 curr_layer_num = pinfo->curr_layer_num;
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
       if (!udp_p_info) {
@@ -370,13 +370,14 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return;
 
   if (!try_heuristic_first && prev_heur_found) {
-    /* do lookup with the heuristic subdissector table */
+    /* Do lookup with the heuristic subdissector table */
+    /* Save curr_layer_num as it might be changed by subdissector */
+    guint8 curr_layer_num = pinfo->curr_layer_num;
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
         udp_p_info->found_heuristic = TRUE;
-        /* pinfo->curr_layer_num-1 because the heuristic dissector added one */
-        p_add_proto_data(pinfo->fd, hfi_udp->id, pinfo->curr_layer_num-1, udp_p_info);
+        p_add_proto_data(pinfo->fd, hfi_udp->id, curr_layer_num, udp_p_info);
       }
       return;
     }
