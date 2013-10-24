@@ -123,6 +123,7 @@ static int hf_openflow_v4_error_code = -1;
 static int hf_openflow_v4_error_data_text = -1;
 static int hf_openflow_v4_error_data_body = -1;
 static int hf_openflow_v4_error_experimenter = -1;
+static int hf_openflow_v4_echo_data = -1;
 static int hf_openflow_v4_datapath_id = -1;
 static int hf_openflow_datapath_v4_mac = -1;
 static int hf_openflow_v4_datapath_impl = -1;
@@ -1043,6 +1044,15 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 
+static void
+dissect_openflow_echo_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+    /* data */
+    if (offset < length) {
+        proto_tree_add_item(tree, hf_openflow_v4_echo_data, tvb, offset, length - offset, ENC_BIG_ENDIAN);
+    }
+}
+
 #define OFPC_V4_FLOW_STATS   1<<0  /* Flow statistics. */
 #define OFPC_V4_TABLE_STATS  1<<1  /* Table statistics. */
 #define OFPC_V4_PORT_STATS   1<<2  /* Port statistics. */
@@ -1874,7 +1884,10 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     case OFPT_V4_ERROR: /* 1 */
         dissect_openflow_error_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-
+    case OFPT_V4_ECHO_REQUEST: /* 3 */
+    case OFPT_V4_ECHO_REPLY: /* 4 */
+        dissect_openflow_echo_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
     case OFPT_V4_FEATURES_REQUEST: /* 5 */
         /* 5.3.1 Handshake
          * Upon TLS session establishment, the controller sends an OFPT_FEATURES_REQUEST
@@ -2343,6 +2356,11 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_error_data_text,
             { "Data", "openflow_v4.error.data",
                FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_echo_data,
+            { "Data", "openflow_v4.echo.data",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_error_data_body,
