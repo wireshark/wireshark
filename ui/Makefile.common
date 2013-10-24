@@ -56,6 +56,7 @@ WIRESHARK_UI_SRC = \
 	preference_utils.c	\
 	profile.c		\
 	recent.c		\
+	sctp_stat.c	\
 	software_update.c	\
 	ssl_key_export.c	\
 	tap-megaco-common.c	\
@@ -81,6 +82,7 @@ noinst_HEADERS = \
 	progress_dlg.h		\
 	recent.h		\
 	recent_utils.h		\
+	sctp_stat.h		\
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\

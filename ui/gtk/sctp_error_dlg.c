@@ -34,7 +34,7 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/sctp_stat.h"
+#include "ui/sctp_stat.h"
 #include "ui/gtk/gui_utils.h"
 
 static GtkWidget *sctp_error_dlg=NULL;
