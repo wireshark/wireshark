@@ -4461,13 +4461,11 @@ static const value_string gsm_a_rr_cell_barr_access_vals[] = {
     {  1, "The cell is barred"},
     {  0, NULL }
 };
-#if 0
 static const value_string gsm_a_rr_re_vals[] = {
     {  0, "Call Reestablishment allowed in the cell"},
     {  1, "Call Reestablishment not allowed in the cell"},
     {  0, NULL }
 };
-#endif
 
 static guint16
 de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -7555,7 +7553,6 @@ static const true_false_string gsm_a_rr_si_status_ind_value = {
     "The network does not support the PACKET SI STATUS message"
 };
 
-#if 0
 static const value_string gsm_a_rr_lb_ms_txpwr_max_cch_vals[] = {
     {  0, "43 dBm"},
     {  1, "41 dBm"},
@@ -7591,7 +7588,6 @@ static const value_string gsm_a_rr_lb_ms_txpwr_max_cch_vals[] = {
     { 31, "5 dBm"},
     {  0, NULL }
 };
-#endif
 
 static const value_string gsm_a_rr_si2n_support_vals[] = {
     { 0, "SI2n is not supported"},
@@ -11476,7 +11472,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_re,
               { "RE", "gsm_a.rr.re",
-                FT_BOOLEAN, 8,  NULL, 0x01,
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_re_vals), 0x01,
                 "Call re-establishment allowed (RE)", HFILL }
             },
             { &hf_gsm_a_rr_acc,
@@ -12130,8 +12126,8 @@ proto_register_gsm_a_rr(void)
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_lb_ms_txpwr_max_cch,
-              { "LB MS TxPwr Max CCCH", "gsm_a.rr.n_avg_i",
-                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_n_avg_i_vals), 0x0,
+              { "LB MS TxPwr Max CCCH", "gsm_a.rr.lb_ms_txpwr_max_cch",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lb_ms_txpwr_max_cch_vals), 0x0,
                 "Maximum TX power level an MS is allowed to use on all other than DCS 1800 and PCS 1900 frequency bands when accessing the system until otherwise commanded (LB MS TxPwr Max CCCH)", HFILL }
             },
             { &hf_gsm_a_rr_si2n_support,
