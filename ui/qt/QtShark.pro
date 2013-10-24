@@ -500,6 +500,8 @@ HEADERS += \
     qcustomplot.h \
     recent_file_status.h \
     related_packet_delegate.h \
+    sequence_diagram.h \
+    sequence_dialog.h \
     simple_dialog_qt.h \
     sparkline_delegate.h \
     syntax_line_edit.h \
@@ -557,6 +559,8 @@ SOURCES += \
     recent_file_status.cpp \
     related_packet_delegate.cpp \
     search_frame.cpp \
+    sequence_diagram.cpp \
+    sequence_dialog.cpp \
     simple_dialog_qt.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \

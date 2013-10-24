@@ -34,35 +34,10 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <epan/address.h>
-
-#define MAX_NUM_NODES 40
-
-/** defines an entry for the graph analysis */
-typedef struct _graph_analysis_item {
-	frame_data *fd;				/**< Holds the frame number and time information */
-	address src_addr;
-	guint16 port_src;
-	address dst_addr;
-	guint16 port_dst;
-	gchar *frame_label;			/**< the label on top of the arrow */
-	gchar *comment;				/**< a comment that appears at the left of the graph */
-	guint16 conv_num;			/**< the conversation number, each conversation will be colored */
-	gboolean display;			/**< indicate if the packet is displayed or not in the graph */
-	guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
-	guint16 dst_node;			/**< a node is an IP address that will be displayed in columns */
-	guint16 line_style;			/**< the arrow line width in pixels*/
-} graph_analysis_item_t;
-
-/** defines the graph analysis structure */
-typedef struct _graph_analysis_info {
-	int     nconv;       /**< number of conversations in the list */
-	GList*  list;        /**< list with the graph analysis items */
-	GHashTable *ht;      /**< hash table for retrieving graph analysis items */
-} graph_analysis_info_t;
+#include <ui/tap-sequence-analysis.h>
 
 /** max number of nodes to display, each node will be an IP address */
 #define MAX_NUM_COL_CONV 10
-#define NODE_OVERFLOW MAX_NUM_NODES+1
 #define NUM_DISPLAY_ITEMS 1000
 
 typedef struct _display_items {
@@ -70,6 +45,7 @@ typedef struct _display_items {
 	guint16 port_src;
 	guint16 port_dst;
 	gchar *frame_label;			/**< the label on top of the arrow */
+	gchar *time_str;   			/**< timestamp */
 	gchar *comment;				/**< a comment that appears at the left of the graph */
 	guint16 conv_num;			/**< the conversation number, each conversation will be colored */
 	guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
@@ -119,18 +95,16 @@ typedef void (*destroy_user_data_cb)(void *data);
 /** structure that holds general information and the dialog */
 typedef struct _graph_analysis_data_t {
 	/**> graphic data */
-	graph_analysis_info_t *graph_info;
+	seq_analysis_info_t *graph_info;
 
 	/**> dialog associated data */
 	graph_analysis_dialog_data_t dlg;
-	address nodes[MAX_NUM_NODES];
-	guint32 num_nodes;
 	guint32 num_items;
 	destroy_user_data_cb on_destroy_user_data;  /**< callback info for destroy */
 	void *data;									/**< data to be passes when on destroy */
 } graph_analysis_data_t;
 
-graph_analysis_data_t* graph_analysis_init(void);
+graph_analysis_data_t* graph_analysis_init(seq_analysis_info_t *sainfo);
 void graph_analysis_create(graph_analysis_data_t* user_data);
 void graph_analysis_update(graph_analysis_data_t* user_data);
 void graph_analysis_redraw(graph_analysis_data_t* user_data);

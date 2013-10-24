@@ -332,6 +332,7 @@
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
+    <addaction name="actionStatisticsFlowGraph"/>
     <addaction name="menuTcpStreamGraphs"/>
    </widget>
    <widget class="QMenu" name="menuTelephony">
@@ -1319,6 +1320,14 @@
    </property>
    <property name="toolTip">
     <string>TCP time sequence graph (tcptrace)</string>
+   </property>
+  </action>
+  <action name="actionStatisticsFlowGraph">
+   <property name="text">
+    <string>Flow Graph...</string>
+   </property>
+   <property name="toolTip">
+    <string>Flow sequence diagram</string>
    </property>
   </action>
  </widget>

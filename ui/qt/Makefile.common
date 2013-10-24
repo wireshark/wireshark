@@ -51,6 +51,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_print_dialog.h \
 	ui_profile_dialog.h \
 	ui_search_frame.h \
+	ui_sequence_dialog.h \
 	ui_splash_overlay.h \
 	ui_summary_dialog.h \
 	ui_tcp_stream_dialog.h \
@@ -135,6 +136,8 @@ MOC_HDRS = \
 	recent_file_status.h \
 	related_packet_delegate.h \
 	search_frame.h \
+	sequence_diagram.h \
+	sequence_dialog.h \
 	simple_dialog_qt.h \
 	sparkline_delegate.h \
 	splash_overlay.h \
@@ -170,6 +173,7 @@ UI_FILES = \
 	print_dialog.ui			\
 	profile_dialog.ui		\
 	search_frame.ui			\
+	sequence_dialog.ui		\
 	splash_overlay.ui		\
 	summary_dialog.ui 		\
 	tcp_stream_dialog.ui		\
@@ -271,6 +275,8 @@ WIRESHARK_QT_SRC = \
 	recent_file_status.cpp \
 	related_packet_delegate.cpp \
 	search_frame.cpp \
+	sequence_diagram.cpp \
+	sequence_dialog.cpp \
 	simple_dialog_qt.cpp \
 	sparkline_delegate.cpp \
 	summary_dialog.cpp \

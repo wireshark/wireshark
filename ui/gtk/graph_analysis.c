@@ -52,12 +52,9 @@
 
 #include "ui/util.h"
 
-#include "ui/alert_box.h"
 #include "ui/last_open_dir.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-
-#include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/file_dlg.h"
@@ -81,27 +78,19 @@
 #define COMMENT_WIDTH 400
 #define TIME_WIDTH 150
 
-#define NODE_CHARS_WIDTH 20
-#define CONV_TIME_HEADER       "Conv.| Time    "
-#define TIME_HEADER "|Time     "
-#define CONV_TIME_EMPTY_HEADER "     |         "
-#define TIME_EMPTY_HEADER      "|         "
-#define CONV_TIME_HEADER_LENGTH 16
-#define TIME_HEADER_LENGTH 10
-
 /****************************************************************************/
 /* Reset the user_data structure */
 static void graph_analysis_reset(graph_analysis_data_t *user_data)
 {
 	int i;
 
-	user_data->num_nodes = 0;
+	user_data->graph_info->num_nodes = 0;
 	user_data->num_items = 0;
 	for (i=0; i<MAX_NUM_NODES; i++) {
-		user_data->nodes[i].type = AT_NONE;
-		user_data->nodes[i].len = 0;
-		g_free((void *)user_data->nodes[i].data);
-		user_data->nodes[i].data = NULL;
+		user_data->graph_info->nodes[i].type = AT_NONE;
+		user_data->graph_info->nodes[i].len = 0;
+		g_free((void *)user_data->graph_info->nodes[i].data);
+		user_data->graph_info->nodes[i].data = NULL;
 	}
 
 	user_data->dlg.first_node = 0;
@@ -116,14 +105,14 @@ static void graph_analysis_init_dlg(graph_analysis_data_t *user_data)
 {
 	int i;
 
-	user_data->num_nodes = 0;
+	user_data->graph_info->num_nodes = 0;
 	user_data->num_items = 0;
 	user_data->on_destroy_user_data = NULL;
 	user_data->data = NULL;
 	for (i=0; i<MAX_NUM_NODES; i++) {
-		user_data->nodes[i].type = AT_NONE;
-		user_data->nodes[i].len = 0;
-		user_data->nodes[i].data = NULL;
+		user_data->graph_info->nodes[i].type = AT_NONE;
+		user_data->graph_info->nodes[i].len = 0;
+		user_data->graph_info->nodes[i].data = NULL;
 	}
 
 	user_data->dlg.first_node = 0;
@@ -169,10 +158,10 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data)
 	int i;
 
 	for (i=0; i<MAX_NUM_NODES; i++) {
-		user_data->nodes[i].type = AT_NONE;
-		user_data->nodes[i].len = 0;
-		g_free((void *)user_data->nodes[i].data);
-		user_data->nodes[i].data = NULL;
+		user_data->graph_info->nodes[i].type = AT_NONE;
+		user_data->graph_info->nodes[i].len = 0;
+		g_free((void *)user_data->graph_info->nodes[i].data);
+		user_data->graph_info->nodes[i].data = NULL;
 	}
 	user_data->dlg.window = NULL;
 	g_free(user_data->dlg.title);
@@ -242,281 +231,6 @@ static void draw_arrow(GdkDrawable *pixmap, GdkRGBA *color, gint x, gint y, gboo
 #endif
 
 /****************************************************************************/
-/* Adds trailing characters to complete the requested length.               */
-/****************************************************************************/
-
-static void enlarge_string(GString *gstr, guint32 length, char pad) {
-
-	gsize i;
-
-	for (i = gstr->len; i < length; i++) {
-		g_string_append_c(gstr, pad);
-	}
-}
-
-/****************************************************************************/
-/* overwrites the characters in a string, between positions p1 and p2, with */
-/*   the characters of text_to_insert                                       */
-/*   NB: it does not check that p1 and p2 fit into string                   */
-/****************************************************************************/
-
-static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 p2) {
-
-	gsize len;
-	gsize pos;
-
-	if (p1 == p2)
-		return;
-
-	if (p1 > p2) {
-		pos = p2;
-		len = p1 - p2;
-	}
-	else{
-		pos = p1;
-		len = p2 - p1;
-	}
-
-	if (len > strlen(text_to_insert)) {
-		len = strlen(text_to_insert);
-	}
-
-	if (pos > gstr->len)
-		pos = gstr->len;
-
-	/* ouch this is ugly but gtk1 needs it */
-	if ((pos + len) > gstr->len)
-		g_string_truncate(gstr, pos);
-	else
-		g_string_erase(gstr, pos, len);
-
-	g_string_insert(gstr, pos, text_to_insert);
-}
-
-/****************************************************************************/
-static gboolean
-dialog_graph_dump_to_file(char *pathname, graph_analysis_data_t *user_data)
-{
-	guint32  i, first_node, display_items, display_nodes;
-	guint32  start_position, end_position, item_width, header_length;
-	graph_analysis_item_t *gai;
-	guint16  first_conv_num = 0;
-	gboolean several_convs  = FALSE;
-	gboolean first_packet   = TRUE;
-
-	GString    *label_string, *empty_line, *separator_line, *tmp_str, *tmp_str2;
-	const char *empty_header;
-	char        src_port[8], dst_port[8];
-	gchar      *time_str;
-	GList      *list;
-
-	FILE  *of;
-
-	of = ws_fopen(pathname, "w");
-	if (of==NULL) {
-		open_failure_alert_box(pathname, errno, TRUE);
-		return FALSE;
-	}
-
-	time_str       = (gchar *)g_malloc(COL_MAX_LEN);
-	label_string   = g_string_new("");
-	empty_line     = g_string_new("");
-	separator_line = g_string_new("");
-	tmp_str        = g_string_new("");
-	tmp_str2       = g_string_new("");
-
-	display_items = 0;
-	list = g_list_first(user_data->graph_info->list);
-	while (list)
-	{
-		gai = (graph_analysis_item_t *)list->data;
-		list = g_list_next(list);
-
-		if (!gai->display)
-			continue;
-
-		display_items += 1;
-		if (first_packet) {
-			first_conv_num = gai->conv_num;
-			first_packet = FALSE;
-		}
-		else if (gai->conv_num != first_conv_num) {
-			several_convs = TRUE;
-		}
-	}
-
-	/* if not items to display */
-	if (display_items == 0)
-		goto exit;
-
-	display_nodes = user_data->num_nodes;
-
-	first_node = user_data->dlg.first_node;
-
-	/* Write the conv. and time headers */
-	if (several_convs) {
-		fprintf(of, CONV_TIME_HEADER);
-		empty_header = CONV_TIME_EMPTY_HEADER;
-		header_length = CONV_TIME_HEADER_LENGTH;
-	}
-	else{
-		fprintf(of, TIME_HEADER);
-		empty_header = TIME_EMPTY_HEADER;
-		header_length = TIME_HEADER_LENGTH;
-	}
-
-	/* Write the node names on top */
-	for (i=0; i<display_nodes; i+=2) {
-		/* print the node identifiers */
-		g_string_printf(label_string, "| %s",
-			get_addr_name(&(user_data->nodes[i+first_node])));
-		enlarge_string(label_string, NODE_CHARS_WIDTH*2, ' ');
-		fprintf(of, "%s", label_string->str);
-		g_string_printf(label_string, "| ");
-		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
-		g_string_append(empty_line, label_string->str);
-	}
-
-	fprintf(of, "|\n%s", empty_header);
-	g_string_printf(label_string, "| ");
-	enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
-	fprintf(of, "%s", label_string->str);
-
-	/* Write the node names on top */
-	for (i=1; i<display_nodes; i+=2) {
-		/* print the node identifiers */
-		g_string_printf(label_string, "| %s",
-			get_addr_name(&(user_data->nodes[i+first_node])));
-		if (label_string->len < NODE_CHARS_WIDTH)
-		{
-			enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
-			g_string_append(label_string, "| ");
-		}
-		enlarge_string(label_string, NODE_CHARS_WIDTH*2, ' ');
-		fprintf(of, "%s", label_string->str);
-		g_string_printf(label_string, "| ");
-		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
-		g_string_append(empty_line, label_string->str);
-	}
-
-	fprintf(of, "\n");
-
-	g_string_append_c(empty_line, '|');
-
-	enlarge_string(separator_line, (guint32) empty_line->len + header_length, '-');
-
-	/*
-	 * Draw the items
-	 */
-
-	list = g_list_first(user_data->graph_info->list);
-	while (list)
-	{
-		gai = (graph_analysis_item_t *)list->data;
-		list = g_list_next(list);
-
-		if (!gai->display)
-			continue;
-
-		start_position = (gai->src_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
-
-		end_position = (gai->dst_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
-
-		if (start_position > end_position) {
-			item_width = start_position-end_position;
-		}
-		else if (start_position < end_position) {
-			item_width = end_position-start_position;
-		}
-		else{ /* same origin and destination address */
-			end_position = start_position+NODE_CHARS_WIDTH;
-			item_width = NODE_CHARS_WIDTH;
-		}
-
-		/* separator between conversations */
-		if (gai->conv_num != first_conv_num) {
-			fprintf(of, "%s\n", separator_line->str);
-			first_conv_num = gai->conv_num;
-		}
-
-		/* write the conversation number */
-		if (several_convs) {
-			g_string_printf(label_string, "%i", gai->conv_num);
-			enlarge_string(label_string, 5, ' ');
-			fprintf(of, "%s", label_string->str);
-		}
-
-#if 0
-		/* write the time */
-		g_string_printf(label_string, "|%.3f", nstime_to_sec(&gai->fd->rel_ts));
-#endif
-		/* Write the time, using the same format as in the time col */
-		set_fd_time(cfile.epan, gai->fd, time_str);
-		g_string_printf(label_string, "|%s", time_str);
-		enlarge_string(label_string, 10, ' ');
-		fprintf(of, "%s", label_string->str);
-
-		/* write the frame label */
-
-		g_string_printf(tmp_str, "%s", empty_line->str);
-		overwrite(tmp_str, gai->frame_label,
-			start_position,
-			end_position
-			);
-		fprintf(of, "%s", tmp_str->str);
-
-		/* write the comments */
-		fprintf(of, "%s\n", gai->comment);
-
-		/* write the arrow and frame label*/
-		fprintf(of, "%s", empty_header);
-
-		g_string_printf(tmp_str, "%s", empty_line->str);
-
-		g_string_truncate(tmp_str2, 0);
-
-		if (start_position<end_position) {
-			enlarge_string(tmp_str2, item_width-2, '-');
-			g_string_append_c(tmp_str2, '>');
-		}
-		else{
-			g_string_printf(tmp_str2, "<");
-			enlarge_string(tmp_str2, item_width-1, '-');
-		}
-
-		overwrite(tmp_str, tmp_str2->str,
-			start_position,
-			end_position
-			);
-
-		g_snprintf(src_port, sizeof(src_port), "(%i)", gai->port_src);
-		g_snprintf(dst_port, sizeof(dst_port), "(%i)", gai->port_dst);
-
-		if (start_position<end_position) {
-			overwrite(tmp_str, src_port, start_position-9, start_position-1);
-			overwrite(tmp_str, dst_port, end_position+1, end_position+9);
-		}
-		else{
-			overwrite(tmp_str, src_port, start_position+1, start_position+9);
-			overwrite(tmp_str, dst_port, end_position-9, end_position+1);
-		}
-
-		fprintf(of, "%s\n", tmp_str->str);
-	}
-
-exit:
-	g_string_free(label_string, TRUE);
-	g_string_free(empty_line, TRUE);
-	g_string_free(separator_line, TRUE);
-	g_string_free(tmp_str, TRUE);
-	g_string_free(tmp_str2, TRUE);
-	g_free(time_str);
-	fclose (of);
-	return TRUE;
-
-}
-
-/****************************************************************************/
 /* save in a file */
 
 static char *
@@ -559,7 +273,7 @@ on_save_bt_clicked                    (GtkWidget       *button _U_,
 			/* User gave up. */
 			break;
 		}
-		if (dialog_graph_dump_to_file(pathname, user_data)) {
+		if (sequence_analysis_dump_to_file(pathname, user_data->graph_info, &cfile, user_data->dlg.first_node)) {
 			/* We succeeded. */
 			g_free(pathname);
 			break;
@@ -580,7 +294,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	guint32 right_x_border;
 	guint32 top_y_border;
 	guint32 bottom_y_border;
-	graph_analysis_item_t *gai;
+	seq_analysis_item_t *gai;
 
 	PangoLayout *layout;
 	PangoLayout *middle_layout;
@@ -595,7 +309,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	char     label_string[MAX_COMMENT];
 	GList   *list;
 	cairo_t *cr;
-	gchar	*time_str;
 
 #if 0
 	GdkColor *color_p, *bg_color_p;
@@ -657,7 +370,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	}
 
 	bg_pixbuf =  gdk_pixbuf_new_from_xpm_data(voip_bg_xpm);
-	time_str = (gchar *)g_malloc(COL_MAX_LEN);
 	user_data->dlg.needs_redraw = FALSE;
 
 	gtk_widget_get_allocation(user_data->dlg.draw_area_time, &draw_area_time_alloc);
@@ -724,7 +436,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	i = 0;
 	while (list)
 	{
-		gai = (graph_analysis_item_t *)list->data;
+		gai = (seq_analysis_item_t *)list->data;
 		if (gai->display) {
 			if (current_item>=display_items) break;		/* the item is outside the display */
 			if (i>=first_item) {
@@ -738,6 +450,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 					gai->frame_label[46] = '.';
 				}
 				user_data->dlg.items[current_item].frame_label = gai->frame_label;
+				user_data->dlg.items[current_item].time_str = gai->time_str;
 				user_data->dlg.items[current_item].comment = gai->comment;
 				user_data->dlg.items[current_item].conv_num = gai->conv_num;
 
@@ -764,21 +477,12 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	last_item = first_item+display_items-1;
 	user_data->dlg.last_item = last_item;
 
-	/* if no items to display */
-	if (display_items == 0)	{
-		g_free(time_str);
-		return;
-	}
-
-
 	/* Calculate the x borders */
 	/* We use time from the last display item to calcultate the x left border */
 #if 0
 	g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[display_items-1].fd->rel_ts));
 #endif
-	/* Write the time, using the same format as in th etime col */
-	set_fd_time(cfile.epan, user_data->dlg.items[display_items-1].fd, time_str);
-	g_snprintf(label_string, MAX_LABEL, "%s", time_str);
+	g_snprintf(label_string, MAX_LABEL, "%s", user_data->dlg.items[display_items-1].time_str);
 	layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	middle_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
@@ -923,10 +627,10 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #endif
 	}
 	/* Draw the node names on top and the division lines */
-	for (i=0; i<user_data->num_nodes; i++) {
+	for (i=0; i<user_data->graph_info->num_nodes; i++) {
 		/* print the node identifiers */
 		/* XXX we assign 5 pixels per character in the node identity */
-		g_strlcpy(label_string, get_addr_name(&(user_data->nodes[i])), NODE_WIDTH/5);
+		g_strlcpy(label_string, get_addr_name(&(user_data->graph_info->nodes[i])), NODE_WIDTH/5);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)
@@ -978,8 +682,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[current_item].fd->rel_ts));
 #endif
 		/* Draw the time */
-		set_fd_time(cfile.epan, user_data->dlg.items[current_item].fd, time_str);
-		g_snprintf(label_string, MAX_LABEL, "%s", time_str);
+		g_snprintf(label_string, MAX_LABEL, "%s", user_data->dlg.items[current_item].time_str);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1186,7 +889,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #endif
 		/* draw the div line of the selected item with soft gray*/
 		if ( current_item+first_item == user_data->dlg.selected_item )
-			for (i=0; i<user_data->num_nodes; i++) {
+			for (i=0; i<user_data->graph_info->num_nodes; i++) {
 #if GTK_CHECK_VERSION(2,22,0)
 				cr = cairo_create (user_data->dlg.surface_main);
 				gdk_cairo_set_source_rgba (cr, &grey_color1);
@@ -1214,7 +917,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	}
 
 	g_object_unref(G_OBJECT(layout));
-	g_free(time_str);
 
 	/* refresh the draw areas */
 	if (gtk_widget_is_drawable(user_data->dlg.draw_area_time) ) {
@@ -1851,11 +1553,11 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	/* create main Graph draw area */
 	user_data->dlg.draw_area = gtk_drawing_area_new();
 	/* allow a little extra space (2*NODE_WIDTH) for wide labels */
-	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH + 2*NODE_WIDTH; 
+	user_data->dlg.surface_width = user_data->graph_info->num_nodes * NODE_WIDTH + 2*NODE_WIDTH;
 	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
 	user_data->dlg.scroll_window = gtk_scrolled_window_new(NULL, NULL);
-	if ( user_data->num_nodes < 6)
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
+	if ( user_data->graph_info->num_nodes < 6)
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->graph_info->num_nodes, user_data->dlg.surface_height);
 	else
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_height);
 
@@ -2036,60 +1738,13 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	g_free(win_name);
 }
 
-/* Return the index array if the node is in the array. Return -1 if there is room in the array
- * and Return -2 if the array is full
- */
 /****************************************************************************/
-static gint add_or_get_node(graph_analysis_data_t *user_data, address *node) {
-	guint i;
-
-	if (node->type == AT_NONE) return NODE_OVERFLOW;
-
-	for (i=0; i<MAX_NUM_NODES && i < user_data->num_nodes ; i++) {
-		if ( CMP_ADDRESS(&(user_data->nodes[i]), node) == 0 ) return i;	/* it is in the array */
-	}
-
-	if (i == MAX_NUM_NODES) {
-		return  NODE_OVERFLOW;
-	} else {
-		user_data->num_nodes++;
-		COPY_ADDRESS(&(user_data->nodes[i]), node);
-		return i;
-	}
-}
-
-/* Get the nodes from the list */
-/****************************************************************************/
-static void get_nodes(graph_analysis_data_t *user_data)
-{
-	GList *list;
-	graph_analysis_item_t *gai;
-
-	/* fill the node array */
-	list = g_list_first(user_data->graph_info->list);
-	while (list)
-	{
-		gai = (graph_analysis_item_t *)list->data;
-		if (gai->display) {
-			user_data->num_items++;
-			if (!user_data->dlg.inverse) {
-				gai->src_node = (guint16)add_or_get_node(user_data, &(gai->src_addr));
-				gai->dst_node = (guint16)add_or_get_node(user_data, &(gai->dst_addr));
-			} else {
-				gai->dst_node = (guint16)add_or_get_node(user_data, &(gai->src_addr));
-				gai->src_node = (guint16)add_or_get_node(user_data, &(gai->dst_addr));
-			}
-		}
-		list = g_list_next(list);
-	}
-}
-
-/****************************************************************************/
-graph_analysis_data_t *graph_analysis_init(void)
+graph_analysis_data_t *graph_analysis_init(seq_analysis_info_t *sainfo)
 {
 	graph_analysis_data_t *user_data;
 	/* init */
 	user_data = g_new(graph_analysis_data_t,1);
+	user_data->graph_info = sainfo;
 
 	/* init user_data */
 	graph_analysis_init_dlg(user_data);
@@ -2107,7 +1762,7 @@ void graph_analysis_create(graph_analysis_data_t *user_data)
 	graph_analysis_reset(user_data);
 
 	/* get nodes (each node is an address) */
-	get_nodes(user_data);
+	user_data->num_items = sequence_analysis_get_nodes(user_data->graph_info);
 
 	/* create the graph windows */
 	dialog_graph_create_window(user_data);
@@ -2125,12 +1780,12 @@ void graph_analysis_update(graph_analysis_data_t *user_data)
 	graph_analysis_reset(user_data);
 
 	/* get nodes (each node is an address) */
-	get_nodes(user_data);
+	user_data->num_items = sequence_analysis_get_nodes(user_data->graph_info);
 
-	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
+	user_data->dlg.surface_width = user_data->graph_info->num_nodes * NODE_WIDTH;
 	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
-	if (user_data->num_nodes < 6)
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
+	if (user_data->graph_info->num_nodes < 6)
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->graph_info->num_nodes, user_data->dlg.surface_height);
 	else
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_height);
 
@@ -2146,12 +1801,12 @@ void graph_analysis_update(graph_analysis_data_t *user_data)
 void graph_analysis_redraw(graph_analysis_data_t *user_data)
 {
 	/* get nodes (each node is an address) */
-	get_nodes(user_data);
+	user_data->num_items = sequence_analysis_get_nodes(user_data->graph_info);
 
-	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
+	user_data->dlg.surface_width = user_data->graph_info->num_nodes * NODE_WIDTH;
 	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
-	if (user_data->num_nodes < 6)
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
+	if (user_data->graph_info->num_nodes < 6)
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->graph_info->num_nodes, user_data->dlg.surface_height);
 	else
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_height);
 

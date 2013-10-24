@@ -171,7 +171,7 @@ typedef struct _voip_calls_tapinfo {
 	int start_packets;
 	int completed_calls;
 	int rejected_calls;
-	graph_analysis_info_t* graph_analysis;
+	seq_analysis_info_t* graph_analysis;
 	gboolean reversed;
 	gboolean redraw;
 	/* 

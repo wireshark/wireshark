@@ -68,6 +68,8 @@ set(QTSHARK_H_SRC
 	qcustomplot.h
 	recent_file_status.h
 	search_frame.h
+	sequence_diagram.h
+	sequence_dialog.h
 	simple_dialog_qt.h
 	splash_overlay.h
 	summary_dialog.h
@@ -133,6 +135,8 @@ set(CLEAN_FILES
 	recent_file_status.cpp
 	related_packet_delegate.cpp
 	search_frame.cpp
+	sequence_diagram.cpp
+	sequence_dialog.cpp
 	simple_dialog_qt.cpp
 	splash_overlay.cpp
 	sparkline_delegate.cpp
@@ -169,6 +173,7 @@ set(QTSHARK_UI
 	print_dialog.ui
 	profile_dialog.ui
 	search_frame.ui
+	sequence_dialog.ui
 	splash_overlay.ui
 	summary_dialog.ui
 	tcp_stream_dialog.ui

@@ -226,7 +226,7 @@ TCPStreamDialog::~TCPStreamDialog()
 
 void TCPStreamDialog::showEvent(QShowEvent *event)
 {
-    Q_UNUSED(event)
+    Q_UNUSED(event);
     resetAxes();
 }
 
@@ -373,7 +373,6 @@ void TCPStreamDialog::fillGraph()
     guint64 bytes_rev = 0;
     int pkts_fwd = 0;
     int pkts_rev = 0;
-
 
     time_stamp_map_.clear();
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {

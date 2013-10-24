@@ -77,6 +77,7 @@
 #include "print_dialog.h"
 #include "profile_dialog.h"
 #include "qt_ui_utils.h"
+#include "sequence_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
 #include "wireshark_application.h"
@@ -1759,6 +1760,15 @@ void MainWindow::on_actionAnalyzeFollowSSLStream_triggered()
 
 // Statistics Menu
 
+void MainWindow::on_actionStatisticsFlowGraph_triggered()
+{
+    SequenceDialog *sequence_dialog = new SequenceDialog(this, cap_file_);
+    connect(sequence_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            sequence_dialog, SLOT(setCaptureFile(capture_file*)));
+    sequence_dialog->show();
+}
 
 void MainWindow::openTcpStreamDialog(int graph_type)
 {

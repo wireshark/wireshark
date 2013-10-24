@@ -181,7 +181,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	GList* lista;
 	GList* listb;
 	voip_calls_info_t *listinfo;
-	graph_analysis_item_t *gai;
+	seq_analysis_item_t *gai;
 	size_t filter_length;
 	size_t max_filter_length = 2048; /* What's this based on ? */
 	int pos;
@@ -215,7 +215,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 		if (listinfo->selected) {
 			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 			while (listb) {
-				gai = (graph_analysis_item_t *)listb->data;
+				gai = (seq_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
 					g_string_append_printf(filter_string_fwd, "%sframe.number == %u", is_first?"":" or ", gai->fd->num);
 					is_first = FALSE;
@@ -318,8 +318,8 @@ voip_calls_on_select_all(GtkButton *button _U_, gpointer user_data _U_)
 static gint
 graph_analysis_sort_compare(gconstpointer a, gconstpointer b)
 {
-    const graph_analysis_item_t *entry_a = (const graph_analysis_item_t *)a;
-    const graph_analysis_item_t *entry_b = (const graph_analysis_item_t *)b;
+    const seq_analysis_item_t *entry_a = (const seq_analysis_item_t *)a;
+    const seq_analysis_item_t *entry_b = (const seq_analysis_item_t *)b;
 
 	if(entry_a->fd->num < entry_b->fd->num)
 		return -1;
@@ -334,7 +334,7 @@ graph_analysis_sort_compare(gconstpointer a, gconstpointer b)
 static void
 on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
-	graph_analysis_item_t *gai;
+	seq_analysis_item_t *gai;
 	GList* lista;
 	GList* listb;
 	voip_calls_info_t *listinfo;
@@ -349,7 +349,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	/* reset the "display" parameter in graph analysis */
 	listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 	while (listb) {
-		gai = (graph_analysis_item_t *)listb->data;
+		gai = (seq_analysis_item_t *)listb->data;
 		gai->display = FALSE;
 		listb = g_list_next(listb);
 	}
@@ -361,7 +361,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 		if (listinfo->selected) {
 			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 			while (listb) {
-				gai = (graph_analysis_item_t *)listb->data;
+				gai = (seq_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
 					gai->display = TRUE;
 				}
@@ -851,8 +851,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	if (graph_analysis_data == NULL) {
 		graph_analysis_data_init();
 		/* init the Graph Analysys */
-		graph_analysis_data = graph_analysis_init();
-		graph_analysis_data->graph_info = voip_calls_get_info()->graph_analysis;
+		graph_analysis_data = graph_analysis_init(voip_calls_get_info()->graph_analysis);
 	}
 
 	/* Clean up memory used by calls tap */
