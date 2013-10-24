@@ -203,7 +203,6 @@ typedef struct _packet_info {
 								 * MTP2_ANNEX_A_USED_UNKNOWN  2
 								 */
   guint16 profinet_type; 		/**< the type of PROFINET packet (0: not a PROFINET packet) */
-  void *profinet_conv; 			/**< the PROFINET conversation data (NULL: not a PROFINET packet) */
   void *usb_conv_info;
   void *tcp_tree;				/**< proto_tree for the tcp layer */
 
