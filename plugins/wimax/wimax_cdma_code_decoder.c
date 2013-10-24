@@ -33,8 +33,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-extern gint proto_wimax;
-
 static int proto_wimax_cdma_code_decoder = -1;
 static gint ett_wimax_cdma_code_decoder = -1;
 
@@ -45,19 +43,15 @@ static int hf_wimax_ranging_subchannel_offset = -1;
 static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint offset = 0;
-	guint length;
-	proto_item *cdma_item = NULL;
-
-	proto_tree *cdma_tree = NULL;
+	proto_item *cdma_item;
+	proto_tree *cdma_tree;
 
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Code Attribute");
 	if (tree)
 	{	/* we are being asked for details */
-		/* get the tvb reported length */
-		length = tvb_reported_length(tvb);
 		/* display CDMA dissector info */
-		cdma_item = proto_tree_add_protocol_format(tree, proto_wimax_cdma_code_decoder, tvb, offset, length, "CDMA Code Attribute (%u bytes)", length);
+		cdma_item = proto_tree_add_item(tree, proto_wimax_cdma_code_decoder, tvb, offset, -1, ENC_NA);
 		/* add CDMA Code subtree */
 		cdma_tree = proto_item_add_subtree(cdma_item, ett_wimax_cdma_code_decoder);
 		/* display the first CDMA Code */
@@ -107,7 +101,11 @@ void proto_register_wimax_cdma(void)
 			&ett_wimax_cdma_code_decoder,
 		};
 
-	proto_wimax_cdma_code_decoder = proto_wimax;
+	proto_wimax_cdma_code_decoder = proto_register_protocol (
+		"WiMax CDMA Code Attribute",   /* name       */
+		"CDMA Code Attribute",   /* short name */
+		"wmx.cdma"        /* abbrev     */
+		);
 
 	/* register the field display messages */
 	proto_register_field_array(proto_wimax_cdma_code_decoder, hf, array_length(hf));
