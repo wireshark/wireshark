@@ -132,17 +132,19 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "COMMUNICATIONS DESCRIPTOR");
     subtree = proto_item_add_subtree(ti, ett_usb_com);
 
-    dissect_usb_descriptor_header(subtree, tvb, 0, &usb_com_descriptor_type_vals_ext);
+    dissect_usb_descriptor_header(subtree, tvb, offset, &usb_com_descriptor_type_vals_ext);
+    offset += 2;
 
     type = tvb_get_guint8(tvb, 1);
     switch (type) {
         case CS_INTERFACE:
-            subtype = tvb_get_guint8(tvb, 2);
-            proto_tree_add_uint(subtree, hf_usb_com_descriptor_subtype, tvb, 2, 1, subtype);
+            subtype = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(subtree, hf_usb_com_descriptor_subtype, tvb, offset, 1, subtype);
+            offset++;
             switch (subtype) {
                 case 0x00:
-                    proto_tree_add_item(subtree, hf_usb_com_descriptor_cdc, tvb, 3, 2, ENC_LITTLE_ENDIAN);
-                    offset = 5;
+                    proto_tree_add_item(subtree, hf_usb_com_descriptor_cdc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
                     break;
                 case 0x1b:
                 case 0x1c:
