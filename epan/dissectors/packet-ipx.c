@@ -346,11 +346,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset_remaining(tvb, IPX_HEADER_LEN);
 
 	/*
-	 * Let the subdissector know what type of IPX packet this is.
-	 */
-	pinfo->ipxptype = ipxh->ipx_type;
-
-	/*
 	 * Check the socket numbers before we check the packet type;
 	 * we've seen non-NCP packets with a type of NCP and a
 	 * destination socket of IPX_SOCKET_IPX_MESSAGE, and SAP
@@ -388,20 +383,20 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tap_queue_packet(ipx_tap, pinfo, ipxh);
 
 	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
-		if (dissector_try_uint(ipx_socket_dissector_table, first_socket,
-		    next_tvb, pinfo, tree))
+		if (dissector_try_uint_new(ipx_socket_dissector_table, first_socket,
+			next_tvb, pinfo, tree, FALSE, ipxh))
 			return;
 	}
-	if (dissector_try_uint(ipx_socket_dissector_table, second_socket,
-	    next_tvb, pinfo, tree))
+	if (dissector_try_uint_new(ipx_socket_dissector_table, second_socket,
+		next_tvb, pinfo, tree, FALSE, ipxh))
 		return;
 
 	/*
 	 * Neither of them are known; try the packet type, which will
 	 * at least let us, for example, dissect SPX packets as SPX.
 	 */
-	if (dissector_try_uint(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
-	    pinfo, tree))
+	if (dissector_try_uint_new(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
+		pinfo, tree, FALSE, ipxh))
 		return;
 
 	call_dissector(data_handle,next_tvb, pinfo, tree);

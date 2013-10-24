@@ -69,7 +69,6 @@ typedef struct _packet_info {
   address dst;						/**< destination address (net if present, DL otherwise )*/
   guint32 ethertype;				/**< Ethernet Type Code, if this is an Ethernet packet */
   guint32 ipproto;					/**< IP protocol, if this is an IP packet */
-  guint32 ipxptype;					/**< IPX packet type, if this is an IPX packet */
   guint32 mpls_label;				/**< last mpls label in label stack, if this is a MPLS packet */
   circuit_type ctype;				/**< type of circuit, for protocols with a VC identifier */
   guint32 circuit_id;				/**< circuit ID, for protocols with a VC identifier */

@@ -223,8 +223,8 @@ add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
 	}
 }
 
-static void
-dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	gboolean	has_routes;
 	proto_tree	*nbipx_tree = NULL;
@@ -237,11 +237,12 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		name_type;
 	gboolean	has_payload;
 	tvbuff_t	*next_tvb;
+	ipxhdr_t *ipxh = (ipxhdr_t*)data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBIPX");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (pinfo->ipxptype == IPX_PACKET_TYPE_WANBCAST) {
+	if (ipxh->ipx_type == IPX_PACKET_TYPE_WANBCAST) {
 		/*
 		 * This is a WAN Broadcast packet; we assume it will have
 		 * 8 IPX addresses at the beginning.
@@ -428,6 +429,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_netbios_payload(next_tvb, pinfo, tree);
 	}
+
+	return tvb_length(tvb);
 }
 
 static void
@@ -574,7 +577,7 @@ proto_reg_handoff_nbipx(void)
 {
 	dissector_handle_t nbipx_handle;
 
-	nbipx_handle = create_dissector_handle(dissect_nbipx, proto_nbipx);
+	nbipx_handle = new_create_dissector_handle(dissect_nbipx, proto_nbipx);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
 }
 
