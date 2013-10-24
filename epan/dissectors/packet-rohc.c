@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
@@ -2279,6 +2280,7 @@ start_over:
     }
 
     /* Call IP for uncompressed*/
+    DISSECTOR_ASSERT(rohc_cid_context);
     if (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED) {
         if (rohc_cid_context->large_cid_present) {
             guint8 *payload_data;
