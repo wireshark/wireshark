@@ -1709,8 +1709,13 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         return tvb_reported_length(tvb);
 
     if(ver != 10) {
-        proto_tree_add_item(netflow_tree, hf_cflow_sysuptime, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
+        guint32 sysuptime = tvb_get_ntohl(tvb, offset);
+        nstime_t nsuptime;
+
+        nsuptime.secs = sysuptime / 1000;
+        nsuptime.nsecs = sysuptime * 1000;
+        proto_tree_add_time(netflow_tree, hf_cflow_sysuptime, tvb,
+                            offset, 4, &nsuptime);
         offset += 4;
     }
 
@@ -5726,8 +5731,8 @@ proto_register_netflow(void)
         },
         {&hf_cflow_sysuptime,
          {"SysUptime", "cflow.sysuptime",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
-          "Time since router booted (in milliseconds)", HFILL}
+          FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          "Time since router booted (in seconds)", HFILL}
         },
         {&hf_cflow_exporttime,
          {"ExportTime", "cflow.exporttime",
