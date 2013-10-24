@@ -64,7 +64,7 @@
 #include "ui/gtk/stock_icons.h"
 
 #ifdef HAVE_LIBPORTAUDIO
-#include "ui/gtk/rtp_analysis.h"
+#include "ui/rtp_analysis.h"
 #include "ui/gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 

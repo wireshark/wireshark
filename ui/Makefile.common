@@ -82,6 +82,8 @@ noinst_HEADERS = \
 	progress_dlg.h		\
 	recent.h		\
 	recent_utils.h		\
+	rtp_analysis.h		\
+	rtp_stream.h		\
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\

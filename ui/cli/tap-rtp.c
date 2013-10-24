@@ -45,6 +45,7 @@
 #include <epan/rtp_pt.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/addr_resolv.h>
+#include "ui/rtp_stream.h"
 #include "ui/tap-rtp-common.h"
 
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.

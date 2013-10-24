@@ -50,8 +50,8 @@
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/rtp_stream.h"
-#include "ui/gtk/rtp_analysis.h"
+#include "ui/rtp_stream.h"
+#include "ui/rtp_analysis.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/old-gtk-compat.h"
 

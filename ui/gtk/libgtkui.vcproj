@@ -991,7 +991,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rtp_analysis.h"
+				RelativePath="..\rtp_analysis.h"
 				>
 			</File>
 			<File
@@ -999,7 +999,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rtp_stream.h"
+				RelativePath="..\rtp_stream.h"
 				>
 			</File>
 			<File
