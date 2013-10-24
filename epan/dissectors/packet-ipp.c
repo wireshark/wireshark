@@ -182,7 +182,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree  *ipp_tree;
     proto_item  *ti;
     int          offset     = 0;
-    gboolean     is_request = (pinfo->destport == pinfo->match_port);
+    gboolean     is_request = (pinfo->destport == pinfo->match_uint);
     /* XXX - should this be based on the HTTP header? */
     guint16      status_code;
     const gchar *status_fmt;

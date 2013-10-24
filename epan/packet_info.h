@@ -228,9 +228,6 @@ typedef struct _packet_info {
   const gchar  *pkt_comment; /**< NULL if not available */
 } packet_info;
 
-/**< For old code that hasn't yet been changed. */
-#define match_port	match_uint
-
 /** @} */
 
 #endif /* __PACKET_INFO_H__ */

@@ -323,7 +323,7 @@ dissect_epmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     ti = proto_tree_add_item(tree, proto_epmd, tvb, 0, -1, ENC_NA);
     epmd_tree = proto_item_add_subtree(ti, ett_epmd);
 
-    if (pinfo->match_port == pinfo->destport) {
+    if (pinfo->match_uint == pinfo->destport) {
         dissect_epmd_request(pinfo, tvb, 0, epmd_tree);
     } else {
         dissect_epmd_response(pinfo, tvb, 0, epmd_tree);

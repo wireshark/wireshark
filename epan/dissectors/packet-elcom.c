@@ -426,7 +426,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "ELCOM");
         col_clear(pinfo->cinfo, COL_INFO);
 
-        is_request = (pinfo->match_port == pinfo->destport);
+        is_request = (pinfo->match_uint == pinfo->destport);
         elcom_len  = tvb_get_ntohs(tvb, 0);
         length_ok  = (tvb_reported_length(tvb) == (elcom_len+2));
 
