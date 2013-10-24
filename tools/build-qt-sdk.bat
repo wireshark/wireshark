@@ -70,7 +70,6 @@ configure -opensource -platform %QT_PLATFORM% -prefix %QT_PREFIX% ^
     -mp ^
     -nomake examples ^
     -skip qtdoc ^
-    -skip qtmultimedia ^
     -skip qtquickcontrols ^
     -skip qtwebkit ^
     -skip qtwebkit-examples ^
