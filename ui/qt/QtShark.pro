@@ -222,6 +222,7 @@ FORMS += \
     print_dialog.ui \
     profile_dialog.ui \
     search_frame.ui \
+    sequence_dialog.ui \
     splash_overlay.ui \
     summary_dialog.ui \
     time_shift_dialog.ui \
