@@ -168,7 +168,11 @@
     8388654 NSN Push-NotificationMS-Request/Answer (PNR/PNA) [Hannes_Tschofenig] 
     8388655 Get Gateway Request/Answer (GGR/GGA) [Steve_Donovan] 
     8388656 Trigger-Establishment-Request/Answer (TER/TEA) [3GPP TS 29.215][Kimmo_Kymalainen] 
-    8388657-16777213 Unassigned  
+    -->
+    <command name="Ericsson Binding-Data"		code="8388657" vendor-id="None"/>
+    <!-- 3GPP TS 29.337 -->
+    <!--
+    8388658-16777213 Unassigned  
 		16777214 Experimental code [RFC3588]
 		16777215 Experimental code [RFC3588]
 		-->
