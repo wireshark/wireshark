@@ -36,12 +36,6 @@ typedef struct _aim_tlv {
   int (*dissector) (proto_item *ti, guint16 value_id, tvbuff_t *tvb, packet_info *);
 } aim_tlv;
 
-struct aiminfo {
-  guint16 family;
-  guint16 subtype;
-  struct tcpinfo *tcpinfo;
-};
-
 typedef struct _aim_subtype {
 	guint16 id;
 	const char *name;

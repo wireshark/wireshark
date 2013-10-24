@@ -675,14 +675,12 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	guint16 flags;
 	guint32 id;
 	proto_item *ti1;
-	struct aiminfo aiminfo;
 	proto_tree *aim_tree_fnac = NULL;
 	tvbuff_t *subtvb;
 	int orig_offset;
 	const aim_subtype *subtype;
 	proto_tree *family_tree = NULL;
 	const aim_family *family;
-	void* pd_save;
 
 	orig_offset = offset;
 	family_id = tvb_get_ntohs(tvb, offset);
@@ -695,7 +693,6 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	offset += 2;
 	id = tvb_get_ntohl(tvb, offset);
 	offset += 4;
-
 
 	if( aim_tree && subtype != NULL )
 	{
@@ -740,11 +737,6 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	subtvb = tvb_new_subset_remaining(tvb, offset);
-	aiminfo.tcpinfo = (struct tcpinfo *)pinfo->private_data;
-	aiminfo.family = family_id;
-	aiminfo.subtype = subtype_id;
-	pd_save = pinfo->private_data;
-	pinfo->private_data = &aiminfo;
 
 	if (family)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, family->name);
@@ -776,8 +768,6 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	{
 		subtype->dissector(subtvb, pinfo, family_tree);
 	}
-
-	pinfo->private_data = pd_save;
 }
 
 static void
