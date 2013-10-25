@@ -1414,7 +1414,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     col_append_fstr(pinfo->cinfo, COL_INFO, "Beacon, Src: 0x%04x", packet->src16);
 
     /* Get and display the protocol id, must be 0 on all ZigBee beacons. */
-    proto_tree_add_uint(beacon_tree, hf_zbee_beacon_protocol, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(beacon_tree, hf_zbee_beacon_protocol, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     /* Get and display the stack profile and protocol version. */
