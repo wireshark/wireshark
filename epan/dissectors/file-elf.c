@@ -6,6 +6,7 @@
  * http://refspecs.linuxfoundation.org/
  * http://refspecs.linuxfoundation.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html
  * http://dwarfstd.org/doc/DWARF4.pdf
+ * http://www.sco.com/developers/devspecs/
  *
  * Copyright 2013, Michal Labedzki for Tieto Corporation
  *
@@ -19,7 +20,7 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- *http://www.sco.com/developers/devspecs/
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -641,7 +642,8 @@ get_dwarf_extension_length(guint8 format, guint register_size)
     return 0;
 }
 
-static const guint8 *get_section_name_offset(tvbuff_t *tvb, guint64 shoff, guint16 shnum, guint16 shentsize, guint16 shndx, guint64 shstrtab_offset, guint machine_encoding)
+static const guint8 *
+get_section_name_offset(tvbuff_t *tvb, guint64 shoff, guint16 shnum, guint16 shentsize, guint16 shndx, guint64 shstrtab_offset, guint machine_encoding)
 {
     gint     offset;
     guint32  sh_name;
@@ -1387,8 +1389,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             name = wmem_strdup_printf(wmem_packet_scope(), "ProgramHeaderEntry #%u", phnum - i_16 - 1);
 
-            segment_item = proto_tree_add_text(ph_entry_tree, tvb,
-                    value_guard(p_offset), value_guard(segment_size), "Segment");
+            proto_tree_add_text(ph_entry_tree, tvb, value_guard(p_offset), value_guard(segment_size), "Segment");
 
             file_size += segment_size;
 
