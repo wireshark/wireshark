@@ -29,7 +29,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
+#include <epan/expert.h>
+#include "packet-tcp.h"
 
 #define KDSP_PORT 2502
 #define FRAME_HEADER_LEN 12
@@ -63,11 +64,11 @@
 #define GPS_SPD_FLAG      0x000000
 #define GPS_HEADING_FLAG  0x000000
 
-#define DATA_UUID_FLAG    0x000000
-#define DATA_PACKLEN_FLAG 0x000000
-#define DATA_TVSEC_FLAG   0x000000
-#define DATA_TVUSEC_FLAG  0x000000
-#define DATA_DLT_FLAG     0x000000
+#define DATA_UUID_FLAG    0x000010
+#define DATA_PACKLEN_FLAG 0x000008
+#define DATA_TVSEC_FLAG   0x000004
+#define DATA_TVUSEC_FLAG  0x000002
+#define DATA_DLT_FLAG     0x000001
 
 #define CH_UUID_FLAG      0x00000001
 #define CH_CMD_FLAG       0x00000002
@@ -93,15 +94,15 @@
 #define REPORT_HOP_TM_SEC_FLAG  0x000000
 #define REPORT_HOP_TM_USEC_FLAG 0x000000
 
+#define DATALINK_WLAN 0x69
+#define DATALINK_RADIOTAP 0x7F
+
 void proto_reg_handoff_kdsp(void);
 
 static int proto_kdsp = -1;
 
+static dissector_table_t  subdissector_dlt_table;
 static guint global_kdsp_tcp_port = KDSP_PORT;
-
-
-static dissector_handle_t kdsp_handle;
-static dissector_handle_t ieee80211_handle;
 
 static const value_string packettypenames[] = {
   {0, "NULL"},
@@ -111,6 +112,12 @@ static const value_string packettypenames[] = {
   {4, "CHANNELSET"},
   {5, "SOURCE"},
   {6, "REPORT"},
+  {0, NULL}
+};
+
+static const value_string payloadtypenames[] = {
+  {DATALINK_WLAN, "802.11"},
+  {DATALINK_RADIOTAP, "RADIOTAP"},
   {0, NULL}
 };
 
@@ -172,6 +179,11 @@ static gint hf_kdsp_gps_heading = -1;
 static gint hf_kdsp_cpt_data_hdr = -1;
 static gint hf_kdsp_cpt_data_hdr_len = -1;
 static gint hf_kdsp_cpt_data_content_bitmap = -1;
+static gint hf_kdsp_cpt_dc_flag_uuid = -1;
+static gint hf_kdsp_cpt_dc_flag_len = -1;
+static gint hf_kdsp_cpt_dc_flag_sec = -1;
+static gint hf_kdsp_cpt_dc_flag_usec = -1;
+static gint hf_kdsp_cpt_dc_flag_dlt = -1;
 static gint hf_kdsp_cpt_uuid = -1;
 static gint hf_kdsp_cpt_packet_len = -1;
 static gint hf_kdsp_cpt_tv_sec = -1;
@@ -224,12 +236,18 @@ static gint hf_kdsp_report_hop_tm_usec = -1;
 
 static gint ett_kdsp_pdu = -1;
 static gint ett_cpt_bitmap = -1;
+static gint ett_cpt_data_content_bitmap = -1;
 static gint ett_ch_bitmap = -1;
 static gint ett_ch_data = -1;
 static gint ett_sub_fcs = -1;
 static gint ett_sub_radio = -1;
 static gint ett_sub_gps = -1;
 static gint ett_sub_cpt = -1;
+
+static expert_field ei_kdsp_payload_expected = EI_INIT;
+static expert_field ei_kdsp_payload_unexpected = EI_INIT;
+static expert_field ei_kdsp_cpt_data_hdr_len = EI_INIT;
+static expert_field ei_kdsp_cmdnum = EI_INIT;
 
 /* determine PDU length of protocol */
 static guint
@@ -243,20 +261,12 @@ static void
 dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32 offset = 0;
-  guint32 command;
-  guint32 length;
-  guint32 numChan;
-  guint32 bitmap;
-  guint16 type;
-  guint32 i;
-  guint32 ieee80211_len;
-  guint16 reported_ieee80211_len;
-
-  tvbuff_t   *ieee80211_tvb;
-  proto_item *kdsp_item;
-  proto_tree *kdsp_tree;
-  proto_item *sub_item;
-  proto_tree *sub_tree;
+  guint32 command, length, numChan, bitmap, cptbitmap;
+  guint32 i, datalink_type, payload_len;
+  guint16 type, reported_payload_len, data_hdr_len, data_hdr_len_check;
+  proto_item *kdsp_item, *sub_item, *subsub_item, *data_len_item, *command_item;
+  proto_tree *kdsp_tree, *sub_tree, *subsub_tree;
+  tvbuff_t   *payload_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -270,7 +280,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   kdsp_tree = proto_item_add_subtree(kdsp_item, ett_kdsp_pdu);
   proto_tree_add_item(kdsp_tree, hf_kdsp_sentinel, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(kdsp_tree, hf_kdsp_cmdnum, tvb, offset, 4, ENC_BIG_ENDIAN);
+  command_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cmdnum, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
   proto_item_append_text(kdsp_item, ", Command %s",
                          val_to_str(command, packettypenames, "Unknown (0x%02x)"));
@@ -279,7 +289,9 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_get_ntohl(tvb, offset);
   offset += 4;
 
-  if (command == HELLO) {
+  switch(command)
+  {
+  case HELLO:
     proto_tree_add_item(kdsp_tree, hf_kdsp_version,  tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_server_version,
@@ -287,15 +299,15 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset +=32;
     proto_tree_add_item(kdsp_tree, hf_kdsp_hostname, tvb, offset, 32, ENC_ASCII|ENC_NA);
     /*offset +=32;*/
-  }
-  else if (command == STRING) {
+    break;
+  case STRING:
     proto_tree_add_item(kdsp_tree, hf_kdsp_str_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_str_len,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_str_msg,   tvb, offset, -1, ENC_ASCII|ENC_NA);
-  }
-  else if (command == CAPPACKET) {
+    break;
+  case CAPPACKET:
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_cpt_bitmap);
     proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_cpt,   tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -365,29 +377,71 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_hdr, tvb, offset, 44, ENC_NA);
       sub_tree = proto_item_add_subtree(sub_item, ett_sub_cpt);
 
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
+      data_len_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
+      data_hdr_len = tvb_get_ntohs(tvb, offset);
       offset += 2;
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_uuid,                tvb, offset, 16, ENC_NA);
-      offset += 16;
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_packet_len,          tvb, offset, 2, ENC_BIG_ENDIAN);
-      reported_ieee80211_len = tvb_get_ntohs(tvb, offset);
-      offset += 2;
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_sec,              tvb, offset, 8, ENC_BIG_ENDIAN);
-      offset += 8;
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_usec,             tvb, offset, 8, ENC_BIG_ENDIAN);
-      offset += 8;
-      proto_tree_add_item(sub_tree, hf_kdsp_cpt_dlt,                 tvb, offset, 4, ENC_BIG_ENDIAN);
+
+      subsub_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+      subsub_tree = proto_item_add_subtree(subsub_item, ett_cpt_data_content_bitmap);
+      proto_tree_add_item(subsub_tree, hf_kdsp_cpt_dc_flag_uuid, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(subsub_tree, hf_kdsp_cpt_dc_flag_len,  tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(subsub_tree, hf_kdsp_cpt_dc_flag_sec,  tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(subsub_tree, hf_kdsp_cpt_dc_flag_usec, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(subsub_tree, hf_kdsp_cpt_dc_flag_dlt,  tvb, offset, 4, ENC_BIG_ENDIAN);
+      cptbitmap = tvb_get_ntohl(tvb, offset);
       offset += 4;
 
-      ieee80211_len = (length + FRAME_HEADER_LEN) - offset;
-      ieee80211_tvb = tvb_new_subset(tvb, offset, ieee80211_len, reported_ieee80211_len);
-      call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, tree);
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
+      data_hdr_len_check = 6; /* len(len) + len(bitmap) */
+      if (cptbitmap & DATA_UUID_FLAG)    data_hdr_len_check += 16;
+      if (cptbitmap & DATA_PACKLEN_FLAG) data_hdr_len_check +=  2;
+      if (cptbitmap & DATA_TVSEC_FLAG)   data_hdr_len_check +=  8;
+      if (cptbitmap & DATA_TVUSEC_FLAG)  data_hdr_len_check +=  8;
+      if (cptbitmap & DATA_DLT_FLAG)     data_hdr_len_check +=  4;
+
+      if (data_hdr_len_check != data_hdr_len) {
+          expert_add_info(pinfo, data_len_item, &ei_kdsp_cpt_data_hdr_len);
+      }
+
+      if (cptbitmap & DATA_UUID_FLAG) {
+        proto_tree_add_item(sub_tree, hf_kdsp_cpt_uuid,       tvb, offset, 16, ENC_NA);
+        offset += 16;
+      }
+      if (cptbitmap & DATA_PACKLEN_FLAG) {
+        proto_tree_add_item(sub_tree, hf_kdsp_cpt_packet_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        reported_payload_len = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+      }
+      if (cptbitmap & DATA_TVSEC_FLAG) {
+        proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_sec,     tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      }
+      if (cptbitmap & DATA_TVUSEC_FLAG) {
+        proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_usec,    tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      }
+      if (cptbitmap & DATA_DLT_FLAG) {
+        proto_tree_add_item(sub_tree, hf_kdsp_cpt_dlt,        tvb, offset, 4, ENC_BIG_ENDIAN);
+        datalink_type = tvb_get_ntohl(tvb, offset);
+        offset += 4;
+      }
+      payload_len = (length + FRAME_HEADER_LEN) - offset;
+      if (cptbitmap & DATA_PACKLEN_FLAG) {
+        payload_tvb = tvb_new_subset(tvb, offset, payload_len, reported_payload_len);
+        if (cptbitmap & DATA_DLT_FLAG) {
+          dissector_try_uint(subdissector_dlt_table, datalink_type, payload_tvb, pinfo, tree);
+
+          /* XXX - Restore protocol column */
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
+
+        } else if (payload_len > 0) {
+          proto_tree_add_expert(sub_tree, pinfo, &ei_kdsp_payload_expected, tvb, offset, payload_len);
+        }
+      } else if (payload_len > 0) {
+        proto_tree_add_expert(sub_tree, pinfo, &ei_kdsp_payload_unexpected, tvb, offset, payload_len);
+      }
     }
-  }
-  else if (command == CHANNELSET) {
+    break;
+  case CHANNELSET:
     proto_tree_add_item(kdsp_tree, hf_kdsp_ch_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_ch_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -441,8 +495,8 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
     proto_tree_add_item(kdsp_tree, hf_kdsp_ch_ch_dwell, tvb, offset, 2, ENC_BIG_ENDIAN);
     /*offset += 2;*/
-   }
-  else if (command == SOURCE) {
+    break;
+  case SOURCE:
     proto_tree_add_item(kdsp_tree, hf_kdsp_source_length,        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset +=2;
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_ch_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -466,8 +520,8 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
     proto_tree_add_item(kdsp_tree, hf_kdsp_source_rate,          tvb, offset, 2, ENC_BIG_ENDIAN);
     /*offset += 2;*/
-  }
-  else if (command == REPORT) {
+    break;
+  case REPORT:
     proto_tree_add_item(kdsp_tree, hf_kdsp_report_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(kdsp_tree, hf_kdsp_report_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -480,9 +534,10 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_report_hop_tm_usec,    tvb, offset, 4, ENC_BIG_ENDIAN);
     /*offset += 4;*/
-
+    break;
+  default:
+    expert_add_info(pinfo, command_item, &ei_kdsp_cmdnum);
   }
-
 }
 
 static void
@@ -744,6 +799,36 @@ proto_register_kdsp(void)
         NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_kdsp_cpt_dc_flag_uuid,
+      { "Capture Content UUID Flag", "kdsp.cpt.cd.flag.uuid",
+        FT_BOOLEAN, 32,
+        NULL, DATA_UUID_FLAG,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_cpt_dc_flag_len,
+      { "Capture Content Length Flag", "kdsp.cpt.cd.flag.len",
+        FT_BOOLEAN, 32,
+        NULL, DATA_PACKLEN_FLAG,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_cpt_dc_flag_sec,
+      { "Capture Content Second Flag", "kdsp.cpt.cd.flag.sec",
+        FT_BOOLEAN, 32,
+        NULL, DATA_TVSEC_FLAG,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_cpt_dc_flag_usec,
+      { "Capture Content Microsecond Flag", "kdsp.cpt.cd.flag.usec",
+        FT_BOOLEAN, 32,
+        NULL, DATA_TVUSEC_FLAG,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_cpt_dc_flag_dlt,
+      { "Capture Content Datalink Type Flag", "kdsp.cpt.cd.flag.dlt",
+        FT_BOOLEAN, 32,
+        NULL, DATA_DLT_FLAG,
+        NULL, HFILL }
+    },
     { &hf_kdsp_cpt_uuid,
       { "UUID", "kdsp.cpt.uuid",
         FT_BYTES, BASE_NONE,
@@ -769,9 +854,9 @@ proto_register_kdsp(void)
         NULL, HFILL }
     },
     { &hf_kdsp_cpt_dlt,
-      { "dlt", "kdsp.cpt.dlt",
+      { "Data Link Type", "kdsp.cpt.dlt",
         FT_UINT32, BASE_DEC,
-        NULL, 0x0,
+        VALS(payloadtypenames), 0x0,
         NULL, HFILL }
     },
     { &hf_kdsp_ch_length,
@@ -1027,6 +1112,7 @@ proto_register_kdsp(void)
   static gint *ett[] = {
     &ett_kdsp_pdu,
     &ett_cpt_bitmap,
+    &ett_cpt_data_content_bitmap,
     &ett_ch_bitmap,
     &ett_ch_data,
     &ett_sub_fcs,
@@ -1034,6 +1120,15 @@ proto_register_kdsp(void)
     &ett_sub_gps,
     &ett_sub_cpt
   };
+
+  static ei_register_info ei[] = {
+    { &ei_kdsp_payload_expected, { "kdsp.payload_expected", PI_MALFORMED, PI_ERROR, "Payload expected but no link type specified. Can not decode.", EXPFILL }},
+    { &ei_kdsp_payload_unexpected, { "kdsp.payload_unexpected", PI_MALFORMED, PI_ERROR, "No payload expected but found some data", EXPFILL }},
+    { &ei_kdsp_cpt_data_hdr_len, { "kdsp.cpt.length.invalid", PI_MALFORMED, PI_ERROR, "Calculated header length does not match reported header length. "
+                                "It is likely the dissector does not support all flags", EXPFILL }},
+    { &ei_kdsp_cmdnum,  { "kdsp.command.unknown",  PI_UNDECODED, PI_WARN,  "Unknown command, can not parse message", EXPFILL }},
+  };
+  expert_module_t* expert_kdsp;
 
   proto_kdsp = proto_register_protocol(
                                        "Kismet Drone/Server Protocol",
@@ -1044,9 +1139,11 @@ proto_register_kdsp(void)
   proto_register_field_array(proto_kdsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-
-
   kdsp_module = prefs_register_protocol(proto_kdsp, proto_reg_handoff_kdsp);
+  expert_kdsp = expert_register_protocol(proto_kdsp);
+  expert_register_field_array(expert_kdsp, ei, array_length(ei));
+
+  subdissector_dlt_table = register_dissector_table("kdsp.cpt.dlt", "KDSP DLT Type", FT_UINT32, BASE_DEC);
 
   prefs_register_uint_preference(kdsp_module, "tcp.port",
                                  "Kismet Drone TCP Port",
@@ -1062,10 +1159,20 @@ proto_reg_handoff_kdsp(void)
 {
   static gboolean initialized = FALSE;
   static guint tcp_port;
+  static dissector_handle_t kdsp_handle;
+  dissector_handle_t dlt_handle;
+
 
   if (!initialized) {
     kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
-    ieee80211_handle = find_dissector("wlan");
+    dlt_handle = find_dissector("radiotap");
+    if (dlt_handle)
+        dissector_add_uint( "kdsp.cpt.dlt", DATALINK_RADIOTAP, dlt_handle);
+
+    dlt_handle = find_dissector("wlan");
+    if (dlt_handle)
+        dissector_add_uint( "kdsp.cpt.dlt", DATALINK_WLAN, dlt_handle);
+
   } else {
     dissector_delete_uint("tcp.port", tcp_port, kdsp_handle);
   }
