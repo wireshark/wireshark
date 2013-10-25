@@ -29,9 +29,9 @@
 extern gboolean
 dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 tvbuff_t *p_tvb, tvbuff_t *d_tvb, const char *pipe,
-		 packet_info *pinfo, proto_tree *tree);
+		 packet_info *pinfo, proto_tree *tree, smb_info_t *smb_info);
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
-		proto_tree *tree, guint32 fid);
+		proto_tree *tree, guint32 fid, smb_info_t *smb_priv);
 
 #endif

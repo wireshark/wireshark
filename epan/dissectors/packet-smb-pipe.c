@@ -256,7 +256,7 @@ static const value_string weekday_vals[] = {
 
 static int
 add_word_param(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	proto_tree_add_item(tree, hf_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -265,7 +265,7 @@ add_word_param(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	proto_tree_add_item(tree, hf_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -274,7 +274,7 @@ add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_bytes_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index)
+    proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	header_field_info *hfinfo;
 
@@ -316,7 +316,7 @@ add_bytes_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 
 static int
 add_pad_param(tvbuff_t *tvb _U_, int offset, int count, packet_info *pinfo _U_,
-    proto_tree *tree _U_, int convert _U_, int hf_index _U_)
+    proto_tree *tree _U_, int convert _U_, int hf_index _U_, smb_info_t *smb_info _U_)
 {
 	/*
 	 * This is for parameters that have descriptor entries but that
@@ -328,7 +328,7 @@ add_pad_param(tvbuff_t *tvb _U_, int offset, int count, packet_info *pinfo _U_,
 
 static void
 add_null_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	if (hf_index != -1) {
 		proto_tree_add_string_format_value(tree, hf_index, tvb, offset, 0, "", "(Null pointer)");
@@ -339,7 +339,7 @@ add_null_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_string_param(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	guint string_len;
 
@@ -377,7 +377,7 @@ get_stringz_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp,
 
 static int
 add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index, smb_info_t *smb_info _U_)
 {
 	int cptr;
 	const char *string;
@@ -410,7 +410,7 @@ add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index, smb_info_t *smb_info _U_)
 {
 	int cptr;
 
@@ -441,9 +441,8 @@ add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
 
 static int
 add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
-    proto_tree *tree, int convert _U_, int hf_index)
+    proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info)
 {
-	struct smb_info *smb_info = (struct smb_info *)pinfo->private_data;
 	smb_transact_info_t *trp = NULL;
 	guint16 level;
 
@@ -462,7 +461,7 @@ add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
 
 static int
 add_max_uses(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index)
+    proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	guint16 WParam;
 
@@ -481,7 +480,7 @@ add_max_uses(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 static int
 add_server_type(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_)
+    packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_, smb_info_t *smb_info _U_)
 {
 	offset = dissect_smb_server_type_flags(
 		tvb, offset, pinfo, tree, NULL, FALSE);
@@ -490,7 +489,7 @@ add_server_type(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_server_type_info(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_)
+    packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_, smb_info_t *smb_info _U_)
 {
 	offset = dissect_smb_server_type_flags(
 		tvb, offset, pinfo, tree, NULL, TRUE);
@@ -499,7 +498,7 @@ add_server_type_info(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_reltime(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index)
+    proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	nstime_t nstime;
 
@@ -552,21 +551,21 @@ add_abstime_common(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index,
 
 static int
 add_abstime_absent_never(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	return add_abstime_common(tvb, offset, tree, hf_index, "Never");
 }
 
 static int
 add_abstime_absent_unknown(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	return add_abstime_common(tvb, offset, tree, hf_index, "Unknown");
 }
 
 static int
 add_nlogons(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index)
+    proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	guint16 nlogons;
 
@@ -582,7 +581,7 @@ add_nlogons(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 static int
 add_max_storage(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	guint32 max_storage;
 
@@ -598,7 +597,7 @@ add_max_storage(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
-    proto_tree *tree, int convert, int hf_index)
+    proto_tree *tree, int convert, int hf_index, smb_info_t *smb_info _U_)
 {
 	int cptr;
 
@@ -633,7 +632,7 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 
 static int
 add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index _U_)
+    proto_tree *tree, int convert _U_, int hf_index _U_, smb_info_t *smb_info _U_)
 {
 	gint16 tzoffset;
 
@@ -656,7 +655,7 @@ add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 static int
 add_timeinterval(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index _U_)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index _U_, smb_info_t *smb_info _U_)
 {
 	guint16 timeinterval;
 
@@ -669,7 +668,7 @@ add_timeinterval(tvbuff_t *tvb, int offset, int count _U_,
 
 static int
 add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index _U_)
+    proto_tree *tree, int convert _U_, int hf_index _U_, smb_info_t *smb_info _U_)
 {
 	if (count != 54) {
 		proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bogus_netwkstauserlogon, tvb, offset, count, "Bogus NetWkstaUserLogon parameters: length is %d, should be 54", count);
@@ -711,7 +710,7 @@ add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
  * This is a pointer to a function to process an item.
  */
 typedef int	(*item_func)(tvbuff_t *, int, int, packet_info *, proto_tree *,
-			     int, int);
+			     int, int, smb_info_t*);
 
 /*
  * Type of an item; determines what parameter strings are valid for
@@ -1607,7 +1606,7 @@ get_count(const guchar *desc, int *countp)
 static int
 dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, const guchar *desc, const item_t *items,
-    gboolean *has_data_p)
+    gboolean *has_data_p, smb_info_t *smb_info)
 {
 	guint c;
 	guint16 WParam;
@@ -1629,7 +1628,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_word_param(tvb, offset, 0, pinfo,
-				    tree, 0, hf_smb_pipe_word_param);
+				    tree, 0, hf_smb_pipe_word_param, smb_info);
 			} else if (items->type != PARAM_WORD) {
 				/*
 				 * Descriptor character is 'W', but this
@@ -1645,7 +1644,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0, pinfo,
-				    tree, 0, *items->hf_index);
+				    tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -1660,7 +1659,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_dword_param(tvb, offset, 0, pinfo,
-				    tree, 0, hf_smb_pipe_doubleword_param);
+				    tree, 0, hf_smb_pipe_doubleword_param, smb_info);
 			} else if (items->type != PARAM_DWORD) {
 				/*
 				 * Descriptor character is 'D', but this
@@ -1676,7 +1675,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0, pinfo,
-				    tree, 0, *items->hf_index);
+				    tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -1692,7 +1691,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_bytes_param(tvb, offset, count,
-				    pinfo, tree, 0, -1);
+				    pinfo, tree, 0, -1, smb_info);
 			} else if (items->type != PARAM_BYTES) {
 				/*
 				 * Descriptor character is 'b', but this
@@ -1707,7 +1706,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, count,
-				    pinfo, tree, 0, *items->hf_index);
+				    pinfo, tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
  			break;
@@ -1722,7 +1721,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				add_null_pointer_param(tvb, offset, 0,
-				    pinfo, tree, 0, -1);
+				    pinfo, tree, 0, -1, smb_info);
 			} else {
 				/*
 				 * If "*items->hf_index" is -1, this is
@@ -1733,7 +1732,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				if (*items->hf_index != -1) {
 					add_null_pointer_param(tvb,
 					    offset, 0, pinfo, tree, 0,
-					    *items->hf_index);
+					    *items->hf_index, smb_info);
 				}
 				items++;
 			}
@@ -1749,7 +1748,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_string_param(tvb, offset, 0,
-				    pinfo, tree, 0, -1);
+				    pinfo, tree, 0, -1, smb_info);
 			} else if (items->type != PARAM_STRINGZ) {
 				/*
 				 * Descriptor character is 'z', but this
@@ -1765,7 +1764,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0,
-				    pinfo, tree, 0, *items->hf_index);
+				    pinfo, tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -1815,7 +1814,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, const guchar *desc, const item_t *items,
-    gboolean *has_data_p, gboolean *has_ent_count_p, guint16 *ent_count_p)
+    gboolean *has_data_p, gboolean *has_ent_count_p, guint16 *ent_count_p, smb_info_t *smb_info)
 {
 	guint c;
 	guint16 WParam;
@@ -1845,7 +1844,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_bytes_param(tvb, offset, count,
-				    pinfo, tree, 0, -1);
+				    pinfo, tree, 0, -1, smb_info);
 			} else if (items->type != PARAM_BYTES) {
 				/*
 				 * Descriptor character is 'b', but this
@@ -1860,7 +1859,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, count,
-				    pinfo, tree, 0, *items->hf_index);
+				    pinfo, tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -1875,7 +1874,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_word_param(tvb, offset, 0, pinfo,
-				    tree, 0, hf_smb_pipe_word_param);
+				    tree, 0, hf_smb_pipe_word_param, smb_info);
 			} else if (items->type != PARAM_WORD) {
 				/*
 				 * Descriptor character is 'h', but this
@@ -1891,7 +1890,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0, pinfo,
-				    tree, 0, *items->hf_index);
+				    tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -1906,7 +1905,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_dword_param(tvb, offset, 0, pinfo,
-				    tree, 0, hf_smb_pipe_doubleword_param);
+				    tree, 0, hf_smb_pipe_doubleword_param, smb_info);
 			} else if (items->type != PARAM_DWORD) {
 				/*
 				 * Descriptor character is 'i', but this
@@ -1922,7 +1921,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0, pinfo,
-				    tree, 0, *items->hf_index);
+				    tree, 0, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -1949,7 +1948,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
     packet_info *pinfo, proto_tree *tree, const guchar *desc,
-    const item_t *items, guint16 *aux_count_p)
+    const item_t *items, guint16 *aux_count_p, smb_info_t *smb_info)
 {
 	guint c;
 	guint16 WParam;
@@ -1977,7 +1976,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_word_param(tvb, offset, 0, pinfo,
-				    tree, convert, hf_smb_pipe_word_param);
+				    tree, convert, hf_smb_pipe_word_param, smb_info);
 			} else if (items->type != PARAM_WORD) {
 				/*
 				 * Descriptor character is 'W', but this
@@ -1993,7 +1992,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0, pinfo,
-				    tree, convert, *items->hf_index);
+				    tree, convert, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -2010,7 +2009,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_dword_param(tvb, offset, 0, pinfo,
-				    tree, convert, hf_smb_pipe_doubleword_param);
+				    tree, convert, hf_smb_pipe_doubleword_param, smb_info);
 			} else if (items->type != PARAM_DWORD) {
 				/*
 				 * Descriptor character is 'D', but this
@@ -2026,7 +2025,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0, pinfo,
-				    tree, convert, *items->hf_index);
+				    tree, convert, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -2042,7 +2041,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_bytes_param(tvb, offset, count,
-				    pinfo, tree, convert, -1);
+				    pinfo, tree, convert, -1, smb_info);
 			} else if (items->type != PARAM_BYTES) {
 				/*
 				 * Descriptor character is 'B', but this
@@ -2057,7 +2056,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, count,
-				    pinfo, tree, convert, *items->hf_index);
+				    pinfo, tree, convert, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -2072,7 +2071,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				add_null_pointer_param(tvb, offset, 0,
-				    pinfo, tree, convert, -1);
+				    pinfo, tree, convert, -1, smb_info);
 			} else {
 				/*
 				 * If "*items->hf_index" is -1, this is
@@ -2083,7 +2082,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				if (*items->hf_index != -1) {
 					add_null_pointer_param(tvb,
 					    offset, 0, pinfo, tree, convert,
-					    *items->hf_index);
+					    *items->hf_index, smb_info);
 				}
 				items++;
 			}
@@ -2099,7 +2098,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_stringz_pointer_param(tvb, offset,
-				    0, pinfo, tree, convert, -1);
+				    0, pinfo, tree, convert, -1, smb_info);
 			} else if (items->type != PARAM_STRINGZ) {
 				/*
 				 * Descriptor character is 'z', but this
@@ -2116,7 +2115,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0,
-				    pinfo, tree, convert, *items->hf_index);
+				    pinfo, tree, convert, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -2132,7 +2131,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_bytes_pointer_param(tvb, offset,
-				    count, pinfo, tree, convert, -1);
+				    count, pinfo, tree, convert, -1, smb_info);
 			} else if (items->type != PARAM_BYTES) {
 				/*
 				 * Descriptor character is 'b', but this
@@ -2148,7 +2147,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, count,
-				    pinfo, tree, convert, *items->hf_index);
+				    pinfo, tree, convert, *items->hf_index, smb_info);
 				items++;
 			}
 			break;
@@ -2441,7 +2440,7 @@ static value_string_ext commands_ext = VALUE_STRING_EXT_INIT(commands);
 
 static void
 dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
-    proto_tree *tree, struct smb_info *smb_info,
+    proto_tree *tree, smb_info_t *smb_info,
     const struct lanman_desc *lanman, gboolean has_ent_count,
     guint16 ent_count)
 {
@@ -2556,7 +2555,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 
 			offset = dissect_transact_data(tvb, offset,
 			    convert, pinfo, entry_tree,
-			    trp->data_descrip, resp_data, &aux_count);
+			    trp->data_descrip, resp_data, &aux_count, smb_info);
 
 			/* auxiliary data */
 			if (trp->aux_data_descrip != NULL) {
@@ -2565,7 +2564,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 					    tvb, offset, convert,
 					    pinfo, entry_tree,
 					    trp->data_descrip,
-					    lanman->resp_aux_data, NULL);
+					    lanman->resp_aux_data, NULL, smb_info);
 				}
 			}
 
@@ -2591,9 +2590,8 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 
 static gboolean
 dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
-		    packet_info *pinfo, proto_tree *parent_tree)
+		    packet_info *pinfo, proto_tree *parent_tree, smb_info_t *smb_info)
 {
-	smb_info_t *smb_info = (smb_info_t *)pinfo->private_data;
 	smb_transact_info_t *trp = NULL;
 	int offset = 0/*, start_offset*/;
 	guint16 cmd;
@@ -2690,7 +2688,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* request parameters */
 		/*start_offset = offset;*/
 		offset = dissect_request_parameters(p_tvb, offset, pinfo, tree,
-		    param_descrip, lanman->req, &has_data);
+		    param_descrip, lanman->req, &has_data, smb_info);
 
 		/* auxiliary data descriptor */
 		if (tvb_reported_length_remaining(p_tvb, offset) > 0){
@@ -2740,7 +2738,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/* data */
 			offset = dissect_transact_data(d_tvb, offset, -1,
 			    pinfo, data_tree, data_descrip, lanman->req_data,
-			    &aux_count);	/* XXX - what about strings? */
+			    &aux_count, smb_info);	/* XXX - what about strings? */
 
 			/* auxiliary data */
 			if (aux_data_descrip != NULL) {
@@ -2748,7 +2746,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 					offset = dissect_transact_data(d_tvb,
 					    offset, -1, pinfo, data_tree,
 					    aux_data_descrip,
-					    lanman->req_aux_data, NULL);
+					    lanman->req_aux_data, NULL, smb_info);
 				}
 			}
 
@@ -2830,7 +2828,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/* rest of the parameters */
 			dissect_response_parameters(p_tvb, offset,
 			    pinfo, tree, trp->param_descrip, lanman->resp,
-			    &has_data, &has_ent_count, &ent_count);
+			    &has_data, &has_ent_count, &ent_count, smb_info);
 
 			/* data */
 			if (d_tvb && tvb_reported_length(d_tvb) > 0) {
@@ -3229,9 +3227,8 @@ smb_dcerpc_reassembly_init(void)
 
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
-    proto_tree *tree, guint32 fid)
+    proto_tree *tree, guint32 fid, smb_info_t *smb_priv)
 {
-	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
 	gboolean result=0;
 	gboolean save_fragmented;
 	guint reported_len;
@@ -3398,7 +3395,6 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 clean_up_and_exit:
 	/* clear out the variables */
-	pinfo->private_data = smb_priv;
 	pinfo->can_desegment=0;
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
@@ -3462,9 +3458,8 @@ static const value_string pipe_status[] = {
 gboolean
 dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 tvbuff_t *p_tvb, tvbuff_t *d_tvb, const char *pipe,
-		 packet_info *pinfo, proto_tree *tree)
+		 packet_info *pinfo, proto_tree *tree, smb_info_t *smb_info)
 {
-	smb_info_t *smb_info;
 	smb_transact_info_t *tri;
 	guint sp_len;
 	proto_item *pipe_item = NULL;
@@ -3478,8 +3473,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_smb_pipe)))
 		return FALSE;
 	pinfo->current_proto = "SMB Pipe";
-
-	smb_info = (smb_info_t *)pinfo->private_data;
 
 	/*
 	 * Set the columns.
@@ -3551,7 +3544,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * It's a FID.
 			 */
 			fid = tvb_get_letohs(s_tvb, 2);
-			dissect_smb_fid(s_tvb, pinfo, pipe_tree, offset, 2, (guint16) fid, FALSE, FALSE, FALSE);
+			dissect_smb_fid(s_tvb, pinfo, pipe_tree, offset, 2, (guint16) fid, FALSE, FALSE, FALSE, smb_info);
 			if (tri != NULL)
 				tri->fid = fid;
 			break;
@@ -3583,7 +3576,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 			fid = tri->fid;
 			if (fid != -1)
-				dissect_smb_fid(d_tvb, pinfo, pipe_tree, 0, 0, (guint16) fid, FALSE, FALSE, TRUE);
+				dissect_smb_fid(d_tvb, pinfo, pipe_tree, 0, 0, (guint16) fid, FALSE, FALSE, TRUE, smb_info);
 		} else {
 			function = -1;
 			fid = -1;
@@ -3629,8 +3622,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		switch(trans_subcmd){
 
 		case PIPE_LANMAN:
-			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
-			    tree);
+			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo, tree, smb_info);
 
 		case PIPE_DCERPC:
 			/*
@@ -3639,8 +3631,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (fid != -1) {
 				if (d_tvb == NULL)
 					return FALSE;
-		                return dissect_pipe_dcerpc(d_tvb, pinfo, tree,
-		                    pipe_tree, fid);
+		                return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid, smb_info);
 		        }
 			break;
 		}
@@ -3653,8 +3644,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 */
 		switch(trans_subcmd){
 		case PIPE_LANMAN:
-			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
-			    tree);
+			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo, tree, smb_info);
 		}
 		break;
 

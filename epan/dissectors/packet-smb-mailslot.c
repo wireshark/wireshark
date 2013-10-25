@@ -81,9 +81,8 @@ static const value_string class_vals[] = {
 gboolean
 dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		     tvbuff_t *tvb, const char *mailslot, packet_info *pinfo,
-		     proto_tree *parent_tree)
+		     proto_tree *parent_tree, smb_info_t* smb_info)
 {
-	smb_info_t *smb_info;
 	smb_transact_info_t *tri;
 	int             trans_subcmd;
 	proto_tree      *tree = NULL;
@@ -107,7 +106,6 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	smb_info = (smb_info_t *)pinfo->private_data;
 	if (smb_info->sip != NULL && smb_info->sip->extra_info_type == SMB_EI_TRI)
 		tri = (smb_transact_info_t *)smb_info->sip->extra_info;
 	else

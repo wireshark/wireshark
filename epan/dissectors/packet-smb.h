@@ -384,7 +384,7 @@ typedef struct _smb_tid_into_t {
  * Dissect an smb FID
  */
 extern smb_fid_info_t *dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int len, guint16 fid, gboolean is_created, gboolean is_closed, gboolean is_generated);
+    int offset, int len, guint16 fid, gboolean is_created, gboolean is_closed, gboolean is_generated, smb_info_t* si);
 
 /*
  * Dissect named pipe state information.
@@ -420,7 +420,7 @@ extern int dissect_qfsi_FS_OBJECTID_INFO(tvbuff_t * tvb, packet_info * pinfo, pr
 extern int dissect_qfsi_FS_FULL_SIZE_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp);
 extern int dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc, int unicode);
-extern int dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
+extern int dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc, gboolean unicode);
 extern int dissect_qfi_SMB_FILE_STANDARD_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_qfi_SMB_FILE_INTERNAL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_qsfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
@@ -433,8 +433,8 @@ extern int dissect_qsfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pin
 extern int dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
 extern int dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 extern int dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 *bcp, gboolean *trunc);
-extern int dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp);
-extern int dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp);
+extern int dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean unicode);
+extern int dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp, gboolean unicode);
 
 /* Returns an IP (v4 or v6) of the server in a SMB/SMB2 conversation */
 extern const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd);

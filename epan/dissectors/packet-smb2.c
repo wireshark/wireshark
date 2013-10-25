@@ -1605,7 +1605,7 @@ dissect_smb2_file_alternate_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	}
 
 	bc = tvb_length_remaining(tvb, offset);
-	offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+	offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, &bc, &trunc, /* XXX assumption hack */ TRUE);
 
 	return offset;
 }
@@ -4631,21 +4631,15 @@ void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, guint32 ioctl_function, gboolean data_in)
 {
 	guint16 dc;
-	smb_info_t tmp;
-	void *saved_private_data;
-
-	saved_private_data = pinfo->private_data;
-	pinfo->private_data = &tmp;
-	tmp.unicode = TRUE;
 
 	dc = tvb_reported_length(tvb);
 
 	switch (ioctl_function) {
 	case 0x00060194: /* FSCTL_DFS_GET_REFERRALS */
 		if (data_in) {
-			dissect_get_dfs_request_data(tvb, pinfo, tree, 0, &dc);
+			dissect_get_dfs_request_data(tvb, pinfo, tree, 0, &dc, TRUE);
 		} else {
-			dissect_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc);
+			dissect_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc, TRUE);
 		}
 		break;
 	case 0x0011c017:
@@ -4685,8 +4679,6 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
 	}
-
-	pinfo->private_data = saved_private_data;
 }
 
 static void
