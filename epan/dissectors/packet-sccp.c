@@ -913,7 +913,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
    * Accesses beyond this length need to check the length first because
    * we don't want to throw an exception in here...
    */
-  if (len < 6)
+  if (len < 5)
     RETURN_FALSE;
 
   msgtype = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
@@ -1042,6 +1042,13 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
   break;
   case SCCP_MSG_TYPE_CR:
   {
+    if (len < SCCP_MSG_TYPE_LENGTH
+        + DESTINATION_LOCAL_REFERENCE_LENGTH
+        + PROTOCOL_CLASS_LENGTH
+        + POINTER_LENGTH
+        + POINTER_LENGTH)
+      RETURN_FALSE;
+
     offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
     /* Class is only the lower 4 bits, but the upper 4 bits are spare
@@ -1051,6 +1058,18 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     msg_class = tvb_get_guint8(tvb, offset);
     if (msg_class != 2)
       RETURN_FALSE;
+
+    offset += PROTOCOL_CLASS_LENGTH;
+    data_ptr = tvb_get_guint8(tvb, offset);
+    if (data_ptr == 0)
+      RETURN_FALSE;
+
+    offset += POINTER_LENGTH;
+    opt_ptr = tvb_get_guint8(tvb, offset);
+    if (opt_ptr == 0)
+      RETURN_FALSE;
+
+    offset += POINTER_LENGTH;
   }
   break;
   case SCCP_MSG_TYPE_CC:
@@ -1093,6 +1112,12 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
   break;
   case SCCP_MSG_TYPE_CREF:
   {
+    if (len < SCCP_MSG_TYPE_LENGTH
+        + DESTINATION_LOCAL_REFERENCE_LENGTH
+        + REFUSAL_CAUSE_LENGTH
+        + POINTER_LENGTH)
+      RETURN_FALSE;
+
     offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
     cause = tvb_get_guint8(tvb, offset);
@@ -1264,7 +1289,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
   if (opt_ptr) {
     guint8 opt_param;
 
-    opt_ptr += offset-1; /* (offset was already incremented) */
+    opt_ptr += offset-pointer_length; /* (offset was already incremented) */
 
     /* Check that the optional pointer is within bounds */
     if (opt_ptr > len)
