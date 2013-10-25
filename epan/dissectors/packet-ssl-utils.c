@@ -2242,7 +2242,7 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     }
     if (ciph == 0) {
         ssl_debug_printf("ssl_create_decoder can't find cipher %s\n",
-            ciphers[cipher_suite->enc > ENC_NULL ? ENC_NULL : (cipher_suite->enc-0x30)]);
+            ciphers[cipher_suite->enc > ENC_NULL ? ENC_NULL-0x30 : (cipher_suite->enc-0x30)]);
         return NULL;
     }
 
