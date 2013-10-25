@@ -270,7 +270,6 @@ static dissector_table_t ip_dissector_table;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
-static dissector_handle_t tapa_handle;
 
 
 /* IP structs and definitions */
@@ -2385,16 +2384,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     return;
   }
 
-  /* XXX This is an ugly hack because I didn't manage to make the IPIP
-   * dissector a heuristic one [JMayer]
-   * The TAPA protocol also uses IP protocol number 4 but it isn't really
-   * IPIP, so try to detect it first and call it explicitly before calling
-   * the generic ip.proto dispatcher
-   */
-  if (nxt == IP_PROTO_IPIP && (tvb_get_guint8(next_tvb, 0) & 0xF0) != 0x40 &&
-      tvb_get_ntohs(next_tvb, 2) < 20) {
-    call_dissector(tapa_handle,next_tvb, pinfo, parent_tree);
-
     /* Hand off to the next protocol.
 
      XXX - setting the columns only after trying various dissectors means
@@ -2402,11 +2391,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
-  } else if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))) {
+  if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, iph))) {
     /* We're good */
   } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo,
                                  parent_tree)) {
-    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))) {
+    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, iph))) {
       /* Unknown protocol */
       if (update_col_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
@@ -3046,7 +3035,6 @@ proto_reg_handoff_ip(void)
 
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
-  tapa_handle = find_dissector("tapa");
   data_handle = find_dissector("data");
 
   dissector_add_uint("ethertype", ETHERTYPE_IP, ip_handle);

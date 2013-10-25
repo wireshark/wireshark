@@ -36,6 +36,8 @@ Specs:
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/ipproto.h>
+#include "packet-ip.h"
 
 /* protocol handles */
 static int proto_tapa = -1;
@@ -467,6 +469,22 @@ dissect_tapa_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		return 0;
 }
 
+/* heuristic dissector */
+static gboolean
+dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+   ws_ip* iph = (ws_ip*)data;
+
+  /* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
+  if ((iph->ip_p == IP_PROTO_IPIP) && ((tvb_get_guint8(tvb, 0) & 0xF0) != 0x40) &&
+      (tvb_get_ntohs(tvb, 2)) < 20) {
+      dissect_tapa_static(tvb, pinfo, tree, data);
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
 void
 proto_register_tapa(void)
 {
@@ -601,9 +619,8 @@ proto_register_tapa(void)
 		&ett_tapa_tunnel,
 	};
 
-        proto_tapa = proto_register_protocol(PROTO_LONG_NAME,
-	    PROTO_SHORT_NAME, "tapa");
-        proto_register_field_array(proto_tapa, hf, array_length(hf));
+    proto_tapa = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "tapa");
+    proto_register_field_array(proto_tapa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	new_register_dissector("tapa", dissect_tapa_static, proto_tapa);
@@ -617,5 +634,6 @@ proto_reg_handoff_tapa(void)
 
 	tapa_handle = find_dissector("tapa");
 	dissector_add_uint("udp.port", PORT_TAPA, tapa_handle);
+    heur_dissector_add( "ip", dissect_tapa_heur, proto_tapa);
 }
 
