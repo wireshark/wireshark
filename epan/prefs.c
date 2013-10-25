@@ -1587,7 +1587,9 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
     free_col_info(*pref->varp.list);
     *pref->varp.list = NULL;
     hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN);
+    g_assert(hidden_pref != NULL); /* Should never happen */
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
+    g_assert(col_num_pref != NULL); /* Should never happen */
     llen             = g_list_length(col_l);
     *col_num_pref->varp.uint = llen / 2;
     col_l_elt = g_list_first(col_l);
