@@ -157,13 +157,13 @@ header_fields_update_cb(void *r, const char **err)
 	char c;
 
 	if (rec->header_name == NULL) {
-		*err = wmem_strdup_printf(wmem_packet_scope(), "Header name can't be empty");
+		*err = g_strdup("Header name can't be empty");
 		return;
 	}
 
 	g_strstrip(rec->header_name);
 	if (rec->header_name[0] == 0) {
-		*err = wmem_strdup_printf(wmem_packet_scope(), "Header name can't be empty");
+		*err = g_strdup("Header name can't be empty");
 		return;
 	}
 
@@ -172,7 +172,7 @@ header_fields_update_cb(void *r, const char **err)
 	 */
 	c = proto_check_field_name(rec->header_name);
 	if (c) {
-		*err = wmem_strdup_printf(wmem_packet_scope(), "Header name can't contain '%c'", c);
+		*err = g_strdup_printf("Header name can't contain '%c'", c);
 		return;
 	}
 

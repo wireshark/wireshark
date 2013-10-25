@@ -175,7 +175,7 @@ vcdu_uat_data_update_cb(void *p, const char **err) {
     uat_channel_t *ud = (uat_channel_t *)p;
 
     if (ud->channel >= 64) {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Channel must be between 0-63.");
+        *err = g_strdup("Channel must be between 0-63.");
         return;
     }
 }

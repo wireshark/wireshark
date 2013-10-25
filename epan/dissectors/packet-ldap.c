@@ -627,13 +627,13 @@ attribute_types_update_cb(void *r, const char **err)
   char c;
 
   if (rec->attribute_type == NULL) {
-    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't be empty");
+    *err = g_strdup("Attribute type can't be empty");
     return;
   }
 
   g_strstrip(rec->attribute_type);
   if (rec->attribute_type[0] == 0) {
-    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't be empty");
+    *err = g_strdup("Attribute type can't be empty");
     return;
   }
 
@@ -642,7 +642,7 @@ attribute_types_update_cb(void *r, const char **err)
    */
   c = proto_check_field_name(rec->attribute_type);
   if (c) {
-    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't contain '%c'", c);
+    *err = g_strdup_printf("Attribute type can't contain '%c'", c);
     return;
   }
 

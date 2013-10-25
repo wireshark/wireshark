@@ -73,7 +73,7 @@ uat_plen_record_update_cb(void *r, const char **err)
 {
 	uat_plen_record_t *rec = (uat_plen_record_t*)r;
 	if (rec->packet_range->nranges < 1) {
-		*err = ep_strdup_printf("Invalid range string");
+		*err = g_strdup("Invalid range string");
 		return;
 	}
 

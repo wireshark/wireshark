@@ -3404,12 +3404,12 @@ sccp_users_update_cb(void *r, const char **err)
 
   empty = range_empty();
   if (ranges_are_equal(u->called_pc, empty)) {
-          *err = ep_strdup_printf("Must specify a PC");
+          *err = g_strdup("Must specify a PC");
           return;
   }
 
   if (ranges_are_equal(u->called_ssn, empty)) {
-          *err = ep_strdup_printf("Must specify an SSN");
+          *err = g_strdup("Must specify an SSN");
           return;
   }
 

@@ -81,7 +81,10 @@ static guint linenum;
 static gchar *parse_str;
 static guint parse_str_pos;
 
-#define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); yyterminate(); } while(0)
+#define ERROR(fmtd) do { \
+    error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); \
+    yyterminate(); \
+} while(0)
 
 #define SET_FIELD() \
 	{ const gchar* errx; \
@@ -237,7 +240,7 @@ comment #[^\n]*\n
 
 <END_OF_RECORD>{newline} {
 	void* rec;
-	const gchar* err = NULL;
+	const char* err = NULL;
 
 	linenum++;
 
@@ -251,7 +254,12 @@ comment #[^\n]*\n
 		uat->update_cb(rec,&err);
 
 	if (err) {
-		ERROR(("%s",err));
+		char *tmp = ep_strdup(err);
+		/* XXX bit of a hack to remove emem from dissectors, this can
+		 * be removed as proper use of glib memory is propogated
+		 * through the rest of the UAT code */
+		g_free((char*)err);
+		ERROR(("%s",tmp));
 	}
 
 	valid_record = TRUE;

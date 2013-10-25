@@ -160,18 +160,18 @@ static void uat_key_record_update_cb(void* r, const char** err) {
     uat_key_record_t* rec = (uat_key_record_t *)r;
 
     if (rec->string == NULL) {
-         *err = ep_strdup_printf("Key can't be blank");
+	*err = g_strdup("Key can't be blank");
     } else {
         g_strstrip(rec->string);
 
         if (rec->string[0] != 0) {
             *err = NULL;
             if ( !zbee_security_parse_key(rec->string, rec->key, rec->byte_order) ) {
-                *err = ep_strdup_printf("Expecting %d hexadecimal bytes or\n"
+                *err = g_strdup_printf("Expecting %d hexadecimal bytes or\n"
                         "a %d character double-quoted string", ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
             }
         } else {
-            *err = ep_strdup_printf("Key can't be blank");
+            *err = g_strdup("Key can't be blank");
         }
     }
 }

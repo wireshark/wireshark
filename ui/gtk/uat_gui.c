@@ -373,7 +373,13 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		dd->uat->update_cb(dd->rec, &err);
 
 		if (err) {
-			err = ep_strdup_printf("error updating record: %s", err);
+			char *tmp;
+			tmp = ep_strdup_printf("error updating record: %s", err);
+			/* XXX bit of a hack to remove emem from dissectors, this can
+			 * be removed as proper use of glib memory is propogated
+			 * through the rest of the UAT code */
+			g_free((char*)err);
+			err = tmp;
 			goto on_failure;
 		}
 	}

@@ -5249,14 +5249,6 @@ ssldecrypt_free_cb(void *r)
     g_free(h->password);
 }
 
-static void
-ssldecrypt_update_cb(void *r _U_, const char **err)
-{
-    if (err)
-            *err = NULL;
-    return;
-}
-
 static void*
 ssldecrypt_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
@@ -6085,7 +6077,7 @@ proto_register_ssl(void)
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */
             ssldecrypt_copy_cb,
-            ssldecrypt_update_cb,
+            NULL,
             ssldecrypt_free_cb,
             ssl_parse_uat,
             sslkeylist_uats_flds);

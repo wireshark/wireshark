@@ -134,15 +134,18 @@ addr_uat_update_cb(void *r, const char **err)
     static_addr_t *map = (static_addr_t *)r;
     /* Ensure a valid short address */
     if (map->addr16 >= IEEE802154_NO_ADDR16) {
-        *err = "Invalid short address";
+        *err = g_strdup("Invalid short address");
+	return;
     }
     /* Ensure a valid PAN identifier. */
     if (map->pan >= IEEE802154_BCAST_PAN) {
-        *err = "Invalid PAN identifier";
+        *err = g_strdup("Invalid PAN identifier");
+	return;
     }
     /* Ensure a valid EUI-64 length */
     if (map->eui64_len != sizeof(guint64)) {
-        *err = "Invalid EUI-64 length";
+        *err = g_strdup("Invalid EUI-64 length");
+	return;
     }
 } /* ieee802154_addr_uat_update_cb */
 

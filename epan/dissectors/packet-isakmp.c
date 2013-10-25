@@ -4965,17 +4965,17 @@ static void ikev1_uat_data_update_cb(void* p, const char** err) {
   ikev1_uat_data_key_t *ud = (ikev1_uat_data_key_t *)p;
 
   if (ud->icookie_len != COOKIE_SIZE) {
-    *err = ep_strdup_printf("Length of Initiator's COOKIE must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = g_strdup_printf("Length of Initiator's COOKIE must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return;
   }
 
   if (ud->key_len == 0) {
-    *err = ep_strdup_printf("Must have Encryption key.");
+    *err = g_strdup_printf("Must have Encryption key.");
     return;
   }
 
   if (ud->key_len > MAX_KEY_SIZE) {
-    *err = ep_strdup_printf("Length of Encryption key limited to %d octets (%d hex characters).", MAX_KEY_SIZE, MAX_KEY_SIZE * 2);
+    *err = g_strdup_printf("Length of Encryption key limited to %d octets (%d hex characters).", MAX_KEY_SIZE, MAX_KEY_SIZE * 2);
     return;
   }
 
@@ -4994,12 +4994,12 @@ static void ikev2_uat_data_update_cb(void* p, const char** err) {
   ikev2_uat_data_t *ud = (ikev2_uat_data_t *)p;
 
   if (ud->key.spii_len != COOKIE_SIZE) {
-    *err = ep_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = g_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return;
   }
 
   if (ud->key.spir_len != COOKIE_SIZE) {
-    *err = ep_strdup_printf("Length of Responder's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = g_strdup_printf("Length of Responder's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return;
   }
 
@@ -5012,25 +5012,25 @@ static void ikev2_uat_data_update_cb(void* p, const char** err) {
   }
 
   if (ud->sk_ei_len != ud->encr_spec->key_len) {
-    *err = ep_strdup_printf("Length of SK_ei (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
+    *err = g_strdup_printf("Length of SK_ei (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
              ud->sk_ei_len, ud->encr_spec->key_len);
     return;
   }
 
   if (ud->sk_er_len != ud->encr_spec->key_len) {
-    *err = ep_strdup_printf("Length of SK_er (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
+    *err = g_strdup_printf("Length of SK_er (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
              ud->sk_er_len, ud->encr_spec->key_len);
     return;
   }
 
   if (ud->sk_ai_len != ud->auth_spec->key_len) {
-    *err = ep_strdup_printf("Length of SK_ai (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
+    *err = g_strdup_printf("Length of SK_ai (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
              ud->sk_ai_len, ud->auth_spec->key_len);
     return;
   }
 
   if (ud->sk_ar_len != ud->auth_spec->key_len) {
-    *err = ep_strdup_printf("Length of SK_ar (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
+    *err = g_strdup_printf("Length of SK_ar (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
              ud->sk_ar_len, ud->auth_spec->key_len);
     return;
   }

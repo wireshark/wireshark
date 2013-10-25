@@ -172,7 +172,7 @@ uat_wep_key_record_update_cb(void* r, const char** err)
     decryption_key_t* dk;
 
     if (rec->string == NULL) {
-         *err = ep_strdup_printf("Key can't be blank");
+         *err = g_strdup("Key can't be blank");
     } else {
         g_strstrip(rec->string);
         dk = parse_key_string(rec->string, rec->key);
@@ -183,25 +183,25 @@ uat_wep_key_record_update_cb(void* r, const char** err)
               case AIRPDCAP_KEY_TYPE_WEP_40:
               case AIRPDCAP_KEY_TYPE_WEP_104:
                  if (rec->key != AIRPDCAP_KEY_TYPE_WEP) {
-                    *err = ep_strdup_printf("Invalid key format");
+                    *err = g_strdup("Invalid key format");
                  }
                  break;
               case AIRPDCAP_KEY_TYPE_WPA_PWD:
                  if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PWD) {
-                    *err = ep_strdup_printf("Invalid key format");
+                    *err = g_strdup("Invalid key format");
                  }
                  break;
               case AIRPDCAP_KEY_TYPE_WPA_PSK:
                  if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PSK) {
-                    *err = ep_strdup_printf("Invalid key format");
+                    *err = g_strdup("Invalid key format");
                  }
                  break;
               default:
-                 *err = ep_strdup_printf("Invalid key format");
+                 *err = g_strdup("Invalid key format");
                  break;
            }
         } else {
-           *err = ep_strdup_printf("Invalid key format");
+           *err = g_strdup("Invalid key format");
         }
     }
 }

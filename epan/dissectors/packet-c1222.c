@@ -724,7 +724,7 @@ static const TOP_ELEMENT_CONTROL canonifyTable[] = {
   { FALSE, FALSE, 0x0,  TRUE, NULL, NULL }
 };
 
-static void 
+static void
 clear_canon(void)
 {
   const TOP_ELEMENT_CONTROL *t = canonifyTable;
@@ -787,10 +787,10 @@ c1222_uat_data_update_cb(void* n, const char** err)
   c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;
 
   if (new_rec->keynum > 0xff) {
-    *err = "Invalid key number; must be less than 256";
+    *err = g_strdup("Invalid key number; must be less than 256");
   }
   if (new_rec->keylen != EAX_SIZEOF_KEY) {
-    *err = "Invalid key size; must be 16 bytes";
+    *err = g_strdup("Invalid key size; must be 16 bytes");
   }
 }
 

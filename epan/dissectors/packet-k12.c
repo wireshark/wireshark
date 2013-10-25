@@ -310,7 +310,7 @@ k12_update_cb(void* r, const char** err)
 	gchar** protos;
 	guint num_protos, i;
 
-	protos = ep_strsplit(h->protos,":",0);
+	protos = g_strsplit(h->protos,":",0);
 
 	for (num_protos = 0; protos[num_protos]; num_protos++)
 		g_strstrip(protos[num_protos]);
@@ -321,11 +321,13 @@ k12_update_cb(void* r, const char** err)
 	for (i = 0; i < num_protos; i++) {
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
 			h->handles[i] = data_handle;
-			*err = ep_strdup_printf("Could not find dissector for: '%s'",protos[i]);
+			g_strfreev(protos);
+			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			return;
 		}
 	}
 
+	g_strfreev(protos);
 	*err = NULL;
 }
 

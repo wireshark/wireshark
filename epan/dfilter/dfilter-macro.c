@@ -408,7 +408,7 @@ static void macro_update(void* mp, const gchar** error) {
 		if (m == &(macros[i])) continue;
 
 		if ( g_str_equal(m->name,macros[i].name) ) {
-			*error = ep_strdup_printf("macro '%s' exists already", m->name);
+			*error = g_strdup_printf("macro '%s' exists already", m->name);
 			m->usable = FALSE;
 			return;
 		}

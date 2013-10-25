@@ -195,7 +195,7 @@ static void geoip_db_post_update_cb(void) {
 /**
  * Initialize GeoIP lookups
  */
-void 
+void
 geoip_db_pref_init(module_t *nameres)
 {
     static uat_field_t geoip_db_paths_fields[] = {
