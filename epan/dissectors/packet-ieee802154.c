@@ -596,7 +596,7 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      have been called to determine what sort of FCS is present.
  *      The dissect_ieee802154* functions will set the parameters
  *      in the ieee802154_packet structure, and pass it to this one
- *      through the pinfo->private_data pointer.
+ *      through the data parameter.
  *
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
@@ -615,7 +615,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_item              *volatile proto_root = NULL;
     proto_item              *hidden_item;
     proto_item              *ti;
-    void                    *pd_save;
 
     guint                   offset = 0;
     volatile gboolean       fcs_ok = TRUE;
@@ -625,11 +624,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     ieee802154_packet      *packet = wmem_new(wmem_packet_scope(), ieee802154_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
-
-    /* Link our packet info structure into the private data field for the
-     * Network-Layer heuristic subdissectors. */
-    pd_save = pinfo->private_data;
-    pinfo->private_data = packet;
 
     packet->short_table = ieee802154_map.short_table;
 
@@ -754,7 +748,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         /* Invalid Destination Address Mode. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_dst);
-        pinfo->private_data = pd_save;
         return;
     }
 
@@ -864,7 +857,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else if (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         /* Invalid Destination Address Mode. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_src);
-        pinfo->private_data = pd_save;
         return;
     }
 
@@ -1077,7 +1069,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             /* Beacon and Data packets contain a payload. */
             if ((fcs_ok || !ieee802154_fcs_ok) && (tvb_reported_length(payload_tvb)>0)) {
                 /* Attempt heuristic subdissection. */
-                if (!dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, NULL)) {
+                if (!dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, packet)) {
                     /* Could not subdissect, call the data dissector instead. */
                     call_dissector(data_handle, payload_tvb, pinfo, tree);
                 }
@@ -1244,7 +1236,6 @@ dissect_ieee802154_fcs:
         /* Flag packet as having a bad crc. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_fcs);
     }
-    pinfo->private_data = pd_save;
 } /* dissect_ieee802154_common */
 
 /*FUNCTION:------------------------------------------------------
