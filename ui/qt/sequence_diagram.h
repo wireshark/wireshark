@@ -1,6 +1,6 @@
 /* sequence_diagram.h
  *
- * $Id: tcp_stream_dialog.h 52102 2013-09-16 17:28:42Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
