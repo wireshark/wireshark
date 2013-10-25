@@ -77,6 +77,9 @@
 #define BOTTOM_Y_BORDER 2
 #define COMMENT_WIDTH 400
 #define TIME_WIDTH 150
+#if !PANGO_VERSION_CHECK(1,6,0)
+#define MAX_FRAME_LABEL 20
+#endif
 
 /****************************************************************************/
 /* Reset the user_data structure */
@@ -443,12 +446,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 				user_data->dlg.items[current_item].fd = gai->fd;
 				user_data->dlg.items[current_item].port_src = gai->port_src;
 				user_data->dlg.items[current_item].port_dst = gai->port_dst;
-				/* Add "..." if the length is 50 characters */
-				if (strlen(gai->frame_label) > 48) {
-					gai->frame_label[48] = '.';
-					gai->frame_label[47] = '.';
-					gai->frame_label[46] = '.';
-				}
 				user_data->dlg.items[current_item].frame_label = gai->frame_label;
 				user_data->dlg.items[current_item].time_str = gai->time_str;
 				user_data->dlg.items[current_item].comment = gai->comment;
@@ -783,9 +780,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			draw_arrow(user_data->dlg.pixmap_main, color_p, end_arrow, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7-(HEIGHT_ARROW/2), LEFT_ARROW);
 #endif
 		/* draw the frame comment */
-		g_snprintf(label_string, MAX_LABEL, "%s", user_data->dlg.items[current_item].frame_label);
-		pango_layout_set_text(layout, label_string, -1);
-		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (start_arrow<end_arrow) {
 			arrow_width = end_arrow-start_arrow;
 			label_x = arrow_width/2+start_arrow;
@@ -794,6 +788,18 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			arrow_width = start_arrow-end_arrow;
 			label_x = arrow_width/2+end_arrow;
 		}
+#if PANGO_VERSION_CHECK(1,6,0)
+		pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
+		pango_layout_set_width(layout, arrow_width * PANGO_SCALE);
+		pango_layout_set_text(layout, user_data->dlg.items[current_item].frame_label, -1);
+#else
+		if (g_snprintf(label_string, MAX_FRAME_LABEL, "%s", user_data->dlg.items[current_item].frame_label) > MAX_FRAME_LABEL) {
+			memcpy(&label_string[MAX_FRAME_LABEL-4], "...", 3);
+		}
+		pango_layout_set_text(layout, label_string, -1);
+#endif
+g_warning("= layout width: %d: %s", pango_layout_get_width(layout), pango_layout_get_text(layout));
+		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
 		if ((int)left_x_border > ((int)label_x-(int)label_width/2))
 			label_x = left_x_border + label_width/2;
@@ -815,6 +821,10 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			cr = NULL;
 		}
 #endif
+#if PANGO_VERSION_CHECK(1,6,0)
+		pango_layout_set_width(layout, -1);
+#endif
+
 		/* draw the source port number */
 		g_snprintf(label_string, MAX_LABEL, "(%i)", user_data->dlg.items[current_item].port_src);
 		pango_layout_set_text(small_layout, label_string, -1);

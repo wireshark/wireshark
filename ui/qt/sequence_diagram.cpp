@@ -23,7 +23,7 @@
 
 #include "sequence_diagram.h"
 
-#include <epan/addr_resolv.h>
+#include "epan/addr_resolv.h"
 
 #include <QFont>
 #include <QFontMetrics>
@@ -81,8 +81,9 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     comment_axis_->grid()->setVisible(false);
 
     QFont comment_font = comment_axis_->tickLabelFont();
+    comment_font.setPointSizeF(comment_font.pointSizeF() * 0.75);
     comment_axis_->setTickLabelFont(comment_font);
-    comment_axis_->setSelectedTickLabelFont(QFont(comment_font.family(), comment_font.pointSize(), QFont::Bold));
+    comment_axis_->setSelectedTickLabelFont(QFont(comment_font.family(), comment_font.pointSizeF(), QFont::Bold));
     //             frame_label
     // port_src -----------------> port_dst
 
@@ -93,6 +94,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
 void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
 {
     data_->clear();
+
     WSCPSeqData new_data;
     double cur_key = 0.0;
     QVector<double> key_ticks, val_ticks;
@@ -109,7 +111,8 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
 
         key_ticks.append(cur_key);
         key_labels.append(sai->time_str);
-        com_labels.append(com_fm.elidedText(sai->comment, Qt::ElideRight, elide_w));
+
+        com_labels.append(com_fm.elidedText(sai->frame_label, Qt::ElideRight, elide_w));
 
         cur_key++;
     }
@@ -118,6 +121,9 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
     for (unsigned int i = 0; i < sainfo_->num_nodes; i++) {
         val_ticks.append(i);
         val_labels.append(get_addr_name(&(sainfo_->nodes[i])));
+        if (i % 2 == 0) {
+            val_labels.last().append("\n");
+        }
     }
     keyAxis()->setTickVector(key_ticks);
     keyAxis()->setTickVectorLabels(key_labels);
@@ -127,11 +133,27 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
     comment_axis_->setTickVectorLabels(com_labels);
 }
 
+seq_analysis_item_t *SequenceDiagram::itemForPosY(int ypos)
+{
+    double key_pos = qRound(key_axis_->pixelToCoord(ypos));
+
+    if (key_pos >= 0 && key_pos < data_->size()) {
+        return data_->value(key_pos).value;
+    }
+    return NULL;
+}
+
 double SequenceDiagram::selectTest(const QPointF &pos, bool onlySelectable, QVariant *details) const
 {
-    Q_UNUSED(pos);
-    Q_UNUSED(onlySelectable);
     Q_UNUSED(details);
+    Q_UNUSED(onlySelectable);
+
+    double key_pos = qRound(key_axis_->pixelToCoord(pos.y()));
+
+    if (key_pos >= 0 && key_pos < data_->size()) {
+        return 1.0;
+    }
+
     return -1.0;
 }
 
@@ -151,20 +173,47 @@ void SequenceDiagram::draw(QCPPainter *painter)
         if (sai->src_node > sai->dst_node && (sai->src_node < value_axis_->range().lower || sai->dst_node > value_axis_->range().upper)) {
             continue;
         }
-        double ah_size = (QFontMetrics(comment_axis_->tickLabelFont()).height() / 5)
-                * ((sai->src_node < sai->dst_node) ? 1 : -1);
+
+        QFontMetrics cfm(comment_axis_->tickLabelFont());
+        int dir_mul = (sai->src_node < sai->dst_node) ? 1 : -1;
+        double ah_size = (cfm.height() / 5) * dir_mul;
+        QPointF arrow_start(coordsToPixels(cur_key, sai->src_node));
         QPointF arrow_end(coordsToPixels(cur_key, sai->dst_node));
-        QLineF arrow_line(coordsToPixels(cur_key, sai->src_node), arrow_end);
+        QLineF arrow_line(arrow_start, arrow_end);
         QPolygonF arrow_head;
         arrow_head
                 << QPointF(arrow_end.x() - (ah_size*3), arrow_end.y() - ah_size)
                 << arrow_end
                 << QPointF(arrow_end.x() - (ah_size*3), arrow_end.y() + ah_size);
+
         if (mainPen().style() != Qt::NoPen && mainPen().color().alpha() != 0) {
+            double en = cfm.height() / 2.0;
+
             painter->setBrush(mainPen().color());
             painter->setPen(mainPen());
             painter->drawLine(arrow_line);
             painter->drawPolygon(arrow_head);
+
+            painter->setFont(comment_axis_->tickLabelFont());
+            double comment_start = (sai->src_node < sai->dst_node)
+                    ? arrow_start.x() : arrow_end.x();
+            double arrow_width = (arrow_end.x() - arrow_start.x()) * dir_mul;
+            QString arrow_label = cfm.elidedText(sai->frame_label, Qt::ElideRight, arrow_width);
+            QPointF text_pt(comment_start + ((arrow_width - cfm.width(arrow_label)) / 2),
+                            arrow_start.y() - (en / 2));
+
+            painter->drawText(text_pt, arrow_label);
+
+            if (sai->port_src && sai->port_dst) {
+                QString port_num = QString::number(sai->port_src);
+                text_pt = QPointF(arrow_start.x() - en - (cfm.width(port_num) * dir_mul),
+                                arrow_start.y() + (en / 2));
+                painter->drawText(text_pt, port_num);
+
+                port_num = QString::number(sai->port_dst);
+                text_pt.setX(arrow_end.x() - en + (cfm.width(port_num) * dir_mul));
+                painter->drawText(text_pt, port_num);
+            }
         }
     }
 }

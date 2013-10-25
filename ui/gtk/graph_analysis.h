@@ -46,7 +46,7 @@ typedef struct _display_items {
 	guint16 port_dst;
 	gchar *frame_label;			/**< the label on top of the arrow */
 	gchar *time_str;   			/**< timestamp */
-	gchar *comment;				/**< a comment that appears at the left of the graph */
+	gchar *comment;				/**< a comment that appears at the right of the graph */
 	guint16 conv_num;			/**< the conversation number, each conversation will be colored */
 	guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
 	guint16 dst_node;			/**< a node is an IP address that will be displayed in columns */

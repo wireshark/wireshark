@@ -115,17 +115,17 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
         if (colinfo != NULL) {
             if (protocol != NULL) {
-                sai->frame_label = g_strdup_printf("%.19s", colinfo);
+                sai->frame_label = g_strdup(colinfo);
                 sai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
             } else {
-                sai->frame_label = g_strdup_printf("%.19s", colinfo);
-                sai->comment = g_strdup_printf("%s", colinfo);
+                sai->frame_label = g_strdup(colinfo);
+                sai->comment = g_strdup(colinfo);
             }
         } else {
             /* This will probably never happen...*/
             if (protocol != NULL) {
-                sai->frame_label = g_strdup_printf("%.19s", protocol);
-                sai->comment = g_strdup_printf("%s", protocol);
+                sai->frame_label = g_strdup(protocol);
+                sai->comment = g_strdup(protocol);
             }
         }
 

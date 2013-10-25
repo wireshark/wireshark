@@ -59,16 +59,29 @@ public slots:
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
+    void hScrollBarChanged(int value);
+    void vScrollBarChanged(int value);
+    void xAxisChanged(QCPRange range);
+    void yAxisChanged(QCPRange range);
+    void diagramClicked(QMouseEvent *event);
+    void mouseMoved(QMouseEvent *event);
+    void mouseReleased(QMouseEvent *event);
+
     void on_resetButton_clicked();
+    void on_actionGoToPacket_triggered();
 
 private:
     Ui::SequenceDialog *ui;
     SequenceDiagram *seq_diagram_;
     capture_file *cap_file_;
     seq_analysis_info_t seq_analysis_;
+    int num_items_;
+    guint32 packet_num_;
     double one_em_;
+    int node_label_w_;
 
     void fillDiagram();
     void resetAxes(bool keep_lower = false);

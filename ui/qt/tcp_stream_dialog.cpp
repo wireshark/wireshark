@@ -794,7 +794,6 @@ QRectF TCPStreamDialog::getZoomRanges(QRect zoom_rect)
 
 void TCPStreamDialog::graphClicked(QMouseEvent *event)
 {
-    Q_UNUSED(event)
     QCustomPlot *sp = ui->streamPlot;
 
     if (event->button() == Qt::RightButton) {

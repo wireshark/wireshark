@@ -66,6 +66,7 @@ public:
 //    void setWidth(double width);
     void setData(seq_analysis_info_t *sainfo);
 //    void setData(const QVector<double> &key, const QVector<double> &value);
+    seq_analysis_item_t *itemForPosY(int ypos);
 
     // non-property methods:
 //    void addData(const WSCPSeqDataMap &dataMap);

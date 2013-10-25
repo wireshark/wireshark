@@ -59,7 +59,7 @@ typedef struct _seq_analysis_item {
     guint16 port_dst;
     gchar *frame_label;			/**< the label on top of the arrow */
     gchar *time_str;   			/**< timestamp */
-    gchar *comment;			/**< a comment that appears at the left of the graph */
+    gchar *comment;			/**< a comment that appears at the right of the graph */
     guint16 conv_num;			/**< the conversation number, each conversation will be colored */
     gboolean display;			/**< indicate if the packet is displayed or not in the graph */
     guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
