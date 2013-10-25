@@ -45,6 +45,9 @@ do
 			svn ps svn:eol-style native $file
 			svn ps svn:mime-type text/plain $file
 			;;
+		*.rtf)
+			svn ps svn:mime-type text/rtf $file
+			;;
 		*.png)
 			svn ps svn:mime-type image/png $file
 			;;
@@ -65,10 +68,13 @@ do
 		*.pcap)
 			svn ps svn:mime-type application/vnd.tcpdump.pcap $file
 			;;
+		*.qm)
+			svn ps svn:mime-type application/octet-stream $file
+			;;
 		*.gz)
 			svn ps svn:mime-type application/x-gzip $file
 			;;
-		*.ts|*.ui|*.xml|*.ts)
+		*.ts|*.ui|*.xml)
 			svn ps svn:keywords Id $file
 			svn ps svn:eol-style native $file
 			svn ps svn:mime-type text/xml $file
