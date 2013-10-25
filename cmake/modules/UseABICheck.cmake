@@ -1,4 +1,6 @@
 #
+# $Id$
+#
 # ABI Check related macros
 #
 # ABI compliance checker can be obtained from
