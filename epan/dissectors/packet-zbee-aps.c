@@ -1329,7 +1329,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
  *---------------------------------------------------------------
  */
 static guint
-dissect_zbee_aps_update_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 version)
+dissect_zbee_aps_update_device(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint8 version)
 {
     /* Get and display the device address. */
     proto_tree_add_item(tree, hf_zbee_aps_cmd_device, tvb, offset, 8, ENC_LITTLE_ENDIAN);

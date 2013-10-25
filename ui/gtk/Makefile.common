@@ -332,7 +332,6 @@ noinst_HEADERS = \
 	proto_tree_model.h \
 	range_utils.h \
 	remote_icons.h	\
-	rtp_analysis.h	\
 	rtp_player.h	\
 	rtp_stream_dlg.h \
 	sat.h		\
