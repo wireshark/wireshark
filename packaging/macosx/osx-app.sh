@@ -562,12 +562,12 @@ rpathify_files () {
 }
 
 if [ "$ui_toolkit" = "qt" ] ; then
-	macdeployqt "$bundle" -verbose=2
+	macdeployqt "$bundle" -verbose=2 || exit 1
 fi
 
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
 if [ "$PATHLENGTH" -ge "6" ]; then
-	# If the LIBPREFIX path is long enough to allow 
+	# If the LIBPREFIX path is long enough to allow
 	# path rewriting, then do this.
 	# 6 is the length of @rpath, which replaces LIBPREFIX.
 	rpathify_files
