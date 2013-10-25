@@ -1224,6 +1224,7 @@ proto_register_dsmcc(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_dsmcc = expert_register_protocol(proto_dsmcc);
     expert_register_field_array(expert_dsmcc, ei, array_length(ei));
+    new_register_dissector("mp2t-dsmcc", dissect_dsmcc_ts, proto_dsmcc);
 
     dsmcc_module = prefs_register_protocol(proto_dsmcc, NULL);
 
