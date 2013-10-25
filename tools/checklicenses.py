@@ -165,6 +165,12 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'cmake/TestFileOffsetBits.c': [
         'UNKNOWN',
     ],
+    'epan/dissectors/pidl/idl_types.h': [
+        # Special IDL license that appears to be compatible as far as I (not a
+        # lawyer) can tell. See
+        # https://www.wireshark.org/lists/wireshark-dev/201310/msg00234.html
+        'UNKNOWN',
+    ],
 }
 
 
