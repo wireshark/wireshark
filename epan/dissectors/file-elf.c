@@ -656,6 +656,7 @@ get_section_name_offset(tvbuff_t *tvb, guint64 shoff, guint16 shnum, guint16 she
     return tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
 }
 
+#define MAX_TAG_TO_TYPE 34
 static gint
 dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, proto_item *entry_item,
         gint offset, gint register_size, guint machine_encoding)
@@ -668,7 +669,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
     };
 
     guint64                          tag;
-    static const enum enum_tag_type  tag_to_type[34] = {
+    static const enum enum_tag_type  tag_to_type[MAX_TAG_TO_TYPE] = {
         DYNAMIC_TYPE_IGNORED,
         DYNAMIC_TYPE_VALUE,
         DYNAMIC_TYPE_VALUE,
@@ -710,11 +711,11 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
         tag = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
         offset += 4;
 
-        if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
+        if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
             proto_tree_add_item(entry_tree, hf_elf_dynamic_value, tvb, offset, 4, machine_encoding);
-        else if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_POINTER)
+        else if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_POINTER)
             proto_tree_add_item(entry_tree, hf_elf_dynamic_pointer, tvb, offset, 4, machine_encoding);
-        else if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_IGNORED)
+        else if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_IGNORED)
             proto_tree_add_item(entry_tree, hf_elf_dynamic_ignored, tvb, offset, 4, machine_encoding);
         else
             proto_tree_add_item(entry_tree, hf_elf_dynamic_unspecified, tvb, offset, 4, machine_encoding);
