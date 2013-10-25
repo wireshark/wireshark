@@ -921,7 +921,7 @@ proto_register_kafka(void)
         },
         { &hf_kafka_message_crc,
             { "CRC32", "kafka.message_crc",
-               FT_BYTES, BASE_NONE, 0, 0,
+               FT_UINT32, BASE_HEX, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_message_magic,
