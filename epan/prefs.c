@@ -804,7 +804,8 @@ preference_match(gconstpointer a, gconstpointer b)
     return strcmp(name, pref->name);
 }
 
-static gboolean module_find_pref_cb(void *value, void *data)
+static gboolean
+module_find_pref_cb(void *value, void *data)
 {
     find_pref_arg_t* arg = (find_pref_arg_t*)data;
     GList *list_entry;
@@ -905,8 +906,8 @@ prefs_register_uint_preference(module_t *module, const char *name,
  */
 static void
 prefs_register_uint_custom_preference(module_t *module, const char *name,
-                               const char *title, const char *description,
-                               struct pref_custom_cbs* custom_cbs, guint *var)
+                                      const char *title, const char *description,
+                                      struct pref_custom_cbs* custom_cbs, guint *var)
 {
     pref_t *preference;
 
@@ -1004,8 +1005,8 @@ prefs_register_string_preference(module_t *module, const char *name,
  * XXX - This should be temporary until we can find a better way
  * to do "custom" preferences
  */
-static
-void prefs_register_string_custom_preference(module_t *module, const char *name,
+static void
+prefs_register_string_custom_preference(module_t *module, const char *name,
                                  const char *title, const char *description,
                                  struct pref_custom_cbs* custom_cbs, const char **var)
 {
@@ -1103,8 +1104,10 @@ prefs_register_uat_preference(module_t *module, const char *name,
 /*
  * Register a color preference.
  */
-void prefs_register_color_preference(module_t *module, const char *name,
-    const char *title, const char *description, color_t *color)
+void
+prefs_register_color_preference(module_t *module, const char *name,
+                                const char *title, const char *description,
+                                color_t *color)
 {
     pref_t* preference = register_preference(module, name, title, description, PREF_COLOR);
 
@@ -1119,10 +1122,12 @@ void prefs_register_color_preference(module_t *module, const char *name,
  */
 typedef void (*pref_custom_list_init_cb) (pref_t* pref, GList** value);
 
-static
-void prefs_register_list_custom_preference(module_t *module, const char *name,
-    const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
-    pref_custom_list_init_cb init_cb, GList** list)
+static void
+prefs_register_list_custom_preference(module_t *module, const char *name,
+                                      const char *title, const char *description,
+                                      struct pref_custom_cbs* custom_cbs,
+                                      pref_custom_list_init_cb init_cb,
+                                      GList** list)
 {
     pref_t* preference = register_preference(module, name, title, description, PREF_CUSTOM);
 
@@ -1133,9 +1138,11 @@ void prefs_register_list_custom_preference(module_t *module, const char *name,
 /*
  * Register a custom preference.
  */
-void prefs_register_custom_preference(module_t *module, const char *name,
-    const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
-    void** custom_data _U_)
+void
+prefs_register_custom_preference(module_t *module, const char *name,
+                                 const char *title, const char *description,
+                                 struct pref_custom_cbs* custom_cbs,
+                                 void **custom_data _U_)
 {
     pref_t* preference = register_preference(module, name, title, description, PREF_CUSTOM);
 
@@ -1180,7 +1187,8 @@ prefs_set_preference_obsolete(pref_t *pref)
 }
 
 /* Return the value assigned to the given uint preference. */
-guint prefs_get_uint_preference(pref_t *pref)
+guint
+prefs_get_uint_preference(pref_t *pref)
 {
     if (pref && pref->type == PREF_UINT)
         return *pref->varp.uint;
@@ -1247,7 +1255,8 @@ static const enum_val_t gui_qt_language[] = {
     {NULL, NULL, -1}
 };
 
-static void stats_callback(void)
+static void
+stats_callback(void)
 {
     /* Test for a sane tap update interval */
     if (prefs.tap_update_interval < 100 || prefs.tap_update_interval > 10000)
@@ -1261,7 +1270,8 @@ static void stats_callback(void)
 
 }
 
-static void gui_callback(void)
+static void
+gui_callback(void)
 {
     /* Ensure there is at least one file count */
     if (prefs.gui_recent_files_count_max == 0)
@@ -1272,7 +1282,8 @@ static void gui_callback(void)
       prefs.gui_recent_df_entries_max = 10;
 }
 
-static void gui_layout_callback(void)
+static void
+gui_layout_callback(void)
 {
     if (prefs.gui_layout_type == layout_unused ||
         prefs.gui_layout_type >= layout_type_max) {
@@ -1291,12 +1302,14 @@ static void custom_pref_no_cb(pref_t* pref _U_) {}
 /*
  * Console log level custom preference functions
  */
-static void console_log_level_reset_cb(pref_t* pref)
+static void
+console_log_level_reset_cb(pref_t* pref)
 {
     *pref->varp.uint = pref->default_val.uint;
 }
 
-static prefs_set_pref_e console_log_level_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
+static prefs_set_pref_e
+console_log_level_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
     guint    uval;
 
@@ -1350,7 +1363,8 @@ static char * console_log_level_to_str_cb(pref_t* pref, gboolean default_val) {
 #define PRS_COL_NUM                      "column.number"
 static module_t *gui_column_module = NULL;
 
-static void column_hidden_free_cb(pref_t* pref)
+static void
+column_hidden_free_cb(pref_t* pref)
 {
     g_free((char *)*pref->varp.string);
     *pref->varp.string = NULL;
@@ -1358,13 +1372,15 @@ static void column_hidden_free_cb(pref_t* pref)
     pref->default_val.string = NULL;
 }
 
-static void column_hidden_reset_cb(pref_t* pref)
+static void
+column_hidden_reset_cb(pref_t* pref)
 {
     g_free((void *)*pref->varp.string);
     *pref->varp.string = g_strdup(pref->default_val.string);
 }
 
-static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
+static prefs_set_pref_e
+column_hidden_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
     GList       *clp;
     fmt_data    *cfmt;
@@ -1395,15 +1411,21 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, g
     return PREFS_SET_OK;
 }
 
-static const char * column_hidden_type_name_cb(void) {
+static const char *
+column_hidden_type_name_cb(void)
+{
     return "Packet list hidden columns";
 }
 
-static char * column_hidden_type_description_cb(void) {
+static char *
+column_hidden_type_description_cb(void)
+{
     return g_strdup("List all columns to hide in the packet list.");
 }
 
-static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
+static char *
+column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
+{
     GString     *cols_hidden = g_string_new ("");
     GList       *clp;
     fmt_data    *cfmt;
@@ -1437,7 +1459,9 @@ static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
     return g_string_free (cols_hidden, FALSE);
 }
 
-static gboolean column_hidden_is_default_cb(pref_t* pref) {
+static gboolean
+column_hidden_is_default_cb(pref_t* pref)
+{
     char *cur_hidden_str = column_hidden_to_str_cb(pref, FALSE);
     gboolean is_default = g_strcmp0(cur_hidden_str, pref->default_val.string) == 0;
 
@@ -1449,37 +1473,48 @@ static gboolean column_hidden_is_default_cb(pref_t* pref) {
 /* Number of columns "preference".  This is only used internally and is not written to the
  * preference file
  */
-static void column_num_reset_cb(pref_t* pref)
+static void
+column_num_reset_cb(pref_t* pref)
 {
     *pref->varp.uint = pref->default_val.uint;
 }
 
-static prefs_set_pref_e column_num_set_cb(pref_t* pref _U_, const gchar* value _U_, gboolean* changed _U_)
+static prefs_set_pref_e
+column_num_set_cb(pref_t* pref _U_, const gchar* value _U_, gboolean* changed _U_)
 {
     /* Don't write this to the preferences file */
     return PREFS_SET_OK;
 }
 
-static const char * column_num_type_name_cb(void) {
+static const char *
+column_num_type_name_cb(void)
+{
     return NULL;
 }
 
-static char * column_num_type_description_cb(void) {
+static char *
+column_num_type_description_cb(void)
+{
     return g_strdup("");
 }
 
-static gboolean column_num_is_default_cb(pref_t* pref _U_) {
+static gboolean
+column_num_is_default_cb(pref_t* pref _U_)
+{
     return TRUE;
 }
 
-static char * column_num_to_str_cb(pref_t* pref _U_, gboolean default_val _U_) {
+static char *
+column_num_to_str_cb(pref_t* pref _U_, gboolean default_val _U_)
+{
     return g_strdup("");
 }
 
 /*
  * Column format custom preference functions
  */
-static void column_format_init_cb(pref_t* pref, GList** value)
+static void
+column_format_init_cb(pref_t* pref, GList** value)
 {
     fmt_data *src_cfmt, *dest_cfmt;
     GList *entry;
@@ -1505,13 +1540,15 @@ static void column_format_init_cb(pref_t* pref, GList** value)
     }
 }
 
-static void column_format_free_cb(pref_t* pref)
+static void
+column_format_free_cb(pref_t* pref)
 {
     free_col_info(*pref->varp.list);
     free_col_info(pref->default_val.list);
 }
 
-static void column_format_reset_cb(pref_t* pref)
+static void
+column_format_reset_cb(pref_t* pref)
 {
     fmt_data *src_cfmt, *dest_cfmt;
     GList *entry;
@@ -1542,7 +1579,8 @@ static void column_format_reset_cb(pref_t* pref)
     column_num_reset_cb(col_num_pref);
 }
 
-static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
+static prefs_set_pref_e
+column_format_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
     GList    *col_l, *col_l_elt;
     fmt_data *cfmt;
@@ -1610,15 +1648,21 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
 }
 
 
-static const char * column_format_type_name_cb(void) {
+static const char *
+column_format_type_name_cb(void)
+{
     return "Packet list column format";
 }
 
-static char * column_format_type_description_cb(void) {
+static char *
+column_format_type_description_cb(void)
+{
     return g_strdup("Each pair of strings consists of a column title and its format");
 }
 
-static gboolean column_format_is_default_cb(pref_t* pref) {
+static gboolean
+column_format_is_default_cb(pref_t* pref)
+{
     GList       *clp = *pref->varp.list,
                 *pref_col = g_list_first(clp),
                 *def_col = g_list_first(pref->default_val.list);
@@ -1651,7 +1695,9 @@ static gboolean column_format_is_default_cb(pref_t* pref) {
     return is_default;
 }
 
-static char * column_format_to_str_cb(pref_t* pref, gboolean default_val) {
+static char *
+column_format_to_str_cb(pref_t* pref, gboolean default_val)
+{
     GList       *pref_l = default_val ? pref->default_val.list : *pref->varp.list;
     GList       *clp = g_list_first(pref_l);
     GList       *col_l;
@@ -1691,7 +1737,8 @@ static char * column_format_to_str_cb(pref_t* pref, gboolean default_val) {
    Copy the pref->capture_columns list (just loaded with the capture_cols[] struct values)
    to prefs->default_val.list.
 */
-static void capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
+static void
+capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
 {
     GList   *ccv_list = *capture_cols_values,
             *dlist = NULL;
@@ -1711,7 +1758,8 @@ static void capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
    Note that since pref->varp.list points to &prefs.capture_columns, it is
    also freed.
 */
-static void capture_column_free_cb(pref_t* pref)
+static void
+capture_column_free_cb(pref_t* pref)
 {
     GList    *clist = prefs.capture_columns;
     gchar    *col_name;
@@ -1741,7 +1789,8 @@ static void capture_column_free_cb(pref_t* pref)
 
 /* Copy pref->default_val.list to *pref->varp.list.
 */
-static void capture_column_reset_cb(pref_t* pref)
+static void
+capture_column_reset_cb(pref_t* pref)
 {
     GList *vlist, *dlist;
     gchar *vcol;
@@ -1762,7 +1811,8 @@ static void capture_column_reset_cb(pref_t* pref)
     *pref->varp.list = vlist;
 }
 
-static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
+static prefs_set_pref_e
+capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
     GList   *col_l  = prefs_get_string_list(value);
     GList    *col_l_elt;
@@ -1819,17 +1869,23 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
 }
 
 
-static const char * capture_column_type_name_cb(void) {
+static const char *
+capture_column_type_name_cb(void)
+{
     return "Column list";
 }
 
-static char * capture_column_type_description_cb(void) {
+static char *
+capture_column_type_description_cb(void)
+{
     return g_strdup(
         "List of columns to be displayed in the capture options dialog.\n"
         CAPTURE_COL_TYPE_DESCRIPTION);
 }
 
-static gboolean capture_column_is_default_cb(pref_t* pref) {
+static gboolean
+capture_column_is_default_cb(pref_t* pref)
+{
     GList   *pref_col = g_list_first(prefs.capture_columns),
             *def_col = g_list_first(pref->default_val.list);
     gboolean is_default = TRUE;
@@ -1852,7 +1908,9 @@ static gboolean capture_column_is_default_cb(pref_t* pref) {
     return is_default;
 }
 
-static char * capture_column_to_str_cb(pref_t* pref, gboolean default_val) {
+static char *
+capture_column_to_str_cb(pref_t* pref, gboolean default_val)
+{
 
     GList       *pref_l = default_val ? pref->default_val.list : prefs.capture_columns;
     GList       *clp = g_list_first(pref_l);
@@ -1873,7 +1931,8 @@ static char * capture_column_to_str_cb(pref_t* pref, gboolean default_val) {
 }
 
 
-static void colorized_frame_free_cb(pref_t* pref)
+static void
+colorized_frame_free_cb(pref_t* pref)
 {
     g_free((char *)*pref->varp.string);
     *pref->varp.string = NULL;
@@ -1882,13 +1941,15 @@ static void colorized_frame_free_cb(pref_t* pref)
 
 }
 
-static void colorized_frame_reset_cb(pref_t* pref)
+static void
+colorized_frame_reset_cb(pref_t* pref)
 {
     g_free((void *)*pref->varp.string);
     *pref->varp.string = g_strdup(pref->default_val.string);
 }
 
-static prefs_set_pref_e colorized_frame_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
+static prefs_set_pref_e
+colorized_frame_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
     if (strcmp(*pref->varp.string, value) != 0) {
         *changed = TRUE;
@@ -1899,7 +1960,9 @@ static prefs_set_pref_e colorized_frame_set_cb(pref_t* pref, const gchar* value,
     return PREFS_SET_OK;
 }
 
-static const char * colorized_frame_type_name_cb(void) {
+static const char *
+colorized_frame_type_name_cb(void)
+{
    /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
     * file until the colors can be changed in the GUI. Currently this is not really
     * possible since the STOCK-icons for these colors are hardcoded.
@@ -1912,15 +1975,21 @@ static const char * colorized_frame_type_name_cb(void) {
     return NULL;
 }
 
-static char * colorized_frame_type_description_cb(void) {
+static char *
+colorized_frame_type_description_cb(void)
+{
     return g_strdup("");
 }
 
-static gboolean colorized_frame_is_default_cb(pref_t* pref _U_) {
+static gboolean
+colorized_frame_is_default_cb(pref_t* pref _U_)
+{
     return TRUE;
 }
 
-static char * colorized_frame_to_str_cb(pref_t* pref _U_, gboolean default_val _U_) {
+static char *
+colorized_frame_to_str_cb(pref_t* pref _U_, gboolean default_val _U_)
+{
     return g_strdup("");
 }
 
@@ -3090,22 +3159,22 @@ read_prefs_file(const char *pf_path, FILE *pf,
   gboolean  got_val = FALSE;
   gint      fline = 1, pline = 1;
   gchar     hint[] = "(save preferences to remove this warning)";
-  
+
   cur_val = g_string_new("");
   cur_var = g_string_new("");
 
   /* Try to read in the profile name in the first line of the preferences file. */
   got_c = getc(pf);
   if (got_c) {
-    char firstl[100]; 
-    
-	if (fgets(firstl, 100, pf) != NULL) { 
-	  if (strncmp((const char *)firstl, " Configuration file for ", 24) == 0) {      
-	    const gchar *ver = (gchar *)&firstl[24];
-		/* Eliminate the period and LF the end of the string */
-		prefs.saved_at_version = g_strndup(ver, strlen(ver) - 2);
-	  }
-	}
+    char firstl[100];
+
+    if (fgets(firstl, 100, pf) != NULL) {
+      if (strncmp((const char *)firstl, " Configuration file for ", 24) == 0) {
+        const gchar *ver = (gchar *)&firstl[24];
+        /* Eliminate the period and LF the end of the string */
+        prefs.saved_at_version = g_strndup(ver, strlen(ver) - 2);
+      }
+    }
   }
   rewind(pf);
 
@@ -3708,7 +3777,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                    strcmp(pref_name, "isup_thin") == 0) {
             /* This protocol was removed 7. July 2009 */
             return PREFS_SET_OBSOLETE;
-          }              
+          }
           if (module) {
             g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s.%s\"\n"
               "Save your preferences to make this change permanent.",
