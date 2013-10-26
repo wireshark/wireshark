@@ -603,10 +603,12 @@ static const true_false_string ansi_map_navail_bool_val  = {
     "Number is not available",
     "Number is available"
 };
+#if 0
 static const true_false_string ansi_map_si_bool_val  = {
     "User provided, screening passed",
     "User provided, not screened"
 };
+#endif
 static const value_string ansi_map_si_vals[]  = {
     {   0, "User provided, not screened"},
     {   1, "User provided, screening passed"},
@@ -780,10 +782,12 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 /* 6.5.3.13. Subaddress */
 
+#if 0
 static const true_false_string ansi_map_Odd_Even_Ind_bool_val  = {
   "Odd",
   "Even"
 };
+#endif
 /* Type of Subaddress (octet 1, bits E-G) */
 static const value_string ansi_map_sub_addr_type_vals[]  = {
     {   0, "NSAP (CCITT Rec. X.213 or ISO 8348 AD2)"},
@@ -1739,17 +1743,21 @@ dissect_ansi_map_messagewaitingnotificationcount(tvbuff_t *tvb, packet_info *pin
 
 }
 
+#if 0
 /* 6.5.2.79 MessageWaitingNotificationType */
 /* Pip Tone (PT) (octet 1, bit A) */
 static const true_false_string ansi_map_MessageWaitingNotificationType_pt_bool_val  = {
     "Pip Tone (PT) notification is required",
     "Pip Tone (PT) notification is not authorized or no notification is required"
 };
+#endif
+#if 0
 /* Alert Pip Tone (APT) (octet 1, bit B) */
 static const true_false_string ansi_map_MessageWaitingNotificationType_apt_bool_val  = {
     "Alert Pip Tone (APT) notification is required",
     "Alert Pip Tone (APT) notification is not authorized or notification is not required"
 };
+#endif
 /* Message Waiting Indication (MWI) (octet 1, bits C and D) */
 static const value_string ansi_map_MessageWaitingNotificationType_mwi_vals[]  = {
     {   0, "No MWI. Message Waiting Indication (MWI) notification is not authorized or notification is not required"},
@@ -1869,6 +1877,7 @@ dissect_ansi_map_nampschanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 }
 
+#if 0
 /* 6.5.2.88 OneTimeFeatureIndicator */
 /* updated with N.S0012 */
 /* Call Waiting for Future Incoming Call (CWFI) (octet 1, bits A and B) */
@@ -1881,6 +1890,8 @@ static const value_string ansi_map_onetimefeatureindicator_cw_vals[]  = {
     {   3, "Priority CW"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* MessageWaitingNotification (MWN) (octet 1, bits E and F) */
 static const value_string ansi_map_onetimefeatureindicator_mwn_vals[]  = {
     {   0, "Ignore"},
@@ -1889,6 +1900,8 @@ static const value_string ansi_map_onetimefeatureindicator_mwn_vals[]  = {
     {   3, "Reserved"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* Calling Number Identification Restriction (CNIR) (octet 1, bits G and H)*/
 static const value_string ansi_map_onetimefeatureindicator_cnir_vals[]  = {
     {   0, "Ignore"},
@@ -1897,7 +1910,9 @@ static const value_string ansi_map_onetimefeatureindicator_cnir_vals[]  = {
     {   3, "Reserved"},
     {   0, NULL }
 };
+#endif
 
+#if 0
 /* Priority Access and Channel Assignment (PACA) (octet 2, bits A and B)*/
 static const value_string ansi_map_onetimefeatureindicator_paca_vals[]  = {
     {   0, "Ignore"},
@@ -1906,7 +1921,9 @@ static const value_string ansi_map_onetimefeatureindicator_paca_vals[]  = {
     {   3, "Reserved"},
     {   0, NULL }
 };
+#endif
 
+#if 0
 /* Flash Privileges (Flash) (octet 2, bits C and D) */
 static const value_string ansi_map_onetimefeatureindicator_flash_vals[]  = {
     {   0, "Ignore"},
@@ -1915,6 +1932,8 @@ static const value_string ansi_map_onetimefeatureindicator_flash_vals[]  = {
     {   3, "Reserved"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* Calling Name Restriction (CNAR) (octet 2, bits E and F) */
 static const value_string ansi_map_onetimefeatureindicator_cnar_vals[]  = {
     {   0, "Ignore"},
@@ -1923,6 +1942,7 @@ static const value_string ansi_map_onetimefeatureindicator_cnar_vals[]  = {
     {   3, "Blocking Toggle"},
     {   0, NULL }
 };
+#endif
 static void
 dissect_ansi_map_onetimefeatureindicator(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
     /*
@@ -2424,6 +2444,7 @@ dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo _
 /* 6.5.2.137 SMS_TeleserviceIdentifier */
 /* Updated with N.S0011-0 v 1.0 */
 
+#if 0
 /* SMS Teleservice Identifier (octets 1 and 2) */
 static const value_string ansi_map_SMS_TeleserviceIdentifier_vals[]  = {
     {     0, "Not used"},
@@ -2440,6 +2461,7 @@ static const value_string ansi_map_SMS_TeleserviceIdentifier_vals[]  = {
     { 32584, "TDMA Segmented System Assisted Mobile Positioning Service" },
     {     0, NULL }
 };
+#endif
 /* 6.5.2.140 SPINITriggers */
 /* All Origination (All) (octet 1, bit A) */
 
@@ -2866,6 +2888,7 @@ static const value_string ansi_map_TDMAServiceCode_vals[]  = {
     {   7, "STU-III"},
     {   0, NULL }
 };
+#if 0
 /* 6.5.2.j (IS-730) TDMATerminalCapability N.S0008-0 v 1.0 Updted with N.S0015-0 */
 /* Supported Frequency Band (octet 1) */
 /* Voice Coder (octet 2) */
@@ -2881,6 +2904,7 @@ static const value_string ansi_map_TDMATerminalCapability_prot_ver_vals[]  = {
     {   7, "PV 3 as published in TIA/EIA-136-A."},
     {   0, NULL }
 };
+#endif
 /* Asynchronous Data (ADS) (octet 4, bit A) N.S0007-0*/
 /* Group 3 Fax (G3FAX) (octet 4, bit B) */
 /* Secure Telephone Unit III (STU3) (octet 4, bit C) */
@@ -3054,6 +3078,7 @@ static const value_string ansi_map_TDMABandwidth_vals[]  = {
    proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, ENC_BIG_ENDIAN);
    }
 */
+#if 0
 /* 6.5.2.as ChangeServiceAttributes N.S0008-0 v 1.0 */
 /* Change Facilities Flag (CHGFAC)(octet 1, bits A - B) */
 static const value_string ansi_map_ChangeServiceAttributes_chgfac_vals[]  = {
@@ -3063,6 +3088,8 @@ static const value_string ansi_map_ChangeServiceAttributes_chgfac_vals[]  = {
     {   3, "Change Facilities Operation Not Used"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* Service Negotiate Flag (SRVNEG)(octet 1, bits C - D) */
 static const value_string ansi_map_ChangeServiceAttributes_srvneg_vals[]  = {
     {   0, "Service Negotiation Used"},
@@ -3071,6 +3098,8 @@ static const value_string ansi_map_ChangeServiceAttributes_srvneg_vals[]  = {
     {   3, "Service Negotiation Not Required"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* 6.5.2.au DataPrivacyParameters N.S0008-0 v 1.0*/
 /* Privacy Mode (PM) (octet 1, Bits A and B) */
 static const value_string ansi_map_DataPrivacyParameters_pm_vals[]  = {
@@ -3080,12 +3109,15 @@ static const value_string ansi_map_DataPrivacyParameters_pm_vals[]  = {
     {   3, "Reserved. Treat reserved values the same as value 0, Privacy inactive or not supported."},
     {   0, NULL }
 };
+#endif
+#if 0
 /* Data Privacy Version (PM) (octet 2) */
 static const value_string ansi_map_DataPrivacyParameters_data_priv_ver_vals[]  = {
     {   0, "Not used"},
     {   1, "Data Privacy Version 1"},
     {   0, NULL }
 };
+#endif
 
 /* 6.5.2.av ISLPInformation N.S0008-0 v 1.0*/
 /* ISLP Type (octet 1) */
@@ -3128,6 +3160,7 @@ static const value_string ansi_map_ServiceRedirectionCause_type_vals[]  = {
 
 /* 6.5.2.bw CallingPartyName N.S0012-0 v 1.0*/
 
+#if 0
 /* Presentation Status (octet 1, bits A and B) */
 static const value_string ansi_map_Presentation_Status_vals[]  = {
     {   0, "Presentation allowed"},
@@ -3136,11 +3169,14 @@ static const value_string ansi_map_Presentation_Status_vals[]  = {
     {   3, "No indication"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* Availability (octet 1, bit E) N.S0012-0 v 1.0*/
 static const true_false_string ansi_map_Availability_bool_val  = {
     "Name not available",
     "Name available/unknown"
 };
+#endif
 static void
 dissect_ansi_map_callingpartyname(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 
@@ -3170,6 +3206,7 @@ dissect_ansi_map_callingpartyname(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 /* Global Title Octet 2 - n */
 
 
+#if 0
 /* 6.5.2.dc SpecializedResource N.S0013-0 v 1.0*/
 /* Resource Type (octet 1) */
 static const value_string ansi_map_resource_type_vals[]  = {
@@ -3179,6 +3216,7 @@ static const value_string ansi_map_resource_type_vals[]  = {
     {   3, "Automatic Speech Recognition - Speaker Independent - Speech User Interface Version 1"},
     {   0, NULL }
 };
+#endif
 /* 6.5.2.df TriggerCapability */
 /* Updated with N.S0004 N.S0013-0 v 1.0*/
 
@@ -3336,6 +3374,7 @@ static const value_string ansi_MSIDUsage_m_or_i_vals[]  = {
 
 /* 6.5.2.ff NewMINExtension N.S0015-0 */
 
+#if 0
 /* 6.5.2.fv ACGEncountered N.S0023-0 v 1.0 */
 /* ACG Encountered (octet 1, bits A-F) */
 static const value_string ansi_ACGEncountered_vals[]  = {
@@ -3357,6 +3396,8 @@ static const value_string ansi_ACGEncountered_vals[]  = {
     {   15, "15-digit control"},
     {   0, NULL }
 };
+#endif
+#if 0
 /* Control Type (octet 1, bits G-H) */
 static const value_string ansi_ACGEncountered_cntrl_type_vals[]  = {
     {   0, "Not used."},
@@ -3365,11 +3406,13 @@ static const value_string ansi_ACGEncountered_cntrl_type_vals[]  = {
     {   3, "Reserved. Treat the same as value 0, Not used."},
     {   0, NULL }
 };
+#endif
 
 /* 6.5.2.fw ControlType N.S0023-0 v 1.0 */
 
 
 
+#if 0
 /* 6.5.2.ge QoSPriority N.S0029-0 v1.0*/
 /* 6.5.2.xx QOSPriority */
 /* Non-Assured Priority (octet 1, bits A-D) */
@@ -3392,6 +3435,7 @@ static const value_string ansi_map_Priority_vals[]  = {
     {   15, "Reserved"},
     {   0, NULL }
 };
+#endif
 /* Assured Priority (octet 1, bits E-H)*/
 
 
@@ -3496,6 +3540,7 @@ static const value_string ansi_map_Priority_vals[]  = {
    {    0, NULL }
    };
 */
+#if 0
 /* 6.5.2.bp-1 ServiceRedirectionCause value */
 static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   0, "Not used"},
@@ -3507,6 +3552,7 @@ static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   6, "WrongNID"},
     {   0, NULL }
 };
+#endif
 /* 6.5.2.mT AuthenticationResponseReauthentication N.S0011-0 v 1.0*/
 
 /* 6.5.2.vT ReauthenticationReport N.S0011-0 v 1.0*/
@@ -3521,6 +3567,7 @@ static const value_string ansi_map_ReauthenticationReport_vals[]  = {
 
 
 
+#if 0
 /* 6.5.2.lB AKeyProtocolVersion
    N.S0011-0 v 1.0
 */
@@ -3532,6 +3579,7 @@ static const value_string ansi_map_AKeyProtocolVersion_vals[]  = {
     {   4, "Diffie Hellman with 768-bit modulus, 32-bit primitive, and 160-bit exponents"},
     {   0, NULL }
 };
+#endif
 /* 6.5.2.sB OTASP_ResultCode
    N.S0011-0 v 1.0
 */
