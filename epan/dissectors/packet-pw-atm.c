@@ -298,15 +298,9 @@ static void
 col_append_pw_info(packet_info * pinfo
 	,const int payload_size
 	,const int cells
-	,const int padding_size)
+	,const int padding_size
+	,pwatm_private_data_t * pd)
 {
-	pwatm_private_data_t * pd;
-
-	DISSECTOR_ASSERT(pinfo != NULL);
-
-	pd = (pwatm_private_data_t *)pinfo->private_data;
-	DISSECTOR_ASSERT(pd != NULL);
-
 	if (pd->props & PWC_ANYOF_CW_BAD)
 	{
 		col_append_str(pinfo->cinfo, COL_INFO, "CW:Bad");
@@ -394,22 +388,18 @@ dissect_payload_and_padding(
 	,packet_info * pinfo
 	,proto_tree  * tree
 	,const gint    payload_size
-	,const gint    padding_size)
+	,const gint    padding_size
+	,pwatm_private_data_t * pd)
 {
 	int                    dissected;
 	tvbuff_t             * tvb_2;
-	pwatm_private_data_t * pd;
-
-	DISSECTOR_ASSERT(NULL != pinfo);
-	pd = (pwatm_private_data_t *)pinfo->private_data;
-	DISSECTOR_ASSERT(NULL != pd);
 
 	for(dissected = 0, pd->pw_cell_number = 0;
 		payload_size > dissected;
 		++(pd->pw_cell_number))
 	{
 		tvb_2 = tvb_new_subset_remaining(tvb, dissected);
-		dissected += call_dissector(dh_cell_header, tvb_2, pinfo, tree);
+		dissected += call_dissector_with_data(dh_cell_header, tvb_2, pinfo, tree, pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, dissected);
 
@@ -445,7 +435,7 @@ dissect_payload_and_padding(
 			pinfo->pseudo_header = &ph;
 			prepare_pseudo_header_atm(&ph, pd, AAL_OAMCELL);
 
-			call_dissector(dh_atm_oam_cell, tvb_3, pinfo, tree);
+			call_dissector_with_data(dh_atm_oam_cell, tvb_3, pinfo, tree, pd);
 			dissected += bytes_to_dissect;
 			/* restore pseudo header */
 			pinfo->pseudo_header = pseudo_header_save;
@@ -518,8 +508,6 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	gint                   payload_size;
 	int                    cells;
 	pwatm_private_data_t   pd              = PWATM_PRIVATE_DATA_T_INITIALIZER;
-	void                 * pd_save         = pinfo->private_data;
-	pinfo->private_data                    = &pd;
 
 	proto_name_column = &shortname_11_or_aal5_pdu[0];
 	if (too_small_packet_or_notpw(tvb, pinfo, tree, proto_11_or_aal5_pdu, proto_name_column))
@@ -615,7 +603,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		/* sub-dissectors _may_ overwrite columns in aal5_pdu mode */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_pw_info(pinfo, payload_size, cells, 0);
+		col_append_pw_info(pinfo, payload_size, cells, 0, &pd);
 	}
 
 	{
@@ -659,12 +647,12 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 		tvbuff_t* tvb_2;
 		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
-		call_dissector(dh_control_word, tvb_2, pinfo, tree);
+		call_dissector_with_data(dh_control_word, tvb_2, pinfo, tree, &pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, (PWC_SIZEOF_CW-1));
 		if (MODE_11(pd.mode))
 		{
-			dissect_payload_and_padding(tvb_2, pinfo, tree, payload_size, 0);
+			dissect_payload_and_padding(tvb_2, pinfo, tree, payload_size, 0, &pd);
 		}
 		else
 		{ /*aal5_pdu mode*/
@@ -679,7 +667,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				pseudo_header_save = pinfo->pseudo_header;
 				pinfo->pseudo_header = &ph;
 				prepare_pseudo_header_atm(&ph, &pd, AAL_5);
-				call_dissector(dh_atm_untruncated, tvb_3, pinfo, tree);
+				call_dissector_with_data(dh_atm_untruncated, tvb_3, pinfo, tree, &pd);
 				/* restore pseudo header */
 				pinfo->pseudo_header = pseudo_header_save;
 			}
@@ -691,10 +679,9 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		/* overwrite everything written by sub-dissectors in 1:1 modes*/
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_pw_info(pinfo, payload_size, cells, 0);
+		col_append_pw_info(pinfo, payload_size, cells, 0, &pd);
 	}
 
-	pinfo->private_data = pd_save;
 	return;
 }
 
@@ -707,9 +694,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	gint                   padding_size;
 	int                    cells;
 	pwatm_private_data_t   pd      = PWATM_PRIVATE_DATA_T_INITIALIZER;
-	void *                 pd_save = pinfo->private_data;
 
-	pinfo->private_data = &pd;
 	pd.mode = PWATM_MODE_AAL5_SDU;
 
 	proto_name_column = &shortname_aal5_sdu[0];
@@ -844,7 +829,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_append_pw_info(pinfo, payload_size, cells, padding_size);
+	col_append_pw_info(pinfo, payload_size, cells, padding_size, &pd);
 
 	{
 		proto_item* item;
@@ -870,12 +855,12 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 		tvbuff_t* tvb_2;
 		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
-		call_dissector(dh_control_word, tvb_2, pinfo, tree);
+		call_dissector_with_data(dh_control_word, tvb_2, pinfo, tree, &pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, PWC_SIZEOF_CW);
 		if (PWATM_SUBMODE_ADMIN_CELL == pd.submode)
 		{
-			dissect_payload_and_padding(tvb_2, pinfo, tree, payload_size, padding_size);
+			dissect_payload_and_padding(tvb_2, pinfo, tree, payload_size, padding_size, &pd);
 		}
 		else /*AAL5 payload*/
 		{
@@ -890,7 +875,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				pseudo_header_save = pinfo->pseudo_header;
 				pinfo->pseudo_header = &ph;
 				prepare_pseudo_header_atm(&ph, &pd, AAL_5);
-				call_dissector(dh_atm_truncated, tvb_3, pinfo, tree); /* no PAD and trailer */
+				call_dissector_with_data(dh_atm_truncated, tvb_3, pinfo, tree, &pd); /* no PAD and trailer */
 				/* restore pseudo header */
 				pinfo->pseudo_header = pseudo_header_save;
 			}
@@ -902,9 +887,6 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 		}
 	}
-
-	pinfo->private_data = pd_save;
-	return;
 }
 
 
@@ -916,9 +898,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	gint                   padding_size;
 	int                    cells;
 	pwatm_private_data_t   pd      = PWATM_PRIVATE_DATA_T_INITIALIZER;
-	void *                 pd_save = pinfo->private_data;
 
-	pinfo->private_data = &pd;
 	pd.mode = PWATM_MODE_N1_CW;
 
 	proto_name_column = &shortname_n1_cw[0];
@@ -1057,10 +1037,10 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 		tvbuff_t* tvb_2;
 		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
-		call_dissector(dh_control_word, tvb_2, pinfo, tree);
+		call_dissector_with_data(dh_control_word, tvb_2, pinfo, tree, &pd);
 
 		tvb_2 = tvb_new_subset_remaining(tvb, PWC_SIZEOF_CW);
-		dissect_payload_and_padding(tvb_2, pinfo, tree, payload_size, padding_size);
+		dissect_payload_and_padding(tvb_2, pinfo, tree, payload_size, padding_size, &pd);
 	}
 
 	/* fill columns in Packet List */
@@ -1068,10 +1048,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_append_pw_info(pinfo, payload_size, cells, padding_size);
-
-	pinfo->private_data = pd_save;
-	return;
+	col_append_pw_info(pinfo, payload_size, cells, padding_size, &pd);
 }
 
 
@@ -1082,9 +1059,7 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	gint                   payload_size;
 	int                    cells;
 	pwatm_private_data_t   pd                = PWATM_PRIVATE_DATA_T_INITIALIZER;
-	void *                 pd_save           = pinfo->private_data;
 
-	pinfo->private_data = &pd;
 	pd.mode = PWATM_MODE_N1_NOCW;
 	pd.packet_size = tvb_reported_length_remaining(tvb, 0);
 
@@ -1135,17 +1110,14 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 	}
 
-	dissect_payload_and_padding(tvb, pinfo, tree, payload_size, 0);
+	dissect_payload_and_padding(tvb, pinfo, tree, payload_size, 0, &pd);
 
 	/* fill columns in Packet List */
 	/* overwrite everything written by sub-dissectors */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_append_pw_info(pinfo, payload_size, cells, 0);
-
-	pinfo->private_data = pd_save;
-	return;
+	col_append_pw_info(pinfo, payload_size, cells, 0, &pd);
 }
 
 
@@ -1170,11 +1142,10 @@ proto_item_append_text_cwb3_fields(proto_item * item, const pwatm_private_data_t
 }
 
 
-static void
-dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
-	pwatm_private_data_t* pd;
-	pd = (pwatm_private_data_t *)pinfo->private_data;
+	pwatm_private_data_t* pd = (pwatm_private_data_t *)data;
 	DISSECTOR_ASSERT(pd != NULL);
 
 	/*
@@ -1191,7 +1162,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 					       "Packet (size: %d) is too small to carry MPLS PW Control Word"
 					       ,(int)size);
-			return;
+			return tvb_length(tvb);
 		}
 	}
 
@@ -1347,12 +1318,13 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		{
 			tvbuff_t* tvb_2;
 			tvb_2 = tvb_new_subset_remaining(tvb, (PWC_SIZEOF_CW-1));
-			call_dissector(dh_cell_header, tvb_2, pinfo, tree2);
+			call_dissector_with_data(dh_cell_header, tvb_2, pinfo, tree2, pd);
 			proto_item_append_text(item_top, ", ");
 			proto_item_append_text_cwb3_fields(item_top, pd);
 		}
 	}
-	return;
+
+	return tvb_length(tvb);
 }
 
 
@@ -1360,13 +1332,12 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
  * This function is also used to dissect 3rd byte of CW in AAL5 PDU mode.
  */
 static int
-dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
+dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
-	pwatm_private_data_t * pd;
+	pwatm_private_data_t * pd = (pwatm_private_data_t *)data;
 	gboolean               is_enough_data;
 	int                    dissect_size;
 
-	pd = (pwatm_private_data_t *)pinfo->private_data;
 	DISSECTOR_ASSERT (NULL != pd);
 	pd->vpi	     = pd->vci = pd->pti = -1;
 	pd->cwb3.clp = pd->cwb3.m = pd->cwb3.v = pd->cwb3.rsv = pd->cwb3.u = pd->cwb3.e = -1;
@@ -1606,59 +1577,52 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 
 
 static int
-dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
+dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
 	gboolean is_enough_data;
 	int      dissect_size;
+	gint size;
+	proto_item* item;
+	pwatm_private_data_t * pd = (pwatm_private_data_t *)data;
 
+	size = tvb_reported_length_remaining(tvb, 0);
+	if (size < SIZEOF_ATM_CELL_PAYLOAD)
 	{
-		gint size;
-		size = tvb_reported_length_remaining(tvb, 0);
-		if (size < SIZEOF_ATM_CELL_PAYLOAD)
-		{
-			is_enough_data = FALSE;
-			dissect_size = size;
-		}
-		else
-		{
-			is_enough_data = TRUE;
-			dissect_size = SIZEOF_ATM_CELL_PAYLOAD;
-		}
+		is_enough_data = FALSE;
+		dissect_size = size;
+	}
+	else
+	{
+		is_enough_data = TRUE;
+		dissect_size = SIZEOF_ATM_CELL_PAYLOAD;
 	}
 
 	/*
 	 * NB: do not touch columns -- keep info from previous dissector
 	 */
 
-	{
-		proto_item* item;
-		item = proto_tree_add_item(tree, proto_cell, tvb, 0, dissect_size, ENC_NA);
-		{
-			pwatm_private_data_t * pd;
-			pd = (pwatm_private_data_t *)pinfo->private_data;
-			if (NULL != pd)
-			{
-				proto_item_append_text(item, " [%.3d]", pd->pw_cell_number);
-			}
-		}
-		pwc_item_append_text_n_items(item, dissect_size, "byte");
-		if (!is_enough_data)
-		{
-			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
-				"Bad length of cell payload: must be == %d",
-				(int)SIZEOF_ATM_CELL_PAYLOAD);
-		}
+	item = proto_tree_add_item(tree, proto_cell, tvb, 0, dissect_size, ENC_NA);
+	if (NULL != pd)
+		proto_item_append_text(item, " [%.3d]", pd->pw_cell_number);
 
-		{
-			proto_tree* tree2;
-			tvbuff_t* tvb_d;
-			tree2 = proto_item_add_subtree(item, ett_cell);
-			tvb_d = tvb_new_subset(tvb, 0, dissect_size, -1);
-			call_dissector(dh_data, tvb_d, pinfo, tree2);
-			item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
-			PROTO_ITEM_SET_HIDDEN(item);
-		}
+	pwc_item_append_text_n_items(item, dissect_size, "byte");
+	if (!is_enough_data)
+	{
+		expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
+			"Bad length of cell payload: must be == %d",
+			(int)SIZEOF_ATM_CELL_PAYLOAD);
 	}
+
+	{
+		proto_tree* tree2;
+		tvbuff_t* tvb_d;
+		tree2 = proto_item_add_subtree(item, ett_cell);
+		tvb_d = tvb_new_subset(tvb, 0, dissect_size, -1);
+		call_dissector(dh_data, tvb_d, pinfo, tree2);
+		item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
+		PROTO_ITEM_SET_HIDDEN(item);
+	}
+
 	return dissect_size;
 }
 
@@ -1937,7 +1901,7 @@ proto_register_pw_atm_ata(void)
 	register_dissector("mpls_pw_atm_11_or_aal5_pdu"	,dissect_11_or_aal5_pdu	,proto_11_or_aal5_pdu);
 	register_dissector("mpls_pw_atm_n1_cw"		,dissect_n1_cw		,proto_n1_cw);
 	register_dissector("mpls_pw_atm_n1_nocw"	,dissect_n1_nocw	,proto_n1_nocw);
-	register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
+	new_register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
 	new_register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
 	new_register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
 	{

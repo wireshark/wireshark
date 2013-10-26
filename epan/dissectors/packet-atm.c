@@ -952,7 +952,7 @@ update_crc(guint32 crc_accum, const guint8 *data_blk_ptr, int data_blk_size)
 static void
 dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *atm_ti,
-    proto_tree *atm_tree, gboolean truncated)
+    proto_tree *atm_tree, gboolean truncated, gboolean pseudowire_mode)
 {
   guint     length, reported_length;
   guint16   aal5_length;
@@ -961,13 +961,6 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint32   crc;
   guint32   calc_crc;
   gint      type;
-  /*
-   * ATM dissector is used as "sub-dissector" for ATM pseudowires.
-   * In such cases, pinfo->private_data is used to pass info from/to
-   * PW dissector to ATM dissector. For decoding normal ATM traffic
-   * private_data should be NULL.
-   */
-  gboolean     pseudowire_mode = (NULL != pinfo->private_data);
 
   /*
    * This is reassembled traffic, so the cell headers are missing;
@@ -1578,7 +1571,7 @@ atm_is_oam_cell(const guint16 vci, const guint8 pt)
 static void
 dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  proto_tree *atm_tree, guint aal, gboolean nni,
-                 gboolean crc_stripped)
+                 gboolean crc_stripped, const pwatm_private_data_t *pwpd)
 {
   int         offset;
   proto_tree *aal_tree;
@@ -1588,7 +1581,6 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16     vpi, vci, aal3_4_hdr, crc10;
   gint        length;
   tvbuff_t   *next_tvb;
-  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)pinfo->private_data;
 
   if (NULL == pwpd) {
     if (!nni) {
@@ -1675,7 +1667,6 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   else
   {
     offset = 0; /* For PWs. Header is decoded by PW dissector.*/
-    pwpd = (const pwatm_private_data_t *)pinfo->private_data;
 /*  Not used !
     vpi = pwpd->vpi;
 */
@@ -1796,13 +1787,13 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-static void
+static int
 dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean truncated)
+    gboolean truncated, const pwatm_private_data_t *pwpd)
 {
   proto_tree *atm_tree        = NULL;
   proto_item *atm_ti          = NULL;
-  gboolean    pseudowire_mode = (NULL != pinfo->private_data);
+  gboolean    pseudowire_mode = (NULL != pwpd);
 
   if ( pinfo->pseudo_header->atm.aal == AAL_5 &&
        pinfo->pseudo_header->atm.type == TRAF_LANE &&
@@ -1862,42 +1853,55 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     dissect_atm_cell(tvb, pinfo, tree, atm_tree,
                      pinfo->pseudo_header->atm.aal, FALSE,
-                     pinfo->pseudo_header->atm.flags & ATM_NO_HEC);
+                     pinfo->pseudo_header->atm.flags & ATM_NO_HEC, pwpd);
   } else {
     /* This is a reassembled PDU. */
-    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated);
+
+    /*
+     * ATM dissector is used as "sub-dissector" for ATM pseudowires.
+     * In such cases, the dissector data parameter is used to pass info from/to
+     * PW dissector to ATM dissector. For decoding normal ATM traffic
+     * data parameter should be NULL.
+     */
+    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated, pwpd != NULL);
   }
+
+  return tvb_length(tvb);
 }
 
-static void
-dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  dissect_atm_common(tvb, pinfo, tree, TRUE);
+  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
+
+  return dissect_atm_common(tvb, pinfo, tree, TRUE, pwpd);
 }
 
-static void
-dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  dissect_atm_common(tvb, pinfo, tree, FALSE);
+  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
+
+  return dissect_atm_common(tvb, pinfo, tree, FALSE, pwpd);
 }
 
-static void
-dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   proto_tree *atm_tree        = NULL;
   proto_item *atm_ti          = NULL;
-  gboolean    pseudowire_mode = (NULL != pinfo->private_data);
+  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
+  gboolean    pseudowire_mode = (NULL != pwpd);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   if (!pseudowire_mode) {
-    if (tree) {
-      atm_ti   = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
+      atm_ti   = proto_tree_add_item(tree, proto_atm, tvb, 0, 0, ENC_NA);
       atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
-    }
   }
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE, pwpd);
+  return tvb_length(tvb);
 }
 
 
@@ -2151,9 +2155,9 @@ proto_register_atm(void)
                                            "ATM LANE", "lane");
 
   register_dissector("lane", dissect_lane, proto_atm_lane);
-  atm_handle = register_dissector("atm_truncated", dissect_atm, proto_atm);
-  atm_untruncated_handle = register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
-  register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
+  atm_handle = new_register_dissector("atm_truncated", dissect_atm, proto_atm);
+  atm_untruncated_handle = new_register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
+  new_register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
