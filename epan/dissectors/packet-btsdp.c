@@ -382,6 +382,12 @@ typedef struct _continuation_state_data_t {
     guint8  *data;
 } continuation_state_data_t;
 
+
+typedef struct _custom_uuid_t {
+    const guint8  uuid[16];
+    const gchar  *name;
+} custom_uuid_t;
+
 #define PDU_TYPE_SERVICE_SEARCH            0x00
 #define PDU_TYPE_SERVICE_ATTRIBUTE         0x01
 #define PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE  0x02
@@ -939,6 +945,11 @@ static const value_string vs_data_element_type[] = {
     { 0, NULL }
 };
 
+static const custom_uuid_t custom_uuid[] = {
+    { {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, "SyncML Server" },
+    { {0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, "SyncML Client" }
+};
+
 extern value_string_ext ext_psm_vals;
 extern value_string_ext wap_mib_enum_vals_character_sets_ext;
 extern value_string_ext usb_langid_vals_ext;
@@ -950,10 +961,21 @@ void proto_reg_handoff_btsdp(void);
 static gchar *
 print_uuid(uuid_t *uuid)
 {
-    if (uuid->bt_uuid)
+    if (uuid->bt_uuid) {
         return wmem_strdup(wmem_packet_scope(), val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
-    else
+    } else {
+        if (uuid->size == 16) {
+            unsigned int i_uuid;
+
+            for (i_uuid = 0; i_uuid < sizeof(custom_uuid) / sizeof(custom_uuid_t); ++i_uuid) {
+                if (memcmp(uuid->data, custom_uuid[i_uuid].uuid, 16) == 0) {
+                    return wmem_strdup(wmem_packet_scope(), custom_uuid[i_uuid].name);
+                }
+            }
+        }
+
         return bytes_to_str(uuid->data, uuid->size);
+    }
 }
 
 static void
@@ -1122,7 +1144,19 @@ dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uu
         uuid->bt_uuid = tvb_get_ntohs(tvb, offset + 2);
         proto_item_append_text(item, " (%s)", val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
     } else {
-        proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
+        item = proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
+
+        if (size == 16) {
+            unsigned int i_uuid;
+
+            for (i_uuid = 0; i_uuid < sizeof(custom_uuid) / sizeof(custom_uuid_t); ++i_uuid) {
+                if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 16) == 0) {
+                    proto_item_append_text(item, " (%s)", custom_uuid[i_uuid].name);
+                    break;
+                }
+            }
+        }
+
         uuid->bt_uuid = 0;
     }
 
@@ -1656,6 +1690,7 @@ dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_i
 {
     proto_item  *list_item;
     proto_tree  *list_tree;
+    proto_tree  *sub_tree;
     proto_tree  *next_tree;
     gint         start_offset;
     gint         bytes_to_go;
@@ -1666,14 +1701,14 @@ dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_i
     list_item = proto_tree_add_item(tree, hf_attribute_id_list, tvb, offset, 0, ENC_NA);
     list_tree = proto_item_add_subtree(list_item, ett_btsdp_attribute_idlist);
 
-    dissect_data_element(list_tree, &next_tree, pinfo, tvb, offset);
+    dissect_data_element(list_tree, &sub_tree, pinfo, tvb, offset);
 
     offset = get_type_length(tvb, offset, &bytes_to_go);
     proto_item_set_len(list_item, offset - start_offset + bytes_to_go);
 
     while (bytes_to_go > 0) {
         guint8 byte0 = tvb_get_guint8(tvb, offset);
-        dissect_data_element(next_tree, &next_tree, pinfo, tvb, offset);
+        dissect_data_element(sub_tree, &next_tree, pinfo, tvb, offset);
         offset += 1;
         bytes_to_go -= 1;
 
@@ -3509,6 +3544,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     btl2cap_data_t  *l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     offset = get_type_length(tvb, offset, &len);
+    memset(&uuid, 0, sizeof(uuid_t));
 
     list_item = proto_tree_add_item(tree, hf_attribute_list, tvb,
             start_offset, len + (offset - start_offset), ENC_NA);
@@ -3604,8 +3640,13 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     }
 
     proto_item_set_len(list_item, offset - start_offset);
-    proto_item_append_text(list_tree, " [count = %2u] (%s%s)",
-            number_of_attributes, (uuid.bt_uuid) ? "" : "UUID: ", print_uuid(&uuid));
+
+    if (uuid.size)
+        proto_item_append_text(list_tree, " [count = %2u] (%s%s)",
+                number_of_attributes, (uuid.bt_uuid) ? "" : "CustomUUID: ", print_uuid(&uuid));
+    else
+        proto_item_append_text(list_tree, " [count = %2u]",
+                number_of_attributes);
 
     return offset;
 }
@@ -3727,12 +3768,14 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 
     while (bytes_to_go > 0) {
         size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &info_buf);
-        proto_item_append_text(ptree, "%s", wmem_strbuf_get_str(info_buf));
+        proto_item_append_text(pitem, "%s", wmem_strbuf_get_str(info_buf));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(info_buf));
 
         offset      += size;
         bytes_to_go -= size;
     }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ":");
 
     proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3835,6 +3878,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint        size;
     proto_item  *ti;
     proto_tree  *st;
+    proto_tree  *sub_tree = NULL;
     uuid_t      empty_uuid;
 
     start_offset = offset;
@@ -3843,16 +3887,16 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     ti = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
 
-    dissect_data_element(st, NULL, pinfo, tvb, offset);
+    dissect_data_element(st, &sub_tree, pinfo, tvb, offset);
     offset = get_type_length(tvb, offset, &bytes_to_go);
     proto_item_set_len(ti, offset - start_offset + bytes_to_go);
 
     while (bytes_to_go > 0) {
         wmem_strbuf_t  *str = NULL;
 
-        size = dissect_sdp_type(st, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &str);
+        size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &str);
 
-        proto_item_append_text(st, " %s", wmem_strbuf_get_str(str));
+        proto_item_append_text(ti, " %s", wmem_strbuf_get_str(str));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(str));
 
         if (size < 1)
