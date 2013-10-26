@@ -75,7 +75,9 @@ static const oid_value_type_t ipv4_type =       { FT_IPv4,   BASE_NONE, BER_CLAS
 static const oid_value_type_t counter32_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 1,                       1,   5, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t unsigned32_type = { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 2,                       1,   5, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t timeticks_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 3,                       1,   5, OID_KEY_TYPE_INTEGER, 1};
+#if 0
 static const oid_value_type_t opaque_type =     { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 4,                       1,   4, OID_KEY_TYPE_BYTES,   0};
+#endif
 static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       0,  -1, OID_KEY_TYPE_NSAP,    0};
 static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 6,                       1,   8, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t ipv6_type =       { FT_IPv6,   BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16, OID_KEY_TYPE_BYTES,   16};

@@ -472,6 +472,7 @@ static const value_string vals_1f_op[] = {
 	{ 0, NULL }
 };
 
+#if 0
 static const value_string vals_21_addr_type[] = {
 	{ 0x01, "IPv4" },
 	{ 0x60, "OEM" }, { 0x61, "OEM" }, { 0x62, "OEM" }, { 0x63, "OEM" },
@@ -484,6 +485,7 @@ static const value_string vals_21_addr_type[] = {
 	{ 0x7c, "OEM" }, { 0x7d, "OEM" }, { 0x7e, "OEM" }, { 0x7f, "OEM" },
 	{ 0, NULL }
 };
+#endif
 
 static const value_string vals_prop00_rollback[] = {
 	{ 0x00, "Not supported" },
