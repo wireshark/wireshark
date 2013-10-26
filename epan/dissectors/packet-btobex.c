@@ -49,12 +49,15 @@ static int hf_constants = -1;
 static int hf_max_pkt_len = -1;
 static int hf_set_path_flags_0 = -1;
 static int hf_set_path_flags_1 = -1;
+static int hf_headers = -1;
+static int hf_header = -1;
 static int hf_hdr_id = -1;
 static int hf_hdr_length = -1;
 static int hf_hdr_val_unicode = -1;
 static int hf_hdr_val_byte_seq = -1;
 static int hf_hdr_val_byte = -1;
 static int hf_hdr_val_long = -1;
+static int hf_application_parameter = -1;
 static int hf_application_parameter_id = -1;
 static int hf_application_parameter_length = -1;
 static int hf_application_parameter_data = -1;
@@ -632,7 +635,7 @@ dissect_raw_application_parameters(tvbuff_t *tvb, proto_tree *tree, gint offset,
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_item = proto_tree_add_text(tree, tvb, offset,
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset,
                 -1, "Parameter: 0x%02x", parameter_id);
         parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
 
@@ -670,7 +673,7 @@ dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         parameter_id = tvb_get_guint8(tvb, offset);
         parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-        parameter_item = proto_tree_add_text(tree, tvb, offset, parameter_length + 2,
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
                 bpp_application_parameters_vals, "Unknown"));
         parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
@@ -724,7 +727,7 @@ dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         parameter_id = tvb_get_guint8(tvb, offset);
         parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-        parameter_item = proto_tree_add_text(tree, tvb, offset, parameter_length + 2,
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
                 bip_application_parameters_vals, "Unknown"));
         parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
@@ -798,7 +801,7 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         parameter_id = tvb_get_guint8(tvb, offset);
         parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-        parameter_item = proto_tree_add_text(tree, tvb, offset, parameter_length + 2,
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
                 pbap_application_parameters_vals, "Unknown"));
         parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
@@ -903,7 +906,7 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         parameter_id = tvb_get_guint8(tvb, offset);
         parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-        parameter_item = proto_tree_add_text(tree, tvb, offset, parameter_length + 2,
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
                 map_application_parameters_vals, "Unknown"));
         parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
@@ -1057,7 +1060,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (tvb_length_remaining(tvb, offset) > 0) {
         proto_item *hdrs;
-        hdrs      = proto_tree_add_text(tree, tvb, offset, item_length, "Headers");
+        hdrs      = proto_tree_add_item(tree, hf_headers, tvb, offset, item_length, ENC_NA);
         hdrs_tree = proto_item_add_subtree(hdrs, ett_btobex_hdrs);
     }
     else {
@@ -1083,7 +1086,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 break;
         }
 
-        hdr = proto_tree_add_text(hdrs_tree, tvb, offset, item_length, "%s",
+        hdr = proto_tree_add_none_format(hdrs_tree, hf_header, tvb, offset, item_length, "%s",
                                   val_to_str_ext_const(hdr_id, &header_id_vals_ext, "Unknown"));
         hdr_tree = proto_item_add_subtree(hdr, ett_btobex_hdr);
 
@@ -1639,35 +1642,50 @@ proto_register_btobex(void)
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL}
         },
+        { &hf_headers,
+          { "Headers", "btobex.headers",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_header,
+          { "Header", "btobex.header",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
         { &hf_hdr_id,
-          { "Header Id", "btobex.hdr_id",
+          { "Header Id", "btobex.header.id",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &header_id_vals_ext, 0x00,
             NULL, HFILL}
         },
         { &hf_hdr_length,
-          { "Length", "btobex.pkt_hdr_len",
+          { "Length", "btobex.header.length",
             FT_UINT16, BASE_DEC, NULL, 0,
             "Header Length", HFILL}
         },
         { &hf_hdr_val_unicode,
-          { "Value", "btobex.pkt_hdr_val_uc",
+          { "Value", "btobex.header.value.unicode",
             FT_STRING, BASE_NONE, NULL, 0,
             "Unicode Value", HFILL }
         },
         { &hf_hdr_val_byte_seq,
-          { "Value", "btobex.hdr_val_byte_seq",
+          { "Value", "btobex.header.value.byte_sequence",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Byte Value", HFILL}
         },
         { &hf_hdr_val_byte,
-          { "Value", "btobex.hdr_val_byte",
+          { "Value", "btobex.header.value.byte",
             FT_UINT8, BASE_HEX, NULL, 0,
             "Byte Sequence Value", HFILL}
         },
         { &hf_hdr_val_long,
-          { "Value", "btobex.hdr_val_long",
+          { "Value", "btobex.header.value.long",
             FT_UINT32, BASE_DEC, NULL, 0,
             "4-byte Value", HFILL}
+        },
+        { &hf_application_parameter,
+          { "Parameter", "btobex.parameter",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
         },
         { &hf_application_parameter_id,
           { "Parameter Id", "btobex.parameter.id",

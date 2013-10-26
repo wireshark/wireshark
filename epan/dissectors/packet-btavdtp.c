@@ -105,6 +105,7 @@ static int hf_btavdtp_data                                                 = -1;
 static int hf_btavdtp_message_type                                         = -1;
 static int hf_btavdtp_packet_type                                          = -1;
 static int hf_btavdtp_transaction                                          = -1;
+static int hf_btavdtp_signal                                               = -1;
 static int hf_btavdtp_signal_id                                            = -1;
 static int hf_btavdtp_rfa0                                                 = -1;
 static int hf_btavdtp_number_of_signal_packets                             = -1;
@@ -115,6 +116,9 @@ static int hf_btavdtp_sep_media_type                                       = -1;
 static int hf_btavdtp_sep_type                                             = -1;
 static int hf_btavdtp_sep_rfa1                                             = -1;
 static int hf_btavdtp_error_code                                           = -1;
+static int hf_btavdtp_acp_sep                                              = -1;
+static int hf_btavdtp_acp_seid_item                                        = -1;
+static int hf_btavdtp_int_seid_item                                        = -1;
 static int hf_btavdtp_acp_seid                                             = -1;
 static int hf_btavdtp_int_seid                                             = -1;
 static int hf_btavdtp_service_category                                     = -1;
@@ -221,6 +225,9 @@ static int hf_btavdtp_mpeg4_level_rfa                                      = -1;
 static int hf_btavdtp_vendor_id                                            = -1;
 static int hf_btavdtp_vendor_specific_codec_id                             = -1;
 static int hf_btavdtp_vendor_specific_value                                = -1;
+static int hf_btavdtp_capabilities                                         = -1;
+static int hf_btavdtp_service                                              = -1;
+static int hf_btavdtp_service_multiplexing_entry                           = -1;
 
 static gint ett_btavdtp               = -1;
 static gint ett_btavdtp_sep           = -1;
@@ -490,7 +497,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
         seid = seid >> 2;
         media_type = tvb_get_guint8(tvb, offset + 1) >> 4;
         type = (tvb_get_guint8(tvb, offset + 1) & 0x08) >> 3;
-        sep_item = proto_tree_add_text(tree, tvb, offset, 2, "ACP SEP [%u - %s %s] item %u/%u",
+        sep_item = proto_tree_add_none_format(tree, hf_btavdtp_acp_sep, tvb, offset, 2, "ACP SEP [%u - %s %s] item %u/%u",
                 seid, val_to_str_const(media_type, media_type_vals, "unknown"),
                 val_to_str_const(type, sep_type_vals, "unknown"), i_sep, items);
         sep_tree = proto_item_add_subtree(sep_item, ett_btavdtp_sep);
@@ -709,7 +716,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     gint        media_type                                    = 0;
     gint        media_codec_type                              = 0;
 
-    capabilities_item = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb) - offset, "Capabilities");
+    capabilities_item = proto_tree_add_item(tree, hf_btavdtp_capabilities, tvb, offset, tvb_length(tvb) - offset, ENC_NA);
     capabilities_tree = proto_item_add_subtree(capabilities_item, ett_btavdtp_capabilities);
 
     if (codec) {
@@ -719,7 +726,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     while (tvb_length_remaining(tvb, offset) > 0) {
         service_category = tvb_get_guint8(tvb, offset);
         losc = tvb_get_guint8(tvb, offset + 1);
-        service_item = proto_tree_add_text(capabilities_tree, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
+        service_item = proto_tree_add_none_format(capabilities_tree, hf_btavdtp_service, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
         service_tree = proto_item_add_subtree(service_item, ett_btavdtp_service);
 
         proto_tree_add_item(service_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -821,7 +828,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 losc -= 1;
 
                 if (losc >= 2) {
-                    pitem = proto_tree_add_text(service_tree, tvb, offset, 1 + losc, "Entry: Media Transport Session");
+                    pitem = proto_tree_add_none_format(service_tree, hf_btavdtp_service_multiplexing_entry, tvb, offset, 1 + losc, "Entry: Media Transport Session");
                     ptree = proto_item_add_subtree(pitem, ett_btavdtp_service);
 
                     proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -835,7 +842,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 }
 
                 if (losc >= 2) {
-                    pitem = proto_tree_add_text(service_tree, tvb, offset, 1 + losc, "Entry: Reporting Transport Session");
+                    pitem = proto_tree_add_none_format(service_tree, hf_btavdtp_service_multiplexing_entry, tvb, offset, 1 + losc, "Entry: Reporting Transport Session");
                     ptree = proto_item_add_subtree(pitem, ett_btavdtp_service);
 
                     proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -849,7 +856,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 }
 
                 if (losc >= 2) {
-                    pitem = proto_tree_add_text(service_tree, tvb, offset, 1 + losc, "Entry: Recovery Transport Session");
+                    pitem = proto_tree_add_none_format(service_tree, hf_btavdtp_service_multiplexing_entry, tvb, offset, 1 + losc, "Entry: Recovery Transport Session");
                     ptree = proto_item_add_subtree(pitem, ett_btavdtp_service);
 
                     proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -894,7 +901,7 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
     }
 
     if (seid_side == SEID_ACP) {
-        seid_item = proto_tree_add_text(tree, tvb, offset, 1,
+        seid_item = proto_tree_add_none_format(tree, hf_btavdtp_acp_seid_item, tvb, offset, 1,
                 "ACP SEID [%u - %s %s]", seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
         seid_tree = proto_item_add_subtree(seid_item, ett_btavdtp_sep);
         proto_tree_add_item(seid_tree, hf_btavdtp_acp_seid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -903,7 +910,7 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
         col_append_fstr(pinfo->cinfo, COL_INFO, " - ACP SEID [%u - %s %s]",
                 seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
     } else {
-        seid_item = proto_tree_add_text(tree, tvb, offset, 1,
+        seid_item = proto_tree_add_none_format(tree, hf_btavdtp_int_seid_item, tvb, offset, 1,
                 "INT SEID [%u - %s %s]", seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
         seid_tree = proto_item_add_subtree(seid_item, ett_btavdtp_sep);
         proto_tree_add_item(seid_tree, hf_btavdtp_int_seid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -912,6 +919,7 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
         col_append_fstr(pinfo->cinfo, COL_INFO, " - INT SEID [%u - %s %s]",
                 seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
     }
+
     proto_tree_add_item(seid_tree, hf_btavdtp_rfa_seid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1072,7 +1080,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_type = (tvb_get_guint8(tvb, offset) & AVDTP_MESSAGE_TYPE_MASK);
     packet_type = (tvb_get_guint8(tvb, offset) & AVDTP_PACKET_TYPE_MASK) >> 2;
 
-    signal_item = proto_tree_add_text(btavdtp_tree, tvb, offset, (packet_type == PACKET_TYPE_START) ? 3 : 2, "Signal: ");
+    signal_item = proto_tree_add_item(btavdtp_tree, hf_btavdtp_signal, tvb, offset,
+            (packet_type == PACKET_TYPE_START) ? 3 : 2, ENC_NA);
     signal_tree = proto_item_add_subtree(signal_item, ett_btavdtp_sep);
 
     proto_tree_add_item(signal_tree, hf_btavdtp_transaction, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1091,7 +1100,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(signal_tree, hf_btavdtp_signal_id,    tvb, offset, 1, ENC_BIG_ENDIAN);
 
     signal_id   = tvb_get_guint8(tvb, offset) & AVDTP_SIGNAL_ID_MASK;
-    proto_item_append_text(signal_item, "%s (%s)",
+    proto_item_append_text(signal_item, ": %s (%s)",
             val_to_str_const(signal_id, signal_id_vals, "Unknown signal"),
             val_to_str_const(message_type, message_type_vals, "Unknown message type"));
 
@@ -1317,6 +1326,11 @@ proto_register_btavdtp(void)
     module_t *module;
 
     static hf_register_info hf[] = {
+        { &hf_btavdtp_signal,
+            { "Signal",                   "btavdtp.signal",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_message_type,
             { "Message Type",                   "btavdtp.message_type",
             FT_UINT8, BASE_HEX, VALS(message_type_vals), AVDTP_MESSAGE_TYPE_MASK,
@@ -1333,7 +1347,7 @@ proto_register_btavdtp(void)
             NULL, HFILL }
         },
         { &hf_btavdtp_signal_id,
-            { "Signal",                         "btavdtp.sinal_id",
+            { "Signal",                         "btavdtp.signal_id",
             FT_UINT8, BASE_HEX, VALS(signal_id_vals), AVDTP_SIGNAL_ID_MASK,
             NULL, HFILL }
         },
@@ -1382,7 +1396,21 @@ proto_register_btavdtp(void)
             FT_UINT8, BASE_HEX, NULL, 0x07,
             NULL, HFILL }
         },
-
+        { &hf_btavdtp_acp_sep,
+            { "ACP SEP",                        "btavdtp.acp_sep",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_acp_seid_item,
+            { "ACP SEID",                       "btavdtp.acp_seid_item",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_int_seid_item,
+            { "INT SEID",                       "btavdtp.int_seid_item",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_acp_seid,
             { "ACP SEID",                       "btavdtp.acp_seid",
             FT_UINT8, BASE_DEC, NULL, 0xFC,
@@ -1913,11 +1941,26 @@ proto_register_btavdtp(void)
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_btavdtp_capabilities,
+            { "Capabilities",                   "btavdtp.capabilities",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_service,
+            { "Service",                        "btavdtp.service",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_service_multiplexing_entry,
+            { "Entry",                          "btavdtp.service_multiplexing_entry",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_data,
             { "Data",                           "btavdtp.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
-        },
+        }
     };
 
     static gint *ett[] = {

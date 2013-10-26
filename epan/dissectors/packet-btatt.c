@@ -57,6 +57,8 @@ static int hf_btatt_offset = -1;
 static int hf_btatt_flags = -1;
 static int hf_btatt_sign_counter = -1;
 static int hf_btatt_signature = -1;
+static int hf_btatt_attribute_data = -1;
+static int hf_btatt_handles_info = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btatt = -1;
@@ -370,7 +372,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     case 0x07: /* Find By Type Value Response */
         while( tvb_length_remaining(tvb, offset) > 0 ) {
-            item = proto_tree_add_text(st, tvb, offset, 4,
+            item = proto_tree_add_none_format(st, hf_btatt_handles_info, tvb, offset, 4,
                                             "Handles Info, Handle: 0x%04x, Group End Handle: 0x%04x",
                                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
@@ -419,7 +421,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
                 while (tvb_length_remaining(tvb, offset) >= length)
                 {
-                    item = proto_tree_add_text(st, tvb, offset, length, "Attribute Data, Handle: 0x%04x",
+                    item = proto_tree_add_none_format(st, hf_btatt_attribute_data, tvb,
+                                                    offset, length, "Attribute Data, Handle: 0x%04x",
                                                     tvb_get_letohs(tvb, offset));
 
                     ltree = proto_item_add_subtree(item, ett_btatt_list);
@@ -479,7 +482,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u", tvb_length_remaining(tvb, offset)/length);
 
                 while (tvb_length_remaining(tvb, offset) >= length) {
-                    item = proto_tree_add_text(st, tvb, offset, length,
+                    item = proto_tree_add_none_format(st, hf_btatt_attribute_data, tvb, offset, length,
                                                     "Attribute Data, Handle: 0x%04x, Group End Handle: 0x%04x",
                                                     tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
@@ -558,6 +561,16 @@ proto_register_btatt(void)
         {&hf_btatt_opcode,
             {"Opcode", "btatt.opcode",
             FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_handles_info,
+            {"Handles Info", "btatt.handles_info",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_attribute_data,
+            {"Attribute Data", "btatt.attribute_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_handle,

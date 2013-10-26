@@ -52,6 +52,9 @@ static int hf_btsmp_key_dist_enc = -1;
 static int hf_btsmp_key_dist_id = -1;
 static int hf_btsmp_key_dist_sign = -1;
 static int hf_btsmp_ediv = -1;
+static int hf_btsmp_authreq = -1;
+static int hf_btsmp_initiator_key_distribution = -1;
+static int hf_btsmp_responder_key_distribution = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btsmp = -1;
@@ -124,7 +127,7 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     guint8 param;
 
     param = tvb_get_guint8(tvb, offset);
-    ti_param = proto_tree_add_text(tree, tvb, offset, 1, "AuthReq: ");
+    ti_param = proto_tree_add_item(tree, hf_btsmp_authreq, tvb, offset, 1, ENC_NA);
     st_param = proto_item_add_subtree(ti_param, ett_btsmp_auth_req);
     proto_tree_add_item(st_param, hf_btsmp_bonding_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(ti_param, "%s, ", val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>"));
@@ -146,11 +149,11 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     param = tvb_get_guint8(tvb, offset);
     if (initiator) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Initiator Key(s): ");
-        ti_param = proto_tree_add_text(tree, tvb, offset, 1, "Initiator Key Distribution: ");
+        ti_param = proto_tree_add_item(tree, hf_btsmp_initiator_key_distribution, tvb, offset, 1, ENC_NA);
     }
     else {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Responder Key(s): ");
-        ti_param = proto_tree_add_text(tree, tvb, offset, 1, "Responder Key Distribution: ");
+        ti_param = proto_tree_add_item(tree, hf_btsmp_responder_key_distribution, tvb, offset, 1, ENC_NA);
     }
 
     st_param = proto_item_add_subtree(ti_param, ett_btsmp_key_dist);
@@ -361,6 +364,21 @@ proto_register_btsmp(void)
         {&hf_btsmp_ediv,
             {"Encrypted Diversifier (EDIV)", "btsmp.ediv",
             FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_authreq,
+            {"AuthReq", "btsmp.authreq",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_initiator_key_distribution,
+            {"Initiator Key Distribution", "btsmp.initiator_key_distribution",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_responder_key_distribution,
+            {"Responder Key Distribution", "btsmp.responder_key_distribution",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         }
     };

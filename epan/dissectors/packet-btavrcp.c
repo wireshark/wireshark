@@ -62,6 +62,8 @@ static int hf_btavrcp_unit_type                                            = -1;
 static int hf_btavrcp_unit_id                                              = -1;
 static int hf_btavrcp_subunit_page                                         = -1;
 static int hf_btavrcp_subunit_extention_code                               = -1;
+static int hf_btavrcp_item                                                 = -1;
+static int hf_btavrcp_folder                                               = -1;
 static int hf_btavrcp_player_id                                            = -1;
 static int hf_btavrcp_status                                               = -1;
 static int hf_btavrcp_uid_counter                                          = -1;
@@ -74,9 +76,6 @@ static int hf_btavrcp_folder_name                                          = -1;
 static int hf_btavrcp_search                                               = -1;
 static int hf_btavrcp_search_length                                        = -1;
 static int hf_btavrcp_number_of_attributes                                 = -1;
-static int hf_btavrcp_attribute_count                                      = -1;
-static int hf_btavrcp_attribute_value                                      = -1;
-static int hf_btavrcp_attribute_value_length                               = -1;
 static int hf_btavrcp_uid                                                  = -1;
 static int hf_btavrcp_scope                                                = -1;
 static int hf_btavrcp_start_item                                           = -1;
@@ -100,7 +99,6 @@ static int hf_btavrcp_system_status                                        = -1;
 static int hf_btavrcp_number_of_settings                                   = -1;
 static int hf_btavrcp_settings_attribute                                   = -1;
 static int hf_btavrcp_settings_value                                       = -1;
-static int hf_btavrcp_attribute                                            = -1;
 static int hf_btavrcp_displayable_name                                     = -1;
 static int hf_btavrcp_displayable_name_length                              = -1;
 static int hf_btavrcp_media_type                                           = -1;
@@ -108,10 +106,20 @@ static int hf_btavrcp_folder_type                                          = -1;
 static int hf_btavrcp_folder_playable                                      = -1;
 static int hf_btavrcp_major_player_type                                    = -1;
 static int hf_btavrcp_player_subtype                                       = -1;
+static int hf_btavrcp_player_item                                          = -1;
+static int hf_btavrcp_attribute                                            = -1;
+static int hf_btavrcp_attribute_count                                      = -1;
+static int hf_btavrcp_attribute_value                                      = -1;
+static int hf_btavrcp_attribute_value_length                               = -1;
+static int hf_btavrcp_attribute_item                                       = -1;
+static int hf_btavrcp_attribute_list                                       = -1;
+static int hf_btavrcp_attribute_entries                                    = -1;
 static int hf_btavrcp_attribute_name_length                                = -1;
 static int hf_btavrcp_attribute_name                                       = -1;
 static int hf_btavrcp_setting_value_length                                 = -1;
 static int hf_btavrcp_setting_value                                        = -1;
+static int hf_btavrcp_features                                             = -1;
+static int hf_btavrcp_not_used_features                                    = -1;
 static int hf_btavrcp_feature_reserved_0                                   = -1;
 static int hf_btavrcp_feature_reserved_1                                   = -1;
 static int hf_btavrcp_feature_reserved_2                                   = -1;
@@ -187,7 +195,8 @@ static int hf_btavrcp_feature_only_browsable_when_addressed                = -1;
 static int hf_btavrcp_feature_only_searchable_when_addressed               = -1;
 static int hf_btavrcp_feature_nowplaying                                   = -1;
 static int hf_btavrcp_feature_uid_persistency                              = -1;
-
+static int hf_btavrcp_reassembled                                          = -1;
+static int hf_btavrcp_currect_path                                         = -1;
 static int hf_btavrcp_response_time                                        = -1;
 static int hf_btavrcp_data                                                 = -1;
 
@@ -588,7 +597,7 @@ dissect_attribute_id_list(tvbuff_t *tvb, proto_tree *tree, gint offset,
     proto_item *pitem;
     proto_tree *ptree;
 
-    pitem = proto_tree_add_text(tree, tvb, offset, count * 4, "Attribute List");
+    pitem = proto_tree_add_item(tree, hf_btavrcp_attribute_list, tvb, offset, count * 4, ENC_NA);
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_attribute_list);
 
     for (i_attribute = 0; i_attribute < count; ++i_attribute) {
@@ -619,7 +628,7 @@ dissect_attribute_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length += 4 + 2 + 2 + tvb_get_ntohs(tvb, offset + length + 4 + 2);
     }
 
-    pitem = proto_tree_add_text(tree, tvb, offset, length, "Attribute Entries");
+    pitem = proto_tree_add_item(tree, hf_btavrcp_attribute_entries, tvb, offset, length, ENC_NA);
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_attribute_entries);
 
     for (i_entry = 0; i_entry < count; ++i_entry) {
@@ -629,7 +638,7 @@ dissect_attribute_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (attribute_id == 0x01) col_append_fstr(pinfo->cinfo, COL_INFO, " - Title: \"%s\"", value);
 
-        entry_item = proto_tree_add_text(ptree, tvb, offset, 4 + 2 + 2 + value_length, "Attribute [%21s]: %s", val_to_str_const(attribute_id, attribute_id_vals, "Unknown"), value);
+        entry_item = proto_tree_add_none_format(ptree, hf_btavrcp_attribute_item, tvb, offset, 4 + 2 + 2 + value_length, "Attribute [%21s]: %s", val_to_str_const(attribute_id, attribute_id_vals, "Unknown"), value);
         entry_tree = proto_item_add_subtree(entry_item, ett_btavrcp_attribute_entry);
 
         proto_tree_add_item(entry_tree, hf_btavrcp_attribute, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -665,7 +674,7 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 1 + 1 + 4 + 16 + 1 + 2);
     displayable_name = tvb_get_string(NULL, tvb, offset + 1 + 2 + 1 + 1 + 4 + 16 + 1 + 2 + 2, displayable_name_length);
 
-    pitem = proto_tree_add_text(tree, tvb, offset, 1 + 2 + item_length, "Player: %s", displayable_name);
+    pitem = proto_tree_add_none_format(tree, hf_btavrcp_player_item, tvb, offset, 1 + 2 + item_length, "Player: %s", displayable_name);
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_player);
 
     proto_tree_add_item(ptree, hf_btavrcp_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -683,10 +692,10 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     offset += 4;
 
     /* feature bit mask */
-    features_item = proto_tree_add_text(ptree, tvb, offset, 16, "Features");
+    features_item = proto_tree_add_item(ptree, hf_btavrcp_features, tvb, offset, 16, ENC_NA);
     features_tree = proto_item_add_subtree(features_item, ett_btavrcp_features);
 
-    features_not_set_item = proto_tree_add_text(features_tree, tvb, offset, 16, "Not Used Features");
+    features_not_set_item = proto_tree_add_item(features_tree, hf_btavrcp_not_used_features, tvb, offset, 16, ENC_NA);
     features_not_set_tree = proto_item_add_subtree(features_not_set_item, ett_btavrcp_features_not_used);
 
     feature_octet = tvb_get_guint8(tvb, offset + 0);
@@ -827,7 +836,7 @@ dissect_item_media_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 8 + 1 + 2);
     displayable_name = tvb_get_string(NULL, tvb, offset + 1 + 2 + 8 + 1 + 2 + 2, displayable_name_length);
 
-    pitem = proto_tree_add_text(tree, tvb, offset, 1 + 2 + item_length, "Element: %s", displayable_name);
+    pitem = proto_tree_add_none_format(tree, hf_btavrcp_item , tvb, offset, 1 + 2 + item_length, "Element: %s", displayable_name);
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_element);
 
     proto_tree_add_item(ptree, hf_btavrcp_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -879,7 +888,7 @@ dissect_item_folder(tvbuff_t *tvb, proto_tree *tree, gint offset)
     displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 8 + 1 + 1 + 2);
     displayable_name = tvb_get_string(NULL, tvb, offset + 1 + 2 + 8 + 1 + 1 + 2 + 2, displayable_name_length);
 
-    pitem = proto_tree_add_text(tree, tvb, offset, 1 + 2 + item_length, "Folder : %s", displayable_name);
+    pitem = proto_tree_add_none_format(tree, hf_btavrcp_folder, tvb, offset, 1 + 2 + item_length, "Folder : %s", displayable_name);
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_folder);
 
     proto_tree_add_item(ptree, hf_btavrcp_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1232,7 +1241,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 tvb = next_tvb;
                 offset = 0;
 
-                pitem = proto_tree_add_text(tree, tvb, offset, 0, "Reassembled");
+                pitem = proto_tree_add_item(tree, hf_btavrcp_reassembled, tvb, offset, 0, ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pitem);
             }
         }
@@ -1894,7 +1903,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 folder_depth = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
-                pitem = proto_tree_add_text(tree, tvb, offset, -1, "Current Path: /");
+                pitem = proto_tree_add_none_format(tree, hf_btavrcp_currect_path, tvb, offset, -1, "Current Path: /");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Current Path: /");
                 ptree = proto_item_add_subtree(pitem, ett_btavrcp_path);
 
@@ -2611,6 +2620,46 @@ proto_register_btavrcp(void)
             FT_UINT8, BASE_HEX, VALS(system_status_vals), 0x00,
             NULL, HFILL }
         },
+        { &hf_btavrcp_player_item,
+            { "Player",                          "btavrcp.player_item",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_folder,
+            { "Folder",                          "btavrcp.folder",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_item,
+            { "Item",                            "btavrcp.item",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_features,
+            { "Features",                        "btavrcp.features",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_not_used_features,
+            { "Not Used Features",               "btavrcp.not_used_features",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_attribute_list,
+            { "Attribute List",                       "btavrcp.attribute_list",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_attribute_item,
+            { "Attribute",                       "btavrcp.attribute_item",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_attribute_entries,
+            { "Attribute Entries",               "btavrcp.attribute_entries",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btavrcp_attribute,
             { "Attribute ID",                    "btavrcp.attribute",
             FT_UINT32, BASE_HEX, VALS(attribute_id_vals), 0x00,
@@ -3058,12 +3107,21 @@ proto_register_btavrcp(void)
             NULL, HFILL }
         },
         /* end of features */
+        { &hf_btavrcp_currect_path,
+            { "Currect Path",                     "btavrcp.currect_path",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_reassembled,
+            { "Reassembled",                     "btavrcp.reassembled",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btavrcp_response_time,
             { "Response Time",                   "btavrcp.response_time",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-
         { &hf_btavrcp_data,
             { "Data",                            "btavrcp.data",
             FT_NONE, BASE_NONE, NULL, 0x0,

@@ -52,16 +52,43 @@ static gint hf_parameter_length                                            = -1;
 static gint hf_ssr_total_count                                             = -1;
 static gint hf_ssr_current_count                                           = -1;
 static gint hf_error_code                                                  = -1;
+static gint hf_attribute_id_list                                           = -1;
+static gint hf_attribute_id_range_lower                                    = -1;
+static gint hf_attribute_id_range_higher                                   = -1;
 static gint hf_attribute_list_byte_count                                   = -1;
 static gint hf_maximum_service_record_count                                = -1;
 static gint hf_maximum_attribute_byte_count                                = -1;
+static gint hf_continuation_state                                          = -1;
 static gint hf_continuation_state_length                                   = -1;
 static gint hf_continuation_state_value                                    = -1;
 static gint hf_fragment                                                    = -1;
+static gint hf_partial_record_handle_list                                  = -1;
+static gint hf_reassembled_record_handle_list                              = -1;
+static gint hf_partial_attribute_list                                      = -1;
+static gint hf_reassembled_attribute_list                                  = -1;
+static gint hf_data_element                                                = -1;
 static gint hf_data_element_size                                           = -1;
 static gint hf_data_element_type                                           = -1;
 static gint hf_data_element_var_size                                       = -1;
 static gint hf_data_element_value                                          = -1;
+static gint hf_data_element_value_nil                                      = -1;
+static gint hf_data_element_value_boolean                                  = -1;
+static gint hf_data_element_value_signed_int                               = -1;
+static gint hf_data_element_value_unsigned_int                             = -1;
+static gint hf_data_element_value_uuid                                     = -1;
+static gint hf_data_element_value_long_uuid                                = -1;
+static gint hf_data_element_value_string                                   = -1;
+static gint hf_data_element_value_url                                      = -1;
+static gint hf_data_element_value_alternative                              = -1;
+static gint hf_data_element_value_sequence                                 = -1;
+static gint hf_profile_descriptor_list                                     = -1;
+static gint hf_attribute_list                                              = -1;
+static gint hf_attribute_lists                                             = -1;
+static gint hf_service_search_pattern                                      = -1;
+static gint hf_service_record_handle_list                                  = -1;
+static gint hf_service_attribute                                           = -1;
+static gint hf_service_attribute_id                                        = -1;
+static gint hf_service_attribute_value                                     = -1;
 static gint hf_service_attribute_id_generic                                = -1;
 static gint hf_service_attribute_id_a2dp                                   = -1;
 static gint hf_service_attribute_id_avrcp                                  = -1;
@@ -156,6 +183,11 @@ static gint hf_hdp_support_procedure_clock_synchronization_protocol        = -1;
 static gint hf_hdp_support_procedure_reconnect_acceptance                  = -1;
 static gint hf_hdp_support_procedure_reconnect_initiation                  = -1;
 static gint hf_hdp_support_procedure_reserved                              = -1;
+static gint hf_hdp_supported_features_data                                 = -1;
+static gint hf_hdp_supported_features_data_mdep_id                         = -1;
+static gint hf_hdp_supported_features_data_mdep_data_type                  = -1;
+static gint hf_hdp_supported_features_data_mdep_role                       = -1;
+static gint hf_hdp_supported_features_data_mdep_description                = -1;
 static gint hf_hdp_supported_features_mdep_id                              = -1;
 static gint hf_hdp_supported_features_mdep_data_type                       = -1;
 static gint hf_hdp_supported_features_mdep_role                            = -1;
@@ -186,6 +218,8 @@ static gint hf_hfp_gw_supported_features_ec_and_or_nr_function             = -1;
 static gint hf_hfp_gw_supported_features_three_way_calling                 = -1;
 static gint hf_sdp_service_uuid                                            = -1;
 static gint hf_sdp_service_long_uuid                                       = -1;
+static gint hf_sdp_protocol_item                                           = -1;
+static gint hf_sdp_protocol                                                = -1;
 static gint hf_sdp_protocol_psm                                            = -1;
 static gint hf_sdp_protocol_channel                                        = -1;
 static gint hf_sdp_protocol_gatt_handle_start                              = -1;
@@ -202,10 +236,13 @@ static gint hf_sdp_service_icon_url                                        = -1;
 static gint hf_sdp_service_name                                            = -1;
 static gint hf_sdp_service_description                                     = -1;
 static gint hf_sdp_service_provider_name                                   = -1;
+static gint hf_sdp_lang                                                    = -1;
 static gint hf_sdp_lang_id                                                 = -1;
 static gint hf_sdp_lang_code                                               = -1;
 static gint hf_sdp_lang_encoding                                           = -1;
 static gint hf_sdp_lang_attribute_base                                     = -1;
+static gint hf_hid_descriptor_list_descriptor_data                         = -1;
+static gint hf_hid_lang                                                    = -1;
 static gint hf_hid_device_release_number                                   = -1;
 static gint hf_hid_parser_version                                          = -1;
 static gint hf_hid_device_subclass_type                                    = -1;
@@ -1071,7 +1108,8 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     } else if (length > 17) {
         proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_large, tvb, offset, -1);
     } else if (length == 1 && tvb_get_guint8(tvb, offset) == 0x00) {
-        proto_tree_add_text(tree, tvb, offset, -1, "Continuation State: no (0x00)");
+        cont_item = proto_tree_add_none_format(tree, hf_continuation_state, tvb,
+                offset, -1, "Continuation State: no (00)");
     } else {
         proto_item  *cont_tree;
         guint        data;
@@ -1079,8 +1117,8 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         guint8       continuation_state_length;
 
         continuation_state_length = tvb_get_guint8(tvb, offset);
-        cont_item = proto_tree_add_text(tree, tvb, offset,
-                1 + continuation_state_length, "Continuation State: ");
+        cont_item = proto_tree_add_none_format(tree, hf_continuation_state, tvb, offset,
+                1 + continuation_state_length, "Continuation State: yes (");
         cont_tree = proto_item_add_subtree(cont_item, ett_btsdp_continuation_state);
 
         proto_tree_add_item(cont_tree, hf_continuation_state_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1088,7 +1126,6 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         proto_tree_add_item(cont_tree, hf_continuation_state_value, tvb, offset,
                 continuation_state_length, ENC_NA);
 
-        proto_item_append_text(cont_item, "yes (");
         for (i_data = 0; i_data < continuation_state_length - 1; ++i_data) {
             data = tvb_get_guint8(tvb, offset);
             proto_item_append_text(cont_item, "%02X ", data);
@@ -1537,8 +1574,7 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     type = type >> 3;
 
 
-    pitem = proto_tree_add_text(tree, tvb, offset, 0,
-            "Data Element: %s %s",
+    pitem = proto_tree_add_none_format(tree, hf_data_element, tvb, offset, 0, "Data Element: %s %s",
             val_to_str_const(type, vs_data_element_type, "Unknown Type"),
             val_to_str_const(size, vs_data_element_size, "Unknown Size"));
     ptree = proto_item_add_subtree(pitem, ett_btsdp_data_element);
@@ -1585,7 +1621,7 @@ dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_i
     const gchar *att_name;
 
     start_offset = offset;
-    list_item = proto_tree_add_text(tree, tvb, offset, 2, "Attribute ID List");
+    list_item = proto_tree_add_item(tree, hf_attribute_id_list, tvb, offset, 0, ENC_NA);
     list_tree = proto_item_add_subtree(list_item, ett_btsdp_attribute_idlist);
 
     dissect_data_element(list_tree, &next_tree, pinfo, tvb, offset);
@@ -1602,24 +1638,26 @@ dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_i
         if (byte0 == 0x09) { /* 16 bit attribute id */
             id = tvb_get_ntohs(tvb, offset);
 
-            /* Attribute id can be profile/service specific (not unique),
-               the list can be requested for various profiles/services,
-               so solve only generic attribute ids */
-            att_name = val_to_str_const(id, vs_general_attribute_id, "Unknown");
-            proto_tree_add_text(next_tree, tvb, offset, 2, "%s (0x%04x)", att_name, id);
+            proto_tree_add_item(next_tree, hf_service_attribute_id_generic, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset      += 2;
             bytes_to_go -= 2;
 
+            att_name = val_to_str_const(id, vs_general_attribute_id, "Unknown");
             col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%04x (%s) ", id, att_name);
+            proto_item_append_text(list_item, ": 0x%04x (%s) ", id, att_name);
         } else if (byte0 == 0x0a) { /* 32 bit attribute range */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%04x - 0x%04x) ",
                             tvb_get_ntohs(tvb, offset), tvb_get_ntohs(tvb, offset + 2));
+            proto_item_append_text(list_item, ": (0x%04x - 0x%04x) ",
+                            tvb_get_ntohs(tvb, offset), tvb_get_ntohs(tvb, offset + 2));
 
-            proto_tree_add_text(next_tree, tvb, offset, 4, "0x%04x - 0x%04x",
-                        tvb_get_ntohs(tvb, offset),
-                        tvb_get_ntohs(tvb, offset + 2));
-            offset      += 4;
-            bytes_to_go -= 4;
+            proto_tree_add_item(next_tree, hf_attribute_id_range_lower, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset      += 2;
+            bytes_to_go -= 2;
+
+            proto_tree_add_item(next_tree, hf_attribute_id_range_higher, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset      += 2;
+            bytes_to_go -= 2;
         } else {
             break;
         }
@@ -1660,14 +1698,14 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     list_offset = offset;
     i_protocol = 1;
     while (list_offset - offset < size) {
-        feature_item = proto_tree_add_text(next_tree, tvb, list_offset, 0, "Protocol #%u", i_protocol);
+        feature_item = proto_tree_add_none_format(next_tree, hf_sdp_protocol_item, tvb, list_offset, 0, "Protocol #%u", i_protocol);
         feature_tree = proto_item_add_subtree(feature_item, ett_btsdp_protocol);
         entry_offset = get_type_length(tvb, list_offset, &entry_length);
         proto_item_set_len(feature_item, entry_length + (entry_offset - list_offset));
 
         dissect_data_element(feature_tree, &sub_tree, pinfo, tvb, list_offset);
 
-        entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, entry_length, "Protocol Entry");
+        entry_item = proto_tree_add_item(sub_tree, hf_sdp_protocol, tvb, entry_offset, entry_length, ENC_NA);
         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_id);
         dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
         new_offset = get_type_length(tvb, entry_offset, &length);
@@ -2183,12 +2221,12 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     list_offset = offset;
                     while (list_offset - offset < size) {
                         entry_offset = get_type_length(tvb, list_offset, &entry_length);
-                        feature_item = proto_tree_add_text(next_tree, tvb, entry_offset, entry_length, "Supported Feature #%u", i_feature);
+                        feature_item = proto_tree_add_none_format(next_tree, hf_hdp_supported_features_data, tvb, entry_offset, entry_length, "Supported Feature #%u", i_feature);
                         feature_tree = proto_item_add_subtree(feature_item, ett_btsdp_supported_features);
 
                         dissect_data_element(feature_tree, &sub_tree, pinfo, tvb, list_offset);
 
-                        entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, 0, "MDEP ID");
+                        entry_item = proto_tree_add_item(sub_tree, hf_hdp_supported_features_data_mdep_id, tvb, entry_offset, 0, ENC_NA);
                         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_id);
                         dissect_data_element(entry_tree, &next_tree, pinfo, tvb, entry_offset);
                         new_offset = get_type_length(tvb, entry_offset, &length);
@@ -2200,7 +2238,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item_append_text(entry_item, ": %u (0x%02x)", mdep_id, mdep_id);
                         entry_offset += length;
 
-                        entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, 0, "MDEP Data Type");
+                        entry_item = proto_tree_add_item(sub_tree, hf_hdp_supported_features_data_mdep_data_type, tvb, entry_offset, 0, ENC_NA);
                         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_data_type);
 
                         dissect_data_element(entry_tree, &next_tree, pinfo, tvb, entry_offset);
@@ -2212,7 +2250,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item_append_text(entry_item, ": %u (0x%04x)", value, value);
                         entry_offset += length;
 
-                        entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, 0, "MDEP Role");
+                        entry_item = proto_tree_add_item(sub_tree, hf_hdp_supported_features_data_mdep_role, tvb, entry_offset, 0, ENC_NA);
                         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_role);
 
                         dissect_data_element(entry_tree, &next_tree, pinfo, tvb, entry_offset);
@@ -2226,7 +2264,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         entry_offset += length;
 
                         if (entry_length - (entry_offset - list_offset) > 0) {
-                            entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, entry_length, "MDEP Description");
+                            entry_item = proto_tree_add_item(sub_tree, hf_hdp_supported_features_data_mdep_description, tvb, entry_offset, entry_length, ENC_NA);
                             entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_description);
 
                             dissect_data_element(entry_tree, &next_tree, pinfo, tvb, entry_offset);
@@ -2465,7 +2503,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     list_offset = offset;
                     i_feature = 1;
                     while (list_offset - offset < size) {
-                        entry_item = proto_tree_add_text(next_tree, tvb, list_offset, size, "Descriptor #%u", i_feature);
+                        entry_item = proto_tree_add_none_format(next_tree, hf_hid_descriptor_list_descriptor_data, tvb, list_offset, size, "Descriptor #%u", i_feature);
                         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
                         dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
@@ -2495,7 +2533,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     i_feature = 1;
                     while (list_offset - offset < size) {
                         wmem_strbuf_append(info_buf, "[");
-                        entry_item = proto_tree_add_text(next_tree, tvb, list_offset, size, "Language #%u", i_feature);
+                        entry_item = proto_tree_add_none_format(next_tree, hf_hid_lang, tvb, list_offset, size, "Language #%u", i_feature);
                         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
                         dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
@@ -2921,7 +2959,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             i_feature = 1;
             while (list_offset - offset < size) {
                 wmem_strbuf_append(info_buf, "(");
-                entry_item = proto_tree_add_text(next_tree, tvb, list_offset, size, "Language #%u", i_feature);
+                entry_item = proto_tree_add_none_format(next_tree, hf_sdp_lang, tvb, list_offset, size, "Language #%u", i_feature);
                 entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
@@ -2971,7 +3009,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             while (list_offset - offset < size) {
                 entry_offset = get_type_length(tvb, list_offset, &entry_length);
                 dissect_data_element(next_tree, &sub_tree, pinfo, tvb, list_offset);
-                entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, entry_length, "Profile Descriptor List #%u", i_protocol);
+                entry_item = proto_tree_add_none_format(sub_tree, hf_profile_descriptor_list, tvb, entry_offset, entry_length, "Profile Descriptor List #%u", i_protocol);
                 entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
@@ -3029,7 +3067,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             while (list_offset - offset < size) {
                 entry_offset = get_type_length(tvb, list_offset, &entry_length);
                 dissect_data_element(next_tree, &sub_tree, pinfo, tvb, list_offset);
-                entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, entry_length, "Protocol Descriptor List #%u", i_protocol);
+                entry_item = proto_tree_add_none_format(sub_tree, hf_profile_descriptor_list, tvb, entry_offset, entry_length, "Protocol Descriptor List #%u", i_protocol);
                 entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
                 list_offset = get_type_length(tvb, list_offset, &list_length);
@@ -3067,54 +3105,45 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
     if (!found) switch (type) {
     case 0:
-        proto_tree_add_text(next_tree, tvb, offset, size, "Nil ");
+        proto_tree_add_item(next_tree, hf_data_element_value_nil, tvb, offset, size, ENC_NA);
         wmem_strbuf_append(info_buf, "Nil ");
         break;
     case 1: {
         guint32 val = get_uint_by_size(tvb, offset, size_index);
-        proto_tree_add_text(next_tree, tvb, offset, size,
-                    "unsigned int %d ", val);
+        proto_tree_add_item(next_tree, hf_data_element_value_unsigned_int, tvb, offset, size, ENC_BIG_ENDIAN);
         wmem_strbuf_append_printf(info_buf, "%u ", val);
         break;
     }
     case 2: {
         guint32 val = get_int_by_size(tvb, offset, size_index);
-        proto_tree_add_text(next_tree, tvb, offset, size,
-                    "signed int %d ", val);
+        proto_tree_add_item(next_tree, hf_data_element_value_signed_int, tvb, offset, size, ENC_BIG_ENDIAN);
         wmem_strbuf_append_printf(info_buf, "%d ", val);
         break;
     }
     case 3: {
         guint32 id;
-        const gchar *uuid_name;
-        gchar *ptr = tvb_bytes_to_str(tvb, offset, size);
 
-        if (size == 2) {
-            id = tvb_get_ntohs(tvb, offset);
-        } else {
-            id = tvb_get_ntohl(tvb, offset);
-        }
-        uuid_name = val_to_str_ext_const(id, &vs_service_classes_ext, "Unknown service");
+        id = tvb_get_ntohs(tvb, offset);
+        if (size == 2)
+            proto_tree_add_item(next_tree, hf_data_element_value_uuid, tvb, offset, size, ENC_BIG_ENDIAN);
+        else
+            proto_tree_add_item(next_tree, hf_data_element_value_long_uuid, tvb, offset, size, ENC_NA);
 
-        proto_tree_add_text(next_tree, tvb, offset, size, "%s (0x%s) ", uuid_name, ptr);
-
-        wmem_strbuf_append_printf(info_buf, ": %s", uuid_name);
+        wmem_strbuf_append_printf(info_buf, ": %s", val_to_str_ext_const(id, &vs_service_classes_ext, "Unknown service"));
         break;
     }
     case 8: /* fall through */
     case 4: {
         gchar *ptr = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, size);
 
-        proto_tree_add_text(next_tree, tvb, offset, size, "%s \"%s\"",
-                    type == 8 ? "URL" : "String", ptr);
+        proto_tree_add_item(next_tree, (type == 8) ? hf_data_element_value_url : hf_data_element_value_string, tvb, offset, size, ENC_NA | ENC_ASCII);
         wmem_strbuf_append_printf(info_buf, "%s ", ptr);
         break;
     }
     case 5: {
         guint8 var = tvb_get_guint8(tvb, offset);
 
-        proto_tree_add_text(next_tree, tvb, offset, size, "%s",
-                    var ? "true" : "false");
+        proto_tree_add_item(next_tree, hf_data_element_value_boolean, tvb, offset, size, ENC_BIG_ENDIAN);
         wmem_strbuf_append_printf(info_buf, "%s ", var ? "true" : "false");
         break;
     }
@@ -3126,9 +3155,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         gint           first       = 1;
         wmem_strbuf_t *substr;
 
-        ti = proto_tree_add_text(next_tree, tvb, offset, size, "%s",
-                     type == 6 ? "Data Element sequence" :
-                     "Data Element alternative");
+        ti = proto_tree_add_item(next_tree, (type == 6) ? hf_data_element_value_sequence : hf_data_element_value_alternative,
+                tvb, offset, size, ENC_NA);
         st = proto_item_add_subtree(ti, ett_btsdp_des);
 
         wmem_strbuf_append(info_buf, "{ ");
@@ -3413,18 +3441,18 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
         hfx_attribute_id = hf_service_attribute_id_generic;
     }
 
-    attribute_item = proto_tree_add_text(tree, tvb, offset, -1,
+    attribute_item = proto_tree_add_none_format(tree, hf_service_attribute, tvb, offset, -1,
                     "Service Attribute: %s%s (0x%x)", profile_speficic, attribute_name, id);
     attribute_tree = proto_item_add_subtree(attribute_item, ett_btsdp_attribute);
 
-    attribute_id_item = proto_tree_add_text(attribute_tree, tvb, offset, 3, "Attribute ID: %s", attribute_name);
+    attribute_id_item = proto_tree_add_none_format(attribute_tree, hf_service_attribute_id, tvb, offset, 3, "Attribute ID: %s", attribute_name);
     attribute_id_tree = proto_item_add_subtree(attribute_id_item, ett_btsdp_attribute_id);
 
     new_offset = dissect_data_element(attribute_id_tree, &next_tree, pinfo, tvb, offset);
     proto_tree_add_item(next_tree, hfx_attribute_id, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
     offset = new_offset;
 
-    attribute_value_item = proto_tree_add_text(attribute_tree, tvb, offset, -1, "Attribute Value");
+    attribute_value_item = proto_tree_add_item(attribute_tree, hf_service_attribute_value, tvb, offset, -1, ENC_NA);
     attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
 
     dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, service_uuid,
@@ -3472,8 +3500,8 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
     offset = get_type_length(tvb, offset, &len);
 
-    list_item = proto_tree_add_text(tree, tvb,
-            start_offset, len + (offset - start_offset), "Attribute List");
+    list_item = proto_tree_add_item(tree, hf_attribute_list, tvb,
+            start_offset, len + (offset - start_offset), ENC_NA);
     list_tree = proto_item_add_subtree(list_item, ett_btsdp_attribute);
     dissect_data_element(list_tree, &next_tree, pinfo, tvb, start_offset);
 
@@ -3594,8 +3622,8 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
 
     offset = get_type_length(tvb, offset, &len);
 
-    lists_item = proto_tree_add_text(tree, tvb, start_offset,
-            attribute_list_byte_count, "Attribute Lists");
+    lists_item = proto_tree_add_item(tree, hf_attribute_lists, tvb, start_offset,
+            attribute_list_byte_count, ENC_NA);
     lists_tree = proto_item_add_subtree(lists_item, ett_btsdp_attribute);
     dissect_data_element(lists_tree, &next_tree, pinfo, tvb, start_offset);
 
@@ -3655,8 +3683,9 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
         add_new_data_source(pinfo, new_tvb, (is_continued) ? "Partial Reassembled SDP" : "Reassembled SDP");
 
-        reassembled_item = proto_tree_add_text(tree, new_tvb, 0, tvb_length(new_tvb),
-                (is_continued) ? "Partial Attribute List" : "Reassembled Attribute List");
+        reassembled_item = proto_tree_add_item(tree,
+                (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
+                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
         PROTO_ITEM_SET_GENERATED(reassembled_item);
 
@@ -3682,7 +3711,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     wmem_strbuf_t  *info_buf = NULL;
 
     start_offset = offset;
-    pitem = proto_tree_add_text(tree, tvb, offset, 2, "Service Search Pattern");
+    pitem = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     ptree = proto_item_add_subtree(pitem, ett_btsdp_attribute);
 
     dissect_data_element(ptree, &next_tree, pinfo, tvb, offset);
@@ -3751,8 +3780,9 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
         add_new_data_source(pinfo, new_tvb, (is_continued) ? "Partial Reassembled SDP" : "Reassembled SDP");
 
-        reassembled_item = proto_tree_add_text(tree, new_tvb, 0, tvb_length(new_tvb),
-                (is_continued) ? "Partial Attribute List" : "Reassembled Attribute List");
+        reassembled_item = proto_tree_add_item(tree,
+                (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
+                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
         PROTO_ITEM_SET_GENERATED(reassembled_item);
 
@@ -3801,7 +3831,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
     start_offset = offset;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 2, "Service Search Pattern");
+    ti = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
 
     dissect_data_element(st, NULL, pinfo, tvb, offset);
@@ -3853,7 +3883,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_ssr_current_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    ti = proto_tree_add_text(tree, tvb, offset,
+    ti = proto_tree_add_none_format(tree, hf_service_record_handle_list, tvb, offset,
                  current_count * 4, "Service Record Handle List [count = %u]", current_count);
     st = proto_item_add_subtree(ti, ett_btsdp_ssr);
 
@@ -3877,8 +3907,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
 
         new_length = tvb_length(new_tvb);
 
-        reassembled_item = proto_tree_add_text(tree, new_tvb, 0, new_length,
-                (is_continued) ? "Partial Record Handle List" : "Reassembled Record Handle List");
+        reassembled_item = proto_tree_add_item(tree, (is_continued) ? hf_partial_record_handle_list : hf_reassembled_record_handle_list,new_tvb, 0, new_length, ENC_NA);
         proto_item_append_text(reassembled_item, " [count = %u]", new_length / 4);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
         PROTO_ITEM_SET_GENERATED(reassembled_item);
@@ -4002,6 +4031,21 @@ proto_register_btsdp(void)
             FT_UINT16, BASE_DEC, NULL, 0,
             "Count of service records in this message", HFILL}
         },
+        { &hf_attribute_id_list,
+            { "Attribute ID List",               "btsdp.attribute_id_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_attribute_id_range_lower,
+            { "Attribute Range Lower",           "btsdp.attribute_range_lower",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_attribute_id_range_higher,
+            { "Attribute Range Higher",          "btsdp.attribute_range_higher",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_attribute_list_byte_count,
             { "Attribute List Byte Count",       "btsdp.attribute_list_byte_count",
             FT_UINT16, BASE_DEC, NULL, 0,
@@ -4017,14 +4061,64 @@ proto_register_btsdp(void)
             FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL}
         },
+        { &hf_service_attribute,
+            { "Service Attribute",               "btsdp.service_attribute",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_service_attribute_id,
+            { "Attribute",                       "btsdp.service_attribute.attribute",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_service_attribute_value,
+            { "Value",                           "btsdp.service_attribute.value",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_profile_descriptor_list,
+            { "Profile Descriptor List",         "btsdp.profile_descriptor_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_attribute_list,
+            { "Attribute List",                  "btsdp.attribute_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_attribute_lists,
+            { "Attribute Lists",                  "btsdp.attribute_lists",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_service_search_pattern,
+            { "Service Search Pattern",          "btsdp.service_search_pattern",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_service_record_handle_list,
+            { "Service Record Handle List",      "btsdp.service_record_handle_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_continuation_state,
+            { "Continuation State",              "btsdp.continuation_state",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_continuation_state_length,
-            { "Continuation State Length",       "btsdp.continuation_state_length",
+            { "Continuation State Length",       "btsdp.continuation_state.length",
             FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_continuation_state_value,
-            { "Continuation State Value",        "btsdp.continuation_state_value",
-            FT_BYTES, BASE_NONE, NULL, 0,
+            { "Continuation State Value",        "btsdp.continuation_state.value",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element,
+            { "Data Element",                    "btsdp.data_element",
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_data_element_type,
@@ -4047,8 +4141,79 @@ proto_register_btsdp(void)
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_data_element_value_nil,
+            { "Value: Nil",                      "btsdp.data_element.value.nil",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_signed_int,
+            { "Value: Signed Int",               "btsdp.data_element.value.signed_int",
+            FT_INT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_unsigned_int,
+            { "Value: Unsigned Int",             "btsdp.data_element.value.unsigned_int",
+            FT_UINT64, BASE_DEC_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_boolean,
+            { "Value: Boolean",                  "btsdp.data_element.value.boolean",
+            FT_BOOLEAN, 8, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_string,
+            { "Value: String",                   "btsdp.data_element.value.string",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_url,
+            { "Value: URL",                      "btsdp.data_element.value.url",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_uuid,
+            { "Value: UUID",                     "btsdp.data_element.value.uuid",
+            FT_UINT16, BASE_HEX, VALS(vs_service_classes), 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_long_uuid,
+            { "Value: UUID",                     "btsdp.data_element.value.long_uuid",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_sequence,
+            { "Value: Sequence",                 "btsdp.data_element.value.sequence",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_alternative,
+            { "Value: Alternative",              "btsdp.data_element.value.alternative",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_fragment,
             { "Data Fragment",                   "btsdp.fragment",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_partial_attribute_list,
+            { "Partial Attribute List",          "btsdp.partial_attribute_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_reassembled_attribute_list,
+            { "Reassembled Attribute List",      "btsdp.reassembled_attribute_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_partial_record_handle_list,
+            { "Partial Record Handle List",      "btsdp.partial_record_handle_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_reassembled_record_handle_list,
+            { "Reassembled Record Handle List",  "btsdp.reassembled_attribute_list",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
@@ -4498,12 +4663,12 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_hdp_support_procedure_reserved_5_7,
-            { "Support: Reserved",                         "btsdp.hdp.support.reserved",
+            { "Support: Reserved",               "btsdp.hdp.support.reserved",
             FT_UINT8, BASE_HEX, NULL, 0xE0,
             NULL, HFILL }
         },
         { &hf_hdp_support_procedure_sync_master_role,
-            { "Support: SyncMaster Role",                  "btsdp.hdp.support.sync_master_role",
+            { "Support: SyncMaster Role",        "btsdp.hdp.support.sync_master_role",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
@@ -4513,23 +4678,48 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_hdp_support_procedure_reconnect_acceptance,
-            { "Support: Reconnect Acceptance",             "btsdp.hdp.support.reconnect_acceptance",
+            { "Support: Reconnect Acceptance",   "btsdp.hdp.support.reconnect_acceptance",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_hdp_support_procedure_reconnect_initiation,
-            { "Support: Reconnect Initiation",             "btsdp.hdp.support.reconnect_initiation",
+            { "Support: Reconnect Initiation",   "btsdp.hdp.support.reconnect_initiation",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_hdp_support_procedure_reserved,
-            { "Support: Reserved",                         "btsdp.hdp.support.reserved",
+            { "Support: Reserved",               "btsdp.hdp.support.reserved",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_hdp_data_exchange,
-            { "Data Exchange Specification",               "btsdp.hdp.data_exchange_specification",
+            { "Data Exchange Specification",     "btsdp.hdp.data_exchange_specification",
             FT_UINT8, BASE_HEX, VALS(hdp_data_exchange_specification_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_hdp_supported_features_data,
+            { "Supported Features",              "btsdp.hdp.supported_features_data",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_hdp_supported_features_data_mdep_id,
+            { "MDEP ID",                         "btsdp.hdp.supported_features_data.mdep_id",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_hdp_supported_features_data_mdep_data_type,
+            { "MDEP Data Type",                  "btsdp.hdp.supported_features_data.mdep_data_type",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_hdp_supported_features_data_mdep_role,
+            { "MDEP Role",                       "btsdp.hdp.supported_features_data.mdep_role",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_hdp_supported_features_data_mdep_description,
+            { "MDEP Description",                "btsdp.hdp.supported_features_data.mdep_description",
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hdp_supported_features_mdep_id,
@@ -4672,9 +4862,19 @@ proto_register_btsdp(void)
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_sdp_protocol_item,
+            { "Protocol",                        "btsdp.protocol_item",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_sdp_protocol,
+            { "Protocol Entry",                  "btsdp.protocol",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_sdp_protocol_psm,
             { "L2CAP PSM",                       "btsdp.protocol.psm",
-            FT_UINT16, BASE_DEC_HEX, &ext_psm_vals, 0,
+            FT_UINT16, BASE_DEC_HEX | BASE_EXT_STRING, &ext_psm_vals, 0,
             NULL, HFILL }
         },
         { &hf_sdp_protocol_channel,
@@ -4751,6 +4951,11 @@ proto_register_btsdp(void)
         { &hf_sdp_service_provider_name,
             { "Provider Name",                   "btsdp.provider_name",
             FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_sdp_lang,
+            { "Language",                        "btsdp.lang",
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_sdp_lang_code,
@@ -4861,6 +5066,16 @@ proto_register_btsdp(void)
         { &hf_hid_descriptor_list_type,
             { "Descriptor Type",                 "btsdp.service.hid.descriptor.type",
             FT_UINT8, BASE_HEX, VALS(descriptor_list_type_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_hid_lang,
+            { "Language",                        "btsdp.service.hid.lang",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_hid_descriptor_list_descriptor_data,
+            { "Descriptor",                      "btsdp.service.hid.descriptor_list.descriptor_data",
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_hid_descriptor_list_descriptor,
@@ -5187,9 +5402,9 @@ proto_register_btsdp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_btsdp_continuation_state_none, { "btsdp.continuation_state_none", PI_MALFORMED, PI_WARN, "There is no Continuation State", EXPFILL }},
-        { &ei_btsdp_continuation_state_large, { "btsdp.continuation_state_large", PI_MALFORMED, PI_WARN, "Continuation State data is longer then 16", EXPFILL }},
-        { &ei_data_element_value_large, { "btavctp.data_element.value.large", PI_MALFORMED, PI_WARN, "Data size exceeds the length of payload", EXPFILL }},
+        { &ei_btsdp_continuation_state_none,  { "btsdp.expert.continuation_state_none",  PI_MALFORMED, PI_WARN, "There is no Continuation State", EXPFILL }},
+        { &ei_btsdp_continuation_state_large, { "btsdp.expert.continuation_state_large", PI_MALFORMED, PI_WARN, "Continuation State data is longer then 16", EXPFILL }},
+        { &ei_data_element_value_large,       { "btsdp.expert.data_element.value.large", PI_MALFORMED, PI_WARN, "Data size exceeds the length of payload", EXPFILL }},
     };
 
     proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");

@@ -332,6 +332,7 @@ static int hf_bthci_evt_le_supported_host = -1;
 static int hf_bthci_evt_le_simultaneous_host = -1;
 static int hf_bthci_evt_le_acl_data_pkt_len = -1;
 static int hf_bthci_evt_total_num_le_acl_data_pkts = -1;
+static int hf_bthci_evt_le_features = -1;
 static int hf_bthci_evt_le_feature_00 = -1;
 static int hf_bthci_evt_white_list_size = -1;
 static int hf_bthci_evt_le_channel_map = -1;
@@ -358,6 +359,7 @@ static int hf_bthci_evt_oob_flags_oob_data_present = -1;
 static int hf_bthci_evt_oob_flags_le_supported_host = -1;
 static int hf_bthci_evt_oob_flags_simultaneous_le_and_br_edr_host = -1;
 static int hf_bthci_evt_oob_flags_address_type = -1;
+static int hf_bthci_evt_le_states = -1;
 static int hf_bthci_evt_le_states_00 = -1;
 static int hf_bthci_evt_le_states_01 = -1;
 static int hf_bthci_evt_le_states_02 = -1;
@@ -390,6 +392,10 @@ static int hf_bthci_evt_le_states_34 = -1;
 static int hf_bthci_evt_eir_ad_ssp_oob_length = -1;
 static int hf_bthci_evt_eir_ad_advertising_interval = -1;
 static int hf_bthci_evt_eir_ad_company_id = -1;
+static int hf_eir_ad_item = -1;
+static int hf_extended_inquiry_response_data = -1;
+static int hf_advertising_data = -1;
+static int hf_usable_packet_types = -1;
 static int hf_3ds_association_notification = -1;
 static int hf_3ds_battery_level_reporting = -1;
 static int hf_3ds_send_battery_level_report_on_startup = -1;
@@ -1583,7 +1589,7 @@ dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_inf
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-    handle_tree = proto_tree_add_text(tree, tvb, offset, 2, "Usable packet types: ");
+    handle_tree = proto_tree_add_item(tree, hf_usable_packet_types, tvb, offset, 2, ENC_NA);
     ti_ptype_subtree = proto_item_add_subtree(handle_tree, ett_ptype_subtree);
 
     if (flags & 0x0008)
@@ -1760,12 +1766,8 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
     hci_data_t  *hci_data = (hci_data_t *) pinfo->private_data;
 
     if(tree){
-        if(size == 240 ) { /* EIR data */
-            ti_eir=proto_tree_add_text(tree, tvb, offset, 240, "Extended Inquiry Response Data");
-        }
-        else { /*  Advertising data */
-            ti_eir=proto_tree_add_text(tree, tvb, offset, size, "Advertising Data");
-        }
+        ti_eir = proto_tree_add_item(tree, (size == 240) ? hf_extended_inquiry_response_data : hf_advertising_data,
+                tvb, offset, size, ENC_NA);
         ti_eir_subtree=proto_item_add_subtree(ti_eir, ett_eir_subtree);
     }
 
@@ -1777,10 +1779,11 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item *ti_eir_struct;
             proto_tree *ti_eir_struct_subtree;
 
-            ti_eir_struct = proto_tree_add_text(ti_eir_subtree, tvb, offset + i, length + 1, "%s", "");
-            ti_eir_struct_subtree = proto_item_add_subtree(ti_eir_struct, ett_eir_struct_subtree);
-
             type = tvb_get_guint8(tvb, offset + i + 1);
+
+            ti_eir_struct = proto_tree_add_none_format(ti_eir_subtree, hf_eir_ad_item, tvb, offset + i, length + 1, "%s",
+                    val_to_str_ext_const(type, &bthci_cmd_eir_data_type_vals_ext, "Unknown"));
+            ti_eir_struct_subtree = proto_item_add_subtree(ti_eir_struct, ett_eir_struct_subtree);
 
             proto_item_append_text(ti_eir_struct,"%s", val_to_str_ext_const(type, &bthci_cmd_eir_data_type_vals_ext, "Unknown"));
 
@@ -3223,7 +3226,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 proto_item *ti_le_features;
                 proto_item *ti_le_subtree;
 
-                ti_le_features = proto_tree_add_text(tree, tvb, offset, 8, "LE Features");
+                ti_le_features = proto_tree_add_item(tree, hf_bthci_evt_le_features, tvb, offset, 8, ENC_NA);
                 ti_le_subtree = proto_item_add_subtree(ti_le_features, ett_lmp_subtree);
 
                 proto_tree_add_item(ti_le_subtree,hf_bthci_evt_le_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3285,7 +3288,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            ti_le_states=proto_tree_add_text(tree, tvb, offset, 8, "Supported LE States");
+            ti_le_states=proto_tree_add_item(tree, hf_bthci_evt_le_states, tvb, offset, 8, ENC_NA);
             ti_le_states_subtree=proto_item_add_subtree(ti_le_states, ett_le_state_subtree);
 
             proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -5399,8 +5402,13 @@ proto_register_bthci_evt(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_le_features,
+          { "Supported LE Features", "bthci_evt.le_features",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_le_feature_00,
-          { "LE Encryption",        "bthci_evt.le_feature",
+          { "LE Encryption",        "bthci_evt.le_features.encryption",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
@@ -5527,6 +5535,11 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_oob_flags_address_type,
           { "Address Type",        "bthci_evt.oob_flags.address_type",
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states,
+          { "Supported LE States", "bthci_evt.le_states",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_states_00,
@@ -5687,6 +5700,26 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_eir_ad_company_id,
           { "Company ID",                                  "bthci_evt.eir_ad.company_id",
             FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_eir_ad_item,
+          { "Item",                                        "bthci_evt.eir_ad",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_inquiry_response_data,
+          { "Extended Inquiry Response Data",              "bthci_evt.extended_inquiry_response_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_advertising_data,
+          { "Advertising Data",                            "bthci_evt.advertising_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_usable_packet_types,
+          { "Usable Packet Types",                            "bthci_evt.usable_packet_types",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_3ds_association_notification,

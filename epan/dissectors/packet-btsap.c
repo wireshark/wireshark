@@ -58,6 +58,7 @@ static int proto_btsap                                                     = -1;
 static int hf_btsap_header_msg_id                                          = -1;
 static int hf_btsap_header_number_of_parameters                            = -1;
 static int hf_btsap_header_reserved                                        = -1;
+static int hf_btsap_parameter                                              = -1;
 static int hf_btsap_parameter_id                                           = -1;
 static int hf_btsap_parameter_reserved                                     = -1;
 static int hf_btsap_parameter_length                                       = -1;
@@ -201,7 +202,9 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     if (parameter_padding_length > 0)
         parameter_padding_length = 4 - parameter_padding_length;
 
-    parameter_item = proto_tree_add_text(tree, tvb, offset, 2 + 2 + parameter_length + parameter_padding_length, "Parameter: %s: ",  val_to_str_const(parameter_id, parameter_id_vals, "Unknown ParameterID"));
+    parameter_item = proto_tree_add_none_format(tree, hf_btsap_parameter, tvb, offset,
+            2 + 2 + parameter_length + parameter_padding_length, "Parameter: %s: ",
+            val_to_str_const(parameter_id, parameter_id_vals, "Unknown ParameterID"));
     ptree = proto_item_add_subtree(parameter_item, ett_btsap_parameter);
 
     proto_tree_add_item(ptree, hf_btsap_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -603,6 +606,11 @@ proto_register_btsap(void)
         { &hf_btsap_header_reserved,
             { "reserved",                        "btsap.reserved",
             FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btsap_parameter,
+            { "Parameter",                    "btsap.parameter",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btsap_parameter_id,

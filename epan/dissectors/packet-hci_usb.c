@@ -36,6 +36,9 @@
 
 static int proto_hci_usb = -1;
 static int hf_bthci_usb_data = -1;
+static int hf_bthci_usb_packet_fragment = -1;
+static int hf_bthci_usb_packet_complete = -1;
+static int hf_bthci_usb_packet_unknown_fragment = -1;
 
 static gint ett_hci_usb = -1;
 static gint ett_hci_usb_msg_fragment = -1;
@@ -186,12 +189,12 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     reassembled = fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, session_id);
     if (reassembled && pinfo->fd->num < reassembled->reassembled_in) {
-        pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Fragment");
+        pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_fragment, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment");
     } else if (reassembled && pinfo->fd->num == reassembled->reassembled_in) {
-        pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Complete");
+        pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 
         if (reassembled->len > tvb_ensure_length_remaining(tvb, offset)) {
@@ -209,7 +212,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             call_dissector(find_dissector("bthci_acl"), next_tvb, pinfo, tree);
         }
     } else {
-        pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Unknown Fragment");
+        pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_unknown_fragment, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
@@ -281,6 +284,21 @@ proto_register_hci_usb(void)
         {  &hf_msg_reassembled_length,
             { "Reassembled MP2T length",         "hci_usb.msg.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bthci_usb_packet_fragment,
+            { "Packet Fragment",                 "hci_usb.packet.fragment",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bthci_usb_packet_complete,
+            { "Packet Complete",                 "hci_usb.packet.complete",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bthci_usb_packet_unknown_fragment,
+            { "Unknown Packet Fragment",         "hci_usb.packet.unknown_fragment",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_bthci_usb_data,

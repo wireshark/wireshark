@@ -371,6 +371,9 @@ static int hf_bthci_cmd_flags_le_oob_address_type = -1;
 static int hf_bthci_cmd_eir_ad_advertising_interval = -1;
 static int hf_bthci_cmd_eir_ad_ssp_oob_length = -1;
 static int hf_bthci_cmd_eir_ad_company_id = -1;
+static int hf_eir_ad_item = -1;
+static int hf_extended_inquiry_response_data = -1;
+static int hf_advertising_data = -1;
 static int hf_3ds_association_notification = -1;
 static int hf_3ds_battery_level_reporting = -1;
 static int hf_3ds_send_battery_level_report_on_startup = -1;
@@ -1584,8 +1587,9 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
     proto_item  *sub_item;
 
     if (tree) {
-        ti_data=proto_tree_add_text(tree, tvb, offset, data_size, (size==240)?"Extended Inquiry Response Data":"Advertising Data");
-        ti_data_subtree=proto_item_add_subtree(ti_data, ett_eir_subtree);
+        ti_data = proto_tree_add_item(tree, (size == 240) ? hf_extended_inquiry_response_data : hf_advertising_data,
+                tvb, offset, data_size, ENC_NA);
+        ti_data_subtree = proto_item_add_subtree(ti_data, ett_eir_subtree);
     }
 
     i=0;
@@ -1596,15 +1600,14 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
             proto_item *ti_data_struct;
             proto_tree *ti_data_struct_subtree;
 
-            ti_data_struct = proto_tree_add_text(ti_data_subtree, tvb, offset + i, length + 1, "%s", "");
-            ti_data_struct_subtree = proto_item_add_subtree(ti_data_struct, ett_eir_struct_subtree);
-
             type = tvb_get_guint8(tvb, offset + i + 1);
 
-            proto_item_append_text(ti_data_struct, "%s", val_to_str_const(type, bthci_cmd_eir_data_type_vals, "Unknown"));
+            ti_data_struct = proto_tree_add_none_format(ti_data_subtree, hf_eir_ad_item, tvb, offset + i, length + 1, "%s",
+                    val_to_str_const(type, bthci_cmd_eir_data_type_vals, "Unknown"));
+            ti_data_struct_subtree = proto_item_add_subtree(ti_data_struct, ett_eir_struct_subtree);
 
-            proto_tree_add_item(ti_data_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset + i, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ti_data_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset + i + 1, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_struct_length, tvb, offset + i, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_struct_type, tvb, offset + i + 1, 1, ENC_LITTLE_ENDIAN);
 
             switch (type) {
                 case 0x01: /* flags */
@@ -4970,6 +4973,21 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_eir_ad_company_id,
           { "Company ID",                                  "bthci_cmd.eir_ad.company_id",
             FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_eir_ad_item,
+          { "Item",                                        "bthci_cmd.eir_ad",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_extended_inquiry_response_data,
+          { "Extended Inquiry Response Data",              "bthci_cmd.extended_inquiry_response_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_advertising_data,
+          { "Advertising Data",                            "bthci_cmd.advertising_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_3ds_association_notification,

@@ -57,20 +57,25 @@ static int hf_max_frame_size = -1;
 static int hf_max_retrans = -1;
 static int hf_fc_credits = -1;
 
+static int hf_mcc_pn_parameters = -1;
 static int hf_pn_i14 = -1;
 static int hf_pn_c14 = -1;
 
+static int hf_mcc = -1;
+static int hf_mcc_types = -1;
 static int hf_mcc_len = -1;
 static int hf_mcc_ea = -1;
 static int hf_mcc_cr = -1;
 static int hf_mcc_cmd = -1;
 
+static int hf_msc_parameters = -1;
 static int hf_msc_fc = -1;
 static int hf_msc_rtc = -1;
 static int hf_msc_rtr = -1;
 static int hf_msc_ic = -1;
 static int hf_msc_dv = -1;
 static int hf_msc_l = -1;
+static int hf_msc_break_bits = -1;
 
 static int hf_fcs = -1;
 
@@ -82,10 +87,15 @@ static int hf_mcc_dlci = -1;
 static int hf_mcc_channel = -1;
 static int hf_mcc_direction = -1;
 static int hf_mcc_const_1 = -1;
+
 static int hf_mcc_pn_dlci = -1;
 static int hf_mcc_pn_channel = -1;
 static int hf_mcc_pn_direction = -1;
 static int hf_mcc_pn_zeros_padding = -1;
+
+static int hf_acknowledgement_timer_t1 = -1;
+static int hf_address = -1;
+static int hf_control = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_btrfcomm = -1;
@@ -286,6 +296,7 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, guint8 *mcc_channel)
     proto_item   *ti;
     proto_tree   *dlci_tree;
     proto_item   *dlci_item;
+    proto_item   *item;
     int           mcc_dlci;
     guint8        flags;
 
@@ -305,7 +316,7 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, guint8 *mcc_channel)
 
     flags = tvb_get_guint8(tvb, offset);
 
-    ti = proto_tree_add_text(t, tvb, offset, 1, "I1-I4: 0x%x, C1-C4: 0x%x", flags & 0xf, (flags >> 4) & 0xf);
+    ti = proto_tree_add_none_format(t, hf_mcc_pn_parameters, tvb, offset, 1, "I1-I4: 0x%x, C1-C4: 0x%x", flags & 0xf, (flags >> 4) & 0xf);
     st = proto_item_add_subtree(ti, ett_ctrl_pn_ci);
 
     proto_tree_add_item(st, hf_pn_c14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -317,7 +328,8 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, guint8 *mcc_channel)
     offset += 1;
 
     /* Ack timer */
-    proto_tree_add_text(t, tvb, offset, 1, "Acknowledgement timer (T1): %d ms", (guint32)tvb_get_guint8(tvb, offset) * 100);
+    item = proto_tree_add_item(t, hf_acknowledgement_timer_t1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, "(%d ms)", (guint32)tvb_get_guint8(tvb, offset) * 100);
     offset += 1;
 
     /* max frame size */
@@ -364,7 +376,7 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, guint8 *m
 
     start_offset = offset;
     status       = tvb_get_guint8(tvb, offset);
-    it = proto_tree_add_text(t, tvb, offset, 1, "V.24 Signals: FC = %d, RTC = %d, RTR = %d, IC = %d, DV = %d", (status >> 1) & 1,
+    it = proto_tree_add_none_format(t, hf_msc_parameters, tvb, offset, 1, "V.24 Signals: FC = %d, RTC = %d, RTR = %d, IC = %d, DV = %d", (status >> 1) & 1,
                  (status >> 2) & 1, (status >> 3) & 1,
                  (status >> 6) & 1, (status >> 7) & 1);
     st = proto_item_add_subtree(it, ett_ctrl_pn_v24);
@@ -377,7 +389,7 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, guint8 *m
     offset += 1;
 
     if (length == 3) {
-        proto_tree_add_text(t, tvb, offset, 1, "Break bits B1-B3: 0x%x", (tvb_get_guint8(tvb, offset) & 0xf) >> 1);
+        proto_tree_add_item(t, hf_msc_break_bits, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(t, hf_msc_l, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
@@ -413,7 +425,7 @@ dissect_btrfcomm_address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea
         *dlcip = dlci;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Address: E/A flag: %d, C/R flag: %d, Direction: %d, Channel: %u", ea_flag, cr_flag, dlci & 0x01, dlci >> 1);
+    ti = proto_tree_add_none_format(tree, hf_address, tvb, offset, 1, "Address: E/A flag: %d, C/R flag: %d, Direction: %d, Channel: %u", ea_flag, cr_flag, dlci & 0x01, dlci >> 1);
     addr_tree = proto_item_add_subtree(ti, ett_addr);
 
     dlci_item = proto_tree_add_item(addr_tree, hf_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -449,7 +461,7 @@ dissect_btrfcomm_control(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *pf
         *frame_typep = frame_type;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Control: Frame type: %s (0x%x), P/F flag: %d",
+    ti = proto_tree_add_none_format(tree, hf_control, tvb, offset, 1, "Control: Frame type: %s (0x%x), P/F flag: %d",
                              val_to_str_const(frame_type, vs_frame_type, "Unknown"), frame_type, pf_flag);
     hctl_tree = proto_item_add_subtree(ti, ett_control);
 
@@ -515,7 +527,7 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mc
         *mcc_typep = mcc_type;
     }
 
-    ti = proto_tree_add_text(tree, tvb, start_offset, offset - start_offset,
+    ti = proto_tree_add_none_format(tree, hf_mcc_types, tvb, start_offset, offset - start_offset,
                              "Type: %s (0x%x), C/R flag = %d, E/A flag = %d",
                              val_to_str_const(mcc_type, vs_ctl, "Unknown"),
                              mcc_type, mcc_cr_flag, mcc_ea_flag);
@@ -671,7 +683,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8      mcc_dlci;
         int         start_offset = offset;
 
-        mcc_ti = proto_tree_add_text(rfcomm_tree, tvb, offset, 1, "Multiplexer Control Command");
+        mcc_ti = proto_tree_add_item(rfcomm_tree, hf_mcc, tvb, offset, 1, ENC_NA);
         ctrl_tree = proto_item_add_subtree(mcc_ti, ett_btrfcomm_ctrl);
 
         /* mcc type */
@@ -816,6 +828,21 @@ proto_register_btrfcomm(void)
             FT_UINT8, BASE_HEX, VALS(vs_cr), 0x02,
             "Command/Response flag", HFILL}
         },
+        { &hf_mcc,
+          { "Multiplexer Control Command", "btrfcomm.mcc",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_mcc_pn_parameters,
+          { "Parameters", "btrfcomm.mcc.pn_parameters",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_mcc_types,
+          { "Types", "btrfcomm.mcc.types",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
         { &hf_mcc_ea,
           { "EA Flag", "btrfcomm.mcc.ea",
             FT_UINT8, BASE_HEX, VALS(vs_ea), 0x01,
@@ -876,6 +903,11 @@ proto_register_btrfcomm(void)
             FT_UINT8, BASE_HEX, VALS(vs_frame_type), 0xEF,
             "Command/Response flag", HFILL}
         },
+        { &hf_acknowledgement_timer_t1,
+          { "Acknowledgement Timer T1", "btrfcomm.acknowledgement_timer_t1",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL}
+        },
         { &hf_pf,
           { "P/F flag", "btrfcomm.pf",
             FT_UINT8, BASE_HEX, NULL, 0x10,
@@ -907,6 +939,11 @@ proto_register_btrfcomm(void)
             FT_UINT8, BASE_HEX, NULL, 0,
             "Checksum over frame", HFILL}
         },
+        { &hf_msc_parameters,
+          { "Parameters", "btrfcomm.mcc.msc_parameters",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
         { &hf_msc_fc,
           { "Flow Control (FC)", "btrfcomm.msc.fc",
             FT_UINT8, BASE_HEX, NULL, 0x02,
@@ -935,6 +972,21 @@ proto_register_btrfcomm(void)
         { &hf_msc_l,
           { "Length of break in units of 200ms", "btrfcomm.msc.bl",
             FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL}
+        },
+        { &hf_msc_break_bits,
+          { "Break Bits", "btrfcomm.msc.break_bits",
+            FT_UINT8, BASE_DEC, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        { &hf_address,
+          { "Address", "btrfcomm.address",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_control,
+          { "Control", "btrfcomm.control",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_fc_credits,

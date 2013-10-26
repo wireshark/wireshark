@@ -44,6 +44,7 @@
 
 static int proto_bthfp = -1;
 
+static int hf_command                                                      = -1;
 static int hf_role                                                         = -1;
 static int hf_at_cmd                                                       = -1;
 static int hf_at_cmd_type                                                  = -1;
@@ -909,7 +910,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_char += 1;
     }
 
-    command_item = proto_tree_add_text(tree, tvb,
+    command_item = proto_tree_add_none_format(tree, hf_command, tvb,
             offset, 0, "Command %u", command_number);
     command_tree = proto_item_add_subtree(command_item, ett_bthfp_command);
 
@@ -1541,6 +1542,11 @@ proto_register_bthfp(void)
     expert_module_t  *expert_bthfp;
 
     static hf_register_info hf[] = {
+        { &hf_command,
+           { "Command",                          "bthfp.command",
+           FT_NONE, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
         { &hf_data,
            { "AT Stream",                        "bthfp.data",
            FT_STRING, BASE_NONE, NULL, 0,
