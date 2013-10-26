@@ -1261,7 +1261,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(header_tree, hf_elf_shstrndx, tvb, offset, 2, machine_encoding);
     shstrndx = (machine_encoding == ENC_BIG_ENDIAN) ?
             tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
-    offset += 2;
+    /*offset += 2;*/
 
     program_header_item = proto_tree_add_text(main_tree, tvb, value_guard(phoff),
             phnum * phentsize, "Program Header Table [%d entries]", phnum);
@@ -1411,9 +1411,6 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
 
         offset += 4;
-
-        sh_type = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
 
         offset += 4;
 
