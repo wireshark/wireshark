@@ -1522,7 +1522,6 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* real run, dissect the elements */
         if (fnct_block) {
-                old_offset = offset;
                 offset = (*fnct_block)(tvb, offset, di->array_actual_count, pinfo, tree, drep);
         } else {
             for(i=0 ;i<di->array_actual_count; i++) {
