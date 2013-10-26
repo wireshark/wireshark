@@ -1581,7 +1581,7 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)ep_alloc(16);
+	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), 16);
 
 	md5_hmac(msg, msg_len, key, key_len, calc_auth);
 
@@ -1645,7 +1645,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)ep_alloc(20);
+	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), 20);
 
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
 
