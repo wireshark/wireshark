@@ -1739,7 +1739,7 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     offset += 4;
     hw_info_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_device_caps_info_hw_info_size, tvb, offset, 4, hw_info_size);
-    offset += 4;
+    /*offset += 4;*/
     if (custom_class_offset && custom_class_size) {
         proto_tree_add_item(tree, hf_mbim_device_caps_info_custom_data_class, tvb, base_offset + custom_class_offset,
                             custom_class_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -1838,7 +1838,7 @@ mbim_dissect_set_pin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
     offset += 4;
     new_pin_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_set_pin_new_pin_size, tvb, offset, 4, new_pin_size);
-    offset += 4;
+    /*offset += 4;*/
     if (pin_offset && pin_size) {
         proto_tree_add_item(tree, hf_mbim_set_pin_pin, tvb, base_offset + pin_offset,
                             pin_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -1913,7 +1913,7 @@ mbim_dissect_provider(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     proto_tree_add_item (tree, hf_mbim_provider_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item (tree, hf_mbim_provider_error_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /*offset += 4;*/
     if (provider_id_offset && provider_id_size) {
         proto_tree_add_item(tree, hf_mbim_provider_provider_id, tvb, base_offset + provider_id_offset,
                             provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -1976,7 +1976,7 @@ mbim_dissect_set_register_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset += 4;
     proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_register_state_data_class, ett_mbim_bitmap,
                            mbim_data_class_fields, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /*offset += 4;*/
     if (provider_id_offset && provider_id_size) {
         proto_tree_add_item(tree, hf_mbim_set_register_state_provider_id, tvb, base_offset + provider_id_offset,
                             provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -2027,7 +2027,7 @@ mbim_dissect_registration_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     offset += 4;
     proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_registration_state_info_registration_flags, ett_mbim_bitmap,
                            mbim_registration_state_info_registration_flags_fields, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /*offset += 4;*/
     if (provider_id_offset && provider_id_size) {
         proto_tree_add_item(tree, hf_mbim_registration_state_info_provider_id, tvb, base_offset + provider_id_offset,
                             provider_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -2065,7 +2065,7 @@ mbim_dissect_packet_service_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 8;
     ti = proto_tree_add_item(tree, hf_mbim_packet_service_info_downlink_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     proto_item_append_text(ti, " b/s");
-    offset += 8;
+    /*offset += 8;*/
 }
 
 static void
@@ -2664,7 +2664,7 @@ mbim_dissect_single_packet_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 4;
     packet_mask_offset = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_single_packet_filter_packet_mask_offset, tvb, offset, 4, packet_mask_offset);
-    offset += 4;
+    /*offset += 4;*/
     if (filter_size) {
         if (packet_filter_offset) {
             proto_tree_add_item(tree, hf_mbim_single_packet_filter_packet_filter, tvb, base_offset + packet_filter_offset,
@@ -2730,7 +2730,7 @@ mbim_dissect_set_sms_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset += 4;
     sc_address_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_set_sms_configuration_sc_address_size, tvb, offset, 4, sc_address_size);
-    offset += 4;
+    /*offset += 4;*/
     if (sc_address_offset && sc_address_size) {
         proto_tree_add_item(tree, hf_mbim_set_sms_configuration_sc_address, tvb, base_offset + sc_address_offset,
                             sc_address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -2757,7 +2757,7 @@ mbim_dissect_sms_configuration_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset += 4;
     sc_address_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_configuration_info_sc_address_size, tvb, offset, 4, sc_address_size);
-    offset += 4;
+    /*offset += 4;*/
     if (sc_address_offset && sc_address_size) {
         proto_tree_add_item(tree, hf_mbim_sms_configuration_info_sc_address, tvb, base_offset + sc_address_offset,
                             sc_address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -2784,7 +2784,7 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 4;
     pdu_data_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_pdu_record_pdu_data_size, tvb, offset, 4, pdu_data_size);
-    offset += 4;
+    /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
         ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
                                  pdu_data_size, ENC_NA);
@@ -2834,7 +2834,7 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_uint(tree, hf_mbim_sms_cdma_record_size_in_bytes, tvb, offset, 4, size_in_bytes);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_sms_cdma_record_size_in_characters, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /*offset += 4;*/
     if (address_offset && address_size) {
         proto_tree_add_item(tree, hf_mbim_sms_cdma_record_address, tvb, base_offset + address_offset,
                             address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -2923,7 +2923,7 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     offset += 4;
     pdu_data_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_send_pdu_pdu_data_size, tvb, offset, 4, pdu_data_size);
-    offset += 4;
+    /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
         ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
                                  pdu_data_size, ENC_NA);
@@ -2962,7 +2962,7 @@ mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_uint(tree, hf_mbim_sms_send_cdma_size_in_bytes, tvb, offset, 4, size_in_bytes);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_sms_send_cdma_size_in_characters, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /*offset += 4;*/
     if (address_offset && address_size) {
         proto_tree_add_item(tree, hf_mbim_sms_send_cdma_address, tvb, base_offset + address_offset,
                             address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -3017,7 +3017,7 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     offset += 4;
     ussd_payload_length = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_set_ussd_ussd_ussd_payload_length, tvb, offset, 4, ussd_payload_length);
-    offset += 4;
+    /*offset += 4;*/
     if (ussd_payload_offset && ussd_payload_length) {
         ti = proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
@@ -3083,7 +3083,7 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     offset += 4;
     ussd_payload_length = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_ussd_info_ussd_payload_length, tvb, offset, 4, ussd_payload_length);
-    offset += 4;
+    /*offset += 4;*/
     if (ussd_payload_offset && ussd_payload_length) {
         ti = proto_tree_add_item(tree, hf_mbim_ussd_info_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
@@ -3155,7 +3155,7 @@ mbim_dissect_phonebook_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset += 4;
     name_length = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_phonebook_entry_name_length, tvb, offset, 4, name_length);
-    offset += 4;
+    /*offset += 4;*/
     if (number_offset && number_length) {
         proto_tree_add_item(tree, hf_mbim_phonebook_entry_number, tvb, base_offset + number_offset,
                             number_length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -3225,7 +3225,7 @@ mbim_dissect_set_phonebook_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 4;
     name_length = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_set_phonebook_write_name_length, tvb, offset, 4, name_length);
-    offset += 4;
+    /*offset += 4;*/
     if (number_offset && number_length) {
         proto_tree_add_item(tree, hf_mbim_set_phonebook_write_number, tvb, base_offset + number_offset,
                             number_length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -3316,7 +3316,7 @@ mbim_dissect_akap_auth_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     offset += 4;
     network_name_length = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_akap_auth_req_network_name_length, tvb, offset, 4, network_name_length);
-    offset += 4;
+    /*offset += 4;*/
     if (network_name_offset && network_name_length) {
         proto_tree_add_item(tree, hf_mbim_akap_auth_req_network_name, tvb, base_offset + network_name_offset,
                             network_name_length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
