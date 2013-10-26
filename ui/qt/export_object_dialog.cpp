@@ -307,7 +307,6 @@ void ExportObjectDialog::saveAllEntries()
             file_name = path.filePath(safe_filename->str);
             g_string_free(safe_filename, TRUE);
         } while (g_file_test(file_path.toUtf8().constData(), G_FILE_TEST_EXISTS) && ++count < 1000);
-        count = 0;
         if (!eo_save_entry(file_path.toUtf8().constData(), entry, FALSE))
             all_saved = false;
     }
