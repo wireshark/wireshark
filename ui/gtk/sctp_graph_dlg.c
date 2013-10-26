@@ -133,7 +133,8 @@ static guint32 max_tsn=0, min_tsn=0;
 static void sctp_graph_set_title(struct sctp_udata *u_data);
 static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data);
 static GtkWidget *zoomout_bt;
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
+/* Starting VS2013, rint already defined in math.h. No need to redefine */
 static int rint (double );	/* compiler template for Windows */
 #endif
 
@@ -1857,7 +1858,8 @@ create_graph(guint16 dir, struct sctp_analyse* userdata)
 	}
 }
 
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
+/* Starting VS2013, rint already defined in math.h. No need to redefine */
 /* replacement of Unix rint() for Windows */
 static int
 rint (double x)

@@ -460,7 +460,8 @@ static void rtt_toggle_seq_origin(struct gtk_graph * );
 static void wscale_initialize(struct gtk_graph *);
 static void wscale_read_config(struct gtk_graph *);
 static void wscale_make_elmtlist(struct gtk_graph *);
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
+/* Starting VS2013, rint already defined in math.h. No need to redefine */
 static int rint(double );   /* compiler template for Windows */
 #endif
 
@@ -4478,8 +4479,8 @@ static void wscale_make_elmtlist(struct gtk_graph *g)
     g->elists->elements = elements;
 }
 
-
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
+/* Starting VS2103, rint already defined in math.h. No need to redefine */
 /* replacement of Unix rint() for Windows */
 static int rint(double x)
 {

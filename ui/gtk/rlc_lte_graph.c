@@ -343,7 +343,8 @@ static void graph_get_bounds(struct graph *);
 static void graph_read_config(struct graph *);
 static void rlc_lte_make_elmtlist(struct graph *);
 
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
+/* Starting VS2013, rint already defined in math.h. No need to redefine */
 static int rint(double );     /* compiler template for Windows */
 #endif
 
@@ -2991,8 +2992,8 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     g->elists->next->elements = elements1;
 }
 
-
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__MINGW32__) && (_MSC_VER < 1800)
+/* Starting VS2013, rint already defined in math.h. N   o need to redefine */
 /* replacement of Unix rint() for Windows */
 static int rint(double x)
 {
@@ -3007,4 +3008,3 @@ static int rint(double x)
     return i;
 }
 #endif
-
