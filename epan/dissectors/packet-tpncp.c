@@ -345,11 +345,11 @@ static void dissect_tpncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
     gint i = 0, tpncp_id = 0;
-    gchar *tpncp_name = NULL, *line_in_file = NULL;
+    gchar *tpncp_name, *line_in_file;
 
-    line_in_file = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    line_in_file = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     line_in_file[0] = 0;
-    tpncp_name = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    tpncp_name = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     tpncp_name[0] = 0;
 
     while (fgets(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {
@@ -368,6 +368,9 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
         }
     }
 
+    g_free(line_in_file);
+    g_free(tpncp_name);
+
     return 0;
 }
 
@@ -379,13 +382,13 @@ static gint fill_enums_id_vals(FILE *file) {
     gchar *line_in_file = NULL, *enum_name = NULL,
            *enum_type = NULL, *enum_str = NULL;
 
-    line_in_file = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    line_in_file = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     line_in_file[0] = 0;
-    enum_name = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_name = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_name[0] = 0;
-    enum_type = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_type = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_type[0] = 0;
-    enum_str = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_str = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_str[0] = 0;
 
     while (fgets(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {
@@ -429,6 +432,11 @@ static gint fill_enums_id_vals(FILE *file) {
     else {
         tpncp_enums_name_vals[enum_val+1] = NULL;
     }
+
+    g_free(line_in_file);
+    g_free(enum_name);
+    g_free(enum_type);
+    g_free(enum_str);
 
     return 0;
 }
@@ -574,9 +582,6 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         }
     };
 
-    tpncp_db_entry = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
-    tpncp_db_entry[0] = 0;
-
     /* Register common fields of hf_register_info struture. */
     hf_entr.hfinfo.type           = FT_NONE;
     hf_entr.hfinfo.strings        = NULL;
@@ -591,8 +596,11 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     if (!was_registered) {
         /* Register non-standard data should be done only once. */
         hf_allocated = hf_size+(int)array_length(hf_tpncp)-1;
-        if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL)
+        if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL) {
+            /* XXX realloc returning NULL does not free the original memory,
+             * is this a leak? */
             return (-1);
+        }
         for (idx = 0; idx < array_length(hf_tpncp); idx++) {
             memcpy(hf + (hf_size - 1), hf_tpncp + idx, sizeof(hf_register_info));
             hf_size++;
@@ -601,7 +609,11 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     }
     else
         hf_size++;
+
     /* Register standard data. */
+    tpncp_db_entry = (gchar *)g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
+    tpncp_db_entry[0] = 0;
+
     while (fgets(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {
         if (!strncmp(tpncp_db_entry, "#####", 5)) {
             hf_size--;
@@ -638,8 +650,10 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         else {
             if ((current_tpncp_data_field_info->p_next =
                 (tpncp_data_field_info *)g_malloc0(sizeof(tpncp_data_field_info)))
-                == NULL)
+                == NULL) {
+                g_free(tpncp_db_entry);
                 return (-1);
+            }
             current_tpncp_data_field_info = current_tpncp_data_field_info->p_next;
         }
         /* Register specific fields of hf_register_info struture. */
@@ -682,8 +696,12 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         /* Register initialized hf_register_info in global database. */
         if (hf_size > hf_allocated) {
             hf_allocated += 1024;
-            if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL)
+            if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL) {
+                /* XXX realloc returning NULL does not free the original memory,
+                 * is this a leak? */
+                g_free(tpncp_db_entry);
                 return (-1);
+            }
         }
         memcpy(hf + hf_size - 1, &hf_entr, sizeof(hf_register_info));
         hf_size++;
@@ -693,6 +711,8 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         current_tpncp_data_field_info->tpncp_data_field_is_ip_addr = tpncp_data_field_is_ip_addr;
     }
 
+    g_free(tpncp_db_entry);
+
     return 0;
 }
 
@@ -700,20 +720,33 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
 
 static gint init_tpncp_db(void) {
     gchar *tpncp_dat_file_path;
+    gint ret;
     FILE *file;
 
-    tpncp_dat_file_path = ep_strdup_printf("%s" G_DIR_SEPARATOR_S"tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
+    tpncp_dat_file_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S"tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
 
     /* Open file with TPNCP data. */
-    if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL)
+    if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL) {
+        g_free(tpncp_dat_file_path);
         return (-1);
+    }
 
-    fill_tpncp_id_vals(tpncp_events_id_vals, file);
-    fill_tpncp_id_vals(tpncp_commands_id_vals, file);
-    fill_enums_id_vals(file);
-    init_tpncp_data_fields_info(tpncp_events_info_db, file);
-    init_tpncp_data_fields_info(tpncp_commands_info_db, file);
+    ret = fill_tpncp_id_vals(tpncp_events_id_vals, file);
+    if (ret != 0) return ret;
 
+    ret = fill_tpncp_id_vals(tpncp_commands_id_vals, file);
+    if (ret != 0) return ret;
+
+    ret = fill_enums_id_vals(file);
+    if (ret != 0) return ret;
+
+    ret = init_tpncp_data_fields_info(tpncp_events_info_db, file);
+    if (ret != 0) return ret;
+
+    ret = init_tpncp_data_fields_info(tpncp_commands_info_db, file);
+    if (ret != 0) return ret;
+
+    g_free(tpncp_dat_file_path);
     fclose(file);
 
     return 0;
@@ -765,8 +798,10 @@ void proto_register_tpncp(void) {
         &ett_tpncp_body
     };
 
-    if (init_tpncp_db() == -1)
+    if (init_tpncp_db() == -1) {
+        g_warning("Could not load tpncp.dat file, tpncp dissector will not work");
         return;
+    }
 
     proto_tpncp = proto_register_protocol("AudioCodes TPNCP (TrunkPack Network Control Protocol)",
                                           "TPNCP", "tpncp");
