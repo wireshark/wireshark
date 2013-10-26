@@ -332,6 +332,7 @@ static const value_string message_type_vals[] = {
     { MESSAGE_TYPE_SCCRP,       "Start_Control_Reply" },
     { MESSAGE_TYPE_SCCCN,       "Start_Control_Connected" },
     { MESSAGE_TYPE_StopCCN,     "Stop_Control_Notification" },
+    { MESSAGE_TYPE_Reserved_5,  "Reserved" },
     { MESSAGE_TYPE_HELLO,       "Hello" },
     { MESSAGE_TYPE_OCRQ,        "Outgoing_Call_Request" },
     { MESSAGE_TYPE_OCRP,        "Outgoing_Call_Reply" },
@@ -339,6 +340,7 @@ static const value_string message_type_vals[] = {
     { MESSAGE_TYPE_ICRQ,        "Incoming_Call_Request" },
     { MESSAGE_TYPE_ICRP,        "Incoming_Call_Reply" },
     { MESSAGE_TYPE_ICCN,        "Incoming_Call_Connected" },
+    { MESSAGE_TYPE_Reserved_13, "Reserved" },
     { MESSAGE_TYPE_CDN,         "Call_Disconnect_Notification" },
     { MESSAGE_TYPE_WEN,         "WAN_Error_Notify" },
     { MESSAGE_TYPE_SLI,         "Set_Link_Info" },
@@ -357,6 +359,7 @@ static const value_string message_type_vals[] = {
     { MESSAGE_TYPE_MSEN,        "Multicast-Session-End-Notify" },
     { 0,                        NULL },
 };
+static value_string_ext message_type_vals_ext = VALUE_STRING_EXT_INIT(message_type_vals);
 
 static const value_string l2tp_message_type_short_str_vals[] = {
     { MESSAGE_TYPE_SCCRQ,       "SCCRQ" },
@@ -390,6 +393,7 @@ static const value_string l2tp_message_type_short_str_vals[] = {
     { MESSAGE_TYPE_MSEN,        "MSEN" },
     { 0,                        NULL },
 };
+static value_string_ext l2tp_message_type_short_str_vals_ext = VALUE_STRING_EXT_INIT(l2tp_message_type_short_str_vals);
 
 
 static const char *control_msg = "Control Message";
@@ -497,6 +501,8 @@ static const value_string result_code_cdn_vals[] = {
     { 31, "Sequencing not supported", },                                        /* [RFC6073]  */
     { 0, NULL }
 };
+static value_string_ext result_code_cdn_vals_ext = VALUE_STRING_EXT_INIT(result_code_cdn_vals);
+
 
 static const value_string error_code_vals[] = {
     { 0, "No General Error", },
@@ -573,6 +579,7 @@ static const value_string error_code_vals[] = {
 #define  TX_CONNECT_SPEED_V3          74
 #define  RX_CONNECT_SPEED_V3          75
 
+/* http://www.iana.org/assignments/l2tp-parameters/l2tp-parameters.xhtml */
 #define NUM_AVP_TYPES                 102
 static const value_string avp_type_vals[] = {
     { CONTROL_MESSAGE,              "Control Message" },
@@ -595,6 +602,7 @@ static const value_string avp_type_vals[] = {
     { MAXIMUM_BPS,                  "Maximum BPS" },
     { BEARER_TYPE,                  "Bearer Type" },
     { FRAMING_TYPE,                 "Framing Type" },
+    { 20,                           "Reserved" },
     { CALLED_NUMBER,                "Called Number" },
     { CALLING_NUMBER,               "Calling Number" },
     { SUB_ADDRESS,                  "Sub-Address" },
@@ -661,6 +669,8 @@ static const value_string avp_type_vals[] = {
     { 101,                          "PW Switching Point AVP" },                         /*[RFC6073] */
     { 0,                         NULL }
 };
+
+static value_string_ext avp_type_vals_ext = VALUE_STRING_EXT_INIT(avp_type_vals);
 
 #define CISCO_ASSIGNED_CONNECTION_ID     1
 #define CISCO_PW_CAPABILITY_LIST         2
@@ -1566,7 +1576,7 @@ static void process_control_avps(tvbuff_t *tvb,
         /* IETF AVP:s */
         tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
                                   avp_len, "%s AVP",
-                                  val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
+                                  val_to_str_ext(avp_type, &avp_type_vals_ext, "Unknown (%u)"));
 
         l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
@@ -2345,7 +2355,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 col_add_fstr(pinfo->cinfo, COL_INFO,
                                 "%s - %s (tunnel id=%u)",
                                 control_msg ,
-                                val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
+                                val_to_str_ext(msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
                                 ccid);
             }
             else {
@@ -2567,7 +2577,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 col_add_fstr(pinfo->cinfo, COL_INFO,
                                 "%s - %s (tunnel id=%u, session id=%u)",
                                 control_msg,
-                                val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
+                                val_to_str_ext(msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
                                 tid, cid);
             }
             else
@@ -2811,8 +2821,8 @@ proto_register_l2tp(void)
             "AVP Vendor ID", HFILL }},
 
         { &hf_l2tp_avp_type,
-          { "Type", "l2tp.avp.type", FT_UINT16, BASE_DEC, VALS(avp_type_vals), 0,
-            "AVP Type", HFILL }},
+          { "AVP Type", "l2tp.avp.type", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &avp_type_vals_ext, 0,
+            NULL, HFILL }},
 
         { &hf_l2tp_tie_breaker,
           { "Tie Breaker", "l2tp.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
@@ -2887,7 +2897,7 @@ proto_register_l2tp(void)
             "AVP Type", HFILL }},
 
         { &hf_l2tp_avp_message_type,
-          { "Message Type", "l2tp.avp.message_type", FT_UINT16, BASE_DEC, VALS(message_type_vals), 0,
+          { "Message Type", "l2tp.avp.message_type", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &message_type_vals_ext, 0,
             NULL, HFILL }},
 
         { &hf_l2tp_avp_assigned_tunnel_id,
@@ -2961,7 +2971,7 @@ proto_register_l2tp(void)
       { &hf_l2tp_cisco_nonce, { "Nonce", "l2tp.cisco.nonce", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_cisco_interface_mtu, { "Interface MTU", "l2tp.cisco.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_stop_ccn_result_code, { "Result code", "l2tp.result_code", FT_UINT16, BASE_DEC, VALS(result_code_stopccn_vals), 0x0, NULL, HFILL }},
-      { &hf_l2tp_result_code, { "Result code", "l2tp.result_code", FT_UINT16, BASE_DEC, VALS(result_code_cdn_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_result_code, { "Result code", "l2tp.result_code", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &result_code_cdn_vals_ext, 0x0, NULL, HFILL }},
       { &hf_l2tp_avp_error_code, { "Error code", "l2tp.avp.error_code", FT_UINT16, BASE_DEC, VALS(error_code_vals), 0x0, NULL, HFILL }},
       { &hf_l2tp_avp_error_message, { "Error Message", "l2tp.avp.error_message", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_avp_protocol_version, { "Version", "l2tp.avp.protocol_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
