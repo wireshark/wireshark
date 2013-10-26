@@ -39,6 +39,7 @@
 #include <epan/tap.h>
 #include <epan/ip_opts.h>
 #include <epan/wmem/wmem.h>
+#include <epan/strutil.h>
 
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
@@ -75,8 +76,10 @@ static gint hf_data_element_value_nil                                      = -1;
 static gint hf_data_element_value_boolean                                  = -1;
 static gint hf_data_element_value_signed_int                               = -1;
 static gint hf_data_element_value_unsigned_int                             = -1;
+static gint hf_data_element_value_uuid_16                                  = -1;
+static gint hf_data_element_value_uuid_32                                  = -1;
+static gint hf_data_element_value_uuid_128                                 = -1;
 static gint hf_data_element_value_uuid                                     = -1;
-static gint hf_data_element_value_long_uuid                                = -1;
 static gint hf_data_element_value_string                                   = -1;
 static gint hf_data_element_value_url                                      = -1;
 static gint hf_data_element_value_alternative                              = -1;
@@ -216,8 +219,6 @@ static gint hf_hfp_gw_supported_features_inband_ring_tone_capability       = -1;
 static gint hf_hfp_gw_supported_features_voice_recognition_function        = -1;
 static gint hf_hfp_gw_supported_features_ec_and_or_nr_function             = -1;
 static gint hf_hfp_gw_supported_features_three_way_calling                 = -1;
-static gint hf_sdp_service_uuid                                            = -1;
-static gint hf_sdp_service_long_uuid                                       = -1;
 static gint hf_sdp_protocol_item                                           = -1;
 static gint hf_sdp_protocol                                                = -1;
 static gint hf_sdp_protocol_psm                                            = -1;
@@ -945,6 +946,16 @@ extern value_string_ext usb_langid_vals_ext;
 void proto_register_btsdp(void);
 void proto_reg_handoff_btsdp(void);
 
+
+static gchar *
+print_uuid(uuid_t *uuid)
+{
+    if (uuid->bt_uuid)
+        return wmem_strdup(wmem_packet_scope(), val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
+    else
+        return bytes_to_str(uuid->data, uuid->size);
+}
+
 static void
 save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protocol_order, service_info_t *parent_service_info)
 {
@@ -1093,6 +1104,37 @@ get_int_by_size(tvbuff_t *tvb, gint off, gint size)
     }
 }
 
+static gint
+dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uuid)
+{
+    proto_item  *item;
+
+    DISSECTOR_ASSERT(uuid);
+
+    if (size == 2) {
+        proto_tree_add_item(tree, hf_data_element_value_uuid_16, tvb, offset, size, ENC_BIG_ENDIAN);
+        uuid->bt_uuid = tvb_get_ntohs(tvb, offset);
+    } else if (size == 4 && tvb_get_ntohs(tvb, offset) == 0x0000) {
+        proto_tree_add_item(tree, hf_data_element_value_uuid_32, tvb, offset, size, ENC_BIG_ENDIAN);
+        uuid->bt_uuid = tvb_get_ntohs(tvb, offset + 2);
+    } else if (size == 16 && tvb_get_ntohs(tvb, offset) == 0x0000 && tvb_get_ntohl(tvb, offset + 4) == 0x1000 && tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
+        item = proto_tree_add_item(tree, hf_data_element_value_uuid_128, tvb, offset, size, ENC_NA);
+        uuid->bt_uuid = tvb_get_ntohs(tvb, offset + 2);
+        proto_item_append_text(item, " (%s)", val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
+    } else {
+        proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
+        uuid->bt_uuid = 0;
+    }
+
+    if (size == 2 || size == 4 || size == 16) {
+        uuid->size = size;
+        tvb_memcpy(tvb, uuid->data, offset, size);
+    } else {
+        uuid->size = 0;
+    }
+
+    return offset + size;
+}
 
 
 static gint
@@ -1693,11 +1735,13 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     guint32        value;
     gint           length;
     guint32        i_protocol;
-    guint16        uuid;
+    uuid_t         uuid;
 
     list_offset = offset;
     i_protocol = 1;
     while (list_offset - offset < size) {
+        gchar *uuid_str;
+
         feature_item = proto_tree_add_none_format(next_tree, hf_sdp_protocol_item, tvb, list_offset, 0, "Protocol #%u", i_protocol);
         feature_tree = proto_item_add_subtree(feature_item, ett_btsdp_protocol);
         entry_offset = get_type_length(tvb, list_offset, &entry_length);
@@ -1711,17 +1755,12 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         new_offset = get_type_length(tvb, entry_offset, &length);
         entry_offset = new_offset;
 
-        if (length == 2) {
-            proto_tree_add_item(sub_tree, hf_sdp_service_uuid, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
-            uuid = tvb_get_ntohs(tvb, entry_offset);
-        } else {
-            proto_tree_add_item(sub_tree, hf_sdp_service_long_uuid, tvb, entry_offset, length, ENC_NA);
-            uuid = 0;
-        }
+        dissect_uuid(sub_tree, tvb, entry_offset, length, &uuid);
 
-        wmem_strbuf_append(info_buf, val_to_str_const(uuid, vs_service_classes, "Unknown"));
-        proto_item_append_text(feature_item, ": %s", val_to_str_const(uuid, vs_service_classes, "Unknown"));
-        proto_item_append_text(entry_item, ": %s", val_to_str_const(uuid, vs_service_classes, "Unknown"));
+        uuid_str = print_uuid(&uuid);
+        wmem_strbuf_append(info_buf, uuid_str);
+        proto_item_append_text(feature_item, ": %s", uuid_str);
+        proto_item_append_text(entry_item, ": %s", uuid_str);
 
         entry_offset += length;
 
@@ -1731,7 +1770,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
             entry_offset = new_offset;
             value = get_int_by_size(tvb, entry_offset, length / 2);
 
-            if (uuid == BTSDP_L2CAP_PROTOCOL_UUID) {
+            if (uuid.bt_uuid == BTSDP_L2CAP_PROTOCOL_UUID) {
                 wmem_strbuf_append_printf(info_buf, ":%u", value);
                 proto_item_append_text(feature_item, ", PSM: %u", value);
                 proto_item_append_text(entry_item, ", PSM: %u", value);
@@ -1739,7 +1778,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 if (!pinfo->fd->flags.visited && service_info)
                     save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
-            } else if (uuid == BTSDP_RFCOMM_PROTOCOL_UUID) {
+            } else if (uuid.bt_uuid == BTSDP_RFCOMM_PROTOCOL_UUID) {
                 wmem_strbuf_append_printf(info_buf, ":%u", value);
                 proto_item_append_text(feature_item, ", RFCOMM Channel: %u", value);
                 proto_item_append_text(entry_item, ", RFCOMM Channel: %u", value);
@@ -1747,7 +1786,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 if (!pinfo->fd->flags.visited && service_info)
                     save_channel(pinfo, BTSDP_RFCOMM_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
-            } else if (uuid == BTSDP_ATT_PROTOCOL_UUID) {
+            } else if (uuid.bt_uuid == BTSDP_ATT_PROTOCOL_UUID) {
                 proto_item_append_text(feature_item, ", GATT Handle Start: 0x%04x", value);
                 proto_item_append_text(entry_item, ", GATT Handle Start: 0x%04x", value);
                 wmem_strbuf_append_printf(info_buf, ":0x%04x.", value);
@@ -1782,7 +1821,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
             dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
             new_offset = get_type_length(tvb, entry_offset, &length);
 
-            if (uuid == BTSDP_BNEP_PROTOCOL_UUID) {
+            if (uuid.bt_uuid == BTSDP_BNEP_PROTOCOL_UUID) {
                 wmem_strbuf_append(info_buf, " (");
                 value_offset = new_offset;
                 while (value_offset - new_offset < length) {
@@ -1815,7 +1854,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        gint offset, gint attribute, guint16 service_uuid,
+        gint offset, gint attribute, uuid_t service_uuid,
         gint service_did_vendor_id, gint service_did_vendor_id_source,
         service_info_t  *service_info, wmem_strbuf_t **pinfo_buf)
 {
@@ -1852,6 +1891,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint8        *new_str;
     guint32        value;
     guint64        value_64;
+    uuid_t         uuid;
+    gchar         *uuid_str;
     gint           length;
     gint           protocol_order;
     wmem_strbuf_t *info_buf;
@@ -1870,7 +1911,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     offset = get_type_length(tvb, offset, &size);
 
     found = TRUE;
-    switch(service_uuid) {
+    switch(service_uuid.bt_uuid) {
         case BTSDP_DID_SERVICE_UUID:
             switch (attribute) {
                 case 0x200:
@@ -2898,15 +2939,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(next_tree, &entry_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &list_length);
 
-                if (list_length == 2) {
-                    proto_tree_add_item(entry_tree, hf_sdp_service_uuid, tvb, list_offset, list_length, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohs(tvb, list_offset);
-                } else {
-                    proto_tree_add_item(entry_tree, hf_sdp_service_long_uuid, tvb, list_offset, list_length, ENC_NA);
-                    value = 0;
-                }
+                dissect_uuid(entry_tree, tvb, list_offset, list_length, &uuid);
 
-                wmem_strbuf_append(info_buf, val_to_str_const(value, vs_service_classes, "Unknown"));
+                wmem_strbuf_append(info_buf, print_uuid(&uuid));
                 list_offset += list_length;
 
                 if (list_offset - offset < size)
@@ -2919,14 +2954,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             wmem_strbuf_append_printf(info_buf, "0x%08x (%u)", value, value);
             break;
         case 0x003:
-            if (size == 2) {
-                proto_tree_add_item(next_tree, hf_sdp_service_uuid, tvb, offset, size, ENC_BIG_ENDIAN);
-                value = tvb_get_ntohs(tvb, offset);
-            } else {
-                proto_tree_add_item(next_tree, hf_sdp_service_long_uuid, tvb, offset, size, ENC_NA);
-                value = 0;
-            }
-            wmem_strbuf_append(info_buf, val_to_str_const(value, vs_service_classes, "Unknown"));
+            dissect_uuid(next_tree, tvb, offset, size, &uuid);
+            wmem_strbuf_append(info_buf, print_uuid(&uuid));
             break;
         case 0x004:
             protocol_order = 0;
@@ -2939,15 +2968,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(next_tree, &entry_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &list_length);
 
-                if (list_length == 2) {
-                    proto_tree_add_item(entry_tree, hf_sdp_service_uuid, tvb, list_offset, list_length, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohs(tvb, list_offset);
-                } else {
-                    proto_tree_add_item(entry_tree, hf_sdp_service_long_uuid, tvb, list_offset, list_length, ENC_NA);
-                    value = 0;
-                }
+                dissect_uuid(entry_tree, tvb, list_offset, list_length, &uuid);
 
-                wmem_strbuf_append(info_buf, val_to_str_const(value, vs_service_classes, "Unknown"));
+                wmem_strbuf_append(info_buf, print_uuid(&uuid));
                 list_offset += list_length;
 
                 if (list_offset - offset < size)
@@ -3015,16 +3038,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
                 entry_offset = get_type_length(tvb, entry_offset, &entry_length);
 
-                if (entry_length == 2) {
-                    proto_tree_add_item(sub_tree, hf_sdp_service_uuid, tvb, entry_offset, entry_length, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohs(tvb, entry_offset);
-                } else {
-                    proto_tree_add_item(sub_tree, hf_sdp_service_long_uuid, tvb, entry_offset, entry_length, ENC_NA);
-                    value = 0;
-                }
+                dissect_uuid(sub_tree, tvb, entry_offset, entry_length, &uuid);
 
-                wmem_strbuf_append(info_buf, val_to_str_const(value, vs_service_classes, "Unknown"));
-                proto_item_append_text(entry_item, ": %s", val_to_str_const(value, vs_service_classes, "Unknown"));
+                uuid_str = print_uuid(&uuid);
+                wmem_strbuf_append(info_buf, uuid_str);
+                proto_item_append_text(entry_item, ": %s", uuid_str);
 
                 entry_offset += entry_length;
 
@@ -3120,18 +3138,10 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         wmem_strbuf_append_printf(info_buf, "%d ", val);
         break;
     }
-    case 3: {
-        guint32 id;
-
-        id = tvb_get_ntohs(tvb, offset);
-        if (size == 2)
-            proto_tree_add_item(next_tree, hf_data_element_value_uuid, tvb, offset, size, ENC_BIG_ENDIAN);
-        else
-            proto_tree_add_item(next_tree, hf_data_element_value_long_uuid, tvb, offset, size, ENC_NA);
-
-        wmem_strbuf_append_printf(info_buf, ": %s", val_to_str_ext_const(id, &vs_service_classes_ext, "Unknown service"));
+    case 3:
+        dissect_uuid(next_tree, tvb, offset, size, &uuid);
+        wmem_strbuf_append_printf(info_buf, ": %s", print_uuid(&uuid));
         break;
-    }
     case 8: /* fall through */
     case 4: {
         gchar *ptr = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, size);
@@ -3168,7 +3178,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 first = 0;
             }
 
-            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid, service_did_vendor_id, service_did_vendor_id_source, service_info, &substr);
+            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, uuid, service_did_vendor_id, service_did_vendor_id_source, service_info, &substr);
             if (size < 1) {
                 break;
             }
@@ -3250,7 +3260,7 @@ findDidVendorId(tvbuff_t *tvb, gint service_offset,
 
 static gint
 dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, guint16 service_uuid, gint service_offset,
+        packet_info *pinfo, uuid_t uuid, gint service_offset,
         service_info_t  *service_info, gint number_of_attributes)
 {
     proto_tree          *attribute_tree;
@@ -3274,7 +3284,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
     id = tvb_get_ntohs(tvb, offset + 1);
 
-    switch (service_uuid) {
+    switch (uuid.bt_uuid) {
         case BTSDP_DID_SERVICE_UUID:
             name_vals = vs_did_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_did;
@@ -3455,7 +3465,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     attribute_value_item = proto_tree_add_item(attribute_tree, hf_service_attribute_value, tvb, offset, -1, ENC_NA);
     attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
 
-    dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, service_uuid,
+    dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, uuid,
             service_did_vendor_id, service_did_vendor_id_source, service_info, &attribute_value);
     old_offset = offset;
     offset = get_type_length(tvb, offset, &size);
@@ -3483,8 +3493,8 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     guint16          attribute;
     gint             element_length;
     gint             new_offset;
-    guint16          service_uuid = 0;
     gint             service_offset;
+    uuid_t           uuid;
     wmem_tree_key_t  key[10];
     guint32          k_interface_id;
     guint32          k_adapter_id;
@@ -3519,12 +3529,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
             new_offset = 0;
             while (new_offset < search_offset) {
                 new_offset = get_type_length(tvb, search_offset, &element_length);
-                if (element_length == 2) {
-                    service_uuid = get_uint_by_size(tvb, new_offset, 1);
-                } else {
-                    /* Currently we do not support service uuid longer then 2 */
-                    service_uuid = 0;
-                }
+                dissect_uuid(NULL, tvb, new_offset, element_length, &uuid);
                 new_offset += element_length;
             }
         }
@@ -3547,7 +3552,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
             service_info->bd_addr_id  = 0;
         }
 
-        service_info->uuid           = service_uuid;
+        service_info->uuid           = uuid;
 
         service_info->type           = 0;
         service_info->channel        = 0;
@@ -3560,7 +3565,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     service_offset = offset;
     while ((offset - start_offset) < len) {
         offset = dissect_sdp_service_attribute(next_tree, tvb, offset, pinfo,
-                service_uuid, service_offset, service_info, number_of_attributes);
+                uuid, service_offset, service_info, number_of_attributes);
     }
 
     if (!pinfo->fd->flags.visited) {
@@ -3599,8 +3604,8 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     }
 
     proto_item_set_len(list_item, offset - start_offset);
-    proto_item_append_text(list_tree, " [count = %2u] (%s)",
-            number_of_attributes, val_to_str_const(service_uuid, vs_service_classes, "Unknown Service"));
+    proto_item_append_text(list_tree, " [count = %2u] (%s%s)",
+            number_of_attributes, (uuid.bt_uuid) ? "" : "UUID: ", print_uuid(&uuid));
 
     return offset;
 }
@@ -3709,7 +3714,9 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     gint            size;
     gint            bytes_to_go;
     wmem_strbuf_t  *info_buf = NULL;
+    uuid_t          empty_uuid;
 
+    memset(&empty_uuid, 0, sizeof(uuid_t));
     start_offset = offset;
     pitem = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     ptree = proto_item_add_subtree(pitem, ett_btsdp_attribute);
@@ -3719,7 +3726,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     proto_item_set_len(pitem, bytes_to_go + (offset - start_offset));
 
     while (bytes_to_go > 0) {
-        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, 0, 0, 0, NULL, &info_buf);
+        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &info_buf);
         proto_item_append_text(ptree, "%s", wmem_strbuf_get_str(info_buf));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(info_buf));
 
@@ -3828,8 +3835,10 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint        size;
     proto_item  *ti;
     proto_tree  *st;
+    uuid_t      empty_uuid;
 
     start_offset = offset;
+    memset(&empty_uuid, 0, sizeof(uuid_t));
 
     ti = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
@@ -3841,7 +3850,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     while (bytes_to_go > 0) {
         wmem_strbuf_t  *str = NULL;
 
-        size = dissect_sdp_type(st, pinfo, tvb, offset, -1, 0, 0, 0, NULL, &str);
+        size = dissect_sdp_type(st, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &str);
 
         proto_item_append_text(st, " %s", wmem_strbuf_get_str(str));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(str));
@@ -4171,13 +4180,23 @@ proto_register_btsdp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_data_element_value_uuid,
-            { "Value: UUID",                     "btsdp.data_element.value.uuid",
+        { &hf_data_element_value_uuid_16,
+            { "Value: UUID",                     "btsdp.data_element.value.uuid_16",
             FT_UINT16, BASE_HEX, VALS(vs_service_classes), 0,
             NULL, HFILL }
         },
-        { &hf_data_element_value_long_uuid,
-            { "Value: UUID",                     "btsdp.data_element.value.long_uuid",
+        { &hf_data_element_value_uuid_32,
+            { "Value: UUID",                     "btsdp.data_element.value.uuid_32",
+            FT_UINT16, BASE_HEX, VALS(vs_service_classes), 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_uuid_128,
+            { "Value: UUID",                     "btsdp.data_element.value.uuid_128",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_data_element_value_uuid,
+            { "Value: Custom UUID",              "btsdp.data_element.value.custom_uuid",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
@@ -4206,7 +4225,6 @@ proto_register_btsdp(void)
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
-
         { &hf_partial_record_handle_list,
             { "Partial Record Handle List",      "btsdp.partial_record_handle_list",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -4850,16 +4868,6 @@ proto_register_btsdp(void)
         { &hf_hfp_gw_network,
             { "Network",                                                  "btsdp.service.hfp.gw.network",
             FT_UINT8, BASE_HEX, VALS(hfp_gw_network_vals), 0,
-            NULL, HFILL }
-        },
-        { &hf_sdp_service_uuid,
-            { "Service UUID",                    "btsdp.service_uuid",
-            FT_UINT16, BASE_HEX, VALS(vs_service_classes), 0,
-            NULL, HFILL }
-        },
-        { &hf_sdp_service_long_uuid,
-            { "Service UUID",                    "btsdp.service_long_uuid",
-            FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_sdp_protocol_item,

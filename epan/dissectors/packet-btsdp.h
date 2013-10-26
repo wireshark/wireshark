@@ -159,6 +159,12 @@
 #define BTSDP_LOCAL_SERVICE_FLAG_MASK                   0x0001
 #define BTSDP_SECONDARY_CHANNEL_FLAG_MASK               0x0002
 
+typedef struct _uuid_t {
+    guint16  bt_uuid;
+    guint8   size;
+    guint8   data[16];
+} uuid_t;
+
 /* This structure is passed to other dissectors through the tap interface
  * and contains information about the relation between service, PSM/server
  * channel, local/remote service. The btrfcomm and btl2cap dissectors
@@ -188,7 +194,7 @@ typedef struct _service_info_t {
     guint32  type;
     guint32  channel;
 
-    guint32  uuid;
+    uuid_t   uuid;
     gint     protocol_order; /* main service protocol has 0, goep -1, additional protocol 1, 2... */
 
     void    *data;        /* Used to transfer service record data to profiles */

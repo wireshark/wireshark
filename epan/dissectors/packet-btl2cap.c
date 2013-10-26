@@ -372,7 +372,6 @@ static const range_string cid_rvals[] = {
 void proto_register_btl2cap(void);
 void proto_reg_handoff_btl2cap(void);
 
-
 static guint16
 get_service_uuid(packet_info *pinfo, guint16 psm, gboolean is_local_psm)
 {
@@ -453,7 +452,7 @@ get_service_uuid(packet_info *pinfo, guint16 psm, gboolean is_local_psm)
             service_info->bd_addr_id == 0)) &&
             service_info->type == BTSDP_L2CAP_PROTOCOL_UUID &&
             service_info->channel == psm) {
-        return service_info->uuid;
+        return service_info->uuid.bt_uuid;
     }
 
     return 0;

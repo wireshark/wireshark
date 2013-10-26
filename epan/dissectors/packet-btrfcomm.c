@@ -657,7 +657,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == 0x2f))
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-                        val_to_str_ext_const(service_info->uuid, &vs_service_classes_ext, "Unknown"));
+                        val_to_str_ext_const(service_info->uuid.bt_uuid, &vs_service_classes_ext, "Unknown"));
 
     /* UID frame */
     if ((frame_type == 0xef) && dlci && pf_flag) {
@@ -760,7 +760,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
                 next_tvb, pinfo, tree)) {
-            if (!dissector_try_uint(rfcomm_service_dissector_table, service_info->uuid,
+            if (!dissector_try_uint(rfcomm_service_dissector_table, service_info->uuid.bt_uuid,
                         next_tvb, pinfo, tree)) {
                 decode_by_dissector = find_proto_by_channel(dlci >> 1);
                 if (rfcomm_channels_enabled && decode_by_dissector) {

@@ -1252,8 +1252,8 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 service_info->bd_addr_id == 0)) &&
                 service_info->type == BTSDP_RFCOMM_PROTOCOL_UUID &&
                 service_info->channel == (rfcomm_data->dlci >> 1)) {
-            if ((service_info->uuid == BTSDP_HFP_GW_SERVICE_UUID && pinfo->p2p_dir == P2P_DIR_SENT) ||
-                (service_info->uuid == BTSDP_HFP_SERVICE_UUID && pinfo->p2p_dir == P2P_DIR_RECV)) {
+            if ((service_info->uuid.bt_uuid == BTSDP_HFP_GW_SERVICE_UUID && pinfo->p2p_dir == P2P_DIR_SENT) ||
+                (service_info->uuid.bt_uuid == BTSDP_HFP_SERVICE_UUID && pinfo->p2p_dir == P2P_DIR_RECV)) {
                 role = ROLE_HS;
             } else {
                 role = ROLE_AG;
