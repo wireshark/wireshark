@@ -1944,12 +1944,12 @@ proto_register_btobex(void)
         },
         { &hf_pbap_application_parameter_data_filter_reserved_29_31,
           { "Reserved", "btobex.parameter.value.filter.reserved_29_31",
-            FT_BOOLEAN, 32, NULL, 0xE0000000,
+            FT_UINT32, BASE_HEX, NULL, 0xE0000000,
             NULL, HFILL}
         },
         { &hf_pbap_application_parameter_data_filter_reserved_32_38,
           { "Reserved", "btobex.parameter.value.filter.reserved_32_38",
-            FT_BOOLEAN, 32, NULL, 0x0000007F,
+            FT_UINT32, BASE_HEX, NULL, 0x0000007F,
             NULL, HFILL}
         },
         { &hf_pbap_application_parameter_data_filter_proprietary_filter,
@@ -1959,7 +1959,7 @@ proto_register_btobex(void)
         },
         { &hf_pbap_application_parameter_data_filter_reserved_for_proprietary_filter_usage,
           { "Reserved for Proprietary Filter Usage", "btobex.parameter.value.filter.reserved_for_proprietary_filter_usage",
-            FT_BOOLEAN, 32, NULL, 0x7FFFFF00,
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFF00,
             NULL, HFILL}
         },
         { &hf_pbap_application_parameter_data_format,
@@ -1995,7 +1995,7 @@ proto_register_btobex(void)
         },
         { &hf_map_application_parameter_data_filter_message_type_reserved,
           { "Reserved", "btobex.parameter.value.filter_message_type.reserved",
-            FT_BOOLEAN, 8, NULL, 0xF0,
+            FT_UINT8, BASE_HEX, NULL, 0xF0,
             NULL, HFILL}
         },
         { &hf_map_application_parameter_data_filter_message_type_mms,
@@ -2030,7 +2030,7 @@ proto_register_btobex(void)
         },
         { &hf_map_application_parameter_data_filter_read_status_reserved_6,
           { "Filter Read Status: Reserved", "btobex.parameter.value.filter_read_status.reserved",
-            FT_BOOLEAN, 8, NULL, 0xFC,
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
             NULL, HFILL}
         },
         { &hf_map_application_parameter_data_filter_read_status_get_read,
@@ -2055,7 +2055,7 @@ proto_register_btobex(void)
         },
         { &hf_map_application_parameter_data_filter_priority_reserved_6,
           { "Filter Priority: Reserved", "btobex.parameter.value.filter_priority.reserved",
-            FT_BOOLEAN, 8, NULL, 0xFC,
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
             NULL, HFILL}
         },
         { &hf_map_application_parameter_data_filter_priority_get_high,
@@ -2070,7 +2070,7 @@ proto_register_btobex(void)
         },
         { &hf_map_application_parameter_data_reserved_7,
           { "Reserved", "btobex.parameter.value.reserved",
-            FT_BOOLEAN, 8, NULL, 0xFE,
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
             NULL, HFILL}
         },
         { &hf_map_application_parameter_data_attachment,
@@ -2105,7 +2105,7 @@ proto_register_btobex(void)
         },
         { &hf_map_application_parameter_data_parameter_mask_reserved,
           { "Parameter Mask: Reserved", "btobex.parameter.value.parameter_mask.reserved",
-            FT_BOOLEAN, 32, NULL, 0xFFFF0000,
+            FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
             NULL, HFILL}
         },
         { &hf_map_application_parameter_data_parameter_mask_reply_to_addressing,
