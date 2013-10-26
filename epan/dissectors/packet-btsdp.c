@@ -2045,8 +2045,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     supported_features = tvb_get_guint8(tvb, offset);
 
                     wmem_strbuf_append_printf(info_buf, "%s%s",
-                            (supported_features & 0x01) ? "SIM " : "",
-                            (supported_features & 0x02) ? "LocalPhonebook " : "");
+                            (supported_features & 0x01) ? "LocalPhonebook " : "",
+                            (supported_features & 0x02) ? "SIM " : "");
                     break;
                 default:
                     found = FALSE;
