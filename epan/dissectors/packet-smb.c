@@ -2700,7 +2700,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 static int
-dissect_empty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
+dissect_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
 	guint8      wc;
 	guint16     bc;
@@ -2724,7 +2724,7 @@ dissect_empty(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, p
 }
 
 static int
-dissect_rename_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
+dissect_rename_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
 	guint8      wc;
 	guint16     bc;
@@ -3239,7 +3239,7 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 }
 
 static int
-dissect_move_copy_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
+dissect_move_copy_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
 	int         fn_len;
 	const char *fn;
@@ -4351,7 +4351,7 @@ dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 bc, guint
 
 static int
 dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *top_tree, int offset, guint16 bc, guint16 datalen, guint16 fid, smb_info_t *smb_priv)
+    proto_tree *top_tree, int offset, guint16 bc, guint16 datalen, guint16 fid)
 {
 	int       tvblen;
 	tvbuff_t *dcerpc_tvb;
@@ -4366,7 +4366,7 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	tvblen = tvb_length_remaining(tvb, offset);
 	dcerpc_tvb = tvb_new_subset(tvb, offset, tvblen, bc);
-	dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree, tree, fid, smb_priv);
+	dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree, tree, fid);
 	if (bc > tvblen)
 		offset += tvblen;
 	else
@@ -4392,7 +4392,7 @@ dissect_file_data_maybe_dcerpc(tvbuff_t *tvb, packet_info *pinfo,
 	if ( (si->sip && (si->sip->flags & SMB_SIF_TID_IS_IPC)) && (ofs == 0) ) {
 		/* dcerpc call */
 		return dissect_file_data_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, datalen, fid, si);
+		    top_tree, offset, bc, datalen, fid);
 	} else {
 		/* ordinary file data */
 		return dissect_file_data(tvb, tree, offset, bc, datalen);
@@ -5382,7 +5382,7 @@ dissect_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
 }
 
 static int
-dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
+dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc,
     gboolean has_find_id, smb_info_t *si)
 {
@@ -5502,7 +5502,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si, 
+    proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si,
     gboolean has_find_id)
 {
 	int         fn_len;
@@ -9450,7 +9450,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
+dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 				int offset, proto_tree *parent_tree,
 				int len, nt_trans_data *ntd _U_, smb_info_t *si)
 {
@@ -9702,7 +9702,7 @@ static const value_string print_mode_vals[] = {
 };
 
 static int
-dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
+dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
 	int         fn_len;
 	const char *fn;
@@ -9812,7 +9812,7 @@ dissect_get_print_queue_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
+dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
 	proto_item *item = NULL;
@@ -11399,7 +11399,7 @@ dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 /* dfs inconsistency data  (4.4.2)
 */
 static int
-dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
+dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *tree, int offset, guint16 *bcp, smb_info_t *si)
 {
 	int         fn_len;
@@ -11650,7 +11650,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 /* get dfs referral data  (4.4.1)
 */
 int
-dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
+dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *tree, int offset, guint16 *bcp, gboolean unicode)
 {
 	guint16     numref;
@@ -12050,7 +12050,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
    as described in 4.2.16.3
 */
 static int
-dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
 	int         fn_len;
@@ -12253,7 +12253,7 @@ dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
    rather than the long name
 */
 int
-dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc, gboolean unicode)
 {
 	int         fn_len;
@@ -12576,7 +12576,7 @@ dissect_4_2_16_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* 4.2.16.13 - SMB_QUERY_FILE_UNIX_LINK */
 
 static int
-dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		  int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
 	const char *fn;
@@ -13012,7 +13012,7 @@ static const true_false_string tfs_smb_replace = {
 };
 
 static int
-dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		    int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
 	const char *fn;
@@ -13052,7 +13052,7 @@ dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		    int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
 #if 0
@@ -13073,7 +13073,7 @@ dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 int
-dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		    int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* pipe info flag */

@@ -3227,7 +3227,7 @@ smb_dcerpc_reassembly_init(void)
 
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
-    proto_tree *tree, guint32 fid, smb_info_t *smb_priv)
+    proto_tree *tree, guint32 fid)
 {
 	gboolean result=0;
 	gboolean save_fragmented;
@@ -3631,7 +3631,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (fid != -1) {
 				if (d_tvb == NULL)
 					return FALSE;
-		                return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid, smb_info);
+		                return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid);
 		        }
 			break;
 		}
