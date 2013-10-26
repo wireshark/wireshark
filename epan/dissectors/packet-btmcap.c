@@ -320,7 +320,7 @@ void
 proto_register_btmcap(void)
 {
     module_t *module;
-	expert_module_t* expert_btmcap;
+    expert_module_t *expert_btmcap;
 
     static hf_register_info hf[] = {
         { &hf_btmcap_op_code,

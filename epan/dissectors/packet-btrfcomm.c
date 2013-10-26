@@ -768,7 +768,7 @@ void
 proto_register_btrfcomm(void)
 {
     module_t *module;
-	expert_module_t* expert_btrfcomm;
+    expert_module_t *expert_btrfcomm;
 
     static hf_register_info hf[] = {
         { &hf_dlci,

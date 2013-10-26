@@ -3967,7 +3967,7 @@ void
 proto_register_btsdp(void)
 {
     module_t *module;
-	expert_module_t* expert_btsdp;
+    expert_module_t *expert_btsdp;
 
     static hf_register_info hf[] = {
         { &hf_pdu_id,

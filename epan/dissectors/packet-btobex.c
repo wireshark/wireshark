@@ -643,7 +643,7 @@ dissect_raw_application_parameters(tvbuff_t *tvb, proto_tree *tree, gint offset,
         proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset,
                 1, ENC_BIG_ENDIAN);
         parameter_length = tvb_get_guint8(tvb, offset);
-		proto_item_set_len(parameter_item, parameter_length + 2);
+        proto_item_set_len(parameter_item, parameter_length + 2);
         offset += 1;
 
         proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset,
@@ -1586,6 +1586,8 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_btobex(void)
 {
+    expert_module_t *expert_btobex;
+
     static hf_register_info hf[] = {
         { &hf_opcode,
           { "Opcode", "btobex.opcode",
@@ -2291,8 +2293,6 @@ proto_register_btobex(void)
     static ei_register_info ei[] = {
         { &ei_application_parameter_length_bad, { "btobex.parameter.length.bad", PI_PROTOCOL, PI_WARN, "Parameter length bad", EXPFILL }},
     };
-
-	expert_module_t* expert_btobex;
 
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

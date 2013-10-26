@@ -587,7 +587,7 @@ void
 proto_register_btsap(void)
 {
     module_t *module;
-	expert_module_t* expert_btsap;
+    expert_module_t *expert_btsap;
 
     static hf_register_info hf[] = {
         { &hf_btsap_header_msg_id,

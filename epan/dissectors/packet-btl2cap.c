@@ -1890,7 +1890,7 @@ btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *ed
 void
 proto_register_btl2cap(void)
 {
-
+    expert_module_t *expert_btl2cap;
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_btl2cap_length,
@@ -2330,8 +2330,6 @@ proto_register_btl2cap(void)
         { &ei_btl2cap_sdulength_bad, { "btl2cap.sdulength.bad", PI_MALFORMED, PI_WARN, "SDU length bad", EXPFILL }},
         { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length bad", EXPFILL }},
     };
-
-	expert_module_t* expert_btl2cap;
 
     /* Register the protocol name and description */
     proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "BT L2CAP", "btl2cap");
