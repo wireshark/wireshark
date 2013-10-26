@@ -56,6 +56,7 @@ example_s ex6rel = {".81.127.16383.2097151.268435455.128.16384.2097152.268435456
     ".81.127.16383.2097151.268435455.128.16384.2097152.268435456",
     25, "\x51\x7f\xff\x7f\xff\xff\x7f\xff\xff\xff\x7f\x81\x00\x81\x80\x00\x81\x80\x80\x00\x81\x80\x80\x80\x00",
     9, { 81, 0x7F, 0x3FFF, 0x1FFFFF, 0x0FFFFFFF, 1+0x7F, 1+0x3FFF, 1+0x1FFFFF, 1+0x0FFFFFFF} };
+example_s ex7 = {"2.1.1", "joint-iso-itu-t.asn1.basic-encoding", 2, "\x51\x01", 3, {2,1,1} };
 
 /*
  * These test are organized in order of the appearance, in oids.h, of
@@ -404,6 +405,36 @@ oids_test_2struct_string(void)
         g_assert(subids[i] == ex1.subids[i]);
 }
 
+static void
+oids_test_add_subids(void)
+{
+    const gchar* oid;
+
+    oid_add(ex7.resolved, ex7.subids_len, ex7.subids);
+    oid = oid_resolved(ex7.subids_len, ex7.subids);
+    g_assert_cmpstr(oid, ==, ex7.resolved);
+}
+
+static void
+oids_test_add_encoded(void)
+{
+    const gchar* oid;
+
+    oid_add_from_encoded(ex7.resolved, ex7.encoded, ex7.encoded_len);
+    oid = oid_resolved(ex7.subids_len, ex7.subids);
+    g_assert_cmpstr(oid, ==, ex7.resolved);
+}
+
+static void
+oids_test_add_string(void)
+{
+    const gchar* oid;
+
+    oid_add_from_string(ex7.resolved, ex7.string);
+    oid = oid_resolved(ex7.subids_len, ex7.subids);
+    g_assert_cmpstr(oid, ==, ex7.resolved);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -452,7 +483,10 @@ main(int argc, char **argv)
     g_test_add_func("/oids/2struct/encoded",   oids_test_2struct_encoded);
     g_test_add_func("/oids/2struct/string",   oids_test_2struct_string);
 
-    /* TODO: add tests for varios oid_add functions and retest name resolution */
+    /* /oids/add */
+    g_test_add_func("/oids/add/subids",   oids_test_add_subids);
+    g_test_add_func("/oids/add/encoded",   oids_test_add_encoded);
+    g_test_add_func("/oids/add/string",   oids_test_add_string);
 
     emem_init();
     wmem_init();
