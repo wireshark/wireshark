@@ -841,6 +841,8 @@ static const value_string vs_service_classes[] = {
     { 0x1137,   "3D Display" },
     { 0x1138,   "3D Glasses" },
     { 0x1139,   "3D Synchronization Profile" },
+    { 0x113A,   "Multi-Profile" },
+    { 0x113B,   "Multi-Profile SC" },
     { 0x1200,   "PnP Information" },
     { 0x1201,   "Generic Networking" },
     { 0x1202,   "Generic File Transfer" },
