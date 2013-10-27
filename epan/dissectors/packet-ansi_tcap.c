@@ -434,7 +434,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
          * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
          * coded as 0.
          */
-        call_dissector(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree);
+        call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree, &ansi_tcap_private);
 
         return TRUE;
 }
@@ -1429,7 +1429,6 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     cur_oid = NULL;
     tcapext_oid = NULL;
 
-    pinfo->private_data = &ansi_tcap_private;
     gp_tcapsrt_info=tcapsrt_razinfo();
     tcap_subdissector_used=FALSE;
     gp_tcap_context=NULL;
@@ -1740,7 +1739,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 489 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 488 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1778,7 +1777,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 500 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 499 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static const enum_val_t ansi_tcap_response_matching_type_values[] = {

@@ -1189,9 +1189,8 @@ ansi_map_init_protocol(void)
 
 /* Store Invoke information needed for the corresponding reply */
 static void
-update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
+update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_private_tcap){
     struct ansi_map_invokedata_t *ansi_map_saved_invokedata;
-    struct ansi_tcap_private_t *p_private_tcap;
     address* src = &(pinfo->src);
     address* dst = &(pinfo->dst);
     guint8 *src_str;
@@ -1202,39 +1201,35 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
     dst_str = ep_address_to_str(dst);
 
     /* Data from the TCAP dissector */
-    if (pinfo->private_data != NULL){
-        p_private_tcap=(struct ansi_tcap_private_t *)pinfo->private_data;
-        if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
-            /* Only do this once XXX I hope it's the right thing to do */
-            /* The hash string needs to contain src and dest to distiguish differnt flows */
-            switch(ansi_map_response_matching_type){
-                case ANSI_MAP_TID_ONLY:
-                    buf = wmem_strdup(wmem_packet_scope(), p_private_tcap->TransactionID_str);
-                    break;
-                case 1:
-                    buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",p_private_tcap->TransactionID_str,src_str);
-                    break;
-                default:
-                    buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
-                    break;
-            }
-            /* If the entry allready exists don't owervrite it */
-            ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
-            if(ansi_map_saved_invokedata)
-                return;
-
-            ansi_map_saved_invokedata = wmem_new(wmem_file_scope(), struct ansi_map_invokedata_t);
-            ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
-            ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
-
-            g_hash_table_insert(TransactionId_table,
-                                wmem_strdup(wmem_file_scope(), buf),
-                                ansi_map_saved_invokedata);
-
-            /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/
+    if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
+        /* Only do this once XXX I hope it's the right thing to do */
+        /* The hash string needs to contain src and dest to distiguish differnt flows */
+        switch(ansi_map_response_matching_type){
+            case ANSI_MAP_TID_ONLY:
+                buf = wmem_strdup(wmem_packet_scope(), p_private_tcap->TransactionID_str);
+                break;
+            case 1:
+                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",p_private_tcap->TransactionID_str,src_str);
+                break;
+            default:
+                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+                break;
         }
-    }
+        /* If the entry allready exists don't owervrite it */
+        ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
+        if(ansi_map_saved_invokedata)
+            return;
 
+        ansi_map_saved_invokedata = wmem_new(wmem_file_scope(), struct ansi_map_invokedata_t);
+        ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
+        ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
+
+        g_hash_table_insert(TransactionId_table,
+                            wmem_strdup(wmem_file_scope(), buf),
+                            ansi_map_saved_invokedata);
+
+        /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/
+    }
 }
 /* value strings */
 const value_string ansi_map_opr_code_strings[] = {
@@ -15511,7 +15506,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3637 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3632 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -16208,9 +16203,8 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 }
 
 static int
-find_saved_invokedata(asn1_ctx_t *actx){
+find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tcap){
     struct ansi_map_invokedata_t *ansi_map_saved_invokedata;
-    struct ansi_tcap_private_t *p_private_tcap;
     address* src = &(actx->pinfo->src);
     address* dst = &(actx->pinfo->dst);
     guint8 *src_str;
@@ -16220,45 +16214,40 @@ find_saved_invokedata(asn1_ctx_t *actx){
     buf=(char *)wmem_alloc(wmem_packet_scope(), 1024);
 
     /* Data from the TCAP dissector */
-    if (actx->pinfo->private_data != NULL){
-        p_private_tcap=(struct ansi_tcap_private_t *)actx->pinfo->private_data;
-        /* The hash string needs to contain src and dest to distiguish differnt flows */
-        src_str = ep_address_to_str(src);
-        dst_str = ep_address_to_str(dst);
-        /* Reverse order to invoke */
-        switch(ansi_map_response_matching_type){
-            case ANSI_MAP_TID_ONLY:
-                g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
-                break;
-            case 1:
-                g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
-                break;
-            default:
-                g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
-                break;
-        }
+    /* The hash string needs to contain src and dest to distiguish differnt flows */
+    src_str = ep_address_to_str(src);
+    dst_str = ep_address_to_str(dst);
+    /* Reverse order to invoke */
+    switch(ansi_map_response_matching_type){
+        case ANSI_MAP_TID_ONLY:
+            g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+            break;
+        case 1:
+            g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
+            break;
+        default:
+            g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
+            break;
+    }
 
-        /*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);*/
-        ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
-        if(ansi_map_saved_invokedata){
-            OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
-            ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
-        }else{
-            OperationCode = OperationCode & 0x00ff;
-        }
+    /*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);*/
+    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
+    if(ansi_map_saved_invokedata){
+        OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
+        ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
     }else{
-        /*g_warning("No private data pkt: %u",actx->pinfo->fd->num);*/
         OperationCode = OperationCode & 0x00ff;
     }
+
     return OperationCode;
 }
 
-static void
-dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *ansi_map_item;
     proto_tree *ansi_map_tree = NULL;
-    struct ansi_tcap_private_t *p_private_tcap;
+    struct ansi_tcap_private_t *p_private_tcap = (struct ansi_tcap_private_t *)data;
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -16272,9 +16261,9 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
 
     /* Data from the TCAP dissector */
-    if (pinfo->private_data == NULL){
-        proto_tree_add_text(tree, tvb, 0, -1, "Dissector ERROR this dissector relays on private data");
-        return;
+    if (data == NULL){
+        proto_tree_add_text(tree, tvb, 0, -1, "Dissector ERROR this dissector relies on dissector data");
+        return 0;
     }
 
     /*
@@ -16286,8 +16275,6 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is683_ota = FALSE;
     is801_pld = FALSE;
     ServiceIndicator = 0;
-
-    p_private_tcap=(struct ansi_tcap_private_t *)pinfo->private_data;
 
     switch(p_private_tcap->d.pdu){
         /*
@@ -16302,10 +16289,10 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
-        update_saved_invokedata(pinfo, ansi_map_tree, tvb);
+        update_saved_invokedata(pinfo, p_private_tcap);
         break;
     case 2:
-        OperationCode = find_saved_invokedata(&asn1_ctx);
+        OperationCode = find_saved_invokedata(&asn1_ctx, p_private_tcap);
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
@@ -16321,6 +16308,8 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         DISSECTOR_ASSERT_NOT_REACHED();
         break;
     }
+
+    return tvb_length(tvb);
 }
 
 static void range_delete_callback(guint32 ssn)
@@ -19357,7 +19346,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5290 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5279 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19618,7 +19607,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5323 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5312 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static const enum_val_t ansi_map_response_matching_type_values[] = {
@@ -19634,7 +19623,7 @@ void proto_register_ansi_map(void) {
     proto_register_field_array(proto_ansi_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
+    new_register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 
     is637_tele_id_dissector_table =
         register_dissector_table("ansi_map.tele_id", "IS-637 Teleservice ID",

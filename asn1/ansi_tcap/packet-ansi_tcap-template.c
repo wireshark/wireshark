@@ -343,7 +343,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
          * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
          * coded as 0.
          */
-        call_dissector(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree);
+        call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree, &ansi_tcap_private);
 
         return TRUE;
 }
@@ -383,7 +383,6 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     cur_oid = NULL;
     tcapext_oid = NULL;
 
-    pinfo->private_data = &ansi_tcap_private;
     gp_tcapsrt_info=tcapsrt_razinfo();
     tcap_subdissector_used=FALSE;
     gp_tcap_context=NULL;
