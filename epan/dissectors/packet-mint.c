@@ -64,7 +64,6 @@ static int ett_mint = -1;
 static int ett_mint_header = -1;
 static int ett_mint_ctrl = -1;
 static int ett_mint_data = -1;
-static int ett_mint_eth = -1;
 
 static dissector_handle_t mint_control_handle;
 static dissector_handle_t mint_data_handle;
@@ -86,6 +85,35 @@ static const value_string mint_packettype_vals[] = {
 	{ MINT_TYPE_CTRL_0x0e,	"Ctrl_0x0e"},
 	{ MINT_TYPE_CTRL_0x1e,	"Ctrl_0x1e"},
 	{ MINT_TYPE_ETH_0x22,	"Eth_0x22"},
+
+	{ 0,    NULL }
+};
+
+
+static const value_string mint_0x0c_csnp_tlv_vals[] = {
+
+	{ 0,    NULL }
+};
+
+static const value_string mint_0x0c_helo_tlv_vals[] = {
+	{ 1,	"MiNT ID" },
+	{ 8,	"IPv4 address" },
+
+	{ 0,    NULL }
+};
+
+static const value_string mint_0x0c_lsp_tlv_vals[] = {
+	{ 8,	"MiNT ID" },
+
+	{ 0,    NULL }
+};
+
+static const value_string mint_0x0c_psnp_tlv_vals[] = {
+
+	{ 0,    NULL }
+};
+
+static const value_string mint_0x22_tlv_vals[] = {
 
 	{ 0,    NULL }
 };
@@ -148,23 +176,110 @@ static header_field_info hfi_mint_data_unknown1 MINT_HF_INIT =
 	{ "DataUnk1",	"mint.data.unknown1", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT Control */
+/* MiNT Control common */
 static header_field_info hfi_mint_control MINT_HF_INIT =
 	{ "Control Frame",    "mint.control", FT_PROTOCOL, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_32zerobytes MINT_HF_INIT =
+	{ "Zero Bytes",	"mint.control.32zerobytes", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
 static header_field_info hfi_mint_control_unknown1 MINT_HF_INIT =
 	{ "CtrlUnk1",	"mint.control.unknown1", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT Eth */
-static header_field_info hfi_mint_eth MINT_HF_INIT =
-	{ "Ethernet Frame",    "mint.eth", FT_PROTOCOL, BASE_NONE, NULL,
+/* MiNT Control type 0x0c */
+static header_field_info hfi_mint_control_0x0c_unknown1 MINT_HF_INIT =
+	{ "Unknown1",	"mint.control.0x0c.unknown1", FT_UINT8, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_eth_unknown1 MINT_HF_INIT =
-	{ "EthUnk1",	"mint.eth.unknown1", FT_BYTES, BASE_NONE, NULL,
+static header_field_info hfi_mint_control_0x0c_unknown2 MINT_HF_INIT =
+	{ "Unknown2",	"mint.control.0x0c.unknown2", FT_UINT8, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_unknown3 MINT_HF_INIT =
+	{ "Unknown3",	"mint.control.0x0c.unknown3", FT_UINT8, BASE_HEX, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_unknown4 MINT_HF_INIT =
+	{ "Unknown4",	"mint.control.0x0c.unknown4", FT_UINT8, BASE_HEX, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_header_length MINT_HF_INIT =
+	{ "Headerlength",	"mint.control.0x0c.header.length", FT_UINT8, BASE_HEX, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_message_type MINT_HF_INIT =
+	{ "Message type",	"mint.control.0x0c.message.type", FT_STRING, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_header_sender MINT_HF_INIT =
+	{ "Sender ID",	"mint.control.0x0c.header.sender", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_header_unknown MINT_HF_INIT =
+	{ "Header unknown",	"mint.control.0x0c.header.unknown", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_type_unknown MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_type_csnp MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_csnp_tlv_vals),
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_type_helo MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_helo_tlv_vals),
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_type_lsp MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_lsp_tlv_vals),
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_type_psnp MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_psnp_tlv_vals),
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_length MINT_HF_INIT =
+	{ "TLV Length",	"mint.control.0x0c.tlvlength", FT_UINT8, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_array MINT_HF_INIT =
+	{ "Array indicator",	"mint.control.0x0c.array", FT_UINT8, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_element MINT_HF_INIT =
+	{ "Array element",	"mint.control.0x0c.element", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x0c_value MINT_HF_INIT =
+	{ "TLV Value",	"mint.control.0x0c.tlvvalue", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+/* MiNT Control type 0x1e */
+static header_field_info hfi_mint_control_0x1e_unknown MINT_HF_INIT =
+	{ "Unknown",	"mint.control.0x22.unknown", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+/* MiNT Control type 0x22 */
+static header_field_info hfi_mint_control_0x22_message MINT_HF_INIT =
+	{ "Message",	"mint.control.0x22.message", FT_UINT16, BASE_HEX, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x22_type MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.0x22.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x22_tlv_vals),
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x22_length MINT_HF_INIT =
+	{ "TLV Length",	"mint.control.0x22.tlvlength", FT_UINT8, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_0x22_value MINT_HF_INIT =
+	{ "TLV Value",	"mint.control.0x22.tlvvalue", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
 /* End hfi elements */
 
 static int
@@ -201,9 +316,12 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *mint_header_tree = NULL;
 	proto_tree *mint_data_tree = NULL;
 	proto_tree *mint_ctrl_tree = NULL;
-	proto_tree *mint_eth_tree = NULL;
 	guint16 bytes_remaining;
 	guint16 packet_type;
+	guint8 type, length, header_length;
+	guint32 message_type;
+	guint8 element_length;
+	static header_field_info *display_hfi_tlv_vals;
 
 	if (!tree)
 		return packet_length;
@@ -275,38 +393,142 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset, packet_length - offset);
 		break;
         case MINT_TYPE_CTRL_0x0c:
-        case MINT_TYPE_CTRL_0x0e:
+		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
+			offset, packet_length - 16, ENC_NA);
+		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
+			offset, 32, ENC_NA);
+		offset += 32;
+
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_unknown1, tvb,
+			offset, 1, ENC_NA);
+		offset += 1;
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_unknown2, tvb,
+			offset, 1, ENC_NA);
+		offset += 1;
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_unknown3, tvb,
+			offset, 1, ENC_NA);
+		offset += 1;
+		header_length = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_header_length, tvb,
+			offset, 1, ENC_NA);
+		offset += 1;
+		message_type = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_message_type, tvb,
+			offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_header_sender, tvb,
+			offset, 4, ENC_NA);
+		offset += 4;
+		switch (message_type) {
+			case 0x43534E50: /* CSNP */
+				element_length = 12;
+				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_csnp;
+				break;
+			case 0x48454C4F: /* HELO */
+				element_length = 0;
+				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_helo;
+				break;
+			case 0x4C535000: /* LSP */
+				element_length = 8;
+				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_lsp;
+				break;
+			case 0x50534E50: /* PSNP */
+				element_length = 4;
+				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_psnp;
+				break;
+			default:
+				element_length = 0;
+				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_unknown;
+		}
+		/* FIXME: This should go into the per message_type switch above */
+		if (header_length > 12) {
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_header_unknown, tvb,
+				offset, header_length - 12, ENC_NA);
+			offset += header_length - 12;
+		}
+		while (offset < packet_length - 2) {
+			type = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(mint_ctrl_tree, display_hfi_tlv_vals, tvb,
+				offset, 1, ENC_NA);
+			offset += 1;
+			length = tvb_get_guint8(tvb, offset);
+			/* FIXME: This is a hack - reliable array detection missing */
+			if (type == 1 && length == 128) {
+				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_array, tvb,
+					offset, 1, ENC_NA);
+				offset += 1;
+				length = tvb_get_guint8(tvb, offset);
+			}
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_length, tvb,
+				offset, 1, ENC_NA);
+			offset += 1;
+			if (offset + length > packet_length) {
+				/* FIXME: print expert information */
+				break;
+			}
+			if (type == 1 && element_length) {
+				guint32 end_offset = offset + length;
+				for (; offset < end_offset; offset += element_length) {
+					proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_element, tvb,
+						offset, element_length, ENC_NA);
+				}
+			} else {
+				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_value, tvb,
+					offset, length, ENC_NA);
+				offset += length;
+			}
+		}
+		break;
         case MINT_TYPE_CTRL_0x1e:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
+			offset, 32, ENC_NA);
+		offset += 32;
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_unknown1, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x1e_unknown, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
         case MINT_TYPE_ETH_0x22:
-		ti = proto_tree_add_item(mint_tree, &hfi_mint_eth, tvb,
+		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
-		mint_eth_tree = proto_item_add_subtree(ti, ett_mint_eth);
-		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_eth_tree, &hfi_mint_eth_unknown1, tvb,
-			offset, bytes_remaining, ENC_NA);
-		offset += bytes_remaining;
+		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
+			offset, 32, ENC_NA);
+		offset += 32;
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_message, tvb,
+			offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		while (offset < packet_length - 2) {
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_type, tvb,
+				offset, 1, ENC_NA);
+			offset += 1;
+			length = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_length, tvb,
+				offset, 1, ENC_NA);
+			offset += 1;
+			if (offset + length > packet_length) {
+				/* print expert information */
+				break;
+			}
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_value, tvb,
+				offset, length, ENC_NA);
+			offset += length;
+		}
 		break;
 	default:
 		bytes_remaining = packet_length - offset;
 		switch(received_via) {
 		case PORT_MINT_CONTROL_TUNNEL:
+		case ETHERTYPE_MINT:
 			proto_tree_add_item(mint_tree, &hfi_mint_control_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		case PORT_MINT_DATA_TUNNEL:
 			proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
-				offset, bytes_remaining, ENC_NA);
-			break;
-		case ETHERTYPE_MINT:
-			proto_tree_add_item(mint_tree, &hfi_mint_eth_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		default:
@@ -316,11 +538,11 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	}
 #if defined MINT_DEVELOPMENT
-	/* tree_expanded_set(ett_mint, TRUE); */
+	tree_expanded_set(ett_mint, TRUE);
+	tree_expanded_set(ett_mint_ethshim, TRUE);
 	tree_expanded_set(ett_mint_header, TRUE);
 	tree_expanded_set(ett_mint_ctrl, TRUE);
 	tree_expanded_set(ett_mint_data, TRUE);
-	tree_expanded_set(ett_mint_eth, TRUE);
 #endif
 	return offset;
 }
@@ -350,7 +572,7 @@ dissect_mint_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_mint_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mint_ethshim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *mint_ethshim_tree = NULL;
@@ -441,12 +663,12 @@ dissect_mint_data_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 }
 
 static int
-dissect_mint_eth_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mint_ethshim_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_mint_eth(tvb) ) {
 		return 0;
 	}
-	return dissect_mint_eth(tvb, pinfo, tree);
+	return dissect_mint_ethshim(tvb, pinfo, tree);
 }
 
 void
@@ -465,17 +687,40 @@ proto_register_mint(void)
 		&hfi_mint_header_dstid,
 		&hfi_mint_header_srcdatatype,
 		&hfi_mint_header_dstdatatype,
-	/* MiNT Control */
-		&hfi_mint_control,
-		&hfi_mint_control_unknown1,
 	/* MiNT Data */
 		&hfi_mint_data,
 		&hfi_mint_data_vlan,
 		&hfi_mint_data_seqno,
 		&hfi_mint_data_unknown1,
-	/* MiNT Eth */
-		&hfi_mint_eth,
-		&hfi_mint_eth_unknown1,
+	/* MiNT Control */
+		&hfi_mint_control,
+		&hfi_mint_control_32zerobytes,
+		&hfi_mint_control_unknown1,
+	/* MiNT Control 0x0c */
+		&hfi_mint_control_0x0c_message_type,
+		&hfi_mint_control_0x0c_header_sender,
+		&hfi_mint_control_0x0c_unknown1,
+		&hfi_mint_control_0x0c_unknown2,
+		&hfi_mint_control_0x0c_unknown3,
+		&hfi_mint_control_0x0c_unknown4,
+		&hfi_mint_control_0x0c_header_length,
+		&hfi_mint_control_0x0c_header_unknown,
+		&hfi_mint_control_0x0c_type_unknown,
+		&hfi_mint_control_0x0c_type_csnp,
+		&hfi_mint_control_0x0c_type_helo,
+		&hfi_mint_control_0x0c_type_lsp,
+		&hfi_mint_control_0x0c_type_psnp,
+		&hfi_mint_control_0x0c_length,
+		&hfi_mint_control_0x0c_array,
+		&hfi_mint_control_0x0c_element,
+		&hfi_mint_control_0x0c_value,
+	/* MiNT Control 0x1e */
+		&hfi_mint_control_0x1e_unknown,
+	/* MiNT Control 0x22 */
+		&hfi_mint_control_0x22_message,
+		&hfi_mint_control_0x22_type,
+		&hfi_mint_control_0x22_length,
+		&hfi_mint_control_0x22_value,
 	};
 	static gint *ett[] = {
 		&ett_mint_ethshim,
@@ -483,7 +728,6 @@ proto_register_mint(void)
 		&ett_mint_header,
 		&ett_mint_ctrl,
 		&ett_mint_data,
-		&ett_mint_eth,
 	};
 
 	int proto_mint;
@@ -495,7 +739,7 @@ proto_register_mint(void)
 
 	mint_control_handle = new_create_dissector_handle(dissect_mint_control_static, proto_mint);
 	mint_data_handle = new_create_dissector_handle(dissect_mint_data_static, proto_mint);
-	mint_eth_handle = new_create_dissector_handle(dissect_mint_eth_static, proto_mint);
+	mint_eth_handle = new_create_dissector_handle(dissect_mint_ethshim_static, proto_mint);
 }
 
 void
