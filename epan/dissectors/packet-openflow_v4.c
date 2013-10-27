@@ -35,6 +35,9 @@
 
 void proto_register_openflow_v4(void);
 void proto_reg_handoff_openflow_v4(void);
+
+static dissector_handle_t eth_withoutfcs_handle;
+
 static int proto_openflow_v4 = -1;
 static int hf_openflow_v4_version = -1;
 static int hf_openflow_v4_type = -1;
@@ -124,6 +127,8 @@ static int hf_openflow_v4_error_data_text = -1;
 static int hf_openflow_v4_error_data_body = -1;
 static int hf_openflow_v4_error_experimenter = -1;
 static int hf_openflow_v4_echo_data = -1;
+static int hf_openflow_v4_experimenter_experimenter = -1;
+static int hf_openflow_v4_experimenter_exp_type = -1;
 static int hf_openflow_v4_datapath_id = -1;
 static int hf_openflow_datapath_v4_mac = -1;
 static int hf_openflow_v4_datapath_impl = -1;
@@ -140,6 +145,23 @@ static int hf_openflow_v4_group_stats = -1;
 static int hf_openflow__v4_ip_reasm = -1;
 static int hf_openflow_v4_queue_stats = -1;
 static int hf_openflow_v4_port_blocked = -1;
+static int hf_openflow_v4_switch_config_flags = -1;
+static int hf_openflow_v4_switch_config_flags_fragments = -1;
+static int hf_openflow_v4_switch_config_miss_send_len = -1;
+static int hf_openflow_v4_switch_config_miss_send_len_reserved = -1;
+static int hf_openflow_v4_packet_in_buffer_id = -1;
+static int hf_openflow_v4_packet_in_buffer_id_reserved = -1;
+static int hf_openflow_v4_packet_in_total_len = -1;
+static int hf_openflow_v4_packet_in_reason = -1;
+static int hf_openflow_v4_packet_in_table_id = -1;
+static int hf_openflow_v4_packet_in_cookie = -1;
+static int hf_openflow_v4_packet_in_pad = -1;
+static int hf_openflow_v4_packet_out_buffer_id = -1;
+static int hf_openflow_v4_packet_out_buffer_id_reserved = -1;
+static int hf_openflow_v4_packet_out_in_port = -1;
+static int hf_openflow_v4_packet_out_in_port_reserved = -1;
+static int hf_openflow_v4_packet_out_acts_len = -1;
+static int hf_openflow_v4_packet_out_pad = -1;
 static int hf_openflow_v4_flowmod_cookie = -1;
 static int hf_openflow_v4_flowmod_cookie_mask = -1;
 static int hf_openflow_v4_flowmod_table_id = -1;
@@ -192,6 +214,9 @@ static gint ett_openflow_v4_instruction = -1;
 static gint ett_openflow_v4_instruction_actions_actions = -1;
 static gint ett_openflow_v4_hello_element = -1;
 static gint ett_openflow_v4_error_data = -1;
+static gint ett_openflow_v4_switch_config_flags = -1;
+static gint ett_openflow_v4_packet_in_data = -1;
+static gint ett_openflow_v4_packet_out_data = -1;
 
 static expert_field ei_openflow_v4_match_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_oxm_undecoded = EI_INIT;
@@ -199,6 +224,7 @@ static expert_field ei_openflow_v4_action_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_instruction_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_hello_element_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_error_undecoded = EI_INIT;
+static expert_field ei_openflow_v4_experimenter_undecoded = EI_INIT;
 
 static const value_string openflow_v4_version_values[] = {
     { 0x01, "1.0" },
@@ -1053,6 +1079,25 @@ dissect_openflow_echo_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     }
 }
 
+
+static void
+dissect_openflow_experimenter_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+{
+    /* uint32_t experimenter; */
+    proto_tree_add_item(tree, hf_openflow_v4_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t exp_type; */
+    proto_tree_add_item(tree, hf_openflow_v4_experimenter_exp_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* data */
+    if (offset < length) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_experimenter_undecoded,
+                                     tvb, offset, length - 16, "Experimenter body.");
+    }
+}
+
 #define OFPC_V4_FLOW_STATS   1<<0  /* Flow statistics. */
 #define OFPC_V4_TABLE_STATS  1<<1  /* Table statistics. */
 #define OFPC_V4_PORT_STATS   1<<2  /* Port statistics. */
@@ -1124,6 +1169,124 @@ dissect_openflow_features_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 }
 
+static const value_string openflow_v4_switch_config_fragments_values[] = {
+    { 0, "OFPC_FRAG_NORMAL" },
+    { 1, "OFPC_FRAG_DROP" },
+    { 2, "OFPC_FRAG_REASM" },
+    { 0, NULL }
+};
+
+#define OFPCML_MAX   0xffe5  /* Maximum max_len value. */
+static const value_string openflow_v4_controller_max_len_reserved_values[] = {
+    { 0xffff, "OFPCML_NO_BUFFER" },
+    { 0,      NULL }
+};
+
+static void
+dissect_openflow_switch_config_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    proto_item *ti;
+    proto_tree *flags_tree;
+
+    /* uint16_t flags; */
+    ti = proto_tree_add_item(tree, hf_openflow_v4_switch_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    flags_tree = proto_item_add_subtree(ti, ett_openflow_v4_switch_config_flags);
+
+    /* fragments */
+    proto_tree_add_bits_item(flags_tree, hf_openflow_v4_switch_config_flags_fragments, tvb, (offset * 8) + 14, 2, ENC_NA);
+    offset+=2;
+
+    /* uint16_t miss_send_len; */
+    if (tvb_get_ntohs(tvb, offset) <= OFPCML_MAX) {
+        proto_tree_add_item(tree, hf_openflow_v4_switch_config_miss_send_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_openflow_v4_switch_config_miss_send_len_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    /*offset+=2;*/
+}
+
+
+static const value_string openflow_v4_packet_in_reason_values[] = {
+    { 0, "OFPR_NO_MATCH" },
+    { 1, "OFPR_ACTION" },
+    { 2, "OFPR_INVALID_TTL" },
+    { 0,          NULL }
+};
+
+static void
+dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    proto_item *ti;
+    proto_tree *data_tree;
+    tvbuff_t *next_tvb;
+    gboolean save_writable;
+    gboolean save_in_error_pkt;
+    address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
+
+    /* uint32_t buffer_id; */
+    if (tvb_get_ntohl(tvb, offset) != OFP_NO_BUFFER) {
+        proto_tree_add_item(tree, hf_openflow_v4_packet_in_buffer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_openflow_v4_packet_in_buffer_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* uint16_t total_len; */
+    proto_tree_add_item(tree, hf_openflow_v4_packet_in_total_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint8_t reason; */
+    proto_tree_add_item(tree, hf_openflow_v4_packet_in_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint8_t table_id; */
+    proto_tree_add_item(tree, hf_openflow_v4_packet_in_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint64_t cookie; */
+    proto_tree_add_item(tree, hf_openflow_v4_packet_in_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset+=8;
+
+    /* struct ofp_match match; */
+    offset = dissect_openflow_match_v4(tvb, pinfo, tree, offset, length);
+
+    /* uint8_t pad[2]; */
+    proto_tree_add_item(tree, hf_openflow_v4_packet_in_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint8_t data[0]; */
+    if (offset < length) {
+        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Data");
+        data_tree = proto_item_add_subtree(ti, ett_openflow_v4_packet_in_data);
+
+        /* save some state */
+        save_writable = col_get_writable(pinfo->cinfo);
+        save_in_error_pkt = pinfo->flags.in_error_pkt;
+        save_dl_src = pinfo->dl_src;
+        save_dl_dst = pinfo->dl_dst;
+        save_net_src = pinfo->net_src;
+        save_net_dst = pinfo->net_dst;
+        save_src = pinfo->src;
+        save_dst = pinfo->dst;
+
+        /* dissect data */
+        col_set_writable(pinfo->cinfo, FALSE);
+        next_tvb = tvb_new_subset(tvb, offset, length - offset, length - offset);
+        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
+
+        /* restore saved state */
+        col_set_writable(pinfo->cinfo, save_writable);
+        pinfo->flags.in_error_pkt = save_in_error_pkt;
+        pinfo->dl_src = save_dl_src;
+        pinfo->dl_dst = save_dl_dst;
+        pinfo->net_src = save_net_src;
+        pinfo->net_dst = save_net_dst;
+        pinfo->src = save_src;
+        pinfo->dst = save_dst;
+    }
+}
+
+
 #define OFPAT_OUTPUT         0  /* Output to switch port. */
 #define OFPAT_COPY_TTL_OUT  11  /* Copy TTL "outwards" */
 #define OFPAT_COPY_TTL_IN   12  /* Copy TTL "inwards" */
@@ -1161,12 +1324,6 @@ static const value_string openflow_v4_action_type_values[] = {
     {     27, "OFPAT_POP_PBB" },
     { 0xffff, "OFPAT_EXPERIMENTER" },
     { 0,      NULL}
-};
-
-#define OFPCML_MAX   0xffe5  /* Maximum max_len value. */
-static const value_string openflow_v4_action_output_max_len_reserved_values[] = {
-    { 0xffff, "OFPCML_NO_BUFFER" },
-    { 0,          NULL }
 };
 
 static int
@@ -1353,6 +1510,82 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     }
 
     return offset;
+}
+
+
+static void
+dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    proto_item *ti;
+    proto_tree *data_tree;
+    guint16 acts_len, acts_end;
+    tvbuff_t *next_tvb;
+    gboolean save_writable;
+    gboolean save_in_error_pkt;
+    address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
+
+    /* uint32_t buffer_id; */
+    if (tvb_get_ntohl(tvb, offset) != OFP_NO_BUFFER) {
+        proto_tree_add_item(tree, hf_openflow_v4_packet_out_buffer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_openflow_v4_packet_out_buffer_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* uint32_t in_port; */
+    if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
+        proto_tree_add_item(tree, hf_openflow_v4_packet_out_in_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(tree, hf_openflow_v4_packet_out_in_port_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* uint16_t actions_len; */
+    acts_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_v4_packet_out_acts_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint8_t pad[6]; */
+    proto_tree_add_item(tree, hf_openflow_v4_packet_out_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+    offset+=6;
+
+    /* struct ofp_action_header actions[0]; */
+    acts_end = offset + acts_len;
+
+    while (offset < acts_end) {
+        offset = dissect_openflow_action_v4(tvb, pinfo, tree, offset, length);
+    }
+
+    /* uint8_t data[0]; */
+    if (offset < length) {
+        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Data");
+        data_tree = proto_item_add_subtree(ti, ett_openflow_v4_packet_out_data);
+
+        /* save some state */
+        save_writable = col_get_writable(pinfo->cinfo);
+        save_in_error_pkt = pinfo->flags.in_error_pkt;
+        save_dl_src = pinfo->dl_src;
+        save_dl_dst = pinfo->dl_dst;
+        save_net_src = pinfo->net_src;
+        save_net_dst = pinfo->net_dst;
+        save_src = pinfo->src;
+        save_dst = pinfo->dst;
+
+        /* dissect data */
+        col_set_writable(pinfo->cinfo, FALSE);
+        next_tvb = tvb_new_subset(tvb, offset, length - offset, length - offset);
+        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, data_tree);
+
+        /* restore saved state */
+        col_set_writable(pinfo->cinfo, save_writable);
+        pinfo->flags.in_error_pkt = save_in_error_pkt;
+        pinfo->dl_src = save_dl_src;
+        pinfo->dl_dst = save_dl_dst;
+        pinfo->net_src = save_net_src;
+        pinfo->net_dst = save_net_dst;
+        pinfo->src = save_src;
+        pinfo->dst = save_dst;
+    }
 }
 
 
@@ -1865,11 +2098,6 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_const(type, openflow_v4_type_values, "Unknown Messagetype"));
 
-    /* Stop the Ethernet frame from overwriting the columns */
-    if((type == OFPT_V4_PACKET_IN) || (type == OFPT_V4_PACKET_OUT)){
-        col_set_writable(pinfo->cinfo, FALSE);
-    }
-
     /* Create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_openflow_v4, tvb, 0, -1, ENC_NA);
     openflow_tree = proto_item_add_subtree(ti, ett_openflow_v4);
@@ -1884,20 +2112,32 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     case OFPT_V4_ERROR: /* 1 */
         dissect_openflow_error_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_ECHO_REQUEST: /* 3 */
-    case OFPT_V4_ECHO_REPLY: /* 4 */
+    case OFPT_V4_ECHO_REQUEST: /* 2 */
+    case OFPT_V4_ECHO_REPLY: /* 3 */
         dissect_openflow_echo_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
+    case OFPT_V4_EXPERIMENTER: /* 4 */
+        dissect_openflow_experimenter_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
     case OFPT_V4_FEATURES_REQUEST: /* 5 */
-        /* 5.3.1 Handshake
-         * Upon TLS session establishment, the controller sends an OFPT_FEATURES_REQUEST
-         * message. This message does not contain a body beyond the OpenFlow header.
-         */
+        /* message has no body */
         break;
     case OFPT_V4_FEATURES_REPLY: /* 6 */
         dissect_openflow_features_reply_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-
+    case OFPT_V4_GET_CONFIG_REQUEST: /* 7 */
+        /* mesage has no body */
+        break;
+    case OFPT_V4_GET_CONFIG_REPLY: /* 8 */
+    case OFPT_V4_SET_CONFIG: /* 9 */
+        dissect_openflow_switch_config_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
+    case OFPT_V4_PACKET_IN: /* 10 */
+        dissect_openflow_packet_in_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
+    case OFPT_V4_PACKET_OUT: /* 13 */
+        dissect_openflow_packet_out_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
     case OFPT_V4_FLOW_MOD: /* 14 */
         dissect_openflow_flowmod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
@@ -2085,7 +2325,7 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_action_output_max_len_reserved,
             { "Max length", "openflow_v4.action.output.max_len",
-               FT_UINT16, BASE_HEX, VALS(openflow_v4_action_output_max_len_reserved_values), 0x0,
+               FT_UINT16, BASE_HEX, VALS(openflow_v4_controller_max_len_reserved_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_output_pad,
@@ -2373,6 +2613,16 @@ proto_register_openflow_v4(void)
                FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_v4_experimenter_experimenter,
+            { "Experimenter", "openflow_v4.experimenter.experimenter",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_experimenter_exp_type,
+            { "Experimenter type", "openflow_v4.experimenter.exp_type",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
         { &hf_openflow_v4_datapath_id,
             { "Datapath unique ID", "openflow_v4.datapath_id",
                FT_UINT64, BASE_HEX, NULL, 0x0,
@@ -2451,6 +2701,91 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_port_blocked,
             { "Switch will block looping ports", "openflow_v4.port_blocked",
                FT_BOOLEAN, 32, NULL, OFPC_V4_PORT_BLOCKED,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_switch_config_flags,
+            { "Flags", "openflow_v4.switch_config.flags",
+               FT_UINT16, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_switch_config_flags_fragments,
+            { "IP Fragments", "openflow_v4.switch_config.flags.fragments",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_switch_config_fragments_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_switch_config_miss_send_len,
+            { "Miss send length", "openflow_v4.switch_config.miss_send_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_switch_config_miss_send_len_reserved,
+            { "Miss send length", "openflow_v4.switch_config.miss_send_len",
+               FT_UINT16, BASE_HEX, VALS(openflow_v4_controller_max_len_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_in_buffer_id,
+            { "Buffer ID", "openflow_v4.packet_in.buffer_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+            },
+        { &hf_openflow_v4_packet_in_buffer_id_reserved,
+            { "Buffer ID", "openflow_v4.packet_in.buffer_id",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_buffer_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_in_total_len,
+            { "Total length", "openflow_v4.packet_in.total_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_in_reason,
+            { "Reason", "openflow_v4.packet_in.buffer_id",
+               FT_UINT8, BASE_DEC, VALS(openflow_v4_packet_in_reason_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_in_table_id,
+            { "Table ID", "openflow_v4.packet_in.table_id",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_in_cookie,
+            { "Cookie", "openflow_v4.packet_in.cookie",
+               FT_UINT64, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_in_pad,
+            { "Padding", "openflow_v4.packet_in.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_out_buffer_id,
+            { "Buffer ID", "openflow_v4.packet_out.buffer_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+            },
+        { &hf_openflow_v4_packet_out_buffer_id_reserved,
+            { "Buffer ID", "openflow_v4.packet_out.buffer_id",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_buffer_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_out_in_port,
+            { "In port", "openflow_v4.packet_out.in_port",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_out_in_port_reserved,
+            { "In port", "openflow_v4.packet_out.in_port",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_port_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_out_acts_len,
+            { "Actions length", "openflow_v4.packet_out.acts_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_packet_out_pad,
+            { "Padding", "openflow_v4.packet_out.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_flowmod_cookie,
@@ -2651,7 +2986,10 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_instruction,
         &ett_openflow_v4_instruction_actions_actions,
         &ett_openflow_v4_hello_element,
-        &ett_openflow_v4_error_data
+        &ett_openflow_v4_error_data,
+        &ett_openflow_v4_switch_config_flags,
+        &ett_openflow_v4_packet_in_data,
+        &ett_openflow_v4_packet_out_data
     };
 
     static ei_register_info ei[] = {
@@ -2678,6 +3016,10 @@ proto_register_openflow_v4(void)
         { &ei_openflow_v4_error_undecoded,
             { "openflow_v4.error.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown error data.", EXPFILL }
+        },
+        { &ei_openflow_v4_experimenter_undecoded,
+            { "openflow_v4.experimenter.undecoded", PI_UNDECODED, PI_NOTE,
+              "Unknown experimenter body.", EXPFILL }
         }
     };
 
@@ -2688,6 +3030,8 @@ proto_register_openflow_v4(void)
             "openflow_v4", "openflow_v4");
 
     new_register_dissector("openflow_v4", dissect_openflow_v4, proto_openflow_v4);
+
+    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow_v4, hf, array_length(hf));
