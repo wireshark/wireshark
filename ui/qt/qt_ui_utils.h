@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <epan/timestamp.h>
 
+#include <QFont>
 #include <QString>
 
 #ifdef __cplusplus
@@ -89,6 +90,14 @@ gchar *qstring_strdup(QString q_string);
  * @return A QString instance created from the input string.
  */
 QString gchar_free_to_qstring(gchar *glib_string);
+
+/**
+ * Round the current size of a font up to its next "smooth" size.
+ * If a smooth size can't be found the font is left unchanged.
+ *
+ * @font The font to smooth.
+ */
+void smooth_font_size(QFont &font);
 
 #endif /* __QT_UI_UTILS__H__ */
 

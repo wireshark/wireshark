@@ -31,6 +31,8 @@
 
 #include <wsutil/str_util.h>
 
+#include <QFontDatabase>
+
 /* Make the format_size_flags_e enum usable in C++ */
 format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
     return (format_size_flags_e) ((int)lhs| (int)rhs);
@@ -51,6 +53,19 @@ QString gchar_free_to_qstring(gchar *glib_string) {
     QString *qt_string = new QString(glib_string);
     g_free(glib_string);
     return *qt_string;
+}
+
+void smooth_font_size(QFont &font) {
+    QFontDatabase fdb;
+    int last_size = 0;
+    
+    foreach (int cur_size, fdb.smoothSizes(font.family(), font.styleName())) {
+        if (font.pointSize() > last_size && font.pointSize() <= cur_size) {
+            font.setPointSize(cur_size);
+            break;
+        }
+        last_size = cur_size;
+    }
 }
 
 /*
