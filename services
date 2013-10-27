@@ -9158,6 +9158,7 @@ dt-mgmtsvc       6325/tcp # Double-Take Management Service [Vision_Solutions] [J
 dt-vra           6326/tcp # Double-Take Virtual Recovery Assistant [Vision_Solutions] [James_Wilkinson2] 2012-10-08
 sflow            6343/tcp # sFlow traffic monitoring [Peter_Phaal] [Peter_Phaal] 2003-06
 sflow            6343/udp # sFlow traffic monitoring [Peter_Phaal] [Peter_Phaal] 2003-06
+streletz         6344/tcp # Argus-Spectr security and fire-prevention systems service [Argus_Spectr] [Kirill_Marinushkin] 2013-10-25
 gnutella-svc     6346/tcp # gnutella-svc [Serguei_Osokine] [Serguei_Osokine]
 gnutella-svc     6346/udp # gnutella-svc [Serguei_Osokine] [Serguei_Osokine]
 gnutella-rtr     6347/tcp # gnutella-rtr [Serguei_Osokine] [Serguei_Osokine]
