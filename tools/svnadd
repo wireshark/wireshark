@@ -57,7 +57,7 @@ do
 		*.ico)
 			svn ps svn:mime-type image/x-icon $file
 			;;
-		*.xpm)
+		*.xpm|*.pod)
 			svn ps svn:eol-style native $file
 			;;
 		*.pcapng)
@@ -79,16 +79,12 @@ do
 			svn ps svn:eol-style native $file
 			svn ps svn:mime-type text/xml $file
 			;;
-		*.dtd)
-			svn ps svn:keywords Id $file
-			svn ps svn:eol-style native $file
-			;;
 		*.pl|*.bat|*.py|*.sh|*.cmd)
 			svn ps svn:keywords Id $file
-			svn ps svn:executable '*' $file
 			svn ps svn:eol-style native $file
+			svn ps svn:executable '*' $file
 			;;
-		*)
+		*) # includes *.dtd|*.c|*.h|*.cpp
 			svn ps svn:keywords Id $file
 			svn ps svn:eol-style native $file
 			;;
