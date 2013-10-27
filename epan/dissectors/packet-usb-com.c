@@ -34,9 +34,22 @@ static int hf_usb_com_descriptor_subtype = -1;
 static int hf_usb_com_descriptor_cdc = -1;
 static int hf_usb_com_descriptor_payload = -1;
 static int hf_usb_com_control_subclass = -1;
+static int hf_usb_com_capabilities = -1;
+static int hf_usb_com_descriptor_acm_capabilities_reserved = -1;
+static int hf_usb_com_descriptor_acm_capabilities_network_connection = -1;
+static int hf_usb_com_descriptor_acm_capabilities_send_break = -1;
+static int hf_usb_com_descriptor_acm_capabilities_line_and_state = -1;
+static int hf_usb_com_descriptor_acm_capabilities_comm_features = -1;
+static int hf_usb_com_control_interface = -1;
+static int hf_usb_com_subordinate_interface = -1;
+static int hf_usb_com_descriptor_cm_capabilities_reserved = -1;
+static int hf_usb_com_descriptor_cm_capabilities_call_managment_over_data_class_interface = -1;
+static int hf_usb_com_descriptor_cm_capabilities_call_managment = -1;
+static int hf_usb_com_descriptor_cm_data_interface = -1;
 static int hf_usb_com_control_payload = -1;
 
 static gint ett_usb_com = -1;
+static gint ett_usb_com_capabilities = -1;
 
 static dissector_handle_t mbim_control_handle;
 static dissector_handle_t mbim_descriptor_handle;
@@ -123,11 +136,16 @@ static const value_string usb_com_subclass_vals[] = {
 };
 value_string_ext ext_usb_com_subclass_vals = VALUE_STRING_EXT_INIT(usb_com_subclass_vals);
 
+void proto_register_usb_com(void);
+void proto_reg_handoff_usb_com(void);
+
 static int
 dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 offset = 0, type, subtype;
     proto_tree *subtree;
+    proto_tree *subtree_capabilities;
+    proto_item *subitem_capabilities;
     proto_item *ti;
 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "COMMUNICATIONS DESCRIPTOR");
@@ -146,6 +164,37 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 case 0x00:
                     proto_tree_add_item(subtree, hf_usb_com_descriptor_cdc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
+                    break;
+                case 0x01:
+                    subitem_capabilities = proto_tree_add_item(subtree, hf_usb_com_capabilities, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    subtree_capabilities = proto_item_add_subtree(subitem_capabilities, ett_usb_com_capabilities);
+
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_cm_capabilities_reserved, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_cm_capabilities_call_managment_over_data_class_interface, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_cm_capabilities_call_managment, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+
+                    proto_tree_add_item(subtree, hf_usb_com_descriptor_cm_data_interface, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+                    offset = 5;
+                    break;
+                case 0x02:
+                    subitem_capabilities = proto_tree_add_item(subtree, hf_usb_com_capabilities, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    subtree_capabilities = proto_item_add_subtree(subitem_capabilities, ett_usb_com_capabilities);
+
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_acm_capabilities_reserved, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_acm_capabilities_network_connection, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_acm_capabilities_send_break, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_acm_capabilities_line_and_state, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree_capabilities, hf_usb_com_descriptor_acm_capabilities_comm_features, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    offset = 4;
+                    break;
+                case 0x06:
+                    offset = 3;
+                    proto_tree_add_item(subtree, hf_usb_com_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    offset += 1;
+                    while (tvb_length_remaining(tvb,offset) > 0) {
+                        proto_tree_add_item(subtree, hf_usb_com_subordinate_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
+                    }
                     break;
                 case 0x1b:
                 case 0x1c:
@@ -239,15 +288,52 @@ proto_register_usb_com(void)
             { "Payload", "usbcom.descriptor.payload", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }},
         { &hf_usb_com_control_subclass,
-            { "Subclass", "usbcom.control.subclass", FT_UINT8, BASE_HEX,
-              VALS(usb_com_subclass_vals), 0, NULL, HFILL }},
+            { "Subclass", "usbcom.control.subclass", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+              &ext_usb_com_subclass_vals, 0, NULL, HFILL }},
+        { &hf_usb_com_capabilities,
+            { "bmCapabilities", "usbcom.descriptor.capabilities", FT_UINT8, BASE_HEX,
+              NULL, 0, NULL, HFILL }},
+        { &hf_usb_com_descriptor_acm_capabilities_reserved,
+            { "Reserved", "usbcom.descriptor.acm.capabilities.reserved", FT_UINT8, BASE_HEX,
+              NULL, 0xF0, NULL, HFILL }},
+        { &hf_usb_com_descriptor_acm_capabilities_network_connection,
+            { "Network_Connection", "usbcom.descriptor.acm.capabilities.network_connection", FT_BOOLEAN, 8,
+              &tfs_supported_not_supported, 0x08, NULL, HFILL }},
+        { &hf_usb_com_descriptor_acm_capabilities_send_break,
+            { "Send_Break", "usbcom.descriptor.acm.capabilities.network_connection", FT_BOOLEAN, 8,
+              &tfs_supported_not_supported, 0x04, NULL, HFILL }},
+        { &hf_usb_com_descriptor_acm_capabilities_line_and_state,
+            { "Line Requests and State Notification", "usbcom.descriptor.acm.capabilities.line_and_state", FT_BOOLEAN, 8,
+              &tfs_supported_not_supported, 0x02, NULL, HFILL }},
+        { &hf_usb_com_descriptor_acm_capabilities_comm_features,
+            { "Comm Features Combinations", "usbcom.descriptor.acm.capabilities.comm_features", FT_BOOLEAN, 8,
+              &tfs_supported_not_supported, 0x01, NULL, HFILL }},
+        { &hf_usb_com_control_interface,
+            { "bControlInterface", "usbcom.descriptor.control_interface", FT_UINT8, BASE_HEX,
+              NULL, 0, NULL, HFILL }},
+        { &hf_usb_com_subordinate_interface,
+            { "bSubordinateInterface", "usbcom.descriptor.subordinate_interface", FT_UINT8, BASE_HEX,
+              NULL, 0, NULL, HFILL }},
+        { &hf_usb_com_descriptor_cm_capabilities_reserved,
+            { "Reserved", "usbcom.descriptor.cm.capabilities.reserved", FT_UINT8, BASE_HEX,
+              NULL, 0xFC, NULL, HFILL }},
+        { &hf_usb_com_descriptor_cm_capabilities_call_managment_over_data_class_interface,
+            { "Call Managment over Data Class Interface", "usbcom.descriptor.cm.capabilities.call_managment_over_data_class_interface", FT_BOOLEAN, 8,
+              &tfs_supported_not_supported, 0x02, NULL, HFILL }},
+        { &hf_usb_com_descriptor_cm_capabilities_call_managment,
+            { "Call Managment", "usbcom.descriptor.cm.capabilities.call_managment", FT_BOOLEAN, 8,
+              &tfs_supported_not_supported, 0x01, NULL, HFILL }},
+        { &hf_usb_com_descriptor_cm_data_interface,
+            { "bDataInterface", "usbcom.descriptor.cm.data_interface", FT_UINT8, BASE_HEX,
+              NULL, 0, NULL, HFILL }},
         { &hf_usb_com_control_payload,
             { "Payload", "usbcom.control.payload", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }}
     };
 
     static gint *usb_com_subtrees[] = {
-        &ett_usb_com
+        &ett_usb_com,
+        &ett_usb_com_capabilities
     };
 
     proto_usb_com = proto_register_protocol("USB Communications and CDC Control", "USBCOM", "usbcom");
