@@ -225,7 +225,6 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    pinfo->vsan = (tvb_get_ntohs(tvb, offset) & 0xFFF);
     sof = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
 
     if ((sof == FCM_DELIM_SOFI3) || (sof == FCM_DELIM_SOFI2) || (sof == FCM_DELIM_SOFI1)

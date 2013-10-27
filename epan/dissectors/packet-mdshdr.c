@@ -142,8 +142,6 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint       pktlen;
     tvbuff_t   *next_tvb;
     guint8      sof, eof;
-    guint16     vsan;
-    guint8      span_id;
     int         trailer_start = 0; /*0 means "no trailer found"*/
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDS Header");
@@ -152,8 +150,6 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     sof     = tvb_get_guint8(tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
     pktlen  = tvb_get_ntohs(tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
-    vsan    = tvb_get_ntohs(tvb, offset+MDSHDR_VSAN_OFFSET) & 0x0FFF;
-    span_id = (tvb_get_ntohs(tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
 
     /* The Mdshdr trailer is at the end of the frame */
     if ((tvb_length(tvb) >= (MDSHDR_HEADER_SIZE + pktlen))
@@ -168,9 +164,6 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         eof = MDSHDR_EOF_UNKNOWN;
     }
 
-    pinfo->src_idx = (tvb_get_ntohs(tvb, MDSHDR_SIDX_OFFSET) & 0x3FF);
-    pinfo->dst_idx = (tvb_get_ntohs(tvb, MDSHDR_DIDX_OFFSET) & 0xFFC) >> 2;
-    pinfo->vsan    = vsan;
     pinfo->sof_eof = 0;
 
     if ((sof == MDSHDR_SOFi3) || (sof == MDSHDR_SOFi2) || (sof == MDSHDR_SOFi1)
@@ -215,7 +208,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_uint(mdshdr_tree_hdr, hf_mdshdr_span,
                                           tvb, MDSHDR_VSAN_OFFSET,
-                                          MDSHDR_SIZE_BYTE, span_id);
+                                          MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Add Mdshdr Trailer part */
@@ -279,7 +272,7 @@ proto_register_mdshdr(void)
           {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, NULL, HFILL}},
 
         { &hf_mdshdr_span,
-          {"SPAN Frame", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+          {"SPAN Frame", "mdshdr.span", FT_UINT16, BASE_DEC, NULL, 0xF000, NULL, HFILL}},
 
         { &hf_mdshdr_fccrc,
           {"CRC", "mdshdr.crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},

@@ -48,9 +48,9 @@ col_format_to_string(const gint fmt) {
     "%Yt",                                      /* 1) COL_ABS_DATE_TIME */
     "%At",                                      /* 2) COL_ABS_TIME */
     "%c",                                       /* 3) COL_CIRCUIT_ID */
-    "%Xd",                                      /* 4) COL_DSTIDX */
-    "%Xs",                                      /* 5) COL_SRCIDX */
-    "%V",                                       /* 6) COL_VSAN */
+    "%Xd",                                      /* 4) COL_DSTIDX - !! DEPRECATED !!*/
+    "%Xs",                                      /* 5) COL_SRCIDX - !! DEPRECATED !!*/
+    "%V",                                       /* 6) COL_VSAN - !! DEPRECATED !!*/
     "%B",                                       /* 7) COL_CUMULATIVE_BYTES */
     "%Cus",                                     /* 8) COL_CUSTOM */
     "%y",                                       /* 9) COL_DCE_CALL */
@@ -525,7 +525,7 @@ get_column_longest_string(const gint format)
       break;
     case COL_SRCIDX:
     case COL_DSTIDX:
-      return "0000000";
+      return "00000000";
       break;
     case COL_VSAN:
      return "000000";

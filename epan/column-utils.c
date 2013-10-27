@@ -1813,11 +1813,6 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
       col_set_port(pinfo, i, FALSE, FALSE, fill_col_exprs);
       break;
 
-    case COL_VSAN:
-      guint32_to_str_buf(pinfo->vsan, pinfo->cinfo->col_buf[i], COL_MAX_LEN);
-      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      break;
-
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;
@@ -2025,13 +2020,13 @@ col_fill_fdata(packet_info *pinfo)
       set_circuit_id(pinfo);
       break;
     case COL_SRCIDX:
-      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->src_idx));
+      fdata->col_text[i] = (gchar *)-1; /* !! DEPRECATED !!*/
       break;
     case COL_DSTIDX:
-      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->dst_idx));
+      fdata->col_text[i] = (gchar *)-1; /* !! DEPRECATED !!*/
       break;
     case COL_VSAN:
-      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->vsan));
+      fdata->col_text[i] = (gchar *)-1; /* !! DEPRECATED !!*/
       break;
 
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */

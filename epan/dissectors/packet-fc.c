@@ -729,7 +729,6 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * standardized in FC-FS-2.  See section 10.2.4.
      */
     if (fchdr.r_ctl == FC_RCTL_VFT) {
-        pinfo->vsan = (tvb_get_ntohs(tvb, offset + 2) >> 1) & 0xfff;
         vft_offset = offset;
         offset += 8;
         fchdr.r_ctl = tvb_get_guint8 (tvb, offset);

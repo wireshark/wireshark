@@ -150,9 +150,6 @@ typedef struct _packet_info {
                                  * Bit 2 set if SOFf
                                  * Bit 1 set if first frame in sequence
                                  */
-  guint16 src_idx;              /**< Source port index (Cisco MDS-specific) */
-  guint16 dst_idx;              /**< Dest port index (Cisco MDS-specific) */
-  guint16 vsan;                 /**< Fibre channel/Cisco MDS-specific */
 
   /* Extra data for DCERPC handling and tracking of context ids */
   guint16 dcectxid;             /**< Context ID (DCERPC-specific) */
