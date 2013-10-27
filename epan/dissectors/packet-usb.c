@@ -136,9 +136,11 @@ static int hf_usb_bNumEndpoints = -1;
 static int hf_usb_bInterfaceClass = -1;
 static int hf_usb_bInterfaceSubClass = -1;
 static int hf_usb_bInterfaceSubClass_cdc = -1;
+static int hf_usb_bInterfaceSubClass_hid = -1;
 static int hf_usb_bInterfaceProtocol = -1;
 static int hf_usb_bInterfaceProtocol_cdc = -1;
 static int hf_usb_bInterfaceProtocol_cdc_data = -1;
+static int hf_usb_bInterfaceProtocol_hid_boot = -1;
 static int hf_usb_iInterface = -1;
 static int hf_usb_bEndpointAddress = -1;
 static int hf_usb_bmAttributes = -1;
@@ -1024,6 +1026,19 @@ static const value_string usb_cdc_data_protocol_vals[] = {
     {0, NULL}
 };
 
+static const value_string usb_hid_subclass_vals[] = {
+    {0, "No Subclass"},
+    {1, "Boot Interface"},
+    {0, NULL}
+};
+
+static const value_string usb_hid_boot_protocol_vals[] = {
+    {0, "None"},
+    {1, "Keyboard"},
+    {2, "Mouse"},
+    {0, NULL}
+};
+
 static usb_conv_info_t *
 get_usb_conv_info(conversation_t *conversation)
 {
@@ -1543,21 +1558,37 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     offset += 1;
 
     /* bInterfaceSubClass */
-    if (usb_conv_info->interfaceClass == IF_CLASS_COMMUNICATIONS)
+    switch (usb_conv_info->interfaceClass) {
+    case IF_CLASS_COMMUNICATIONS:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_cdc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    else
+        break;
+    case IF_CLASS_HID:
+        proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_hid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
+    default:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
     /* save the subclass so we can access it later in class-specific descriptors */
     usb_conv_info->interfaceSubclass = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     /* bInterfaceProtocol */
-    if (usb_conv_info->interfaceClass == IF_CLASS_COMMUNICATIONS)
+    switch (usb_conv_info->interfaceClass) {
+    case IF_CLASS_COMMUNICATIONS:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_cdc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    else if (usb_conv_info->interfaceClass == IF_CLASS_CDC_DATA)
+        break;
+    case IF_CLASS_CDC_DATA:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_cdc_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    else
+        break;
+    case IF_CLASS_HID:
+        if (usb_conv_info->interfaceSubclass == 1) {
+            proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_hid_boot, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
+        } /* else default */
+    default:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
 
     usb_conv_info->interfaceProtocol = tvb_get_guint8(tvb, offset);
     offset += 1;
@@ -3805,6 +3836,11 @@ proto_register_usb(void)
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ext_usb_com_subclass_vals, 0x0,
             NULL, HFILL }},
 
+        { &hf_usb_bInterfaceSubClass_hid,
+          { "bInterfaceSubClass", "usb.bInterfaceSubClass",
+            FT_UINT8, BASE_HEX, VALS(usb_hid_subclass_vals), 0x0,
+            NULL, HFILL }},
+
         { &hf_usb_bInterfaceProtocol,
           { "bInterfaceProtocol", "usb.bInterfaceProtocol",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -3818,6 +3854,11 @@ proto_register_usb(void)
         { &hf_usb_bInterfaceProtocol_cdc_data,
           { "bInterfaceProtocol", "usb.bInterfaceProtocol",
             FT_UINT8, BASE_HEX, VALS(usb_cdc_data_protocol_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceProtocol_hid_boot,
+          { "bInterfaceProtocol", "usb.bInterfaceProtocol",
+            FT_UINT8, BASE_HEX, VALS(usb_hid_boot_protocol_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_usb_iInterface,
