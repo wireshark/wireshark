@@ -293,7 +293,7 @@ circuit_get_dissector(circuit_t *circuit)
  */
 gboolean
 try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
-		      tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+		      tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	circuit_t *circuit;
 
@@ -302,8 +302,8 @@ try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
 	if (circuit != NULL) {
 		if (circuit->dissector_handle == NULL)
 			return FALSE;
-		call_dissector(circuit->dissector_handle, tvb, pinfo,
-		    tree);
+		call_dissector_with_data(circuit->dissector_handle, tvb, pinfo,
+		    tree, data);
 		return TRUE;
 	}
 	return FALSE;

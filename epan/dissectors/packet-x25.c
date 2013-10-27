@@ -2025,7 +2025,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* See if there's already a dissector for this circuit. */
     if (try_circuit_dissector(CT_X25, vc, pinfo->fd->num, next_tvb, pinfo,
-			      tree)) {
+			      tree, NULL)) {
 	pinfo->private_data = saved_private_data;
 	return;	/* found it and dissected it */
     }
