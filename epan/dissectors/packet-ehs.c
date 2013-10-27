@@ -861,7 +861,7 @@ ehs_secondary_header_dissector ( int protocol, proto_tree* ehs_secondary_header_
 
 /* AOS/LOS data zone dissector */
 static void
-aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, packet_info* pinfo )
+aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, packet_info* pinfo _U_)
 {
   proto_item *ehs_data_zone;
   proto_tree *ehs_data_zone_tree;
@@ -894,7 +894,7 @@ aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, p
 
 /* UDSM data zone dissector */
 static void
-udsm_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, packet_info* pinfo )
+udsm_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, packet_info* pinfo _U_)
 {
   proto_item *ehs_data_zone;
   proto_tree *ehs_data_zone_tree;
