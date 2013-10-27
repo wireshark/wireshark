@@ -403,7 +403,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		pinfo->curr_layer_num = 0;
 		if(proto_field_is_referenced(tree, hf_frame_protocols)) {
 			/* we are going to be using proto_item_append_string() on
 			 * hf_frame_protocols, and we must therefore disable the
