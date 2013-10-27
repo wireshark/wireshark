@@ -158,7 +158,6 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	proto_tree *ax25_nol3_tree;
 	char       *info_buffer;
 	int         offset;
-	void       *saved_private_data;
 	tvbuff_t   *next_tvb = NULL;
 	guint8      dti      = 0;
 	gboolean    dissected;
@@ -200,9 +199,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 							"AX.25 No Layer 3 - (%s)", info_buffer );
 		ax25_nol3_tree = proto_item_add_subtree( ti, ett_ax25_nol3 );
 
-		saved_private_data = pinfo->private_data;
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-
 		dissected = FALSE;
 		if ( gPREF_APRS )
 			{
@@ -223,7 +220,6 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		if ( ! dissected )
 			call_dissector( default_handle , next_tvb, pinfo, ax25_nol3_tree );
 
-		pinfo->private_data = saved_private_data;
 		}
 }
 

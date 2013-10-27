@@ -60,7 +60,6 @@ static gint ett_flexnet_ctl = -1;
 static void
 dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	void	   *saved_private_data;
 	tvbuff_t   *next_tvb;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "Flexnet");
@@ -92,12 +91,8 @@ dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* Call sub-dissectors here */
 
-	saved_private_data = pinfo->private_data;
 	next_tvb = tvb_new_subset_remaining(tvb, FLEXNET_HDRLEN);
-
 	call_dissector( default_handle , next_tvb, pinfo, parent_tree );
-
-	pinfo->private_data = saved_private_data;
 }
 
 void

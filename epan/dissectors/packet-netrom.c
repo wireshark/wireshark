@@ -208,7 +208,6 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8        op_code;
 	guint8        cct_index;
 	guint8        cct_id;
-	void         *saved_private_data;
 	tvbuff_t     *next_tvb = NULL;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM" );
@@ -448,7 +447,6 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Call sub-dissectors here */
 
-	saved_private_data = pinfo->private_data;
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	switch ( op_code )
@@ -465,14 +463,11 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					call_dissector( default_handle , next_tvb, pinfo, tree );
 					break;
 		}
-
-	pinfo->private_data = saved_private_data;
 }
 
 static void
 dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	void     *saved_private_data;
 	tvbuff_t *next_tvb;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM");
@@ -492,13 +487,9 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item( netrom_tree, hf_netrom_mnemonic, tvb, 1, 6, ENC_ASCII|ENC_NA );
 		}
 
-	saved_private_data = pinfo->private_data;
 	next_tvb = tvb_new_subset_remaining(tvb, 7);
 
 	call_dissector( default_handle , next_tvb, pinfo, tree );
-
-	pinfo->private_data = saved_private_data;
-
 }
 
 /* Code to actually dissect the packets */

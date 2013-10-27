@@ -206,7 +206,6 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int         kiss_param_len;
 	const char *frame_type_text;
 	char       *info_buffer;
-	void       *saved_private_data;
 	tvbuff_t   *next_tvb = NULL;
 
 	info_buffer    = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
@@ -261,7 +260,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		proto_tree_add_uint( kiss_tree, hf_ax25_kiss_cmd,  tvb, offset, KISS_HEADER_SIZE,
 					kiss_cmd );
 		proto_tree_add_uint( kiss_tree, hf_ax25_kiss_port, tvb, offset, KISS_HEADER_SIZE,
-					kiss_cmd );
+					kiss_port );
 		offset += KISS_HEADER_SIZE;
 
 		switch ( kiss_type  )
@@ -306,10 +305,8 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	if ( kiss_type == KISS_DATA_FRAME )
 		{
-		saved_private_data = pinfo->private_data;
 		next_tvb = tvb_new_subset_remaining( tvb, offset );
 		call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
-		pinfo->private_data = saved_private_data;
 		}
 }
 

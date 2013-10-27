@@ -148,7 +148,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	guint8 pid = AX25_P_NO_L3;
 	guint8 src_ssid;
 	guint8 dst_ssid;
-	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
 
 
@@ -254,16 +253,12 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		proto_item_set_end(ti, tvb, offset);
 
-		saved_private_data = pinfo->private_data;
-
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (!dissector_try_uint(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree))
 			{
 			call_dissector(data_handle, next_tvb, pinfo, parent_tree);
 			}
-
-		pinfo->private_data = saved_private_data;
 		}
 	else
 		proto_item_set_end(ti, tvb, offset);

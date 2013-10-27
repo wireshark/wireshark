@@ -73,13 +73,13 @@ static const value_string error_type_vals[] = {
 	{ 0,    NULL },
 };
 
-static void
-dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	int offset = 0;
-        proto_tree *x29_tree = NULL;
+        proto_tree *x29_tree;
         proto_item *ti;
-	gboolean *q_bit_set = (gboolean *)pinfo->private_data;
+	gboolean *q_bit_set = (gboolean *)data;
 	guint8 msg_code;
 	guint8 error_type;
 	guint8 type_ref;
@@ -89,11 +89,8 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.29");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_x29, tvb, offset, -1,
-		    ENC_NA);
-		x29_tree = proto_item_add_subtree(ti, ett_x29);
-	}
+	ti = proto_tree_add_item(tree, proto_x29, tvb, offset, -1, ENC_NA);
+	x29_tree = proto_item_add_subtree(ti, ett_x29);
 
 	if (*q_bit_set) {
 		/*
@@ -234,6 +231,8 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 void
@@ -267,6 +266,6 @@ proto_reg_handoff_x29(void)
 {
 	dissector_handle_t x29_handle;
 
-	x29_handle = create_dissector_handle(dissect_x29, proto_x29);
+	x29_handle = new_create_dissector_handle(dissect_x29, proto_x29);
 	dissector_add_uint("x.25.spi", NLPID_SPI_X_29, x29_handle);
 }

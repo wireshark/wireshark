@@ -66,7 +66,6 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	proto_tree *bpq_tree;
 	int	    offset;
 	guint16	    bpq_len;
-	void	   *saved_private_data;
 	tvbuff_t   *next_tvb;
 
 
@@ -100,11 +99,9 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	offset += BPQ_HEADER_SIZE;
 
-	saved_private_data = pinfo->private_data;
 	/* XXX - use the length */
 	next_tvb = tvb_new_subset_remaining( tvb, offset );
 	call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
-	pinfo->private_data = saved_private_data;
 }
 
 void

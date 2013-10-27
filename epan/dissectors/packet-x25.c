@@ -1284,7 +1284,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint x25_pkt_len;
     int modulo;
     guint16 vc;
-    dissector_handle_t dissect = NULL;
+    dissector_handle_t dissect;
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
@@ -1294,7 +1294,6 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean m_bit_set;
     gint payload_len;
     guint32 frag_key;
-    void *saved_private_data;
     fragment_head *fd_head;
 
 
@@ -1583,7 +1582,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     */
 		    dissect = dissector_get_uint_handle(x25_subdissector_table, spi);
 		    if (dissect != NULL)
-			x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
+			    x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
 		}
 
 		/*
@@ -2020,14 +2019,10 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!next_tvb)
       next_tvb = tvb_new_subset_remaining(tvb, localoffset);
 
-    saved_private_data = pinfo->private_data;
-    pinfo->private_data = &q_bit_set;
-
     /* See if there's already a dissector for this circuit. */
     if (try_circuit_dissector(CT_X25, vc, pinfo->fd->num, next_tvb, pinfo,
-			      tree, NULL)) {
-	pinfo->private_data = saved_private_data;
-	return;	/* found it and dissected it */
+			      tree, &q_bit_set)) {
+		return;	/* found it and dissected it */
     }
 
     /* Did the user suggest QLLC/SNA? */
@@ -2035,8 +2030,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Yes - dissect it as QLLC/SNA. */
 	if (!pinfo->fd->flags.visited)
 	    x25_hash_add_proto_start(vc, pinfo->fd->num, qllc_handle);
-	call_dissector(qllc_handle, next_tvb, pinfo, tree);
-	pinfo->private_data = saved_private_data;
+	call_dissector_with_data(qllc_handle, next_tvb, pinfo, tree, &q_bit_set);
 	return;
     }
 
@@ -2050,7 +2044,6 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (!pinfo->fd->flags.visited)
 	    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
 	call_dissector(ositp_handle, next_tvb, pinfo, tree);
-	pinfo->private_data = saved_private_data;
 	return;
       }
     }
@@ -2064,14 +2057,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (!pinfo->fd->flags.visited)
 	    x25_hash_add_proto_start(vc, pinfo->fd->num, ip_handle);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
-	pinfo->private_data = saved_private_data;
 	return;
 
     case NLPID_ISO8473_CLNP:
 	if (!pinfo->fd->flags.visited)
 	    x25_hash_add_proto_start(vc, pinfo->fd->num, clnp_handle);
 	call_dissector(clnp_handle, next_tvb, pinfo, tree);
-	pinfo->private_data = saved_private_data;
 	return;
     }
     }
@@ -2079,13 +2070,11 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Try the heuristic dissectors. */
     if (dissector_try_heuristic(x25_heur_subdissector_list, next_tvb, pinfo,
 				tree, NULL)) {
-	pinfo->private_data = saved_private_data;
 	return;
     }
 
     /* All else failed; dissect it as raw data */
     call_dissector(data_handle, next_tvb, pinfo, tree);
-    pinfo->private_data = saved_private_data;
 }
 
 /*
