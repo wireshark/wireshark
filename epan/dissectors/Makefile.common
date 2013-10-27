@@ -993,6 +993,7 @@ DISSECTOR_SRC = \
 	packet-rfid-felica.c	\
 	packet-rfid-mifare.c	\
 	packet-rfid-pn532.c	\
+	packet-rfid-pn532-hci.c	\
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\

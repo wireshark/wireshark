@@ -66,6 +66,7 @@ Kafka
 MBIM
 MiNT
 MP4 / ISOBMFF file format
+NXP PN532 HCI
 OpenFlow
 Picture Transfer Protocol Over IP
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
