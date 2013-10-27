@@ -2595,7 +2595,7 @@ proto_tree_set_string(field_info *fi, const char* value, gint length)
 	if (value) {
 		fvalue_set(&fi->value, (gpointer) g_strndup(value, length), TRUE);
 	} else {
-		fvalue_set(&fi->value, (gpointer) g_strdup("[ Null ]"), FALSE);
+		fvalue_set(&fi->value, (gpointer) "[ Null ]", FALSE);
 	}
 }
 
