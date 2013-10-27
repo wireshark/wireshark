@@ -103,6 +103,91 @@ static int hf_openflow_v4_instruction_write_metadata_mask = -1;
 static int hf_openflow_v4_instruction_actions_pad = -1;
 static int hf_openflow_v4_instruction_meter_meter_id = -1;
 static int hf_openflow_v4_instruction_meter_meter_id_reserved = -1;
+static int hf_openflow_v4_port_port_no = -1;
+static int hf_openflow_v4_port_port_no_reserved = -1;
+static int hf_openflow_v4_port_pad = -1;
+static int hf_openflow_v4_port_hw_addr = -1;
+static int hf_openflow_v4_port_pad2 = -1;
+static int hf_openflow_v4_port_name = -1;
+static int hf_openflow_v4_port_config = -1;
+static int hf_openflow_v4_port_config_port_down = -1;
+static int hf_openflow_v4_port_config_no_recv = -1;
+static int hf_openflow_v4_port_config_no_fwd = -1;
+static int hf_openflow_v4_port_config_no_packet_in = -1;
+static int hf_openflow_v4_port_state = -1;
+static int hf_openflow_v4_port_state_link_down = -1;
+static int hf_openflow_v4_port_state_blocked = -1;
+static int hf_openflow_v4_port_state_live = -1;
+static int hf_openflow_v4_port_current = -1;
+static int hf_openflow_v4_port_current_10mb_hd = -1;
+static int hf_openflow_v4_port_current_10mb_fd = -1;
+static int hf_openflow_v4_port_current_100mb_hd = -1;
+static int hf_openflow_v4_port_current_100mb_fd = -1;
+static int hf_openflow_v4_port_current_1gb_hd = -1;
+static int hf_openflow_v4_port_current_1gb_fd = -1;
+static int hf_openflow_v4_port_current_10gb_fd = -1;
+static int hf_openflow_v4_port_current_40gb_fd = -1;
+static int hf_openflow_v4_port_current_100gb_fd = -1;
+static int hf_openflow_v4_port_current_1tb_fd = -1;
+static int hf_openflow_v4_port_current_other = -1;
+static int hf_openflow_v4_port_current_copper = -1;
+static int hf_openflow_v4_port_current_fiber = -1;
+static int hf_openflow_v4_port_current_autoneg = -1;
+static int hf_openflow_v4_port_current_pause = -1;
+static int hf_openflow_v4_port_current_pause_asym = -1;
+static int hf_openflow_v4_port_advertised = -1;
+static int hf_openflow_v4_port_advertised_10mb_hd = -1;
+static int hf_openflow_v4_port_advertised_10mb_fd = -1;
+static int hf_openflow_v4_port_advertised_100mb_hd = -1;
+static int hf_openflow_v4_port_advertised_100mb_fd = -1;
+static int hf_openflow_v4_port_advertised_1gb_hd = -1;
+static int hf_openflow_v4_port_advertised_1gb_fd = -1;
+static int hf_openflow_v4_port_advertised_10gb_fd = -1;
+static int hf_openflow_v4_port_advertised_40gb_fd = -1;
+static int hf_openflow_v4_port_advertised_100gb_fd = -1;
+static int hf_openflow_v4_port_advertised_1tb_fd = -1;
+static int hf_openflow_v4_port_advertised_other = -1;
+static int hf_openflow_v4_port_advertised_copper = -1;
+static int hf_openflow_v4_port_advertised_fiber = -1;
+static int hf_openflow_v4_port_advertised_autoneg = -1;
+static int hf_openflow_v4_port_advertised_pause = -1;
+static int hf_openflow_v4_port_advertised_pause_asym = -1;
+static int hf_openflow_v4_port_supported = -1;
+static int hf_openflow_v4_port_supported_10mb_hd = -1;
+static int hf_openflow_v4_port_supported_10mb_fd = -1;
+static int hf_openflow_v4_port_supported_100mb_hd = -1;
+static int hf_openflow_v4_port_supported_100mb_fd = -1;
+static int hf_openflow_v4_port_supported_1gb_hd = -1;
+static int hf_openflow_v4_port_supported_1gb_fd = -1;
+static int hf_openflow_v4_port_supported_10gb_fd = -1;
+static int hf_openflow_v4_port_supported_40gb_fd = -1;
+static int hf_openflow_v4_port_supported_100gb_fd = -1;
+static int hf_openflow_v4_port_supported_1tb_fd = -1;
+static int hf_openflow_v4_port_supported_other = -1;
+static int hf_openflow_v4_port_supported_copper = -1;
+static int hf_openflow_v4_port_supported_fiber = -1;
+static int hf_openflow_v4_port_supported_autoneg = -1;
+static int hf_openflow_v4_port_supported_pause = -1;
+static int hf_openflow_v4_port_supported_pause_asym = -1;
+static int hf_openflow_v4_port_peer = -1;
+static int hf_openflow_v4_port_peer_10mb_hd = -1;
+static int hf_openflow_v4_port_peer_10mb_fd = -1;
+static int hf_openflow_v4_port_peer_100mb_hd = -1;
+static int hf_openflow_v4_port_peer_100mb_fd = -1;
+static int hf_openflow_v4_port_peer_1gb_hd = -1;
+static int hf_openflow_v4_port_peer_1gb_fd = -1;
+static int hf_openflow_v4_port_peer_10gb_fd = -1;
+static int hf_openflow_v4_port_peer_40gb_fd = -1;
+static int hf_openflow_v4_port_peer_100gb_fd = -1;
+static int hf_openflow_v4_port_peer_1tb_fd = -1;
+static int hf_openflow_v4_port_peer_other = -1;
+static int hf_openflow_v4_port_peer_copper = -1;
+static int hf_openflow_v4_port_peer_fiber = -1;
+static int hf_openflow_v4_port_peer_autoneg = -1;
+static int hf_openflow_v4_port_peer_pause = -1;
+static int hf_openflow_v4_port_peer_pause_asym = -1;
+static int hf_openflow_v4_port_curr_speed = -1;
+static int hf_openflow_v4_port_max_speed = -1;
 static int hf_openflow_v4_hello_element_type = -1;
 static int hf_openflow_v4_hello_element_length = -1;
 static int hf_openflow_v4_hello_element_version_bitmap = -1;
@@ -156,6 +241,18 @@ static int hf_openflow_v4_packet_in_reason = -1;
 static int hf_openflow_v4_packet_in_table_id = -1;
 static int hf_openflow_v4_packet_in_cookie = -1;
 static int hf_openflow_v4_packet_in_pad = -1;
+static int hf_openflow_v4_flow_removed_cookie = -1;
+static int hf_openflow_v4_flow_removed_priority = -1;
+static int hf_openflow_v4_flow_removed_reason = -1;
+static int hf_openflow_v4_flow_removed_table_id = -1;
+static int hf_openflow_v4_flow_removed_duration_sec = -1;
+static int hf_openflow_v4_flow_removed_duration_nsec = -1;
+static int hf_openflow_v4_flow_removed_idle_timeout = -1;
+static int hf_openflow_v4_flow_removed_hard_timeout = -1;
+static int hf_openflow_v4_flow_removed_packet_count = -1;
+static int hf_openflow_v4_flow_removed_byte_count = -1;
+static int hf_openflow_v4_port_status_reason = -1;
+static int hf_openflow_v4_port_status_pad = -1;
 static int hf_openflow_v4_packet_out_buffer_id = -1;
 static int hf_openflow_v4_packet_out_buffer_id_reserved = -1;
 static int hf_openflow_v4_packet_out_in_port = -1;
@@ -212,6 +309,13 @@ static gint ett_openflow_v4_match_oxm_fields = -1;
 static gint ett_openflow_v4_action = -1;
 static gint ett_openflow_v4_instruction = -1;
 static gint ett_openflow_v4_instruction_actions_actions = -1;
+static gint ett_openflow_v4_port = -1;
+static gint ett_openflow_v4_port_config = -1;
+static gint ett_openflow_v4_port_state = -1;
+static gint ett_openflow_v4_port_current = -1;
+static gint ett_openflow_v4_port_advertised = -1;
+static gint ett_openflow_v4_port_supported = -1;
+static gint ett_openflow_v4_port_peer = -1;
 static gint ett_openflow_v4_hello_element = -1;
 static gint ett_openflow_v4_error_data = -1;
 static gint ett_openflow_v4_switch_config_flags = -1;
@@ -1287,6 +1391,61 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 
+static const value_string openflow_v4_flow_removed_reason_values[] = {
+    { 0, "OFPRR_IDLE_TIMEOUT" },
+    { 1, "OFPRR_HARD_TIMEOUT" },
+    { 2, "OFPRR_DELETE" },
+    { 3, "OFPRR_GROUP_DELETE" },
+    { 0, NULL }
+};
+
+static void
+dissect_openflow_flow_removed_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    /* uint64_t cookie; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset+=8;
+
+    /* uint16_t priority; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint8_t reason; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint8_t table_id; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint32_t duration_sec; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_duration_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t duration_nsec; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_duration_nsec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint16_t idle_timeout; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_idle_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint16_t hard_timeout; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_hard_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint64_t packet_count; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_packet_count, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset+=8;
+
+    /* uint64_t byte_count; */
+    proto_tree_add_item(tree, hf_openflow_v4_flow_removed_byte_count, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset+=8;
+
+    /* struct ofp_match match; */
+    dissect_openflow_match_v4(tvb, pinfo, tree, offset, length);
+}
+
 #define OFPAT_OUTPUT         0  /* Output to switch port. */
 #define OFPAT_COPY_TTL_OUT  11  /* Copy TTL "outwards" */
 #define OFPAT_COPY_TTL_IN   12  /* Copy TTL "inwards" */
@@ -1510,6 +1669,211 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     }
 
     return offset;
+}
+
+
+#define OFPPC_PORT_DOWN     1 << 0
+#define OFPPC_NO_RECV       1 << 2
+#define OFPPC_NO_FWD        1 << 5
+#define OFPPC_NO_PACKET_IN  1 << 6
+
+#define OFPPS_LINK_DOWN  1 << 0
+#define OFPPS_BLOCKED    1 << 1
+#define OFPPS_LIVE       1 << 2
+
+#define OFPPF_10MB_HD   1 << 0
+#define OFPPF_10MB_FD   1 << 1
+#define OFPPF_100MB_HD  1 << 2
+#define OFPPF_100MB_FD  1 << 3
+#define OFPPF_1GB_HD    1 << 4
+#define OFPPF_1GB_FD    1 << 5
+#define OFPPF_10GB_FD   1 << 6
+#define OFPPF_40GB_FD   1 << 7
+#define OFPPF_100GB_FD  1 << 8
+#define OFPPF_1TB_FD    1 << 9
+#define OFPPF_OTHER     1 << 10
+
+#define OFPPF_COPPER      1 << 11
+#define OFPPF_FIBER       1 << 12
+#define OFPPF_AUTONEG     1 << 13
+#define OFPPF_PAUSE       1 << 14
+#define OFPPF_PAUSE_ASYM  1 << 15
+
+#define OFP_ETH_ALEN            6
+#define OFP_MAX_PORT_NAME_LEN  16
+static int
+dissect_openflow_port_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    proto_item *ti;
+    proto_tree *port_tree, *conf_tree, *state_tree, *curr_tree, *adv_tree, *supp_tree, *peer_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Port");
+    port_tree = proto_item_add_subtree(ti, ett_openflow_v4_port);
+
+    /* uint32_t port_no; */
+    if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
+        proto_tree_add_item(port_tree, hf_openflow_v4_port_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_item(port_tree, hf_openflow_v4_port_port_no_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset+=4;
+
+    /* uint8_t pad[4]; */
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint8_t hw_addr[OFP_ETH_ALEN]; */
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_BIG_ENDIAN);
+    offset+=OFP_ETH_ALEN;
+
+    /* uint8_t pad2[2]; */
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_pad2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* char name[OFP_MAX_PORT_NAME_LEN]; Null-terminated */
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_BIG_ENDIAN);
+    offset+=OFP_MAX_PORT_NAME_LEN;
+
+    /* uint32_t config; */
+    ti = proto_tree_add_item(port_tree, hf_openflow_v4_port_config, tvb, offset, 4, ENC_BIG_ENDIAN);
+    conf_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_config);
+
+    proto_tree_add_item(conf_tree, hf_openflow_v4_port_config_port_down, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(conf_tree, hf_openflow_v4_port_config_no_recv, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(conf_tree, hf_openflow_v4_port_config_no_fwd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(conf_tree, hf_openflow_v4_port_config_no_packet_in, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t state; */
+    ti = proto_tree_add_item(port_tree, hf_openflow_v4_port_state, tvb, offset, 4, ENC_BIG_ENDIAN);
+    state_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_state);
+
+    proto_tree_add_item(state_tree, hf_openflow_v4_port_state_link_down, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(state_tree, hf_openflow_v4_port_state_blocked, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(state_tree, hf_openflow_v4_port_state_live, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t curr; */
+    ti = proto_tree_add_item(port_tree, hf_openflow_v4_port_current, tvb, offset, 4, ENC_BIG_ENDIAN);
+    curr_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_current);
+
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_10mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_10mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_100mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_100mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_1gb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_1gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_10gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_40gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_100gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_1tb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_copper, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_fiber, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_autoneg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v4_port_current_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t advertised; */
+    ti = proto_tree_add_item(port_tree, hf_openflow_v4_port_advertised, tvb, offset, 4, ENC_BIG_ENDIAN);
+    adv_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_advertised);
+
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_10mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_10mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_100mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_100mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_1gb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_1gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_10gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_40gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_100gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_1tb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_copper, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_fiber, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_autoneg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v4_port_advertised_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t supported; */
+    ti = proto_tree_add_item(port_tree, hf_openflow_v4_port_supported, tvb, offset, 4, ENC_BIG_ENDIAN);
+    supp_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_supported);
+
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_10mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_10mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_100mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_100mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_1gb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_1gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_10gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_40gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_100gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_1tb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_copper, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_fiber, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_autoneg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v4_port_supported_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t peer; */
+    ti = proto_tree_add_item(port_tree, hf_openflow_v4_port_peer, tvb, offset, 4, ENC_BIG_ENDIAN);
+    peer_tree = proto_item_add_subtree(ti, ett_openflow_v4_port_peer);
+
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_10mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_10mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_100mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_100mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_1gb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_1gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_10gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_40gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_100gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_1tb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_copper, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_fiber, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_autoneg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v4_port_peer_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t curr_speed; */
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_curr_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t max_speed; */
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_max_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    return offset;
+};
+
+
+
+static const value_string openflow_v4_port_status_reason_values[] = {
+    { 0, "OFPPR_ADD" },
+    { 1, "OFPPR_DELETE" },
+    { 2, "OFPPR_MODIFY" },
+    { 0, NULL }
+};
+
+static void
+dissect_openflow_port_status_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    /* uint8_t reason; */
+    proto_tree_add_item(tree, hf_openflow_v4_port_status_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+
+    /* uint8_t pad[7]; */
+    proto_tree_add_item(tree, hf_openflow_v4_port_status_pad, tvb, offset, 7, ENC_BIG_ENDIAN);
+    offset+=7;
+
+    /* struct ofp_port desc; */
+    dissect_openflow_port_v4(tvb, pinfo, tree, offset, length);
 }
 
 
@@ -2135,6 +2499,12 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     case OFPT_V4_PACKET_IN: /* 10 */
         dissect_openflow_packet_in_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
+    case OFPT_V4_FLOW_REMOVED: /* 11 */
+        dissect_openflow_flow_removed_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
+    case OFPT_V4_PORT_STATUS: /* 12 */
+        dissect_openflow_port_status_v4(tvb, pinfo, openflow_tree, offset, length);
+        break;
     case OFPT_V4_PACKET_OUT: /* 13 */
         dissect_openflow_packet_out_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
@@ -2493,6 +2863,431 @@ proto_register_openflow_v4(void)
                FT_UINT32, BASE_HEX, VALS(openflow_v4_meter_id_reserved_values), 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_v4_port_port_no,
+            { "Port no", "openflow_v4.port.port_no",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_port_no_reserved,
+            { "Port no", "openflow_v4.port.port_no",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_port_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_pad,
+            { "Padding", "openflow_v4.port.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_hw_addr,
+            { "Hw addr", "openflow_v4.port.hw_addr",
+               FT_ETHER, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_pad2,
+            { "Padding", "openflow_v4.port.pad2",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_name,
+            { "Name", "openflow_v4.port.name",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_config,
+            { "Config", "openflow_v4.port.config",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_config_port_down,
+            { "OFPPC_PORT_DOWN", "openflow_v4.port.config.port_down",
+               FT_BOOLEAN, 32, NULL, OFPPC_PORT_DOWN,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_config_no_recv,
+            { "OFPPC_NO_RECV", "openflow_v4.port.config.no_recv",
+               FT_BOOLEAN, 32, NULL, OFPPC_NO_RECV,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_config_no_fwd,
+            { "OFPPC_NO_FWD", "openflow_v4.port.config.no_fwd",
+               FT_BOOLEAN, 32, NULL, OFPPC_NO_FWD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_config_no_packet_in,
+            { "OFPPC_NO_PACKET_IN", "openflow_v4.port.config.no_packet_in",
+               FT_BOOLEAN, 32, NULL, OFPPC_NO_PACKET_IN,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_state,
+            { "State", "openflow_v4.port.sate",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_state_link_down,
+            { "OFPPS_LINK_DOWN", "openflow_v4.port.state.link_down",
+               FT_BOOLEAN, 32, NULL, OFPPS_LINK_DOWN,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_state_blocked,
+            { "OFPPS_BLOCKED", "openflow_v4.port.state.blocked",
+               FT_BOOLEAN, 32, NULL, OFPPS_BLOCKED,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_state_live,
+            { "OFPPS_LIVE", "openflow_v4.port.state.live",
+               FT_BOOLEAN, 32, NULL, OFPPS_LIVE,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current,
+            { "Current", "openflow_v4.port.current",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_10mb_hd,
+            { "OFPPF_10MB_HD", "openflow_v4.port.current.10mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_10mb_fd,
+            { "OFPPF_10MB_FD", "openflow_v4.port.current.10mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_100mb_hd,
+            { "OFPPF_100MB_HD", "openflow_v4.port.current.100mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_100mb_fd,
+            { "OFPPF_100MB_FD", "openflow_v4.port.current.100mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_1gb_hd,
+            { "OFPPF_1GB_HD", "openflow_v4.port.current.1gb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_1gb_fd,
+            { "OFPPF_1GB_FD", "openflow_v4.port.current.1gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_10gb_fd,
+            { "OFPPF_10_GB_FD", "openflow_v4.port.current.10gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_40gb_fd,
+            { "OFPPF_40GB_FD", "openflow_v4.port.current.40gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_40GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_100gb_fd,
+            { "OFPPF_100_GB_FD", "openflow_v4.port.current.100_gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_1tb_fd,
+            { "OFPPF_1TB_FD", "openflow_v4.port.current.1tb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1TB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_other,
+            { "OFPPF_OTHER", "openflow_v4.port.current.other",
+               FT_BOOLEAN, 32, NULL, OFPPF_OTHER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_copper,
+            { "OFPPF_COPPER", "openflow_v4.port.current.copper",
+               FT_BOOLEAN, 32, NULL, OFPPF_COPPER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_fiber,
+            { "OFPPF_FIBER", "openflow_v4.port.current.fiber",
+               FT_BOOLEAN, 32, NULL, OFPPF_FIBER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_autoneg,
+            { "OFPPF_AUTONEG", "openflow_v4.port.current.autoneg",
+               FT_BOOLEAN, 32, NULL, OFPPF_AUTONEG,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_pause,
+            { "OFPPF_PAUSE", "openflow_v4.port.current.pause",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_current_pause_asym,
+            { "OFPPF_PAUSE_ASYM", "openflow_v4.port.current.pause_asym",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised,
+            { "Advertised", "openflow_v4.port.advertised",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_10mb_hd,
+            { "OFPPF_10MB_HD", "openflow_v4.port.advertised.10mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_10mb_fd,
+            { "OFPPF_10MB_FD", "openflow_v4.port.advertised.10mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_100mb_hd,
+            { "OFPPF_100MB_HD", "openflow_v4.port.advertised.100mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_100mb_fd,
+            { "OFPPF_100MB_FD", "openflow_v4.port.advertised.100mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_1gb_hd,
+            { "OFPPF_1GB_HD", "openflow_v4.port.advertised.1gb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_1gb_fd,
+            { "OFPPF_1GB_FD", "openflow_v4.port.advertised.1gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_10gb_fd,
+            { "OFPPF_10_GB_FD", "openflow_v4.port.advertised.10gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_40gb_fd,
+            { "OFPPF_40GB_FD", "openflow_v4.port.advertised.40gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_40GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_100gb_fd,
+            { "OFPPF_100GB_FD", "openflow_v4.port.advertised.100gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_1tb_fd,
+            { "OFPPF_1TB_FD", "openflow_v4.port.advertised.1tb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1TB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_other,
+            { "OFPPF_OTHER", "openflow_v4.port.advertised.other",
+               FT_BOOLEAN, 32, NULL, OFPPF_OTHER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_copper,
+            { "OFPPF_COPPER", "openflow_v4.port.advertised.copper",
+               FT_BOOLEAN, 32, NULL, OFPPF_COPPER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_fiber,
+            { "OFPPF_FIBER", "openflow_v4.port.advertised.fiber",
+               FT_BOOLEAN, 32, NULL, OFPPF_FIBER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_autoneg,
+            { "OFPPF_AUTONEG", "openflow_v4.port.advertised.autoneg",
+               FT_BOOLEAN, 32, NULL, OFPPF_AUTONEG,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_pause,
+            { "OFPPF_PAUSE", "openflow_v4.port.advertised.pause",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_advertised_pause_asym,
+            { "OFPPF_PAUSE_ASYM", "openflow_v4.port.advertised.pause_asym",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported,
+            { "Supported", "openflow_v4.port.supported",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_10mb_hd,
+            { "OFPPF_10MB_HD", "openflow_v4.port.supported.10mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_10mb_fd,
+            { "OFPPF_10MB_FD", "openflow_v4.port.supported.10mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_100mb_hd,
+            { "OFPPF_100MB_HD", "openflow_v4.port.supported.100mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_100mb_fd,
+            { "OFPPF_100MB_FD", "openflow_v4.port.supported.100mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_1gb_hd,
+            { "OFPPF_1GB_HD", "openflow_v4.port.supported.1gb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_1gb_fd,
+            { "OFPPF_1GB_FD", "openflow_v4.port.supported.1gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_10gb_fd,
+            { "OFPPF_10_GB_FD", "openflow_v4.port.supported.10gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_40gb_fd,
+            { "OFPPF_40GB_FD", "openflow_v4.port.supported.40gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_40GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_100gb_fd,
+            { "OFPPF_100GB_FD", "openflow_v4.port.supported.100gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_1tb_fd,
+            { "OFPPF_1TB_FD", "openflow_v4.port.supported.1tb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1TB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_other,
+            { "OFPPF_OTHER", "openflow_v4.port.supported.other",
+               FT_BOOLEAN, 32, NULL, OFPPF_OTHER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_copper,
+            { "OFPPF_COPPER", "openflow_v4.port.supported.copper",
+               FT_BOOLEAN, 32, NULL, OFPPF_COPPER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_fiber,
+            { "OFPPF_FIBER", "openflow_v4.port.supported.fiber",
+               FT_BOOLEAN, 32, NULL, OFPPF_FIBER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_autoneg,
+            { "OFPPF_AUTONEG", "openflow_v4.port.supported.autoneg",
+               FT_BOOLEAN, 32, NULL, OFPPF_AUTONEG,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_pause,
+            { "OFPPF_PAUSE", "openflow_v4.port.supported.pause",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_supported_pause_asym,
+            { "OFPPF_PAUSE_ASYM", "openflow_v4.port.supported.pause_asym",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer,
+            { "Peer", "openflow_v4.port.peer",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_10mb_hd,
+            { "OFPPF_10MB_HD", "openflow_v4.port.peer.10mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_10mb_fd,
+            { "OFPPF_10MB_FD", "openflow_v4.port.peer.10mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_100mb_hd,
+            { "OFPPF_100MB_HD", "openflow_v4.port.peer.100mb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_100mb_fd,
+            { "OFPPF_100MB_FD", "openflow_v4.port.peer.100mb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100MB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_1gb_hd,
+            { "OFPPF_1GB_HD", "openflow_v4.port.peer.1gb_hd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_HD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_1gb_fd,
+            { "OFPPF_1GB_FD", "openflow_v4.port.peer.1gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_10gb_fd,
+            { "OFPPF_10_GB_FD", "openflow_v4.port.peer.10gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_10GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_40gb_fd,
+            { "OFPPF_40GB_FD", "openflow_v4.port.peer.40gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_40GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_100gb_fd,
+            { "OFPPF_100GB_FD", "openflow_v4.port.peer.100gb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_100GB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_1tb_fd,
+            { "OFPPF_1TB_FD", "openflow_v4.port.peer.1tb_fd",
+               FT_BOOLEAN, 32, NULL, OFPPF_1TB_FD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_other,
+            { "OFPPF_OTHER", "openflow_v4.port.peer.other",
+               FT_BOOLEAN, 32, NULL, OFPPF_OTHER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_copper,
+            { "OFPPF_COPPER", "openflow_v4.port.peer.copper",
+               FT_BOOLEAN, 32, NULL, OFPPF_COPPER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_fiber,
+            { "OFPPF_FIBER", "openflow_v4.port.peer.fiber",
+               FT_BOOLEAN, 32, NULL, OFPPF_FIBER,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_autoneg,
+            { "OFPPF_AUTONEG", "openflow_v4.port.peer.autoneg",
+               FT_BOOLEAN, 32, NULL, OFPPF_AUTONEG,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_pause,
+            { "OFPPF_PAUSE", "openflow_v4.port.peer.pause",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_peer_pause_asym,
+            { "OFPPF_PAUSE_ASYM", "openflow_v4.port.peer.pause_asym",
+               FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_curr_speed,
+            { "Curr speed", "openflow_v4.port.curr_speed",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_max_speed,
+            { "Max speed", "openflow_v4.port.max_speed",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
         { &hf_openflow_v4_hello_element_type,
             { "Type", "openflow_v4.hello_element.type",
                FT_UINT16, BASE_DEC, VALS(openflow_v4_hello_element_type_values), 0x0,
@@ -2758,6 +3553,67 @@ proto_register_openflow_v4(void)
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_v4_flow_removed_cookie,
+            { "Cookie", "openflow_v4.flow_removed.cookie",
+               FT_UINT64, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_priority,
+            { "Priority", "openflow_v4.flow_removed.priority",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_reason,
+            { "Reason", "openflow_v4.flow_removed.reason",
+               FT_UINT8, BASE_DEC, VALS(openflow_v4_flow_removed_reason_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_table_id,
+            { "Table ID", "openflow_v4.flow_removed.table_id",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_duration_sec,
+            { "Duration sec", "openflow_v4.flow_removed.duration_sec",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_duration_nsec,
+            { "Duration nsec", "openflow_v4.flow_removed.duration_nsec",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_idle_timeout,
+            { "Idle timeout", "openflow_v4.flow_removed.idle_timeout",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_hard_timeout,
+            { "Hard timeout", "openflow_v4.flow_removed.hard_timeout",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_packet_count,
+            { "Packet count", "openflow_v4.flow_removed.packet_count",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_flow_removed_byte_count,
+            { "Byte count", "openflow_v4.flow_removed.byte_count",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_status_reason,
+            { "Reason", "openflow_v4.port_status.reason",
+               FT_UINT8, BASE_DEC, VALS(openflow_v4_port_status_reason_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_port_status_pad,
+            { "Padding", "openflow_v4.port_status.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+
         { &hf_openflow_v4_packet_out_buffer_id,
             { "Buffer ID", "openflow_v4.packet_out.buffer_id",
                FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2815,17 +3671,17 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_flowmod_idle_timeout,
             { "Idle timeout", "openflow_v4.flowmod.idle_timeout",
-               FT_UINT8, BASE_DEC, NULL, 0x0,
+               FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_flowmod_hard_timeout,
             { "Hard timeout", "openflow_v4.flowmod.hard_timeout",
-               FT_UINT8, BASE_DEC, NULL, 0x0,
+               FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_flowmod_priority,
             { "Priority", "openflow_v4.flowmod.priority",
-               FT_UINT8, BASE_DEC, NULL, 0x0,
+               FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_flowmod_buffer_id,
@@ -2985,6 +3841,13 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_action,
         &ett_openflow_v4_instruction,
         &ett_openflow_v4_instruction_actions_actions,
+        &ett_openflow_v4_port,
+        &ett_openflow_v4_port_config,
+        &ett_openflow_v4_port_state,
+        &ett_openflow_v4_port_current,
+        &ett_openflow_v4_port_advertised,
+        &ett_openflow_v4_port_supported,
+        &ett_openflow_v4_port_peer,
         &ett_openflow_v4_hello_element,
         &ett_openflow_v4_error_data,
         &ett_openflow_v4_switch_config_flags,
