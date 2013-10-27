@@ -121,6 +121,7 @@ static const value_string usb_com_subclass_vals[] = {
     {COM_SUBCLASS_MBIM, "Mobile Broadband Interface Model"},
     {0, NULL}
 };
+value_string_ext ext_usb_com_subclass_vals = VALUE_STRING_EXT_INIT(usb_com_subclass_vals);
 
 static int
 dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
