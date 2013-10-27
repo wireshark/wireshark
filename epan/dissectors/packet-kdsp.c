@@ -262,8 +262,8 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32 offset = 0;
   guint32 command, length, numChan, bitmap, cptbitmap;
-  guint32 i, datalink_type, payload_len;
-  guint16 type, reported_payload_len, data_hdr_len, data_hdr_len_check;
+  guint32 i, datalink_type=0, payload_len;
+  guint16 type, reported_payload_len=0, data_hdr_len, data_hdr_len_check;
   proto_item *kdsp_item, *sub_item, *subsub_item, *data_len_item, *command_item;
   proto_tree *kdsp_tree, *sub_tree, *subsub_tree;
   tvbuff_t   *payload_tvb;
