@@ -9168,9 +9168,9 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_MAND_LV(elem_idx, elem_name_addition) \
+#define ELEM_MAND_LV(elem_idx, elem_name_addition, from_sip) \
 {\
-    if ((consumed = (GPOINTER_TO_UINT(pinfo->private_data) ? \
+    if ((consumed = (from_sip ? \
                          elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition) : \
                          elem_lv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition))) > 0) \
     { \
@@ -9184,9 +9184,9 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_MAND_V(elem_idx) \
+#define ELEM_MAND_V(elem_idx, from_sip) \
 {\
-    if ((consumed = (GPOINTER_TO_UINT(pinfo->private_data) ? \
+    if ((consumed = (from_sip ? \
                          elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, "") : \
                          elem_v(tvb, pinfo, tree, elem_idx, curr_offset))) > 0) \
     { \
@@ -9205,7 +9205,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
  * IOS 6.1.2.1
  */
 static void
-bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint16      consumed;
     guint32     curr_offset;
@@ -9214,7 +9214,7 @@ bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    if (!GPOINTER_TO_UINT(pinfo->private_data)) {
+    if (!from_sip) {
         /* With femtoInterfaceMsg application, the Information Elements
            for the Complete Layer 3 Information message shall not be included */
         ELEM_MAND_TLV(ANSI_A_E_CELL_ID, "");
@@ -9229,7 +9229,7 @@ bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.2.2
  */
 static void
-dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9280,9 +9280,9 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "");
+    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "", from_sip);
 
-    ELEM_MAND_LV(ANSI_A_E_MID, "");
+    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
 
     ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
 
@@ -9348,7 +9348,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.1.3
  */
 static void
-dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9370,7 +9370,7 @@ dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.1.2.3
  */
 static void
-bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9413,7 +9413,7 @@ bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.2.4
  */
 static void
-dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9422,9 +9422,9 @@ dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "");
+    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "", from_sip);
 
-    ELEM_MAND_LV(ANSI_A_E_MID, "");
+    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -9476,7 +9476,7 @@ dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.2.12
  */
 static void
-dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9498,7 +9498,7 @@ dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 5 3.8.1
  */
 static void
-dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9526,7 +9526,7 @@ dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.1.11
  */
 static void
-dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9548,7 +9548,7 @@ dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.1.12
  */
 static void
-dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9566,7 +9566,7 @@ dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * IOS 6.1.2.15
  */
 static void
-bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint16      consumed;
     guint32     curr_offset;
@@ -9619,7 +9619,7 @@ bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.2.16
  */
 static void
-bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -9654,7 +9654,7 @@ bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.2.17
  */
 static void
-bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -9674,7 +9674,7 @@ bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.2.20
  */
 static void
-bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -9694,7 +9694,7 @@ bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.2.21
  */
 static void
-bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -9714,7 +9714,7 @@ bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.2.22
  */
 static void
-bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -9734,7 +9734,7 @@ bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.2.24
  */
 static void
-dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9754,7 +9754,7 @@ dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.1.2.28
  */
 static void
-bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9784,7 +9784,7 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.2.29
  */
 static void
-bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9810,7 +9810,7 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 5 3.1.19
  */
 static void
-bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9832,7 +9832,7 @@ bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 5 3.1.20
  */
 static void
-dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9866,7 +9866,7 @@ dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.1.10
  */
 static void
-dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9884,7 +9884,7 @@ dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 6.1.3.7
  */
 static void
-dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9923,7 +9923,7 @@ dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.1.3.8
  */
 static void
-dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9943,7 +9943,7 @@ dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
  * IOS 6.1.3.9
  */
 static void
-bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9983,7 +9983,7 @@ bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.3.10
  */
 static void
-bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10003,7 +10003,7 @@ bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.3.11
  */
 static void
-bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10023,7 +10023,7 @@ bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.3.12
  */
 static void
-bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10041,7 +10041,7 @@ bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 6.1.3.13
  */
 static void
-bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10079,7 +10079,7 @@ bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.3.14
  */
 static void
-bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10101,7 +10101,7 @@ bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.2.9
  */
 static void
-bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10119,7 +10119,7 @@ bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.2.10
  */
 static void
-bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10143,7 +10143,7 @@ bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.4.1
  */
 static void
-bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10174,7 +10174,7 @@ bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 }
 
 static void
-dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10183,7 +10183,7 @@ dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "", from_sip);
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
@@ -10194,7 +10194,7 @@ dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.4.2
  */
 static void
-bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10221,7 +10221,7 @@ bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * Section 3.1.21
  */
 static void
-bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10242,7 +10242,7 @@ bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * Section 3.1.22
  */
 static void
-bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10265,7 +10265,7 @@ bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * Section 3.1.23
  */
 static void
-bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10284,7 +10284,7 @@ bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static void
-dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10293,7 +10293,7 @@ dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "", from_sip);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10302,7 +10302,7 @@ dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.4.3
  */
 static void
-bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10320,7 +10320,7 @@ bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 5 3.3.16
  */
 static void
-dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10338,7 +10338,7 @@ dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
  * IOS 5 3.3.17
  */
 static void
-dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10356,7 +10356,7 @@ dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.3.18
  */
 static void
-bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10388,7 +10388,7 @@ bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 5 3.3.18
  */
 static void
-dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10406,7 +10406,7 @@ dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.3.19
  */
 static void
-bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10436,7 +10436,7 @@ bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 5 3.3.20
  */
 static void
-bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10454,7 +10454,7 @@ bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.3.21
  */
 static void
-bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10472,7 +10472,7 @@ bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.3.22
  */
 static void
-bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10490,7 +10490,7 @@ bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.1.4.4
  */
 static void
-dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10499,7 +10499,7 @@ dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "", from_sip);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10508,7 +10508,7 @@ dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.4.5
  */
 static void
-dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10517,7 +10517,7 @@ dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "", from_sip);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10526,7 +10526,7 @@ dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.4.6
  */
 static void
-dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10535,7 +10535,7 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "");
+    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "", from_sip);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10544,7 +10544,7 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 6.1.4.7
  */
 static void
-dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10562,7 +10562,7 @@ dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.1.4.8
  */
 static void
-dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10571,7 +10571,7 @@ dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_MID, "");
+    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
 
     ELEM_OPT_TV(ANSI_A_E_LAI, "");
 
@@ -10612,7 +10612,7 @@ dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
  * IOS 6.1.4.9
  */
 static void
-dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10643,7 +10643,7 @@ dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.4.10
  */
 static void
-dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10652,7 +10652,7 @@ dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(ANSI_A_E_REJ_CAUSE);
+    ELEM_MAND_V(ANSI_A_E_REJ_CAUSE, from_sip);
 
     switch (global_a_variant)
     {
@@ -10670,7 +10670,7 @@ dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.4.18
  */
 static void
-bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10688,7 +10688,7 @@ bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  * IOS 6.1.4.19
  */
 static void
-bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10708,7 +10708,7 @@ bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
  * IOS 5 3.3.14
  */
 static void
-bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10746,7 +10746,7 @@ bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.3.14
  */
 static void
-dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10755,7 +10755,7 @@ dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_IE_REQD, "");
+    ELEM_MAND_LV(ANSI_A_E_IE_REQD, "", from_sip);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10765,7 +10765,7 @@ dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 5 3.3.15
  */
 static void
-bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10791,7 +10791,7 @@ bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.3.15
  */
 static void
-dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10800,7 +10800,7 @@ dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_REV_MS_INFO_RECS, "");
+    ELEM_MAND_LV(ANSI_A_E_REV_MS_INFO_RECS, "", from_sip);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10809,7 +10809,7 @@ dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.1.5.4
  */
 static void
-bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10892,7 +10892,7 @@ bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.5.5
  */
 static void
-bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10986,7 +10986,7 @@ bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 6.1.5.6
  */
 static void
-bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11035,7 +11035,7 @@ bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.1.5.7
  */
 static void
-bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11053,7 +11053,7 @@ bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.1.5.8
  */
 static void
-bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11106,7 +11106,7 @@ bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.4.6
  */
 static void
-bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11124,7 +11124,7 @@ bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.5.9
  */
 static void
-bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11142,7 +11142,7 @@ bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.5.12
  */
 static void
-bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11168,7 +11168,7 @@ bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.6.2
  */
 static void
-bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11190,7 +11190,7 @@ bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
  * IOS 6.1.6.3
  */
 static void
-bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11208,7 +11208,7 @@ bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.4
  */
 static void
-bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11228,7 +11228,7 @@ bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.6.5
  */
 static void
-bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11246,7 +11246,7 @@ bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.6.6
  */
 static void
-bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11266,7 +11266,7 @@ bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
  * IOS 6.1.6.7
  */
 static void
-bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11284,7 +11284,7 @@ bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.8
  */
 static void
-bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11306,7 +11306,7 @@ bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.9
  */
 static void
-bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11324,7 +11324,7 @@ bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.6.10
  */
 static void
-bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11342,7 +11342,7 @@ bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.11
  */
 static void
-bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11360,7 +11360,7 @@ bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.7.1
  */
 static void
-bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11394,7 +11394,7 @@ bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.7.2
  */
 static void
-bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11448,7 +11448,7 @@ bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 5 3.6.4
  */
 static void
-bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11470,7 +11470,7 @@ bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  * IOS 6.1.7.3
  */
 static void
-dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11479,7 +11479,7 @@ dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_ADDS_USER_PART, "");
+    ELEM_MAND_LV(ANSI_A_E_ADDS_USER_PART, "", from_sip);
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -11492,7 +11492,7 @@ dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.7.4
  */
 static void
-bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11520,7 +11520,7 @@ bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.7.5
  */
 static void
-dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11540,7 +11540,7 @@ dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.1.8.1
  */
 static void
-bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11561,7 +11561,7 @@ bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 }
 
 static void
-dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11584,7 +11584,7 @@ dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 #define ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
 #define ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
 static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
-static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len) =
+static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip) =
 {
     bsmap_add_srvc_noti,            /* Additional Service Notification */
     bsmap_adds_page,                /* ADDS Page */
@@ -11654,7 +11654,7 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 #define ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
 #define ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
 static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
-static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len) =
+static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip) =
 {
     dtap_add_srvc_req,              /* Additional Service Request */
     dtap_adds_deliver,              /* ADDS Deliver */
@@ -11752,7 +11752,6 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     proto_item                  *bsmap_item = NULL;
     proto_tree                  *bsmap_tree = NULL;
     const gchar                 *msg_str;
-    void                        *pd_save;
 
 
     col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
@@ -11822,8 +11821,6 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     if ((len - offset) <= 0) return;
 
     a_meid_configured = FALSE;
-    pd_save = pinfo->private_data;
-    pinfo->private_data = GUINT_TO_POINTER((guint)from_sip);
 
     /*
      * decode elements
@@ -11836,10 +11833,8 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
     else
     {
-        (*bsmap_msg_fcn[dec_idx])(tvb, pinfo, bsmap_tree, offset, len - offset);
+        (*bsmap_msg_fcn[dec_idx])(tvb, pinfo, bsmap_tree, offset, len - offset, from_sip);
     }
-
-    pinfo->private_data = pd_save;
 }
 
 static void
@@ -11865,7 +11860,6 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     proto_tree                  *oct_1_tree = NULL;
     const gchar                 *msg_str;
     const gchar                 *str;
-    void                        *pd_save;
 
     len = tvb_length(tvb);
 
@@ -12025,8 +12019,6 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if ((len - offset) <= 0) return;
 
     a_meid_configured = FALSE;
-    pd_save = pinfo->private_data;
-    pinfo->private_data = GUINT_TO_POINTER((guint)from_sip);
 
     /*
      * decode elements
@@ -12039,10 +12031,8 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
     else
     {
-        (*dtap_msg_fcn[dec_idx])(tvb, pinfo, dtap_tree, offset, len - offset);
+        (*dtap_msg_fcn[dec_idx])(tvb, pinfo, dtap_tree, offset, len - offset, from_sip);
     }
-
-    pinfo->private_data = pd_save;
 }
 
 static void
