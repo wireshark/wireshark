@@ -70,6 +70,9 @@ static int hf_kafka_error               = -1;
 static int hf_kafka_broker_nodeid       = -1;
 static int hf_kafka_broker_host         = -1;
 static int hf_kafka_broker_port         = -1;
+static int hf_kafka_min_bytes           = -1;
+static int hf_kafka_max_bytes           = -1;
+static int hf_kafka_max_wait_time       = -1;
 
 static gint ett_kafka                    = -1;
 static gint ett_kafka_message            = -1;
@@ -296,6 +299,10 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_item *ti;
     proto_tree *subtree;
     int         offset = start_offset;
+
+    if (tvb_reported_length_remaining(tvb, offset) <= 0) {
+        return offset;
+    }
 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "Message Set");
     subtree = proto_item_add_subtree(ti, ett_kafka_message_set);
@@ -554,6 +561,119 @@ dissect_kafka_metadata_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return offset;
 }
 
+/* FETCH REQUEST */
+
+static int
+dissect_kafka_fetch_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 16, "Fetch Request Partition");
+    subtree = proto_item_add_subtree(ti, ett_kafka_request_partition);
+
+    proto_tree_add_item(subtree, hf_kafka_partition_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(subtree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(subtree, hf_kafka_max_bytes, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int
+dissect_kafka_fetch_request_topic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Fetch Request Topic");
+    subtree = proto_item_add_subtree(ti, ett_kafka_request_topic);
+
+    offset = dissect_kafka_string(subtree, hf_kafka_topic_name, tvb, pinfo, offset);
+    offset = dissect_kafka_array(subtree, tvb, pinfo, offset, &dissect_kafka_fetch_request_partition);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_fetch_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_tree_add_item(tree, hf_kafka_replica, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_kafka_max_wait_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_kafka_min_bytes, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_fetch_request_topic);
+
+    return offset;
+}
+
+/* FETCH RESPONSE */
+
+static int
+dissect_kafka_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Fetch Response Partition");
+    subtree = proto_item_add_subtree(ti, ett_kafka_response_partition);
+
+    proto_tree_add_item(subtree, hf_kafka_partition_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(subtree, hf_kafka_error, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(subtree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(subtree, hf_kafka_message_set_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_fetch_response_topic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Fetch Response Topic");
+    subtree = proto_item_add_subtree(ti, ett_kafka_response_topic);
+
+    offset = dissect_kafka_string(subtree, hf_kafka_topic_name, tvb, pinfo, offset);
+    offset = dissect_kafka_array(subtree, tvb, pinfo, offset, &dissect_kafka_fetch_response_partition);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_fetch_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_fetch_response_topic);
+}
+
 /* PRODUCE REQUEST */
 
 static int
@@ -747,6 +867,9 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case KAFKA_METADATA:
                 /*offset =*/ dissect_kafka_metadata_request(tvb, pinfo, kafka_tree, offset);
                 break;
+            case KAFKA_FETCH:
+                /*offset =*/ dissect_kafka_fetch_request(tvb, pinfo, kafka_tree, offset);
+                break;
         }
     }
     else {
@@ -791,6 +914,9 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case KAFKA_METADATA:
                 /*offset =*/ dissect_kafka_metadata_response(tvb, pinfo, kafka_tree, offset);
+                break;
+            case KAFKA_FETCH:
+                /*offset =*/ dissect_kafka_fetch_response(tvb, pinfo, kafka_tree, offset);
                 break;
         }
 
@@ -968,6 +1094,28 @@ proto_register_kafka(void)
             { "Port", "kafka.port",
                FT_INT32, BASE_DEC, 0, 0,
                NULL, HFILL }
+        },
+        { &hf_kafka_min_bytes,
+            { "Min Bytes", "kafka.min_bytes",
+               FT_INT32, BASE_DEC, 0, 0,
+               "The minimum number of bytes of messages that must be available"
+                   " to give a response.",
+               HFILL }
+        },
+        { &hf_kafka_max_bytes,
+            { "Max Bytes", "kafka.max_bytes",
+               FT_INT32, BASE_DEC, 0, 0,
+               "The maximum bytes to include in the message set for this"
+                   " partition. This helps bound the size of the response.",
+               HFILL }
+        },
+        { &hf_kafka_max_wait_time,
+            { "Max Wait Time", "kafka.max_wait_time",
+               FT_INT32, BASE_DEC, 0, 0,
+               "The maximum amount of time in milliseconds to block waiting if"
+                   " insufficient data is available at the time the request is"
+                   " issued.",
+               HFILL }
         },
         { &hf_kafka_response_frame,
             { "Response Frame", "kafka.reponse_frame",
