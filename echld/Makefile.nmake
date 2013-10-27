@@ -1,7 +1,7 @@
 ## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake 47938 2013-02-28 14:09:46Z rbalint $
+# $Id$
 
 include ..\config.nmake
 include <win32.mak>

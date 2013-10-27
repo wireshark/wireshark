@@ -1,5 +1,6 @@
 # Configure paths for libsmi
 # Shamelessly stolen from http://autoconf-archive.cryp.to/ax_lib_sqlite3.html
+# $Id$
 
 # Synopsis: AX_LIBSMI([minimum library version])
 # The default minimum library version is 2

@@ -84,7 +84,7 @@ do
 			svn ps svn:eol-style native $file
 			svn ps svn:executable '*' $file
 			;;
-		*) # includes *.dtd|*.c|*.h|*.cpp
+		*) # includes *.dtd|*.c|*.h|*.cpp|*.m4|*.asn
 			svn ps svn:keywords Id $file
 			svn ps svn:eol-style native $file
 			;;

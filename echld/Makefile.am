@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am 48716 2013-04-03 07:38:44Z guy $
+# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
