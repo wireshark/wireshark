@@ -219,15 +219,6 @@ packaging: _FORCE_
 	@exit 1
 !ENDIF
 
-packaging_u3: all
-	cd packaging
-	cd u3
-	cd win32
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-	cd ..
-	cd ..
-
 packaging_papps: all
 	cd packaging
 	cd portableapps
@@ -580,8 +571,6 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../u3/win32
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../../portableapps/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../../..
@@ -634,8 +623,6 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../u3/win32
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../../portableapps/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../../..
@@ -680,8 +667,6 @@ maintainer-clean: maintainer-clean-local
 	cd ../help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../packaging/nsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../u3/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../../portableapps/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean

@@ -64,7 +64,6 @@ set(WSUTIL_FILES
   swar.c
   tempfile.c
   type_util.c
-  u3.c
   ${WSUTIL_PLATFORM_FILES}
 )
 

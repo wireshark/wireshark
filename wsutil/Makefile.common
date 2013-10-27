@@ -56,8 +56,7 @@ LIBWSUTIL_SRC = 	\
 	rc4.c		\
 	report_err.c	\
 	tempfile.c	\
-	type_util.c	\
-	u3.c
+	type_util.c
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
@@ -88,5 +87,4 @@ LIBWSUTIL_INCLUDES = 	\
 	report_err.h	\
 	swar.h		\
 	tempfile.h	\
-	type_util.h	\
-	u3.h
+	type_util.h

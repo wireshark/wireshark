@@ -37,7 +37,6 @@
 #endif
 
 #include <wsutil/crash_info.h>
-#include <wsutil/u3.h>
 #include <wsutil/file_util.h>
 
 #include <wiretap/merge.h>
@@ -434,12 +433,6 @@ get_gui_runtime_info(GString *str)
   g_string_append(str, ", ");
   get_runtime_airpcap_version(str);
 #endif
-
-
-  if(u3_active()) {
-    g_string_append(str, ", ");
-    u3_runtime_info(str);
-  }
 
 }
 
