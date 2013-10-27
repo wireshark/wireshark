@@ -206,7 +206,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	cksum_vec[2].ptr=(guint8 *)ci->ip_dst.data;
 	cksum_vec[2].ptr=cksum_vec[2].ptr+ci->ip_dst.len;
 	/* dynamic computation */
-	cksum_vec[2].len=pinfo->iphdrlen-20;
+	cksum_vec[2].len=ci->ip_len-20;
 	computed_cksum=in_cksum(&cksum_vec[0], 3);
 
 	/* Set up the new order to create the zebra effect */

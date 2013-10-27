@@ -867,7 +867,7 @@ aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, p
   proto_tree *ehs_data_zone_tree;
 
   /* create the data zone tree */
-  ehs_data_zone = proto_tree_add_text ( ehs_tree, tvb, *offset, pinfo->iplen - IP_HEADER_LENGTH - *offset, "AOS/LOS Data Zone" );
+  ehs_data_zone = proto_tree_add_text ( ehs_tree, tvb, *offset, tvb_reported_length(tvb) - *offset, "AOS/LOS Data Zone" );
   ehs_data_zone_tree = proto_item_add_subtree ( ehs_data_zone, ett_ehs_data_zone );
 
   /* since the aos/los EHS packet data zone is well known, format it for display as well
@@ -902,7 +902,7 @@ udsm_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int* offset, pac
   int year, jday, hour, minute, second;
 
   /* create the data zone tree */
-  ehs_data_zone = proto_tree_add_text ( ehs_tree, tvb, *offset, pinfo->iplen - IP_HEADER_LENGTH - *offset, "UDSM Data Zone" );
+  ehs_data_zone = proto_tree_add_text ( ehs_tree, tvb, *offset, tvb_reported_length(tvb) - *offset, "UDSM Data Zone" );
   ehs_data_zone_tree = proto_item_add_subtree ( ehs_data_zone, ett_ehs_data_zone );
 
   proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_ccsds_vs_bpdu, tvb, *offset, 1, ENC_BIG_ENDIAN );

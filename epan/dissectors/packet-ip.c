@@ -2314,8 +2314,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   pinfo->ipproto = iph->ip_p;
-  pinfo->iplen = iph->ip_len;
-  pinfo->iphdrlen = hlen;
   tap_queue_packet(ip_tap, pinfo, iph);
 
   /* Skip over header + options */
@@ -2328,14 +2326,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    */
   save_fragmented = pinfo->fragmented;
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
-      tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
+      tvb_bytes_exist(tvb, offset, iph->ip_len - hlen) &&
       ipsum == 0) {
     ipfd_head = fragment_add_check(&ip_reassembly_table, tvb, offset,
                                    pinfo,
                                    iph->ip_p ^ iph->ip_id ^ src32 ^ dst32,
                                    NULL,
                                    (iph->ip_off & IP_OFFSET) * 8,
-                                   pinfo->iplen - pinfo->iphdrlen,
+                                   iph->ip_len - hlen,
                                    iph->ip_off & IP_MF);
 
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled IPv4",

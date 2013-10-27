@@ -786,7 +786,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* initialize the CoAP length and the content-Format */
 	/*
 	 * the length of CoAP message is not specified in the CoAP header.
-	 * It has to be from the lower layer.  the iplen of packet_info is not accurate.
+	 * It has to be from the lower layer.
 	 * Currently, the length is just copied from the reported length of the tvbuffer.
 	 */
 	coap_length = tvb_reported_length(tvb);

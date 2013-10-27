@@ -136,9 +136,6 @@ typedef struct _packet_info {
 								*/
   guint32 bytes_until_next_pdu;
 
-
-  int     iplen;                /**< total length of IP packet */
-  int     iphdrlen;             /**< length of IP header */
   guint8  ip_ttl;               /**< IP time to live */
   int	  p2p_dir;              /**< Packet was captured as an
                                        outbound (P2P_DIR_SENT)

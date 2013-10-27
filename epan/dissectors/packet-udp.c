@@ -485,7 +485,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       }
     }
   } else {
-    udph->uh_ulen = pinfo->iplen - pinfo->iphdrlen;
+    udph->uh_ulen = tvb_reported_length(tvb);
     udph->uh_sum_cov = tvb_get_ntohs(tvb, offset+4);
     if (((udph->uh_sum_cov > 0) && (udph->uh_sum_cov < 8)) || (udph->uh_sum_cov > udph->uh_ulen)) {
       /* Bogus length - it includes the header, so it must be >= 8, and no larger then the IP payload size. */

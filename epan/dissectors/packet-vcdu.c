@@ -402,7 +402,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 new_offset = offset + 2 + new_ptr;
 
                 packet_boundary =
-                    pinfo->iplen - IP_HEADER_LENGTH - VCDU_HEADER_LENGTH
+                    tvb_reported_length(tvb) - VCDU_HEADER_LENGTH
                     - CCSDS_PRIMARY_HEADER_LENGTH - CCSDS_SECONDARY_HEADER_LENGTH;
 
                 while ( ((new_offset-offset+2) < packet_boundary)  &&  ((new_offset-offset+2) >= 4) )

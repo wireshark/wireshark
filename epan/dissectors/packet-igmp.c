@@ -909,7 +909,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	switch (type) {
 	case IGMP_V1_HOST_MEMBERSHIP_QUERY:	/* 0x11 v1/v2/v3 */
-		if ( (pinfo->iplen-pinfo->iphdrlen)>=12 ) {
+		if ( tvb_reported_length(tvb)>=12 ) {
 			/* version 3 */
 			offset = dissect_igmp_v3_query(tvb, pinfo, tree, type, offset);
 		} else {
@@ -967,7 +967,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 
 	case IGMP_TYPE_0x25:
-		if ( (pinfo->iplen-pinfo->iphdrlen)>=8 ) {
+		if ( tvb_reported_length(tvb)>=8 ) {
 			/* if len of igmp packet>=8 we assume it is MSNIP */
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		} else {

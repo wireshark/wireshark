@@ -2093,8 +2093,6 @@ again:
 
   /* collect packet info */
   pinfo->ipproto = nxt;
-  pinfo->iplen = (int)sizeof(ipv6) + plen + offset;
-  pinfo->iphdrlen = offset;
   tap_queue_packet(ipv6_tap, pinfo, &ipv6);
 
   if (offlg & IP6F_OFF_MASK || (ipv6_reassemble && offlg & IP6F_MORE_FRAG)) {
