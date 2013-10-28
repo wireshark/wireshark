@@ -7835,7 +7835,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_msg_hash_t  *gcrp             = NULL;
     conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
-    void*            pd_save;
 
     /* Do we have enough bytes for the version and message type? */
     if (!tvb_bytes_exist(tvb, 0, 2)) {
