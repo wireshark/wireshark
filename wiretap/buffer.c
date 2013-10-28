@@ -30,7 +30,8 @@
 #include "buffer.h"
 
 /* Initializes a buffer with a certain amount of allocated space */
-void buffer_init(Buffer* buffer, gsize space)
+void
+buffer_init(Buffer* buffer, gsize space)
 {
 	buffer->data = (guint8*)g_malloc(space);
 	buffer->allocated = space;
@@ -39,7 +40,8 @@ void buffer_init(Buffer* buffer, gsize space)
 }
 
 /* Frees the memory used by a buffer, and the buffer struct */
-void buffer_free(Buffer* buffer)
+void
+buffer_free(Buffer* buffer)
 {
 	g_free(buffer->data);
 }
@@ -48,7 +50,8 @@ void buffer_free(Buffer* buffer)
 	so that another routine can copy directly into the buffer space. After
 	doing that, the routine will also want to run
 	buffer_increase_length(). */
-void buffer_assure_space(Buffer* buffer, gsize space)
+void
+buffer_assure_space(Buffer* buffer, gsize space)
 {
 	gsize available_at_end = buffer->allocated - buffer->first_free;
 	gsize space_used;
@@ -85,14 +88,16 @@ void buffer_assure_space(Buffer* buffer, gsize space)
 	buffer->data = (guint8*)g_realloc(buffer->data, buffer->allocated);
 }
 
-void buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
+void
+buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
 {
 	buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
 	buffer->first_free += bytes;
 }
 
-void buffer_remove_start(Buffer* buffer, gsize bytes)
+void
+buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	if (buffer->start + bytes > buffer->first_free) {
 		g_error("buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
@@ -110,42 +115,48 @@ void buffer_remove_start(Buffer* buffer, gsize bytes)
 
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-void buffer_clean(Buffer* buffer)
+void
+buffer_clean(Buffer* buffer)
 {
 	buffer_remove_start(buffer, buffer_length(buffer));
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-void buffer_increase_length(Buffer* buffer, gsize bytes)
+void
+buffer_increase_length(Buffer* buffer, gsize bytes)
 {
 	buffer->first_free += bytes;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-gsize buffer_length(Buffer* buffer)
+gsize
+buffer_length(Buffer* buffer)
 {
 	return buffer->first_free - buffer->start;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-guint8* buffer_start_ptr(Buffer* buffer)
+guint8 *
+buffer_start_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->start;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-guint8* buffer_end_ptr(Buffer* buffer)
+guint8 *
+buffer_end_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-void buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
+void
+buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
 {
 	buffer_append(buffer, buffer_start_ptr(src_buffer), buffer_length(src_buffer));
 }
