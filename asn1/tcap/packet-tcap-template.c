@@ -211,7 +211,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tcapext_oid = NULL;
     raz_tcap_private(&tcap_private);
 
-    pinfo->private_data = &tcap_private;
+    asn1_ctx.value_ptr = &tcap_private;
     gp_tcapsrt_info=tcapsrt_razinfo();
     tcap_subdissector_used=FALSE;
     gp_tcap_context=NULL;
@@ -634,7 +634,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   /* Call the sub dissector if present, and not already called */
   if (is_subdissector)
-    call_dissector(subdissector_handle, tvb, actx->pinfo, tree);
+    call_dissector_with_data(subdissector_handle, tvb, actx->pinfo, tree, actx->value_ptr);
 
   return offset;
 }

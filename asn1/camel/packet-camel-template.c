@@ -331,16 +331,14 @@ static guint8 camel_pdu_size = 0;
 
 
 static int
-dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,proto_tree *tree, int hf_index) {
+dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,proto_tree *tree,
+                        int hf_index, struct tcap_private_t * p_private_tcap) {
 
     char *version_ptr;
-    struct tcap_private_t * p_private_tcap;
 
     opcode = 0;
     application_context_version = 0;
-    if (actx->pinfo->private_data != NULL){
-        p_private_tcap=(struct tcap_private_t *)actx->pinfo->private_data;
-
+    if (p_private_tcap != NULL){
         if (p_private_tcap->acv==TRUE ){
             version_ptr = strrchr((char *)p_private_tcap->oid,'.');
             if (version_ptr)
@@ -365,13 +363,12 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
     return offset;
 }
 
-static void
-dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
-  proto_item  *stat_item=NULL;
-  proto_tree  *stat_tree=NULL;
+  proto_item  *item, *stat_item;
+  proto_tree  *tree, *stat_tree;
+  struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -388,7 +385,7 @@ dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      to store service response time related data */
   gp_camelsrt_info=camelsrt_razinfo();
 
-  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1);
+  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1, p_private_tcap);
 
   /* If a Tcap context is associated to this transaction */
   if (gcamel_HandleSRT &&
@@ -401,15 +398,15 @@ dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
   }
 
+  return tvb_length(tvb);
 }
 
-static void
-dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
-  proto_item  *stat_item=NULL;
-  proto_tree  *stat_tree=NULL;
+  proto_item  *item, *stat_item;
+  proto_tree  *tree, *stat_tree;
+  struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -426,7 +423,7 @@ dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      to store service response time related data */
   gp_camelsrt_info=camelsrt_razinfo();
 
-  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1);
+  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1, p_private_tcap);
 
   /* If a Tcap context is associated to this transaction */
   if (gcamel_HandleSRT &&
@@ -439,15 +436,15 @@ dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
   }
 
+  return tvb_length(tvb);
 }
 
-static void
-dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-  proto_item    *item=NULL;
-  proto_tree    *tree=NULL;
-  proto_item  *stat_item=NULL;
-  proto_tree  *stat_tree=NULL;
+  proto_item  *item, *stat_item;
+  proto_tree  *tree, *stat_tree;
+  struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -457,14 +454,13 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   camel_ver = 0;
 
   /* create display subtree for the protocol */
-  if(parent_tree){
-     item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, ENC_NA);
-     tree = proto_item_add_subtree(item, ett_camel);
-  }
+  item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(item, ett_camel);
+
   /* camelsrt reset counter, and initialise global pointer
      to store service response time related data */
   gp_camelsrt_info=camelsrt_razinfo();
-  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1);
+  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1, p_private_tcap);
 
   /* If a Tcap context is associated to this transaction */
   if (gcamel_HandleSRT &&
@@ -476,6 +472,8 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     camelsrt_call_matching(tvb, pinfo, stat_tree, gp_camelsrt_info);
     tap_queue_packet(camel_tap, pinfo, gp_camelsrt_info);
   }
+
+  return tvb_length(tvb);
 }
 
 /*--- proto_reg_handoff_camel ---------------------------------------*/
@@ -719,9 +717,9 @@ void proto_register_camel(void) {
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("camel", dissect_camel, proto_camel);
-  register_dissector("camel-v1", dissect_camel_v1, proto_camel);
-  register_dissector("camel-v2", dissect_camel_v2, proto_camel);
+  new_register_dissector("camel", dissect_camel, proto_camel);
+  new_register_dissector("camel-v1", dissect_camel_v1, proto_camel);
+  new_register_dissector("camel-v2", dissect_camel_v2, proto_camel);
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

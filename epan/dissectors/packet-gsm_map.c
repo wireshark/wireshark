@@ -19695,16 +19695,15 @@ static guint8 gsmmap_pdu_type = 0;
 static guint8 gsm_map_pdu_size = 0;
 
 static int
-dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
+dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree,
+                          int hf_index _U_, struct tcap_private_t * p_private_tcap) {
 
   char *version_ptr;
-  struct tcap_private_t * p_private_tcap;
 
   opcode = 0;
   if (pref_application_context_version == APPLICATON_CONTEXT_FROM_TRACE) {
 	  application_context_version = 0;
-	  if (actx->pinfo->private_data != NULL){
-		p_private_tcap = (struct tcap_private_t *)actx->pinfo->private_data;
+	  if (p_private_tcap != NULL){
 		if (p_private_tcap->acv==TRUE ){
 		  version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
 		  if (version_ptr){
@@ -19731,14 +19730,15 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   return offset;
 }
 
-static void
-dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
     /* Used for gsm_map TAP */
     static		gsm_map_tap_rec_t tap_rec;
     gint		op_idx;
+    struct tcap_private_t * p_private_tcap = (struct tcap_private_t *)data;
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -19748,12 +19748,10 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     top_tree = parent_tree;
 
     /* create display subtree for the protocol */
-    if(parent_tree){
-        item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
-        tree = proto_item_add_subtree(item, ett_gsm_map);
-    }
+    item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_gsm_map);
 
-    dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+    dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, p_private_tcap);
     try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
     if (op_idx != -1) {
@@ -19763,6 +19761,8 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
         tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
     }
+
+    return tvb_length(tvb);
 }
 
 const value_string ssCode_vals[] = {
@@ -27253,7 +27253,7 @@ void proto_register_gsm_map(void) {
   /* Register protocol */
   proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  new_register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));
