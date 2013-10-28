@@ -109,11 +109,14 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_clear(pinfo->cinfo, COL_INFO);
 
     ver_type = tvb_get_guint8(tvb, 0);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
-            "Announcement", hi_nibble(ver_type));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Announcement (v%u)",
+            hi_nibble(ver_type));
 
     ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, ENC_NA);
     vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
+
+    priority = tvb_get_guint8(tvb, 2);
+    addr_count = tvb_get_guint8(tvb, 3);
 
     tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type,
             tvb, offset, 1, ver_type,
@@ -121,43 +124,46 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             hi_nibble(ver_type), lo_nibble(ver_type),
             val_to_str_const(lo_nibble(ver_type), vrrp_type_vals, "Unknown"));
     ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
-    proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
-            offset, 1, ver_type);
-    proto_tree_add_uint(ver_type_tree, hf_vrrp_type, tvb, offset, 1, ver_type);
-    offset++;
 
-    proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+	if(ver_type_tree){
+		proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
+				offset, 1, ver_type);
+		proto_tree_add_uint(ver_type_tree, hf_vrrp_type, tvb, offset, 1, ver_type);
+		offset++;
 
-    priority = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
-            priority,
-            val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
-    offset++;
+		proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
 
-    addr_count = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
-            offset, 1, addr_count);
-    offset++;
+		proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
+				priority,
+				val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
+		offset++;
 
-    switch(hi_nibble(ver_type)) {
-        case 3:
-            /* 4 bits reserved (mbz) + 12 bits interval */
-            proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset+=2;
-            break;
-        case 2:
-        default:
-            /* 1 byte auth type + 1 byte interval */
-            auth_type = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
+		proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
+				offset, 1, addr_count);
+		offset++;
 
-            proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-            break;
-    }
+		switch(hi_nibble(ver_type)) {
+			case 3:
+				/* 4 bits reserved (mbz) + 12 bits interval */
+				proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, ENC_BIG_ENDIAN);
+				offset+=2;
+				break;
+			case 2:
+			default:
+				/* 1 byte auth type + 1 byte interval */
+				auth_type = tvb_get_guint8(tvb, offset);
+				proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset++;
+
+				proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset++;
+				break;
+		}
+	}else{
+		offset+=6;
+	}
 
 
     checksum_item = proto_tree_add_item(vrrp_tree, hf_vrrp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
