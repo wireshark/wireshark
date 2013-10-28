@@ -972,12 +972,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_STANAG_4607 */
 	{ "STANAG 4607 Format", "stanag4607", NULL, NULL,
 	  FALSE, FALSE, 0,
-	  NULL, NULL },
-
-	/* WTAP_FILE_NETSCALER_3_0 */
-	{ "NetScaler Trace (Version 3.0)", "nstrace30", "cap", NULL,
-	  TRUE, FALSE, 0,
-	  nstrace_30_dump_can_write_encap, nstrace_dump_open }
+	  NULL, NULL }
 
 };
 
