@@ -161,6 +161,7 @@ static int hf_mp2t_af_e_m_3 = -1;
 
 /* static int hf_mp2t_payload = -1; */
 static int hf_mp2t_stuff_bytes = -1;
+static int hf_mp2t_pointer = -1;
 
 
 static const value_string mp2t_sync_byte_vals[] = {
@@ -613,8 +614,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 	/* PES packet don't have pointer fields, others do */
 	if (pusi_flag && pid_analysis->pload_type != pid_pload_pes) {
 		pointer = tvb_get_guint8(tvb, offset);
-		pi = proto_tree_add_text(header_tree, tvb, offset, 1,
-		    "Pointer: %u", tvb_get_guint8(tvb, offset));
+		pi = proto_tree_add_item(header_tree, hf_mp2t_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		remaining_len--;
 		if (pointer > remaining_len) {
@@ -1475,6 +1475,10 @@ proto_register_mp2t(void)
 		{ &hf_mp2t_stuff_bytes, {
 			"Stuffing", "mp2t.stuff_bytes",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+		} },
+		{ &hf_mp2t_pointer, {
+			"Pointer", "mp2t.pointer",
+			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 		} },
 		{  &hf_msg_fragments, {
 			"Message fragments", "mp2t.msg.fragments",
