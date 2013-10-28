@@ -60,10 +60,15 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
     sp->axisRect()->setRangeDragAxes(sp->xAxis2, sp->yAxis);
 
     sp->xAxis->setVisible(false);
+    sp->xAxis->setPadding(0);
+    sp->xAxis->setLabelPadding(0);
+    sp->xAxis->setTickLabelPadding(0);
     sp->xAxis2->setVisible(true);
     sp->yAxis2->setVisible(true);
 
     one_em_ = QFontMetrics(sp->yAxis->labelFont()).height();
+    ui->horizontalScrollBar->setSingleStep(100 / one_em_);
+    ui->verticalScrollBar->setSingleStep(100 / one_em_);
 
     sp->setInteractions(QCP::iRangeDrag);
 
@@ -240,10 +245,6 @@ void SequenceDialog::fillDiagram()
         }
     }
     node_label_w_ = (node_label_w_ * 3 / 4) + one_em_;
-//    ui->sequencePlot->rescaleAxes();
-
-    ui->horizontalScrollBar->setRange(0, seq_analysis_.num_nodes * 100);
-    ui->verticalScrollBar->setRange(0, (num_items_ + 1) * 100);
 
     mouseMoved(NULL);
     resetAxes();
@@ -255,7 +256,8 @@ void SequenceDialog::fillDiagram()
 void SequenceDialog::resetAxes(bool keep_lower)
 {
     QCustomPlot *sp = ui->sequencePlot;
-    double top_pos = -1.0, left_pos = 0.0;
+    // Allow space for labels on the top and port numbers on the left.
+    double top_pos = -1.0, left_pos = -0.5;
     if (keep_lower) {
         top_pos = sp->yAxis->range().lower;
         left_pos = sp->xAxis2->range().lower;
@@ -266,6 +268,14 @@ void SequenceDialog::resetAxes(bool keep_lower)
 
     range_ratio = sp->yAxis->axisRect()->height() / (one_em_ * 1.5);
     sp->yAxis->setRange(top_pos, range_ratio + top_pos);
+
+    double rmin = sp->xAxis2->range().size() / 2;
+    ui->horizontalScrollBar->setRange((rmin - 0.5) * 100, (seq_analysis_.num_nodes - 0.5 - rmin) * 100);
+    xAxisChanged(sp->xAxis2->range());
+
+    rmin = (sp->yAxis->range().size() / 2);
+    ui->verticalScrollBar->setRange((rmin - 1.0) * 100, (num_items_ - 0.5 - rmin) * 100);
+    yAxisChanged(sp->yAxis->range());
 
     sp->replot();
 }
