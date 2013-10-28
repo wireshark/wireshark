@@ -1686,8 +1686,6 @@ static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_table_t bssap_pdu_type_table;
 
-static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype);
-
 static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -3038,11 +3036,9 @@ gtp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
 }
 
 static gtp_msg_hash_t *
-gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype)
+gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, gtp_conv_info_t *gtp_info)
 {
     gtp_msg_hash_t   gcr, *gcrp = NULL;
-    gtp_conv_info_t *gtp_info   = (gtp_conv_info_t *)pinfo->private_data;
-
     gcr.seq_nr=seq_nr;
 
     switch (msgtype) {
@@ -7891,8 +7887,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         gtp_info->next = gtp_info_items;
         gtp_info_items = gtp_info;
     }
-    pd_save = pinfo->private_data;
-    pinfo->private_data = gtp_info;
 
     gtp_hdr->flags = tvb_get_guint8(tvb, offset);
 
@@ -8182,7 +8176,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
         /*Use sequence number to track Req/Resp pairs*/
         if (seq_no) {
-            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message);
+            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message, gtp_info);
             /*pass packet to tap for response time reporting*/
             if (gcrp) {
                 tap_queue_packet(gtp_tap,pinfo,gcrp);
@@ -8235,7 +8229,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
-    pinfo->private_data = pd_save;
+
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
 
     return tvb_length(tvb);
