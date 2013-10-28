@@ -862,6 +862,7 @@ DISSECTOR_SRC = \
 	packet-mtp3mg.c		\
 	packet-multipart.c	\
 	packet-mux27010.c	\
+	packet-myl1.c	\
 	packet-mysql.c		\
 	packet-nas_eps.c	\
 	packet-nasdaq-itch.c	\
@@ -1151,6 +1152,7 @@ DISSECTOR_SRC = \
 	packet-ua3g.c		\
 	packet-uasip.c		\
 	packet-uaudp.c		\
+	packet-ubi-lte.c        \
 	packet-ucp.c		\
 	packet-udld.c		\
 	packet-udp.c		\

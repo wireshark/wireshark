@@ -154,7 +154,7 @@ typedef struct mac_lte_info
         } ul_info;
         struct mac_lte_dl_phy_info
         {
-            guint8 present; /* Remaining UL fields are present and should be displayed */
+            guint8 present; /* Remaining DL fields are present and should be displayed */
             guint8 dci_format;
             guint8 resource_allocation_type;
             guint8 aggregation_level;
@@ -222,9 +222,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 /* provided at http://wiki.wireshark.org/MAC-LTE                 */
 /*                                                               */
 /* A heuristic dissecter (enabled by a preference) will          */
-/* recognise a signature at the beginning of these frames   .    */
-/* Until someone is using this format, suggestions for changes   */
-/* are welcome.                                                  */
+/* recognise a signature at the beginning of these frames.       */
 /*****************************************************************/
 
 
