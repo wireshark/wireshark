@@ -67,10 +67,13 @@ static gint ett_ns_activity_flags = -1;
 static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLTX_V10,    "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V20,    "TX" },
+	{ NSPR_PDPKTRACEFULLTX_V30,    "TX" },
 	{ NSPR_PDPKTRACEFULLTXB_V10,   "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V20,   "TXB" },
+	{ NSPR_PDPKTRACEFULLTXB_V30,   "TXB" },
 	{ NSPR_PDPKTRACEFULLRX_V10,    "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V20,    "RX" },
+	{ NSPR_PDPKTRACEFULLRX_V30,    "RX" },
 	{ NSPR_PDPKTRACEPARTTX_V10,    "TX"  },
 	{ NSPR_PDPKTRACEPARTTX_V20,    "TX" },
 	{ NSPR_PDPKTRACEPARTTXB_V10,   "TXB" },
@@ -101,6 +104,7 @@ static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLNEWRX_V24, "NEW_RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V25, "NEW_RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V26, "NEW_RX" },
+	{ NSPR_PDPKTRACEFULLNEWRX_V30, "NEW_RX" },
 	{ NSPR_PDPKTRACEPARTTX_V22,    "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V23,    "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V24,    "TX" },
@@ -156,13 +160,12 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	wmem_strbuf_append(flags_strbuf, "None");
 
-	if (pnstr->rec_type == NSPR_HEADER_VERSION205)
-		{
+	if (pnstr->rec_type == NSPR_HEADER_VERSION205 || pnstr->rec_type == NSPR_HEADER_VERSION300 || pnstr->rec_type == NSPR_HEADER_VERSION206)	{
 		src_vmname_len = tvb_get_guint8(tvb,pnstr->src_vmname_len_offset);
 		dst_vmname_len = tvb_get_guint8(tvb,pnstr->dst_vmname_len_offset);
 		variable_ns_len = src_vmname_len + dst_vmname_len;
 		pnstr->eth_offset += variable_ns_len;
-		}
+	}
 
 	ti = proto_tree_add_protocol_format(tree, proto_nstrace, tvb, 0, pnstr->eth_offset, "NetScaler Packet Trace");
 	ns_tree = proto_item_add_subtree(ti, ett_ns);
@@ -172,6 +175,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (pnstr->rec_type)
 	{
+	case NSPR_HEADER_VERSION300:
 	case NSPR_HEADER_VERSION206:
 		flagoffset = pnstr->ns_activity_offset;
 		flagval32 = tvb_get_letohl(tvb, flagoffset);
@@ -428,4 +432,5 @@ void proto_reg_handoff_ns(void)
 	nstrace_handle = create_dissector_handle(dissect_nstrace, proto_nstrace);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_1_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_2_0, nstrace_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_3_0, nstrace_handle);
 }

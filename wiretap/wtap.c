@@ -617,6 +617,10 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_WIRESHARK_UPPER_PDU */
 	{ "Wireshark Upper PDU export", "wireshark-upper-pdu" },
+
+	/* WTAP_ENCAP_NSTRACE_3_0 */
+	{ "NetScaler Encapsulation 3.0 of Ethernet", "nstrace30" },
+
 };
 
 WS_DLL_LOCAL
