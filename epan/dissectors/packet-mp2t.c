@@ -313,7 +313,7 @@ typedef struct packet_analysis_data {
 
 	/* Contain information for each MPEG2-TS packet in the current big packet */
 	wmem_tree_t *subpacket_table;
-} packed_analysis_data_t;
+} packet_analysis_data_t;
 
 /* Analysis TS frame info needed during sequential processing */
 typedef struct pid_analysis_data {
@@ -586,7 +586,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 	guint                      stuff_len     = 0;
 	proto_item                *si;
 	proto_tree                *stuff_tree;
-	packed_analysis_data_t    *pdata         = NULL;
+	packet_analysis_data_t    *pdata         = NULL;
 	subpacket_analysis_data_t *spdata        = NULL;
 	guint32                    frag_cur_pos  = 0, frag_tot_len = 0;
 	gboolean                   fragmentation = FALSE;
@@ -632,9 +632,9 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 		frag_tot_len = pid_analysis->frag_tot_len;
 		fragmentation = pid_analysis->fragmentation;
 		frag_id = pid_analysis->frag_id;
-		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
+		pdata = (packet_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
 		if (!pdata) {
-			pdata = wmem_new0(wmem_file_scope(), packed_analysis_data_t);
+			pdata = wmem_new0(wmem_file_scope(), packet_analysis_data_t);
 			pdata->subpacket_table = wmem_tree_new(wmem_file_scope());
 			p_add_proto_data(pinfo->fd, proto_mp2t, 0, pdata);
 
@@ -655,7 +655,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
 	} else {
 		/* Get saved values */
-		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
+		pdata = (packet_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
 		if (!pdata) {
 			/* Occurs for the first packets in the capture which cannot be reassembled */
 			return;
