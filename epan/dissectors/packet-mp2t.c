@@ -554,8 +554,6 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 	}
 
 	pinfo->fragmented = save_fragmented;
-
-	return;
 }
 
 /*  Decoding of DOCSIS MAC frames within MPEG packets. MAC frames may begin anywhere
@@ -794,8 +792,6 @@ save_state:
 	pid_analysis->frag_cur_pos = frag_cur_pos;
 	pid_analysis->frag_tot_len = frag_tot_len;
 	pid_analysis->frag_id = frag_id;
-
-        return;
 }
 
 
@@ -1228,8 +1224,6 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 		/* Payload is scrambled */
 		col_set_str(pinfo->cinfo, COL_INFO, "Scrambled TS payload");
 	}
-
-	return;
 }
 
 
