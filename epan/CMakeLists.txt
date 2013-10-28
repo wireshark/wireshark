@@ -1200,6 +1200,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-telnet.c
 	dissectors/packet-teredo.c
 	dissectors/packet-text-media.c
+	dissectors/packet-tfp.c
 	dissectors/packet-tftp.c
 	dissectors/packet-time.c
 	dissectors/packet-tipc.c
