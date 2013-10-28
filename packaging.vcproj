@@ -37,26 +37,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="U3|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="nmake -f Makefile.nmake packaging"
-				ReBuildCommandLine=""
-				CleanCommandLine=""
-				Output=""
-				PreprocessorDefinitions="WIN32;NDEBUG"
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
 			Name="zip_gtk1|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -120,58 +100,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="u3.win32"
-			>
-			<File
-				RelativePath=".\packaging\u3\win32\makefile.nmake"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\win32\manifest.tmpl"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\win32\README.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\win32\u3util.c"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="u3.tools"
-			>
-			<File
-				RelativePath=".\packaging\u3\tools\makefile.nmake"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\tools\README.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\tools\sysdep.c"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\tools\sysdep.h"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\tools\utest.c"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\tools\uuid.c"
-				>
-			</File>
-			<File
-				RelativePath=".\packaging\u3\tools\uuid.h"
-				>
-			</File>
-		</Filter>
 		<Filter
 			Name="nsis"
 			>

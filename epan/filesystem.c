@@ -87,8 +87,6 @@
 #define PROFILES_DIR    "profiles"
 #define PLUGINS_DIR_NAME    "plugins"
 
-#define U3_MY_CAPTURES  "\\My Captures"
-
 char *persconffile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
@@ -859,9 +857,6 @@ get_progfile_dir(void)
 const char *
 get_datafile_dir(void)
 {
-#ifdef _WIN32
-    char *u3deviceexecpath;
-#endif
     static const char *datafile_dir = NULL;
 
     if (datafile_dir != NULL)
@@ -869,39 +864,27 @@ get_datafile_dir(void)
 
 #ifdef _WIN32
     /*
-     * See if we are running in a U3 environment.
+     * Do we have the pathname of the program?  If so, assume we're
+     * running an installed version of the program.  If we fail,
+     * we don't change "datafile_dir", and thus end up using the
+     * default.
+     *
+     * XXX - does NSIS put the installation directory into
+     * "\HKEY_LOCAL_MACHINE\SOFTWARE\Wireshark\InstallDir"?
+     * If so, perhaps we should read that from the registry,
+     * instead.
      */
-    u3deviceexecpath = getenv_utf8("U3_DEVICE_EXEC_PATH");
-
-    if (u3deviceexecpath != NULL) {
+    if (progfile_dir != NULL) {
         /*
-         * We are; use the U3 device executable path.
+         * Yes, we do; use that.
          */
-        datafile_dir = u3deviceexecpath;
+        datafile_dir = progfile_dir;
     } else {
         /*
-         * Do we have the pathname of the program?  If so, assume we're
-         * running an installed version of the program.  If we fail,
-         * we don't change "datafile_dir", and thus end up using the
-         * default.
-         *
-         * XXX - does NSIS put the installation directory into
-         * "\HKEY_LOCAL_MACHINE\SOFTWARE\Wireshark\InstallDir"?
-         * If so, perhaps we should read that from the registry,
-         * instead.
+         * No, we don't.
+         * Fall back on the default installation directory.
          */
-        if (progfile_dir != NULL) {
-            /*
-             * Yes, we do; use that.
-             */
-            datafile_dir = progfile_dir;
-        } else {
-            /*
-             * No, we don't.
-             * Fall back on the default installation directory.
-             */
-            datafile_dir = "C:\\Program Files\\Wireshark\\";
-        }
+        datafile_dir = "C:\\Program Files\\Wireshark\\";
     }
 #else
     if (running_in_build_directory_flag) {
@@ -1341,46 +1324,35 @@ get_persconffile_dir_no_profile(void)
     }
 
     /*
-     * See if we are running in a U3 environment.
+     * Use %APPDATA% or %USERPROFILE%, so that configuration
+     * files are stored in the user profile, rather than in
+     * the home directory.  The Windows convention is to store
+     * configuration information in the user profile, and doing
+     * so means you can use Wireshark even if the home directory
+     * is an inaccessible network drive.
      */
-    altappdatapath = getenv_utf8("U3_APP_DATA_PATH");
-    if (altappdatapath != NULL) {
+    appdatadir = getenv_utf8("APPDATA");
+    if (appdatadir != NULL) {
         /*
-         * We are; use the U3 application data path.
+         * Concatenate %APPDATA% with "\Wireshark".
          */
-        persconffile_dir = altappdatapath;
+        persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+                           appdatadir, PF_DIR);
     } else {
         /*
-         * Use %APPDATA% or %USERPROFILE%, so that configuration
-         * files are stored in the user profile, rather than in
-         * the home directory.  The Windows convention is to store
-         * configuration information in the user profile, and doing
-         * so means you can use Wireshark even if the home directory
-         * is an inaccessible network drive.
+         * OK, %APPDATA% wasn't set, so use
+         * %USERPROFILE%\Application Data.
          */
-        appdatadir = getenv_utf8("APPDATA");
-        if (appdatadir != NULL) {
-            /*
-             * Concatenate %APPDATA% with "\Wireshark".
-             */
-            persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                               appdatadir, PF_DIR);
+        userprofiledir = getenv_utf8("USERPROFILE");
+        if (userprofiledir != NULL) {
+            persconffile_dir = g_strdup_printf(
+                "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
+                userprofiledir, PF_DIR);
         } else {
             /*
-             * OK, %APPDATA% wasn't set, so use
-             * %USERPROFILE%\Application Data.
+             * Give up and use "C:".
              */
-            userprofiledir = getenv_utf8("USERPROFILE");
-            if (userprofiledir != NULL) {
-                persconffile_dir = g_strdup_printf(
-                    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
-                    userprofiledir, PF_DIR);
-            } else {
-                /*
-                 * Give up and use "C:".
-                 */
-                persconffile_dir = g_strdup_printf("C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
-            }
+            persconffile_dir = g_strdup_printf("C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
         }
     }
 #else
@@ -1685,9 +1657,7 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
 /*
  * Get the (default) directory in which personal data is stored.
  *
- * On Win32, this is the "My Documents" folder in the personal profile,
- * except that, if we're running from a U3 device, this is the
- * "$U3_DEVICE_DOCUMENT_PATH\My Captures" folder.
+ * On Win32, this is the "My Documents" folder in the personal profile.
  * On UNIX this is simply the current directory.
  */
 /* XXX - should this and the get_home_dir() be merged? */
@@ -1695,7 +1665,6 @@ extern const char *
 get_persdatafile_dir(void)
 {
 #ifdef _WIN32
-    char *u3devicedocumentpath;
     TCHAR tszPath[MAX_PATH];
     char *szPath;
     BOOL bRet;
@@ -1705,32 +1674,17 @@ get_persdatafile_dir(void)
         return persdatafile_dir;
 
     /*
-     * See if we are running in a U3 environment.
+     * Hint: SHGetFolderPath is not available on MSVC 6 - without
+     * Platform SDK
      */
-    u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
-
-    if (u3devicedocumentpath != NULL) {
-        /* the "My Captures" sub-directory is created (if it doesn't
-           exist) by u3util.exe when the U3 Wireshark is first run */
-
-        szPath = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
-
+    bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL,
+        FALSE);
+    if(bRet == TRUE) {
+        szPath = utf_16to8(tszPath);
         persdatafile_dir = szPath;
         return szPath;
     } else {
-        /*
-         * Hint: SHGetFolderPath is not available on MSVC 6 - without
-         * Platform SDK
-         */
-        bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL,
-            FALSE);
-        if(bRet == TRUE) {
-            szPath = utf_16to8(tszPath);
-            persdatafile_dir = szPath;
-            return szPath;
-        } else {
-            return "";
-        }
+        return "";
     }
 #else
     return "";

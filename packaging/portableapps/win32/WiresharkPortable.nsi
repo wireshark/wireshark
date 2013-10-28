@@ -151,7 +151,9 @@ Section "Main"
 		Abort
 		
 	FoundProgramEXE:
-		;=== Check if Wireshark running from somwehere else (e.g. U3 device)
+		;=== Check if Wireshark running from somwehere else
+                ; XXX We might be able to use the Wireshark-is-running mutex here.
+                ; See IsWiresharkRunning in packaging\nsis\common.nsh for details.
 		; if the following step fails, you'll need the FindProcDLL plug-in from:
 		; http://nsis.sourceforge.net/Find_Process_By_Name 
 		;FindProcDLL::FindProc "${PROGRAMEXECUTABLE}"
