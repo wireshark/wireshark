@@ -7257,7 +7257,7 @@ static int
 dissect_camel_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
   proto_item  *item, *stat_item;
-  proto_tree  *tree, *stat_tree;
+  proto_tree  *tree = NULL, *stat_tree = NULL;
   struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -7295,7 +7295,7 @@ static int
 dissect_camel_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
   proto_item  *item, *stat_item;
-  proto_tree  *tree, *stat_tree;
+  proto_tree  *tree = NULL, *stat_tree = NULL;
   struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -7333,7 +7333,7 @@ static int
 dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
   proto_item  *item, *stat_item;
-  proto_tree  *tree, *stat_tree;
+  proto_tree  *tree, *stat_tree = NULL;
   struct tcap_private_t * p_private_tcap = (struct tcap_private_t*)data;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
