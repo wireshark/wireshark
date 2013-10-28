@@ -1117,12 +1117,10 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* TODO: Populate result_code in tap record from AVP 268 */
 			}
 		}
+	}
+	offset = 20;
 
-		offset = 20;
-    }
-
-			/* Store the application id to be used by subdissectors */
-            
+	/* Store the application id to be used by subdissectors */
 
 	/* Dissect AVPs until the end of the packet is reached */
 	while (offset < packet_len) {
