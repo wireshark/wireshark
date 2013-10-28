@@ -274,12 +274,11 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
  */
 
 static int
-dissect_diameter_3gpp_feature_list_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+dissect_diameter_3gpp_feature_list_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
-    diam_sub_dis_t *diam_sub_dis_inf;
+    diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 
-    if(pinfo->private_data){
-        diam_sub_dis_inf = (diam_sub_dis_t*)pinfo->private_data;
+    if(diam_sub_dis_inf){
         diam_sub_dis_inf->feature_list_id = tvb_get_ntohl(tvb,0);
     }
 
@@ -320,19 +319,18 @@ dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 
 static int
-dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
 
     proto_item* item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset, application_id = 0, feature_list_id = 0;
-    diam_sub_dis_t *diam_sub_dis_inf;
+    diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 
     item       = proto_tree_add_item(tree, hf_diameter_3gpp_feature_list_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree   = proto_item_add_subtree(item, diameter_3gpp_feature_list_ett);
 
-    if(pinfo->private_data){
-        diam_sub_dis_inf = (diam_sub_dis_t*)pinfo->private_data;
+    if(diam_sub_dis_inf){
         application_id = diam_sub_dis_inf->application_id;
         feature_list_id = diam_sub_dis_inf->feature_list_id;
     }
