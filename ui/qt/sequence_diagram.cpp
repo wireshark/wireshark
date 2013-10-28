@@ -83,7 +83,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     comment_axis_->grid()->setVisible(false);
 
     QFont comment_font = comment_axis_->tickLabelFont();
-    comment_font.setPointSizeF(comment_font.pointSizeF() * 0.75);
+    comment_font.setPointSizeF(comment_font.pointSizeF() * 0.8);
     smooth_font_size(comment_font);
     comment_axis_->setTickLabelFont(comment_font);
     comment_axis_->setSelectedTickLabelFont(QFont(comment_font.family(), comment_font.pointSizeF(), QFont::Bold));
@@ -177,27 +177,29 @@ void SequenceDiagram::draw(QCPPainter *painter)
             continue;
         }
 
-        QFontMetrics cfm(comment_axis_->tickLabelFont());
-        int dir_mul = (sai->src_node < sai->dst_node) ? 1 : -1;
-        double ah_size = (cfm.height() / 5) * dir_mul;
-        QPoint arrow_start(coordsToPixels(cur_key, sai->src_node).toPoint());
-        QPoint arrow_end(coordsToPixels(cur_key, sai->dst_node).toPoint());
-        QLine arrow_line(arrow_start, arrow_end);
-        QPolygon arrow_head;
-        arrow_head
-                << QPoint(arrow_end.x() - (ah_size*3), arrow_end.y() - ah_size)
-                << arrow_end
-                << QPoint(arrow_end.x() - (ah_size*3), arrow_end.y() + ah_size);
-
         if (mainPen().style() != Qt::NoPen && mainPen().color().alpha() != 0) {
+            painter->save();
+
+            QFontMetrics cfm(comment_axis_->tickLabelFont());
             double en_w = cfm.height() / 2.0;
+            int dir_mul = (sai->src_node < sai->dst_node) ? 1 : -1;
+            double ah_size = (cfm.height() / 5) * dir_mul;
+            QPoint arrow_start(coordsToPixels(cur_key, sai->src_node).toPoint());
+            arrow_start.setY(arrow_start.y() + (en_w / 2));
+            QPoint arrow_end(coordsToPixels(cur_key, sai->dst_node).toPoint());
+            arrow_end.setY(arrow_start.y());
+            QLine arrow_line(arrow_start, arrow_end);
+            QPolygon arrow_head;
+            arrow_head
+                    << QPoint(arrow_end.x() - (ah_size*3), arrow_end.y() - ah_size)
+                    << arrow_end
+                    << QPoint(arrow_end.x() - (ah_size*3), arrow_end.y() + ah_size);
 
             painter->setBrush(mainPen().color());
             painter->setPen(mainPen());
             painter->drawLine(arrow_line);
             painter->drawPolygon(arrow_head);
 
-            painter->setFont(comment_axis_->tickLabelFont());
             double comment_start = (sai->src_node < sai->dst_node)
                     ? arrow_start.x() : arrow_end.x();
             double arrow_width = (arrow_end.x() - arrow_start.x()) * dir_mul;
@@ -205,6 +207,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
             QPoint text_pt(comment_start + ((arrow_width - cfm.width(arrow_label)) / 2),
                           arrow_start.y() - (en_w / 2));
 
+            painter->setFont(comment_axis_->tickLabelFont());
             painter->drawText(text_pt, arrow_label);
 
             if (sai->port_src && sai->port_dst) {
@@ -217,6 +220,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
                 text_pt.setX(arrow_end.x() - en_w + (cfm.width(port_num) * dir_mul));
                 painter->drawText(text_pt, port_num);
             }
+            painter->restore();
         }
     }
 }

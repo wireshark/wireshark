@@ -57,12 +57,15 @@ QString gchar_free_to_qstring(gchar *glib_string) {
 
 void smooth_font_size(QFont &font) {
     QFontDatabase fdb;
-    int last_size = 0;
-    
-    foreach (int cur_size, fdb.smoothSizes(font.family(), font.styleName())) {
+    QList<int> size_list = fdb.smoothSizes(font.family(), font.styleName());
+
+    if (size_list.size() < 2) return;
+
+    int last_size = size_list.takeFirst();
+    foreach (int cur_size, size_list) {
         if (font.pointSize() > last_size && font.pointSize() <= cur_size) {
             font.setPointSize(cur_size);
-            break;
+            return;
         }
         last_size = cur_size;
     }
