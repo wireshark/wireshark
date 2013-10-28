@@ -281,8 +281,8 @@ typedef struct mp2t_analysis_data {
 
 	/* When detecting a CC drop, store that information for the
 	 * given frame.  This info is needed, when clicking around in
-	 * wireshark, as the pid table data only makes sence during
-	 * sequencial processing. The flag pinfo->fd->flags.visited is
+	 * wireshark, as the pid table data only makes sense during
+	 * sequential processing. The flag pinfo->fd->flags.visited is
 	 * used to tell the difference.
 	 *
 	 */
