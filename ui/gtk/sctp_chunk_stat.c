@@ -47,7 +47,8 @@
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/sctp_stat.h"
+#include "ui/tap-sctp-analysis.h"
+#include "ui/gtk/sctp_stat_gtk.h"
 
 
 static void sctpstat_init(const char *opt_arg, void *userdata);

@@ -128,7 +128,6 @@ WIRESHARK_GTK_SRC = \
 	sctp_byte_graph_dlg.c	\
 	sctp_error_dlg.c	\
 	sctp_graph_dlg.c	\
-	sctp_stat.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\
 	stock_icons.c	\
@@ -335,7 +334,7 @@ noinst_HEADERS = \
 	rtp_player.h	\
 	rtp_stream_dlg.h \
 	sat.h		\
-	sctp_stat.h	\
+	sctp_stat_gtk.h	\
 	service_response_time_table.h	\
 	time_shift_dlg.h	\
 	stock_icons.h	\

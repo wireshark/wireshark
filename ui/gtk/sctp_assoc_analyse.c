@@ -38,7 +38,8 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/sctp_stat.h"
+#include "ui/tap-sctp-analysis.h"
+#include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/gtkglobals.h"
 
 #include "frame_tvbuff.h"
@@ -1047,7 +1048,6 @@ struct sctp_analyse *u_data;
 		register_tap_listener_sctp_stat();
 	/* (redissect all packets) */
 
-	sctp_stat_scan();
 	u_data = (struct sctp_analyse *)g_malloc(sizeof(struct sctp_analyse));
 	u_data->assoc        = NULL;
 	u_data->children     = NULL;
@@ -1069,7 +1069,6 @@ sctp_analyse_start(GtkAction *action _U_, gpointer user_data _U_)
 		register_tap_listener_sctp_stat();
 	/* (redissect all packets) */
 
-	sctp_stat_scan();
 
 	u_data = (struct sctp_analyse *)g_malloc(sizeof(struct sctp_analyse));
 	u_data->assoc        = NULL;
@@ -1082,9 +1081,4 @@ sctp_analyse_start(GtkAction *action _U_, gpointer user_data _U_)
 	sctp_analyse_cb(u_data, FALSE);
 }
 
-
-void
-register_tap_listener_sctp_analyse(void)
-{
-}
 

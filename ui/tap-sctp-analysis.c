@@ -1,7 +1,7 @@
 /*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
- * $Id$
+ * $Id: sctp_stat.c 52814 2013-10-24 14:32:22Z tuexen $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -27,18 +27,14 @@
 #include <string.h>
 #include <math.h>
 
-#include <gtk/gtk.h>
-
 #include "epan/packet_info.h"
-#include <epan/tap.h>
+#include "epan/tap.h"
 #include "epan/address.h"
-#include <epan/strutil.h>
+#include "epan/strutil.h"
+#include "epan/value_string.h"
+#include "ui/tap-sctp-analysis.h"
 
 #include "ui/simple_dialog.h"
-
-#include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/sctp_stat.h"
-#include "ui/gtk/main.h"
 
 #define SCTP_ABORT_CHUNK_T_BIT        0x01
 
@@ -276,19 +272,6 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 }
 
 
-/* XXX: Some versions of gcc warn about "breaking strict aliasing rules"
-        for 'a' in the following (given the way this function is called).
-        As a workaround we'll define the function parameters to match
-        how this function is actually called.  */
-/*******
-static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
-{
-	const struct _sctp_assoc_info* a = aa;
-	const struct _sctp_assoc_info* b = bb;
-	if (a == b)
-		return(FORWARD_STREAM);
-********/
-
 static gint sctp_assoc_vtag_cmp(const sctp_tmp_info_t *a, const sctp_assoc_info_t *b)
 {
 
@@ -374,10 +357,6 @@ static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 		{
 			cmp=sctp_assoc_vtag_cmp(needle, (sctp_assoc_info_t*)(list->data));
 
-			/*if (cmp==ASSOC_NOT_FOUND)
-			{
-				cmp=sctp_assoc_address_cmp(needle, (sctp_assoc_info_t*)(list->data));
-			}*/
 			switch (cmp)
 			{
 			case FORWARD_STREAM:
@@ -1388,11 +1367,12 @@ const sctp_allassocs_info_t* sctp_stat_get_info(void)
 }
 
 
-static void sctp_update(void *dummy _U_)
+/*static void 
+sctp_update(void *dummy _U_)
 {
 	if (get_stat_dlg()!=NULL)
 		sctp_stat_dlg_update();
-}
+}*/
 
 void
 register_tap_listener_sctp_stat(void)
@@ -1401,7 +1381,7 @@ register_tap_listener_sctp_stat(void)
 
 	if (!sctp_tapinfo_struct.is_registered)
 	{
-		if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, 0, reset, packet, sctp_update))) {
+		if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, 0, reset, packet, NULL))) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			return;

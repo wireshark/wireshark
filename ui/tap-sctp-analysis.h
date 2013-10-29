@@ -1,7 +1,7 @@
 /* 
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
- * $Id$
+ * $Id: sctp_stat.h 52814 2013-10-24 14:32:22Z tuexen $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,8 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __SCTP_STAT_H__ 
-#define __SCTP_STAT_H__ 
+#ifndef __TAP_SCTP_ANALYSIS_H__ 
+#define __TAP_SCTP_ANALYSIS_H__ 
 
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
@@ -101,6 +101,42 @@
                                        DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH + \
                                        DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
 #define MAX_ADDRESS_LEN                47
+
+#define SCTP_ABORT_CHUNK_T_BIT        0x01
+
+#define PARAMETER_TYPE_LENGTH            2
+#define PARAMETER_LENGTH_LENGTH          2
+#define PARAMETER_HEADER_LENGTH          (PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_LENGTH)
+
+#define PARAMETER_HEADER_OFFSET          0
+#define PARAMETER_TYPE_OFFSET            PARAMETER_HEADER_OFFSET
+#define PARAMETER_LENGTH_OFFSET          (PARAMETER_TYPE_OFFSET + PARAMETER_TYPE_LENGTH)
+#define PARAMETER_VALUE_OFFSET           (PARAMETER_LENGTH_OFFSET + PARAMETER_LENGTH_LENGTH)
+
+#define IPV6_ADDRESS_LENGTH 16
+#define IPV6_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
+#define IPV4_ADDRESS_LENGTH 4
+#define IPV4_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
+#define IPV4ADDRESS_PARAMETER_ID             0x0005
+#define IPV6ADDRESS_PARAMETER_ID             0x0006
+
+#define SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH    4
+#define SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET (CHUNK_VALUE_OFFSET + 0)
+#define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH 4
+#define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET (SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET + \
+                                                 SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH)
+
+#define INIT_CHUNK_INITIAL_TSN_LENGTH                4
+#define INIT_CHUNK_FIXED_PARAMTERS_LENGTH            (INIT_CHUNK_INITIATE_TAG_LENGTH + \
+                                                      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH + \
+                                                      INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH + \
+                                                      INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH + \
+                                                      INIT_CHUNK_INITIAL_TSN_LENGTH)
+#define CHUNK_HEADER_LENGTH           (CHUNK_TYPE_LENGTH + \
+                                       CHUNK_FLAGS_LENGTH + \
+                                       CHUNK_LENGTH_LENGTH)
+#define INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET  (INIT_CHUNK_INITIAL_TSN_OFFSET + \
+                                                      INIT_CHUNK_INITIAL_TSN_LENGTH )
 
 /* The below value is 256 */
 #define NUM_CHUNKS	0xff
@@ -263,101 +299,6 @@ typedef struct _sctp_allassocs_info {
 
 
 
-struct notes {
-	GtkWidget   *checktype;
-	GtkWidget   *checksum;
-	GtkWidget   *bundling;
-	GtkWidget   *padding;
-	GtkWidget   *length;
-	GtkWidget   *value;
-	GtkWidget   *chunks_ep1;
-	GtkWidget   *bytes_ep1;
-	GtkWidget   *chunks_ep2;
-	GtkWidget   *bytes_ep2;
-	struct page *page2;
-	struct page *page3;
-};
-
-struct page {
-	GtkWidget *addr_frame;
-	GtkWidget *scrolled_window;
-	GtkWidget *clist;
-	GtkWidget *port;
-	GtkWidget *veritag;
-	GtkWidget *max_in;
-	GtkWidget *min_in;
-	GtkWidget *max_out;
-	GtkWidget *min_out;
-};
-
-struct sctp_analyse {
-	sctp_assoc_info_t *assoc;
-	GtkWidget*        window;
-	struct notes      *analyse_nb;
-	GList             *children;
-	guint16           num_children;
-};
-
-typedef struct _sctp_graph_t {
-	gboolean  needs_redraw;
-	gfloat    x_interval;
-	gfloat    y_interval;
-	GtkWidget *window;
-	GtkWidget *draw_area;
-#if GTK_CHECK_VERSION(2,22,0)
-	cairo_surface_t *surface;
-#else
-	GdkPixmap *pixmap;
-#endif
-	gint      surface_width;
-	gint      surface_height;
-	gint      graph_type;
-	gdouble   x_old;
-	gdouble   y_old;
-	gdouble   x_new;
-	gdouble   y_new;
-	guint16   offset;
-	guint16   length;
-	gboolean  tmp;
-	gboolean  rectangle;
-	gboolean  rectangle_present;
-	guint32   rect_x_min;
-	guint32   rect_x_max;
-	guint32   rect_y_min;
-	guint32   rect_y_max;
-	guint32   x1_tmp_sec;
-	guint32   x2_tmp_sec;
-	guint32   x1_tmp_usec;
-	guint32   x2_tmp_usec;
-	guint32   x1_akt_sec;
-	guint32   x2_akt_sec;
-	guint32   x1_akt_usec;
-	guint32   x2_akt_usec;
-	guint32   tmp_width;
-	guint32   axis_width;
-	guint32   y1_tmp;
-	guint32   y2_tmp;
-	guint32   tmp_min_tsn1;
-	guint32   tmp_max_tsn1;
-	guint32   tmp_min_tsn2;
-	guint32   tmp_max_tsn2;
-	guint32   min_x;
-	guint32   max_x;
-	guint32   min_y;
-	guint32   max_y;
-	gboolean  uoff;
-} sctp_graph_t;
-
-
-
-struct sctp_udata {
-	sctp_assoc_info_t   *assoc;
-	sctp_graph_t        *io;
-	struct sctp_analyse *parent;
-	guint16             dir;
-};
-
-
 void register_tap_listener_sctp_stat(void);
 
 const sctp_allassocs_info_t* sctp_stat_get_info(void);
@@ -366,46 +307,10 @@ void sctp_stat_scan(void);
 
 void remove_tap_listener_sctp_stat(void);
 
-void assoc_analyse(sctp_assoc_info_t* assoc);
 
 const sctp_assoc_info_t* get_selected_assoc(void);
 
-void create_graph(guint16 dir, struct sctp_analyse* u_data);
 
-void create_byte_graph(guint16 dir, struct sctp_analyse* u_data);
 
-void sctp_error_dlg_show(sctp_assoc_info_t* assoc);
-
-void sctp_stat_dlg_update(void);
-
-void sctp_chunk_stat_dlg_update(struct sctp_udata* udata, unsigned int direction);
-
-void sctp_chunk_dlg_show(struct sctp_analyse* userdata);
-
-void sctp_chunk_stat_dlg_show(unsigned int direction, struct sctp_analyse* userdata);
-
-GtkWidget *get_stat_dlg(void);
-
-GtkWidget *get_chunk_stat_dlg(void);
-
-void update_analyse_dlg(struct sctp_analyse* u_data);
-
-void increase_childcount(struct sctp_analyse *parent);
-
-void decrease_childcount(struct sctp_analyse *parent);
-
-void set_child(struct sctp_udata *child, struct sctp_analyse *parent);
-
-void remove_child(struct sctp_udata *child, struct sctp_analyse *parent);
-
-void decrease_analyse_childcount(void);
-
-void increase_analyse_childcount(void);
-
-void set_analyse_child(struct sctp_analyse *child);
-
-void remove_analyse_child(struct sctp_analyse *child);
-
-void sctp_set_assoc_filter(void);
  
-#endif /* __SCTP_STAT_H__ */
+#endif /* __TAP_SCTP_ANALYSIS_H__ */

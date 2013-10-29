@@ -110,7 +110,6 @@ set(WIRESHARK_GTK_SRC
 	sctp_byte_graph_dlg.c
 	sctp_error_dlg.c
 	sctp_graph_dlg.c
-	sctp_stat.c
 	service_response_time_table.c
 	simple_dialog.c
 	stock_icons.c

@@ -36,7 +36,8 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/sctp_stat.h"
+#include "ui/tap-sctp-analysis.h"
+#include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/gtkglobals.h"
 
 #include "ui/gtk/old-gtk-compat.h"
@@ -670,10 +671,6 @@ void sctp_stat_start(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 /****************************************************************************/
-void
-register_tap_listener_sctp_stat_dlg(void)
-{
-}
 
 GtkWidget *get_stat_dlg(void)
 {
