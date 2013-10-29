@@ -53,6 +53,30 @@ Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
 //+
 //cve-idlink:2013-????[]
 
+* ws-salink:2013-64[]
++
+The OpenWire dissector could go into a large loop. Discovered by Murali.
+// Fixed in trunk: r52457, r52458, r52463
+// Fixed in trunk-1.10: r52490
+// Fixed in trunk-1.8: r52490
+(ws-buglink:[9248])
++
+Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
+//+
+//cve-idlink:2013-????[]
+
+* ws-salink:2013-65[]
++
+The TCP dissector could crash.
+// Fixed in trunk: r52570
+// Fixed in trunk-1.10: r52961
+// Fixed in trunk-1.8: r52962
+(ws-buglink:[9263])
++
+Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
+//+
+//cve-idlink:2013-????[]
+
 
 The following bugs have been fixed:
 
@@ -74,6 +98,7 @@ There are no new protocols in this release.
 
 IEEE 802.15.4
 NBAP
+OpenWire
 SIP
 
 --sort-and-group--
