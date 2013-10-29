@@ -681,8 +681,13 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
             return;
         }
 
-        /* Looks like we already have some stuff in the buffer */
-        if (fragmentation) {
+        /* "pointer" contains the number of bytes until the
+         * start of the new section
+         * if the new section does not start immediately after the
+         * pointer field (i.e. pointer>0), the remaining bytes before the
+         * start of the section are another fragment of the
+         * current packet */
+        if (pointer>0 && fragmentation) {
             mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos,
                     pointer, TRUE, pid_analysis->pload_type);
             frag_id++;
