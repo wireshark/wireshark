@@ -1018,7 +1018,7 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
     *p_security = *security_info;
 
     /* And add into security table */
-    g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER(ueid), p_security);
+    g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), p_security);
 }
 
 
