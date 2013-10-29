@@ -1412,7 +1412,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* UE security algorithms              */
     if (!pinfo->fd->flags.visited) {
         /* Look up current state by UEID */
-        pdcp_security_info_t *current_security = g_hash_table_lookup(pdcp_security_hash, GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
+        pdcp_security_info_t *current_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_hash,
+                                                                                            GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
         if (current_security != NULL) {
             /* Store any result for this frame in the result table */
             pdcp_security_info_t *security_to_store = wmem_new(wmem_file_scope(), pdcp_security_info_t);
@@ -1423,7 +1424,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
     /* Show settings for this PDU */
-    pdu_security = g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
+    pdu_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
     if (pdu_security != NULL) {
         proto_tree *security_tree;
         proto_item *security_ti, *ti;
