@@ -127,9 +127,8 @@ VAL_PTR=&Data_Field_field_type_value
 
                     /* Now reset fragmentation information in pinfo */
                     actx->pinfo->fragmented = save_fragmented;
-                    actx->pinfo->private_data = t38_info;
 
-                    if (new_tvb) call_dissector((t30_hdlc_handle) ? t30_hdlc_handle : data_handle, new_tvb, actx->pinfo, tree);
+                    if (new_tvb) call_dissector_with_data((t30_hdlc_handle) ? t30_hdlc_handle : data_handle, new_tvb, actx->pinfo, tree, t38_info);
                 }
             } else {
                 if(tree){

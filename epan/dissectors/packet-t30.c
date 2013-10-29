@@ -505,7 +505,7 @@ t30_get_string_numbers(tvbuff_t *tvb, int offset, int len)
 }
 
 static void
-dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
+dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
 {
     gchar *str_num=NULL;
 
@@ -516,8 +516,8 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - Number:%s", str_num );
 
-        if (pinfo->private_data)
-            g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "Num: %s", str_num);
+        if (t38)
+            g_snprintf(t38->desc, MAX_T38_DESC, "Num: %s", str_num);
     }
     else {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
@@ -528,7 +528,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 }
 
 static void
-dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
+dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
 {
     guint8 octet;
 
@@ -545,8 +545,8 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - Frame num:%d", reverse_byte(octet));
 
-    if (pinfo->private_data)
-        g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "Frm num: %d", reverse_byte(octet));
+    if (t38)
+        g_snprintf(t38->desc, MAX_T38_DESC, "Frm num: %d", reverse_byte(octet));
 
     proto_tree_add_item(tree, hf_t30_t4_data, tvb, offset, len-1, ENC_NA);
 }
@@ -569,7 +569,7 @@ dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int 
 }
 
 static void
-dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
+dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
 {
     guint8 octet, page_count, block_count, frame_count;
 
@@ -600,8 +600,8 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
 
-    if (pinfo->private_data)
-        g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC,
+    if (t38)
+        g_snprintf(t38->desc, MAX_T38_DESC,
                    "PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
 
 }
@@ -648,7 +648,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static void
-dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, gboolean dis_dtc)
+dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, gboolean dis_dtc, t38_packet_info* t38)
 {
     guint8 octet;
 
@@ -680,8 +680,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
         col_append_fstr(pinfo->cinfo, COL_INFO, " - DSR:%s",
                             val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_vals, "<unknown>"));
 
-        if (pinfo->private_data)
-          g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC,
+        if (t38)
+          g_snprintf(t38->desc, MAX_T38_DESC,
                      "DSR:%s",
                      val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_vals, "<unknown>"));
     }
@@ -691,8 +691,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
         col_append_fstr(pinfo->cinfo, COL_INFO, " - DSR:%s",
                             val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_dcs_vals, "<unknown>"));
 
-        if (pinfo->private_data)
-          g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC,
+        if (t38)
+          g_snprintf(t38->desc, MAX_T38_DESC,
                      "DSR:%s",
                      val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_dcs_vals, "<unknown>"));
     }
@@ -916,7 +916,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 }
 
 static int
-dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset = 0;
     proto_item *it;
@@ -926,6 +926,7 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     guint8 octet;
     guint32 frag_len;
     proto_item *item;
+    t38_packet_info* t38 = (t38_packet_info*)data;
 
     if (tvb_reported_length_remaining(tvb, offset) < 3) {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
@@ -959,8 +960,8 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     tr_fif = proto_item_add_subtree(it_fcf, ett_t30_fif);
 
     frag_len = tvb_length_remaining(tvb, offset);
-    if (pinfo->private_data)
-        ((t38_packet_info*)pinfo->private_data)->t30_Facsimile_Control = octet;
+    if (t38)
+        t38->t30_Facsimile_Control = octet;
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                         " %s - %s",
@@ -974,10 +975,10 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     switch (octet & 0x7F) {
     case T30_FC_DIS:
     case T30_FC_DTC:
-        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE);
+        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
         break;
     case T30_FC_DCS:
-        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE);
+        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE, t38);
         break;
     case T30_FC_CSI:
     case T30_FC_CIG:
@@ -987,7 +988,7 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     case T30_FC_SUB:
     case T30_FC_SID:
     case T30_FC_PSA:
-        dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif);
+        dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif, t38);
         break;
     case T30_FC_NSF:
     case T30_FC_NSC:
@@ -995,10 +996,10 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
         break;
     case T30_FC_FCD:
-        dissect_t30_facsimile_coded_data(tvb, offset, pinfo, frag_len, tr_fif);
+        dissect_t30_facsimile_coded_data(tvb, offset, pinfo, frag_len, tr_fif, t38);
         break;
     case T30_FC_PPS:
-        dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif);
+        dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif, t38);
         break;
     case T30_FC_PPR:
         dissect_t30_partial_page_request(tvb, offset, pinfo, frag_len, tr_fif);
