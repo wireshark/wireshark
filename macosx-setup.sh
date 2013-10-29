@@ -24,13 +24,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #
-# To set up Qt, set TOOLKIT to qt
-# To set up GTK+ 3, set TOOLKIT to gtk3
-# To set up GTK+ 2, set TOOLKIT to gtk2
-#
-TOOLKIT=gtk3
-
-#
 # To build cmake
 # CMAKE=1
 #
@@ -42,44 +35,63 @@ TOOLKIT=gtk3
 #
 # and change "macx-clang" to "macx-clang-32" in the line below.
 #
+# Note: when building against the 10.6 SDK, clang fails, because there's
+# a missing libstdc++.dylib in the SDK; this does not bother g++, however.
+#
+#TARGET_PLATFORM=macx-g++
 TARGET_PLATFORM=macx-clang
 
 #
-# Versions to download and install.
+# Versions of packages to download and install.
 #
-# The following libraries and tools are required.
+
+#
+# Some packages need xz to unpack their current source.
+# xz is not yet provided with OS X.
+#
+XZ_VERSION=5.0.4
+
+#
+# In case we want to build with cmake.
+#
+CMAKE_VERSION=2.8.10.2
+
+#
+# The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.18.2
 GLIB_VERSION=2.36.0
 PKG_CONFIG_VERSION=0.28
-case "$TOOLKIT" in
-qt)
-    QT_VERSION=5.1.1
-    ;;
 
-gtk*)
+#
+# One or more of the following libraries are required to build Wireshark.
+#
+# If you don't want to build with Qt, comment out the QT_VERSION= line.
+#
+# If you want to build with GTK+ 2, comment out the GTK_VERSION=3.* line
+# and un-comment the GTK_VERSION=2.* line.
+#
+# If you don't want to build with GTK+ at all, comment out both lines.
+# 
+#QT_VERSION=5.1.1
+QT_VERSION=5.2.0
+GTK_VERSION=2.24.17
+#GTK_VERSION=3.5.2
+if [ "$GTK_VERSION" ]; then
+    #
+    # We'll be building GTK+, so we need some additional libraries.
+    #
+    GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
+    GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+
     ATK_VERSION=2.8.0
     PANGO_VERSION=1.30.1
     PNG_VERSION=1.5.17
     PIXMAN_VERSION=0.26.0
     CAIRO_VERSION=1.12.2
     GDK_PIXBUF_VERSION=2.28.0
-    if [ "$TOOLKIT" = gtk2 ]; then
-        GTK_VERSION=2.24.17
-    else
-        GTK_VERSION=3.5.2
-    fi
-    ;;
-esac
-
-#
-# Some package need xz to unpack their current source.
-# xz is not yet provided with OS X.
-#
-XZ_VERSION=5.0.4
-
-# In case we want to build with cmake
-CMAKE_VERSION=2.8.10.2
+fi
 
 #
 # The following libraries are optional.
@@ -297,6 +309,20 @@ uninstall() {
             rm libpng-$installed_libpng_version-done
         fi
 
+        installed_qt_version=`ls qt-*-done 2>/dev/null | sed 's/qt-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_qt_version" ] ; then
+            echo "Uninstalling Qt:"
+            cd qt-everywhere-opensource-src-$installed_qt_version
+            $DO_MAKE_UNINSTALL || exit 1
+            #
+            # XXX - "make distclean" doesn't work.  qmake sure does a
+            # good job of constructing Makefiles that work correctly....
+            #
+            #make distclean || exit 1
+            cd ..
+            rm qt-$installed_qt_version-done
+        fi
+
         installed_glib_version=`ls glib-*-done 2>/dev/null | sed 's/glib-\(.*\)-done/\1/'`
         if [ ! -z "$installed_glib_version" ] ; then
             echo "Uninstalling GLib:"
@@ -446,6 +472,16 @@ then
     uninstall
     exit 0
 fi
+
+#
+# Configure scripts tend to set CFLAGS and CXXFLAGS to "-g -O2" if
+# invoked without CFLAGS or CXXFLAGS being set in the environment.
+#
+# However, we *are* setting them in the environment, for our own
+# nefarious purposes, so start them out as "-g -O2".
+#
+CFLAGS="-g -O2"
+CXXFLAGS="-g -O2"
 
 #
 # To make this work on Leopard (rather than working *on* Snow Leopard
@@ -629,11 +665,14 @@ then
         # causes some BPF functions not to work with 64-bit userland
         # code, so capturing won't work.
         #
-        export CFLAGS="$CFLAGS -arch i386"
-        export CXXFLAGS="$CXXFLAGS -arch i386"
+        CFLAGS="$CFLAGS -arch i386"
+        CXXFLAGS="$CXXFLAGS -arch i386"
         export LDFLAGS="$LDFLAGS -arch i386"
     fi
 fi
+
+export CFLAGS
+export CXXFLAGS
 
 #
 # You need Xcode or the command-line tools installed to get the compilers.
@@ -643,7 +682,7 @@ if [ ! -x /usr/bin/xcodebuild ]; then
     exit 1
 fi
 
-if [[ $TOOLKIT = qt ]]; then
+if [ "$QT_VERSION" ]; then
     #
     # We need Xcode, not just the command-line tools, installed to build
     # Qt.
@@ -653,7 +692,8 @@ if [[ $TOOLKIT = qt ]]; then
         echo "The command-line build tools are not sufficient to build Qt."
         exit 1
     fi
-else
+fi
+if [ "$GTK_VERSION" ]; then
     #
     # If we're building with GTK+, you also need the X11 SDK; with at least
     # some versions of OS X and Xcode, that is, I think, an optional install.
@@ -860,38 +900,49 @@ fi
 # Now we have reached a point where we can build everything but
 # the GUI (Wireshark).
 #
-case "$TOOLKIT" in
-qt)
-    if [ ! -f qt-$QT_VERSION-done ] ; then
-        echo "Downloading, building, and installing Qt:"
-        QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
-        QT_MINOR_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        QT_DOTDOT_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
-        #
-        # What you get for this URL might just be a 302 Found reply, so use
-        # -L so we get redirected.
-        #
-        curl -L -O http://download.qt-project.org/official_releases/qt/$QT_MAJOR_MINOR_VERSION/$QT_VERSION/single/qt-everywhere-opensource-src-$QT_VERSION.tar.gz
-        #
-        # Qt 5.1.x sets QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
-        # in qtbase/mkspecs/$TARGET_PLATFORM/qmake.conf
-        # We may need to adjust this manually in the future.
-        #
-        # The -no-c++11 flag is needed to work around
-        # https://bugreports.qt-project.org/browse/QTBUG-30487
-        #
-        tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.gz
-        cd qt-everywhere-opensource-src-$QT_VERSION
-        ./configure -sdk macosx$min_osx_target -platform $TARGET_PLATFORM -opensource -confirm-license -no-c++11
-        make || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch qt-$QT_VERSION-done
-    fi
-    ;;
+if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
+    echo "Downloading, building, and installing Qt:"
+    QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
+    QT_MINOR_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    QT_DOTDOT_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
+    #
+    # What you get for this URL might just be a 302 Found reply, so use
+    # -L so we get redirected.
+    #
+    curl -L -O http://download.qt-project.org/official_releases/qt/$QT_MAJOR_MINOR_VERSION/$QT_VERSION/single/qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+    #
+    # Qt 5.1.x sets QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
+    # in qtbase/mkspecs/$TARGET_PLATFORM/qmake.conf
+    # We may need to adjust this manually in the future.
+    #
+    # The -no-c++11 flag is needed to work around
+    # https://bugreports.qt-project.org/browse/QTBUG-30487
+    #
+    tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+    cd qt-everywhere-opensource-src-$QT_VERSION
+    #
+    # We don't build Qt in its Full Shining Glory, as we don't need all
+    # of its components, and it takes *forever* to build in that form.
+    #
+    # Qt 5.2.0 beta1 fails to build on OS X without -no-xcb due to bug
+    # QTBUG-34382.
+    #
+    # Qt 5.x fails to build on OS X with -no-opengl due to bug
+    # QTBUG-31151.
+    #
+    ./configure -v -sdk macosx$min_osx_target -platform $TARGET_PLATFORM \
+        -opensource -confirm-license -no-c++11 -no-dbus \
+        -no-sql-sqlite -no-xcb -nomake examples \
+        -skip qtdoc -skip qtquickcontrols -skip qtwebkit \
+        -skip qtwebkit-examples -skip qtxmlpatterns
+    make || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch qt-$QT_VERSION-done
+fi
 
-gtk*)
+if [ "$GTK_VERSION" ]; then
     #
     # GTK+ 3 requires a newer Cairo build than the one that comes with
     # 10.6, so we build Cairo if we are using GTK+ 3.
@@ -902,50 +953,59 @@ gtk*)
     # again, if we build with "native" GTK+, we'd have to build and install
     # it.
     #
-    if [[ "$TOOLKIT" = gtk3 || "$cairo_not_in_the_os" = yes ]]; then
+    if [[ "$GTK_MAJOR_VERSION" -eq 3 || "$cairo_not_in_the_os" = yes ]]; then
         #
         # Requirements for Cairo first
         #
-        # The libpng that comes with the X11 for leopard has a bogus
+        # The libpng that comes with the X11 for Leopard has a bogus
         # pkg-config file that lies about where the header files are,
         # which causes other packages not to be able to find its
         # headers.
         #
-#        if [ ! -f libpng-$PNG_VERSION-done ] ; then
-#            echo "Downloading, building, and installing libpng:"
-#            #
-#            # The FTP site puts libpng x.y.* into a libpngxy directory.
-#            #
-#            subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
-#            [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
-#            xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
-#            cd libpng-$PNG_VERSION
-#            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-#            make $MAKE_BUILD_OPTS || exit 1
-#            $DO_MAKE_INSTALL || exit 1
-#            cd ..
-#            touch libpng-$PNG_VERSION-done
-#        fi
+        # The libpng in later versions is not what the version of
+        # libpixman we build below wants - it wants libpng15.
+        #
+        if [ ! -f libpng-$PNG_VERSION-done ] ; then
+            echo "Downloading, building, and installing libpng:"
+            #
+            # The FTP site puts libpng x.y.* into a libpngxy directory.
+            #
+            subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
+            [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
+            xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
+            cd libpng-$PNG_VERSION
+            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+            make $MAKE_BUILD_OPTS || exit 1
+            $DO_MAKE_INSTALL || exit 1
+            cd ..
+            touch libpng-$PNG_VERSION-done
+        fi
 
         #
-        # The libpixman that comes with the X11 for Leopard is too old
-        # to support Cairo's image surface backend feature (which requires
-        # pixman-1 >= 0.22.0).
+        # The libpixman versions that come with the X11s for Leopard,
+        # Snow Leopard, and Lion is too old to support Cairo's image
+        # surface backend feature (which requires pixman-1 >= 0.22.0).
         #
-#        if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
-#            echo "Downloading, building, and installing pixman:"
-#            [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
-#            gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
-#            cd pixman-$PIXMAN_VERSION
-#            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-#            make $MAKE_BUILD_OPTS || exit 1
-#            $DO_MAKE_INSTALL || exit 1
-#            cd ..
-#            touch pixman-$PIXMAN_VERSION-done
-#        fi
+        # XXX - what about the one that comes with the latest version
+        # of Xquartz?
+        #
+        if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
+            echo "Downloading, building, and installing pixman:"
+            [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+            gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
+            cd pixman-$PIXMAN_VERSION
+            CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+            make V=1 $MAKE_BUILD_OPTS || exit 1
+            $DO_MAKE_INSTALL || exit 1
+            cd ..
+            touch pixman-$PIXMAN_VERSION-done
+        fi
 
         #
         # And now Cairo itself.
+        # XXX - with the libxcb that comes with 10.6,
+        #
+        # xcb_discard_reply() is missing, and the build fails.
         #
         if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
             echo "Downloading, building, and installing Cairo:"
@@ -1068,9 +1128,6 @@ gtk*)
     if [ ! -f gtk+-$GTK_VERSION-done ] ; then
         echo "Downloading, building, and installing GTK+:"
         gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-        GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
-        GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         if [[ $GTK_MAJOR_VERSION -gt 2 ||
               $GTK_MINOR_VERSION -gt 24 ||
              ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
@@ -1111,8 +1168,7 @@ gtk*)
         cd ..
         touch gtk+-$GTK_VERSION-done
     fi
-    ;;
-esac
+fi
 
 #
 # Now we have reached a point where we can build everything including
