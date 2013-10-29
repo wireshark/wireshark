@@ -93,11 +93,17 @@ The following bugs have been fixed:
 * The value of 'SEND_TO_UE' in the DIAMETER Gx dictionary for Packet-Filter-Usage AVP is 0
 instead of 1. (ws-buglink:9126[])
 
+* Crash then try to delete the same entry (length range) twice. (ws-buglink:9129[])
+
+* Crash if wrong "packet lengths range" entered. (ws-buglink:9130[])
+
 * Bssgp =>  SGSN-INVOKE-TRACE use the wrong function... (ws-buglink:9157[])
 
 * Minor correction to dissection of DLR frames in Ethernet/IP dissector. (ws-buglink:9186[])
 
 * WebSphere MQ V7 Bug Fix 8322 TSHM_EBCDIC. (ws-buglink:9198[])
+
+* EDNS0 "Higher bits in extended RCODE" incorrectly decoded in packet-dns.c. (ws-buglink:9199[])
 
 * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
 
@@ -113,6 +119,14 @@ instead of 1. (ws-buglink:9126[])
 
 * PTP Dissector Wrongfully Reports Malformed Packet. (ws-buglink:9262[])
 
+* Padding in uint64 field in DCERPC protocol wrongly reported. (ws-buglink:9300[])
+
+* DCERPC data_blobs are not correctly dissected when NDR64 encoding is used. (ws-buglink:9301[])
+
+* Multiple PDUs in the same DCERPC packet are not correctly decrypted. (ws-buglink:9302[])
+
+* The tshark summary line doesn't display the frame number or displays it sporadically. (ws-buglink:9317[])
+
 === New and Updated Features
 
 There are no new features in this release.
@@ -127,8 +141,12 @@ There are no new protocols in this release.
 
 3GPP2 A11
 BSSGP
+DCERPC NDR
+DCERPC NT
 DIAMETER
+DNS
 DVB-S2
+Ethernet
 EtherNet/IP
 H.225
 IEEE 802.15.4

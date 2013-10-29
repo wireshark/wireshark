@@ -3383,21 +3383,6 @@ print_columns(capture_file *cf)
       continue;
     switch (cf->cinfo.col_fmt[i]) {
     case COL_NUMBER:
-#ifdef HAVE_LIBPCAP
-      /*
-       * Don't print this if we're doing a live capture from a network
-       * interface - if we're doing a live capture, you won't be
-       * able to look at the capture in the future (it's not being
-       * saved anywhere), so the frame numbers are unlikely to be
-       * useful.
-       *
-       * (XXX - it might be nice to be able to save and print at
-       * the same time, sort of like an "Update list of packets
-       * in real time" capture in Wireshark.)
-       */
-      if (global_capture_opts.ifaces->len > 0)
-        continue;
-#endif
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 3)
         column_len = 3;

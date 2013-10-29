@@ -82,7 +82,7 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			int use_remaining_space)
 {
 	proto_item *item;
-	guint32 len;
+	guint3264 len;
 	proto_tree *subtree = tree;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
@@ -93,11 +93,11 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (use_remaining_space) {
 		len = tvb_length_remaining (tvb, offset);
 	} else {
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, subtree, drep,
 				    hf_nt_data_blob_len, &len);
 	}
-	proto_tree_add_text(subtree, tvb, offset, len, "Blob data");
-	offset += len;
+	proto_tree_add_text(subtree, tvb, offset, (int)len, "Blob data");
+	offset += (int)len;
 	return offset;
 }
 

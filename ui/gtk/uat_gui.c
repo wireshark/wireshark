@@ -113,7 +113,6 @@ struct _uat_dlg_data {
 	GPtrArray *tobe_freed;
 };
 
-
 static gboolean unsaved_dialog(GtkWindow *w, GdkEvent *e, gpointer u);
 static gboolean uat_window_delete_event_cb(GtkWindow *w, GdkEvent *e, gpointer u);
 
@@ -133,10 +132,17 @@ static void set_buttons(uat_t *uat, gint row) {
 		gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
 	}
 
+	gtk_widget_set_sensitive (uat->rep->bt_new, TRUE);
+	gtk_widget_set_sensitive (uat->rep->bt_clear, TRUE);
+
 	if (row < 0) {
 		gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
 		gtk_widget_set_sensitive (uat->rep->bt_copy, FALSE);
 		gtk_widget_set_sensitive (uat->rep->bt_delete, FALSE);
+	} else {
+		gtk_widget_set_sensitive (uat->rep->bt_edit, TRUE);
+		gtk_widget_set_sensitive (uat->rep->bt_copy, TRUE);
+		gtk_widget_set_sensitive (uat->rep->bt_delete, TRUE);
 	}
 
 	if (uat->changed) {
@@ -148,6 +154,21 @@ static void set_buttons(uat_t *uat, gint row) {
 		g_signal_connect(GTK_WINDOW(uat->rep->window), "delete_event", G_CALLBACK(uat_window_delete_event_cb), uat);
 		g_signal_connect(GTK_WINDOW(uat->rep->window), "destroy", G_CALLBACK(uat_window_delete_event_cb), uat);
 	}
+}
+
+static void limit_buttons(uat_t *uat) {
+
+	if (!uat->rep) return;
+
+	gtk_widget_set_sensitive (uat->rep->bt_up, FALSE);
+	gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
+
+	gtk_widget_set_sensitive (uat->rep->bt_new, FALSE);
+	gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
+	gtk_widget_set_sensitive (uat->rep->bt_copy, FALSE);
+	gtk_widget_set_sensitive (uat->rep->bt_delete, FALSE);
+
+	gtk_widget_set_sensitive (uat->rep->bt_clear, FALSE);
 }
 
 static char *fld_tostr(void *rec, uat_field_t *f) {
@@ -400,6 +421,9 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	if (dd->uat->rep)
 		window_present(GTK_WIDGET(dd->uat->rep->window));
 
+	/* Reset the buttons */
+	set_buttons(dd->uat, dd->uat->rep ? dd->uat->rep->selected : -1);
+
 	if (dd->is_new) g_free(dd->rec);
 	g_ptr_array_free(dd->entries, TRUE);
 	window_destroy(GTK_WIDGET(dd->win));
@@ -422,6 +446,9 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 	struct _uat_dlg_data *dd = (struct _uat_dlg_data *)g_malloc(sizeof(struct _uat_dlg_data));
 	uat_field_t	     *f	 = uat->fields;
 	guint		      colnum;
+
+	/* Only allow a single operation at a time, prevents bug 9129 */
+	limit_buttons(uat);
 
 	dd->entries = g_ptr_array_new();
 	dd->win = dlg_conf_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
@@ -578,6 +605,9 @@ static void uat_cancel_del_cb(GtkButton *button _U_, gpointer u) {
 
 	window_destroy(GTK_WIDGET(ud->win));
 
+	/* Reset the buttons */
+	set_buttons(ud->uat, ud->uat->rep ? ud->uat->rep->selected : -1);
+
 	if (ud->uat->rep)
 		window_present(GTK_WIDGET(ud->uat->rep->window));
 	g_free(ud);
@@ -588,7 +618,11 @@ static void uat_del_dlg(uat_t *uat, int idx) {
 	uat_field_t	*f   = uat->fields;
 	guint		 colnum;
 	void		*rec = UAT_INDEX_PTR(uat, idx);
+
 	struct _uat_del *ud  = (struct _uat_del *)g_malloc(sizeof(struct _uat_del));
+
+	/* Only allow a single operation at a time, prevents bug 9129 */
+	limit_buttons(uat);
 
 	ud->uat = uat;
 	ud->idx = idx;
@@ -975,6 +1009,7 @@ static GtkWidget *uat_window(void *u) {
 
 	selection = gtk_tree_view_get_selection(rep->list);
 	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+	rep->selected = -1;
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		renderer = gtk_cell_renderer_text_new();

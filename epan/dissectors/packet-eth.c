@@ -513,7 +513,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
   proto_item *item;
   proto_tree *checksum_tree;
 
-  if (trailer_tvb && fh_tree) {
+  if (trailer_tvb) {
     guint trailer_length, trailer_reported_length;
     guint padding_length = 0;
     gboolean has_fcs = FALSE;

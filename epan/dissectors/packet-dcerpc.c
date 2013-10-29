@@ -4436,6 +4436,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     static const guint8 nulls[4]         = { 0 };
     int                    start_offset;
     int                    padding       = 0;
+    int                    subtvb_len    = 0;
     proto_item            *ti            = NULL;
     proto_item            *tf            = NULL;
     proto_tree            *dcerpc_tree   = NULL;
@@ -4613,9 +4614,10 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * (and other functions might fail as well) computing the right start
      * offset otherwise.
      */
-    fragment_tvb = tvb_new_subset(tvb, 0,
-                                  MIN((hdr.frag_len + (guint) start_offset), tvb_length(tvb)) /* length */,
-                                  hdr.frag_len + start_offset /* reported_length */);
+    subtvb_len = MIN(hdr.frag_len, tvb_length(tvb));
+    fragment_tvb = tvb_new_subset(tvb, start_offset,
+                                  subtvb_len /* length */,
+                                  hdr.frag_len /* reported_length */);
 
     /*
      * Packet type specific stuff is next.
@@ -4623,36 +4625,36 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     switch (hdr.ptype) {
     case PDU_BIND:
     case PDU_ALTER:
-        dissect_dcerpc_cn_bind(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_ACK:
     case PDU_ALTER_ACK:
-        dissect_dcerpc_cn_bind_ack(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind_ack(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_AUTH3:
         /*
          * Nothing after the common header other than credentials.
          */
-        dissect_dcerpc_cn_auth(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr, TRUE,
+        dissect_dcerpc_cn_auth(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr, TRUE,
                                &auth_info);
         break;
 
     case PDU_REQ:
-        dissect_dcerpc_cn_rqst(fragment_tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_rqst(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, tree, &hdr);
         break;
 
     case PDU_RESP:
-        dissect_dcerpc_cn_resp(fragment_tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_resp(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, tree, &hdr);
         break;
 
     case PDU_FAULT:
-        dissect_dcerpc_cn_fault(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_fault(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_NAK:
-        dissect_dcerpc_cn_bind_nak(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind_nak(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_CO_CANCEL:
@@ -4661,7 +4663,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Nothing after the common header other than an authentication
          * verifier.
          */
-        dissect_dcerpc_cn_auth(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr, FALSE,
+        dissect_dcerpc_cn_auth(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr, FALSE,
                                &auth_info);
         break;
 
@@ -4672,12 +4674,12 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
          */
         break;
     case PDU_RTS:
-      dissect_dcerpc_cn_rts(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
+      dissect_dcerpc_cn_rts(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr);
       break;
 
     default:
         /* might as well dissect the auth info */
-        dissect_dcerpc_cn_auth(fragment_tvb, offset, pinfo, dcerpc_tree, &hdr, FALSE,
+        dissect_dcerpc_cn_auth(fragment_tvb, MIN(offset - start_offset, subtvb_len), pinfo, dcerpc_tree, &hdr, FALSE,
                                &auth_info);
         break;
     }
