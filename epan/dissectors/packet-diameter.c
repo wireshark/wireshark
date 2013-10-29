@@ -1117,16 +1117,15 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* TODO: Populate result_code in tap record from AVP 268 */
 			}
 		}
+		
+		offset = 20;
+		
+		/* Dissect AVPs until the end of the packet is reached */
+		while (offset < packet_len) {
+			offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf);
+		}
 	}
-	offset = 20;
-
-	/* Store the application id to be used by subdissectors */
-
-	/* Dissect AVPs until the end of the packet is reached */
-	while (offset < packet_len) {
-		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf);
-	}
-
+	
 	/* Handle requests for which no answers were found and
 	 * anawers for which no requests were found in the tap listener.
 	 * In case if you don't need unpaired requests/answers use:
