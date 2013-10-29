@@ -39,12 +39,12 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-61.html">wnpa-sec-2013-61</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.10: r????? -->
-            <!-- Fixed in trunk-1.8: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+	    The IEEE 802.15.4 dissector could crash.
+            <!-- Fixed in trunk: r52036 -->
+            <!-- Fixed in trunk-1.10: r52954 -->
+            <!-- Fixed in trunk-1.8: r52956 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9139">Bug
+            9139</ulink>)
           </para>
           <para>Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10.</para>
 	  <!--
@@ -105,7 +105,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+IEEE 802.15.4,
 
     </para>
     </section>
