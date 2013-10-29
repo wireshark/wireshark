@@ -34,11 +34,11 @@
 #include "wmem/wmem.h"
 #include <stdio.h>
 
-#define PROTO_TAG_ASTERIX    "ASTERIX"
+#define PROTO_TAG_ASTERIX   "ASTERIX"
 #define ASTERIX_PORT        8600
 
-#define MAX_DISSECT_STR        1024
-#define MAX_BUFFER            256
+#define MAX_DISSECT_STR     1024
+#define MAX_BUFFER           256
 
 static int proto_asterix = -1;
 
@@ -1547,8 +1547,8 @@ static gint ett_065_020 = -1;
 static gint ett_065_030 = -1;
 static gint ett_065_040 = -1;
 static gint ett_065_050 = -1;
-static gint ett_065_RE = -1;
-static gint ett_065_SP = -1;
+static gint ett_065_RE  = -1;
+static gint ett_065_SP  = -1;
 
 static dissector_handle_t asterix_handle;
 
@@ -1571,22 +1571,22 @@ static dissector_handle_t asterix_handle;
 
 typedef struct FieldPart_s FieldPart;
 struct FieldPart_s {
-    guint8 bit_length; /* length of field in bits */
-    double scaling_factor; /* scaling factor of the field (for instance: 1/128) */
-    guint8 type; /* Pre-defined type for proper presentation */
-    gint *hf; /* Pointer to hf representing this kind of data */
-    const char* format_string; /* format string for showing float values */
+    guint8      bit_length;     /* length of field in bits */
+    double      scaling_factor; /* scaling factor of the field (for instance: 1/128) */
+    guint8      type;           /* Pre-defined type for proper presentation */
+    gint       *hf;             /* Pointer to hf representing this kind of data */
+    const char *format_string;  /* format string for showing float values */
 };
 
 typedef struct AsterixField_s AsterixField;
 struct AsterixField_s {
-    guint8 type; /* type of field */
-    guint length; /* fixed length */
-    guint repetition_counter_size; /* size of repetition counter, length of one item is in length */
-    guint header_length; /* the size is in first header_length bytes of the field */
-    gint *hf; /* pointer to Wireshark hf_register_info */
-    const FieldPart **part; /* Look declaration and description of FieldPart above. */
-    const AsterixField *field[]; /* subfields */
+    guint8               type;                    /* type of field */
+    guint                length;                  /* fixed length */
+    guint                repetition_counter_size; /* size of repetition counter, length of one item is in length */
+    guint                header_length;           /* the size is in first header_length bytes of the field */
+    gint                *hf;                      /* pointer to Wireshark hf_register_info */
+    const FieldPart    **part;                    /* Look declaration and description of FieldPart above. */
+    const AsterixField  *field[];                 /* subfields */
 };
 
 static void dissect_asterix (tvbuff_t *, packet_info *, proto_tree *);
@@ -1617,7 +1617,7 @@ static const value_string valstr_XXX_FX[] = {
 };
 static const FieldPart IXXX_FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_FX, NULL };
 /*static const FieldPart IXXX_2FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_2FX, NULL };*/
-static const FieldPart IXXX_3FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_3FX, NULL };
+static const FieldPart IXXX_3FX        = { 1, 1.0, FIELD_PART_FX, &hf_XXX_3FX, NULL };
 static const FieldPart IXXX_1bit_spare = { 1, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_2bit_spare = { 2, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_3bit_spare = { 3, 1.0, FIELD_PART_UINT, NULL, NULL };
@@ -1731,14 +1731,14 @@ static const FieldPart *I001_020_PARTS[] = { &I001_020_TYP, &I001_020_SIM, &I001
 
 /* Warning/Error Conditions */
 static const value_string valstr_001_030_WE[] = {
-    { 0, "no warning nor error condition" },
-    { 1, "garbled reply" },
-    { 2, "reflection" },
-    { 3, "sidelobe reply" },
-    { 4, "split plot" },
-    { 5, "second time around reply" },
-    { 6, "angels" },
-    { 7, "terrestrial vehicles" },
+    {  0, "no warning nor error condition" },
+    {  1, "garbled reply" },
+    {  2, "reflection" },
+    {  3, "sidelobe reply" },
+    {  4, "split plot" },
+    {  5, "second time around reply" },
+    {  6, "angels" },
+    {  7, "terrestrial vehicles" },
     { 64, "possible wrong code in Mode-3/A" },
     { 65, "possible wrong altitude information, transmitted when the Code C credibility check fails together with the Mode-C code in binary notation" },
     { 66, "possible phantom MSSR plot" },
@@ -2419,16 +2419,16 @@ static const FieldPart *I034_060_04_PARTS[] = { &I034_060_04_RED_RAD, &I034_060_
 
 /* Plot Count Values */
 static const value_string valstr_034_070_TYP[] = {
-    { 0, "No detection (number of misses)" },
-    { 1, "Single PSR target reports" },
-    { 2, "Single SSR target reports (Non-Mode S)" },
-    { 3, "SSR+PSR target reports (Non-Mode S)" },
-    { 4, "Single All-Call target reports (Mode S)" },
-    { 5, "Single Roll-Call target reports (Mode S)" },
-    { 6, "All-Call + PSR (Mode S) target reports" },
-    { 7, "Roll-Call + PSR (Mode S) target reports" },
-    { 8, "Filter for Weather data" },
-    { 9, "Filter for Jamming Strobe" },
+    {  0, "No detection (number of misses)" },
+    {  1, "Single PSR target reports" },
+    {  2, "Single SSR target reports (Non-Mode S)" },
+    {  3, "SSR+PSR target reports (Non-Mode S)" },
+    {  4, "Single All-Call target reports (Mode S)" },
+    {  5, "Single Roll-Call target reports (Mode S)" },
+    {  6, "All-Call + PSR (Mode S) target reports" },
+    {  7, "Roll-Call + PSR (Mode S) target reports" },
+    {  8, "Filter for Weather data" },
+    {  9, "Filter for Jamming Strobe" },
     { 10, "Filter for PSR data" },
     { 11, "Filter for SSR/Mode S data" },
     { 12, "Filter for SSR/Mode S+PSR data" },
@@ -2589,16 +2589,16 @@ static const FieldPart *I048_020_PARTS[] = { &I048_020_TYP, &I048_020_SIM, &I048
 
 /* Warning/Error Conditions */
 static const value_string valstr_048_030_WE[] = {
-    { 0, "Not defined; never used." },
-    { 1, "Multipath Reply (Reflection)" },
-    { 2, "Reply due to sidelobe interrogation/reception" },
-    { 3, "Split plot" },
-    { 4, "Second time around reply" },
-    { 5, "Angel" },
-    { 6, "Slow moving target correlated with road infrastructure (terrestrial vehicle)" },
-    { 7, "Fixed PSR plot" },
-    { 8, "Slow PSR target" },
-    { 9, "Low quality PSR plot" },
+    {  0, "Not defined; never used." },
+    {  1, "Multipath Reply (Reflection)" },
+    {  2, "Reply due to sidelobe interrogation/reception" },
+    {  3, "Split plot" },
+    {  4, "Second time around reply" },
+    {  5, "Angel" },
+    {  6, "Slow moving target correlated with road infrastructure (terrestrial vehicle)" },
+    {  7, "Fixed PSR plot" },
+    {  8, "Slow PSR target" },
+    {  9, "Low quality PSR plot" },
     { 10, "Phantom SSR plot" },
     { 11, "Non-Matching Mode-3/A Code" },
     { 12, "Mode C code / Mode S altitude code abnormal value compared to the track" },
@@ -3277,7 +3277,7 @@ static const FieldPart *I062_130_PARTS[] = { &I062_130_ALT, NULL };
 
 /* Calculated Track Barometric Altitude */
 static const value_string valstr_062_135_QNH[] = {
-	{ 0, "No QNH correction applied" },
+    { 0, "No QNH correction applied" },
     { 1, "QNH correction applied" },
     { 0, NULL }
 };
@@ -3432,16 +3432,16 @@ static const FieldPart *I062_295_31_PARTS[] = { &I062_295_31_BPS, NULL };
 
 /* Vehicle Fleet Identification */
 static const value_string valstr_062_300_VFI[] = {
-    { 0, "Unknown" },
-    { 1, "ATC equipment maintenance" },
-    { 2, "Airport maintenance" },
-    { 3, "Fire" },
-    { 4, "Bird scarer" },
-    { 5, "Snow plough" },
-    { 6, "Runway sweeper" },
-    { 7, "Emergency" },
-    { 8, "Police" },
-    { 9, "Bus" },
+    {  0, "Unknown" },
+    {  1, "ATC equipment maintenance" },
+    {  2, "Airport maintenance" },
+    {  3, "Fire" },
+    {  4, "Bird scarer" },
+    {  5, "Snow plough" },
+    {  6, "Runway sweeper" },
+    {  7, "Emergency" },
+    {  8, "Police" },
+    {  9, "Bus" },
     { 10, "Tug (push/tow)" },
     { 11, "Grass cutter" },
     { 12, "Fuel" },
@@ -3511,18 +3511,18 @@ static const value_string valstr_062_340_06_TYP[] = {
     { 0, NULL }
 };
 static const value_string valstr_062_340_06_SIM[] = {
-	{ 0, "Actual target report" },
-	{ 1, "Simulated target report" },
+    { 0, "Actual target report" },
+    { 1, "Simulated target report" },
     { 0, NULL }
 };
 static const value_string valstr_062_340_06_RAB[] = {
-	{ 0, "Report from target transponder" },
-	{ 1, "Report from field monitor (fixed transponder)" },
+    { 0, "Report from target transponder" },
+    { 1, "Report from field monitor (fixed transponder)" },
     { 0, NULL }
 };
 static const value_string valstr_062_340_06_TST[] = {
-	{ 0, "Real target report" },
-	{ 1, "Test target report" },
+    { 0, "Real target report" },
+    { 1, "Test target report" },
     { 0, NULL }
 };
 static const FieldPart I062_340_06_TYP = { 3, 1.0, FIELD_PART_UINT, &hf_062_340_06_TYP, NULL };
@@ -3605,35 +3605,35 @@ static const value_string valstr_062_380_09_NC[] = {
     { 0, NULL }
 };
 static const value_string valstr_062_380_09_PTYP[] = {
-    { 0, "Unknown" },
-    { 1, "Fly by waypoint " },
-    { 2, "Fly over waypoint" },
-    { 3, "Hold Pattern" },
-    { 4, "Procedure hold" },
-    { 5, "Procedure turn" },
-    { 6, "RF leg" },
-    { 7, "Top of climb" },
-    { 8, "Top of descend"},
-    { 9, "Start of level" },
+    {  0, "Unknown" },
+    {  1, "Fly by waypoint " },
+    {  2, "Fly over waypoint" },
+    {  3, "Hold Pattern" },
+    {  4, "Procedure hold" },
+    {  5, "Procedure turn" },
+    {  6, "RF leg" },
+    {  7, "Top of climb" },
+    {  8, "Top of descend"},
+    {  9, "Start of level" },
     { 10, "Cross-over altitude" },
     { 11, "Transition altitude" },
     { 0, NULL }
 };
 static const value_string valstr_062_380_09_TD[] = {
-	{ 0, "N/A" },
-	{ 1, "Turn right" },
-	{ 2, "Turn left" },
-	{ 3, "No turn" },
+    { 0, "N/A" },
+    { 1, "Turn right" },
+    { 2, "Turn left" },
+    { 3, "No turn" },
     { 0, NULL }
 };
 static const value_string valstr_062_380_09_TRA[] = {
-	{ 0, "TTR not available" },
-	{ 1, "TTR available" },
+    { 0, "TTR not available" },
+    { 1, "TTR available" },
     { 0, NULL }
 };
 static const value_string valstr_062_380_09_TOA[] = {
-	{ 0, "TOV available" },
-	{ 1, "TOV not available" },
+    { 0, "TOV available" },
+    { 1, "TOV not available" },
     { 0, NULL }
 };
 static const FieldPart I062_380_09_TCA = { 1, 1.0, FIELD_PART_UINT, &hf_062_380_09_TCA, NULL };
@@ -3812,15 +3812,15 @@ static const FieldPart *I062_380_20_PARTS[] = { &I062_380_20_WS, &I062_380_20_WD
 
 /* Emitter Category */
 static const value_string valstr_062_380_21_ECAT[] = {
-    { 1, "light aircraft <= 7000 kg" },
-    { 2, "reserved" },
-    { 3, "7000 kg < medium aircraft < 136000 kg" },
-    { 4, "reserved" },
-    { 5, "136000 kg <= heavy aircraft" },
-    { 6, "highly manoeuvrable (5g acceleration capability) and high speed (>400 knots cruise)" },
-    { 7, "reserved" },
-    { 8, "reserved" },
-    { 9, "reserved" },
+    {  1, "light aircraft <= 7000 kg" },
+    {  2, "reserved" },
+    {  3, "7000 kg < medium aircraft < 136000 kg" },
+    {  4, "reserved" },
+    {  5, "136000 kg <= heavy aircraft" },
+    {  6, "highly manoeuvrable (5g acceleration capability) and high speed (>400 knots cruise)" },
+    {  7, "reserved" },
+    {  8, "reserved" },
+    {  9, "reserved" },
     { 10, "rotocraft" },
     { 11, "glider / sailplane" },
     { 12, "lighter-than-air" },
@@ -3949,16 +3949,16 @@ static const FieldPart *I062_390_11_PARTS[] = { &I062_390_11_CNTR, &I062_390_11_
 
 /* Time of Departure / Arrival */
 static const value_string valstr_062_390_12_TYP[] = {
-    { 0, "Scheduled off-block time" },
-    { 1, "Estimated off-block time" },
-    { 2, "Estimated take-off time" },
-    { 3, "Actual off-block time" },
-    { 4, "Predicted time at runway hold" },
-    { 5, "Actual time at runway hold" },
-    { 6, "Actual line-up time" },
-    { 7, "Actual take-off time" },
-    { 8, "Estimated time of arrival" },
-    { 9, "Predicted landing time" },
+    {  0, "Scheduled off-block time" },
+    {  1, "Estimated off-block time" },
+    {  2, "Estimated take-off time" },
+    {  3, "Actual off-block time" },
+    {  4, "Predicted time at runway hold" },
+    {  5, "Actual time at runway hold" },
+    {  6, "Actual line-up time" },
+    {  7, "Actual take-off time" },
+    {  8, "Estimated time of arrival" },
+    {  9, "Predicted landing time" },
     { 10, "Actual landing time" },
     { 11, "Actual time off runway" },
     { 12, "Predicted time to gate" },
