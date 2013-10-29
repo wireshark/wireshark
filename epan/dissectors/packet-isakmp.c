@@ -1887,7 +1887,7 @@ static proto_tree *dissect_payload_header(tvbuff_t *, int, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
 static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
-static void dissect_proposal(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
+static void dissect_proposal(tvbuff_t *, int, int, proto_tree *, int, void*);
 static void dissect_transform(tvbuff_t *, int, int, proto_tree *, int, int, void*);
 static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
 static void dissect_id(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
@@ -2615,7 +2615,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
 	   dissect_sa(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data);
 	   break;
 	   case PLOAD_IKE_P:
-	   dissect_proposal(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data );
+	   dissect_proposal(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, decr_data );
 	   break;
 	   case PLOAD_IKE_KE:
 	   case PLOAD_IKE2_KE:
@@ -2999,7 +2999,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 }
 
 static void
-dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, void* decr_data)
+dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, void* decr_data)
 {
   guint8		protocol_id;
   guint8		spi_size;
@@ -3589,12 +3589,12 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int i
 }
 
 static void
-dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, 
+dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version,
 #ifdef HAVE_LIBGCRYPT
- packet_info* pinfo, 
+ packet_info* pinfo,
  void* decr_data
 #else
- packet_info* pinfo _U_, 
+ packet_info* pinfo _U_,
  void* decr_data _U_
 #endif
 )
