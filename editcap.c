@@ -276,29 +276,34 @@ add_selection(char *sel)
 
     if (++max_selected >= MAX_SELECTIONS) {
         /* Let the user know we stopped selecting */
-        printf("Out of room for packet selections!\n");
+        fprintf(stderr, "Out of room for packet selections!\n");
         return(FALSE);
     }
 
-    printf("Add_Selected: %s\n", sel);
+    if (verbose)
+        fprintf(stderr, "Add_Selected: %s\n", sel);
 
     if ((locn = strchr(sel, '-')) == NULL) { /* No dash, so a single number? */
-        printf("Not inclusive ...");
+        if (verbose)
+            fprintf(stderr, "Not inclusive ...");
 
         selectfrm[max_selected].inclusive = 0;
         selectfrm[max_selected].first = atoi(sel);
 
-        printf(" %i\n", selectfrm[max_selected].first);
+        if (verbose)
+            fprintf(stderr, " %i\n", selectfrm[max_selected].first);
     } else {
-        printf("Inclusive ...");
+        if (verbose)
+            fprintf(stderr, "Inclusive ...");
 
         next = locn + 1;
         selectfrm[max_selected].inclusive = 1;
         selectfrm[max_selected].first = atoi(sel);
         selectfrm[max_selected].second = atoi(next);
 
-        printf(" %i, %i\n", selectfrm[max_selected].first,
-               selectfrm[max_selected].second);
+        if (verbose)
+            fprintf(stderr, " %i, %i\n", selectfrm[max_selected].first,
+                   selectfrm[max_selected].second);
     }
 
     return(TRUE);
@@ -1120,7 +1125,7 @@ main(int argc, char *argv[])
     }
 
 #ifdef DEBUG
-    printf("Optind = %i, argc = %i\n", optind, argc);
+    fprintf(stderr, "Optind = %i, argc = %i\n", optind, argc);
 #endif
 
     if ((argc - optind) < 1) {
@@ -1300,7 +1305,7 @@ main(int argc, char *argv[])
                             || (selected(count) && keep_em))) {
 
                 if (verbose && !dup_detect && !dup_detect_by_time)
-                    printf("Packet: %u\n", count);
+                    fprintf(stderr, "Packet: %u\n", count);
 
                 /* We simply write it, perhaps after truncating it; we could
                  * do other things, like modify it. */
