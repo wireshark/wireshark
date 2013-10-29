@@ -1062,7 +1062,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Start Decoding Here. */
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	col_add_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 		             val_to_str_const(pppoe_code, code_vals, "Unknown"));
 
 	reported_payload_length = tvb_get_ntohs(tvb, 4);

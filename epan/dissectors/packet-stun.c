@@ -828,7 +828,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 			case NONCE:
 				proto_tree_add_item(att_tree, stun_att_nonce, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 				proto_item_append_text(att_tree, ": %s", tvb_get_string(wmem_packet_scope(), tvb, offset, att_length));
-				col_append_fstr(
+				col_append_str(
 					pinfo->cinfo, COL_INFO,
 					" with nonce"
 					);

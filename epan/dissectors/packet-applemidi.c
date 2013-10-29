@@ -132,9 +132,6 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, APPLEMIDI_DISSECTOR_SHORTNAME );
 
-	/* Clear out stuff in the info column */
-	col_clear( pinfo->cinfo, COL_INFO );
-
 	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", val_to_str( command, applemidi_commands, applemidi_unknown_command ) );
 
 	if ( tree ) {

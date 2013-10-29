@@ -10743,12 +10743,12 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (short_pd == 0)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(RR) ");
+        col_append_str(pinfo->cinfo, COL_INFO, "(RR) ");
         get_rr_short_pd_msg_params(mess_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
     }
     else
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(Unknown) ");
+        col_append_str(pinfo->cinfo, COL_INFO, "(Unknown) ");
     }
 
     /*

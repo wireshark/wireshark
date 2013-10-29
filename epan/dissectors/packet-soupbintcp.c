@@ -203,7 +203,6 @@ dissect_soupbintcp_common(
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SoupBinTCP");
 
     /* Set the packet name in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, pkt_name);
 
     /* Sequence number tracking

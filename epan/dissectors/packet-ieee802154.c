@@ -479,7 +479,6 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
     /* Add the packet length. */
-    col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
     col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
 
     preamble=tvb_get_letohl(tvb,offset);
@@ -646,7 +645,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
     /* Add the packet length. */
-    col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
     col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
 
     /* Add the packet length to the filter field */
@@ -1533,7 +1531,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
     else {
         /* Association was unsuccessful. */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Unsuccessful");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Unsuccessful");
     }
 
     /* Update the address table. */

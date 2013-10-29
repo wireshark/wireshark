@@ -263,7 +263,6 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HPFEEDS");
     /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo,COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
         val_to_str(opcode, opcode_vals, "Unknown (0x%02x)"));
 

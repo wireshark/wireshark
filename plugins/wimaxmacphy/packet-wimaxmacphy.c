@@ -2425,7 +2425,7 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 #if 0
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &wimaxmacphy_message_type_vals_ext, "Unknown"));
 #endif
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_type, wimaxmacphy_message_type_vals, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_type, wimaxmacphy_message_type_vals, "Unknown"));
     offset += 1;
 
     switch(message_type)

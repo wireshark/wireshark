@@ -1634,7 +1634,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 	if (!response)
 	{   /* request */
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Write Multiple Parameter by Index" );
+		col_append_str(pinfo->cinfo, COL_INFO, "Write Multiple Parameter by Index" );
 
 		while ( !lastentry && tvb_reported_length_remaining(tvb, offset) > 0 )
 		{

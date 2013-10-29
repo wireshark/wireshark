@@ -232,7 +232,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
 
     proto_tree_add_uint(kpasswd_tree, hf_kpasswd_message_len, tvb, offset, 2, message_len);
     proto_tree_add_uint(kpasswd_tree, hf_kpasswd_version, tvb, offset+2, 2, version);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(version, vers_vals, "Unknown command"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(version, vers_vals, "Unknown command"));
     proto_tree_add_uint(kpasswd_tree, hf_kpasswd_ap_req_len, tvb, offset+4, 2, ap_req_len);
     offset+=6;
 

@@ -1951,8 +1951,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *columnstreeti;
 	proto_tree *ColumnsTree;
 
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Use Custom Columns for Infos");
+	col_set_str(pinfo->cinfo, COL_INFO, "Use Custom Columns for Infos");
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT");
 

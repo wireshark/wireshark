@@ -2820,8 +2820,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * an RPC auth level message, then process the args.
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%s %s XID 0x%x",
 				val_to_str(gss_proc, rpc_authgssapi_proc, "Unknown (%d)"),
 				msg_type_name, xid);

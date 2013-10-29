@@ -551,7 +551,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bytes_left   = TRUE;
 
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
     if((current_protocol == KNET_SCTP_PACKET) || (current_protocol == KNET_TCP_PACKET))
     {
@@ -643,7 +643,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if(current_protocol == KNET_TCP_PACKET && ((struct tcpinfo*)(pinfo->private_data))->is_reassembled)
-        col_add_str(pinfo->cinfo, COL_INFO, "REASSEMBLED PACKET");
+        col_set_str(pinfo->cinfo, COL_INFO, "REASSEMBLED PACKET");
     else
         col_add_fstr(pinfo->cinfo, COL_INFO, "Messages: %d %s", messageindex + 1, wmem_strbuf_get_str(info_field));
 

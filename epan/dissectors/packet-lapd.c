@@ -565,7 +565,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);
 
 	/* Dissection done, append " | " to COL_INFO */
-	col_append_fstr(pinfo->cinfo, COL_INFO, " | ");
+	col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	if (XDLC_IS_INFORMATION(control)) {

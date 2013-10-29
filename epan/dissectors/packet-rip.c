@@ -124,7 +124,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     command = tvb_get_guint8(tvb, 0);
     version = tvb_get_guint8(tvb, 1);
 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL,
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,
 		    val_to_str_const(version, version_vals, "RIP"));
     col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(command, command_vals, "Unknown command (%u)"));

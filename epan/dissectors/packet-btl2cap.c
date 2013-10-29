@@ -1574,10 +1574,10 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -1643,7 +1643,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             cmd_str = val_to_str_const(cmd_code, command_code_vals, "Unknown cmd");
             proto_item_append_text(ti_command, "%s", cmd_str);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", cmd_str);
+            col_append_str(pinfo->cinfo, COL_INFO, cmd_str);
 
             switch (cmd_code) {
             case 0x01: /* Command Reject */

@@ -642,7 +642,6 @@ dissect_ouch(
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OUCH");
 
     /* Set the packet name in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, pkt_name);
 
     if (tree) {

@@ -2203,7 +2203,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     } else { /* Classical Beep */
         /* add text to the frame "INFO" column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": Classical Beep");
+        col_append_str(pinfo->cinfo, COL_INFO, ": Classical Beep");
     }
 }
 
@@ -3706,7 +3706,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     length = tvb_get_letohs(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " - UA3G Message:");
+    col_append_str(pinfo->cinfo, COL_INFO, " - UA3G Message:");
 
     proto_tree_add_uint(ua3g_tree, hf_ua3g_length, tvb, offset, 2, length);
     offset += 2;

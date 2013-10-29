@@ -218,7 +218,7 @@ xmpp_gtalk_jingleinfo_query(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo,
         {NAME, "relay", xmpp_gtalk_jingleinfo_relay, ONE}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(google:jingleinfo) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(google:jingleinfo) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length,
         ENC_BIG_ENDIAN);
@@ -356,7 +356,7 @@ xmpp_gtalk_nosave_query(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
         {NAME, "item", xmpp_gtalk_nosave_item, MANY},
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(google:nosave) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(google:nosave) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length,
         ENC_BIG_ENDIAN);
@@ -418,7 +418,7 @@ xmpp_gtalk_mail_query(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_
         {"q", -1, FALSE, TRUE, NULL, NULL}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(google:mail:notify) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(google:mail:notify) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length,
         ENC_BIG_ENDIAN);
@@ -446,7 +446,7 @@ xmpp_gtalk_mail_mailbox(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
         {NAME,"mail-thread-info", xmpp_gtalk_mail_mail_info, MANY}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "MAILBOX ");
+    col_append_str(pinfo->cinfo, COL_INFO, "MAILBOX ");
 
     mail_item = proto_tree_add_item(tree, hf_xmpp_gtalk_mail_mailbox, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     mail_tree = proto_item_add_subtree(mail_item, ett_xmpp_gtalk_mail_mailbox);
@@ -544,7 +544,7 @@ xmpp_gtalk_mail_snippet(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
 void
 xmpp_gtalk_mail_new_mail(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element)
 {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "NEW-MAIL ");
+    col_append_str(pinfo->cinfo, COL_INFO, "NEW-MAIL ");
     proto_tree_add_item(tree, hf_xmpp_gtalk_mail_new_mail, tvb, element->offset, element->length,
         ENC_BIG_ENDIAN);
     xmpp_unknown(tree, tvb, pinfo, element);
@@ -575,7 +575,7 @@ xmpp_gtalk_status_query(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
 
     xmpp_element_t *status, *show, *invisible;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(google:shared-status) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(google:shared-status) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length,
         ENC_BIG_ENDIAN);

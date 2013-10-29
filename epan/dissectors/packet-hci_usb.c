@@ -114,7 +114,6 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_USB");
 
-    col_clear(pinfo->cinfo, COL_INFO);
 
     usb_data = (usb_data_t *)data;
 
@@ -124,11 +123,11 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     switch (pinfo->p2p_dir) {
 
     case P2P_DIR_SENT:
-        col_add_str(pinfo->cinfo, COL_INFO, "Sent");
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent");
         break;
 
     case P2P_DIR_RECV:
-        col_add_str(pinfo->cinfo, COL_INFO, "Rcvd");
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd");
         break;
 
     default:
@@ -192,7 +191,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_fragment, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment");
+        col_append_str(pinfo->cinfo, COL_INFO, " Fragment");
     } else if (reassembled && pinfo->fd->num == reassembled->reassembled_in) {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);

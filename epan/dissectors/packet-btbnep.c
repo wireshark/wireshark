@@ -292,10 +292,10 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -313,8 +313,8 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bnep_type = bnep_type & 0x7F;
     offset += 1;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(bnep_type, bnep_type_vals,  "Unknown type"));
-    if (extension_flag) col_append_fstr(pinfo->cinfo, COL_INFO, "+E");
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(bnep_type, bnep_type_vals,  "Unknown type"));
+    if (extension_flag) col_append_str(pinfo->cinfo, COL_INFO, "+E");
 
     if (bnep_type == BNEP_TYPE_GENERAL_ETHERNET || bnep_type == BNEP_TYPE_COMPRESSED_ETHERNET_DESTINATION_ONLY) {
         dst_addr = tvb_get_ptr(tvb, offset, 6);

@@ -91,17 +91,17 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 
 #.FN_BODY AARQ-apdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
 
   %(DEFAULT_BODY)s
 
 #.FN_BODY AARE-apdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "A-Associate-Response");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Response");
 
   %(DEFAULT_BODY)s
 
 #.FN_BODY RLRQ-apdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Request");
 
   %(DEFAULT_BODY)s
 
@@ -117,7 +117,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
 
 #.FN_BODY RLRE-apdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Response");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Response");
 
   %(DEFAULT_BODY)s
 
@@ -133,7 +133,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, acse_Release_response_reason_vals, "reason(%%d)"));
 
 #.FN_BODY ABRT-apdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Abort");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
 
   %(DEFAULT_BODY)s
 

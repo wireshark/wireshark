@@ -1904,10 +1904,10 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				ext_value=tvb_get_ntohl( tvb, hdrext_offset );
 
 				if (RTP_ED137_ptt_mask(ext_value)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", PTT");
+					col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
 				}
 				if (RTP_ED137_squ_mask(ext_value)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", SQU");
+					col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
 				}
 
 				/* Following bits are used from ED137 RTPRx/RTPTx Information field */
@@ -1991,10 +1991,10 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				ext_value=tvb_get_ntohl( tvb, hdrext_offset );
 
 				if (RTP_ED137A_ptt_mask(ext_value)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", PTT");
+					col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
 				}
 				if (RTP_ED137A_squ_mask(ext_value)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", SQU");
+					col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
 				}
 
 				/* Following bits are used from ED137A/B RTPRx Information field */

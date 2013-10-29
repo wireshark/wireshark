@@ -675,8 +675,6 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCCP");
-  col_clear(pinfo->cinfo, COL_INFO);
-
 
   col_add_str(pinfo->cinfo, COL_INFO, val_to_str(wccp_message_type,
                                                    wccp_type_vals, "Unknown WCCP message (%u)"));

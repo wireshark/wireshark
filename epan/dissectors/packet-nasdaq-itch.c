@@ -290,7 +290,6 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     rep = val_to_str(nasdaq_itch_type, message_types_val, "Unknown packet type (0x%02x) ");
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, rep);
 
     if (tree) {

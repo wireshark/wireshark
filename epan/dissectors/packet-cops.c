@@ -3024,7 +3024,6 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
     g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
                val_to_str_const(code16,table_cops_dqos_transaction_id, "Unknown"));
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO,info);
 }
 
@@ -3417,7 +3416,6 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
      g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
                 val_to_str_const(code16,table_cops_mm_transaction_id, "Unknown"));
 
-     col_clear(pinfo->cinfo, COL_INFO);
      col_add_str(pinfo->cinfo, COL_INFO,info);
 }
 

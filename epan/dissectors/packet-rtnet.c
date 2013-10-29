@@ -586,7 +586,6 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTmac");
 
   /* set the info column */
-  col_clear(pinfo->cinfo,COL_INFO);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown (0x%04x)",type);
 
   if (rtmac_tree) {

@@ -290,7 +290,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(tctf, rach_fdd_tctf_vals, "Unknown TCTF"));
 
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
@@ -380,7 +380,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(tctf, fach_fdd_tctf_vals, "Unknown TCTF"));
 
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);

@@ -414,7 +414,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(dhcpfo_tree,
 		    hf_dhcpfo_type, tvb, offset, 1, type);
 	}
-	col_add_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 	    val_to_str_const(type, failover_vals, "Unknown Packet"));
 	offset += 1;
 

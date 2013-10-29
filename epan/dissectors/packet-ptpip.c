@@ -321,7 +321,7 @@ void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint16 opcode=0;
     guint16 transactionID_offset = *offset; /*need to save this to output transaction id in pinfo*/
 
-    col_add_str(
+    col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "Operation Request Packet ");
@@ -380,7 +380,7 @@ void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  */
 void dissect_ptpIP_operation_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
 {
-    col_add_str(
+    col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "Operation Response Packet ");
@@ -400,7 +400,7 @@ void dissect_ptpIP_operation_response(tvbuff_t *tvb, packet_info *pinfo, proto_t
  */
 void dissect_ptpIP_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
 {
-    col_add_str(
+    col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "Event Packet ");
@@ -421,7 +421,7 @@ void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     guint64 dataLen=0;
 
-    col_add_str(
+    col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "Start Data Packet ");
@@ -444,7 +444,7 @@ void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void dissect_ptpIP_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
 {
 
-    col_add_str(
+    col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "Data Packet ");
@@ -462,7 +462,7 @@ void dissect_ptpIP_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 void dissect_ptpIP_end_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
 {
 
-    col_add_str(
+    col_set_str(
         pinfo->cinfo,
         COL_INFO,
         "End Data Packet ");

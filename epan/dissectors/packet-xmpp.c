@@ -544,8 +544,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         }else {
             xmpp_proto_tree_show_first_child(xmpp_tree);
             expert_add_info_format(pinfo, xmpp_tree, &ei_xmpp_packet_unknown, "Unknown packet: %s", packet->name);
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "UNKNOWN PACKET ");
+            col_set_str(pinfo->cinfo, COL_INFO, "UNKNOWN PACKET ");
         }
 
         /*appends to COL_INFO information about src or dst*/

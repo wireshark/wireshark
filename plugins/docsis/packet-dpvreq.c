@@ -54,7 +54,6 @@ dissect_dpvreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   transid = tvb_get_ntohs (tvb, 0);
   dschan = tvb_get_guint8 (tvb, 2);
 
-  col_clear (pinfo->cinfo, COL_INFO);
   col_add_fstr (pinfo->cinfo, COL_INFO,
 	    "DOCSIS Path Verify Request: Transaction-Id = %u DS-Ch %d", 
 		transid, dschan);

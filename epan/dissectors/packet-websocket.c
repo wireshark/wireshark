@@ -376,11 +376,11 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   proto_tree_add_item(ws_tree, hf_ws_opcode, tvb, 0, 1, ENC_NA);
   opcode = tvb_get_guint8(tvb, 0) & MASK_WS_OPCODE;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(opcode, ws_opcode_vals, "Unknown Opcode"));
-  col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fin ? "[FIN]" : "");
+  col_append_str(pinfo->cinfo, COL_INFO, fin ? " [FIN]" : " ");
 
   /* Add Mask bit to the tree */
   proto_tree_add_item(ws_tree, hf_ws_mask, tvb, 1, 1, ENC_NA);
-  col_append_fstr(pinfo->cinfo, COL_INFO, " %s", mask ? "[MASKED]" : "");
+  col_append_str(pinfo->cinfo, COL_INFO, mask ? " [MASKED]" : " ");
 
   /* (Extended) Payload Length */
   ti_len = proto_tree_add_item(ws_tree, hf_ws_payload_length, tvb, 1, 1, ENC_NA);

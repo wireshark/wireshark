@@ -885,12 +885,12 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     col_clear(pinfo->cinfo,COL_INFO);
 
     if((version&0x80)==0x80){
+        /* XXX COL_INFO ? */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow experimental version");
         proto_tree_add_text(tree, tvb, offset, -1, "Experimental versions not dissected");
         return 0;
     }
     version = version & 0x7f;
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
 
     switch(version){
     case OFP_VERSION_1_0:

@@ -589,7 +589,7 @@ dissect_igmp_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	/* number of group records */
 	num = tvb_get_ntohs(tvb, offset);
 	if (!num)
-		col_append_fstr(pinfo->cinfo, COL_INFO, " - General query");
+		col_append_str(pinfo->cinfo, COL_INFO, " - General query");
 
 	proto_tree_add_uint(tree, hf_num_grp_recs, tvb, offset, 2, num);
 	offset += 2;
@@ -621,7 +621,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 
 	maddr = tvb_get_ipv4(tvb, offset);
 	if (! maddr) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", general");
+		col_append_str(pinfo->cinfo, COL_INFO, ", general");
 	} else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s",
 			ip_to_str((guint8*)&maddr));
@@ -675,7 +675,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 
 	maddr = tvb_get_ipv4(tvb, offset);
 	if (! maddr) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", general");
+		col_append_str(pinfo->cinfo, COL_INFO, ", general");
 	} else {
 		if (type == IGMP_V2_LEAVE_GROUP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,

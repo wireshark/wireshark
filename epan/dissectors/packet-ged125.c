@@ -998,7 +998,6 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 			message_type = tvb_get_ntohl(tvb, 4);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GED125");
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %u bytes",
 			val_to_str(message_type, base_message_values, "Unknown %d"), size);
 

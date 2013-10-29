@@ -346,7 +346,7 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
             ClockVariance);
     }
     else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " active");
+        col_append_str(pinfo->cinfo, COL_INFO, " active");
         proto_item_append_text(item, ": Prio1=\"%s\" is active, Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
             val_to_str(MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"),
             val_to_str(MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"),

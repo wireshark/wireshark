@@ -509,7 +509,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch(line_type){
         case REQUEST_LINE:
         {
-            col_add_str(pinfo->cinfo, COL_INFO, "Request: ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Request: ");
             line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8);
             request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
             /* version */
@@ -533,7 +533,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
         case RESPONSE_LINE:
         {
-            col_add_str(pinfo->cinfo, COL_INFO, "Response: ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Response: ");
             line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8);
             response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
             /* version */
@@ -563,7 +563,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
         case EVENT_LINE:
         {
-            col_add_str(pinfo->cinfo, COL_INFO, "Event: ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Event: ");
             line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8);
             event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
             /* version */
@@ -592,7 +592,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default:
         {
             /* mark whole packet as unknown and return */
-            col_add_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
+            col_set_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
             proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8);
             return tvb_len;
         }

@@ -183,7 +183,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSDP");
 
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(tvb, 0),
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(tvb, 0),
                                                                      msdp_types,
                                                                      "<Unknown MSDP message type>"));
 

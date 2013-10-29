@@ -910,7 +910,7 @@ Figure 18 from [ref:1]
                                                NULL, wai_tree);
 
             if (new_tvb) {
-                col_add_str(pinfo->cinfo, COL_INFO, "Last fragment of message, data dissected");
+                col_set_str(pinfo->cinfo, COL_INFO, "Last fragment of message, data dissected");
                 col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", subtype_name);
                 next_tvb=new_tvb;
                 length = tvb_reported_length (next_tvb);

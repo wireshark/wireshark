@@ -92,11 +92,11 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     length = tvb_get_ntohl(tvb, offset);
     if(length == ATMTCP_HDR_MAGIC)
     {
-    	col_append_fstr(pinfo->cinfo, COL_INFO, " Command");
+    	col_append_str(pinfo->cinfo, COL_INFO, " Command");
     }
     else
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Data");
+        col_append_str(pinfo->cinfo, COL_INFO, " Data");
     }
     offset += 4;
 

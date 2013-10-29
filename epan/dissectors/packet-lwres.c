@@ -907,8 +907,6 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     message_type = (flags & LWRES_LWPACKETFLAG_RESPONSE) ? 2 : 1;
 
-    col_clear(pinfo->cinfo, COL_INFO);
-
     if(flags & LWRES_LWPACKETFLAG_RESPONSE)
     {
         col_add_fstr(pinfo->cinfo, COL_INFO,

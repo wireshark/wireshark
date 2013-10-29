@@ -129,7 +129,7 @@ RTABapdu
 #.FN_BODY RTTPapdu  VAL_PTR=&priority
   int priority = -1;
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
 
   %(DEFAULT_BODY)s
 
@@ -137,7 +137,7 @@ RTABapdu
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%d)", priority);
 
 #.FN_BODY RTORJapdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Refuse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Refuse");
 
   %(DEFAULT_BODY)s
 
@@ -153,7 +153,7 @@ RTABapdu
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, rtse_RefuseReason_vals, "reason(%%d)"));
 
 #.FN_BODY RTABapdu
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Abort");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
 
   %(DEFAULT_BODY)s
 

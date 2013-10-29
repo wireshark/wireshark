@@ -157,7 +157,6 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
     xmpp_display_attrs(xmpp_iq_tree, packet, pinfo, tvb, attrs_info,  array_length(attrs_info));
 
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "IQ(%s) ", attr_type?attr_type->value:"");
 
     xmpp_display_elems(xmpp_iq_tree, packet, pinfo, tvb, elems_info, array_length(elems_info));
@@ -308,8 +307,7 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
 
     xmpp_element_t *show, *priority;
 
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "PRESENCE ");
+    col_set_str(pinfo->cinfo, COL_INFO, "PRESENCE ");
 
     presence_item = proto_tree_add_item(tree, hf_xmpp_presence, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     presence_tree = proto_item_add_subtree(presence_item, ett_xmpp_presence);
@@ -397,8 +395,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     conversation_t *conversation;
     xmpp_conv_info_t *xmpp_info;
 
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "MESSAGE ");
+    col_set_str(pinfo->cinfo, COL_INFO, "MESSAGE ");
 
     id = xmpp_get_attr(packet, "id");
 

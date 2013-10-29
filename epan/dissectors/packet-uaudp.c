@@ -306,7 +306,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            tree);
             else {
                 /* XXX: expert ?? */
-                col_add_str(pinfo->cinfo,
+                col_set_str(pinfo->cinfo,
                             COL_INFO,
                             "Data - Couldn't resolve direction. Check UAUDP Preferences.");
             }
@@ -314,7 +314,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else {
             /* print in "INFO" column */
-            col_add_str(pinfo->cinfo,
+            col_set_str(pinfo->cinfo,
                         COL_INFO,
                         "Data ACK");
         }

@@ -878,7 +878,7 @@ xmpp_jinglenodes_services(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, x
         {NAME, "stun", xmpp_jinglenodes_relay_stun_tracker, ONE},
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SERVICES ");
+    col_append_str(pinfo->cinfo, COL_INFO, "SERVICES ");
 
     services_item = proto_tree_add_item(tree, hf_xmpp_services, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     services_tree = proto_item_add_subtree(services_item, ett_xmpp_services);

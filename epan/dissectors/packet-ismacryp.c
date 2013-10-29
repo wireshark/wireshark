@@ -263,7 +263,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		if (pref_user_mode == FALSE){
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str_const(mode, modetypenames, "user mode"));
 		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s","user mode");
+			col_append_str(pinfo->cinfo, COL_INFO, ", user mode");
 		}
 		user_mode = pref_user_mode;
 	}
@@ -271,7 +271,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_20);
 		user_mode = TRUE;
 		/* display mode */
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s","user mode");
+		col_append_str(pinfo->cinfo, COL_INFO, ", user mode");
 	}
 	/* select correct AU values depending on version & selected mode in preferences menu if not in user_mode */
 	if (user_mode == TRUE){ /* use values set in preference menu */

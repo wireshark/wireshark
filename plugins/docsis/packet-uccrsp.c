@@ -46,7 +46,6 @@ dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   chid = tvb_get_guint8 (tvb, 0);
 
-  col_clear (pinfo->cinfo, COL_INFO);
   col_add_fstr (pinfo->cinfo, COL_INFO,
 	    "Upstream Channel Change response  Channel ID = %u (U%u)",
 	    chid, (chid > 0 ? chid - 1 : chid));

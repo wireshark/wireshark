@@ -2065,7 +2065,6 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
-    col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
              val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
 
@@ -2987,8 +2986,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     label = val_to_str_const(MadData.attributeID, CM_Attributes, "(Unknown CM Attribute)");
 
     proto_item_set_text(CM_header_item, "CM %s", label);
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "CM: %s", label);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "CM: %s", label);
 
     CM_header_tree = proto_item_add_subtree(CM_header_item, ett_cm);
 

@@ -230,7 +230,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (properties & PWC_ANYOF_CW_BAD)
 	{
-		col_append_str(pinfo->cinfo, COL_INFO, "CW:Bad, ");
+		col_set_str(pinfo->cinfo, COL_INFO, "CW:Bad, ");
 	}
 
 	if (properties & PWC_PAY_SIZE_BAD)

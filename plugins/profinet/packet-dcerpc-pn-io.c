@@ -8588,8 +8588,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
         request_reference, val_to_str(request_id, pn_io_profidrive_request_id_vals, "Unknown"),
         do_id, no_of_parameters);
 
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Write Request, ReqRef:0x%02x, %s DO:%u",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Write Request, ReqRef:0x%02x, %s DO:%u",
             request_reference,
             request_id==0x01 ? "Read" :
             request_id==0x02 ? "Change" :
@@ -8692,8 +8691,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
         request_reference, val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown"),
         do_id, no_of_parameters);
 
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Read Response, ReqRef:0x%02x, RspId:%s",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Read Response, ReqRef:0x%02x, RspId:%s",
                            request_reference,
                            val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown response"));
 

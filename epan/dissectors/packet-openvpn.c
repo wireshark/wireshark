@@ -374,7 +374,7 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       new_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Message",
                                          frag_msg, &openvpn_frag_items, NULL, openvpn_tree);
       if (frag_msg->next != NULL) { /* multiple frags ? */
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Message Reassembled "); /* overwritten by next dissector */
+        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled "); /* overwritten by next dissector */
       }
 
     } else { /* Not last packet of reassembled Short Message */

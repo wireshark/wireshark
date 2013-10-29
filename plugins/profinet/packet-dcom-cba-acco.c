@@ -2759,7 +2759,7 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
             } else if (u32Idx < 10) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ProvID);
             } else if (u32Idx == 10) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
+                col_append_str(pinfo->cinfo, COL_INFO, ",...");
             }
 
             u32Idx++;
@@ -3709,7 +3709,7 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
             } else if (u32Idx < 10) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ConsID);
             } else if (u32Idx == 10) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
+                col_append_str(pinfo->cinfo, COL_INFO, ",...");
             }
 
             u32Idx++;
@@ -3766,7 +3766,7 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
             } else if (u32Idx < 10) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ",0x%x", u32ConsID);
             } else if (u32Idx == 10) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ",...");
+                col_append_str(pinfo->cinfo, COL_INFO, ",...");
             }
 
             u32Idx++;

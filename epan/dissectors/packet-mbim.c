@@ -4570,9 +4570,9 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                     datagram_index, datagram_length, ENC_NA);
                 datagram_tvb = tvb_new_subset_length(tvb, datagram_index, datagram_length);
                 if (total) {
-                    col_add_str(pinfo->cinfo, COL_PROTOCOL, "|");
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "|");
                     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-                    col_add_str(pinfo->cinfo, COL_INFO, " | ");
+                    col_set_str(pinfo->cinfo, COL_INFO, " | ");
                     col_set_fence(pinfo->cinfo, COL_INFO);
                 }
                 call_dissector(dissector, datagram_tvb, pinfo, tree);

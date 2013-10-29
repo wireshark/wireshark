@@ -948,11 +948,11 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                         break;
                     case 2:
                         /* REJECT */
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "Reject ");
+                        col_append_str(pinfo->cinfo, COL_INFO, "Reject ");
                         break;
                     case 3:
                         /* SN-Not-Valid */
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "SN-Not-Valid ");
+                        col_append_str(pinfo->cinfo, COL_INFO, "SN-Not-Valid ");
                         break;
                     case 4:
                         /* SN */
@@ -2077,7 +2077,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_set_str(pinfo->cinfo, COL_INFO, "ROHC");
         col_clear(pinfo->cinfo, COL_INFO);
     }else{
-        col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC");
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, "|ROHC");
         /* Append a space if we add stuff to existing col info */
         col_append_str(pinfo->cinfo, COL_INFO, " ");
     }

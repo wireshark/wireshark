@@ -172,7 +172,6 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Set INFO column with RTAC Serial Event Type */
         event_type = tvb_get_guint8(tvb, offset);
-        col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
         col_add_fstr(pinfo->cinfo, COL_INFO, "%-21s", val_to_str_const(event_type, rtacser_eventtype_vals, "Unknown Type"));
 
         /* Add event type to tree */

@@ -113,14 +113,13 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint64     timestamp_sync_time;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MCAP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -138,10 +137,10 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(op_code, op_code_vals, "Unknown Op Code"));
     if (op_code >= 0x11 && op_code <= 0x20) {
         proto_item_append_text(pitem, " (Clock Sync)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Clock Sync)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (Clock Sync)");
     } else {
         proto_item_append_text(pitem, " (Standard)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Standard)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (Standard)");
     }
 
     if (op_code & 0x01) {
@@ -164,7 +163,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     col_append_fstr(pinfo->cinfo, COL_INFO, " (Dynamic Range)");
                 } else if (mdl_id == 0x0000) {
                     proto_item_append_text(pitem, " (Reserved)");
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " (Reserved)");
+                    col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");
                 }
 
                 if (op_code != 0x07 && mdl_id == 0xFFFF) {
@@ -286,13 +285,13 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %u", mdl_id);
             if (mdl_id == 0xFFFF) {
                 proto_item_append_text(pitem, " (Indicates all MDLs)");
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Indicates all MDLs)");
+                col_append_str(pinfo->cinfo, COL_INFO, " (Indicates all MDLs)");
             } else if (mdl_id >= 0x0001 && mdl_id <= 0xFEFF) {
                 proto_item_append_text(pitem, " (Dynamic Range)");
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Dynamic Range)");
+                col_append_str(pinfo->cinfo, COL_INFO, " (Dynamic Range)");
             } else if (mdl_id == 0x0000) {
                 proto_item_append_text(pitem, " (Reserved)");
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Reserved)");
+                col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");
             }
 
             if ((op_code == 0x03 || op_code == 0x05 || op_code == 0x07) && tvb_length_remaining(tvb, offset)) {

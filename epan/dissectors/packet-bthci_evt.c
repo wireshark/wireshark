@@ -3645,10 +3645,10 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -3675,7 +3675,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT");
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(evt_code, evt_code_vals, "Unknown 0x%08x"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(evt_code, evt_code_vals, "Unknown 0x%08x"));
 
     if (param_length > 0) {
         switch(evt_code) {

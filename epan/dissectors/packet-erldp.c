@@ -455,13 +455,13 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       offset += 4;
       proto_tree_add_item(tree, hf_erldp_digest, tvb, offset, 16, ENC_NA);
       /*offset += 16;*/
-      col_add_str(pinfo->cinfo, COL_INFO, "SEND_CHALLENGE_REPLY");
+      col_set_str(pinfo->cinfo, COL_INFO, "SEND_CHALLENGE_REPLY");
       break;
 
     case 'a' :
       proto_tree_add_item(tree, hf_erldp_digest, tvb, offset, 16, ENC_NA);
       /*offset += 16;*/
-      col_add_str(pinfo->cinfo, COL_INFO, "SEND_CHALLENGE_ACK");
+      col_set_str(pinfo->cinfo, COL_INFO, "SEND_CHALLENGE_ACK");
       break;
 
     case 's' :
@@ -499,7 +499,7 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   offset += 4;
 
   if (msg_len == 0) {
-    col_add_str(pinfo->cinfo, COL_INFO, "KEEP_ALIVE");
+    col_set_str(pinfo->cinfo, COL_INFO, "KEEP_ALIVE");
     return;
   }
 
@@ -525,7 +525,7 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     default:
       proto_tree_add_item(erldp_tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      col_add_str(pinfo->cinfo, COL_INFO, "unknown header format");
+      col_set_str(pinfo->cinfo, COL_INFO, "unknown header format");
       return;
   }
 }

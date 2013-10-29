@@ -838,7 +838,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* add informations to the packet list */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CoAP");
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(ttype, vals_ttype_short, "Unknown %d"));
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", MID:%u", mid);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(code, vals_code, "Unknown %d"));

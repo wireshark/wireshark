@@ -1337,7 +1337,7 @@ dissect_sprt_data(tvbuff_t *tvb,
         }
     } else {
         proto_tree_add_item(sprt_tree, hf_sprt_payload_no_data, tvb, offset, 0, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", No Payload");
+        col_append_str(pinfo->cinfo, COL_INFO, ", No Payload");
     }
 
     return offset;
@@ -1472,7 +1472,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     dissect_sprt_data(tvb, pinfo, p_conv_data, sprt_tree, offset, payload_length);
 
     if (noa)
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (ACK fields present)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (ACK fields present)");
 
     return tvb_length(tvb);
 }

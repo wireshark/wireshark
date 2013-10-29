@@ -5117,7 +5117,6 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ti = proto_tree_add_item(tree, proto_tn5250, tvb, offset, -1, ENC_NA);
   tn5250_tree = proto_item_add_subtree(ti, ett_tn5250);
-  col_clear(pinfo->cinfo, COL_INFO);
   if (pinfo->srcport == tn5250_info->outbound_port) {
     col_set_str(pinfo->cinfo, COL_INFO, "TN5250 Data from Mainframe");
   } else {

@@ -155,7 +155,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             "Data transfer: Src ID: %d, Dst ID(s): %d",
                             esio_src_id, esio_dst_id);
                 if (esio_nbr_data_transfers > 1) {
-                    col_append_fstr( pinfo->cinfo, COL_INFO,
+                    col_append_str( pinfo->cinfo, COL_INFO,
                                         " ...");
                 }
                 break;

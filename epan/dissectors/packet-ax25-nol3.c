@@ -96,7 +96,6 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	data_len = tvb_length_remaining( tvb, offset );
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "DX" );
-	col_clear( pinfo->cinfo, COL_INFO );
 
 	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", tvb_format_text( tvb, offset, 15 ) );
 

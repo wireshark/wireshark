@@ -3801,7 +3801,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
         proto_get_protocol_short_name(find_protocol_by_id(proto_id)));
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(code, proto_vals, "Unknown"));
 
     if (tree) {
@@ -4054,7 +4054,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length = tvb_get_ntohs(tvb, 2);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNCP");
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(code, cp_vals, "Unknown"));
 
     if (tree) {
@@ -4316,7 +4316,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length = tvb_get_ntohs(tvb, 2);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BAP");
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(type, bap_vals, "Unknown"));
 
     if (tree) {
@@ -5215,7 +5215,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     code = tvb_get_guint8(tvb, 0);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(code, pap_vals, "Unknown"));
 
     ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, ENC_NA);
@@ -5301,7 +5301,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     code = tvb_get_guint8(tvb, 0);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
         val_to_str_const(code, chap_vals, "Unknown"));
 
     if (tree) {

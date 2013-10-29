@@ -2500,7 +2500,6 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
                 * First PDU - We already computed the fixed header
                 */
-            col_clear(pinfo->cinfo, COL_INFO);
             col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s", command_str);
             first = FALSE;
         } else {

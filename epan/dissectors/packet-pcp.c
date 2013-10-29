@@ -1393,9 +1393,9 @@ static void dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     /* check if we are the client requesting or the server */
     if (pinfo->srcport == PCP_PORT) {
-        col_add_str(pinfo->cinfo, COL_INFO, "Server > Client ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Server > Client ");
     } else {
-        col_add_str(pinfo->cinfo, COL_INFO, "Client > Server ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Client > Server ");
     }
 
     /* PCP packet length */

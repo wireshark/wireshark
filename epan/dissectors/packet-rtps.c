@@ -3986,7 +3986,7 @@ gboolean rtps_is_ping(tvbuff_t *tvb, packet_info *pinfo, gint offset)
     is_ping = TRUE;
 
   if (is_ping)
-    col_add_str(pinfo->cinfo, COL_INFO, "PING");
+    col_set_str(pinfo->cinfo, COL_INFO, "PING");
 
   return is_ping;
 }

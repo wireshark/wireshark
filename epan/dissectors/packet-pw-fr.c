@@ -170,7 +170,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (packet_quality & PQ_CW_BAD)
 	{
-		col_append_str(pinfo->cinfo, COL_INFO, "CW:Malformed, ");
+		col_set_str(pinfo->cinfo, COL_INFO, "CW:Malformed, ");
 	}
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%d payload octets", (int)payload_size);
 

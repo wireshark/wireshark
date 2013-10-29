@@ -534,7 +534,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
         "0x%04x (Illegal)", 0);
       expert_add_info(pinfo, item, &ei_udp_checksum_zero);
-      col_append_fstr(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
+      col_append_str(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
       item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
@@ -613,7 +613,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         PROTO_ITEM_SET_GENERATED(item);
         expert_add_info(pinfo, item, &ei_udp_checksum_bad);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
       }
     } else {
       item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,

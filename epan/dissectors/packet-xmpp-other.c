@@ -81,7 +81,7 @@ xmpp_iq_bind(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
         {"jid", hf_xmpp_iq_bind_jid, FALSE, TRUE, NULL, NULL}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "BIND ");
+    col_append_str(pinfo->cinfo, COL_INFO, "BIND ");
 
     bind_item = proto_tree_add_item(tree, hf_xmpp_iq_bind, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     bind_tree = proto_item_add_subtree(bind_item, ett_xmpp_iq_bind);
@@ -107,7 +107,7 @@ xmpp_session(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     session_item = proto_tree_add_item(tree, hf_xmpp_iq_session, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     session_tree = proto_item_add_subtree(session_item, ett_xmpp_iq_session);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SESSION ");
+    col_append_str(pinfo->cinfo, COL_INFO, "SESSION ");
 
     xmpp_display_attrs(session_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(session_tree, element, pinfo, tvb, NULL, 0);
@@ -126,7 +126,7 @@ xmpp_vcard(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
 
     xmpp_element_t *cdata;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "VCARD ");
+    col_append_str(pinfo->cinfo, COL_INFO, "VCARD ");
 
     vcard_item = proto_tree_add_item(tree, hf_xmpp_vcard, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     vcard_tree = proto_item_add_subtree(vcard_item, ett_xmpp_vcard);
@@ -184,7 +184,7 @@ xmpp_disco_items_query(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, xmpp
 
     xmpp_element_t *item;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(disco#items) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(disco#items) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -234,7 +234,7 @@ xmpp_roster_query(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, xmpp_elem
         {NAME, "item", xmpp_roster_item, MANY},
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(jabber:iq:roster) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(jabber:iq:roster) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -291,7 +291,7 @@ xmpp_disco_info_query(proto_tree *tree,  tvbuff_t *tvb, packet_info *pinfo, xmpp
 
     xmpp_element_t *identity, *feature, *x_data;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(disco#info) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(disco#info) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -368,7 +368,7 @@ xmpp_bytestreams_query(proto_tree *tree,  tvbuff_t *tvb, packet_info *pinfo, xmp
 
     xmpp_element_t *streamhost, *streamhost_used, *activate, *udpsuccess;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(bytestreams) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(bytestreams) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -480,7 +480,7 @@ xmpp_si(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* ele
 
     xmpp_element_t *file, *feature_neg;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SI ");
+    col_append_str(pinfo->cinfo, COL_INFO, "SI ");
 
     si_item = proto_tree_add_item(tree, hf_xmpp_si, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     si_tree = proto_item_add_subtree(si_item, ett_xmpp_si);
@@ -732,7 +732,7 @@ xmpp_ibb_open(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
         {"stanza", -1, FALSE, TRUE, xmpp_val_enum_list, stanza_array}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "IBB-OPEN ");
+    col_append_str(pinfo->cinfo, COL_INFO, "IBB-OPEN ");
 
     open_item = proto_tree_add_item(tree, hf_xmpp_ibb_open, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     open_tree = proto_item_add_subtree(open_item, ett_xmpp_ibb_open);
@@ -752,7 +752,7 @@ xmpp_ibb_close(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element
         {"sid", -1, TRUE, TRUE, NULL, NULL}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "IBB-CLOSE ");
+    col_append_str(pinfo->cinfo, COL_INFO, "IBB-CLOSE ");
 
     close_item = proto_tree_add_item(tree, hf_xmpp_ibb_close, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     close_tree = proto_item_add_subtree(close_item, ett_xmpp_ibb_close);
@@ -774,7 +774,7 @@ xmpp_ibb_data(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
         {"value", -1, FALSE, FALSE, NULL, NULL}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "IBB-DATA ");
+    col_append_str(pinfo->cinfo, COL_INFO, "IBB-DATA ");
 
     data_item = proto_tree_add_item(tree, hf_xmpp_ibb_data, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     data_tree = proto_item_add_subtree(data_item, ett_xmpp_ibb_data);
@@ -1082,7 +1082,7 @@ xmpp_muc_owner_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     xmpp_element_t *x_data;
     /*TODO destroy*/
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(muc#owner) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(muc#owner) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -1111,7 +1111,7 @@ xmpp_muc_admin_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
 
     xmpp_element_t *item;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(muc#admin) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(muc#admin) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -1140,7 +1140,7 @@ xmpp_last_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
         {"value", -1, FALSE, TRUE, NULL, NULL}
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(jabber:iq:last) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(jabber:iq:last) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -1171,7 +1171,7 @@ xmpp_version_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
 
     xmpp_element_t *name, *version, *os;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "QUERY(jabber:iq:version) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(jabber:iq:version) ");
 
     query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
@@ -1208,7 +1208,7 @@ xmpp_ping(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *e
         {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
     };
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "PING ");
+    col_append_str(pinfo->cinfo, COL_INFO, "PING ");
 
     ping_item = proto_tree_add_item(tree, hf_xmpp_ping, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     ping_tree = proto_item_add_subtree(ping_item, ett_xmpp_ping);

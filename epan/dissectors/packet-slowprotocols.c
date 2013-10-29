@@ -1860,9 +1860,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         }
     }
 
-    col_clear(pinfo->cinfo, COL_INFO);
     /* append summary info */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Event:%s", event_flag ?
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Event:%s", event_flag ?
                     "Time-critical" : "Information");
     if (ql >= 0)
     {

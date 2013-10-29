@@ -269,10 +269,10 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -290,7 +290,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     opcode = tvb_get_guint8(tvb, 0);
     offset++;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(opcode, opcode_vals, "<unknown>"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, opcode_vals, "<unknown>"));
 
     switch (opcode) {
     case 0x01: /* Error Response */

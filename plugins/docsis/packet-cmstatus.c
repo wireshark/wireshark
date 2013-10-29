@@ -144,7 +144,6 @@ dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   transid = tvb_get_ntohs (tvb, 0);
   event_type = tvb_get_guint8 (tvb, 2);
   len = tvb_reported_length_remaining (tvb, 3);
-  col_clear (pinfo->cinfo, COL_INFO);
   col_add_fstr (pinfo->cinfo, COL_INFO, "CM-STATUS Report: Transaction ID = %u", transid);
 
   if (tree)

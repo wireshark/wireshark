@@ -169,7 +169,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             while (find_dir_tokens(tvb, offset + 1, &sel_start, &host_start, &port_start, &line_len, &next_offset)) {
                 if (!is_dir) { /* First time */
                     proto_item_append_text(ti, "[Directory list]");
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ": [Directory list]");
+                    col_append_str(pinfo->cinfo, COL_INFO, ": [Directory list]");
                 }
 
                 name = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, sel_start - offset - 2);

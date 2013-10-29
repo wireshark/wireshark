@@ -2905,7 +2905,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     return retval;
 
   } else if (is_retransmission) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(retransmission) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "(retransmission) ");
     return FALSE;
   } else {
 

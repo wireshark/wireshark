@@ -399,14 +399,13 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -419,7 +418,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     msg_id = tvb_get_guint8(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(msg_id, msg_id_vals, "Unknown MsgID"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(msg_id, msg_id_vals, "Unknown MsgID"));
     offset += 1;
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_number_of_parameters, tvb, offset, 1, ENC_BIG_ENDIAN);

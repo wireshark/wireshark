@@ -481,7 +481,7 @@ dissect_dbus_hdr(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 	offset += 1;
 
 	type = tvb_get_guint8(tvb, offset);
-	col_add_str(dinfo->pinfo->cinfo, COL_INFO, val_to_str_const(type, message_type_vals, ""));
+	col_set_str(dinfo->pinfo->cinfo, COL_INFO, val_to_str_const(type, message_type_vals, ""));
 	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_type, tvb, offset, 1, dinfo->enc);
 	offset += 1;
 

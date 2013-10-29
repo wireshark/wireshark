@@ -2715,7 +2715,7 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
             if (pmt_flag) {
                 pmt_tvb = tvb_new_subset_remaining(tvb, offset);
                 if (mpeg_pmt_handle) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ");
                     /* prevent mpeg_pmt dissector from clearing col_info */
                     col_set_fence(pinfo->cinfo, COL_INFO);
                     call_dissector(mpeg_pmt_handle, pmt_tvb, pinfo, tree);
@@ -3604,9 +3604,9 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                 break;
             if (dvbci_dissect_lsc_msg && circuit && circuit->dissector_handle) {
                 msg_handle = circuit->dissector_handle;
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 col_set_fence(pinfo->cinfo, COL_INFO);
-                col_append_fstr(pinfo->cinfo, COL_PROTOCOL, ", ");
+                col_append_str(pinfo->cinfo, COL_PROTOCOL, ", ");
                 col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             }
             else {
@@ -3656,7 +3656,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
               break;
           }
           /* prevent dvb_nit dissector from clearing the dvb-ci infos */
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+          col_append_str(pinfo->cinfo, COL_INFO, ", ");
           col_set_fence(pinfo->cinfo, COL_INFO);
           do {
               table_id = tvb_get_guint8(nit_loop_tvb, nit_loop_offset);
@@ -3982,7 +3982,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     tag = tvb_get_guint8(tvb,0);
     tag_str = try_val_to_str(tag, dvbci_spdu_tag);
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
             val_to_str_const(tag, dvbci_spdu_tag, "Invalid SPDU"));
     pi = proto_tree_add_item(sess_tree, hf_dvbci_spdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
     if (tag_str == NULL) {
@@ -4309,7 +4309,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!payload_tvb) {
             if (hdr_tag == T_DATA_MORE) {
                 pinfo->fragmented = TRUE;
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment)");
+                col_append_str(pinfo->cinfo, COL_INFO, " (Message fragment)");
             } else {
                 payload_tvb = body_tvb;
             }
@@ -4350,7 +4350,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     payload_len = tvb_reported_length(tvb);
 
-    col_add_str(pinfo->cinfo, COL_INFO, "LPDU");
+    col_set_str(pinfo->cinfo, COL_INFO, "LPDU");
 
     ti = proto_tree_add_text(tree, tvb, 0, 2, "Link Layer");
     link_tree = proto_item_add_subtree(ti, ett_dvbci_link);
@@ -4382,7 +4382,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!payload_tvb) {
         if (more_last == ML_MORE) {
             pinfo->fragmented = TRUE;
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment)");
+            col_append_str(pinfo->cinfo, COL_INFO, " (Message fragment)");
        } else
             payload_tvb = tvb_new_subset_remaining(tvb, 2);
     }

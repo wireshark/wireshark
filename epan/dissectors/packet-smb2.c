@@ -7051,10 +7051,10 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		enc_item = proto_tree_add_text(tree, enc_tvb, 0, sti->size, "Encrypted SMB3 data");
 		enc_tree = proto_item_add_subtree(enc_item, ett_smb2_encrypted);
 		if (plain_tvb != NULL) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Decrypted SMB3");
+			col_append_str(pinfo->cinfo, COL_INFO, "Decrypted SMB3");
 			dissect_smb2(plain_tvb, pinfo, enc_tree, FALSE);
 		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted SMB3");
+			col_append_str(pinfo->cinfo, COL_INFO, "Encrypted SMB3");
 			proto_tree_add_item(enc_tree, hf_smb2_transform_encrypted_data,
 					    enc_tvb, 0, sti->size, ENC_NA);
 		}

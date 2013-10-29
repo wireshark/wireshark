@@ -148,11 +148,11 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     param = tvb_get_guint8(tvb, offset);
     if (initiator) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Initiator Key(s): ");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Initiator Key(s): ");
         ti_param = proto_tree_add_item(tree, hf_btsmp_initiator_key_distribution, tvb, offset, 1, ENC_NA);
     }
     else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Responder Key(s): ");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Responder Key(s): ");
         ti_param = proto_tree_add_item(tree, hf_btsmp_responder_key_distribution, tvb, offset, 1, ENC_NA);
     }
 
@@ -162,15 +162,15 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     proto_tree_add_item(st_param, hf_btsmp_key_dist_sign, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     if (param & 0x01) {
         proto_item_append_text(ti_param, "LTK ");
-        col_append_fstr(pinfo->cinfo, COL_INFO, "LTK ");
+        col_append_str(pinfo->cinfo, COL_INFO, "LTK ");
     }
     if (param & 0x02) {
         proto_item_append_text(ti_param, "IRK ");
-        col_append_fstr(pinfo->cinfo, COL_INFO, "IRK ");
+        col_append_str(pinfo->cinfo, COL_INFO, "IRK ");
     }
     if (param & 0x04) {
         proto_item_append_text(ti_param, "CSRK ");
-        col_append_fstr(pinfo->cinfo, COL_INFO, "CSRK ");
+        col_append_str(pinfo->cinfo, COL_INFO, "CSRK ");
     }
 
     return offset + 1;
@@ -188,10 +188,10 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -209,13 +209,13 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     opcode = tvb_get_guint8(tvb, 0);
     offset++;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(opcode, opcode_vals, "<unknown>"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, opcode_vals, "<unknown>"));
 
     switch (opcode) {
     case 0x01: /* Pairing Request */
     case 0x02: /* Pairing Response */
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": ");
+        col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
         proto_tree_add_item(st, hf_btsmp_io_capabilities, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -271,7 +271,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         break;
 
      case 0x0b: /* Security Request */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": ");
+        col_append_str(pinfo->cinfo, COL_INFO, ": ");
         offset = dissect_btsmp_auth_req(tvb, offset, pinfo, st);
         break;
 

@@ -986,7 +986,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (!nsip_is_recursive) {
-    col_add_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   } else {
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NSIP_SEP, "%s",

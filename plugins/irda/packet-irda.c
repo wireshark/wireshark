@@ -595,7 +595,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                     }
             }
 
-            col_add_str(pinfo->cinfo, COL_INFO, "GetValueByClass: \"");
+            col_set_str(pinfo->cinfo, COL_INFO, "GetValueByClass: \"");
 
             tvb_memcpy(tvb, buf, offset + 1 + 1, clen);
             memcpy(&buf[clen], "\" \"", 3);

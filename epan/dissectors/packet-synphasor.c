@@ -518,7 +518,6 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	frame_type = tvb_get_guint8(tvb, 1) >> 4;
 
-	col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
 
 	/* CFG-2 and DATA frames need special treatment during the first run:

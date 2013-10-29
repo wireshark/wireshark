@@ -61,11 +61,8 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IO-RAW");
 
-   col_clear(pinfo->cinfo, COL_INFO);
-
-
    IoRawSummaryFormater(szText, nMax);
-   col_append_str(pinfo->cinfo, COL_INFO, szText);
+   col_add_str(pinfo->cinfo, COL_INFO, szText);
 
    if (tree)
    {

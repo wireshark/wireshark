@@ -403,7 +403,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 /* Make entries in Protocol column and Info column on summary display */
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS");
 
-  col_clear (pinfo->cinfo, COL_INFO);
   switch (fctype)
     {
     case FCTYPE_PACKET:

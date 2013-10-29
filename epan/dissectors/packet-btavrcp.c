@@ -1121,7 +1121,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             wmem_tree_insert32_array(reassembling, key, fragment);
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [start]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [start]");
         return offset;
     } else if (packet_type == PACKET_TYPE_CONTINUE) {
         if (pinfo->fd->flags.visited == 0) {
@@ -1165,13 +1165,13 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [continue]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [continue]");
         return offset;
     } else if (packet_type == PACKET_TYPE_END) {
         guint            i_frame;
         tvbuff_t         *next_tvb;
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [end]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [end]");
 
         k_interface_id = interface_id;
         k_adapter_id   = adapter_id;
@@ -1493,7 +1493,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 8;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 0x%08X%08X", (guint) (identifier >> 32), (guint) (identifier & 0xFFFFFFFF));
-                if (identifier == 0x00) col_append_fstr(pinfo->cinfo, COL_INFO, " (PLAYING)");
+                if (identifier == 0x00) col_append_str(pinfo->cinfo, COL_INFO, " (PLAYING)");
 
                 pitem = proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
                 number_of_attributes = tvb_get_guint8(tvb, offset);
@@ -1570,10 +1570,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                         col_append_fstr(pinfo->cinfo, COL_INFO, " - 0x%08X%08X", (guint) (identifier >> 32), (guint) (identifier & 0xFFFFFFFF));
                         if (identifier == G_GINT64_CONSTANT(0x0000000000000000)) {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " (SELECTED)");
+                            col_append_str(pinfo->cinfo, COL_INFO, " (SELECTED)");
                             proto_item_append_text(pitem, " (SELECTED)");
                         } else if (identifier == G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
+                            col_append_str(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
                             proto_item_append_text(pitem, " (NOT SELECTED)");
                         }
 
@@ -1591,7 +1591,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_append_fstr(pinfo->cinfo, COL_INFO, " - SongPosition: %ums", song_position);
                         if (song_position == 0xFFFFFFFF) {
                             proto_item_append_text(pitem, " (NOT SELECTED)");
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
+                            col_append_str(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
                         }
                         break;
                     case EVENT_BATTERY_STATUS_CHANGED:
@@ -1904,7 +1904,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 1;
 
                 pitem = proto_tree_add_none_format(tree, hf_btavrcp_currect_path, tvb, offset, -1, "Current Path: /");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Current Path: /");
+                col_append_str(pinfo->cinfo, COL_INFO, "Current Path: /");
                 ptree = proto_item_add_subtree(pitem, ett_btavrcp_path);
 
                 for (i_folder = 0; i_folder < folder_depth; ++i_folder) {
@@ -2101,14 +2101,13 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     avctp_data = (btavctp_data_t *) pinfo->private_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVRCP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",

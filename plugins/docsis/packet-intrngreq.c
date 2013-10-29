@@ -48,7 +48,6 @@ dissect_intrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   sid = tvb_get_ntohs (tvb, 0);
 
-  col_clear (pinfo->cinfo, COL_INFO);
   col_add_fstr (pinfo->cinfo, COL_INFO, "Ranging Request: SID = %u",sid);
 
   if (tree)

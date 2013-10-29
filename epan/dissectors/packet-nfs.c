@@ -4899,7 +4899,7 @@ display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* 
 	}
 	if (mtype!='S' && mtype!='R') {
 		if (nfsv3) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,"]");
+			col_append_str(pinfo->cinfo, COL_INFO,"]");
 		} else {
 			g_string_append_printf (optext, "]");
 		}
@@ -9388,7 +9388,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 			if (first_operation==0)
 				/* Seperator between operation text */
-				col_append_fstr(pinfo->cinfo, COL_INFO, " |");
+				col_append_str(pinfo->cinfo, COL_INFO, " |");
 
 			if (op_summary[summary_counter].optext->len > 0)
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
@@ -9828,7 +9828,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 			if (first_operation==0)
 				/* Seperator between operation text */
-				col_append_fstr(pinfo->cinfo, COL_INFO, " |");
+				col_append_str(pinfo->cinfo, COL_INFO, " |");
 
 			if (op_summary[summary_counter].optext->len > 0)
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",

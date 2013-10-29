@@ -84,7 +84,6 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   upchid = tvb_get_guint8 (tvb, 0);
   ucd_count = tvb_get_guint8 (tvb, 1);
 
-  col_clear (pinfo->cinfo, COL_INFO);
   if (upchid > 0)
 	col_add_fstr (pinfo->cinfo, COL_INFO,
 		      "Map Message:  Channel ID = %u (U%u), UCD Count = %u,  # IE's = %u",

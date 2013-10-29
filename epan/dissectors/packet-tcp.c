@@ -2291,12 +2291,12 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                 /* Fast Open Cookie Request */
                 proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request,
                                     tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " TFO=R");
+                col_append_str(pinfo->cinfo, COL_INFO, " TFO=R");
             } else if ((optlen - 2) > 2) {
                 /* Fast Open Cookie */
                 proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie,
                                     tvb, offset + 4, optlen - 4, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " TFO=C");
+                col_append_str(pinfo->cinfo, COL_INFO, " TFO=C");
             }
             break;
         default:
@@ -4048,7 +4048,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s > %s",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s",
                     get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
     if (tree) {
         if (tcp_summary_in_tree) {

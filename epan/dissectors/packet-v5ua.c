@@ -1311,7 +1311,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
    message_type   = tvb_get_guint8(common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET);
 
    /* Add message type into info column */
-   col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_class * 256 + message_type, msg_class_type_values_short, "UNKNOWN"));
+   col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_class * 256 + message_type, msg_class_type_values_short, "UNKNOWN"));
 
 
    if (v5ua_tree) {

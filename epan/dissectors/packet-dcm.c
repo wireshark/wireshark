@@ -4874,7 +4874,6 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     proto_item_set_text(assoc_header_pitem, "%s", buf_desc);
     col_append_str(pinfo->cinfo, COL_INFO, buf_desc);
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, wmem_strdup(wmem_file_scope(), buf_desc));	/* requires SE not EP memory */
 
     /* proto_item and proto_tree are one and the same */
@@ -7045,7 +7044,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     }
 
     if (pdu_type == 4) {
-	col_add_str(pinfo->cinfo, COL_INFO, "P-DATA");
+	col_set_str(pinfo->cinfo, COL_INFO, "P-DATA");
 
 	offset = dissect_dcm_pdu_data(tvb, pinfo, dcm_ptree, assoc, offset, pdu_len, &pdu_data_description);
 

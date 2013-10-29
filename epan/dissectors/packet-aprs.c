@@ -776,7 +776,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 				mic_e_msg_table[ (msg_a << 2) + (msg_b << 1) + msg_c ].std
 				);
 
-	col_add_str( pinfo->cinfo, COL_INFO, "MIC-E " );
+	col_set_str( pinfo->cinfo, COL_INFO, "MIC-E " );
 	col_append_str( pinfo->cinfo, COL_INFO, info_buffer );
 
 	if ( parent_tree )

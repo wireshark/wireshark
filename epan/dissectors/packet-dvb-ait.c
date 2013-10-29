@@ -365,7 +365,6 @@ dissect_dvb_ait(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     guint32     org_id;
     guint16     app_id;
 
-    col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "Application Information Table (AIT)");
 
     if (tree) {

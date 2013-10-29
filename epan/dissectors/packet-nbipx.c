@@ -333,7 +333,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	case NBIPX_SESSION_DATA:
 	case NBIPX_SESSION_END:
 	case NBIPX_SESSION_END_ACK:
-		col_add_str(pinfo->cinfo, COL_INFO,
+		col_set_str(pinfo->cinfo, COL_INFO,
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -373,7 +373,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		break;
 
 	case NBIPX_DIRECTED_DATAGRAM:
-		col_add_str(pinfo->cinfo, COL_INFO,
+		col_set_str(pinfo->cinfo, COL_INFO,
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -399,7 +399,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		break;
 
 	default:
-		col_add_str(pinfo->cinfo, COL_INFO,
+		col_set_str(pinfo->cinfo, COL_INFO,
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 
 		/*

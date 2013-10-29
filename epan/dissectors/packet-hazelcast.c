@@ -333,7 +333,6 @@ static void dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	proto_tree_add_item(hcast_tree, hf_hazelcast_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
 	operation = tvb_get_guint8(tvb, offset);
-	col_clear(pinfo->cinfo,COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(operation, operationTypes, "Unknown (0x%02x)"));
 	offset += 1;
 

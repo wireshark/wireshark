@@ -280,7 +280,7 @@ dissect_usb_hub_get_hub_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "    [Hub]");
+	col_append_str(pinfo->cinfo, COL_INFO, "    [Hub]");
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);

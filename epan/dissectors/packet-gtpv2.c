@@ -5225,7 +5225,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     /* message type is in octet 2 */
     message_type = tvb_get_guint8(tvb, 1);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &gtpv2_message_type_vals_ext, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &gtpv2_message_type_vals_ext, "Unknown"));
 
 
     p_flag = (tvb_get_guint8(tvb, offset) & 0x10) >> 4;

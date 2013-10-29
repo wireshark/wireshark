@@ -7254,7 +7254,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    {
        guint64 e;
 
-       col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+       col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
        ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                            "GPRS DL DATA (CS%d)",
                                             data->block_format & 0x0F);
@@ -7317,7 +7317,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
            }
        }
        data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, message_type_offset, 6);
-       col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+       col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Messsage Type"));
        ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, message_type_offset >> 3, -1,
                                            "GSM RLC/MAC: %s (%d) (Downlink)",
@@ -7383,7 +7383,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
       guint16 bit_length = tvb_length(tvb) * 8;
 
-      col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
       col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EGPRS DL:HEADER");
       /* Dissect the MAC header */
       ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
@@ -7428,7 +7428,7 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    csnStream_t      ar;
    guint16 bit_length = tvb_length(tvb) * 8;
 
-   col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
    col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "PACCH ACCESS BURST");
    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
                                        "GPRS UL PACCH ACCESS BURST");
@@ -7474,7 +7474,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    length_indicator_t li_array[10];
    guint8 li_count = array_length(li_array);
 
-   col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
    col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS UL");
    if(payload_type == PAYLOAD_TYPE_DATA)
    {
@@ -7557,7 +7557,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       guint16 bit_offset = 0;
       guint16 bit_length = tvb_length(tvb) * 8;
 
-      col_add_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
       col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EGPRS UL:HEADER");
        ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                            "GSM RLC/MAC: EGPRS UL HEADER");

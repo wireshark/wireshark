@@ -51,7 +51,6 @@ dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   transid = tvb_get_ntohs (tvb, 0);
   confcode = tvb_get_guint8 (tvb, 2);
 
-  col_clear (pinfo->cinfo, COL_INFO);
   col_add_fstr (pinfo->cinfo, COL_INFO,
 	    "Dynamic Bonding Change Response: Tran-Id = %u (%s)", transid,
 		 val_to_str (confcode, docsis_conf_code, "%d"));

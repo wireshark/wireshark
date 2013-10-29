@@ -714,7 +714,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_tree_add_uint(ltp_header_tree,hf_ltp_trl_extn_cnt,tvb,frame_offset,1,trl_extn_cnt);
 	frame_offset++;
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
 
 	if((unsigned)frame_offset >= tvb_length(tvb)){
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");

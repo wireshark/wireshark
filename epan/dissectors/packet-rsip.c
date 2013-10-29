@@ -988,8 +988,6 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSIP");
 
-	col_clear(pinfo->cinfo, COL_INFO);
-
 	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(msgtype, msg_type_vals,
 	        "Unknown Message Type (0x%0x)"));

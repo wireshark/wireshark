@@ -421,16 +421,16 @@ getFrameDirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree, int
     proto_tree_add_uint(field_tree, hf_mux27010_direction, tvb, offset, 1, direction_in_out & 3);
     switch (direction_in_out & 3) {
         case (0):/*Application >> Module*/
-            col_add_str(pinfo->cinfo, COL_DEF_SRC, "Application  DLCI ");
-            col_add_str(pinfo->cinfo, COL_DEF_DST, "Module");
+            col_set_str(pinfo->cinfo, COL_DEF_SRC, "Application  DLCI ");
+            col_set_str(pinfo->cinfo, COL_DEF_DST, "Module");
             break;
         case (1):/*Module >> Application*/
-            col_add_str(pinfo->cinfo, COL_DEF_SRC, "Module       DLCI ");
-            col_add_str(pinfo->cinfo, COL_DEF_DST, "Application");
+            col_set_str(pinfo->cinfo, COL_DEF_SRC, "Module       DLCI ");
+            col_set_str(pinfo->cinfo, COL_DEF_DST, "Application");
             break;
         default:/*?? >> ??*/
-            col_add_str(pinfo->cinfo, COL_DEF_SRC, "Direction not valid ");
-            col_add_str(pinfo->cinfo, COL_DEF_DST, "Direction not valid ");
+            col_set_str(pinfo->cinfo, COL_DEF_SRC, "Direction not valid ");
+            col_set_str(pinfo->cinfo, COL_DEF_DST, "Direction not valid ");
             break;
     }
 

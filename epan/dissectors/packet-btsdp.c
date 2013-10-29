@@ -3718,7 +3718,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
     }
 
     if (is_continued) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(fragment)");
+        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
     }
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset + attribute_list_byte_count);
@@ -3819,7 +3819,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
     }
 
     if (is_continued) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(fragment)");
+        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
     }
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset + attribute_list_byte_count);
@@ -3995,10 +3995,10 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",

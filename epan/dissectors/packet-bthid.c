@@ -431,48 +431,48 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_bthid_data_keyboard_leds_num_lock, tvb, offset, 1, ENC_BIG_ENDIAN);
                 leds = tvb_get_guint8(tvb, offset);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - LEDs: ");
+            col_append_str(pinfo->cinfo, COL_INFO, " - LEDs: ");
             if (leds & 0x01) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "NumLock");
+                col_append_str(pinfo->cinfo, COL_INFO, "NumLock");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x02) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "CapsLock");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "CapsLock");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x04) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "ScrollLock");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "ScrollLock");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x08) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Compose");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Compose");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x10) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Kana");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Kana");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x20) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Constant1");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Constant1");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x40) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Constant2");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Constant2");
                 shortcut_helper = TRUE;
             }
             if (leds & 0x80) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Constant3");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Constant3");
                 /*shortcut_helper = TRUE;*/
             }
             if (!leds) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "none");
+                col_append_str(pinfo->cinfo, COL_INFO, "none");
             }
 
                 offset += 1;
@@ -491,44 +491,44 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(tree, hf_bthid_data_keyboard_modifier_left_ctrl, tvb, offset, 1, ENC_BIG_ENDIAN);
             modifier = tvb_get_guint8(tvb, offset);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - ");
+            col_append_str(pinfo->cinfo, COL_INFO, " - ");
             if (modifier & 0x80) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "RIGHT GUI");
+                col_append_str(pinfo->cinfo, COL_INFO, "RIGHT GUI");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x40) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "RIGHT ALT");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "RIGHT ALT");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x20) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "RIGHT SHIFT");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "RIGHT SHIFT");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x10) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "RIGHT CTRL");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "RIGHT CTRL");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x08) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "LEFT GUI");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "LEFT GUI");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x04) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "LEFT ALT");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "LEFT ALT");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x02) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "LEFT SHIFT");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "LEFT SHIFT");
                 shortcut_helper = TRUE;
             }
             if (modifier & 0x01) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "LEFT CTRL");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "LEFT CTRL");
                 shortcut_helper = TRUE;
             }
             offset += 1;
@@ -541,7 +541,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             if (keycode) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = TRUE;
             }
@@ -551,7 +551,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             if (keycode) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = TRUE;
             }
@@ -561,7 +561,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             if (keycode) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = TRUE;
             }
@@ -571,7 +571,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             if (keycode) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = TRUE;
             }
@@ -581,7 +581,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             if (keycode) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = TRUE;
             }
@@ -591,13 +591,13 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
 
             if (keycode) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = TRUE;
             }
 
             if (shortcut_helper == FALSE) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "<action key up>");
+                col_append_str(pinfo->cinfo, COL_INFO, "<action key up>");
             }
 
             break;
@@ -613,43 +613,43 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             buttons = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            if (buttons) col_append_fstr(pinfo->cinfo, COL_INFO, " - ");
+            if (buttons) col_append_str(pinfo->cinfo, COL_INFO, " - ");
             if (buttons & 0x01) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button LEFT");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button LEFT");
                 shortcut_helper = TRUE;
             }
             if (buttons & 0x02) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button RIGHT");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button RIGHT");
                 shortcut_helper = TRUE;
             }
             if (buttons & 0x04) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button MIDDLE");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button MIDDLE");
             }
             if (buttons & 0x08) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button 4");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button 4");
                 shortcut_helper = TRUE;
             }
             if (buttons & 0x10) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button 5");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button 5");
                 shortcut_helper = TRUE;
             }
             if (buttons & 0x20) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button 6");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button 6");
                 shortcut_helper = TRUE;
             }
             if (buttons & 0x40) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button 7");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button 7");
                 shortcut_helper = TRUE;
             }
             if (buttons & 0x80) {
-                if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Button 8");
+                if (shortcut_helper) col_append_str(pinfo->cinfo, COL_INFO, " + ");
+                col_append_str(pinfo->cinfo, COL_INFO, "Button 8");
                 /* Not necessary, this is the last case where it is used
                  * shortcut_helper = TRUE;
                  */
@@ -701,10 +701,10 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -720,7 +720,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     parameter = transaction_type & 0x0F;
     transaction_type = transaction_type >> 4;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(transaction_type, transaction_type_vals, "Unknown TransactionType"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(transaction_type, transaction_type_vals, "Unknown TransactionType"));
 
     switch(transaction_type) {
         case 0x00: /* HANDSHAKE */

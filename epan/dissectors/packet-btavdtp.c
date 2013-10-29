@@ -953,17 +953,16 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint             codec;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVDTP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
 
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
@@ -2026,11 +2025,11 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     switch (pinfo->p2p_dir) {
 
     case P2P_DIR_SENT:
-        col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
         break;
 
     case P2P_DIR_RECV:
-        col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
         break;
 
     case P2P_DIR_UNKNOWN:
@@ -2143,11 +2142,11 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     switch (pinfo->p2p_dir) {
 
     case P2P_DIR_SENT:
-        col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
         break;
 
     case P2P_DIR_RECV:
-        col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
         break;
 
     case P2P_DIR_UNKNOWN:

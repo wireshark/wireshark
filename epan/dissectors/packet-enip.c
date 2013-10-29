@@ -1930,8 +1930,6 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item(item_tree, hf_enip_cpf_sai_seqnum, tvb, offset+10, 4, ENC_LITTLE_ENDIAN );
 
                /* Add info to column */
-               col_clear(pinfo->cinfo, COL_INFO);
-
                col_add_fstr(pinfo->cinfo, COL_INFO, "Connection:  ID=0x%08X, SEQ=%010d",
                      tvb_get_letohl( tvb, offset+6 ),
                      tvb_get_letohl( tvb, offset+10 ) );

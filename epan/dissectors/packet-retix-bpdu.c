@@ -61,7 +61,6 @@ dissect_retix_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "R-STP");
-  col_clear(pinfo->cinfo, COL_INFO);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Bridge MAC %s", tvb_ether_to_str(tvb, 10));
 
   retix_bpdu_tree = NULL;

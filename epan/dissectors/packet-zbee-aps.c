@@ -636,8 +636,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (tree) {
         proto_item_append_text(proto_root, " %s", val_to_str_const(packet.type, zbee_aps_frame_types, "Unknown Type"));
     }
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_str(pinfo->cinfo, COL_INFO, "APS: ");
+    col_set_str(pinfo->cinfo, COL_INFO, "APS: ");
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.type, zbee_aps_frame_types, "Unknown Frame Type"));
 
     /*  Display the FCF */

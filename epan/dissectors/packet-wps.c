@@ -1675,7 +1675,7 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   if (pi != NULL)
     proto_item_append_text(pi, " (Wifi Alliance, WifiProtectedSetup)");
   if (pinfo != NULL)
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", WPS");
+    col_append_str(pinfo->cinfo, COL_INFO, ", WPS");
 
 
   /* Flag field, if msg-len flag set, add approriate field  */

@@ -133,10 +133,10 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (control_pdu_id >= 0x8000) {
         proto_item_append_text(pitem, " (Vendor Specific)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Specific)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (Vendor Specific)");
     } else if (control_pdu_id == 0x0000 || control_pdu_id >= 0x000B ) {
         proto_item_append_text(pitem, " (Reserved)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Reserved)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");
     }
 
     proto_tree_add_item(tree, hf_bthcrp_control_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -293,7 +293,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     /* flow: server <-> client */
     tvbuff_t *next_tvb;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "HCRP data stream");
+    col_append_str(pinfo->cinfo, COL_INFO, "HCRP data stream");
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -313,7 +313,7 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item   *pitem;
 
     if (is_client_message) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Notification: unexpected notification stream");
+        col_append_str(pinfo->cinfo, COL_INFO, "Notification: unexpected notification stream");
         return offset;
     }
 
@@ -325,14 +325,14 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (notification_pdu_id >= 0x8000) {
         proto_item_append_text(pitem, " (Vendor Specific)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Specific)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (Vendor Specific)");
         if (tvb_length_remaining(tvb, offset)) {
             proto_tree_add_item(tree, hf_bthcrp_data, tvb, offset, -1, ENC_NA);
             offset += tvb_length_remaining(tvb, offset);
         }
     } else if (notification_pdu_id != 0x001) {
         proto_item_append_text(pitem, " (Reserved)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Reserved)");
+        col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");
     }
 
     switch(notification_pdu_id) {
@@ -357,14 +357,13 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCRP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
         case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",

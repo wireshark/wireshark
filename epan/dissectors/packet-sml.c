@@ -2610,7 +2610,7 @@ static void dissect_sml (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		return;
 	}
 
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SML");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SML");
 	col_clear(pinfo->cinfo,COL_INFO);
 
 	/* create display subtree for the protocol */

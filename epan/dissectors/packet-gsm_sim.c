@@ -1170,7 +1170,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 			break;
 		switch (p1) {
 		case 0x03:	/* parent DF */
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Parent DF ");
+			col_append_str(pinfo->cinfo, COL_INFO, "Parent DF ");
 			break;
 		case 0x04:	/* select by AID */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Application %s ",
@@ -1179,7 +1179,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 			break;
 
 		case 0x09:	/* select by relative path */
-			col_append_fstr(pinfo->cinfo, COL_INFO, ".");
+			col_append_str(pinfo->cinfo, COL_INFO, ".");
 			/* fallthrough */
 		case 0x08:	/* select by absolute path */
 			for (i = 0; i < p3; i += 2) {
@@ -1188,7 +1188,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 						val_to_str(g16, mf_dfs, "%04x"));
 				proto_tree_add_item(tree, hf_file_id, tvb, offset+DATA_OFFS+i, 2, ENC_BIG_ENDIAN);
 			}
-			col_append_fstr(pinfo->cinfo, COL_INFO, " ");
+			col_append_str(pinfo->cinfo, COL_INFO, " ");
 			break;
 		default:
 			g16 = tvb_get_ntohs(tvb, offset+DATA_OFFS);

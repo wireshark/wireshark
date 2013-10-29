@@ -110,7 +110,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	type = tvb_get_guint8(tvb, 0);
 
-	col_add_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 		    val_to_str_const(type, rmp_type_vals, "Unknown Type"));
 
 	if (tree) {

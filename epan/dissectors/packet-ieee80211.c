@@ -5727,7 +5727,7 @@ static void dissect_hs20_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
                     val_to_str(subtype, hs20_anqp_subtype_vals,
                                "Unknown (%u)"));
   } else if (idx == 1) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", ..");
+    col_append_str(pinfo->cinfo, COL_INFO, ", ..");
   }
   proto_tree_add_item(tree, hf_hs20_anqp_subtype, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
@@ -5787,7 +5787,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
                       val_to_str_ext(id, &anqp_info_id_vals_ext, "Unknown (%u)"));
     } else if (idx == 1) {
       proto_item_append_text(tree, ", ..");
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", ..");
+      col_append_str(pinfo->cinfo, COL_INFO, ", ..");
     }
   }
   tree = proto_item_add_subtree(item, ett_gas_anqp);

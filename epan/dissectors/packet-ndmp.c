@@ -3256,8 +3256,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "[NDMP fragment] ");
+			col_set_str(pinfo->cinfo, COL_INFO, "[NDMP fragment] ");
 
 			/*
 			 * Add the record marker information to the tree
