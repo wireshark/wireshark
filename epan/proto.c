@@ -173,7 +173,7 @@ proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length
 static void
 proto_tree_set_time(field_info *fi, nstime_t *value_ptr);
 static void
-proto_tree_set_string(field_info *fi, const char* value, gint length);
+proto_tree_set_string(field_info *fi, const char* value);
 static void
 proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length, gint encoding);
 static void
@@ -1503,7 +1503,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
 			}
 			new_fi->length = length;
-			proto_tree_set_string(new_fi, string, length);
+			proto_tree_set_string(new_fi, string);
 			break;
 
 		case FT_UINT_STRING:
@@ -2491,7 +2491,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 	DISSECTOR_ASSERT(length >= 0);
-	proto_tree_set_string(PNODE_FINFO(pi), value, length);
+	proto_tree_set_string(PNODE_FINFO(pi), value);
 
 	return pi;
 }
@@ -2590,10 +2590,10 @@ proto_item_append_string(proto_item *pi, const char *str)
 
 /* Set the FT_STRING value */
 static void
-proto_tree_set_string(field_info *fi, const char* value, gint length)
+proto_tree_set_string(field_info *fi, const char* value)
 {
 	if (value) {
-		fvalue_set(&fi->value, (gpointer) g_strndup(value, length), TRUE);
+		fvalue_set(&fi->value, (gpointer) value, FALSE);
 	} else {
 		fvalue_set(&fi->value, (gpointer) "[ Null ]", FALSE);
 	}
@@ -2609,7 +2609,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	}
 
 	string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
-	proto_tree_set_string(fi, string, length);
+	proto_tree_set_string(fi, string);
 }
 
 
@@ -3753,7 +3753,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_UINT32:
 			case FT_FRAMENUM:
 				hf_str_val = NULL;
-				number = IS_FT_INT(hfinfo->type) ?
+				number = IS_FT_INT(hfinfo->type) ? 
 						(guint32) fvalue_get_sinteger(&finfo->value) :
 						fvalue_get_uinteger(&finfo->value);
 
