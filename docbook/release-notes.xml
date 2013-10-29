@@ -76,7 +76,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-62.html">wnpa-sec-2013-62</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-63.html">wnpa-sec-2013-63</ulink>
           </para>
           <para>
 	    The SIP dissector could crash.
@@ -85,6 +85,46 @@ Wireshark Info
             <!-- Fixed in trunk-1.8: r52960 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9228">Bug
             9228</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-64.html">wnpa-sec-2013-64</ulink>
+          </para>
+          <para>
+	    The OpenWire dissector could go into a large loop. Discovered by Murali.
+            <!-- Fixed in trunk: r52457, r52458, r52463 -->
+            <!-- Fixed in trunk-1.10: r52490 -->
+            <!-- Fixed in trunk-1.8: r52491 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9248">Bug
+            9248</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-65.html">wnpa-sec-2013-65</ulink>
+          </para>
+          <para>
+	    The TCP dissector could crash.
+            <!-- Fixed in trunk: r52570 -->
+            <!-- Fixed in trunk-1.10: r52961 -->
+            <!-- Fixed in trunk-1.8: r52962 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9263">Bug
+            9263</ulink>)
           </para>
           <para>Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10.</para>
 	  <!--
@@ -147,6 +187,7 @@ There are no new protocols in this release.
 
 IEEE 802.15.4,
 NBAP,
+OpenWire,
 SIP,
 
     </para>
