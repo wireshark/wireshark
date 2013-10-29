@@ -3093,11 +3093,20 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			!strncmp(content_encoding_parameter_str, "gzip", 4)){
 			/* The body is gzip:ed */
 			next_tvb = tvb_uncompress(tvb, offset,  datalen);
-			add_new_data_source(pinfo, next_tvb, "gunziped data");
-			if(sip_tree) {
-				ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
-			                         ENC_NA);
-				message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
+			if (next_tvb) {
+				add_new_data_source(pinfo, next_tvb, "gunziped data");
+				if(sip_tree) {
+					ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
+				                         ENC_NA);
+					message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
+				}
+			} else {
+				next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
+				if(sip_tree) {
+					ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
+				                         ENC_NA);
+					message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
+				}
 			}
 		}else{
 			next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
