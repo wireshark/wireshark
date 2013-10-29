@@ -4493,15 +4493,6 @@ find_protocol_by_id(const int proto_id)
 	return (protocol_t *)hfinfo->strings;
 }
 
-static gint compare_filter_name(gconstpointer proto_arg,
-				gconstpointer filter_name)
-{
-	const protocol_t *protocol = (const protocol_t *)proto_arg;
-	const gchar      *f_name   = (const gchar *)filter_name;
-
-	return (strcmp(protocol->filter_name, f_name));
-}
-
 int
 proto_get_id(const protocol_t *protocol)
 {
