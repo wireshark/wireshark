@@ -102,7 +102,11 @@ static int hf_pdcp_lte_sequence_analysis_expected_sn = -1;
 static int hf_pdcp_lte_sequence_analysis_repeated = -1;
 static int hf_pdcp_lte_sequence_analysis_skipped = -1;
 
-
+/* Security Settings */
+static int hf_pdcp_lte_security = -1;
+static int hf_pdcp_lte_security_setup_frame = -1;
+static int hf_pdcp_lte_security_integrity_algorithm = -1;
+static int hf_pdcp_lte_security_ciphering_algorithm = -1;
 
 
 /* Protocol subtree. */
@@ -111,6 +115,7 @@ static int ett_pdcp_configuration = -1;
 static int ett_pdcp_packet = -1;
 static int ett_pdcp_lte_sequence_analysis = -1;
 static int ett_pdcp_report_bitmap = -1;
+static int ett_pdcp_security = -1;
 
 static expert_field ei_pdcp_lte_sequence_analysis_wrong_sequence_number = EI_INIT;
 static expert_field ei_pdcp_lte_reserved_bits_not_zero = EI_INIT;
@@ -218,6 +223,20 @@ static const value_string ip_protocol_vals[] = {
     { 0,   NULL }
 };
 #endif
+
+static const value_string integrity_algorithm_vals[] = {
+    { 0,   "EIA0" },
+    { 1,   "EIA1" },
+    { 2,   "EIA2" },
+    { 0,   NULL }
+};
+
+static const value_string ciphering_algorithm_vals[] = {
+    { 0,   "EEA0" },
+    { 1,   "EEA1" },
+    { 2,   "EEA2" },
+    { 0,   NULL }
+};
 
 
 static dissector_handle_t ip_handle;
@@ -656,19 +675,58 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
 
 /* Hash table for security state for a UE
-   Maps UEId -> pdcp_security_info_t */
-static GHashTable *pdcp_security_hash = NULL;
-
+   Maps UEId -> pdcp_security_info_t*  */
 static gint pdcp_lte_ueid_hash_equal(gconstpointer v, gconstpointer v2)
 {
     return (v == v2);
 }
-
 static guint pdcp_lte_ueid_hash_func(gconstpointer v)
 {
     return GPOINTER_TO_UINT(v);
 }
+static GHashTable *pdcp_security_hash = NULL;
 
+/* Result is (ueid, framenum) -> pdcp_security_info_t*  */
+typedef struct  ueid_frame_t {
+    guint32 framenum;
+    guint16 ueid;
+} ueid_frame_t;
+
+/* Convenience function to get a pointer for the hash_func to work with */
+static gpointer get_ueid_frame_hash_key(guint16 ueid, guint32 frameNumber,
+                                        gboolean do_persist)
+{
+    static ueid_frame_t  key;
+    ueid_frame_t        *p_key;
+
+    /* Only allocate a struct when will be adding entry */
+    if (do_persist) {
+        p_key = wmem_new(wmem_file_scope(), ueid_frame_t);
+    }
+    else {
+        memset(&key, 0, sizeof(ueid_frame_t));
+        p_key = &key;
+    }
+
+    /* Fill in details, and return pointer */
+    p_key->framenum = frameNumber;
+    p_key->ueid = ueid;
+
+    return p_key;
+}
+
+static gint pdcp_lte_ueid_frame_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    ueid_frame_t *ueid_frame_1 = (ueid_frame_t *)v;
+    ueid_frame_t *ueid_frame_2 = (ueid_frame_t *)v2;
+    return ((ueid_frame_1->framenum == ueid_frame_2->framenum) && (ueid_frame_1->ueid == ueid_frame_2->ueid));
+}
+static guint pdcp_lte_ueid_frame_hash_func(gconstpointer v)
+{
+    ueid_frame_t *ueid_frame = (ueid_frame_t *)v;
+    return ueid_frame->framenum + 100*ueid_frame->ueid;
+}
+static GHashTable *pdcp_security_result_hash = NULL;
 
 
 
@@ -1011,6 +1069,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
 }
 
+/* Called from control protocol to configure security algorithms for the given UE */
 void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info)
 {
     /* Copy security struct */
@@ -1034,6 +1093,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     struct pdcp_lte_info *p_pdcp_info;
     rohc_info            *p_rohc_info;
     tvbuff_t             *rohc_tvb            = NULL;
+    pdcp_security_info_t *pdu_security;
 
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -1348,16 +1408,61 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         write_pdu_label_and_info(root_ti, pinfo, " No-Header ");
     }
 
+    /***************************************/
+    /* UE security algorithms              */
+    if (!pinfo->fd->flags.visited) {
+        /* Look up current state by UEID */
+        pdcp_security_info_t *current_security = g_hash_table_lookup(pdcp_security_hash, GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
+        if (current_security != NULL) {
+            /* Store any result for this frame in the result table */
+            pdcp_security_info_t *security_to_store = wmem_new(wmem_file_scope(), pdcp_security_info_t);
+            *security_to_store = *current_security;
+            g_hash_table_insert(pdcp_security_result_hash,
+                                get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, TRUE),
+                                security_to_store);
+        }
+    }
+    /* Show settings for this PDU */
+    pdu_security = g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
+    if (pdu_security != NULL) {
+        proto_tree *security_tree;
+        proto_item *security_ti, *ti;
+
+        /* Create subtree */
+        security_ti = proto_tree_add_string_format(pdcp_tree,
+                                                   hf_pdcp_lte_security,
+                                                   tvb, 0, 0,
+                                                   "", "UE Security");
+        security_tree = proto_item_add_subtree(security_ti,
+                                               ett_pdcp_security);
+        PROTO_ITEM_SET_GENERATED(security_ti);
+
+        /* Setup frame */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_setup_frame,
+                                 tvb, 0, 0, pdu_security->configuration_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        /* Integrity */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_integrity_algorithm,
+                                 tvb, 0, 0, pdu_security->integrity);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        /* Ciphering */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_ciphering_algorithm,
+                                 tvb, 0, 0, pdu_security->ciphering);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
     /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
         gint payload_length = tvb_length_remaining(tvb, offset);
         if (payload_length > 0) {
             if (p_pdcp_info->plane == USER_PLANE) {
 
-                /* TODO: look up security info to see if ciphering is on */
-                
-                
-                if (global_pdcp_dissect_user_plane_as_ip) {
+                /* Not attempting to decode payload if ciphering is enabled
+                   (and NULL ciphering is not being used) */
+                if (global_pdcp_dissect_user_plane_as_ip &&
+                    !((pdu_security != NULL) && (pdu_security->ciphering != 0))) {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
                     /* Don't update info column for ROHC unless configured to */
@@ -1479,11 +1584,15 @@ static void pdcp_lte_init_protocol(void)
     if (pdcp_security_hash) {
         g_hash_table_destroy(pdcp_security_hash);
     }
+    if (pdcp_security_result_hash) {
+        g_hash_table_destroy(pdcp_security_result_hash);
+    }
 
     /* Now create them over */
     pdcp_sequence_analysis_channel_hash = g_hash_table_new(pdcp_channel_hash_func, pdcp_channel_equal);
     pdcp_lte_sequence_analysis_report_hash = g_hash_table_new(pdcp_result_hash_func, pdcp_result_hash_equal);
     pdcp_security_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
+    pdcp_security_result_hash = g_hash_table_new(pdcp_lte_ueid_frame_hash_func, pdcp_lte_ueid_frame_hash_equal);
 }
 
 
@@ -1721,7 +1830,30 @@ void proto_register_pdcp(void)
             }
         },
 
-
+        { &hf_pdcp_lte_security,
+            { "Security Config",
+              "pdcp-lte.security-cofig", FT_STRING, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_setup_frame,
+            { "Configuration frame",
+              "pdcp-lte.security-config.setup-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_integrity_algorithm,
+            { "Integrity Algorithm",
+              "pdcp-lte.security-config.integrity", FT_UINT16, BASE_DEC, VALS(integrity_algorithm_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_ciphering_algorithm,
+            { "Ciphering Algorithm",
+              "pdcp-lte.security-config.ciphering", FT_UINT16, BASE_DEC, VALS(ciphering_algorithm_vals), 0x0,
+              NULL, HFILL
+            }
+        },
     };
 
     static gint *ett[] =
@@ -1730,7 +1862,8 @@ void proto_register_pdcp(void)
         &ett_pdcp_configuration,
         &ett_pdcp_packet,
         &ett_pdcp_lte_sequence_analysis,
-        &ett_pdcp_report_bitmap
+        &ett_pdcp_report_bitmap,
+        &ett_pdcp_security
     };
 
     static ei_register_info ei[] = {
