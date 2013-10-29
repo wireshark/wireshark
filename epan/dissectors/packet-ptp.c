@@ -3027,7 +3027,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             break;
                         }
 
-                        managementData_ti = proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_data, tvb, Offset, tlv_length, ENC_NA);
+                        managementData_ti = proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_data, tvb, Offset, tlv_length - 2, ENC_NA);
 
                         /* data field of the management message (subtree)*/
                         ptp_managementData_tree = proto_item_add_subtree(managementData_ti, ett_ptp_v2_managementData);

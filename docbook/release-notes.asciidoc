@@ -97,11 +97,21 @@ instead of 1. (ws-buglink:9126[])
 
 * Minor correction to dissection of DLR frames in Ethernet/IP dissector. (ws-buglink:9186[])
 
+* WebSphere MQ V7 Bug Fix 8322 TSHM_EBCDIC. (ws-buglink:9198[])
+
 * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
 
 * Bug in RTP dissector if RTP extension is present. (ws-buglink:9204[])
 
+* Improve "eHRPD Indicator" NVSE dissection in 3GPP2 A11 Registration Request. (ws-buglink:9206[])
+
+* "make debian-package" fails, missing wsicon32.xpm. (ws-buglink:9209[])
+
 * Fix typo in MODCOD list of DVB-S2 dissector. (ws-buglink:9218[])
+
+* Ring buffer crash when tshark gets too far behind dumpcap. (ws-buglink:9258[])
+
+* PTP Dissector Wrongfully Reports Malformed Packet. (ws-buglink:9262[])
 
 === New and Updated Features
 
@@ -115,13 +125,16 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+3GPP2 A11
 BSSGP
 DIAMETER
 DVB-S2
 EtherNet/IP
+H.225
 IEEE 802.15.4
 NBAP
 OpenWire
+PTP
 RTP
 SIP
 TCP

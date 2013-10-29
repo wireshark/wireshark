@@ -37,6 +37,7 @@
  * http://www.3gpp2.org/public_html/specs/A.S0017-D_v2.0_090825.pdf
  * http://www.3gpp2.org/public_html/specs/A.S0017-D%20v3.0_Interoperability%20Specification%20%28IOS%29%20for%20cdma2000%20Access%20Network%20Interfaces%20-%20Part%207%20%28A10%20and%20A11%20Interfaces%29_20110701.pdf
  * http://www.3gpp2.org/Public_html/specs/A00-20110419-002Er0%20A.S0008-C%20v4.0%20HRPD%20IOS-Pub_20110513.pdf
+ * http://www.3gpp2.org/Public_html/specs/A.S0022-0_v2.0_100426.pdf
  */
 
 #include "config.h"
@@ -101,6 +102,8 @@ static int hf_a11_vse_code = -1;
 static int hf_a11_vse_dormant = -1;
 static int hf_a11_vse_ehrpd_mode = -1;
 static int hf_a11_vse_ehrpd_pmk = -1;
+static int hf_a11_vse_ehrpd_handoff_info = -1;
+static int hf_a11_vse_ehrpd_tunnel_mode = -1;
 static int hf_a11_vse_ppaddr = -1;
 
 /* Additional Session Information */
@@ -403,6 +406,24 @@ static const value_string a11_ext_dormant[]= {
 static const true_false_string a11_tfs_ehrpd_mode = {
 	"eAT is operating in evolved mode",
 	"eAT is operating in legacy mode"
+};
+
+/* 3GPP2 A.S0022-0 v2.0, section 4.2.14 */
+static const true_false_string a11_tfs_ehrpd_pmk = {
+    "eAT is requesting PMK information",
+    "eAT is not requesting PMK information",
+};
+
+/* 3GPP2 A.S0022-0 v2.0, section 4.2.14 */
+static const true_false_string a11_tfs_ehrpd_handoff_info = {
+    "eAT is requesting information for E-UTRAN handoff",
+    "eAT is not requesting information for E-UTRAN handoff",
+};
+
+/* 3GPP2 A.S0022-0 v2.0, section 4.2.14 */
+static const true_false_string a11_tfs_ehrpd_tunnel_mode = {
+    "eAT is communicating via tunnel from non-eHRPD",
+    "eAT is communicating directly via eHRPD",
 };
 
 static const value_string a11_ext_app[]= {
@@ -1503,6 +1524,8 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                 if (ext_len < 1)
                     break;
                 proto_tree_add_item(ext_tree, hf_a11_vse_ehrpd_pmk, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree, hf_a11_vse_ehrpd_handoff_info, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree, hf_a11_vse_ehrpd_tunnel_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             case 0x0701:
                 if (ext_len < 1)
@@ -2277,7 +2300,17 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_ehrpd_pmk,
           { "PMK",           "a11.ext.ehrpd.pmk",
-            FT_BOOLEAN, 8, NULL, 0,
+            FT_BOOLEAN, 8, TFS(&a11_tfs_ehrpd_pmk), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_a11_vse_ehrpd_handoff_info,
+          { "E-UTRAN Handoff Info",           "a11.ext.ehrpd.handoff_info",
+            FT_BOOLEAN, 8, TFS(&a11_tfs_ehrpd_handoff_info), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_a11_vse_ehrpd_tunnel_mode,
+          { "Tunnel Mode",           "a11.ext.ehrpd.tunnel_mode",
+            FT_BOOLEAN, 8, TFS(&a11_tfs_ehrpd_tunnel_mode), 0x01,
             NULL, HFILL }
         },
         { &hf_a11_vse_code,

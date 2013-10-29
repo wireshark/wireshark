@@ -2415,6 +2415,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
     if ( ((capture_file *) cap_session->cf)->state != FILE_CLOSED) {
       if ( ((capture_file *) cap_session->cf)->wth != NULL) {
         wtap_close(((capture_file *) cap_session->cf)->wth);
+	((capture_file *) cap_session->cf)->wth = NULL;
       }
       ((capture_file *) cap_session->cf)->state = FILE_CLOSED;
     }
