@@ -125,7 +125,7 @@ typedef struct
 
 }nbap_dch_channel_info_t;
 
-nbap_dch_channel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
+nbap_dch_channel_info_t nbap_dch_chnl_info[256];
 
 /* Struct to collect E-DCH data in a packet
  * As the address data comes before the ddi entries
