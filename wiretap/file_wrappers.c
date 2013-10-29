@@ -1315,12 +1315,11 @@ file_eof(FILE_T file)
 int
 file_error(FILE_T fh, gchar **err_info)
 {
-	if (fh->err != 0) {
-		if (err_info)
-			*err_info = (fh->err_info == NULL) ? NULL : g_strdup(fh->err_info);
-		return fh->err;
+	if (fh->err!=0 && err_info) {
+		/* g_strdup() returns NULL for NULL argument */
+		*err_info = g_strdup(fh->err_info);
 	}
-	return 0;
+	return fh->err;
 }
 
 void
