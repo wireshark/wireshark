@@ -643,7 +643,7 @@ proto_tree *add_tlv_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hf
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
 	tlv_item = proto_tree_add_item(tree, hfindex, tvb, start, tlv_value_length, little_endian);
 
-	if (!PITEM_FINFO(tlv_item))
+	if ((tlv_item == NULL) || (!PITEM_FINFO(tlv_item)))
 		return tree;
 
 	/* Correct the highlighting. */
@@ -742,7 +742,7 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 	va_end(ap);
 	tlv_item = proto_tree_add_protocol_format(tree, hfindex, tvb, start, length, "%s", message);
 
-	if (!PITEM_FINFO(tlv_item))
+	if ((tlv_item == NULL) || (!PITEM_FINFO(tlv_item)))
 		return tree;
 
 	/* Correct the highlighting. */

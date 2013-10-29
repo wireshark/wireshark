@@ -380,7 +380,10 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int   indx;
     gchar last_char;
 
-    if (xmpp_desegment)
+    conversation = find_or_create_conversation(pinfo);
+    xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
+
+    if ((!xmpp_info || !xmpp_info->ssl_proceed) && xmpp_desegment)
     {
         indx = tvb_reported_length(tvb) - 1;
         if (indx >= 0)
@@ -405,13 +408,24 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    conversation = find_or_create_conversation(pinfo);
-    xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
-
     if (xmpp_info && xmpp_info->ssl_proceed &&
             xmpp_info->ssl_proceed < pinfo->fd->num)
     {
+        guint16 save_can_desegment;
+        guint32 save_ssl_proceed;
+
+        /* Make sure SSL/TLS can desegment */
+        save_can_desegment = pinfo->can_desegment;
+        pinfo->can_desegment = pinfo->saved_can_desegment;
+
+        /* Make sure the SSL dissector will not be called again after decryption */
+        save_ssl_proceed = xmpp_info->ssl_proceed;
+        xmpp_info->ssl_proceed = 0;
+
         call_dissector(ssl_handle, tvb, pinfo, tree);
+
+        pinfo->can_desegment = save_can_desegment;
+        xmpp_info->ssl_proceed = save_ssl_proceed;
         return;
     }
 
