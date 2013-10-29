@@ -121,7 +121,12 @@ What needs to be done?
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
-- Add support for cmake configurations
+- Add support for cmake configurations.
+- Get plugins loading when running *shark from the build directory.
+- Automatically figure out if *shark is running from the build directory
+  (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
+  autofoo).
+- Get cross-compilation working (or ensure it does). It works with autofoo.
 ...
 
 Links regarding cmake
