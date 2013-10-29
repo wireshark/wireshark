@@ -43,6 +43,7 @@
 #include "packet-cell_broadcast.h"
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
+#include "packet-pdcp-lte.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -63,6 +64,7 @@ static gboolean   system_info_value_current_set;
 
 
 extern int proto_mac_lte;
+extern int proto_pdcp_lte;
 
 
 /* Include constants */
@@ -1804,6 +1806,7 @@ typedef struct lte_rrc_private_data_t
     guint16 message_identifier;
     drb_mapping_t drb_mapping;
     drx_config_t  drx_config;
+    pdcp_security_info_t pdcp_security;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -1904,6 +1907,16 @@ static void private_data_set_ra_preambles(asn1_ctx_t *actx, guint8 ra_preambles)
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->ra_preambles = ra_preambles;
 }
+
+
+/* PDCP Security info */
+static pdcp_security_info_t* private_data_pdcp_security_algorithms(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return &private_data->pdcp_security;
+}
+
+
 /*****************************************************************************/
 
 

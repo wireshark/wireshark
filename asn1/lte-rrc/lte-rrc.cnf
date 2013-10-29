@@ -1510,3 +1510,31 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
   }
 %(DEFAULT_BODY)s
+
+
+#.FN_BODY SecurityAlgorithmConfig
+  pdcp_lte_info *p_pdcp_lte_info;
+  pdcp_security_info_t *p_security_algorithms;
+%(DEFAULT_BODY)s
+  p_security_algorithms = private_data_pdcp_security_algorithms(actx);
+  p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
+  /* Look for UE identifier */
+  p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_pdcp_lte, 0);
+  if (p_pdcp_lte_info != NULL) {
+    /* Configure algorithms */
+    set_pdcp_lte_security_algorithms(p_pdcp_lte_info->ueid, p_security_algorithms);
+  }
+
+#.FN_BODY SecurityAlgorithmConfig/cipheringAlgorithm VAL_PTR=&value
+  guint32 value;
+  pdcp_security_info_t *p_security_algorithms;
+%(DEFAULT_BODY)s
+  p_security_algorithms = private_data_pdcp_security_algorithms(actx);
+  p_security_algorithms->ciphering = (enum security_ciphering_algorithm_e)value;
+
+#.FN_BODY SecurityAlgorithmConfig/integrityProtAlgorithm VAL_PTR=&value
+  guint32 value;
+  pdcp_security_info_t *p_security_algorithms;
+%(DEFAULT_BODY)s
+  p_security_algorithms = private_data_pdcp_security_algorithms(actx);
+  p_security_algorithms->integrity = (enum security_integrity_algorithm_e)value;

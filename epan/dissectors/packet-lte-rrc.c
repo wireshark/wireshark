@@ -51,6 +51,7 @@
 #include "packet-cell_broadcast.h"
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
+#include "packet-pdcp-lte.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -71,6 +72,7 @@ static gboolean   system_info_value_current_set;
 
 
 extern int proto_mac_lte;
+extern int proto_pdcp_lte;
 
 
 /* Include constants */
@@ -171,7 +173,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 70 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 72 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -2310,7 +2312,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 75 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 77 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -3508,7 +3510,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 185 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 187 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -5131,6 +5133,7 @@ typedef struct lte_rrc_private_data_t
     guint16 message_identifier;
     drb_mapping_t drb_mapping;
     drx_config_t  drx_config;
+    pdcp_security_info_t pdcp_security;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -5231,6 +5234,16 @@ static void private_data_set_ra_preambles(asn1_ctx_t *actx, guint8 ra_preambles)
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->ra_preambles = ra_preambles;
 }
+
+
+/* PDCP Security info */
+static pdcp_security_info_t* private_data_pdcp_security_algorithms(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return &private_data->pdcp_security;
+}
+
+
 /*****************************************************************************/
 
 
@@ -18772,6 +18785,8 @@ dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                    ett_lte_rrc_RRCConnectionSetup, RRCConnectionSetup_sequence);
 
 
+
+
   return offset;
 }
 
@@ -22197,8 +22212,14 @@ static const value_string lte_rrc_T_cipheringAlgorithm_vals[] = {
 
 static int
 dissect_lte_rrc_T_cipheringAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  pdcp_security_info_t *p_security_algorithms;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, &value, TRUE, 0, NULL);
+
+  p_security_algorithms = private_data_pdcp_security_algorithms(actx);
+  p_security_algorithms->ciphering = (enum security_ciphering_algorithm_e)value;
+
 
   return offset;
 }
@@ -22219,8 +22240,13 @@ static const value_string lte_rrc_T_integrityProtAlgorithm_vals[] = {
 
 static int
 dissect_lte_rrc_T_integrityProtAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  pdcp_security_info_t *p_security_algorithms;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, &value, TRUE, 0, NULL);
+
+  p_security_algorithms = private_data_pdcp_security_algorithms(actx);
+  p_security_algorithms->integrity = (enum security_integrity_algorithm_e)value;
 
   return offset;
 }
@@ -22234,8 +22260,20 @@ static const per_sequence_t SecurityAlgorithmConfig_sequence[] = {
 
 static int
 dissect_lte_rrc_SecurityAlgorithmConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  pdcp_lte_info *p_pdcp_lte_info;
+  pdcp_security_info_t *p_security_algorithms;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SecurityAlgorithmConfig, SecurityAlgorithmConfig_sequence);
+
+  p_security_algorithms = private_data_pdcp_security_algorithms(actx);
+  p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
+  /* Look for UE identifier */
+  p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_pdcp_lte, 0);
+  if (p_pdcp_lte_info != NULL) {
+    /* Configure algorithms */
+    set_pdcp_lte_security_algorithms(p_pdcp_lte_info->ueid, p_security_algorithms);
+  }
+
 
   return offset;
 }
@@ -34697,7 +34735,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2176 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2189 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -43361,7 +43399,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2323 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2336 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44872,7 +44910,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2746 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2759 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44939,7 +44977,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2797 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2810 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

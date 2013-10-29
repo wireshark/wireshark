@@ -654,6 +654,25 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 }
 
 
+
+/* Hash table for security state for a UE
+   Maps UEId -> pdcp_security_info_t */
+static GHashTable *pdcp_security_hash = NULL;
+
+static gint pdcp_lte_ueid_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+
+static guint pdcp_lte_ueid_hash_func(gconstpointer v)
+{
+    return GPOINTER_TO_UINT(v);
+}
+
+
+
+
+
 /* Write the given formatted text to:
    - the info column
    - the top-level RLC PDU item */
@@ -992,6 +1011,16 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     return TRUE;
 }
 
+void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info)
+{
+    /* Copy security struct */
+    pdcp_security_info_t *p_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
+    *p_security = *security_info;
+
+    /* And add into security table */
+    g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER(ueid), p_security);
+}
+
 
 /******************************/
 /* Main dissection function.  */
@@ -1324,6 +1353,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         gint payload_length = tvb_length_remaining(tvb, offset);
         if (payload_length > 0) {
             if (p_pdcp_info->plane == USER_PLANE) {
+
+                /* TODO: look up security info to see if ciphering is on */
+                
+                
                 if (global_pdcp_dissect_user_plane_as_ip) {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -1443,11 +1476,14 @@ static void pdcp_lte_init_protocol(void)
     if (pdcp_lte_sequence_analysis_report_hash) {
         g_hash_table_destroy(pdcp_lte_sequence_analysis_report_hash);
     }
-
+    if (pdcp_security_hash) {
+        g_hash_table_destroy(pdcp_security_hash);
+    }
 
     /* Now create them over */
     pdcp_sequence_analysis_channel_hash = g_hash_table_new(pdcp_channel_hash_func, pdcp_channel_equal);
     pdcp_lte_sequence_analysis_report_hash = g_hash_table_new(pdcp_result_hash_func, pdcp_result_hash_equal);
+    pdcp_security_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
 }
 
 

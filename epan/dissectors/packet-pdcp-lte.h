@@ -58,6 +58,15 @@ typedef enum
 #define PDCP_SN_LENGTH_12_BITS 12
 #define PDCP_SN_LENGTH_15_BITS 15
 
+enum security_integrity_algorithm_e { eia0, eia1, eia2, eia3 };
+enum security_ciphering_algorithm_e { eea0, eea1, eea2 };
+
+typedef struct pdcp_security_info_t
+{
+    guint32                             configuration_frame;
+    enum security_integrity_algorithm_e integrity;
+    enum security_ciphering_algorithm_e ciphering;
+} pdcp_security_info_t;
 
 
 /* Info attached to each LTE PDCP/RoHC packet */
@@ -170,3 +179,9 @@ typedef struct pdcp_lte_info
 /* PDCP PDU. Following this tag comes the actual PDCP PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define PDCP_LTE_PAYLOAD_TAG                0x01
+
+
+
+/* Function to configure ciphering & integrity algorithms */
+void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info);
+
