@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <wsutil/u3.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -4403,7 +4405,10 @@ menu_recent_file_write_all(FILE *rf)
     while (list != NULL) {
         cf_name = (gchar *)list->data;
         if (cf_name) {
-            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+            if(u3_active())
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+            else
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
         }
         list = g_list_previous(list);
     }
@@ -4419,7 +4424,10 @@ menu_recent_file_write_all(FILE *rf)
         /* get capture filename from the menu item label */
         cf_name = (gchar *)g_object_get_data(G_OBJECT(child->data), MENU_RECENT_FILES_KEY);
         if (cf_name) {
-            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+            if(u3_active())
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+            else
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
         }
 
         child = g_list_previous(child);

@@ -64,6 +64,7 @@
 #endif /* HAVE_LIBPORTAUDIO */
 
 #include <wsutil/crash_info.h>
+#include <wsutil/u3.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 
@@ -1948,6 +1949,11 @@ get_gui_runtime_info(GString *str)
   g_string_append(str, ", ");
   get_runtime_airpcap_version(str);
 #endif
+
+  if(u3_active()) {
+    g_string_append(str, ", ");
+    u3_runtime_info(str);
+  }
 }
 
 static e_prefs *
@@ -3185,6 +3191,10 @@ main(int argc, char *argv[])
     main_filter_packets(&cfile, dfilter, FALSE);
   }
 
+
+  /* register our pid if we are being run from a U3 device */
+  u3_register_pid();
+
   profile_store_persconffiles (FALSE);
 
 #ifdef HAVE_GTKOSXAPPLICATION
@@ -3208,6 +3218,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gtk_iface_mon_stop();
 #endif
+
+  /* deregister our pid */
+  u3_deregister_pid();
 
   epan_cleanup();
 

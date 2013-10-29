@@ -44,6 +44,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
+#include <wsutil/u3.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
@@ -663,7 +664,11 @@ write_profile_recent(void)
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
-    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
+
+    if(u3_active())
+      fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", u3_contract_device_path(get_last_open_dir()));
+    else
+      fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
   }
 
   fclose(rf);
@@ -985,7 +990,10 @@ read_set_recent_pair_dynamic(gchar *key, const gchar *value,
     return PREFS_SET_SYNTAX_ERR;
   }
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
-    add_menu_recent_capture_file(value);
+    if (u3_active())
+      add_menu_recent_capture_file(u3_expand_device_path(value));
+    else
+      add_menu_recent_capture_file(value);
   } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
 	dfilter_combo_add_recent(value);
   } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {

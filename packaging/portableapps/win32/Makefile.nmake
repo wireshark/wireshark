@@ -19,6 +19,7 @@ NSIS_PLUGINS	= nsis-plugins
 FINDPROCDLL	= $(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)\FindProcDLL.dll
 
 TOPDIR		= ..\..\..
+U3DIST		= ..\..\u3\win32
 COPY		= xcopy
 MKDIR		= mkdir
 COPY_FLAGS	= /d /y

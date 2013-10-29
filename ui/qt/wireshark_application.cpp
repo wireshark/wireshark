@@ -146,7 +146,10 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
         /* get capture filename from the menu item label */
         cf_name = rii.previous()->filename;
         if (cf_name != NULL) {
-            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name.toUtf8().constData());
+//            if(u3_active())
+//                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+//            else
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name.toUtf8().constData());
         }
     }
 }
