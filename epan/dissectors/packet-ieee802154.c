@@ -2261,7 +2261,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
     /* link new mapping record to addr hash tables */
     if ( g_hash_table_lookup_extended(au_ieee802154_map->short_table, &addr16, &old_key, NULL) ) {
         /* update short addr hash table, reusing pointer to old key */
-        g_hash_table_insert(au_ieee802154_map->short_table, &old_key, p_map_rec);
+        g_hash_table_insert(au_ieee802154_map->short_table, old_key, p_map_rec);
     } else {
         /* create new hash entry */
         g_hash_table_insert(au_ieee802154_map->short_table, se_memdup(&addr16, sizeof(addr16)), p_map_rec);
@@ -2269,7 +2269,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
 
     if ( g_hash_table_lookup_extended(au_ieee802154_map->long_table, &long_addr, &old_key, NULL) ) {
         /* update long addr hash table, reusing pointer to old key */
-        g_hash_table_insert(au_ieee802154_map->long_table, &old_key, p_map_rec);
+        g_hash_table_insert(au_ieee802154_map->long_table, old_key, p_map_rec);
     } else {
         /* create new hash entry */
         g_hash_table_insert(au_ieee802154_map->long_table, se_memdup(&long_addr, sizeof(long_addr)), p_map_rec);
