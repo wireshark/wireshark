@@ -911,6 +911,178 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     return skips;
 }
 
+static gint
+dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, guint8 af_length,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint        af_start_offset;
+    proto_item *hi;
+    proto_tree *mp2t_af_tree;
+    guint8      af_flags;
+    gint        stuffing_len;
+
+
+    af_start_offset = offset;
+
+    hi = proto_tree_add_item( tree, hf_mp2t_af, tvb, offset, af_length, ENC_NA);
+    mp2t_af_tree = proto_item_add_subtree( hi, ett_mp2t_af );
+
+    af_flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_di, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_espi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_pcr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_opcr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_afe_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (af_flags &  MP2T_AF_PCR_MASK) {
+        guint64 pcr_base = 0;
+        guint32 pcr_ext = 0;
+        guint8 tmp;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        pcr_base = (pcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        pcr_base = (pcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        pcr_base = (pcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        pcr_base = (pcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        pcr_base = (pcr_base << 1) | ((tmp >> 7) & 0x01);
+        pcr_ext = (tmp & 0x01);
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        pcr_ext = (pcr_ext << 8) | tmp;
+        offset += 1;
+
+        proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6,
+                "Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
+                pcr_base, pcr_ext, pcr_base * 300 + pcr_ext);
+    }
+
+    if (af_flags &  MP2T_AF_OPCR_MASK) {
+        guint64 opcr_base = 0;
+        guint32 opcr_ext = 0;
+        guint8 tmp = 0;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        opcr_base = (opcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        opcr_base = (opcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        opcr_base = (opcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        opcr_base = (opcr_base << 8) | tmp;
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        opcr_base = (opcr_base << 1) | ((tmp >> 7) & 0x01);
+        opcr_ext = (tmp & 0x01);
+        offset += 1;
+
+        tmp = tvb_get_guint8(tvb, offset);
+        opcr_ext = (opcr_ext << 8) | tmp;
+        offset += 1;
+
+        proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6,
+                "Original Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
+                opcr_base, opcr_ext, opcr_base * 300 + opcr_ext);
+
+        offset += 6;
+    }
+
+    if (af_flags &  MP2T_AF_SP_MASK) {
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    if (af_flags &  MP2T_AF_TPD_MASK) {
+        guint8 tpd_len;
+
+        tpd_len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd, tvb, offset, tpd_len, ENC_NA);
+        offset += tpd_len;
+    }
+
+    if (af_flags &  MP2T_AF_AFE_MASK) {
+        guint8 e_len;
+        guint8 e_flags;
+        gint e_start_offset = offset;
+        gint reserved_len = 0;
+
+        e_len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        e_flags = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltw_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ss_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        if (e_flags & MP2T_AF_E_LTW_FLAG_MASK) {
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwv_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwo, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+
+        if (e_flags & MP2T_AF_E_PR_FLAG_MASK) {
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+        }
+
+        if (e_flags & MP2T_AF_E_SS_FLAG_MASK) {
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_st, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_32_30, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_29_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_14_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+
+        reserved_len = (e_len + 1) - (offset - e_start_offset);
+        if (reserved_len > 0) {
+            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved_bytes, tvb, offset, reserved_len, ENC_NA);
+            offset += reserved_len;
+        }
+    }
+
+    stuffing_len = af_length - (offset - af_start_offset);
+    if (stuffing_len > 0) {
+        proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_stuffing_bytes, tvb, offset, stuffing_len, ENC_NA);
+        offset += stuffing_len;
+    }
+
+    return offset-af_start_offset;
+}
 
 static void
 dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
@@ -918,6 +1090,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 {
     guint32              header;
     guint                afc;
+    guint8               af_length;
     gint                 start_offset = offset;
     volatile gint        payload_len;
     pid_analysis_data_t *pid_analysis;
@@ -934,7 +1107,6 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
     proto_item *item = NULL;
     proto_tree *mp2t_tree = NULL;
     proto_tree *mp2t_header_tree = NULL;
-    proto_tree *mp2t_af_tree = NULL;
     proto_tree *mp2t_analysis_tree = NULL;
     proto_item *afci = NULL;
 
@@ -998,17 +1170,8 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
     if (skips > 0)
         proto_item_append_text(ti, " skips=%d", skips);
 
-    if (afc == 2 || afc == 3)
-    {
-        gint af_start_offset = offset;
-
-        guint8 af_length;
-        guint8 af_flags;
-        gint stuffing_len;
-
-
+    if (afc == 2 || afc == 3) {
         af_length = tvb_get_guint8(tvb, offset);
-
         proto_tree_add_item( mp2t_tree, hf_mp2t_af_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         /* fix issues where afc==3 but af_length==0
@@ -1016,166 +1179,8 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
          *  stuffing byte in a Transport Stream packet. When the adaptation_field_control
          *  value is '11', the value of the adaptation_field_length shall be in the range 0 to 182.
          */
-        if (af_length > 0 ) {
-            hi = proto_tree_add_item( mp2t_tree, hf_mp2t_af, tvb, offset, af_length, ENC_NA);
-            mp2t_af_tree = proto_item_add_subtree( hi, ett_mp2t_af );
-
-            af_flags = tvb_get_guint8(tvb, offset);
-
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_di, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_espi, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_pcr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_opcr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_afe_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-            offset += 1;
-
-            if (af_flags &  MP2T_AF_PCR_MASK) {
-                guint64 pcr_base = 0;
-                guint32 pcr_ext = 0;
-                guint8 tmp;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                pcr_base = (pcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                pcr_base = (pcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                pcr_base = (pcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                pcr_base = (pcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                pcr_base = (pcr_base << 1) | ((tmp >> 7) & 0x01);
-                pcr_ext = (tmp & 0x01);
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                pcr_ext = (pcr_ext << 8) | tmp;
-                offset += 1;
-
-                proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6,
-                        "Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
-                        pcr_base, pcr_ext, pcr_base * 300 + pcr_ext);
-            }
-
-            if (af_flags &  MP2T_AF_OPCR_MASK) {
-                guint64 opcr_base = 0;
-                guint32 opcr_ext = 0;
-                guint8 tmp = 0;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                opcr_base = (opcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                opcr_base = (opcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                opcr_base = (opcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                opcr_base = (opcr_base << 8) | tmp;
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                opcr_base = (opcr_base << 1) | ((tmp >> 7) & 0x01);
-                opcr_ext = (tmp & 0x01);
-                offset += 1;
-
-                tmp = tvb_get_guint8(tvb, offset);
-                opcr_ext = (opcr_ext << 8) | tmp;
-                offset += 1;
-
-                proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6,
-                        "Original Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
-                        opcr_base, opcr_ext, opcr_base * 300 + opcr_ext);
-
-                offset += 6;
-            }
-
-            if (af_flags &  MP2T_AF_SP_MASK) {
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sc, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-            }
-
-            if (af_flags &  MP2T_AF_TPD_MASK) {
-                guint8 tpd_len;
-
-                tpd_len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd, tvb, offset, tpd_len, ENC_NA);
-                offset += tpd_len;
-            }
-
-            if (af_flags &  MP2T_AF_AFE_MASK) {
-                guint8 e_len;
-                guint8 e_flags;
-                gint e_start_offset = offset;
-                gint reserved_len = 0;
-
-                e_len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-
-                e_flags = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltw_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ss_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-
-                if (e_flags & MP2T_AF_E_LTW_FLAG_MASK) {
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwv_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwo, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                }
-
-                if (e_flags & MP2T_AF_E_PR_FLAG_MASK) {
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr, tvb, offset, 3, ENC_BIG_ENDIAN);
-                    offset += 3;
-                }
-
-                if (e_flags & MP2T_AF_E_SS_FLAG_MASK) {
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_st, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_32_30, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_29_15, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_2, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_14_0, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_3, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                }
-
-                reserved_len = (e_len + 1) - (offset - e_start_offset);
-                if (reserved_len > 0) {
-                    proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved_bytes, tvb, offset, reserved_len, ENC_NA);
-                    offset += reserved_len;
-                }
-            }
-
-            stuffing_len = (af_length + 1) - (offset - af_start_offset);
-            if (stuffing_len > 0) {
-                proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_stuffing_bytes, tvb, offset, stuffing_len, ENC_NA);
-                offset += stuffing_len;
-            }
-        }
+        if (af_length>0)
+            offset += dissect_mp2t_adaptation_field(tvb, offset, af_length, pinfo, mp2t_tree);
     }
 
     if ((offset - start_offset) < MP2T_PACKET_SIZE)
