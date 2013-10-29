@@ -4303,7 +4303,7 @@ int
 proto_register_protocol(const char *name, const char *short_name,
 			const char *filter_name)
 {
-	protocol_t *protocol;
+	protocol_t *protocol, *existing_protocol = NULL;
 	header_field_info *hfinfo;
 	int proto_id;
 	char *existing_name;
@@ -4358,12 +4358,11 @@ proto_register_protocol(const char *name, const char *short_name,
 			" Allowed are lower characters, digits, '-', '_' and '.'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
-	existing_name = (char *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
-	if (existing_name != NULL) {
+	existing_protocol = (protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
+	if (existing_protocol != NULL) {
 		g_error("Duplicate protocol filter_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
-	g_hash_table_insert(proto_filter_names, (gpointer)filter_name, (gpointer)filter_name);
 
 	/* Add this protocol to the list of known protocols; the list
 	   is sorted by protocol short name. */
@@ -4377,6 +4376,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->is_private = FALSE;
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
+	g_hash_table_insert(proto_filter_names, (gpointer)filter_name, protocol);
 
 	/* Here we allocate a new header_field_info struct */
 	hfinfo = g_slice_new(header_field_info);
@@ -4510,20 +4510,17 @@ proto_get_id(const protocol_t *protocol)
 
 int proto_get_id_by_filter_name(const gchar* filter_name)
 {
-	GList      *list_entry;
-	protocol_t *protocol;
+	protocol_t *protocol = NULL;
 
 	if(!filter_name){
 		fprintf(stderr, "No filter name present");
 		DISSECTOR_ASSERT(filter_name);
 	}
 
-	list_entry = g_list_find_custom(protocols, filter_name,
-		compare_filter_name);
+	protocol = (protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
 
-	if (list_entry == NULL)
+	if (protocol == NULL)
 		return -1;
-	protocol = (protocol_t *)list_entry->data;
 	return protocol->proto_id;
 }
 
