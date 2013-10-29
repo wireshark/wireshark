@@ -469,7 +469,8 @@ static const value_string enip_elink_iflags_neg_status_vals[] = {
    { 0,  "Auto-negotiation in progress"                                 },
    { 1,  "Auto-negotiation and speed detection failed"                  },
    { 2,  "Auto-negotiation failed but detected speed"                   },
-   { 3,  "Auto-negotiation not attempted.  Forced speed and duplex."    },
+   { 3,  "Successfully negotiatied speed and duplex"                    },
+   { 4,  "Auto-negotiation not attempted.  Forced speed and duplex"     },
 
    { 0,  NULL                                                           }
 };
@@ -617,8 +618,8 @@ static const value_string dlr_flush_learning_update_vals[] = {
 };
 
 static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
-    "Link_Status Frame",
-    "Neighbor_Status Frame"
+    "Neighbor_Status Frame",
+    "Link_Status Frame"
 };
 
 static GHashTable *enip_request_hashtable = NULL;
@@ -1258,6 +1259,7 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
 
 {
    tvbuff_t *next_tvb;
+   gboolean  save_info;
 
    if (total_len < 35)
    {
@@ -1271,10 +1273,15 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
    if( tvb_get_guint8(tvb, offset) == 0 )
       proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_LITTLE_ENDIAN);
    else
-   {
-      /* Call ARP dissector */
+   { 
+      /* Dissect ARP PDU, but don't have it change column info */
+      save_info = col_get_writable(pinfo->cinfo);
+      col_set_writable(pinfo->cinfo, FALSE);
+
       next_tvb = tvb_new_subset(tvb, offset+7, 28, 28);
       call_dissector(arp_handle, next_tvb, pinfo, tree);
+
+      col_set_writable(pinfo->cinfo, save_info);
    }
 
    return 35;

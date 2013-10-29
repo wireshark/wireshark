@@ -81,8 +81,19 @@ Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
- * "Follow TCP Stream" shows only the first HTTP req+res. (ws-buglink:9044[])
- * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
+
+* Wrong Interpretation of GTS starting slot. (ws-buglink:8946[])
+
+* "Follow TCP Stream" shows only the first HTTP req+res. (ws-buglink:9044[])
+
+* The value of 'SEND_TO_UE' in the DIAMETER Gx dictionary for Packet-Filter-Usage AVP is 0
+instead of 1. (ws-buglink:9126[])
+
+* Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
+
+* Bssgp =>  SGSN-INVOKE-TRACE use the wrong function... (ws-buglink:9157[])
+
+* Minor correction to dissection of DLR frames in Ethernet/IP dissector. (ws-buglink:9186[])
 
 === New and Updated Features
 
@@ -96,10 +107,14 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+BSSGP
+DIAMETER
+EtherNet/IP
 IEEE 802.15.4
 NBAP
 OpenWire
 SIP
+TCP
 
 --sort-and-group--
 
