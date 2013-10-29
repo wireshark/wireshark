@@ -887,47 +887,22 @@ get_datafile_dir(void)
         datafile_dir = "C:\\Program Files\\Wireshark\\";
     }
 #else
+
     if (running_in_build_directory_flag) {
         /*
          * We're (probably) being run from the build directory and
          * weren't started with special privileges.
          *
-         * The data files we want are the ones from the source
-         * directory; to handle builds out of the source tree,
-         * we check whether WIRESHARK_SRC_DIR is set and, if so,
-         * use that as the source directory.
+         * (running_in_build_directory_flag is never set to TRUE
+         * if we're started with special privileges, so we need
+         * only check it; we don't need to call started_with_special_privs().)
+         *
+         * Use the top-level source directory as the datafile directory
+         * because most of our data files (radius/, COPYING) are there.
          */
-        datafile_dir = getenv("WIRESHARK_SRC_DIR");
-        if (datafile_dir != NULL)
-            return datafile_dir;
-    }
-
-    /*
-     * Well, that didn't work.
-     * Check again whether we were (probably) run from the build
-     * directory and started without special privileges, and also
-     * check whether we were able to determine the directory in
-     * which the program was found.
-     *
-     * (running_in_build_directory_flag is never set to TRUE
-     * if we're started with special privileges, so we need
-     * only check it; we don't need to call started_with_special_privs().)
-     */
-    if (running_in_build_directory_flag && progfile_dir != NULL) {
-        /*
-         * We're (probably) being run from the build directory and
-         * weren't started with special privileges, and we were
-         * able to determine the directory in which the program
-         * was found.  Assume that directory is the build
-         * directory and that it's the same as the source
-         * directory.
-         */
-        datafile_dir = progfile_dir;
+        datafile_dir = g_strdup(TOP_SRCDIR);
+        return datafile_dir;
     } else {
-        /*
-         * Return the directory specified when the build was
-         * configured, prepending the run path prefix if it exists.
-         */
         if (getenv("WIRESHARK_DATA_DIR") && !started_with_special_privs()) {
             /*
              * The user specified a different directory for data files
@@ -1134,10 +1109,10 @@ init_plugin_dir(void)
         /*
          * We're (probably) being run from the build directory and
          * weren't started with special privileges, so we'll use
-         * the "plugins" subdirectory of the datafile directory
-         * (the datafile directory is the build directory).
+         * the "plugins" subdirectory of the directory where the program
+         * we're running is (that's the build directory).
          */
-        plugin_dir = g_strdup_printf("%s/plugins", get_datafile_dir());
+        plugin_dir = g_strdup_printf("%s/plugins", get_progfile_dir());
     } else {
         if (getenv("WIRESHARK_PLUGIN_DIR") && !started_with_special_privs()) {
             /*
@@ -1848,8 +1823,15 @@ filesystem_opt(int opt _U_, const char *optstr)
 char *
 get_datafile_path(const char *filename)
 {
-
-    return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(), filename);
+    if (running_in_build_directory_flag && !strcmp(filename, "AUTHORS-SHORT")) {
+        /* We're running in the build directory and the requested file is a
+         * generated file.  Return the file name in the build directory (not
+         * in the source/data directory).
+         */
+        return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_progfile_dir(), filename);
+    } else {
+        return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(), filename);
+    }
 }
 
 /* Get the personal plugin dir */

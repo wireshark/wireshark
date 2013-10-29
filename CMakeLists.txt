@@ -641,6 +641,8 @@ endif()
 include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
 
+add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
+
 if(APPLE)
 	#
 	# We assume that APPLE means OS X so that we have the OS X

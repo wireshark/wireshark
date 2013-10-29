@@ -1673,6 +1673,8 @@ if(NOT ${ENABLE_STATIC})
 	)
 endif()
 
+add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
