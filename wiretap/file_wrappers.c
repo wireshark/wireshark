@@ -1316,7 +1316,8 @@ int
 file_error(FILE_T fh, gchar **err_info)
 {
 	if (fh->err != 0) {
-		*err_info = (fh->err_info == NULL) ? NULL : g_strdup(fh->err_info);
+		if (err_info)
+			*err_info = (fh->err_info == NULL) ? NULL : g_strdup(fh->err_info);
 		return fh->err;
 	}
 	return 0;
