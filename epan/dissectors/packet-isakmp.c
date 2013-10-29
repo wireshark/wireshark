@@ -4604,7 +4604,7 @@ dissect_enc(tvbuff_t *tvb,
 #else
             packet_info *pinfo _U_,
             guint8 inner_payload _U_,
-            void* decr_info)
+            void* decr_info _U_)
 #endif
 {
 #ifdef HAVE_LIBGCRYPT
