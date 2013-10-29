@@ -4444,9 +4444,7 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int       offset = 0;
     tvbuff_t *next_tvb;
     guint16   ext_id;
-    void *save_private_data = pinfo->private_data;
 
-    pinfo->private_data =  GUINT_TO_POINTER((guint32)instance);
     /* oct 5 -7 Enterprise ID */
     ext_id = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4455,11 +4453,9 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
 
     next_tvb = tvb_new_subset(tvb, offset, length-2, length-2);
-    if (dissector_try_uint(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree)){
-        pinfo->private_data = save_private_data;
+    if (dissector_try_uint_new(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER((guint32)instance))){
         return;
     }
-    pinfo->private_data = save_private_data;
 
     proto_tree_add_text(tree, tvb, offset, length-2, "Proprietary value");
 }
