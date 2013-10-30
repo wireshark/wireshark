@@ -1152,7 +1152,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 	dtbl_entry->initial = dtbl_entry->current;
 
 	/* do the table insertion */
-	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
+	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)g_strdup(pattern),
 			     (gpointer)dtbl_entry);
 
 	/*
@@ -1228,7 +1228,7 @@ dissector_change_string(const char *name, const gchar *pattern,
 	dtbl_entry->current = handle;
 
 	/* do the table insertion */
-	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
+	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)g_strdup(pattern),
 			     (gpointer)dtbl_entry);
 }
 
@@ -1671,7 +1671,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 	case FT_STRINGZ:
 		sub_dissectors->hash_table = g_hash_table_new_full( g_str_hash,
 							       g_str_equal,
-							       NULL,
+							       &g_free,
 							       &g_free );
 		break;
 
