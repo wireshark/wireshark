@@ -113,6 +113,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
 
+    connect(wsApp, SIGNAL(recentFilesRead()), this, SLOT(loadWindowGeometry()));
+
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
 
@@ -428,9 +430,9 @@ void MainWindow::loadWindowGeometry()
 
     // Note that we're saving and restoring the outer window frame
     // position and the inner client area size.
-    if (prefs.gui_geometry_save_position) {
+//    if (prefs.gui_geometry_save_position) {
         shadow_main.move(recent.gui_geometry_main_x, recent.gui_geometry_main_y);
-    }
+//    }
 
     // XXX Preferences haven't been loaded at this point. For now we
     // assume default (true) values for everything.
@@ -445,7 +447,7 @@ void MainWindow::loadWindowGeometry()
     QByteArray geom = shadow_main.saveGeometry();
 
 #ifndef Q_OS_MAC
-    if (prefs.gui_geometry_save_maximized && recent.gui_geometry_main_maximized) {
+    if (/* prefs.gui_geometry_save_maximized && */ recent.gui_geometry_main_maximized) {
         setWindowState(Qt::WindowMaximized);
     } else
 #endif

@@ -1116,7 +1116,6 @@ void MainWindow::setFeaturesEnabled(bool enabled)
     if(enabled)
     {
         main_ui_->statusBar->clearMessage();
-        loadWindowGeometry();
     }
     else
     {

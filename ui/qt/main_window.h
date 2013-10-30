@@ -129,7 +129,6 @@ private:
     QSocketNotifier *pipe_notifier_;
 #endif
 
-    void loadWindowGeometry();
     void saveWindowGeometry();
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
@@ -193,6 +192,7 @@ private slots:
     void pipeNotifierDestroyed();
     void stopCapture();
 
+    void loadWindowGeometry();
     void updateRecentFiles();
     void recentActionTriggered();
     void setMenusForFollowStream();

@@ -624,6 +624,7 @@ int main(int argc, char *argv[])
                       "Could not open common recent file\n\"%s\": %s.",
                       rf_path, strerror(rf_open_errno));
     }
+    wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
 
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {

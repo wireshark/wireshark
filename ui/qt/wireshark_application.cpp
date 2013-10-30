@@ -610,6 +610,9 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case PacketDissectionChanged:
         emit packetDissectionChanged();
         break;
+    case StaticRecentFilesRead:
+        emit recentFilesRead();
+        break;
     default:
         break;
     }

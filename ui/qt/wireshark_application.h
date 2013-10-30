@@ -66,7 +66,8 @@ public:
         ColumnsChanged,
         FilterExpressionsChanged,
         PacketDissectionChanged,
-        PreferencesChanged
+        PreferencesChanged,
+        StaticRecentFilesRead
     };
 
     void registerUpdate(register_action_e action, const char *message);
@@ -102,6 +103,7 @@ protected:
 signals:
     void appInitialized();
     void openCaptureFile(QString &cf_path);
+    void recentFilesRead();
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
     void configurationProfileChanged(const gchar *profile_name);
