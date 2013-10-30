@@ -567,7 +567,7 @@ static const ber_sequence_t RTORJapdu_set[] = {
 int
 dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 140 "../../asn1/rtse/rtse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Refuse");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Refuse");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               RTORJapdu_set, hf_index, ett_rtse_RTORJapdu);
@@ -585,7 +585,7 @@ dissect_rtse_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 #line 130 "../../asn1/rtse/rtse.cnf"
   int priority = -1;
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &priority);
@@ -690,7 +690,7 @@ static const ber_sequence_t RTABapdu_set[] = {
 int
 dissect_rtse_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 156 "../../asn1/rtse/rtse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Abort");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               RTABapdu_set, hf_index, ett_rtse_RTABapdu);

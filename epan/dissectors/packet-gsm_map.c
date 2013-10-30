@@ -16241,7 +16241,7 @@ dissect_gsm_old_GSMMAPOperationLocalvalue(gboolean implicit_tag _U_, tvbuff_t *t
                                                 &opcode);
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 
 
 
@@ -19719,8 +19719,8 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   /* Get the length and add 2 */
   gsm_map_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
-  col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP Component"));
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP Component"));
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
   offset = dissect_gsm_old_Component(FALSE, tvb, 0, actx, tree, hf_gsm_map_old_Component_PDU);
 /*
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
