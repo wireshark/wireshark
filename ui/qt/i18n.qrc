@@ -22,6 +22,7 @@
         <file>qtshark_de.qm</file>
         <file>qtshark_en.qm</file>
         <file>qtshark_fr.qm</file>
+        <file>qtshark_pl.qm</file>
         <file>qtshark_zh_CN.qm</file>
     </qresource>
 </RCC>

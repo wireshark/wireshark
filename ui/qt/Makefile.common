@@ -260,6 +260,7 @@ TS_FILES =	\
 	qtshark_de.ts	\
 	qtshark_en.ts	\
 	qtshark_fr.ts	\
+	qtshark_pl.ts	\
 	qtshark_zh_CN.ts
 
 #
@@ -270,6 +271,7 @@ QM_FILES =	\
 	qtshark_de.qm	\
 	qtshark_en.qm	\
 	qtshark_fr.qm	\
+	qtshark_pl.qm	\
 	qtshark_zh_CN.qm
 
 #

@@ -335,6 +335,11 @@
          <string>Chinese</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Polski</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
