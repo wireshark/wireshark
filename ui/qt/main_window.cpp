@@ -43,6 +43,7 @@
 #include "ui/alert_box.h"
 #include "ui/capture_globals.h"
 #include "ui/main_statusbar.h"
+#include "ui/recent.h"
 #include "ui/util.h"
 
 #include "wireshark_application.h"
@@ -54,13 +55,15 @@
 
 #include "qt_ui_utils.h"
 
-#include <QTreeWidget>
-#include <QTabWidget>
 #include <QAction>
-#include <QToolButton>
+#include <QDesktopWidget>
 #include <QKeyEvent>
-#include <QMetaObject>
 #include <QMessageBox>
+#include <QMetaObject>
+#include <QPropertyAnimation>
+#include <QTabWidget>
+#include <QToolButton>
+#include <QTreeWidget>
 
 #ifdef QT_MACEXTRAS_LIB
 #include <QtMacExtras/QMacNativeToolBar>
@@ -389,8 +392,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-   /* If we're in the middle of stopping a capture, don't do anything;
-      the user can try deleting the window after the capture stops. */
+    saveWindowGeometry();
+
+    /* If we're in the middle of stopping a capture, don't do anything;
+       the user can try deleting the window after the capture stops. */
     if (capture_stopping_) {
         event->ignore();
         return;
@@ -399,17 +404,88 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     // Make sure we kill any open dumpcap processes.
     delete main_welcome_;
 
-    if(testCaptureFileClose(true)) {
-        /* QCoreApplication::quit() won't exit properly
-             * because when during initialization phase we are not in the event loop */
+    if(!wsApp->isInitialized()) {
+        // If we're still initializing, QCoreApplication::quit() won't
+        // exit properly because we are not in the event loop. This
+        // means that the application won't clean up after itself. We
+        // might want to call wsApp->processEvents() during startup
+        // instead so that we can do a normal exit here.
         exit(0);
     }
-    else
-    {
-        event->ignore();
-        return;
+}
+
+const int min_sensible_dimension = 200;
+const int geom_animation_duration = 150;
+void MainWindow::loadWindowGeometry()
+{
+    QWidget shadow_main(wsApp->desktop());
+    shadow_main.setVisible(false);
+
+    // Start off with the Widget defaults
+    shadow_main.restoreGeometry(saveGeometry());
+
+    // Apply any saved settings
+
+    // Note that we're saving and restoring the outer window frame
+    // position and the inner client area size.
+    if (prefs.gui_geometry_save_position) {
+        shadow_main.move(recent.gui_geometry_main_x, recent.gui_geometry_main_y);
     }
 
+    // XXX Preferences haven't been loaded at this point. For now we
+    // assume default (true) values for everything.
+
+    if (// prefs.gui_geometry_save_size &&
+            recent.gui_geometry_main_width > min_sensible_dimension &&
+            recent.gui_geometry_main_width > min_sensible_dimension) {
+        shadow_main.resize(recent.gui_geometry_main_width, recent.gui_geometry_main_height);
+    }
+
+    // Let Qt move and resize our window if needed (e.g. if it's offscreen)
+    QByteArray geom = shadow_main.saveGeometry();
+
+    if (strlen (get_conn_cfilter()) > 0) {
+        QPropertyAnimation *pos_anim = new QPropertyAnimation(this, "pos");
+        QPropertyAnimation *size_anim = new QPropertyAnimation(this, "size");
+
+        shadow_main.restoreGeometry(geom);
+
+        pos_anim->setDuration(geom_animation_duration);
+        pos_anim->setStartValue(pos());
+        pos_anim->setEndValue(shadow_main.pos());
+        size_anim->setDuration(geom_animation_duration);
+        size_anim->setStartValue(size());
+        size_anim->setEndValue(shadow_main.size());
+
+        pos_anim->start(QAbstractAnimation::DeleteWhenStopped);
+        size_anim->start(QAbstractAnimation::DeleteWhenStopped);
+    } else {
+        restoreGeometry(geom);
+    }
+
+#ifndef Q_OS_MAC
+    if (prefs.gui_geometry_save_maximized && recent.gui_geometry_main_maximized) {
+        setWindowState(Qt::WindowMaximized);
+    }
+#endif
+}
+
+void MainWindow::saveWindowGeometry()
+{
+    if (prefs.gui_geometry_save_position) {
+        recent.gui_geometry_main_x = pos().x();
+        recent.gui_geometry_main_y = pos().y();
+    }
+
+    if (prefs.gui_geometry_save_size) {
+        recent.gui_geometry_main_width = size().width();
+        recent.gui_geometry_main_height = size().height();
+    }
+
+    if (prefs.gui_geometry_save_maximized) {
+        // On OS X this is false when it shouldn't be
+        recent.gui_geometry_main_maximized = isMaximized();
+    }
 }
 
 QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {

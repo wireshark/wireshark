@@ -68,8 +68,6 @@ struct remote_host_t {
     gboolean nocap_local;
 };
 
-extern gboolean main_do_quit(void);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

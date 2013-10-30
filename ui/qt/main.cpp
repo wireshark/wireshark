@@ -169,25 +169,19 @@ void main_window_update(void)
     WiresharkApplication::processEvents();
 }
 
-/* exit the main window */
-void main_window_exit(void)
-{
-    exit(0);
-}
-
 #ifdef HAVE_LIBPCAP
 
 /* quit a nested main window */
 void main_window_nested_quit(void)
 {
 //    if (gtk_main_level() > 0)
-    WiresharkApplication::quit();
+    wsApp->quit();
 }
 
 /* quit the main window */
 void main_window_quit(void)
 {
-    WiresharkApplication::quit();
+    wsApp->quit();
 }
 
 #endif /* HAVE_LIBPCAP */

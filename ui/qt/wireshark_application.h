@@ -85,6 +85,7 @@ public:
     void setMonospaceFont(const char *font_string);
     int monospaceTextSize(const char *str, bool bold = false);
     void setConfigurationProfile(const gchar *profile_name);
+    bool isInitialized() { return initialized_; }
 
 private:
     void prefsToCaptureOpts();

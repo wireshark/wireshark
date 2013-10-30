@@ -154,14 +154,6 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     }
 }
 
-
-
-extern gboolean main_do_quit(void) {
-    WiresharkApplication::quit();
-    return FALSE;
-}
-
-//
 void WiresharkApplication::refreshRecentFiles(void) {
     recent_item_status *ri;
     RecentFileStatus *rf_status;
@@ -539,6 +531,10 @@ void WiresharkApplication::clearRecentItems() {
 void WiresharkApplication::cleanup()
 {
     software_update_cleanup();
+    /* write user's recent file to disk
+     * It is no problem to write this file, even if we do not quit */
+    write_profile_recent();
+    write_recent();
 }
 
 void WiresharkApplication::itemStatusFinished(const QString &filename, qint64 size, bool accessible) {
@@ -592,7 +588,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     connect(recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recent_timer_->start(2000);
 
-    connect(this, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 }
 
 void WiresharkApplication::registerUpdate(register_action_e action, const char *message)

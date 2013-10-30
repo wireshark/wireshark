@@ -129,7 +129,10 @@ private:
     QSocketNotifier *pipe_notifier_;
 #endif
 
+    void loadWindowGeometry();
+    void saveWindowGeometry();
     QWidget* getLayoutWidget(layout_pane_content_e type);
+
     void mergeCaptureFile();
     void importCaptureFile();
     void saveCaptureFile(capture_file *cf, bool stay_closed);

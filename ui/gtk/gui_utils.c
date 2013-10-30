@@ -548,13 +548,6 @@ main_window_update(void)
         gtk_main_iteration();
 }
 
-/* exit the main window */
-void
-main_window_exit(void)
-{
-    exit(0);
-}
-
 #ifdef HAVE_LIBPCAP
 
 /* quit a nested main window */
@@ -571,8 +564,6 @@ main_window_quit(void)
 {
     gtk_main_quit();
 }
-
-
 
 typedef struct pipe_input_tag {
     gint             source;
