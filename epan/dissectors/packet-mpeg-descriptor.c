@@ -1930,14 +1930,16 @@ proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, 
 /* 0x5F Private Data Specifier */
 static int hf_mpeg_descr_private_data_specifier_id = -1;
 
-#define PRIVATE_DATA_SPECIFIER_RESERVED   0x00000000
-#define PRIVATE_DATA_SPECIFIER_NORDIG     0x00000029
-#define PRIVATE_DATA_SPECIFIER_CIPLUS_LLP 0x00000040
+#define PRIVATE_DATA_SPECIFIER_RESERVED    0x00000000
+#define PRIVATE_DATA_SPECIFIER_NORDIG      0x00000029
+#define PRIVATE_DATA_SPECIFIER_CIPLUS_LLP  0x00000040
+#define PRIVATE_DATA_SPECIFIER_EUTELSAT_SA 0x0000055F
 
 static const value_string mpeg_descr_data_specifier_id_vals[] = {
     { PRIVATE_DATA_SPECIFIER_RESERVED,   "reserved" },
     { PRIVATE_DATA_SPECIFIER_NORDIG,     "NorDig" },
     { PRIVATE_DATA_SPECIFIER_CIPLUS_LLP, "CI+ LLP" },
+    { PRIVATE_DATA_SPECIFIER_EUTELSAT_SA, "Eutelsat S.A." },
     /* See dvbservices.com for complete and current list */
 
     { 0, NULL }
