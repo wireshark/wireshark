@@ -444,6 +444,11 @@ void MainWindow::loadWindowGeometry()
     // Let Qt move and resize our window if needed (e.g. if it's offscreen)
     QByteArray geom = shadow_main.saveGeometry();
 
+#ifndef Q_OS_MAC
+    if (prefs.gui_geometry_save_maximized && recent.gui_geometry_main_maximized) {
+        setWindowState(Qt::WindowMaximized);
+    } else
+#endif
     if (strlen (get_conn_cfilter()) < 1) {
         QPropertyAnimation *pos_anim = new QPropertyAnimation(this, "pos");
         QPropertyAnimation *size_anim = new QPropertyAnimation(this, "size");
@@ -463,11 +468,6 @@ void MainWindow::loadWindowGeometry()
         restoreGeometry(geom);
     }
 
-#ifndef Q_OS_MAC
-    if (prefs.gui_geometry_save_maximized && recent.gui_geometry_main_maximized) {
-        setWindowState(Qt::WindowMaximized);
-    }
-#endif
 }
 
 void MainWindow::saveWindowGeometry()
