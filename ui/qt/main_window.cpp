@@ -444,7 +444,7 @@ void MainWindow::loadWindowGeometry()
     // Let Qt move and resize our window if needed (e.g. if it's offscreen)
     QByteArray geom = shadow_main.saveGeometry();
 
-    if (strlen (get_conn_cfilter()) > 0) {
+    if (strlen (get_conn_cfilter()) < 1) {
         QPropertyAnimation *pos_anim = new QPropertyAnimation(this, "pos");
         QPropertyAnimation *size_anim = new QPropertyAnimation(this, "size");
 
