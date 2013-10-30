@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
- * $Id: sctp_stat.h 52814 2013-10-24 14:32:22Z tuexen $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,8 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __TAP_SCTP_ANALYSIS_H__ 
-#define __TAP_SCTP_ANALYSIS_H__ 
+#ifndef __TAP_SCTP_ANALYSIS_H__
+#define __TAP_SCTP_ANALYSIS_H__
 
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
@@ -52,7 +52,7 @@
 #define SCTP_ECNE_CHUNK_ID              12
 #define SCTP_CWR_CHUNK_ID               13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_AUTH_CHUNK_ID              15 
+#define SCTP_AUTH_CHUNK_ID              15
 #define SCTP_NR_SACK_CHUNK_ID           16
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xc0
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
@@ -312,5 +312,5 @@ const sctp_assoc_info_t* get_selected_assoc(void);
 
 
 
- 
+
 #endif /* __TAP_SCTP_ANALYSIS_H__ */

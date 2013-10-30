@@ -1,7 +1,7 @@
 /*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
- * $Id: sctp_stat.c 52814 2013-10-24 14:32:22Z tuexen $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -800,9 +800,9 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						forwardchunk = TRUE;
 						length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET);
 						info->n_forward_chunks++;
-					}			
+					}
 					if (datachunk || forwardchunk)
-					{		
+					{
 
 						tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], DATA_CHUNK_TSN_OFFSET);
 						if (tsnumber < info->min_tsn1)
@@ -1147,7 +1147,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						info->n_forward_chunks++;
 					}
 					tsn->tsns = g_list_append(tsn->tsns, t_s_n);
-					
+
 					tsn_s = (struct tsn_sort *)g_malloc(sizeof(struct tsn_sort));
 					tsn_s->tsnumber = tsnumber;
 					tsn_s->secs  = tsn->secs = (guint32)pinfo->rel_ts.secs;
@@ -1367,7 +1367,7 @@ const sctp_allassocs_info_t* sctp_stat_get_info(void)
 }
 
 
-/*static void 
+/*static void
 sctp_update(void *dummy _U_)
 {
 	if (get_stat_dlg()!=NULL)
