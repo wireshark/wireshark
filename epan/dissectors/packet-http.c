@@ -2366,12 +2366,14 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (!hf_id) {
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
-					proto_tree_add_string_format(tree,
+					it = proto_tree_add_item(tree,
 						http_type == HTTP_RESPONSE ?
 						hf_http_response_line :
 						hf_http_request_line,
-						tvb, offset, len, line, "%s",
-						format_text(line, len));
+						tvb, offset, len,
+						ENC_NA|ENC_ASCII);
+					proto_item_set_text(it, "%s",
+							format_text(line, len));
 				} else {
 					proto_tree_add_text(tree, tvb, offset,
 						len, "%s", format_text(line, len));
@@ -2383,12 +2385,14 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					value, "%s", format_text(line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
-					it = proto_tree_add_string_format(tree,
+					it = proto_tree_add_item(tree,
 						http_type == HTTP_RESPONSE ?
 						hf_http_response_line :
 						hf_http_request_line,
-						tvb, offset, len, line, "%s",
-						format_text(line, len));
+						tvb, offset, len,
+						ENC_NA|ENC_ASCII);
+					proto_item_set_text(it, "%s",
+							format_text(line, len));
 					PROTO_ITEM_SET_HIDDEN(it);
 				}
 			}
@@ -2416,11 +2420,13 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				hdr_item = proto_tree_add_uint(tree, *headers[hf_index].hf, tvb, offset, len, tmp);
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
-					it = proto_tree_add_string_format(tree,
+					it = proto_tree_add_item(tree,
 						http_type == HTTP_RESPONSE ?
 						hf_http_response_line :
 						hf_http_request_line,
-						tvb, offset, len, line, "%d", tmp);
+						tvb, offset, len,
+						ENC_NA|ENC_ASCII);
+					proto_item_set_text(it, "%d", tmp);
 					PROTO_ITEM_SET_HIDDEN(it);
 				}
 				break;
@@ -2430,12 +2436,14 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				    value, "%s", format_text(line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
-					it = proto_tree_add_string_format(tree,
+					it = proto_tree_add_item(tree,
 						http_type == HTTP_RESPONSE ?
 						hf_http_response_line :
 						hf_http_request_line,
-						tvb, offset, len, line, "%s",
-						format_text(line, len));
+						tvb, offset, len,
+						ENC_NA|ENC_ASCII);
+					proto_item_set_text(it, "%s",
+							format_text(line, len));
 					PROTO_ITEM_SET_HIDDEN(it);
 				}
 			}
