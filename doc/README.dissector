@@ -1332,7 +1332,7 @@ proto_register_*() function) and a value.  The value will be fetched
 from the tvbuff by proto_tree_add_item(), based on the type of the field
 and the encoding of the value as specified by the "encoding" argument.
 
-For FT_NONE, FT_BYTES, FT_ETHER, FT_IPv6, FT_IPXNET, FT_OID, FT_REL_OID 
+For FT_NONE, FT_BYTES, FT_ETHER, FT_IPv6, FT_IPXNET, FT_OID, FT_REL_OID
 fields, and 'protocol' fields the encoding is not relevant; the 'encoding'
 argument should be ENC_NA (Not Applicable).
 
@@ -1506,7 +1506,8 @@ For proto_tree_add_ether(), the 'value_ptr' argument is a pointer to a
 48-bit MAC address.
 
 For proto_tree_add_string(), the 'value_ptr' argument is a pointer to a
-text string.
+text string; this string must be NULL terminated even if the string in the
+TVB is not (as may be the case with FT_STRINGs).
 
 For proto_tree_add_boolean(), the 'value' argument is a 32-bit integer.
 It is masked and shifted as defined by the field info after which zero
