@@ -1093,9 +1093,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     struct pdcp_lte_info *p_pdcp_info;
     rohc_info            *p_rohc_info;
     tvbuff_t             *rohc_tvb            = NULL;
-    pdcp_security_info_t *pdu_security;
+    pdcp_security_info_t *current_security;   /* current security for this UE */
+    pdcp_security_info_t *pdu_security;       /* security in place for this PDU */
 
-    /* Append this protocol name rather than replace. */
+
+    /* Set protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
     /* Look for attached packet info! */
@@ -1126,6 +1128,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Set mode string */
     mode = val_to_str_const(p_pdcp_info->mode, rohc_mode_vals, "Error");
 
+    /*****************************************************/
     /* Show configuration (attached packet) info in tree */
     if (pdcp_tree) {
         show_pdcp_config(pinfo, tvb, pdcp_tree, p_pdcp_info);
@@ -1136,7 +1139,58 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         col_append_fstr(pinfo->cinfo, COL_INFO, " (mode=%c)", mode[0]);
     }
 
+    /***************************************/
+    /* UE security algorithms              */
+    if (!pinfo->fd->flags.visited) {
+        /* Look up current state by UEID */
+        current_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_hash,
+                                                                                            GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
+        if (current_security != NULL) {
+            /* Store any result for this frame in the result table */
+            pdcp_security_info_t *security_to_store = wmem_new(wmem_file_scope(), pdcp_security_info_t);
+            *security_to_store = *current_security;
+            g_hash_table_insert(pdcp_security_result_hash,
+                                get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, TRUE),
+                                security_to_store);
+        }
+    }
+    /* Show security settings for this PDU */
+    pdu_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
+    if (pdu_security != NULL) {
+        proto_tree *security_tree;
+        proto_item *security_ti, *ti;
 
+        /* Create subtree */
+        security_ti = proto_tree_add_string_format(pdcp_tree,
+                                                   hf_pdcp_lte_security,
+                                                   tvb, 0, 0,
+                                                   "", "UE Security");
+        security_tree = proto_item_add_subtree(security_ti,
+                                               ett_pdcp_security);
+        PROTO_ITEM_SET_GENERATED(security_ti);
+
+        /* Setup frame */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_setup_frame,
+                                 tvb, 0, 0, pdu_security->configuration_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        /* Ciphering */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_ciphering_algorithm,
+                                 tvb, 0, 0, pdu_security->ciphering);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        /* Integrity */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_integrity_algorithm,
+                                 tvb, 0, 0, pdu_security->integrity);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        proto_item_append_text(security_ti, " (ciphering=%s, integrity=%s)",
+                               val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),
+                               val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
+    }
+
+
+    /***********************************/
     /* Handle PDCP header (if present) */
     if (!p_pdcp_info->no_header_pdu) {
 
@@ -1175,7 +1229,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             /* RRC data is all but last 4 bytes.
                Call lte-rrc dissector (according to direction and channel type) */
-            if (global_pdcp_dissect_signalling_plane_as_rrc) {
+            if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
+                ((pdu_security == NULL) || (pdu_security->ciphering == 0) || !pdu_security->seen_next_ul_pdu)){
                 /* Get appropriate dissector handle */
                 dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
 
@@ -1199,6 +1254,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
                                             tvb_length_remaining(tvb, offset) - 4, ENC_NA);
                 }
+
+                if (!pinfo->fd->flags.visited &&
+                    (current_security != NULL) && !current_security->seen_next_ul_pdu &&
+                    p_pdcp_info->direction == DIRECTION_UPLINK)
+                {
+                    /* i.e. we have already seen SecurityModeResponse! */
+                    current_security->seen_next_ul_pdu = TRUE;
+                }
+
             }
             else {
                 /* Just show as unparsed data */
@@ -1216,7 +1280,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
                             mac, data_length);
-
         }
         else if (p_pdcp_info->plane == USER_PLANE) {
 
@@ -1408,52 +1471,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         write_pdu_label_and_info(root_ti, pinfo, " No-Header ");
     }
 
-    /***************************************/
-    /* UE security algorithms              */
-    if (!pinfo->fd->flags.visited) {
-        /* Look up current state by UEID */
-        pdcp_security_info_t *current_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_hash,
-                                                                                            GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
-        if (current_security != NULL) {
-            /* Store any result for this frame in the result table */
-            pdcp_security_info_t *security_to_store = wmem_new(wmem_file_scope(), pdcp_security_info_t);
-            *security_to_store = *current_security;
-            g_hash_table_insert(pdcp_security_result_hash,
-                                get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, TRUE),
-                                security_to_store);
-        }
-    }
-    /* Show settings for this PDU */
-    pdu_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
-    if (pdu_security != NULL) {
-        proto_tree *security_tree;
-        proto_item *security_ti, *ti;
-
-        /* Create subtree */
-        security_ti = proto_tree_add_string_format(pdcp_tree,
-                                                   hf_pdcp_lte_security,
-                                                   tvb, 0, 0,
-                                                   "", "UE Security");
-        security_tree = proto_item_add_subtree(security_ti,
-                                               ett_pdcp_security);
-        PROTO_ITEM_SET_GENERATED(security_ti);
-
-        /* Setup frame */
-        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_setup_frame,
-                                 tvb, 0, 0, pdu_security->configuration_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
-
-        /* Integrity */
-        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_integrity_algorithm,
-                                 tvb, 0, 0, pdu_security->integrity);
-        PROTO_ITEM_SET_GENERATED(ti);
-
-        /* Ciphering */
-        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_ciphering_algorithm,
-                                 tvb, 0, 0, pdu_security->ciphering);
-        PROTO_ITEM_SET_GENERATED(ti);
-    }
-
     /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
         gint payload_length = tvb_length_remaining(tvb, offset);
@@ -1463,7 +1480,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /* Not attempting to decode payload if ciphering is enabled
                    (and NULL ciphering is not being used) */
                 if (global_pdcp_dissect_user_plane_as_ip &&
-                    !((pdu_security != NULL) && (pdu_security->ciphering != 0))) {
+                    ((pdu_security != NULL) || (pdu_security->ciphering == 0)))
+                {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
                     /* Don't update info column for ROHC unless configured to */
@@ -1493,37 +1511,17 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, ENC_NA);
                 }
             }
-            else {
-                if (global_pdcp_dissect_signalling_plane_as_rrc) {
-                    /* Get appropriate dissector handle */
-                    dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
-
-                    if (rrc_handle != 0) {
-                        /* Call RRC dissector if have one */
-                        tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
-                                                               payload_length,
-                                                               payload_length);
-
-                        call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
-                    }
-                    else {
-                         /* Just show data */
-                         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                             payload_length, ENC_NA);
-                    }
-                }
-                else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, ENC_NA);
-                }
-            }
 
             write_pdu_label_and_info(root_ti, pinfo, "(%u bytes data)",
                                      payload_length);
         }
 
+        /* (there will be no signalling data left at this point) */
+
         /* Let RLC write to columns again */
         col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
 
+        /* DROPPING OUT HERE IF NOT DOING ROHC! */
         return;
     }
 
