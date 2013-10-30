@@ -1055,7 +1055,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     struct pdcp_lte_info *p_pdcp_info;
     rohc_info            *p_rohc_info;
     tvbuff_t             *rohc_tvb            = NULL;
-    pdcp_security_info_t *current_security;   /* current security for this UE */
+    pdcp_security_info_t *current_security = NULL;   /* current security for this UE */
     pdcp_security_info_t *pdu_security;       /* security in place for this PDU */
 
 
