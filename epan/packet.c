@@ -1317,6 +1317,63 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 	return FALSE;
 }
 
+/* Look for a given string in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return TRUE, otherwise
+   return FALSE. */
+gboolean
+dissector_try_string_new(dissector_table_t sub_dissectors, const gchar *string,
+		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	dtbl_entry_t            *dtbl_entry;
+	struct dissector_handle *handle;
+	int                      ret;
+	const gchar             *saved_match_string;
+
+	/* XXX ASSERT instead ? */
+	if (!string) return FALSE;
+	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
+	if (dtbl_entry != NULL) {
+		/*
+		 * Is there currently a dissector handle for this entry?
+		 */
+		handle = dtbl_entry->current;
+		if (handle == NULL) {
+			/*
+			 * No - pretend this dissector didn't exist,
+			 * so that other dissectors might have a chance
+			 * to dissect this packet.
+			 */
+			return FALSE;
+		}
+
+		/*
+		 * Save the current value of "pinfo->match_string",
+		 * set it to the string that matched, call the
+		 * dissector, and restore "pinfo->match_string".
+		 */
+		saved_match_string = pinfo->match_string;
+		pinfo->match_string = string;
+		ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE, data);
+		pinfo->match_string = saved_match_string;
+
+		/*
+		 * If a new-style dissector returned 0, it means that
+		 * it didn't think this tvbuff represented a packet for
+		 * its protocol, and didn't dissect anything.
+		 *
+		 * Old-style dissectors can't reject the packet.
+		 *
+		 * 0 is also returned if the protocol wasn't enabled.
+		 *
+		 * If the packet was rejected, we return FALSE, so that
+		 * other dissectors might have a chance to dissect this
+		 * packet, otherwise we return TRUE.
+		 */
+		return ret != 0;
+	}
+	return FALSE;
+}
+
 /* Look for a given value in a given string dissector table and, if found,
    return the dissector handle for that value. */
 dissector_handle_t

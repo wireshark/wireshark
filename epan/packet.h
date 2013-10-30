@@ -239,6 +239,12 @@ WS_DLL_PUBLIC void dissector_reset_string(const char *name, const gchar *pattern
 WS_DLL_PUBLIC gboolean dissector_try_string(dissector_table_t sub_dissectors,
     const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+/* Look for a given string in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return TRUE, otherwise
+   return FALSE. */
+WS_DLL_PUBLIC gboolean dissector_try_string_new(dissector_table_t sub_dissectors,
+    const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
 /* Look for a given value in a given string dissector table and, if found,
    return the dissector handle for that value. */
 WS_DLL_PUBLIC dissector_handle_t dissector_get_string_handle(
