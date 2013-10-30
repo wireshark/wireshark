@@ -1195,7 +1195,7 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 				}
 
 				offset += avp_vsa_len;
-			}; /* while (offset < max_offset) */
+			} /* while (offset < max_offset) */
 			continue;  /* while (length > 0) */
 		}
 
