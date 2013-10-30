@@ -179,7 +179,7 @@ proto_register_dvb_bat(void)
     static hf_register_info hf[] = {
 
         { &hf_dvb_bat_bouquet_id, {
-            "Service ID", "dvb_bat.sid",
+            "Bouquet ID", "dvb_bat.bouquet_id",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
