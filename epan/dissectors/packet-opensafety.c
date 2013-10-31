@@ -184,15 +184,21 @@ static const value_string message_service_type[] = {
     { 0, NULL }
 };
 
-/* Values 5-255 are reserved for future use. They will be presented as "Reserved [%d]"
+/* Values 6-255 are reserved for future use. They will be presented as "Reserved [%d]"
  * during dissection
  */
+#define OPENSAFETY_ERROR_GROUP_APPLICATION                  0x01
+#define OPENSAFETY_ERROR_GROUP_PARAMETER                    0x02
+#define OPENSAFETY_ERROR_GROUP_VENDOR_SPECIFIC              0x03
+#define OPENSAFETY_ERROR_GROUP_OPENSAFETY_STACK             0x04
+#define OPENSAFETY_ERROR_GROUP_ADD_PARAMETER                0x05
+
 static const value_string sn_fail_error_group[] = {
-    { 1, "Application" },
-    { 2, "Parameter" },
-    { 3, "Vendor specific" },
-    { 4, "openSAFETY Stack" },
-    { 5, "Additional parameter needed" },
+    { OPENSAFETY_ERROR_GROUP_APPLICATION,       "Application" },
+    { OPENSAFETY_ERROR_GROUP_PARAMETER,         "Parameter" },
+    { OPENSAFETY_ERROR_GROUP_VENDOR_SPECIFIC,   "Vendor specific" },
+    { OPENSAFETY_ERROR_GROUP_OPENSAFETY_STACK,  "openSAFETY Stack" },
+    { OPENSAFETY_ERROR_GROUP_ADD_PARAMETER,     "Additional parameter needed" },
     { 0, NULL }
 };
 
@@ -410,6 +416,8 @@ static const true_false_string opensafety_message_direction = { "Request", "Resp
 #define OPENSAFETY_REQUEST  TRUE
 #define OPENSAFETY_RESPONSE FALSE
 
+static const true_false_string opensafety_addparam_request = { "Header only", "Header & Data" };
+
 #define OSS_FRAME_POS_ADDR   0
 #define OSS_FRAME_POS_ID     1
 #define OSS_FRAME_POS_LEN    2
@@ -484,6 +492,9 @@ static int hf_oss_snmt_tool          = -1;
 static int hf_oss_snmt_service_id    = -1;
 static int hf_oss_snmt_error_group   = -1;
 static int hf_oss_snmt_error_code    = -1;
+static int hf_oss_snmt_param_type    = -1;
+static int hf_oss_snmt_ext_addsaddr  = -1;
+static int hf_oss_snmt_ext_addtxspdo = -1;
 
 static int hf_oss_ssdo_server        = -1;
 static int hf_oss_ssdo_client        = -1;
@@ -1289,7 +1300,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                     val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), sod_idx_names, "Unknown"));
         }
-        col_append_str(pinfo->cinfo, COL_INFO, "]" );
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "]" );
         payloadOffset += 3;
     }
 
@@ -1444,7 +1455,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
     proto_tree *snmt_tree;
     guint32     entry = 0;
     guint16     addr, taddr, sdn;
-    guint8      db0, byte;
+    guint8      db0, byte, errcode;
     guint       dataLength;
     char       *tempString;
 
@@ -1497,25 +1508,51 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
     }
     else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
     {
-        proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1, db0);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, "Unknown"));
+        byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1);
+
+        if ( ! ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 && byte == OPENSAFETY_ERROR_GROUP_ADD_PARAMETER ) )
+        {
+            proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1, db0);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, "Unknown"));
+        }
+        else
+        {
+            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1,
+                    db0, "%s [Request via SN Fail] (0x%02X)", val_to_str_const(byte, sn_fail_error_group, "Unknown"), db0);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(byte, sn_fail_error_group, "Unknown"));
+        }
 
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
+
         if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
         {
-            byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1);
-            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 1,
-                                       byte, "%s", ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ) );
+            /* Handle a normal SN Fail */
+            if ( byte != OPENSAFETY_ERROR_GROUP_ADD_PARAMETER )
+            {
+                proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 1,
+                        byte, "%s", ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ) );
 
-            byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2);
-            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2, 1,
-                                       byte, "%s [%d]", ( byte == 0 ? "Default" : "Vendor Specific" ), byte );
+                errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2);
+                proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2, 1,
+                        errcode, "%s [%d]", ( errcode == 0 ? "Default" : "Vendor Specific" ), errcode );
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - Group: %s; Code: %s",
-                ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ),
-                ( byte == 0 ? "Default" : "Vendor Specific" )
-            );
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Group: %s; Code: %s",
+                    ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ),
+                    ( errcode == 0 ? "Default" : "Vendor Specific" )
+                );
+            }
+            else
+            {
+                errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2);
+
+                /* Handle an additional parameter request */
+                proto_tree_add_uint(snmt_tree, hf_oss_ssdo_extpar_parset, message_tvb,
+                        OSS_FRAME_POS_DATA + frameStart1 + 2, 1, ( errcode & 0x0F ) + 1 );
+
+                proto_tree_add_boolean(snmt_tree, hf_oss_snmt_param_type, message_tvb,
+                        OSS_FRAME_POS_DATA + frameStart1 + 2, 1, ( ( errcode & 0xF0 ) != 0xF0 ) );
+            }
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
         {
@@ -1529,12 +1566,23 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 {
                     local_scm_udid = (char *)wmem_alloc0(wmem_file_scope(), 18 * sizeof(char));
                     g_snprintf(local_scm_udid, 18, "%s", tempString );
-                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
+                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", local_scm_udid);
                 }
             }
 
         }
+        else if ( ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_ADDITIONAL_SADR) == 0 )
+        {
+            proto_tree_add_uint(snmt_tree, hf_oss_snmt_ext_addsaddr, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 2,
+                    OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 1));
 
+            proto_tree_add_uint(snmt_tree, hf_oss_snmt_ext_addtxspdo, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 3, 2,
+                    OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 3));
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [0x%04X => 0x%04X]",
+                    OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 1),
+                    OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 3));
+        }
     }
     else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_REQUEST) == 0 )
     {
@@ -1576,6 +1624,19 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 proto_tree_add_uint_format_value ( snmt_tree, hf_oss_sod_par_timestamp, message_tvb,
                         OSS_FRAME_POS_DATA + frameStart1 + 1, 4, entry, "0x%08X", entry );
             }
+            else if ( ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_ASSIGN_ADDITIONAL_SADR) == 0 )
+            {
+                proto_tree_add_uint(snmt_tree, hf_oss_snmt_ext_addsaddr, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 2,
+                        OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 1));
+
+                proto_tree_add_uint(snmt_tree, hf_oss_snmt_ext_addtxspdo, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 3, 2,
+                        OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 3));
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [0x%04X => 0x%04X]",
+                        OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 1),
+                        OSS_FRAME_ADDR_T(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 3));
+            }
+
         }
     }
     else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SADR_ASSIGNED) == 0 )
@@ -2364,6 +2425,15 @@ proto_register_opensafety(void)
         { &hf_oss_snmt_error_code,
             { "Error Code",   "opensafety.snmt.error_code",
             FT_UINT8,  BASE_DEC, NULL,   0x0, NULL, HFILL } },
+        { &hf_oss_snmt_param_type,
+            { "Parameter Request Type",   "opensafety.snmt.parameter_type",
+            FT_BOOLEAN,  BASE_NONE, TFS(&opensafety_addparam_request),   0x0, NULL, HFILL } },
+        { &hf_oss_snmt_ext_addsaddr,
+            { "Additional SADDR",    "opensafety.snmt.additional.saddr",
+            FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
+        { &hf_oss_snmt_ext_addtxspdo,
+            { "Additional TxSPDO",    "opensafety.snmt.additional.txspdo",
+            FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
 
         /* SSDO Specific fields */
         { &hf_oss_ssdo_server,
@@ -2411,19 +2481,19 @@ proto_register_opensafety(void)
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_oss_ssdo_extpar_parset,
-            { "Set Nr", "opensafety.ssdo.extpar.setnr",
+            { "Additional Parameter Set", "opensafety.ssdo.extpar.setnr",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_version,
-            { "Version", "opensafety.ssdo.extpar.version",
+            { "Parameter Set Version", "opensafety.ssdo.extpar.version",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_saddr,
-            { "SADDR", "opensafety.ssdo.extpar.saddr",
+            { "Parameter Set for SADDR", "opensafety.ssdo.extpar.saddr",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_length,
-            { "Set Length", "opensafety.ssdo.extpar.length",
+            { "Parameter Set Length", "opensafety.ssdo.extpar.length",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_crc,
-            { "Set CRC", "opensafety.ssdo.extpar.crc",
+            { "Parameter Set CRC", "opensafety.ssdo.extpar.crc",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_tstamp,
             { "Timestamp", "opensafety.ssdo.extpar.timestamp",
