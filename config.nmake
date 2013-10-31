@@ -1084,7 +1084,8 @@ XSLTPROC="xsltproc"
 # the XML validator (part of cygwin's libxml2 package)
 XMLLINT="xmllint"
 
-
+# Asciidoc converter (part of cygwin's asciidoc package)
+A2X="a2x"
 
 ##############################################################################
 #

@@ -427,6 +427,11 @@ AC_PATH_PROG(XMLLINT, xmllint)
 AC_CHECK_PROG(HAVE_XMLLINT, xmllint, "yes", "no")
 AM_CONDITIONAL(HAVE_XMLLINT, test x$HAVE_XMLLINT = xyes)
 
+# Check for a2x (convert asciidoc to another format)
+AC_PATH_PROG(A2X, a2x)
+AC_CHECK_PROG(HAVE_A2X, a2x, "yes", "no")
+AM_CONDITIONAL(HAVE_A2X, test x$HAVE_A2X = xyes)
+
 # Check for fop (translate .fo to e.g. pdf)
 AC_PATH_PROG(FOP, fop)
 AC_CHECK_PROG(HAVE_FOP, fop, "yes", "no")

@@ -9,10 +9,16 @@
 # formatting objects processor
 # Additional options to fop.
 # This needs to contain at least the argument '-Xmx256m'
+# fop executable is found in configure.ac.
 FOP_OPTS=-Xmx256m
 
-# fop executable is found in configure.in .
-# XXX - have it check for the right version (0.20.5 or newer)?
+# Asciidoc converter
+A2X_HTML_OPTS="--stylesheet=ws.css"
+A2X_TEXT_OPTS=
+
+#if HAVE_LYNX
+A2X_TEXT_OPTS+="--lynx"
+#endif
 
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
@@ -202,48 +208,46 @@ developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 
 
 if HAVE_FOP
-RELEASE_NOTES_TARGETS=release_notes.validated release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
+RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
 else
-RELEASE_NOTES_TARGETS=release_notes.validated release-notes.html release-notes.txt
+RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt
 endif
 
 release_notes: $(RELEASE_NOTES_TARGETS)
 
-# validate the content
-release_notes.validated: $(RELEASE_NOTES_SOURCE)
-if HAVE_XMLLINT
-	@ echo --- RELEASE NOTES - VALIDATING XML ---
-	$(XMLLINT) --valid --noout $<
-	touch $@
-else
-	@ echo --- RELEASE NOTES - SKIP VALIDATION ---
-endif
-
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl $< > $@
+	$(A2X) --format=xhtml $(A2X_HTML_OPTS) release-notes.asciidoc
 
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	$(XSLTPROC) --stringparam generate.toc "article nop" \
-		    --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl $< | $(HTML2TXT) > $@
+	$(A2X) --format=text $(A2X_TEXT_OPTS) \
+		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
+		release-notes.asciidoc
+	mv release-notes.text $@
 
 news: release-notes.txt
 	cp release-notes.txt ../NEWS
 
-# create pdf file (through XSL-FO), portrait pages on US letter paper
-# you will get lot's of errors, but that's ok
-release-notes-us.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
-	@ echo --- RELEASE NOTES - PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
+# create pdf file, portrait pages on US letter paper
+release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
+	@ echo --- RELEASE NOTES - PDF US LETTER PAPER ---
+	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
+		--xsltproc-opts "--stringparam paper.type letter --nonet" \
+		--xsl-file=custom_layer_pdf.xsl \
+		release-notes.asciidoc
+	mv release-notes.pdf $@
 
-# create pdf file (through XSL-FO), portrait pages on A4 paper
-# you will get lot's of errors, but that's ok
-release-notes-a4.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
+# create pdf file, portrait pages on A4 paper
+release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
+	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
+		--xsltproc-opts "--stringparam paper.type A4 --nonet" \
+		--xsl-file=custom_layer_pdf.xsl \
+		release-notes.asciidoc
+	mv release-notes.pdf $@
 
 clean-local:
 	-rm -rf $(CLEANDIRS)
