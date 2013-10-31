@@ -84,12 +84,22 @@ The following bugs have been fixed:
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
 
+* new_packet_list: EAP-TLS reassemble does not happen when NEW_PACKET_LIST is toggled. (ws-buglink:5349[])
+
 * The value of 'SEND_TO_UE' in the DIAMETER Gx dictionary for Packet-Filter-Usage AVP is 0 instead of 1. (ws-buglink:9126[])
 
 * Bssgp =>  SGSN-INVOKE-TRACE use the wrong function... (ws-buglink:9157[])
 
 * Files with pcap-ng Simple Packet Blocks can't be read.
 (ws-buglink:9200[])
+
+* Wireshark lua dissector unable to load for media_type=application/octet-stream. (ws-buglink:9296[])
+
+* DCERPC data_blobs are not correctly dissected when NDR64 encoding is used. (ws-buglink:9301[])
+
+* multiple PDU in the same DCERPC packet are not correctly decrypted. (ws-buglink:9302[])
+
+* The tshark summary line doesn't display the frame number or displays it sporadically. (ws-buglink:9317[])
 
 === New and Updated Features
 
@@ -104,12 +114,16 @@ There are no new protocols in this release.
 --sort-and-group--
 
 BSSGP
+DCERPC
+DCERPC NT
 DIAMETER
+Ethernet
 EtherNet/IP
 IEEE 802.15.4
 NBAP
 OpenWire
 SIP
+WiMax
 
 --sort-and-group--
 

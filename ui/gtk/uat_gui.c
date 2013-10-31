@@ -151,9 +151,9 @@ static void set_buttons(uat_t* uat, gint row) {
 }
 
 static char* fld_tostr(void* rec, uat_field_t* f) {
-	guint len;
+	guint       len;
 	const char* ptr;
-	char* out;
+	char*       out;
 
 	f->cb.tostr(rec,&ptr,&len,f->cbdata.tostr,f->fld_data);
 
