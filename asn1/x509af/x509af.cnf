@@ -79,7 +79,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   }
 
 #.FN_BODY AlgorithmIdentifier/parameters
-  offset=call_ber_oid_callback(algorithm_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(algorithm_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS Extension/extnId
   FN_VARIANT = _str  HF_INDEX = hf_x509af_extension_id  VAL_PTR = &actx->external.direct_reference
@@ -103,7 +103,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY SubjectName
 

@@ -306,41 +306,41 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 #.FN_BODY 	Attribute/attribute-values/_item
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	AttributeValueAssertion/attribute-value
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/initial
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/any
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/final
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	MatchingRuleAssertion/match-value
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	Summary/present/_item/value
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY 	OrderedAttribute/attribute-values/_item/value
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS	AutoActionType	FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY	AutoActionRegistration/registration-parameter
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 #.FN_BODY	AutoActionError/error-code
@@ -358,11 +358,11 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 #.FN_BODY	AutoActionError/error-parameter
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	PAR-attribute-error/problems/_item/value
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 #.FN_BODY	MSBindArgument/initiator-name

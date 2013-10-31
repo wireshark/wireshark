@@ -1052,7 +1052,7 @@ dissect_p1_TokenTypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 1154 "../../asn1/p1/p1.cnf"
 
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -1243,7 +1243,7 @@ dissect_p1_SecurityCategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 	const char *name;
 
 	if (actx->external.direct_reference) {
-		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 		name = oid_resolved_from_string(actx->external.direct_reference);
 		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	} else {
@@ -3060,7 +3060,7 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 			expert_add_info(actx->pinfo, item, &ei_p1_unknown_standard_extension);
 		}
 	} else if (actx->external.direct_ref_present) {
-		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 		name = oid_resolved_from_string(actx->external.direct_reference);
 		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	}
@@ -3235,7 +3235,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	if (next_tvb) {
 		if (ctx && ctx->content_type_id) {
-			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree);
+			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, NULL);
 	} else if (ctx && ctx->report_unknown_content_type) {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;

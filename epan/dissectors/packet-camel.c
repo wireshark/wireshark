@@ -2244,7 +2244,7 @@ static int
 dissect_camel_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   /*XXX handle local form here */
   if(camel_obj_id){
-    offset=call_ber_oid_callback(camel_obj_id, tvb, offset, actx->pinfo, tree);
+    offset=call_ber_oid_callback(camel_obj_id, tvb, offset, actx->pinfo, tree, NULL);
   }
   is_ExtensionField = FALSE;
 

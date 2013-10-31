@@ -100,7 +100,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 
 static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (call_ber_oid_callback(obj_id, tvb, 0, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (call_ber_oid_callback(obj_id, tvb, 0, pinfo, tree, NULL)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

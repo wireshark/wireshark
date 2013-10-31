@@ -348,7 +348,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* This is a reassembly initiated in packet-ses */
 		char *oid = find_oid_by_pres_ctx_id (pinfo, session->pres_ctx_id);
 		if (oid) {
-			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree);
+			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree, NULL);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");

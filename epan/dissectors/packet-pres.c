@@ -642,7 +642,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
+		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree, NULL);
 	} else {
 		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
 								tvb, offset, -1);
@@ -665,7 +665,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
 		dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
-		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
+		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree, NULL);
 	} else {
 		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
 								tvb, offset, -1);
@@ -1484,7 +1484,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* This is a reassembly initiated in packet-ses */
 		char *oid = find_oid_by_pres_ctx_id (pinfo, session->pres_ctx_id);
 		if (oid) {
-			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree);
+			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree, NULL);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");

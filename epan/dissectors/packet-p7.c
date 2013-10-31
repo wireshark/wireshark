@@ -703,7 +703,7 @@ dissect_p7_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_p7_AttributeItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -761,7 +761,7 @@ dissect_p7_INTEGER_1_ub_per_auto_action(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int
 dissect_p7_T_registration_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -800,7 +800,7 @@ dissect_p7_T_error_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_p7_T_error_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -1406,7 +1406,7 @@ dissect_p7_Range(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_p7_T_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -1432,7 +1432,7 @@ dissect_p7_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_p7_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -1443,7 +1443,7 @@ dissect_p7_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_p7_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -1454,7 +1454,7 @@ dissect_p7_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_p7_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -1517,7 +1517,7 @@ dissect_p7_T_substrings(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_p7_T_match_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -1886,7 +1886,7 @@ dissect_p7_Span(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_p7_SummaryPresentItemValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -2602,7 +2602,7 @@ dissect_p7_T_entries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_p7_OrderedAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
   return offset;
@@ -2892,7 +2892,7 @@ dissect_p7_AttributeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_p7_T_attr_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 

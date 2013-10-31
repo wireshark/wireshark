@@ -108,23 +108,23 @@ PrivateKeyInfo
 
 #.FN_BODY SafeBag/bagValue	
 	if(object_identifier_id)
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY PKCS12Attribute/attrValues/_item	
 	if(object_identifier_id)
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY CertBag/certValue
 	if(object_identifier_id)
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY CRLBag/crlValue
 	if(object_identifier_id)
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY SecretBag/secretValue
 	if(object_identifier_id)
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 		
 #.FN_HDR PBEParameter
 	/* initialise the encryption parameters */

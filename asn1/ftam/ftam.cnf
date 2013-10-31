@@ -73,16 +73,16 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY Contents-Type-Attribute/document-type/parameter
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY Extension-Attribute/extension-attribute
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS Attribute-Extensions-Pattern/_item/extension-set-attribute-Patterns/_item/extension-attribute-identifier
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY Attribute-Extensions-Pattern/_item/extension-set-attribute-Patterns/_item/extension-attribute-Pattern
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY AP-title
 	/* XXX have no idea about this one */

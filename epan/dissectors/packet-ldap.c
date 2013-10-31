@@ -2915,7 +2915,7 @@ dissect_ldap_T_requestValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 #line 753 "../../asn1/ldap/ldap.cnf"
 
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 	} else {
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -3074,7 +3074,7 @@ dissect_ldap_T_intermediateResponse_responseValue(gboolean implicit_tag _U_, tvb
 			proto_item_append_text(ldm_tree, " (%s)", name);
 	}
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 	} else {
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -3258,7 +3258,7 @@ dissect_ldap_T_controlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &ber_class, &pc, &tag);
 		offset=dissect_ber_length(actx->pinfo, NULL, tvb, offset, &len, &ind);
 
-		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 		offset += len;
 	} else {

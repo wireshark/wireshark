@@ -363,7 +363,7 @@ dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_x509if_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 315 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -388,7 +388,7 @@ dissect_x509if_T_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_x509if_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 285 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -409,7 +409,7 @@ dissect_x509if_T_contextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_x509if_T_contextValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 297 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -531,7 +531,7 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 303 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -552,7 +552,7 @@ dissect_x509if_T_type_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_x509if_T_assertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 309 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -582,7 +582,7 @@ dissect_x509if_T_ca_contextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_x509if_T_ca_contextValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 186 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -772,7 +772,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   const char	*name = NULL;
   const char    *orig_oid = actx->external.direct_reference;
 
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
   /* in dissecting the value we may have overridden the OID of the value - which is
      a problem if there are multiple values */
@@ -821,7 +821,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_x509if_T_distingAttrValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 330 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -1379,7 +1379,7 @@ dissect_x509if_T_attributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_x509if_T_ra_selectedValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 276 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -1413,7 +1413,7 @@ dissect_x509if_T_entryType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_x509if_T_ra_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 282 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -1475,7 +1475,7 @@ dissect_x509if_T_contextType_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_x509if_T_contextValue_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 321 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -1576,7 +1576,7 @@ dissect_x509if_T_restrictionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_x509if_T_restrictionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 327 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -1697,7 +1697,7 @@ dissect_x509if_T_attributeType_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_x509if_T_selectedValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 291 "../../asn1/x509if/x509if.cnf"
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 

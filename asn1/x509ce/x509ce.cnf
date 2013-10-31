@@ -168,7 +168,7 @@ EnhancedCertificateAssertion/pathToName			enhancedPathToName
   FN_VARIANT = _str  HF_INDEX = hf_x509ce_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY PolicyQualifierInfo/qualifier
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY GeneralName/iPAddress
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -178,7 +178,7 @@ EnhancedCertificateAssertion/pathToName			enhancedPathToName
   FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY OtherNameValue
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_FTR GeneralName/uniformResourceIdentifier
   

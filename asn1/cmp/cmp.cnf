@@ -87,7 +87,7 @@ RevAnnContent/status pkistatus
   FN_VARIANT = _str  HF_INDEX = hf_cmp_type_oid  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY InfoTypeAndValue/infoValue
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS PKIBody
   VAL_PTR = &branch_taken

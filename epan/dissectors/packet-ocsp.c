@@ -328,7 +328,7 @@ dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback(responseType_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(responseType_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
 

@@ -183,7 +183,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY ContextAssertion/contextValues/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS AttributeTypeAndDistinguishedValue/type
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
@@ -230,7 +230,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   const char	*name = NULL;
   const char    *orig_oid = actx->external.direct_reference;
 
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
   /* in dissecting the value we may have overridden the OID of the value - which is
      a problem if there are multiple values */
@@ -273,61 +273,61 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY RequestAttribute/selectedValues/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS RequestAttribute/defaultValues/_item/entryType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY RequestAttribute/defaultValues/_item/values/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY Attribute/valuesWithContext/_item/value
-  offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS ResultAttribute/attributeType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY ResultAttribute/outputValues/selectedValues/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS Context/contextType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY Context/contextValues/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS AttributeType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY AttributeValue
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS AttributeValueAssertion/type
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY AttributeValueAssertion/assertion
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS Attribute/type
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY Attribute/values/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS ContextProfile/contextType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY ContextProfile/contextValue/_item
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS MatchingUse/restrictionType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY MatchingUse/restrictionValue
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY AttributeTypeAndDistinguishedValue/valuesWithContext/_item/distingAttrValue
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY RelativeDistinguishedName
   char *temp_dn;

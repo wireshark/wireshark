@@ -61,7 +61,7 @@ Targets                 B "2.5.29.55" "id-ce-targetInformation"
 
 #.FN_BODY  SecurityCategory/value
    if (object_identifier_id)
-      offset = call_ber_oid_callback (object_identifier_id, tvb, offset, actx->pinfo, tree);
+      offset = call_ber_oid_callback (object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.END
 

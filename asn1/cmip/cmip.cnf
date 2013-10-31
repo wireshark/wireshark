@@ -272,7 +272,7 @@ RejectProblem
 
 #.FN_BODY Attribute/value
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
-    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree);
+    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
   } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
     offset=tvb_length (tvb);
   } else {
@@ -283,7 +283,7 @@ RejectProblem
 	FN_VARIANT = _str  VAL_PTR = &attributevalueassertion_id
 
 #.FN_BODY AttributeValueAssertion/value
-    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, actx->pinfo, tree);
+    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY Invoke/argument
     switch(opcode){
@@ -438,20 +438,20 @@ RejectProblem
   FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ActionInfo/actionInfoArg
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS EventTypeId/globalForm
   FN_VARIANT = _str  HF_INDEX = hf_cmip_eventType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY EventReportArgument/eventInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY EventReply/eventReplyInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY SetArgument/modificationList/_item/attributeValue
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
-    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree);
+    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
   } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
     offset=tvb_length (tvb);
   } else {
@@ -462,39 +462,39 @@ RejectProblem
   FN_VARIANT = _str  HF_INDEX = hf_cmip_errorId_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY SpecificErrorInfo/errorInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY AttributeError/attributeValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY InvalidArgumentValue/eventValue/eventInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY ActionReply/actionReplyInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
 # X.721
 #.FN_PARS ManagementExtension/identifier FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ManagementExtension/information
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY AttributeValueChangeDefinition/_item/oldAttributeValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY AttributeValueChangeDefinition/_item/newAttributeValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS ServiceUser/identifier FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ServiceUser/details
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS SupportedFeatures/_item/featureIdentifier FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY SupportedFeatures/_item/featureInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
 #.END

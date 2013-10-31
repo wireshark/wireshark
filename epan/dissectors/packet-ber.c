@@ -1011,7 +1011,7 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 }
 
 int
-call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tvbuff_t   *next_tvb;
     const char *syntax = NULL;
@@ -1024,9 +1024,9 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
     if (oid == NULL ||
         ((((syntax = get_ber_oid_syntax(oid)) == NULL) ||
           /* First see if a syntax has been registered for this oid (user defined) */
-          !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree)) &&
+          !dissector_try_string_new(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, data)) &&
          /* Then try registered oid's */
-         (!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)))) {
+         (!dissector_try_string_new(ber_oid_dissector_table, oid, next_tvb, pinfo, tree, data)))) {
         proto_item *item      = NULL;
         proto_tree *next_tree = NULL;
         gint        length_remaining;
@@ -4993,7 +4993,7 @@ dissect_ber_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
         offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
     } else if (actx->external.direct_ref_present &&
                dissector_get_string_handle(ber_oid_dissector_table, actx->external.direct_reference)) {
-        offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+        offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
     } else {
         offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.octet_aligned);
     }
@@ -5025,7 +5025,7 @@ dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     if (actx->external.u.ber.ber_callback) {
         offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
     } else {
-        offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+        offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
     }
 
     return offset;

@@ -227,7 +227,7 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
 
 #.FN_BODY IPMSExtension/value
 
-  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY IPM
 

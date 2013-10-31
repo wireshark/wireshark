@@ -362,7 +362,7 @@ dissect_acse_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 88 "../../asn1/acse/acse.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, NULL);
 
 
 
@@ -374,7 +374,7 @@ dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_acse_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 91 "../../asn1/acse/acse.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, NULL);
 
 
 
@@ -680,7 +680,7 @@ dissect_acse_T_other_mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_acse_T_other_mechanism_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 49 "../../asn1/acse/acse.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree, NULL);
 
 
 
@@ -960,7 +960,7 @@ dissect_acse_AARQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_acse_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 94 "../../asn1/acse/acse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 0, TRUE, dissect_acse_AARQ_apdu_U);
@@ -1192,7 +1192,7 @@ dissect_acse_AARE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_acse_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 99 "../../asn1/acse/acse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "A-Associate-Response");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Response");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 1, TRUE, dissect_acse_AARE_apdu_U);
@@ -1251,7 +1251,7 @@ dissect_acse_RLRQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_acse_RLRQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 104 "../../asn1/acse/acse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Request");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 2, TRUE, dissect_acse_RLRQ_apdu_U);
@@ -1310,7 +1310,7 @@ dissect_acse_RLRE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_acse_RLRE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 120 "../../asn1/acse/acse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Response");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Response");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 3, TRUE, dissect_acse_RLRE_apdu_U);
@@ -1389,7 +1389,7 @@ dissect_acse_ABRT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_acse_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 136 "../../asn1/acse/acse.cnf"
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Abort");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 4, TRUE, dissect_acse_ABRT_apdu_U);
@@ -1754,7 +1754,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				    "Invalid OID: %s", ACSE_APDU_OID);
 				THROW(ReportedBoundsError);
 			}
-			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
+			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
 		} else {
 			proto_tree_add_expert(parent_tree, pinfo, &ei_acse_dissector_not_available,
                                     tvb, offset, -1);

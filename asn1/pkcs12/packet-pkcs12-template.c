@@ -371,7 +371,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	g_string_free(name, TRUE);
 
 	/* now try and decode it */
-	call_ber_oid_callback(object_identifier_id_param, clear_tvb, 0, actx->pinfo, tree);
+	call_ber_oid_callback(object_identifier_id_param, clear_tvb, 0, actx->pinfo, tree, NULL);
 
 	return TRUE;
 #else

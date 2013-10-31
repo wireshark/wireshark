@@ -224,7 +224,7 @@ if((camel_ver == 2)||(camel_ver == 1)){
 #.FN_BODY ExtensionField/value
   /*XXX handle local form here */
   if(camel_obj_id){
-    offset=call_ber_oid_callback(camel_obj_id, tvb, offset, actx->pinfo, tree);
+    offset=call_ber_oid_callback(camel_obj_id, tvb, offset, actx->pinfo, tree, NULL);
   }
   is_ExtensionField = FALSE;
 

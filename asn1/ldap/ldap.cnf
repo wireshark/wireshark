@@ -741,7 +741,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &ber_class, &pc, &tag);
 		offset=dissect_ber_length(actx->pinfo, NULL, tvb, offset, &len, &ind);
 
-		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 		offset += len;
 	} else {
@@ -752,7 +752,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 #.FN_BODY ExtendedRequest/_untag/requestValue
 
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 	} else {
 		%(DEFAULT_BODY)s
 	}
@@ -769,7 +769,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 			proto_item_append_text(ldm_tree, " (%%s)", name);
 	}
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 	} else {
 		%(DEFAULT_BODY)s
 	}

@@ -232,7 +232,7 @@ WS_DLL_PUBLIC int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx,
 extern int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int **bit_fields, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
 
 WS_DLL_PUBLIC
-int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data);
 WS_DLL_PUBLIC
 void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name);
 WS_DLL_PUBLIC

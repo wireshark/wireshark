@@ -46,7 +46,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY PDV-list/presentation-data-values/simple-ASN1-type
 /*XXX not implemented yet */
@@ -85,10 +85,10 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, NULL);
 
 #.FN_BODY EXTERNALt/_untag/encoding/octet-aligned
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, NULL);
 
 #.FN_BODY AARQ-apdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
