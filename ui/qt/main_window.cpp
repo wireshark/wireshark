@@ -460,8 +460,10 @@ void MainWindow::loadWindowGeometry()
         pos_anim->setDuration(geom_animation_duration);
         pos_anim->setStartValue(pos());
         pos_anim->setEndValue(shadow_main.pos());
+        pos_anim->setEasingCurve(QEasingCurve::InOutQuad);
         size_anim->setDuration(geom_animation_duration);
         size_anim->setStartValue(size());
+        size_anim->setEasingCurve(QEasingCurve::InOutQuad);
         size_anim->setEndValue(shadow_main.size());
 
         pos_anim->start(QAbstractAnimation::DeleteWhenStopped);
