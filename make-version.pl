@@ -313,23 +313,23 @@ sub update_config_nmake
 	print "$filepath has been updated.\n";
 }
 
-# Read docbook/release_notes.xml, then write it back out with an updated
-# "WiresharkCurrentVersion" line.
+# Read docbook/asciidoc.conf, then write it back out with an updated
+# wireshark-version replacement line.
 sub update_release_notes
 {
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$srcdir/docbook/release-notes.xml";
+	my $filepath = "$srcdir/docbook/asciidoc.conf";
 
 	return if (!$set_version);
 
-	open(RELNOTES, "< $filepath") || die "Can't read $filepath!";
-	while ($line = <RELNOTES>) {
-		#   <!ENTITY WiresharkCurrentVersion "1.7.1">
+	open(ADOC_CONF, "< $filepath") || die "Can't read $filepath!";
+	while ($line = <ADOC_CONF>) {
+		# wireshark-version:\[\]=1.9.1
 
-		if ($line =~ /<\!ENTITY\s+WiresharkCurrentVersion\s+.*([\r\n]+)$/) {
-			$line = sprintf("<!ENTITY WiresharkCurrentVersion \"%d.%d.%d\">$1",
+		if ($line =~ /^wireshark-version:\\\[\\\]=.*([\r\n]+)$/) {
+			$line = sprintf("wireshark-version:\\\[\\\]=%d.%d.%d$1",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
 					$version_pref{"version_micro"},
@@ -338,9 +338,9 @@ sub update_release_notes
 		$contents .= $line
 	}
 
-	open(RELNOTES, "> $filepath") || die "Can't write $filepath!";
-	print(RELNOTES $contents);
-	close(RELNOTES);
+	open(ADOC_CONF, "> $filepath") || die "Can't write $filepath!";
+	print(ADOC_CONF $contents);
+	close(ADOC_CONF);
 	print "$filepath has been updated.\n";
 }
 

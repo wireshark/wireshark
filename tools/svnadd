@@ -40,6 +40,11 @@ do
 	svn add $file
 
 	case "$file" in
+		*.asciidoc)
+			svn ps svn:keywords Id $file
+			svn ps svn:eol-style native $file
+			svn ps svn:mime-type text/plain $file
+			;;
 		*.png)
 			svn ps svn:mime-type image/png $file
 			;;
