@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
+ * Copyright 2004-2013, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * $Id$
  *
