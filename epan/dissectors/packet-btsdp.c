@@ -54,8 +54,9 @@ static gint hf_ssr_total_count                                             = -1;
 static gint hf_ssr_current_count                                           = -1;
 static gint hf_error_code                                                  = -1;
 static gint hf_attribute_id_list                                           = -1;
-static gint hf_attribute_id_range_lower                                    = -1;
-static gint hf_attribute_id_range_higher                                   = -1;
+static gint hf_attribute_id_range                                          = -1;
+static gint hf_attribute_id_range_from                                     = -1;
+static gint hf_attribute_id_range_to                                       = -1;
 static gint hf_attribute_list_byte_count                                   = -1;
 static gint hf_maximum_service_record_count                                = -1;
 static gint hf_maximum_attribute_byte_count                                = -1;
@@ -348,26 +349,29 @@ static expert_field ei_data_element_value_large = EI_INIT;
 
 static gint btsdp_tap = -1;
 
-static wmem_tree_t *tid_requests        = NULL;
-static wmem_tree_t *continuation_states = NULL;
-static wmem_tree_t *service_infos       = NULL;
-
+static wmem_tree_t *tid_requests           = NULL;
+static wmem_tree_t *continuation_states    = NULL;
+static wmem_tree_t *record_handle_services = NULL;
+static wmem_tree_t *service_infos          = NULL;
 
 static sdp_package_t sdp_package;
 
 typedef struct _tid_request_t {
-    guint32  interface_id;
-    guint32  adapter_id;
-    guint32  chandle;
-    guint32  psm;
-    guint32  tid;
-    guint32  pdu_type;
+    guint32        interface_id;
+    guint32        adapter_id;
+    guint32        chandle;
+    guint32        psm;
+    guint32        tid;
+    guint32        pdu_type;
 
-    guint8  *continuation_state;
-    guint8   continuation_state_length;
+    wmem_array_t  *uuid_array;
+    guint32        record_handle;
 
-    guint32  data_length;
-    guint8  *data;
+    guint8        *continuation_state;
+    guint8         continuation_state_length;
+
+    guint32        data_length;
+    guint8        *data;
 } tid_request_t;
 
 typedef struct _continuation_state_data_t {
@@ -382,6 +386,15 @@ typedef struct _continuation_state_data_t {
     guint8  *data;
 } continuation_state_data_t;
 
+typedef struct _record_handle_service_t {
+    guint32       interface_id;
+    guint32       adapter_id;
+    guint32       chandle;
+    guint32       psm;
+    guint32       record_handle;
+
+    wmem_array_t *uuid_array;
+} record_handle_service_t;
 
 typedef struct _custom_uuid_t {
     const guint8  uuid[16];
@@ -958,6 +971,26 @@ void proto_register_btsdp(void);
 void proto_reg_handoff_btsdp(void);
 
 
+static uuid_t
+get_most_specified_uuid(wmem_array_t  *uuid_array)
+{
+    uuid_t  uuid;
+
+/* TODO: For now try to use first (most specified) UUID, this may sometimes fail */
+    if (uuid_array) {
+        uuid_t  *p_uuid = NULL;
+
+        if (wmem_array_get_count(uuid_array) > 0)
+            p_uuid = (uuid_t *) wmem_array_index(uuid_array, 0);
+
+        if (p_uuid) return *p_uuid;
+    }
+
+    memset(&uuid, 0, sizeof(uuid_t));
+    return uuid;
+}
+
+
 static gchar *
 print_uuid(uuid_t *uuid)
 {
@@ -977,6 +1010,69 @@ print_uuid(uuid_t *uuid)
         return bytes_to_str(uuid->data, uuid->size);
     }
 }
+
+
+static wmem_array_t *
+get_uuids(packet_info *pinfo, guint32 record_handle)
+{
+    btl2cap_data_t           *l2cap_data;
+    record_handle_service_t  *record_handle_service;
+    wmem_tree_key_t           key[7];
+    guint32                   k_interface_id;
+    guint32                   k_adapter_id;
+    guint32                   k_chandle;
+    guint32                   k_psm;
+    guint32                   k_record_handle;
+    guint32                   k_frame_number;
+    guint32                   interface_id;
+    guint32                   adapter_id;
+    guint32                   chandle;
+    guint32                   psm;
+    guint32                   frame_number;
+
+    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
+
+    interface_id = l2cap_data->interface_id;
+    adapter_id   = l2cap_data->adapter_id;
+    chandle  = l2cap_data->chandle;
+    psm  = l2cap_data->psm;
+    frame_number = pinfo->fd->num;
+
+    k_interface_id  = interface_id;
+    k_adapter_id    = adapter_id;
+    k_chandle   = chandle;
+    k_psm   = psm;
+    k_record_handle = record_handle;
+    k_frame_number  = frame_number;
+
+
+    key[0].length = 1;
+    key[0].key    = &k_interface_id;
+    key[1].length = 1;
+    key[1].key    = &k_adapter_id;
+    key[2].length = 1;
+    key[2].key    = &k_chandle;
+    key[3].length = 1;
+    key[3].key    = &k_psm;
+    key[4].length = 1;
+    key[4].key    = &k_record_handle;
+    key[5].length = 1;
+    key[5].key    = &k_frame_number;
+    key[6].length = 0;
+    key[6].key    = NULL;
+
+    record_handle_service = (record_handle_service_t *) wmem_tree_lookup32_array_le(record_handle_services, key);
+    if (record_handle_service && record_handle_service->interface_id == interface_id &&
+            record_handle_service->adapter_id == adapter_id &&
+            record_handle_service->chandle == chandle &&
+            record_handle_service->psm == psm &&
+            record_handle_service->record_handle == record_handle) {
+        return record_handle_service->uuid_array;
+    }
+
+    return NULL;
+}
+
 
 static void
 save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protocol_order, service_info_t *parent_service_info)
@@ -1044,6 +1140,7 @@ save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protoco
 
     wmem_tree_insert32_array(service_infos, key, service_info);
 }
+
 
 static gint
 get_type_length(tvbuff_t *tvb, gint offset, gint *length)
@@ -1221,7 +1318,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         gint offset, guint tid, gboolean is_request,
         gint attribute_list_byte_offset, gint attribute_list_byte_count,
         guint32 pdu_type, tvbuff_t **new_tvb, gboolean *is_first,
-        gboolean *is_continued)
+        gboolean *is_continued, wmem_array_t **uuid_array, guint32 *record_handle)
 {
     guint              length;
     btl2cap_data_t    *l2cap_data;
@@ -1293,6 +1390,15 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                 tid_request->chandle      = chandle;
                 tid_request->psm          = psm;
                 tid_request->tid          = tid;
+
+                if (uuid_array)
+                    tid_request->uuid_array = *uuid_array;
+                else
+                    tid_request->uuid_array = NULL;
+                if (record_handle)
+                    tid_request->record_handle   = *record_handle;
+                else
+                    tid_request->record_handle = 0;
 
                 tid_request->data         = NULL;
                 tid_request->data_length  = 0;
@@ -1376,6 +1482,9 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                         tvb_memcpy(tvb, tid_request->data, attribute_list_byte_offset, attribute_list_byte_count);
                     }
+
+                    if (uuid_array) *uuid_array = tid_request->uuid_array;
+                    if (record_handle) *record_handle = tid_request->record_handle;
                 }
             }
 
@@ -1417,6 +1526,9 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                 if (new_tvb) *new_tvb = next_tvb;
                 if (tid_request->continuation_state_length) *is_first = FALSE;
+
+                if (uuid_array) *uuid_array = tid_request->uuid_array;
+                if (record_handle) *record_handle = tid_request->record_handle;
             }
         }
     } else {
@@ -1439,6 +1551,16 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                 tid_request->chandle                   = chandle;
                 tid_request->psm                       = psm;
                 tid_request->tid                       = tid;
+
+                if (uuid_array)
+                    tid_request->uuid_array = *uuid_array;
+                else
+                    tid_request->uuid_array = NULL;
+
+                if (record_handle)
+                    tid_request->record_handle = *record_handle;
+                else
+                    tid_request->record_handle = 0;
 
                 /* fetch data saved in continuation_state */
                 tid_request->data        = NULL;
@@ -1525,6 +1647,9 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                         tvb_memcpy(tvb, tid_request->data, attribute_list_byte_offset, attribute_list_byte_count);
                     }
+
+                    if (uuid_array) *uuid_array = tid_request->uuid_array;
+                    if (record_handle) *record_handle = tid_request->record_handle;
 
                     /* save tid_request in continuation_state data */
                     k_continuation_state = (guint8 *) wmem_alloc0(wmem_packet_scope(), 20);
@@ -1624,6 +1749,9 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                 if (new_tvb) *new_tvb = next_tvb;
                 if (tid_request->continuation_state_length) *is_first = FALSE;
+
+                if (uuid_array) *uuid_array = tid_request->uuid_array;
+                if (record_handle) *record_handle = tid_request->record_handle;
             }
 
         }
@@ -1649,14 +1777,12 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     size = type & 0x07;
     type = type >> 3;
 
-
     pitem = proto_tree_add_none_format(tree, hf_data_element, tvb, offset, 0, "Data Element: %s %s",
             val_to_str_const(type, vs_data_element_type, "Unknown Type"),
             val_to_str_const(size, vs_data_element_size, "Unknown Size"));
     ptree = proto_item_add_subtree(pitem, ett_btsdp_data_element);
 
     len = (new_offset - offset) + length;
-
 
     proto_item_set_len(pitem, len + 1);
 
@@ -1677,6 +1803,8 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
         length = 0;
     }
     proto_item_set_len(pitem, length);
+    if (length == 0)
+        proto_item_append_text(pitem, ": MISSING");
 
     if (next_tree) *next_tree = proto_item_add_subtree(pitem, ett_btsdp_data_element_value);
     offset += length;
@@ -1686,71 +1814,67 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
 
 
 static gint
-dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo)
+findDidVendorIdSource(tvbuff_t *tvb, gint service_offset,
+        gint number_of_attributes)
 {
-    proto_item  *list_item;
-    proto_tree  *list_tree;
-    proto_tree  *sub_tree;
-    proto_tree  *next_tree;
-    gint         start_offset;
-    gint         bytes_to_go;
-    guint16      id;
-    const gchar *att_name;
+    gint result = 0;
+    gint search_length;
+    gint search_offset;
+    gint i_number_of_attributes;
+    guint16 attribute;
 
-    start_offset = offset;
-    list_item = proto_tree_add_item(tree, hf_attribute_id_list, tvb, offset, 0, ENC_NA);
-    list_tree = proto_item_add_subtree(list_item, ett_btsdp_attribute_idlist);
+    search_offset = service_offset;
+    i_number_of_attributes = 0;
 
-    dissect_data_element(list_tree, &sub_tree, pinfo, tvb, offset);
+    while (i_number_of_attributes < number_of_attributes) {
+        search_offset = get_type_length(tvb, search_offset, &search_length);
+        attribute = tvb_get_ntohs(tvb, search_offset);
 
-    offset = get_type_length(tvb, offset, &bytes_to_go);
-    proto_item_set_len(list_item, offset - start_offset + bytes_to_go);
+        search_offset += search_length;
+        search_offset = get_type_length(tvb, search_offset, &search_length);
 
-    while (bytes_to_go > 0) {
-        guint8 byte0 = tvb_get_guint8(tvb, offset);
-        dissect_data_element(sub_tree, &next_tree, pinfo, tvb, offset);
-        offset += 1;
-        bytes_to_go -= 1;
-
-        if (byte0 == 0x09) { /* 16 bit attribute id */
-            id = tvb_get_ntohs(tvb, offset);
-
-            proto_tree_add_item(next_tree, hf_service_attribute_id_generic, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset      += 2;
-            bytes_to_go -= 2;
-
-            att_name = val_to_str_const(id, vs_general_attribute_id, "Unknown");
-            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%04x (%s) ", id, att_name);
-            proto_item_append_text(list_item, ": 0x%04x (%s) ", id, att_name);
-        } else if (byte0 == 0x0a) { /* 32 bit attribute range */
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%04x - 0x%04x) ",
-                            tvb_get_ntohs(tvb, offset), tvb_get_ntohs(tvb, offset + 2));
-            proto_item_append_text(list_item, ": (0x%04x - 0x%04x) ",
-                            tvb_get_ntohs(tvb, offset), tvb_get_ntohs(tvb, offset + 2));
-
-            proto_tree_add_item(next_tree, hf_attribute_id_range_lower, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset      += 2;
-            bytes_to_go -= 2;
-
-            proto_tree_add_item(next_tree, hf_attribute_id_range_higher, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset      += 2;
-            bytes_to_go -= 2;
-        } else {
-            break;
+        if (attribute == 0x205) {
+            result = get_uint_by_size(tvb, search_offset, 1);
         }
-    }
-    return offset - start_offset;
-}
 
+        search_offset += search_length;
+        i_number_of_attributes += 1;
+    }
+
+    return result;
+}
 
 static gint
-dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, gint offset)
+findDidVendorId(tvbuff_t *tvb, gint service_offset,
+        gint number_of_attributes)
 {
-    proto_tree_add_item(tree, hf_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    gint result = 0;
+    gint search_length;
+    gint search_offset;
+    gint i_number_of_attributes;
+    guint16 attribute;
 
-    return offset;
+    search_offset = service_offset;
+    i_number_of_attributes = 0;
+
+    while (i_number_of_attributes < number_of_attributes) {
+        search_offset = get_type_length(tvb, search_offset, &search_length);
+        attribute = tvb_get_ntohs(tvb, search_offset);
+
+        search_offset += search_length;
+        search_offset = get_type_length(tvb, search_offset, &search_length);
+
+        if (attribute == 0x201) {
+            result = get_uint_by_size(tvb, search_offset, 1);
+        }
+
+        search_offset += search_length;
+        i_number_of_attributes += 1;
+    }
+
+    return result;
 }
+
 
 static void
 dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
@@ -1886,6 +2010,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     }
 
 }
+
 
 static gint
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
@@ -3230,73 +3355,11 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     return new_offset - start_offset;
 }
 
-static gint
-findDidVendorIdSource(tvbuff_t *tvb, gint service_offset,
-        gint number_of_attributes)
-{
-    gint result = 0;
-    gint search_length;
-    gint search_offset;
-    gint i_number_of_attributes;
-    guint16 attribute;
-
-    search_offset = service_offset;
-    i_number_of_attributes = 0;
-
-    while (i_number_of_attributes < number_of_attributes) {
-        search_offset = get_type_length(tvb, search_offset, &search_length);
-        attribute = tvb_get_ntohs(tvb, search_offset);
-
-        search_offset += search_length;
-        search_offset = get_type_length(tvb, search_offset, &search_length);
-
-        if (attribute == 0x205) {
-            result = get_uint_by_size(tvb, search_offset, 1);
-        }
-
-        search_offset += search_length;
-        i_number_of_attributes += 1;
-    }
-
-    return result;
-}
-
-static gint
-findDidVendorId(tvbuff_t *tvb, gint service_offset,
-        gint number_of_attributes)
-{
-    gint result = 0;
-    gint search_length;
-    gint search_offset;
-    gint i_number_of_attributes;
-    guint16 attribute;
-
-    search_offset = service_offset;
-    i_number_of_attributes = 0;
-
-    while (i_number_of_attributes < number_of_attributes) {
-        search_offset = get_type_length(tvb, search_offset, &search_length);
-        attribute = tvb_get_ntohs(tvb, search_offset);
-
-        search_offset += search_length;
-        search_offset = get_type_length(tvb, search_offset, &search_length);
-
-        if (attribute == 0x201) {
-            result = get_uint_by_size(tvb, search_offset, 1);
-        }
-
-        search_offset += search_length;
-        i_number_of_attributes += 1;
-    }
-
-    return result;
-}
-
 
 static gint
 dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
         packet_info *pinfo, uuid_t uuid, gint service_offset,
-        service_info_t  *service_info, gint number_of_attributes)
+        service_info_t  *service_info, gint number_of_attributes, gboolean attribute_only)
 {
     proto_tree          *attribute_tree;
     proto_item          *attribute_item;
@@ -3305,7 +3368,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     proto_tree          *attribute_value_tree;
     proto_item          *attribute_value_item;
     proto_tree          *next_tree;
-    gint                 size;
+    gint                 size = 0;
     const gchar         *attribute_name;
     wmem_strbuf_t       *attribute_value = NULL;
     guint16              id;
@@ -3316,7 +3379,9 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     const guint8        *profile_speficic = "";
     gint                 new_offset;
     gint                 old_offset;
+    guint8               type;
 
+    type = tvb_get_guint8(tvb, offset);
     id = tvb_get_ntohs(tvb, offset + 1);
 
     switch (uuid.bt_uuid) {
@@ -3486,36 +3551,109 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
         hfx_attribute_id = hf_service_attribute_id_generic;
     }
 
-    attribute_item = proto_tree_add_none_format(tree, hf_service_attribute, tvb, offset, -1,
-                    "Service Attribute: %s%s (0x%x)", profile_speficic, attribute_name, id);
-    attribute_tree = proto_item_add_subtree(attribute_item, ett_btsdp_attribute);
+    if (!attribute_only) {
+        attribute_item = proto_tree_add_none_format(tree, hf_service_attribute, tvb, offset, -1,
+                        "Service Attribute: %s%s (0x%x)", profile_speficic, attribute_name, id);
+        attribute_tree = proto_item_add_subtree(attribute_item, ett_btsdp_attribute);
+    } else {
+        attribute_tree = tree;
+    }
 
-    attribute_id_item = proto_tree_add_none_format(attribute_tree, hf_service_attribute_id, tvb, offset, 3, "Attribute ID: %s", attribute_name);
-    attribute_id_tree = proto_item_add_subtree(attribute_id_item, ett_btsdp_attribute_id);
+    if (attribute_only && type == 0x0a) {
+        dissect_data_element(attribute_tree, &next_tree, pinfo, tvb, offset);
+        offset += 1;
 
-    new_offset = dissect_data_element(attribute_id_tree, &next_tree, pinfo, tvb, offset);
-    proto_tree_add_item(next_tree, hfx_attribute_id, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
-    offset = new_offset;
+        attribute_id_item = proto_tree_add_item(next_tree, hf_attribute_id_range, tvb, offset, 4, ENC_BIG_ENDIAN);
+        attribute_id_tree = proto_item_add_subtree(attribute_id_item, ett_btsdp_attribute_id);
 
-    attribute_value_item = proto_tree_add_item(attribute_tree, hf_service_attribute_value, tvb, offset, -1, ENC_NA);
-    attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Attribute Range (0x%04x - 0x%04x) ",
+                            tvb_get_ntohs(tvb, offset), tvb_get_ntohs(tvb, offset + 2));
 
-    dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, uuid,
-            service_did_vendor_id, service_did_vendor_id_source, service_info, &attribute_value);
-    old_offset = offset;
-    offset = get_type_length(tvb, offset, &size);
-    proto_item_append_text(attribute_item, ", value = %s", wmem_strbuf_get_str(attribute_value));
+        proto_tree_add_item(attribute_id_tree, hf_attribute_id_range_from, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
-    proto_item_set_len(attribute_item, 3 + size + (offset - old_offset));
-    proto_item_set_len(attribute_value_item, size + (offset - old_offset));
+        proto_tree_add_item(attribute_id_tree, hf_attribute_id_range_to, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    } else {
+        attribute_id_item = proto_tree_add_none_format(attribute_tree, hf_service_attribute_id, tvb, offset, 3, "Attribute ID: %s", attribute_name);
+        attribute_id_tree = proto_item_add_subtree(attribute_id_item, ett_btsdp_attribute_id);
+
+        new_offset = dissect_data_element(attribute_id_tree, &next_tree, pinfo, tvb, offset);
+        proto_tree_add_item(next_tree, hfx_attribute_id, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
+        offset = new_offset;
+
+        if (!attribute_only){
+            attribute_value_item = proto_tree_add_item(attribute_tree, hf_service_attribute_value, tvb, offset, -1, ENC_NA);
+            attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
+
+            dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, uuid,
+                    service_did_vendor_id, service_did_vendor_id_source, service_info, &attribute_value);
+            old_offset = offset;
+            offset = get_type_length(tvb, offset, &size);
+            proto_item_append_text(attribute_item, ", value = %s", wmem_strbuf_get_str(attribute_value));
+
+            proto_item_set_len(attribute_item, 3 + size + (offset - old_offset));
+            proto_item_set_len(attribute_value_item, size + (offset - old_offset));
+        } else {
+            proto_item_append_text(attribute_id_item, " %s", profile_speficic);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s%s 0x%04x] ", profile_speficic, attribute_name, id);
+        }
+    }
 
     return offset + size;
 }
 
 
 static gint
+dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, uuid_t *uuid)
+{
+    proto_item  *list_item;
+    proto_tree  *list_tree;
+    proto_tree  *sub_tree;
+    gint         start_offset;
+    gint         previous_offset;
+    gint         service_offset;
+    gint         bytes_to_go;
+    uuid_t       empty_uuid;
+
+    if (!uuid)
+        memset(&empty_uuid, 0, sizeof(uuid_t));
+
+    start_offset = offset;
+    list_item = proto_tree_add_item(tree, hf_attribute_id_list, tvb, offset, 0, ENC_NA);
+    list_tree = proto_item_add_subtree(list_item, ett_btsdp_attribute_idlist);
+
+    dissect_data_element(list_tree, &sub_tree, pinfo, tvb, offset);
+
+    offset = get_type_length(tvb, offset, &bytes_to_go);
+    service_offset = offset;
+    proto_item_set_len(list_item, offset - start_offset + bytes_to_go);
+
+    previous_offset = offset;
+    while (bytes_to_go > 0) {
+        offset = dissect_sdp_service_attribute(sub_tree, tvb, offset, pinfo, (uuid) ? *uuid : empty_uuid, service_offset, NULL, 1, TRUE);
+        bytes_to_go -= offset - previous_offset;
+        previous_offset = offset;
+    }
+
+    return offset - start_offset;
+}
+
+
+static gint
+dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+    proto_tree_add_item(tree, hf_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+
+static gint
 dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, gint length _U_)
+        packet_info *pinfo, uuid_t *service_uuid)
 {
     proto_item      *list_item;
     proto_tree      *list_tree;
@@ -3541,7 +3679,12 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     guint32          k_service_channel;
     guint32          k_frame_number;
     service_info_t  *service_info;
-    btl2cap_data_t  *l2cap_data = (btl2cap_data_t *) pinfo->private_data;
+    btl2cap_data_t  *l2cap_data;
+    wmem_array_t    *uuid_array;
+
+    uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(uuid_t));
+
+    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     offset = get_type_length(tvb, offset, &len);
     memset(&uuid, 0, sizeof(uuid_t));
@@ -3554,6 +3697,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     /* search for main service uuid */
     search_offset = offset;
     number_of_attributes = 0;
+
     while ((search_offset - start_offset) < len) {
         search_offset = get_type_length(tvb, search_offset, &search_length);
         attribute = tvb_get_ntohs(tvb, search_offset);
@@ -3563,9 +3707,10 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
         if (attribute == 0x01) {
             new_offset = 0;
-            while (new_offset < search_offset) {
+            while (new_offset <= search_offset) {
                 new_offset = get_type_length(tvb, search_offset, &element_length);
                 dissect_uuid(NULL, tvb, new_offset, element_length, &uuid);
+                wmem_array_append_one(uuid_array, uuid);
                 new_offset += element_length;
             }
         }
@@ -3573,6 +3718,10 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
         search_offset += search_length;
         number_of_attributes += 1;
     }
+
+    uuid = get_most_specified_uuid(uuid_array);
+    if (uuid.size == 0 && service_uuid)
+        uuid = *service_uuid;
 
     if (!pinfo->fd->flags.visited) {
         service_info = (service_info_t *) wmem_new(wmem_file_scope(), service_info_t);
@@ -3601,7 +3750,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     service_offset = offset;
     while ((offset - start_offset) < len) {
         offset = dissect_sdp_service_attribute(next_tree, tvb, offset, pinfo,
-                uuid, service_offset, service_info, number_of_attributes);
+                uuid, service_offset, service_info, number_of_attributes, FALSE);
     }
 
     if (!pinfo->fd->flags.visited) {
@@ -3654,13 +3803,13 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
 static gint
 dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, gint attribute_list_byte_count)
+        gint offset, packet_info *pinfo, gint attribute_list_byte_count,
+        uuid_t *service_uuid)
 {
     proto_item   *lists_item;
     proto_tree   *lists_tree;
     proto_tree   *next_tree;
     gint          start_offset;
-    gint          length;
     gint          len;
     guint         number_of_attributes;
 
@@ -3678,10 +3827,8 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
     while (offset - start_offset < attribute_list_byte_count) {
         number_of_attributes += 1;
 
-        get_type_length(tvb, offset, &length);
-
         offset = dissect_sdp_service_attribute_list(next_tree, tvb, offset,
-                pinfo, length);
+                pinfo, service_uuid);
     }
 
     proto_item_append_text(lists_tree, " [count = %2u]", number_of_attributes);
@@ -3691,198 +3838,22 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
 
 
 static gint
-dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
-{
-    gint       attribute_list_byte_count;
-    gboolean   is_first;
-    gboolean   is_continued;
-    tvbuff_t  *new_tvb;
-
-    proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-    attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
-    offset += 2;
-
-    reassemble_continuation_state(tvb, pinfo,
-            offset + attribute_list_byte_count, tid, FALSE,
-            offset, attribute_list_byte_count,
-            PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, &new_tvb, &is_first,
-            &is_continued);
-
-    if (is_first && !is_continued) {
-        dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo,
-                attribute_list_byte_count);
-    } else {
-        proto_tree_add_item(tree, hf_fragment, tvb, offset,
-                attribute_list_byte_count, ENC_NA);
-    }
-
-    if (is_continued) {
-        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
-    }
-
-    offset = dissect_continuation_state(tvb, tree, pinfo, offset + attribute_list_byte_count);
-
-    if (!is_first && new_tvb) {
-        proto_item *reassembled_item;
-        proto_tree *reassembled_tree;
-
-        add_new_data_source(pinfo, new_tvb, (is_continued) ? "Partial Reassembled SDP" : "Reassembled SDP");
-
-        reassembled_item = proto_tree_add_item(tree,
-                (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
-                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
-        reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
-        PROTO_ITEM_SET_GENERATED(reassembled_item);
-
-        if (!is_continued)
-            dissect_sdp_service_attribute_list_array(reassembled_tree, new_tvb, 0,
-                    pinfo, tvb_length(new_tvb));
-    }
-
-    return offset;
-}
-
-
-static gint
-dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
-{
-    proto_tree     *ptree;
-    proto_item     *pitem;
-    proto_tree     *next_tree;
-    gint            start_offset;
-    gint            size;
-    gint            bytes_to_go;
-    wmem_strbuf_t  *info_buf = NULL;
-    uuid_t          empty_uuid;
-
-    memset(&empty_uuid, 0, sizeof(uuid_t));
-    start_offset = offset;
-    pitem = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
-    ptree = proto_item_add_subtree(pitem, ett_btsdp_attribute);
-
-    dissect_data_element(ptree, &next_tree, pinfo, tvb, offset);
-    offset = get_type_length(tvb, offset, &bytes_to_go);
-    proto_item_set_len(pitem, bytes_to_go + (offset - start_offset));
-
-    while (bytes_to_go > 0) {
-        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &info_buf);
-        proto_item_append_text(pitem, "%s", wmem_strbuf_get_str(info_buf));
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(info_buf));
-
-        offset      += size;
-        bytes_to_go -= size;
-    }
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, ":");
-
-    proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    offset += dissect_attribute_id_list(tree, tvb, offset, pinfo);
-
-    reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
-            0, 0, PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, NULL, NULL, NULL);
-
-    offset = dissect_continuation_state(tvb, tree, pinfo, offset);
-
-    return offset;
-}
-
-
-static gint
-dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
-{
-    gint       attribute_list_byte_count;
-    gboolean   is_first;
-    gboolean   is_continued;
-    tvbuff_t  *new_tvb;
-
-    proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-    attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
-    offset += 2;
-
-    reassemble_continuation_state(tvb, pinfo,
-            offset + attribute_list_byte_count, tid, FALSE,
-            offset, attribute_list_byte_count,
-            PDU_TYPE_SERVICE_ATTRIBUTE, &new_tvb, &is_first,
-            &is_continued);
-
-    if (is_first && !is_continued) {
-        dissect_sdp_service_attribute_list(tree, tvb, offset, pinfo,
-                attribute_list_byte_count);
-    } else {
-        proto_tree_add_item(tree, hf_fragment, tvb, offset,
-                attribute_list_byte_count, ENC_NA);
-    }
-
-    if (is_continued) {
-        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
-    }
-
-    offset = dissect_continuation_state(tvb, tree, pinfo, offset + attribute_list_byte_count);
-
-    if (!is_first && new_tvb) {
-        proto_item *reassembled_item;
-        proto_tree *reassembled_tree;
-
-        add_new_data_source(pinfo, new_tvb, (is_continued) ? "Partial Reassembled SDP" : "Reassembled SDP");
-
-        reassembled_item = proto_tree_add_item(tree,
-                (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
-                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
-        reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
-        PROTO_ITEM_SET_GENERATED(reassembled_item);
-
-        if (!is_continued)
-            dissect_sdp_service_attribute_list(reassembled_tree, new_tvb, 0, pinfo, tvb_length(new_tvb));
-    }
-
-    return offset;
-}
-
-
-static gint
-dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
-{
-    guint32 value;
-
-    proto_tree_add_item(tree, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
-    value = tvb_get_ntohl(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": 0x%08x - ", value);
-    offset += 4;
-
-    proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    offset += dissect_attribute_id_list(tree, tvb, offset, pinfo);
-
-    reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
-            0, 0, PDU_TYPE_SERVICE_ATTRIBUTE, NULL, NULL, NULL);
-
-    offset = dissect_continuation_state(tvb, tree, pinfo, offset);
-
-    return offset;
-}
-
-
-static gint
 dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint16 tid)
 {
-    gint        start_offset;
-    gint        bytes_to_go;
-    gint        size;
-    proto_item  *ti;
-    proto_tree  *st;
-    proto_tree  *sub_tree = NULL;
-    uuid_t      empty_uuid;
+    gint         start_offset;
+    gint         bytes_to_go;
+    gint         size;
+    proto_item   *ti;
+    proto_tree   *st;
+    proto_tree   *sub_tree = NULL;
+    uuid_t        empty_uuid;
+    wmem_array_t *uuid_array = NULL;
 
     start_offset = offset;
     memset(&empty_uuid, 0, sizeof(uuid_t));
+    if (!pinfo->fd->flags.visited)
+        uuid_array = wmem_array_new(wmem_file_scope(), sizeof(uuid_t));
 
     ti = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
@@ -3893,8 +3864,16 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
     while (bytes_to_go > 0) {
         wmem_strbuf_t  *str = NULL;
+        gint            entry_offset;
+        gint            entry_size;
+        uuid_t          uuid;
 
         size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &str);
+
+        entry_offset = get_type_length(tvb, offset, &entry_size);
+        dissect_uuid(NULL, tvb, entry_offset, entry_size, &uuid);
+        if (uuid_array)
+            wmem_array_append_one(uuid_array, uuid);
 
         proto_item_append_text(ti, " %s", wmem_strbuf_get_str(str));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(str));
@@ -3910,7 +3889,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     offset += 2;
 
     reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
-            0, 0, PDU_TYPE_SERVICE_SEARCH, NULL, NULL, NULL);
+            0, 0, PDU_TYPE_SERVICE_SEARCH, NULL, NULL, NULL, &uuid_array, NULL);
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset);
 
@@ -3922,12 +3901,15 @@ static gint
 dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
         gint offset, packet_info *pinfo, guint16 tid)
 {
-    proto_tree *st;
-    proto_item *ti;
-    guint16     current_count;
-    gboolean    is_first;
-    gboolean    is_continued;
-    tvbuff_t   *new_tvb;
+    proto_tree   *st;
+    proto_item   *ti;
+    guint16       current_count;
+    gboolean      is_first;
+    gboolean      is_continued;
+    tvbuff_t     *new_tvb;
+    guint         i_record;
+    wmem_array_t *uuid_array = NULL;
+    wmem_array_t *record_handle_array = NULL;
 
     proto_tree_add_item(tree, hf_ssr_total_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3940,15 +3922,93 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
                  current_count * 4, "Service Record Handle List [count = %u]", current_count);
     st = proto_item_add_subtree(ti, ett_btsdp_ssr);
 
+    if (!pinfo->fd->flags.visited)
+        record_handle_array = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
+
     while (current_count > 0) {
         proto_tree_add_item(st, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+        if (record_handle_array) {
+            guint32 value;
+
+            value = tvb_get_ntohl(tvb, offset);
+            wmem_array_append_one(record_handle_array, value);
+        }
+
         offset += 4;
         current_count -= 1;
     }
 
     reassemble_continuation_state(tvb, pinfo, offset, tid, FALSE,
             offset - current_count * 4, current_count * 4, PDU_TYPE_SERVICE_SEARCH,
-            &new_tvb, &is_first, &is_continued);
+            &new_tvb, &is_first, &is_continued, &uuid_array, NULL);
+
+    if (is_continued)
+        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
+
+    if (!pinfo->fd->flags.visited) {
+        btl2cap_data_t           *l2cap_data;
+        record_handle_service_t  *record_handle_service;
+        wmem_tree_key_t           key[7];
+        guint32                   k_interface_id;
+        guint32                   k_adapter_id;
+        guint32                   k_chandle;
+        guint32                   k_psm;
+        guint32                   k_record_handle;
+        guint32                   k_frame_number;
+        guint32                   interface_id;
+        guint32                   adapter_id;
+        guint32                   chandle;
+        guint32                   psm;
+        guint32                   record_handle;
+        guint32                   frame_number;
+
+        l2cap_data = (btl2cap_data_t *) pinfo->private_data;
+
+        interface_id = l2cap_data->interface_id;
+        adapter_id   = l2cap_data->adapter_id;
+        chandle      = l2cap_data->chandle;
+        psm          = l2cap_data->psm;
+        frame_number = pinfo->fd->num;
+
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_psm          = psm;
+        k_frame_number = frame_number;
+
+        for (i_record = 0; i_record < wmem_array_get_count(record_handle_array); ++i_record) {
+
+            record_handle = *((guint32 *)wmem_array_index(record_handle_array, i_record));
+            k_record_handle = record_handle;
+
+            key[0].length = 1;
+            key[0].key    = &k_interface_id;
+            key[1].length = 1;
+            key[1].key    = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key    = &k_chandle;
+            key[3].length = 1;
+            key[3].key    = &k_psm;
+            key[4].length = 1;
+            key[4].key    = &k_record_handle;
+            key[5].length = 1;
+            key[5].key    = &k_frame_number;
+            key[6].length = 0;
+            key[6].key    = NULL;
+
+            record_handle_service = (record_handle_service_t *) wmem_new(wmem_file_scope(), record_handle_service_t);
+            record_handle_service->interface_id  = interface_id;
+            record_handle_service->adapter_id    = adapter_id;
+            record_handle_service->chandle       = chandle;
+            record_handle_service->psm           = psm;
+            record_handle_service->record_handle = record_handle;
+
+            record_handle_service->uuid_array   = uuid_array;
+
+            wmem_tree_insert32_array(record_handle_services, key, record_handle_service);
+        }
+    }
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset);
 
@@ -3971,6 +4031,224 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
             new_offset  += 4;
             new_length -= 4;
         }
+    }
+
+    return offset;
+}
+
+
+static gint
+dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
+        gint offset, packet_info *pinfo, guint16 tid)
+{
+    guint32        record_handle;
+    wmem_array_t  *uuid_array;
+    uuid_t         uuid;
+
+    proto_tree_add_item(tree, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
+    record_handle = tvb_get_ntohl(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": 0x%08x - ", record_handle);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uuid_array = get_uuids(pinfo, record_handle);
+    uuid = get_most_specified_uuid(uuid_array);
+
+    offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
+
+    reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
+            0, 0, PDU_TYPE_SERVICE_ATTRIBUTE, NULL, NULL, NULL, NULL, &record_handle);
+
+    offset = dissect_continuation_state(tvb, tree, pinfo, offset);
+
+    return offset;
+}
+
+
+static gint
+dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
+        gint offset, packet_info *pinfo, guint16 tid)
+{
+    gint           attribute_list_byte_count;
+    gboolean       is_first;
+    gboolean       is_continued;
+    tvbuff_t      *new_tvb;
+    guint32        record_handle = 0;
+    uuid_t         uuid;
+
+    proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+    attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    reassemble_continuation_state(tvb, pinfo,
+            offset + attribute_list_byte_count, tid, FALSE,
+            offset, attribute_list_byte_count,
+            PDU_TYPE_SERVICE_ATTRIBUTE, &new_tvb, &is_first,
+            &is_continued, NULL, &record_handle);
+
+    if (!is_continued) {
+        wmem_array_t  *uuid_array;
+
+        uuid_array = get_uuids(pinfo, record_handle);
+        uuid = get_most_specified_uuid(uuid_array);
+    } else {
+        memset(&uuid, 0, sizeof(uuid_t));
+    }
+
+    if (is_first && !is_continued) {
+        dissect_sdp_service_attribute_list(tree, tvb, offset, pinfo, &uuid);
+    } else {
+        proto_tree_add_item(tree, hf_fragment, tvb, offset,
+                attribute_list_byte_count, ENC_NA);
+    }
+
+    if (is_continued)
+        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
+
+    offset = dissect_continuation_state(tvb, tree, pinfo, offset + attribute_list_byte_count);
+
+    if (!is_first && new_tvb) {
+        proto_item *reassembled_item;
+        proto_tree *reassembled_tree;
+
+        add_new_data_source(pinfo, new_tvb, (is_continued) ? "Partial Reassembled SDP" : "Reassembled SDP");
+
+        reassembled_item = proto_tree_add_item(tree,
+                (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
+                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
+        reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
+        PROTO_ITEM_SET_GENERATED(reassembled_item);
+
+        if (!is_continued) {
+            dissect_sdp_service_attribute_list(reassembled_tree, new_tvb, 0,
+                pinfo, &uuid);
+        }
+    }
+
+    return offset;
+}
+
+
+static gint
+dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
+        gint offset, packet_info *pinfo, guint16 tid)
+{
+    proto_tree     *ptree;
+    proto_item     *pitem;
+    proto_tree     *next_tree;
+    gint            start_offset;
+    gint            size;
+    gint            bytes_to_go;
+    wmem_strbuf_t  *info_buf = NULL;
+    uuid_t          empty_uuid;
+    wmem_array_t   *uuid_array = NULL;
+    uuid_t          uuid;
+
+    memset(&empty_uuid, 0, sizeof(uuid_t));
+    if (!pinfo->fd->flags.visited)
+        uuid_array = wmem_array_new(wmem_file_scope(), sizeof(uuid_t));
+    else
+        uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(uuid_t));
+
+    start_offset = offset;
+    pitem = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
+    ptree = proto_item_add_subtree(pitem, ett_btsdp_attribute);
+
+    dissect_data_element(ptree, &next_tree, pinfo, tvb, offset);
+    offset = get_type_length(tvb, offset, &bytes_to_go);
+    proto_item_set_len(pitem, bytes_to_go + (offset - start_offset));
+
+    while (bytes_to_go > 0) {
+        gint            entry_offset;
+        gint            entry_size;
+        uuid_t          a_uuid;
+
+        memset(&a_uuid, 0, sizeof(uuid_t));
+
+        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &info_buf);
+        proto_item_append_text(pitem,"%s", wmem_strbuf_get_str(info_buf));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(info_buf));
+
+        entry_offset = get_type_length(tvb, offset, &entry_size);
+        dissect_uuid(NULL, tvb, entry_offset, entry_size, &a_uuid);
+        if (uuid_array)
+            wmem_array_append_one(uuid_array, a_uuid);
+
+        offset      += size;
+        bytes_to_go -= size;
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": ");
+
+    proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uuid = get_most_specified_uuid(uuid_array);
+
+    offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
+
+    reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
+            0, 0, PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, NULL, NULL, NULL, &uuid_array, NULL);
+
+    offset = dissect_continuation_state(tvb, tree, pinfo, offset);
+
+    return offset;
+}
+
+
+static gint
+dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
+        gint offset, packet_info *pinfo, guint16 tid)
+{
+    gint           attribute_list_byte_count;
+    gboolean       is_first;
+    gboolean       is_continued;
+    tvbuff_t      *new_tvb;
+    uuid_t         uuid;
+    wmem_array_t  *uuid_array = NULL;
+
+    proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+    attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    reassemble_continuation_state(tvb, pinfo,
+            offset + attribute_list_byte_count, tid, FALSE,
+            offset, attribute_list_byte_count,
+            PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, &new_tvb, &is_first,
+            &is_continued, &uuid_array, NULL);
+
+    uuid = get_most_specified_uuid(uuid_array);;
+
+    if (is_first && !is_continued) {
+        dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo,
+                attribute_list_byte_count, &uuid);
+    } else {
+        proto_tree_add_item(tree, hf_fragment, tvb, offset,
+                attribute_list_byte_count, ENC_NA);
+    }
+
+    if (is_continued)
+        col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
+
+    offset = dissect_continuation_state(tvb, tree, pinfo, offset + attribute_list_byte_count);
+
+    if (!is_first && new_tvb) {
+        proto_item *reassembled_item;
+        proto_tree *reassembled_tree;
+
+        add_new_data_source(pinfo, new_tvb, (is_continued) ? "Partial Reassembled SDP" : "Reassembled SDP");
+
+        reassembled_item = proto_tree_add_item(tree,
+                (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
+                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
+        reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
+        PROTO_ITEM_SET_GENERATED(reassembled_item);
+
+        if (!is_continued)
+            dissect_sdp_service_attribute_list_array(reassembled_tree, new_tvb, 0,
+                    pinfo, tvb_length(new_tvb), &uuid);
     }
 
     return offset;
@@ -4089,13 +4367,18 @@ proto_register_btsdp(void)
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_attribute_id_range_lower,
-            { "Attribute Range Lower",           "btsdp.attribute_range_lower",
+        { &hf_attribute_id_range,
+            { "Attribute Range",                 "btsdp.attribute_range",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_attribute_id_range_from,
+            { "Attribute Range From",            "btsdp.attribute_range.from",
             FT_UINT16, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_attribute_id_range_higher,
-            { "Attribute Range Higher",          "btsdp.attribute_range_higher",
+        { &hf_attribute_id_range_to,
+            { "Attribute Range To",              "btsdp.attribute_range.to",
             FT_UINT16, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
@@ -5469,6 +5752,7 @@ proto_register_btsdp(void)
 
     tid_requests = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     continuation_states = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    record_handle_services = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     service_infos = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     sdp_package.service_infos = service_infos;
