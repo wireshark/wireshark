@@ -1,4 +1,4 @@
-/* print_mswin.c
+/* print_win32.c
  * Printing support for MSWindows
  *
  * $Id$
@@ -250,7 +250,6 @@ static void print_file(const char *file_name, HDC hdc, int width, int height)
                 y_pos = Y_OFFSET;
                 y_cnt = 0;
             }
-            continue;
         }
 
         buf[cnt++] = ch;

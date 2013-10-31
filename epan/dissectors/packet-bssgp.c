@@ -4735,7 +4735,7 @@ bssgp_sgsn_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     pinfo->link_dir = P2P_DIR_UL;
 
     /* Trace Type Trace Type/11.3.38 M TLV 3 */
-    ELEM_MAND_TELV(0x22, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , NULL);
+    ELEM_MAND_TELV(0x22, BSSGP_PDU_TYPE, DE_BSSGP_TRACE_TYPE , NULL);
     /* Trace Reference Trace Reference/11.3.37 M TLV 4 */
     ELEM_MAND_TELV(0x21, BSSGP_PDU_TYPE, DE_BSSGP_TRACE_REF , NULL);
     /* Trigger Id Trigger Id/11.3.40 O TLV 4-24 */

@@ -3877,7 +3877,7 @@
 		</avp>
 		<avp name="Packet-Filter-Usage" code="1072" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="SEND_TO_UE"  code="0"/>
+			<enum name="SEND_TO_UE"  code="1"/>
 		</avp>
 		<avp name="Charging-Correlation-Indicator" code="1073" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
