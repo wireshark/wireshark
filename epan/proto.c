@@ -5003,7 +5003,7 @@ register_type_length_mismatch(void)
 	proto_set_cant_toggle(proto_type_length_mismatch);
 }
 
-#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (120000+PRE_ALLOC_EXPERT_FIELDS_MEM)
+#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (144000+PRE_ALLOC_EXPERT_FIELDS_MEM)
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
