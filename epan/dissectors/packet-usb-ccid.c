@@ -341,13 +341,16 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static void
-dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *item;
     proto_tree *ccid_tree;
     guint8      cmd;
     tvbuff_t   *next_tvb;
+    usb_data_t      *usb_data = (usb_data_t *) data;
+
+    DISSECTOR_ASSERT(usb_data);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCCID");
     col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");
@@ -442,7 +445,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (tvb_get_guint8(tvb, 15) == 0xD4) {
 
                         /* Skip the 5 byte ACS Pseudo-Header */
-                        call_dissector(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree);
+                        call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree, usb_data);
                     }
 
                     else {
@@ -493,7 +496,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Strip the ISO 7816 status word at the end, like we do in the PN532 dissector for FeliCa payloads... */
                 next_tvb= tvb_new_subset(tvb, 10, (tvb_get_guint8(tvb, 1) - 2), (tvb_get_guint8(tvb, 1) - 2));
-                call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree);
+                call_dissector_with_data(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree, usb_data);
             }
 
             /* Try to dissect responses to GSM SIM packets */
@@ -521,6 +524,9 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(ccid_tree, hf_ccid_bClockStatus, tvb, 9, 1, ENC_LITTLE_ENDIAN);
         break;
     }
+
+    /* TODO: Try use "offset" instead of hardcoded constants */
+    return tvb_length(tvb);
 }
 
 void
@@ -665,7 +671,7 @@ proto_register_ccid(void)
     ccid_dissector_table = register_dissector_table("usbccid.payload",
                                                     "USBCCID Payload", FT_UINT8, BASE_DEC);
 
-    register_dissector("usbccid", dissect_ccid, proto_ccid);
+    new_register_dissector("usbccid", dissect_ccid, proto_ccid);
 }
 
 /* Handler registration */

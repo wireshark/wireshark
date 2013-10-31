@@ -116,6 +116,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 
     usb_data = (usb_data_t *)data;
+    DISSECTOR_ASSERT(usb_data);
 
     p2p_dir_save = pinfo->p2p_dir;
     pinfo->p2p_dir = usb_data->direction;
