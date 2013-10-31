@@ -119,10 +119,12 @@ static gint ett_sbccs_dib_linkctlinfo = -1;
 
 static dissector_handle_t data_handle;
 
+#if 0
 typedef struct {
     guint32 conv_id;
     guint32 task_id;
 } sb3_task_id_t;
+#endif
 
 static const value_string fc_sbccs_iu_val[] = {
     {FC_SBCCS_IU_DATA,            "Data"},
@@ -707,13 +709,14 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
 
         proto_tree_add_item (tree, hf_sbccs_dib_iucnt, tvb, offset+9, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_sbccs_dib_datacnt, tvb, offset+10, 2, ENC_BIG_ENDIAN);
-        supp_status_cnt = tvb_get_ntohs (tvb, offset+10);
         proto_tree_add_item (tree, hf_sbccs_lrc, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+    }
 
-        if (supp_status_cnt) {
-            next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
-            call_dissector (data_handle, next_tvb, pinfo, tree);
-        }
+    supp_status_cnt = tvb_get_ntohs (tvb, offset+10);
+
+    if (supp_status_cnt) {
+        next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
+        call_dissector (data_handle, next_tvb, pinfo, tree);
     }
 }
 
@@ -840,8 +843,9 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     proto_tree     *dib_tree = NULL;
     tvbuff_t       *next_tvb;
     conversation_t *conversation;
+#if 0
     sb3_task_id_t   task_key;
-    void           *pd_save;
+#endif
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-SB3");
@@ -857,23 +861,20 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       PT_SBCCS, ch_cu_id, dev_addr, 0);
 
-    pd_save = pinfo->private_data;
     if (conversation) {
+#if 0
         task_key.conv_id = conversation->index;
         task_key.task_id = ccw;
-        pinfo->private_data = (void *)&task_key;
-
+#endif
     }
     else if ((type == FC_SBCCS_IU_CMD_HDR) ||
              (type != FC_SBCCS_IU_CMD_DATA)) {
         conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          PT_SBCCS, ch_cu_id, dev_addr, 0);
+#if 0
         task_key.conv_id = conversation->index;
         task_key.task_id = ccw;
-        pinfo->private_data = (void *)&task_key;
-    }
-    else {
-        pinfo->private_data = NULL;
+#endif
     }
 
     if (tree) {
@@ -920,7 +921,6 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
         call_dissector (data_handle, next_tvb, pinfo, tree);
     }
-    pinfo->private_data = pd_save;
 }
 
 /* Register the protocol with Wireshark */
