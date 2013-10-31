@@ -142,7 +142,7 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
 
     setValue(value);
 
-#ifndef Q_OS_MAC
+#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     if (animate) {
         QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
         this->setGraphicsEffect(effect);
@@ -152,6 +152,7 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
         animation->setDuration(750);
         animation->setStartValue(0.1);
         animation->setEndValue(1.0);
+        animation->setEasingCurve(QEasingCurve::InOutQuad);
         animation->start();
     }
 #else
