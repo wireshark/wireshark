@@ -1442,7 +1442,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /* Not attempting to decode payload if ciphering is enabled
                    (and NULL ciphering is not being used) */
                 if (global_pdcp_dissect_user_plane_as_ip &&
-                    ((pdu_security != NULL) || (pdu_security->ciphering == 0)))
+                    ((pdu_security == NULL) || (pdu_security->ciphering == 0)))
                 {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
