@@ -222,11 +222,6 @@ set(WSDG_SOURCE
 	${WSDG_GRAPHICS}
 )
 
-set(RELEASE_NOTES_SOURCE
-	release-notes.xml
-	svn_version.xml
-)
-
 set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dumper.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_field.c
@@ -243,6 +238,7 @@ find_package( FOP ) # Call before XSLTPROC
 find_package( LYNX )
 find_package( XSLTPROC )
 find_package( XMLLINT )
+find_package( ASCIIDOC )
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT
@@ -348,6 +344,52 @@ XML2PDF(
 )
 
 # release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
+
+add_custom_target(
+	release_notes ALL
+	DEPENDS
+		release-notes.html
+		release-notes.txt
+		release-notes-a4.pdf
+		release-notes-us.pdf
+		${CMAKE_SOURCE_DIR}/NEWS
+)
+
+ADD_CUSTOM_COMMAND(
+	OUTPUT
+		${CMAKE_SOURCE_DIR}/NEWS
+	COMMAND cp
+		${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
+		${CMAKE_SOURCE_DIR}/NEWS
+	DEPENDS
+                ${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
+)
+
+ASCIIDOC2HTML(
+	release-notes.html
+	release-notes.asciidoc
+	asciidoc.conf
+)
+
+ASCIIDOC2TXT(
+	release-notes.txt
+	release-notes.asciidoc
+	asciidoc.conf
+)
+
+ASCIIDOC2PDF(
+	release-notes-a4.pdf
+	release-notes.asciidoc
+	asciidoc.conf
+	A4
+)
+
+ASCIIDOC2PDF(
+	release-notes-us.pdf
+	release-notes.asciidoc
+	asciidoc.conf
+	letter
+)
 
 # wsluarm
 ADD_CUSTOM_COMMAND(

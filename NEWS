@@ -1,4 +1,5 @@
-                         Wireshark 1.9.2 Release Notes
+
+                         Wireshark 1.11.1 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,65 +13,49 @@ What's New
   Bug Fixes
 
    The following bugs have been fixed:
+     * "Follow TCP Stream" shows only the first HTTP req+res. ([1]Bug
+       9044)
+     * Files with pcap-ng Simple Packet Blocks can't be read. ([2]Bug
+       9200)
 
   New and Updated Features
 
    The following features are new (or have been significantly updated)
-   since version 1.8:
-     * Wireshark on 32- and 64-bit Windows supports automatic updates.
-     * The packet bytes view is faster.
-     * You can now display a list of resolved host names in "hosts" format
-       within Wireshark.
-     * The wireless toolbar has been updated.
-     * Wireshark on Linux does a better job of detecting interface
-       addition and removal.
-     * It is now possible to compare two fields in a display filter (for
-       example: udp.srcport != udp.dstport). The two fields must be of the
-       same type for this to work.
-     * The Windows installers ship with WinPcap 4.1.3, which supports
-       Windows 8.
-     * USB type and product name support has been improved.
-     * Wireshark now calculates HTTP response times and presents the
-       result in a new field in the HTTP response. Links from the
-       request's frame to the response's frame and vice-versa are also
-       added.
-     * The main welcome screen and status bar now display file sizes using
-       strict SI prefixes instead of old-style binary prefixes.
-     * Capinfos now prints human-readable statistics with SI suffixes by
-       default.
-     * It is now possible to open a referenced packet (such as the matched
-       request or response packet) in a new window.
-     * It is now possible for tshark to display only the hex/ascii packet
-       data without also requiring that the packet summary and/or packet
-       details are also displayed. If you want the old behavior, use -Px
-       instead of just -x.
-     * The Wireshark application icon, capture toolbar icons, and other
-       icons have been updated.
+   since version 1.10:
+     * Wireshark now uses the Qt application framework. The new UI should
+       provide a significantly better user experience, particularly on Mac
+       OS X and Windows.
+     * A more flexible, modular memory manger (wmem) has been added. It
+       was available experimentally in 1.10 but is now mature and has
+       mostly replaced the old API.
+     * Expert info is now filterable and now requires a new API.
+     * The Windows installer now uninstalls the previous version of
+       Wireshark silently. You can still run the uninstaller manually
+       beforehand if you wish to run it interactively.
+     * The "Number" column shows related packets and protocol conversation
+       spans (Qt only).
+     * When manipulating packets with editcap using the -C <choplen>
+       and/or -s <snaplen> options, it is now possible to also adjust the
+       original frame length using the -L option.
+     * You can now pass the -C <choplen> option to editcap multiple times,
+       which allows you to chop bytes from the beginning of a packet as
+       well as at the end of a packet in a single step.
+     * You can now specify an optional offset to the -C option for
+       editcap, which allows you to start chopping from that offset
+       instead of from the absolute packet beginning or end.
+     * "malformed" display filter has been renamed to "_ws.malformed". A
+       handful of other filters have been given the "_ws." prefix to note
+       they are Wireshark application specific filters and not dissector
+       filters.
 
   New Protocol Support
 
-   Amateur Radio AX.25, Amateur Radio BPQ, Amateur Radio NET/ROM, America
-   Online (AOL), AR Drone, Automatic Position Reporting System (APRS),
-   AX.25 KISS, AX.25 no Layer 3, Bitcoin Protocol, Bluetooth Attribute
-   Protocol, Bluetooth AVCTP Protocol, Bluetooth AVDTP Protocol, Bluetooth
-   AVRCP Profile, Bluetooth BNEP Protocol, Bluetooth HCI USB Transport,
-   Bluetooth HCRP Profile, Bluetooth HID Profile, Bluetooth MCAP Protocol,
-   Bluetooth SAP Profile, Bluetooth SBC Codec, Bluetooth Security Manager
-   Protocol, Cisco GED-125 Protocol, Clique Reliable Multicast Protocol
-   (CliqueRM), D-Bus, Digital Transmission Content Protection over IP,
-   DVB-S2 Baseband, FlexNet, Forwarding and Control Element Separation
-   Protocol (ForCES), Foundry Discovery Protocol (FDP), Gearman Protocol,
-   GEO-Mobile Radio (1) RACH, HoneyPot Feeds Protocol (HPFEEDS), LTE
-   Positioning Protocol Extensions (LLPe), Media Resource Control Protocol
-   Version 2 (MRCPv2), Media-Independent Handover (MIH), MIDI System
-   Exclusive (SYSEX), Mojito DHT, MPLS-TP Fault-Management, MPLS-TP
-   Lock-Instruct, NASDAQ's OUCH 4.x, NASDAQ's SoupBinTCP, OpenVPN
-   Protocol, Pseudo-Wire OAM, RPKI-Router Protocol, SEL Fast Message,
-   Simple Packet Relay Transport (SPRT), Skype, Smart Message Language
-   (SML), SPNEGO Extended Negotiation Security Mechanism (NEGOEX),
-   UHD/USRP, USB Audio, USB Video, v.150.1 State Signaling Event (SSE),
-   VITA 49 Radio Transport, VNTAG, WebRTC Datachannel Protocol (RTCDC),
-   and WiMAX OFDMA PHY SAP
+   802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData,
+   EXPORTED PDU, HTTP2, IDRP, ILP, Kafka, MBIM, MiNT, MP4 / ISOBMFF file
+   format, NXP PN532 HCI, OpenFlow, Picture Transfer Protocol Over IP, SEL
+   RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection,
+   Sippy RTPproxy, STANAG 4607, STANAG 5066 SIS, Tinkerforge, UDT, URL
+   Encoded Form Data, and Wi-Fi Display
 
   Updated Protocol Support
 
@@ -78,23 +63,20 @@ What's New
 
   New and Updated Capture File Support
 
-   AIX iptrace, Catapult DCT2000, Citrix NetScaler, DBS Etherwatch (VMS),
-   Endace ERF, HP-UX nettl, IBM iSeries, Ixia IxVeriWave, NA Sniffer
-   (DOS), Netscreen, Network Instruments Observer, pcap, pcap-ng, Symbian
-   OS btsnoop, TamoSoft CommView, and Tektronix K12xx
+   Netscaler 2.6, and STANAG 4607
      __________________________________________________________________
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [1]http://www.wireshark.org/download.html.
+   [3]http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [2]download page on the Wireshark web site.
+   found on the [4]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -107,62 +89,73 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([3]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([5]Bug 1419)
 
-   The BER dissector might infinitely loop. ([4]Bug 1516)
+   The BER dissector might infinitely loop. ([6]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
    (ws-buglink:1814)
 
-   Filtering tshark captures with display filters (-R) no longer works.
-   ([5]Bug 2234)
+   Filtering tshark captures with read filters (-R) no longer works.
+   ([7]Bug 2234)
 
    The 64-bit Windows installer does not support Kerberos decryption.
-   ([6]Win64 development page)
+   ([8]Win64 development page)
 
-   Application crash when changing real-time option. ([7]Bug 4035)
+   Resolving ([9]Bug 9044) reopens ([10]Bug 3528) so that Wireshark no
+   longer automatically decodes gzip data when following a TCP stream.
 
-   Hex pane display issue after startup. ([8]Bug 4056)
+   Application crash when changing real-time option. ([11]Bug 4035)
 
-   Packet list rows are oversized. ([9]Bug 4357)
+   Hex pane display issue after startup. ([12]Bug 4056)
 
-   Summary pane selected frame highlighting not maintained. ([10]Bug 4445)
+   Packet list rows are oversized. ([13]Bug 4357)
+
+   Summary pane selected frame highlighting not maintained. ([14]Bug 4445)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([11]Bug 4985)
+   ([15]Bug 4985)
+
+   The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 ([16]Bug
+   9242)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [12]Wireshark's Q&A site and on the
+   Community support is available on [17]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [13]the web site.
+   all of Wireshark's mailing lists can be found on [18]the web site.
 
    Official Wireshark training and certification are available from
-   [14]Wireshark University.
+   [19]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [15]Wireshark web site.
+   A complete FAQ is available on the [20]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-03-27 11:36:52 PDT
+   Last updated 2013-10-28 22:19:21 CET
 
 References
 
-   1. http://www.wireshark.org/download.html
-   2. http://www.wireshark.org/download.html#thirdparty
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   6. https://wiki.wireshark.org/Development/Win64
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  12. http://ask.wireshark.org/
-  13. http://www.wireshark.org/lists/
-  14. http://www.wiresharktraining.com/
-  15. http://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9200
+   3. http://www.wireshark.org/download.html
+   4. http://www.wireshark.org/download.html#thirdparty
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   8. https://wiki.wireshark.org/Development/Win64
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9242
+  17. http://ask.wireshark.org/
+  18. http://www.wireshark.org/lists/
+  19. http://www.wiresharktraining.com/
+  20. http://www.wireshark.org/faq.html
