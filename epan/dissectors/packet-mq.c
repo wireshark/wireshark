@@ -99,7 +99,6 @@ static int hf_mq_tsh_ctlflgs1 = -1;
 static int hf_mq_tsh_ctlflgs2 = -1;
 static int hf_mq_tsh_luwid = -1;
 static int hf_mq_tsh_encoding = -1;
-
 static int hf_mq_tsh_ccsid = -1;
 static int hf_mq_tsh_reserved = -1;
 
@@ -112,7 +111,7 @@ static int hf_mq_tsh_tcf_first = -1;
 static int hf_mq_tsh_tcf_last = -1;
 static int hf_mq_tsh_tcf_reqacc = -1;
 static int hf_mq_tsh_tcf_dlq = -1;
-static const int *pf_flds_tcf[] =
+static const int *pf_flds_tcf[] = 
 {
 	&hf_mq_tsh_tcf_dlq       ,
 	&hf_mq_tsh_tcf_reqacc    ,
@@ -606,27 +605,14 @@ static const int *pf_flds_mtchopt[] =
 
 static int hf_mq_lpoo_StructID = -1;
 static int hf_mq_lpoo_version = -1;
-static int hf_mq_lpoo_options = -1;
-static int hf_mq_lpoo_lpiopts = -1;
-static int hf_mq_lpoo_defpersist = -1;
-static int hf_mq_lpoo_defputresptype = -1;
-static int hf_mq_lpoo_defreadahead = -1;
+static int hf_mq_lpoo_unknown1 = -1;
+static int hf_mq_lpoo_unknown2 = -1;
+static int hf_mq_lpoo_unknown3 = -1;
+static int hf_mq_lpoo_unknown4 = -1;
+static int hf_mq_lpoo_unknown5 = -1;
 static int hf_mq_lpoo_qprotect = -1;
 static int hf_mq_lpoo_unknown6 = -1;
-/*static int hf_mq_lpoo_unknown7 = -1;*/
-static int hf_mq_lpoo_xtradata = -1;
-
-static int hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT = -1;
-static int hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT   = -1 ;
-static int hf_mq_lpoo_lpiopts_SAVE_USER_CTXT     = -1;
-static const int *pf_flds_lpooopt[] = 
-{
-	&hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT,
-	&hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT,
-	&hf_mq_lpoo_lpiopts_SAVE_USER_CTXT,
-	NULL
-};
-
+static int hf_mq_lpoo_unknown7 = -1;
 
 static int hf_mq_charv_vsptr     = -1;
 static int hf_mq_charv_vsoffset  = -1;
@@ -832,8 +818,7 @@ static gint ett_mq_pmo = -1;
 static gint ett_mq_pmo_option = -1;
 
 static gint ett_mq_lpoo = -1;
-static gint ett_mq_lpoo_options = -1;
-static gint ett_mq_lpoo_lpiopts = -1;
+static gint ett_mq_lpoo_option = -1;
 
 static gint ett_mq_head = -1; /* Factorisation of common Header structure items (DH, MDE, CIH, IIH, RFH, RMH, WIH */
 static gint ett_mq_xa = -1;
@@ -1210,10 +1195,9 @@ static reassembly_table mq_reassembly_table;
 #define MQ_TEXT_NOTIFICATION "NOTIFICATION"
 #define MQ_TEXT_BIND_READAHEAD_AS_Q_DEF "Bind/Read Ahead As Q Def"
 #define MQ_TEXT_IMMEDIATE_NONE "Close Immediate/No option"
-#define MQ_TEXT_MQPMO_NONE     "Resp as Q Def/Resp as Topic Def/None"
-#define MQ_TEXT_MQGMO_NONE     "No Wait/Prop as Q Def/None"
-#define MQ_TEXT_MQMO_NONE      "None"
-#define MQ_TEXT_LPOOOPT_NONE   "None"
+#define MQ_TEXT_MQPMO_NONE "Resp as Q Def/Resp as Topic Def/None"
+#define MQ_TEXT_MQGMO_NONE "No Wait/Prop as Q Def/None"
+#define MQ_TEXT_MQMO_NONE  "None"
 
 #define MQ_TEXT_PING  "PING"
 #define MQ_TEXT_RESET "RESET"
@@ -1261,6 +1245,11 @@ static reassembly_table mq_reassembly_table;
 #define MQ_TEXT_OR   "Object Record"
 #define MQ_TEXT_PMR  "Put Message Record"
 #define MQ_TEXT_RR   "Response Record"
+
+/* Notification Code */
+#define MQ_NOTIF_COMPLETED   12 /* 0x0c */
+#define MQ_NOTIF_FAILED      14 /* 0x0e */
+#define MQ_NOTIF_NODATA      11 /* 0x0b */
 
 #define MQ_NC_GET_INHIBITED          1
 #define MQ_NC_GET_ALLOWED            2
@@ -1540,93 +1529,14 @@ DEF_VALSB(sidtype)
 	DEF_VALS1(MQSIDT_WAS_SECURITY_ID),
 DEF_VALSE;
 
-static gint dissect_mq_encoding(proto_tree *tree, int hfindex, tvbuff_t *tvb, const gint start, gint length, const guint encoding)
+struct mq_msg_properties
 {
-	gchar  sEnc[128] = "";
-	gchar *pEnc;
-	guint  uEnc;
+	gint iOffsetEncoding;     /* Message encoding */
+	gint iOffsetCcsid;        /* Message character set */
+	gint iOffsetFormat;       /* Message format */
+};
 
-	if (length == 2)
-	{
-		uEnc=(gint)tvb_get_guint16_endian(tvb, start, encoding);
-	}
-	else
-	{
-		uEnc=tvb_get_guint32_endian(tvb, start, encoding);
-	}
-	pEnc=sEnc;
-
-#define CHECK_ENC(M, T) ((uEnc & M) == T)
-#define DOPRT(A) pEnc += g_snprintf(pEnc, (gulong)(sizeof(sEnc)-1-(pEnc-sEnc)), A);
-	if (CHECK_ENC(MQ_MQENC_FLOAT_MASK,MQ_MQENC_FLOAT_UNDEFINED))
-	{
-		DOPRT("FLT_UNDEFINED");
-	}
-	else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK,MQ_MQENC_FLOAT_IEEE_NORMAL))
-	{
-		DOPRT("FLT_IEEE_NORMAL");
-	}
-	else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK,MQ_MQENC_FLOAT_IEEE_REVERSED))
-	{
-		DOPRT("FLT_IEEE_REVERSED");
-	}
-	else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK,MQ_MQENC_FLOAT_S390))
-	{
-		DOPRT("FLT_S390");
-	}
-	else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK,MQ_MQENC_FLOAT_TNS))
-	{
-		DOPRT("FLT_TNS");
-	}else 
-	{
-		DOPRT("FLT_UNKNOWN");
-	}
-
-	DOPRT("/");
-	if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK,MQ_MQENC_DECIMAL_UNDEFINED))
-	{
-		DOPRT("DEC_UNDEFINED");
-	}
-	else if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK,MQ_MQENC_DECIMAL_NORMAL))
-	{
-		DOPRT("DEC_NORMAL");
-	}
-	else if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK,MQ_MQENC_DECIMAL_REVERSED))
-	{
-		DOPRT("DEC_REVERSED");
-	}
-	else 
-	{
-		DOPRT("DEC_UNKNOWN");
-	}
-
-	DOPRT("/");
-	if (CHECK_ENC(MQ_MQENC_INTEGER_MASK,MQ_MQENC_INTEGER_UNDEFINED))
-	{
-		DOPRT("INT_UNDEFINED");
-	}
-	else if (CHECK_ENC(MQ_MQENC_INTEGER_MASK,MQ_MQENC_INTEGER_NORMAL))
-	{
-		DOPRT("INT_NORMAL");
-	}
-	else if (CHECK_ENC(MQ_MQENC_INTEGER_MASK,MQ_MQENC_INTEGER_REVERSED))
-	{
-		DOPRT("INT_REVERSED");
-	}
-	else 
-	{
-		DOPRT("INT_UNKNOWN");
-	}
-#undef CHECK_ENC
-#undef DOPRT
-	
-	proto_tree_add_uint_format_value(tree, hfindex, tvb, start, length, uEnc, 
-		"%8x-%d (%s)", uEnc, uEnc, sEnc);
-
-	return length;
-}
-
-static gint dissect_mq_MQMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gint ett_subtree, mq_parm_t *p_mq_parm)
+static gint dissect_mq_MQMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset,gint ett_subtree, mq_parm_t *p_mq_parm)
 {
 	guint        uMoOpt;
 
@@ -1646,27 +1556,8 @@ static gint dissect_mq_MQMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gin
 	}
 	return 4;
 }
-static gint dissect_mq_LPOO_LPIOPTS(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gint ett_subtree, mq_parm_t *p_mq_parm)
-{
-	guint        uLpiOpts;
 
-	uLpiOpts = tvb_get_guint32_endian(tvb, offset,p_mq_parm->mq_int_enc);
-
-	if (uLpiOpts == 0)
-	{
-		proto_item  *ti;
-		proto_tree  *mq_tree_sub;
-		ti = proto_tree_add_item(mq_tree, hf_mq_lpoo_lpiopts, tvb, offset, 4, p_mq_parm->mq_int_enc);
-		mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
-		proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_LPOOOPT_NONE);
-	}
-	else
-	{
-		proto_tree_add_bitmask(mq_tree, tvb, offset, hf_mq_lpoo_lpiopts, ett_subtree, pf_flds_lpooopt, p_mq_parm->mq_int_enc);
-	}
-	return 4;
-}
-static gint dissect_mq_MQGMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gint ett_subtree, mq_parm_t *p_mq_parm)
+static gint dissect_mq_MQGMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset,gint ett_subtree, mq_parm_t *p_mq_parm)
 {
 	guint        uGmoOpt;
 
@@ -1708,7 +1599,7 @@ static gint dissect_mq_MQPMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset,gin
 	return 4;
 }
 
-static gint dissect_mq_MQOO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gint ett_subtree, gint hfindex, mq_parm_t *p_mq_parm)
+static gint dissect_mq_MQOO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset,gint ett_subtree, mq_parm_t *p_mq_parm)
 {
 	guint        uOpenOpt;
 
@@ -1718,13 +1609,13 @@ static gint dissect_mq_MQOO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gin
 	{
 		proto_item  *ti;
 		proto_tree  *mq_tree_sub;
-		ti = proto_tree_add_item(mq_tree, hfindex, tvb, offset, 4, p_mq_parm->mq_int_enc);
+		ti = proto_tree_add_item(mq_tree, hf_mq_open_options, tvb, offset, 4, p_mq_parm->mq_int_enc);
 		mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
 		proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_BIND_READAHEAD_AS_Q_DEF);
 	}
 	else
 	{
-		proto_tree_add_bitmask(mq_tree, tvb, offset, hfindex, ett_subtree, pf_flds_opnopt, p_mq_parm->mq_int_enc);
+		proto_tree_add_bitmask(mq_tree, tvb, offset, hf_mq_open_options, ett_subtree, pf_flds_opnopt, p_mq_parm->mq_int_enc);
 	}
 	return 4;
 }
@@ -1908,7 +1799,7 @@ static gint dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		{
 			guint8 *sQueue;
 			sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
-			if (strip_trailing_blanks(sQueue, 48) > 0)
+			if (strip_trailing_blanks(sQueue, 48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
 			}
@@ -1974,7 +1865,7 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			guint8 * sQueue;
 
 			sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
-			if (strip_trailing_blanks(sQueue, 48) > 0)
+			if (strip_trailing_blanks(sQueue, 48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
 			}
@@ -2056,18 +1947,15 @@ static gint dissect_mq_od(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 		if (iSize != 0 && tvb_length_remaining(tvb, offset) >= iSize)
 		{
 			gint iNbrRecords = 0;
-			guint8 *sObj;
-			guint32 uTyp;
+			guint8 *sQueue;
 
 			if (iVersion >= 2)
 				iNbrRecords = tvb_get_guint32_endian(tvb, offset + 168, p_mq_parm->mq_int_enc);
 
-			uTyp = tvb_get_guint32_endian(tvb, offset + 8, p_mq_parm->mq_int_enc);
-			sObj = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
-			col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str(uTyp,GET_VALSV(objtype)));
-			if (strip_trailing_blanks(sObj, 48) > 0)
+			sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
+			if (strip_trailing_blanks(sQueue,48) != 0)
 			{
-				col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sObj);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
 			}
 
 			if (tree)
@@ -2209,7 +2097,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 		guint8 *sChannel;
 		sChannel = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 24, 20, p_mq_parm->mq_str_enc);
 		col_append_fstr(pinfo->cinfo,COL_INFO, " FAPLvl=%d",iFAPLvl);
-		if (strip_trailing_blanks(sChannel, 20) > 0)
+		if (strip_trailing_blanks(sChannel, 20) != 0)
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", CHL=%s", sChannel);
 		}
@@ -2217,11 +2105,10 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 		{
 			guint8 *sQMgr;
 			sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
-			if (strip_trailing_blanks(sQMgr,48) > 0)
+			if (strip_trailing_blanks(sQMgr,48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", QM=%s", sQMgr);
 			}
-			p_mq_parm->mq_id_ccsid.ccsid=(guint32)tvb_get_guint16_endian(tvb, offset +  46,  p_mq_parm->mq_int_enc);
 		}
 		if (mqroot_tree)
 		{
@@ -2283,7 +2170,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 	}
 	return iSize;
 }
-static gint dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gint offset, mq_parm_t *p_mq_parm, gboolean bDecode)
+static gint dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gint offset, struct mq_msg_properties* tMsgProps, mq_parm_t *p_mq_parm, gboolean bDecode)
 {
 	gint iSize = 0;
 
@@ -2301,12 +2188,9 @@ static gint dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gint offset, mq_parm_
 
 		if (bDecode && iSize != 0 && tvb_length_remaining(tvb, offset) >= iSize)
 		{
-			p_mq_parm->iOfsEnc = offset + 24;
-			p_mq_parm->iOfsCcs    = offset + 28;
-			p_mq_parm->iOfsFmt   = offset + 32;
-			
-			p_mq_parm->mq_md_ccsid.encod=tvb_get_guint32_endian(tvb, offset +  24,  p_mq_parm->mq_int_enc);
-			p_mq_parm->mq_md_ccsid.ccsid=tvb_get_guint32_endian(tvb, offset +  28,  p_mq_parm->mq_int_enc);
+			tMsgProps->iOffsetEncoding = offset + 24;
+			tMsgProps->iOffsetCcsid    = offset + 28;
+			tMsgProps->iOffsetFormat   = offset + 32;
 			if (tree)
 			{
 				proto_item *ti = proto_tree_add_text(tree, tvb, offset, iSize, MQ_TEXT_MD);
@@ -2318,7 +2202,7 @@ static gint dissect_mq_md(tvbuff_t *tvb, proto_tree *tree, gint offset, mq_parm_
 				proto_tree_add_item(mq_tree, hf_mq_md_msgtype, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 				proto_tree_add_item(mq_tree, hf_mq_md_expiry, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
 				proto_tree_add_item(mq_tree, hf_mq_md_feedback, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
-				dissect_mq_encoding(mq_tree, hf_mq_md_encoding, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
+				proto_tree_add_item(mq_tree, hf_mq_md_encoding, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
 				proto_tree_add_item(mq_tree, hf_mq_md_ccsid, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
 				proto_tree_add_item(mq_tree, hf_mq_md_format, tvb, offset + 32, 8, p_mq_parm->mq_str_enc);
 				proto_tree_add_item(mq_tree, hf_mq_md_priority, tvb, offset + 40, 4, p_mq_parm->mq_int_enc);
@@ -2391,6 +2275,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean bPayload = FALSE;
 	gboolean bEBCDIC = FALSE;
 	gint iDistributionListSize = 0;
+	struct mq_msg_properties tMsgProps;
 	mq_parm_t *p_mq_parm;
 
 	p_mq_parm = wmem_new0(wmem_packet_scope(), mq_parm_t);
@@ -2398,12 +2283,17 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	p_mq_parm->mq_strucID = MQ_STRUCTID_NULL;
 	p_mq_parm->mq_int_enc = ENC_BIG_ENDIAN;
 	p_mq_parm->mq_str_enc = ENC_UTF_8|ENC_NA;
+	p_mq_parm->mq_encode  = 0;
+	p_mq_parm->mq_ccsid   = 0;
+	p_mq_parm->mq_ctlf1    = 0;
+	p_mq_parm->mq_ctlf2   = 0;
+	p_mq_parm->mq_opcode  = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
 
-	p_mq_parm->iOfsEnc = 0;
-	p_mq_parm->iOfsFmt = 0;
-	p_mq_parm->iOfsCcs = 0;
+	tMsgProps.iOffsetEncoding = 0;
+	tMsgProps.iOffsetFormat = 0;
+	tMsgProps.iOffsetCcsid = 0;
 	if (tvb_length(tvb) >= 4)
 	{
 		p_mq_parm->mq_strucID = tvb_get_ntohl(tvb, offset);
@@ -2437,18 +2327,18 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (p_mq_parm->mq_opcode == MQ_TST_REQUEST_MSGS || p_mq_parm->mq_opcode == MQ_TST_ASYNC_MESSAGE)
 			{
-				p_mq_parm->iOfsEnc = offset + iSizeMPF + 20;
-				p_mq_parm->iOfsCcs    = offset + iSizeMPF + 24;
-				p_mq_parm->iOfsFmt   = offset ;
+				tMsgProps.iOffsetEncoding = offset + iSizeMPF + 20;
+				tMsgProps.iOffsetCcsid    = offset + iSizeMPF + 24;
+				tMsgProps.iOffsetFormat   = offset ;
 			}
 			p_mq_parm->mq_int_enc = (tvb_get_guint8(tvb, offset + iSizeMPF + 8) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 			p_mq_parm->mq_ctlf1 = tvb_get_guint8(tvb, offset + iSizeMPF + 10);
 			p_mq_parm->mq_ctlf2 = tvb_get_guint8(tvb, offset + iSizeMPF + 11);
 
-			p_mq_parm->mq_tsh_ccsid.encod=tvb_get_guint32_endian(tvb, offset + iSizeMPF + 20, p_mq_parm->mq_int_enc);
-			p_mq_parm->mq_tsh_ccsid.ccsid=tvb_get_guint16_endian(tvb, offset + iSizeMPF + 24, p_mq_parm->mq_int_enc);
+			p_mq_parm->mq_encode=tvb_get_guint32_endian(tvb, offset + iSizeMPF + 20, p_mq_parm->mq_int_enc);
+			p_mq_parm->mq_ccsid =tvb_get_guint16_endian(tvb, offset + iSizeMPF + 24, p_mq_parm->mq_int_enc);
 
-			if (p_mq_parm->mq_tsh_ccsid.ccsid==500 && !bEBCDIC)
+			if (p_mq_parm->mq_ccsid==500 && !bEBCDIC)
 			{
 				bEBCDIC = TRUE;
 				p_mq_parm->mq_str_enc = ENC_EBCDIC|ENC_NA;
@@ -2494,9 +2384,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_bitmask(mq_tree, tvb, offset + iSizeMPF + 11, hf_mq_tsh_ctlflgs2, ett_mq_tsh_tcf2, pf_flds_tcf2, ENC_BIG_ENDIAN);
 
 				proto_tree_add_item(mq_tree, hf_mq_tsh_luwid, tvb, offset + iSizeMPF + 12, 8, ENC_NA);
-				dissect_mq_encoding(mq_tree, hf_mq_tsh_encoding, tvb, offset + iSizeMPF + 20, 4,  p_mq_parm->mq_int_enc);
-				proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + iSizeMPF + 24, 2,  p_mq_parm->mq_int_enc);
-				proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + iSizeMPF + 26, 2,  p_mq_parm->mq_int_enc);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_encoding, tvb, offset + iSizeMPF + 20, 4, p_mq_parm->mq_int_enc);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + iSizeMPF + 24, 2, p_mq_parm->mq_int_enc);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + iSizeMPF + 26, 2, ENC_BIG_ENDIAN);
 			}
 			offset += iSizeTSH;
 
@@ -2659,7 +2549,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							mq_tree = proto_item_add_subtree(ti, ett_mq_open);
 							if (p_mq_parm->mq_opcode == MQ_TST_MQOPEN || p_mq_parm->mq_opcode == MQ_TST_MQOPEN_REPLY)
 							{
-								dissect_mq_MQOO(tvb, mq_tree, offset, ett_mq_open_option, hf_mq_open_options, p_mq_parm);
+								dissect_mq_MQOO(tvb, mq_tree, offset, ett_mq_open_option, p_mq_parm);
 							}
 							if (p_mq_parm->mq_opcode == MQ_TST_MQCLOSE || p_mq_parm->mq_opcode == MQ_TST_MQCLOSE_REPLY)
 							{
@@ -2688,12 +2578,12 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							guint8 *sApplicationName;
 							guint8 *sQMgr;
 							sApplicationName = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 28, p_mq_parm->mq_str_enc), 28, '.');
-							if (strip_trailing_blanks(sApplicationName, 28) > 0)
+							if (strip_trailing_blanks(sApplicationName, 28) != 0)
 							{
 								col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s", sApplicationName);
 							}
 							sQMgr = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, p_mq_parm->mq_str_enc), 28, '.');
-							if (strip_trailing_blanks(sQMgr, 48) > 0)
+							if (strip_trailing_blanks(sQMgr, 48) != 0)
 							{
 								col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQMgr);
 							}
@@ -2739,18 +2629,17 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									}
 								}
 							}
-#undef do_proto_add_item
 							offset += iSizeCONN;
 						}
 					}
 					else if ((p_mq_parm->mq_opcode == MQ_TST_MQINQ || p_mq_parm->mq_opcode == MQ_TST_MQINQ_REPLY || p_mq_parm->mq_opcode == MQ_TST_MQSET) && tvb_length_remaining(tvb, offset) >= 12)
 					{
 						/* The MQINQ/MQSET structure is special because it does not start with a structid */
-						gint iNbSelectors;
-						gint iNbIntegers;
-						gint iCharLen;
-						gint iOffsetINQ;
-						gint iSelector;
+						gint iNbSelectors = 0;
+						gint iNbIntegers = 0;
+						gint iCharLen = 0;
+						gint iOffsetINQ = 0;
+						gint iSelector = 0;
 
 						iNbSelectors = tvb_get_guint32_endian(tvb, offset, p_mq_parm->mq_int_enc);
 						iNbIntegers = tvb_get_guint32_endian(tvb, offset + 4, p_mq_parm->mq_int_enc);
@@ -2778,11 +2667,11 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							iOffsetINQ += iNbSelectors * 4;
 							if (p_mq_parm->mq_opcode == MQ_TST_MQINQ_REPLY || p_mq_parm->mq_opcode == MQ_TST_MQSET)
 							{
-								gint iSizeINQValues;
+								gint iSizeINQValues = 0;
 								iSizeINQValues = iNbIntegers * 4 + iCharLen;
 								if (tvb_length_remaining(tvb, offset + iOffsetINQ) >= iSizeINQValues)
 								{
-									gint iInteger;
+									gint iInteger = 0;
 									if (tree)
 									{
 										for (iInteger = 0; iInteger < iNbIntegers; iInteger++)
@@ -2805,7 +2694,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					else if (p_mq_parm->mq_opcode == MQ_TST_NOTIFICATION)
 					{
-						gint iHdl;
+						gint iHdl = 0;
 
 						iHdl = tvb_get_guint32_endian(tvb, offset+4, p_mq_parm->mq_int_enc);
 
@@ -2833,17 +2722,13 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						gint xOfs;
 						gint iOpt;
 
-						xOfs       = 0;
+						xOfs=0;
 						iHdl       = tvb_get_guint32_endian(tvb, offset+  4, p_mq_parm->mq_int_enc);
 						iMaxMsgLen = tvb_get_guint32_endian(tvb, offset+ 16, p_mq_parm->mq_int_enc);
 						iFlags     = tvb_get_guint32_endian(tvb, offset+ 32, p_mq_parm->mq_int_enc);
 						iGlbMsgIdx = tvb_get_guint32_endian(tvb, offset+ 36, p_mq_parm->mq_int_enc);
-						if (iFlags & 0x00000010)
-						{
-							p_mq_parm->mq_msgreq_ccsid.encod=tvb_get_guint32_endian(tvb, offset + 44, p_mq_parm->mq_int_enc);
-							p_mq_parm->mq_msgreq_ccsid.ccsid=tvb_get_guint32_endian(tvb, offset + 48, p_mq_parm->mq_int_enc);
-						}
-						col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%08x GlbMsgIdx=%d, MaxLen=%d",
+
+						col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%08x, GlbMsgIdx=%d, MaxLen=%d",
 							iHdl, iGlbMsgIdx, iMaxMsgLen);
 
 						if (tree)
@@ -2868,7 +2753,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_SelectIdx , tvb, offset + 40,  2, p_mq_parm->mq_int_enc);
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_MQMDVers , tvb, offset + 42,  2, p_mq_parm->mq_int_enc);
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_ccsid   , tvb, offset + 44,  4, p_mq_parm->mq_int_enc);
-								dissect_mq_encoding(mq_tree, hf_mq_msgreq_encoding, tvb, offset + 48,  4, p_mq_parm->mq_int_enc);
+								proto_tree_add_item(mq_tree, hf_mq_msgreq_encoding, tvb, offset + 48,  4, p_mq_parm->mq_int_enc);
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_MsgSeqNum, tvb, offset + 52,  4, p_mq_parm->mq_int_enc);
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_offset, tvb, offset + 56,  4, p_mq_parm->mq_int_enc);
 								dissect_mq_MQMO(tvb, mq_tree, offset + 60, ett_mq_gmo_matchoption, p_mq_parm);
@@ -2930,7 +2815,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 						if (!mq_in_reassembly)
 						{
-							col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+							col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%08x, GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
 								iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
 						}
 
@@ -2970,9 +2855,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						gint iOffsetSPI = 0;
 						guint32 iSpiVerb = 0;
 
-						p_mq_parm->iOfsEnc = offset + 12;
-						p_mq_parm->iOfsCcs    = offset + 16;
-						p_mq_parm->iOfsFmt   = offset + 20;
+						tMsgProps.iOffsetEncoding = offset + 12;
+						tMsgProps.iOffsetCcsid    = offset + 16;
+						tMsgProps.iOffsetFormat   = offset + 20;
 
 						iSpiVerb = tvb_get_guint32_endian(tvb, offset, p_mq_parm->mq_int_enc);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(iSpiVerb, mq_spi_verbs_vals, "Unknown (0x%08x)"));
@@ -3008,7 +2893,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							offset += 12;
 							p_mq_parm->mq_strucID = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 
-							if ((iSizeSPIMD = dissect_mq_md(tvb, mqroot_tree, offset, p_mq_parm, TRUE)) != 0)
+							if ((iSizeSPIMD = dissect_mq_md(tvb, mqroot_tree, offset, &tMsgProps, p_mq_parm, TRUE)) != 0)
 							{
 								offset += iSizeSPIMD;
 								offset += dissect_mq_gmo(tvb, pinfo, mqroot_tree, offset, p_mq_parm);
@@ -3176,51 +3061,37 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					if ((p_mq_parm->mq_strucID == MQ_STRUCTID_LPOO || p_mq_parm->mq_strucID == MQ_STRUCTID_LPOO_EBCDIC) && tvb_length_remaining(tvb, offset) >= 32)
 					{
-						guint iVersion;
-						guint iXtraData = 0;
-						gint  iSize = 32;
-						iVersion = tvb_get_guint32_endian(tvb, offset+4, p_mq_parm->mq_int_enc);
-						if (iVersion >= 3)
-						{
-							iSize+=56;
-							iXtraData = tvb_get_guint32_endian(tvb, offset + 84, p_mq_parm->mq_int_enc);
-						}
+						guint iVersionID = 0;
+						gint iSizeID = 32;
+						iVersionID = tvb_get_guint32_endian(tvb, offset+4, p_mq_parm->mq_int_enc);
+						/* iSizeID = tvb_get_guint32_endian(tvb, offset+8, p_mq_parm->mq_int_enc); */
 
-						if (iSize != 0 && tvb_length_remaining(tvb, offset) >= iSize)
+						if (iSizeID != 0 && tvb_length_remaining(tvb, offset) >= iSizeID)
 						{
 							if (tree)
 							{
-								ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSize, MQ_TEXT_LPOO);
+								ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeID, MQ_TEXT_LPOO);
 								mq_tree = proto_item_add_subtree(ti, ett_mq_lpoo);
 
 								proto_tree_add_item(mq_tree, hf_mq_lpoo_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
 								proto_tree_add_item(mq_tree, hf_mq_lpoo_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
 
-								dissect_mq_MQOO(tvb, mq_tree, offset+8, ett_mq_lpoo_options, hf_mq_lpoo_options, p_mq_parm);
+								dissect_mq_MQOO(tvb, mq_tree, offset+8, ett_mq_lpoo_option, p_mq_parm);
 
-								dissect_mq_LPOO_LPIOPTS(tvb, mq_tree, offset+16, ett_mq_lpoo_lpiopts, p_mq_parm);
-								proto_tree_add_item(mq_tree, hf_mq_lpoo_defpersist, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
-								proto_tree_add_item(mq_tree, hf_mq_lpoo_defputresptype, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
-								proto_tree_add_item(mq_tree, hf_mq_lpoo_defreadahead, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
-								if (iVersion >= 3)
+								proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown1, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+								proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown2, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
+								proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown3, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
+								proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown4, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
+								proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown5, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
+								if (iVersionID>3)
 								{
 									proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect, tvb, offset + 32, 48, p_mq_parm->mq_int_enc);
 									proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown6, tvb, offset + 80, 4, p_mq_parm->mq_int_enc);
-									/*proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown7, tvb, offset + 84, 2, p_mq_parm->mq_int_enc);*/
-									proto_tree_add_item(mq_tree, hf_mq_lpoo_xtradata, tvb, offset + 84, 4, p_mq_parm->mq_int_enc);
+									proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown7, tvb, offset + 84, 4, p_mq_parm->mq_int_enc);
 								}
 							}
-							offset += iSize;
+							offset += iSizeID;
 							p_mq_parm->mq_strucID = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-							if (iXtraData>0)
-							{
-								if (p_mq_parm->mq_opcode == MQ_TST_SPI_REPLY)
-								{
-									bPayload=TRUE;
-									iSizePayload=iXtraData;
-									p_mq_parm->iOfsFmt=(offset-iSize);
-								}
-							}
 						}
 					}
 					if ((p_mq_parm->mq_strucID == MQ_STRUCTID_ID || p_mq_parm->mq_strucID == MQ_STRUCTID_ID_EBCDIC) && tvb_length_remaining(tvb, offset) >= 5)
@@ -3230,7 +3101,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					if ((p_mq_parm->mq_strucID == MQ_STRUCTID_UID || p_mq_parm->mq_strucID == MQ_STRUCTID_UID_EBCDIC) && tvb_length_remaining(tvb, offset) > 0)
 					{
-						gint iSizeUID;
+						gint iSizeUID = 0;
 						/* iSizeUID = (iVersionID < 5 ? 28 : 132);  guess */
 						/* The iVersionID is available in the previous ID segment, we should keep a state *
 						* Instead we rely on the segment length announced in the TSH */
@@ -3241,7 +3112,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						{
 							guint8 *sUserId;
 							sUserId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, 12, p_mq_parm->mq_str_enc);
-							if (strip_trailing_blanks(sUserId, 12) > 0)
+							if (strip_trailing_blanks(sUserId, 12) != 0)
 							{
 								col_append_fstr(pinfo->cinfo, COL_INFO, " User=%s", sUserId);
 							}
@@ -3271,7 +3142,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					offset += dissect_mq_od(tvb, pinfo, mqroot_tree, offset, p_mq_parm, &iDistributionListSize);
 
-					if ((iSizeMD = dissect_mq_md(tvb, mqroot_tree, offset, p_mq_parm, TRUE)) != 0)
+					if ((iSizeMD = dissect_mq_md(tvb, mqroot_tree, offset, &tMsgProps, p_mq_parm, TRUE)) != 0)
 					{
 						gint iSizeGMO = 0;
 						gint iSizePMO = 0;
@@ -3336,7 +3207,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									offset += iSizeXQH;
 									iHeadersLength += iSizeXQH;
 
-									if ((iSizeMD2 = dissect_mq_md(tvb, mqroot_tree, offset, p_mq_parm, TRUE)) != 0)
+									if ((iSizeMD2 = dissect_mq_md(tvb, mqroot_tree, offset, &tMsgProps, p_mq_parm, TRUE)) != 0)
 									{
 										offset += iSizeMD2;
 										iHeadersLength += iSizeMD2;
@@ -3353,12 +3224,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 									iNbrRecords = tvb_get_guint32_endian(tvb, offset + 36, p_mq_parm->mq_int_enc);
 									iRecFlags = tvb_get_guint32_endian(tvb, offset + 32, p_mq_parm->mq_int_enc);
-									p_mq_parm->iOfsEnc = offset + 12;
-									p_mq_parm->iOfsCcs    = offset + 16;
-									p_mq_parm->iOfsFmt   = offset + 20;
-
-									p_mq_parm->mq_head_ccsid.encod=tvb_get_guint32_endian(tvb, offset + 12, p_mq_parm->mq_int_enc);
-									p_mq_parm->mq_head_ccsid.ccsid=tvb_get_guint32_endian(tvb, offset + 16, p_mq_parm->mq_int_enc);
+									tMsgProps.iOffsetEncoding = offset + 12;
+									tMsgProps.iOffsetCcsid    = offset + 16;
+									tMsgProps.iOffsetFormat   = offset + 20;
 
 									if (tree)
 									{
@@ -3368,7 +3236,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										proto_tree_add_item(mq_tree, hf_mq_head_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
-										dissect_mq_encoding(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+										proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, p_mq_parm->mq_str_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
@@ -3406,13 +3274,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								{
 									/* if MD.format == MQDEAD */
 									gint iSizeDLH = 172;
-									p_mq_parm->iOfsEnc = offset + 108;
-									p_mq_parm->iOfsCcs    = offset + 112;
-									p_mq_parm->iOfsFmt   = offset + 116;
-
-									p_mq_parm->mq_dlh_ccsid.encod=tvb_get_guint32_endian(tvb, offset + 108, p_mq_parm->mq_int_enc);
-									p_mq_parm->mq_dlh_ccsid.ccsid=tvb_get_guint32_endian(tvb, offset + 112, p_mq_parm->mq_int_enc);
-
+									tMsgProps.iOffsetEncoding = offset + 108;
+									tMsgProps.iOffsetCcsid    = offset + 112;
+									tMsgProps.iOffsetFormat   = offset + 116;
 									if (tree)
 									{
 										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeDLH, MQ_TEXT_DLH);
@@ -3423,7 +3287,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										proto_tree_add_item(mq_tree, hf_mq_dlh_reason, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_dlh_destq, tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
 										proto_tree_add_item(mq_tree, hf_mq_dlh_destqmgr, tvb, offset + 60, 48, p_mq_parm->mq_str_enc);
-										dissect_mq_encoding(mq_tree, hf_mq_dlh_encoding, tvb, offset + 108, 4, p_mq_parm->mq_int_enc);
+										proto_tree_add_item(mq_tree, hf_mq_dlh_encoding, tvb, offset + 108, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_dlh_ccsid, tvb, offset + 112, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_dlh_format, tvb, offset + 116, 8, p_mq_parm->mq_str_enc);
 										proto_tree_add_item(mq_tree, hf_mq_dlh_putappltype, tvb, offset + 124, 4, p_mq_parm->mq_int_enc);
@@ -3439,9 +3303,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								{
 									/* if MD.format == MQHMDE */
 									gint iSizeMDE = 72;
-									p_mq_parm->iOfsEnc = offset + 12;
-									p_mq_parm->iOfsCcs    = offset + 16;
-									p_mq_parm->iOfsFmt   = offset + 20;
+									tMsgProps.iOffsetEncoding = offset + 12;
+									tMsgProps.iOffsetCcsid    = offset + 16;
+									tMsgProps.iOffsetFormat   = offset + 20;
 									if (tree)
 									{
 										ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMDE, MQ_TEXT_MDE);
@@ -3450,7 +3314,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										proto_tree_add_item(mq_tree, hf_mq_head_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
-										dissect_mq_encoding(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+										proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, p_mq_parm->mq_str_enc);
 										proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
@@ -3482,9 +3346,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 									if (tvb_length_remaining(tvb, offset) >= iSizeHeader)
 									{
-										p_mq_parm->iOfsEnc = offset + 12;
-										p_mq_parm->iOfsCcs    = offset + 16;
-										p_mq_parm->iOfsFmt   = offset + 20;
+										tMsgProps.iOffsetEncoding = offset + 12;
+										tMsgProps.iOffsetCcsid    = offset + 16;
+										tMsgProps.iOffsetFormat   = offset + 20;
 										if (tree)
 										{
 											ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeHeader, "%s", val_to_str(p_mq_parm->mq_strucID, mq_StructID_vals, "Unknown (0x%08x)"));
@@ -3493,7 +3357,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 											proto_tree_add_item(mq_tree, hf_mq_head_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
 											proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
 											proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
-											dissect_mq_encoding(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+											proto_tree_add_item(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 											proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
 											proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, p_mq_parm->mq_str_enc);
 											proto_tree_add_item(mq_tree, hf_mq_head_flags, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
@@ -3513,26 +3377,17 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							{
 								/* Call subdissector for the payload */
 								tvbuff_t* next_tvb = NULL;
-								/*
 								struct mqinfo *mqinfo;
 								mqinfo = wmem_new0(wmem_packet_scope(), struct mqinfo);
-								*/
 								/* Format, encoding and character set are "data type" information, not subprotocol information */
-								/*
-								mqinfo->encoding = tvb_get_guint32_endian(tvb, p_mq_parm->iOfsEnc, p_mq_parm->mq_int_enc);
-								mqinfo->ccsid    = tvb_get_guint32_endian(tvb, p_mq_parm->iOfsCcs, p_mq_parm->mq_int_enc);
+								mqinfo->encoding = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetEncoding, p_mq_parm->mq_int_enc);
+								mqinfo->ccsid    = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetCcsid, p_mq_parm->mq_int_enc);
 								memcpy(mqinfo->format,
-									tvb_get_string_enc(wmem_packet_scope(), tvb, p_mq_parm->iOfsFmt, sizeof(mqinfo->format), p_mq_parm->mq_str_enc),
+									tvb_get_string_enc(wmem_packet_scope(), tvb, tMsgProps.iOffsetFormat, sizeof(mqinfo->format), p_mq_parm->mq_str_enc),
 									sizeof(mqinfo->format));
-								*/
-								p_mq_parm->mq_cur_ccsid.encod=tvb_get_guint32_endian(tvb, p_mq_parm->iOfsEnc, p_mq_parm->mq_int_enc);
-								p_mq_parm->mq_cur_ccsid.ccsid=tvb_get_guint32_endian(tvb, p_mq_parm->iOfsCcs, p_mq_parm->mq_int_enc);
-								memcpy(p_mq_parm->mq_format,
-									tvb_get_string_enc(wmem_packet_scope(), tvb, p_mq_parm->iOfsFmt, sizeof(p_mq_parm->mq_format), p_mq_parm->mq_str_enc),
-									sizeof(p_mq_parm->mq_format));
 
 								next_tvb = tvb_new_subset_remaining(tvb, offset);
-								if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, mqroot_tree, p_mq_parm))
+								if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, mqroot_tree, mqinfo))
 									call_dissector(data_handle, next_tvb, pinfo, mqroot_tree);
 							}
 							else
@@ -3583,8 +3438,14 @@ static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		mq_parm_t mq_parm;
 
-		memset(&mq_parm,0,sizeof(mq_parm_t));
 		mq_parm.mq_strucID = tvb_get_ntohl(tvb, 0);
+		mq_parm.mq_ccsid   = 0;
+		mq_parm.mq_ctlf1   = 0;
+		mq_parm.mq_ctlf2   = 0;
+		mq_parm.mq_encode  = 0;
+		mq_parm.mq_opcode  = 0;
+		mq_parm.mq_int_enc = 0;
+		mq_parm.mq_str_enc = 0;
 
 		if ( (mq_parm.mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx || (mq_parm.mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx_EBCDIC )
 		{
@@ -3682,7 +3543,7 @@ static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					First segment has a longer header
 					*/
 					iNxtP = iHdrL + ((bSeg1st)?(54 + 1 + uStrL + uPadL):(24));
-					iNxtP += dissect_mq_md(tvb, NULL, iNxtP, &mq_parm, FALSE);
+					iNxtP += dissect_mq_md(tvb, NULL, iNxtP, NULL, &mq_parm, FALSE);
 
 					/*
 					if it is the 1st Segment, it means we are
@@ -3699,11 +3560,11 @@ static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					{
 						proto_item* ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
 						if (bMore)
-							proto_item_append_text(ti, " [%s of a Reassembled MQ Segment] Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+							proto_item_append_text(ti, " [%s of a Reassembled MQ Segment] Hdl=0x%08x, GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
 								val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
 								iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
 						else
-							proto_item_append_text(ti, " %s Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+							proto_item_append_text(ti, " %s Hdl=0x%08x, GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
 								val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
 								iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
 						mq_tree = proto_item_add_subtree(ti, ett_mq_reaasemb);
@@ -3737,7 +3598,7 @@ static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						mq_in_reassembly=TRUE;
 						/* Reassembly in progress */
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
-						col_add_fstr(pinfo->cinfo, COL_INFO, "[%s of a Reassembled MQ Segment] Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+						col_add_fstr(pinfo->cinfo, COL_INFO, "[%s of a Reassembled MQ Segment] Hdl=0x%08x, GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
 							val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
 							iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
 						dissect_mq_pdu(tvb, pinfo, mq_tree);
@@ -3842,7 +3703,7 @@ void proto_register_mq(void)
 		{ &hf_mq_tsh_ctlflgs2 ,{"Ctl Flag 2", "mq.tsh.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Control flags 2", HFILL }},
 		{ &hf_mq_tsh_luwid    ,{"LUW Ident.", "mq.tsh.luwid", FT_BYTES, BASE_NONE, NULL, 0x0, "TSH logical unit of work identifier", HFILL }},
 		{ &hf_mq_tsh_encoding ,{"Encoding..", "mq.tsh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Encoding", HFILL }},
-		{ &hf_mq_tsh_ccsid    ,{"CCSID.....", "mq.tsh.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "TSH CCSID", HFILL }},
+		{ &hf_mq_tsh_ccsid    ,{"CCSID.....", "mq.tsh.ccsid", FT_UINT16, BASE_DEC, NULL, 0x0, "TSH CCSID", HFILL }},
 		{ &hf_mq_tsh_reserved ,{"Reserved..", "mq.tsh.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, "TSH Reserved", HFILL }},
 
 		{ &hf_mq_tsh_tcf_confirmreq,{"Confirm Req", "mq.tsh.tcf.confirmreq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_CONFIRM_REQUEST, "TSH TCF Confirm request", HFILL }},
@@ -3903,7 +3764,7 @@ void proto_register_mq(void)
 		{ &hf_mq_id_channel    ,{"ChannelNme", "mq.id.channelname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID channel name", HFILL }},
 		{ &hf_mq_id_icf2       ,{"CapFlag2..", "mq.id.idflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability flags 2", HFILL }},
 		{ &hf_mq_id_Eicf2      ,{"ECapFlag2.", "mq.id.ideflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capabitlity flags 2", HFILL }},
-		{ &hf_mq_id_ccsid      ,{"ccsid.....", "mq.id.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "ID Coded Character Set ID", HFILL }},
+		{ &hf_mq_id_ccsid      ,{"ccsid.....", "mq.id.ccsid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "ID Coded Character Set ID", HFILL }},
 		{ &hf_mq_id_qmgrname   ,{"QMgrName..", "mq.id.qm", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID Queue Manager Name", HFILL }},
 		{ &hf_mq_id_HBInterval ,{"HBInterval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL }},
 		{ &hf_mq_id_EFLLength  ,{"EFLLength.", "mq.id.efllength", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "ID EFL Length", HFILL }},
@@ -4050,6 +3911,32 @@ void proto_register_mq(void)
 		{ &hf_mq_open_options_NO_MULTICAST   ,{"NO_MULTICAST", "mq.open.options.NoMulticast", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_NO_MULTICAST, "OPEN options NO_MULTICAST", HFILL }},
 		{ &hf_mq_open_options_BIND_ON_GROUP  ,{"BIND_ON_GROUP", "mq.open.options.BindOnGroup", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_BIND_ON_GROUP, "OPEN options BIND_ON_GROUP", HFILL }},
 
+		/*
+		{ &hf_mq_open_options_INPUT_AS_Q_DEF ,{"INPUT_AS_Q_DEF..........", "mq.open.options.InputAsQDef", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_INPUT_AS_Q_DEF, "OPEN options INPUT_AS_Q_DEF", HFILL }},
+		{ &hf_mq_open_options_INPUT_SHARED   ,{"INPUT_SHARED............", "mq.open.options.InputShared", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_INPUT_SHARED, "OPEN options INPUT_SHARED", HFILL }},
+		{ &hf_mq_open_options_INPUT_EXCLUSIVE,{"INPUT_EXCLUSIVE.........", "mq.open.options.InputExclusive", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_INPUT_EXCLUSIVE, "OPEN options INPUT_EXCLUSIVE", HFILL }},
+		{ &hf_mq_open_options_BROWSE         ,{"BROWSE..................", "mq.open.options.Browse", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_BROWSE, "OPEN options BROWSE", HFILL }},
+		{ &hf_mq_open_options_OUTPUT         ,{"OUTPUT..................", "mq.open.options.Output", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_OUTPUT, "OPEN options OUTPUT", HFILL }},
+		{ &hf_mq_open_options_INQUIRE        ,{"INQUIRE.................", "mq.open.options.Inquire", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_INQUIRE, "OPEN options INQUIRE", HFILL }},
+		{ &hf_mq_open_options_SET            ,{"SET.....................", "mq.open.options.Set", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_SET, "OPEN options SET", HFILL }},
+		{ &hf_mq_open_options_SAVE_ALL_CTX   ,{"SAVE_ALL_CONTEXT........", "mq.open.options.SaveAllContext", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_SAVE_ALL_CONTEXT, "OPEN options SAVE_ALL_CONTEXT", HFILL }},
+		{ &hf_mq_open_options_PASS_IDENT_CTX ,{"PASS_IDENTITY_CONTEXT...", "mq.open.options.PassIdentityContext", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_PASS_IDENTITY_CONTEXT, "OPEN options PASS_IDENTITY_CONTEXT", HFILL }},
+		{ &hf_mq_open_options_PASS_ALL_CTX   ,{"PASS_ALL_CONTEXT........", "mq.open.options.PassAllContext", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_PASS_ALL_CONTEXT, "OPEN options PASS_ALL_CONTEXT", HFILL }},
+		{ &hf_mq_open_options_SET_IDENT_CTX  ,{"SET_IDENTITY_CONTEXT....", "mq.open.options.SetIdentityContext", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_SET_IDENTITY_CONTEXT, "OPEN options SET_IDENTITY_CONTEXT", HFILL }},
+		{ &hf_mq_open_options_SET_ALL_CONTEXT,{"SET_ALL_CONTEXT.........", "mq.open.options.SetAllContext", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_SET_ALL_CONTEXT, "OPEN options SET_ALL_CONTEXT", HFILL }},
+		{ &hf_mq_open_options_ALT_USER_AUTH  ,{"ALTERNATE_USER_AUTHORITY", "mq.open.options.AlternateUserAuthority", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_ALTERNATE_USER_AUTHORITY, "OPEN options ALTERNATE_USER_AUTHORITY", HFILL }},
+		{ &hf_mq_open_options_FAIL_IF_QUIESC ,{"FAIL_IF_QUIESCING.......", "mq.open.options.FailIfQuiescing", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_FAIL_IF_QUIESCING, "OPEN options FAIL_IF_QUIESCING", HFILL }},
+		{ &hf_mq_open_options_BIND_ON_OPEN   ,{"BIND_ON_OPEN............", "mq.open.options.BindOnOpen", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_BIND_ON_OPEN, "OPEN options BIND_ON_OPEN", HFILL }},
+		{ &hf_mq_open_options_BIND_NOT_FIXED ,{"BIND_NOT_FIXED..........", "mq.open.options.BindNotFixed", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_BIND_NOT_FIXED, "OPEN options BIND_NOT_FIXED", HFILL }},
+		{ &hf_mq_open_options_RESOLVE_NAMES  ,{"RESOLVE_NAMES...........", "mq.open.options.ResolveNames", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_RESOLVE_NAMES, "OPEN options RESOLVE_NAMES", HFILL }},
+		{ &hf_mq_open_options_CO_OP          ,{"CO_OP...................", "mq.open.options.CoOp", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_CO_OP, "OPEN options CO_OP", HFILL }},
+		{ &hf_mq_open_options_RESOLVE_LOCAL_Q,{"RESOLVE_LOCAL_Q.........", "mq.open.options.ResolveLocalQueueOrTopic", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_RESOLVE_LOCAL_Q, "OPEN options RESOLVE_LOCAL_Q", HFILL }},
+		{ &hf_mq_open_options_NO_READ_AHEAD  ,{"NO_READ_AHEAD...........", "mq.open.options.NoReadAhead", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_NO_READ_AHEAD, "OPEN options NO_READ_AHEAD", HFILL }},
+		{ &hf_mq_open_options_READ_AHEAD     ,{"READ_AHEAD..............", "mq.open.options.ReadAhead", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_READ_AHEAD, "OPEN options READ_AHEAD", HFILL }},
+		{ &hf_mq_open_options_NO_MULTICAST   ,{"NO_MULTICAST............", "mq.open.options.NoMulticast", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_NO_MULTICAST, "OPEN options NO_MULTICAST", HFILL }},
+		{ &hf_mq_open_options_BIND_ON_GROUP  ,{"BIND_ON_GROUP...........", "mq.open.options.BindOnGroup", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQOO_BIND_ON_GROUP, "OPEN options BIND_ON_GROUP", HFILL }},
+		*/
+
 		{ &hf_mq_fopa_StructID,{"StructId", "mq.fopa.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mq_fopa_version ,{"Version.", "mq.fopa.version", FT_UINT32, BASE_DEC, NULL, 0x0, "FOPA Version", HFILL }},
 		{ &hf_mq_fopa_length  ,{"Length..", "mq.fopa.length", FT_UINT32, BASE_DEC, NULL, 0x0, "FOPA Length", HFILL }},
@@ -4071,7 +3958,7 @@ void proto_register_mq(void)
 		{ &hf_mq_msgreq_GlbMsgIdx,{"GlbMsgIdx", "mq.msgreq.glbmsgidx", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Global Message Index", HFILL }},
 		{ &hf_mq_msgreq_SelectIdx,{"SelectIdx", "mq.msgreq.selectIdx", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Selection Index", HFILL }},
 		{ &hf_mq_msgreq_MQMDVers ,{"MQMDVers.", "mq.msgreq.mqmdvers" , FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "MSGREQ MQMD Version", HFILL }},
-		{ &hf_mq_msgreq_ccsid    ,{"CCSID....", "mq.msgreq.ccsid"    , FT_INT32 , BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "MSGREQ ccsid", HFILL }},
+		{ &hf_mq_msgreq_ccsid    ,{"CCSID....", "mq.msgreq.ccsid"    , FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ ccsid", HFILL }},
 		{ &hf_mq_msgreq_encoding ,{"Encoding.", "mq.msgreq.encoding" , FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ encoding", HFILL }},
 		{ &hf_mq_msgreq_MsgSeqNum,{"MsgSeqNum", "mq.msgreq.msgseqnum", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Message Sequence Number", HFILL }},
 		{ &hf_mq_msgreq_offset   ,{"Offset...", "mq.msgreq.offset"   , FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Offset", HFILL }},
@@ -4129,7 +4016,7 @@ void proto_register_mq(void)
 		{ &hf_mq_od_altsecurid  ,{"Alt security id..", "mq.od.altsecid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD alternate security id", HFILL }},
 		{ &hf_mq_od_resolvqname ,{"Resolved Q Name..", "mq.od.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue name", HFILL }},
 		{ &hf_mq_od_resolvqmgrnm,{"Resolved QMgrName", "mq.od.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue manager name", HFILL }},
-		{ &hf_mq_od_resolvobjtyp,{"Resolv Obj Type..", "mq.od.resolvedobjtype", FT_UINT32, BASE_DEC, VALS(GET_VALSV(objtype)), 0x0, "OD resolved object type", HFILL }},
+		{ &hf_mq_od_resolvobjtyp,{"Resolv Obj Type..", "mq.od.resolvedobjtype", FT_UINT32, BASE_DEC, NULL, 0x0, "OD resolved object type", HFILL }},
 
 		{ &hf_mq_or_objname     ,{"Object name...", "mq.or.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object name", HFILL }},
 		{ &hf_mq_or_objqmgrname ,{"Object QMgr Nm", "mq.or.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object queue manager name", HFILL }},
@@ -4150,7 +4037,7 @@ void proto_register_mq(void)
 		{ &hf_mq_md_expiry      ,{"Expiry  .", "mq.md.expiry", FT_INT32, BASE_DEC, NULL, 0x0, "MD expiry", HFILL }},
 		{ &hf_mq_md_feedback    ,{"Feedback.", "mq.md.feedback", FT_UINT32, BASE_DEC, NULL, 0x0, "MD feedback", HFILL }},
 		{ &hf_mq_md_encoding    ,{"Encoding.", "mq.md.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "MD encoding", HFILL }},
-		{ &hf_mq_md_ccsid       ,{"CCSID....", "mq.md.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "MD character set", HFILL }},
+		{ &hf_mq_md_ccsid       ,{"CCSID....", "mq.md.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "MD character set", HFILL }},
 		{ &hf_mq_md_format      ,{"Format...", "mq.md.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD format", HFILL }},
 		{ &hf_mq_md_priority    ,{"Priority.", "mq.md.priority", FT_INT32, BASE_DEC, NULL, 0x0, "MD priority", HFILL }},
 		{ &hf_mq_md_persistence ,{"Persist..", "mq.md.persistence", FT_UINT32, BASE_DEC, NULL, 0x0, "MD persistence", HFILL }},
@@ -4172,6 +4059,7 @@ void proto_register_mq(void)
 		{ &hf_mq_md_offset      ,{"Offset...", "mq.md.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Offset", HFILL }},
 		{ &hf_mq_md_msgflags    ,{"Msg flags", "mq.md.msgflags", FT_UINT32, BASE_HEX, NULL, 0x0, "MD Message flags", HFILL }},
 		{ &hf_mq_md_origlen     ,{"Orig len.", "mq.md.origlength", FT_INT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
+		/*{ &hf_mq_md_lastformat  ,{"Last format", "mq.md.lastformat", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Last format", HFILL }},*/
 
 		{ &hf_mq_dlh_StructID   ,{"StructID.", "mq.dlh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mq_dlh_version    ,{"Version..", "mq.dlh.version", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH version", HFILL }},
@@ -4179,7 +4067,7 @@ void proto_register_mq(void)
 		{ &hf_mq_dlh_destq      ,{"Dest Q...", "mq.dlh.destq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH destination queue", HFILL }},
 		{ &hf_mq_dlh_destqmgr   ,{"DestQMgr.", "mq.dlh.destqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH destination queue manager", HFILL }},
 		{ &hf_mq_dlh_encoding   ,{"Encoding.", "mq.dlh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH encoding", HFILL }},
-		{ &hf_mq_dlh_ccsid      ,{"CCSID....", "mq.dlh.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "DLH character set", HFILL }},
+		{ &hf_mq_dlh_ccsid      ,{"CCSID....", "mq.dlh.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "DLH character set", HFILL }},
 		{ &hf_mq_dlh_format     ,{"Format...", "mq.dlh.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH format", HFILL }},
 		{ &hf_mq_dlh_putappltype,{"PutAppTyp", "mq.dlh.putappltype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "DLH put application type", HFILL }},
 		{ &hf_mq_dlh_putapplname,{"PutAppNme", "mq.dlh.putapplname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put application name", HFILL }},
@@ -4222,7 +4110,36 @@ void proto_register_mq(void)
 		{ &hf_mq_gmo_options_NO_SYNCPOINT            ,{"NO_SYNCPOINT", "mq.gmo.options.NO_SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_NO_SYNCPOINT , "GMO options NO_SYNCPOINT", HFILL }},
 		{ &hf_mq_gmo_options_SYNCPOINT               ,{"SYNCPOINT", "mq.gmo.options.SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_SYNCPOINT , "GMO options SYNCPOINT", HFILL }},
 		{ &hf_mq_gmo_options_WAIT                    ,{"WAIT", "mq.gmo.options.WAIT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_WAIT , "GMO options WAIT", HFILL }},
-
+		/*
+		{ &hf_mq_gmo_options_PROPERTIES_COMPATIBILITY,{"PROPERTIES_COMPATIBILITY", "mq.gmo.options.PROPERTIES_COMPATIBILITY", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_PROPERTIES_COMPATIBILITY, "GMO options PROPERTIES_COMPATIBILITY", HFILL }},
+		{ &hf_mq_gmo_options_PROPERTIES_IN_HANDLE    ,{"PROPERTIES_IN_HANDLE....", "mq.gmo.options.PROPERTIES_IN_HANDLE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_PROPERTIES_IN_HANDLE , "GMO options PROPERTIES_IN_HANDLE", HFILL }},
+		{ &hf_mq_gmo_options_NO_PROPERTIES           ,{"NO_PROPERTIES...........", "mq.gmo.options.NO_PROPERTIES", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_NO_PROPERTIES , "GMO options NO_PROPERTIES", HFILL }},
+		{ &hf_mq_gmo_options_PROPERTIES_FORCE_MQRFH2 ,{"PROPERTIES_FORCE_MQRFH2.", "mq.gmo.options.PROPERTIES_FORCE_MQRFH2", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_PROPERTIES_FORCE_MQRFH2 , "GMO options PROPERTIES_FORCE_MQRFH2", HFILL }},
+		{ &hf_mq_gmo_options_UNMARKED_BROWSE_MSG     ,{"UNMARKED_BROWSE_MSG.....", "mq.gmo.options.UNMARKED_BROWSE_MSG", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_UNMARKED_BROWSE_MSG , "GMO options UNMARKED_BROWSE_MSG", HFILL }},
+		{ &hf_mq_gmo_options_UNMARK_BROWSE_HANDLE    ,{"UNMARK_BROWSE_HANDLE....", "mq.gmo.options.UNMARK_BROWSE_HANDLE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_UNMARK_BROWSE_HANDLE , "GMO options UNMARK_BROWSE_HANDLE", HFILL }},
+		{ &hf_mq_gmo_options_UNMARK_BROWSE_CO_OP     ,{"UNMARK_BROWSE_CO_OP.....", "mq.gmo.options.UNMARK_BROWSE_CO_OP", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_UNMARK_BROWSE_CO_OP , "GMO options UNMARK_BROWSE_CO_OP", HFILL }},
+		{ &hf_mq_gmo_options_MARK_BROWSE_CO_OP       ,{"MARK_BROWSE_CO_OP.......", "mq.gmo.options.MARK_BROWSE_CO_OP", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_MARK_BROWSE_CO_OP , "GMO options MARK_BROWSE_CO_OP", HFILL }},
+		{ &hf_mq_gmo_options_MARK_BROWSE_HANDLE      ,{"MARK_BROWSE_HANDLE......", "mq.gmo.options.MARK_BROWSE_HANDLE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_MARK_BROWSE_HANDLE , "GMO options MARK_BROWSE_HANDLE", HFILL }},
+		{ &hf_mq_gmo_options_ALL_SEGMENTS_AVAILABLE  ,{"ALL_SEGMENTS_AVAILABLE..", "mq.gmo.options.ALL_SEGMENTS_AVAILABLE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_ALL_SEGMENTS_AVAILABLE , "GMO options ALL_SEGMENTS_AVAILABLE", HFILL }},
+		{ &hf_mq_gmo_options_ALL_MSGS_AVAILABLE      ,{"ALL_MSGS_AVAILABLE......", "mq.gmo.options.ALL_MSGS_AVAILABLE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_ALL_MSGS_AVAILABLE , "GMO options ALL_MSGS_AVAILABLE", HFILL }},
+		{ &hf_mq_gmo_options_COMPLETE_MSG            ,{"COMPLETE_MSG............", "mq.gmo.options.COMPLETE_MSG", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_COMPLETE_MSG , "GMO options COMPLETE_MSG", HFILL }},
+		{ &hf_mq_gmo_options_LOGICAL_ORDER           ,{"LOGICAL_ORDER...........", "mq.gmo.options.LOGICAL_ORDER", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_LOGICAL_ORDER , "GMO options LOGICAL_ORDER", HFILL }},
+		{ &hf_mq_gmo_options_CONVERT                 ,{"CONVERT.................", "mq.gmo.options.CONVERT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_CONVERT , "GMO options CONVERT", HFILL }},
+		{ &hf_mq_gmo_options_FAIL_IF_QUIESCING       ,{"FAIL_IF_QUIESCING.......", "mq.gmo.options.FAIL_IF_QUIESCING", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_FAIL_IF_QUIESCING , "GMO options FAIL_IF_QUIESCING", HFILL }},
+		{ &hf_mq_gmo_options_SYNCPOINT_IF_PERSISTENT ,{"SYNCPOINT_IF_PERSISTENT.", "mq.gmo.options.SYNCPOINT_IF_PERSISTENT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_SYNCPOINT_IF_PERSISTENT , "GMO options SYNCPOINT_IF_PERSISTENT", HFILL }},
+		{ &hf_mq_gmo_options_BROWSE_MSG_UNDER_CURSOR ,{"BROWSE_MSG_UNDER_CURSOR.", "mq.gmo.options.BROWSE_MSG_UNDER_CURSOR", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_BROWSE_MSG_UNDER_CURSOR , "GMO options BROWSE_MSG_UNDER_CURSOR", HFILL }},
+		{ &hf_mq_gmo_options_UNLOCK                  ,{"UNLOCK..................", "mq.gmo.options.UNLOCK", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_UNLOCK , "GMO options UNLOCK", HFILL }},
+		{ &hf_mq_gmo_options_LOCK                    ,{"LOCK....................", "mq.gmo.options.LOCK", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_LOCK , "GMO options LOCK", HFILL }},
+		{ &hf_mq_gmo_options_MSG_UNDER_CURSOR        ,{"MSG_UNDER_CURSOR........", "mq.gmo.options.MSG_UNDER_CURSOR", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_MSG_UNDER_CURSOR , "GMO options MSG_UNDER_CURSOR", HFILL }},
+		{ &hf_mq_gmo_options_MARK_SKIP_BACKOUT       ,{"MARK_SKIP_BACKOUT.......", "mq.gmo.options.MARK_SKIP_BACKOUT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_MARK_SKIP_BACKOUT , "GMO options MARK_SKIP_BACKOUT", HFILL }},
+		{ &hf_mq_gmo_options_ACCEPT_TRUNCATED_MSG    ,{"ACCEPT_TRUNCATED_MSG....", "mq.gmo.options.ACCEPT_TRUNCATED_MSG", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_ACCEPT_TRUNCATED_MSG , "GMO options ACCEPT_TRUNCATED_MSG", HFILL }},
+		{ &hf_mq_gmo_options_BROWSE_NEXT             ,{"BROWSE_NEXT.............", "mq.gmo.options.BROWSE_NEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_BROWSE_NEXT , "GMO options BROWSE_NEXT", HFILL }},
+		{ &hf_mq_gmo_options_BROWSE_FIRST            ,{"BROWSE_FIRST............", "mq.gmo.options.BROWSE_FIRST", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_BROWSE_FIRST , "GMO options BROWSE_FIRST", HFILL }},
+		{ &hf_mq_gmo_options_SET_SIGNAL              ,{"SET_SIGNAL..............", "mq.gmo.options.SET_SIGNAL", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_SET_SIGNAL , "GMO options SET_SIGNAL", HFILL }},
+		{ &hf_mq_gmo_options_NO_SYNCPOINT            ,{"NO_SYNCPOINT............", "mq.gmo.options.NO_SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_NO_SYNCPOINT , "GMO options NO_SYNCPOINT", HFILL }},
+		{ &hf_mq_gmo_options_SYNCPOINT               ,{"SYNCPOINT...............", "mq.gmo.options.SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_SYNCPOINT , "GMO options SYNCPOINT", HFILL }},
+		{ &hf_mq_gmo_options_WAIT                    ,{"WAIT....................", "mq.gmo.options.WAIT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQGMO_WAIT , "GMO options WAIT", HFILL }},
+		*/
 		{ &hf_mq_gmo_waitinterval,{"WaitIntv.", "mq.gmo.waitint", FT_INT32, BASE_DEC, NULL, 0x0, "GMO wait interval", HFILL }},
 		{ &hf_mq_gmo_signal1     ,{"Signal 1.", "mq.gmo.signal1", FT_UINT32, BASE_HEX, NULL, 0x0, "GMO signal 1", HFILL }},
 		{ &hf_mq_gmo_signal2     ,{"Signal 2.", "mq.gmo.signal2", FT_UINT32, BASE_HEX, NULL, 0x0, "GMO signal 2", HFILL }},
@@ -4235,7 +4152,14 @@ void proto_register_mq(void)
 		{ &hf_mq_gmo_matchoptions_MATCH_GROUP_ID      ,{"MATCH_GROUP_ID", "mq.gmo.matchoptions.MATCH_GROUP_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_GROUP_ID , "GMO matchoptions MATCH_GROUP_ID", HFILL }},
 		{ &hf_mq_gmo_matchoptions_MATCH_CORREL_ID     ,{"MATCH_CORREL_ID", "mq.gmo.matchoptions.MATCH_CORREL_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_CORREL_ID , "GMO matchoptions MATCH_CORREL_ID", HFILL }},
 		{ &hf_mq_gmo_matchoptions_MATCH_MSG_ID        ,{"MATCH_MSG_ID", "mq.gmo.matchoptions.MATCH_MSG_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_MSG_ID , "GMO matchoptions MATCH_MSG_ID", HFILL }},
-
+		/*
+		{ &hf_mq_gmo_matchoptions_MATCH_MSG_TOKEN     ,{"MATCH_MSG_TOKEN.....", "mq.gmo.matchoptions.MATCH_MSG_TOKEN", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_MSG_TOKEN , "GMO matchoptions MATCH_MSG_TOKEN", HFILL }},
+		{ &hf_mq_gmo_matchoptions_MATCH_OFFSET        ,{"MATCH_OFFSET........", "mq.gmo.matchoptions.MATCH_OFFSET", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_OFFSET , "GMO matchoptions MATCH_OFFSET", HFILL }},
+		{ &hf_mq_gmo_matchoptions_MATCH_MSG_SEQ_NUMBER,{"MATCH_MSG_SEQ_NUMBER", "mq.gmo.matchoptions.MATCH_MSG_SEQ_NUMBER", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_MSG_SEQ_NUMBER, "GMO matchoptions MATCH_MSG_SEQ_NUMBER", HFILL }},
+		{ &hf_mq_gmo_matchoptions_MATCH_GROUP_ID      ,{"MATCH_GROUP_ID......", "mq.gmo.matchoptions.MATCH_GROUP_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_GROUP_ID , "GMO matchoptions MATCH_GROUP_ID", HFILL }},
+		{ &hf_mq_gmo_matchoptions_MATCH_CORREL_ID     ,{"MATCH_CORREL_ID.....", "mq.gmo.matchoptions.MATCH_CORREL_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_CORREL_ID , "GMO matchoptions MATCH_CORREL_ID", HFILL }},
+		{ &hf_mq_gmo_matchoptions_MATCH_MSG_ID        ,{"MATCH_MSG_ID........", "mq.gmo.matchoptions.MATCH_MSG_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQMO_MATCH_MSG_ID , "GMO matchoptions MATCH_MSG_ID", HFILL }},
+		*/
 		{ &hf_mq_gmo_groupstatus ,{"GrpStatus", "mq.gmo.grpstat", FT_UINT8, BASE_HEX, NULL, 0x0, "GMO group status", HFILL }},
 		{ &hf_mq_gmo_segmstatus  ,{"SegStatus", "mq.gmo.sgmtstat", FT_UINT8, BASE_HEX, NULL, 0x0, "GMO segment status", HFILL }},
 		{ &hf_mq_gmo_segmentation,{"Segmentat", "mq.gmo.segmentation", FT_UINT8, BASE_HEX, NULL, 0x0, "GMO segmentation", HFILL }},
@@ -4243,23 +4167,16 @@ void proto_register_mq(void)
 		{ &hf_mq_gmo_msgtoken    ,{"MsgToken.", "mq.gmo.msgtoken", FT_BYTES, BASE_NONE, NULL, 0x0, "GMO message token", HFILL }},
 		{ &hf_mq_gmo_returnedlen ,{"RtnLength", "mq.gmo.retlen", FT_INT32, BASE_DEC, NULL, 0x0, "GMO returned length", HFILL }},
 
-		{ &hf_mq_lpoo_StructID      ,{"StructID......", "mq.lpoo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_mq_lpoo_version       ,{"Version.......", "mq.lpoo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO version", HFILL }},
-		{ &hf_mq_lpoo_options       ,{"Options.......", "mq.lpoo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO options", HFILL }},
-		{ &hf_mq_lpoo_lpiopts       ,{"LpiOpts.......", "mq.lpoo.lpioopts", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Lpi Options", HFILL }},
-
-		{ &hf_mq_lpoo_lpiopts_SAVE_USER_CTXT    ,{"SAVE_USER_CTXT", "mq.lpoo.opts.SAVE_USER_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_USER_CTXT, "LPOO options SAVE_USER_CTXT", HFILL }},
-		{ &hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT  ,{"SAVE_ORIGIN_CTXT", "mq.lpoo.opts.SAVE_ORIGIN_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_ORIGIN_CTXT, "LPOO options SAVE_ORIGIN_CTXT", HFILL }},
-		{ &hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT,{"SAVE_IDENTITY_CTXT", "mq.lpoo.opts.SAVE_IDENTITY_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_IDENTITY_CTXT, "LPOO options SAVE_IDENTITY_CTXT", HFILL }},
-
-		{ &hf_mq_lpoo_defpersist    ,{"DefPersitence.", "mq.lpoo.defpersist", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Default Persitence", HFILL }},
-		{ &hf_mq_lpoo_defputresptype,{"DefPutRespType", "mq.lpoo.defputresptype", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Default Put Response Type", HFILL }},
-		{ &hf_mq_lpoo_defreadahead  ,{"DefReadAHead..", "mq.lpoo.defreadahead", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Default Read AHead", HFILL }},
-
-		{ &hf_mq_lpoo_qprotect      ,{"qprotect......", "mq.lpoo.qprotect", FT_STRINGZ, BASE_NONE, NULL, 0x0, "LPOO queue protection", HFILL }},
-		{ &hf_mq_lpoo_unknown6      ,{"Unknown6......", "mq.lpoo.unknown6", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown6", HFILL }},
-		/*{ &hf_mq_lpoo_unknown7      ,{"Unknown7......", "mq.lpoo.unknown7", FT_UINT16, BASE_HEX, NULL, 0x0, "LPOO unknown7", HFILL }},*/
-		{ &hf_mq_lpoo_xtradata      ,{"ExtraData.....", "mq.lpoo.extradata", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO Extra Data", HFILL }},
+		{ &hf_mq_lpoo_StructID   ,{"StructID", "mq.lpoo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_mq_lpoo_version    ,{"Version.", "mq.lpoo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO version", HFILL }},
+		{ &hf_mq_lpoo_unknown1   ,{"Unknown1", "mq.lpoo.unknown1", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown1", HFILL }},
+		{ &hf_mq_lpoo_unknown2   ,{"Unknown2", "mq.lpoo.unknown2", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown2", HFILL }},
+		{ &hf_mq_lpoo_unknown3   ,{"Unknown3", "mq.lpoo.unknown3", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown3", HFILL }},
+		{ &hf_mq_lpoo_unknown4   ,{"Unknown4", "mq.lpoo.unknown4", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown4", HFILL }},
+		{ &hf_mq_lpoo_unknown5   ,{"Unknown5", "mq.lpoo.unknown5", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown5", HFILL }},
+		{ &hf_mq_lpoo_qprotect   ,{"qprotect", "mq.lpoo.qprotect", FT_STRINGZ, BASE_NONE, NULL, 0x0, "LPOO queue protection", HFILL }},
+		{ &hf_mq_lpoo_unknown6   ,{"Unknown6", "mq.lpoo.unknown6", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown6", HFILL }},
+		{ &hf_mq_lpoo_unknown7   ,{"Unknown7", "mq.lpoo.unknown7", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown7", HFILL }},
 
 		{ &hf_mq_pmo_StructID    ,{"StructID.", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mq_pmo_version     ,{"Version..", "mq.pmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
@@ -4286,7 +4203,30 @@ void proto_register_mq(void)
 		{ &hf_mq_pmo_options_DEFAULT_CONTEXT         ,{"DEFAULT_CONTEXT", "mq.pmo.options.DEFAULT_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_DEFAULT_CONTEXT , "PMO options DEFAULT_CONTEXT", HFILL }},
 		{ &hf_mq_pmo_options_NO_SYNCPOINT            ,{"NO_SYNCPOINT", "mq.pmo.options.NO_SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NO_SYNCPOINT , "PMO options NO_SYNCPOINT", HFILL }},
 		{ &hf_mq_pmo_options_SYNCPOINT               ,{"SYNCPOINT", "mq.pmo.options.SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SYNCPOINT , "PMO options SYNCPOINT", HFILL }},
-
+		/*
+		{ &hf_mq_pmo_options_NOT_OWN_SUBS            ,{"NOT_OWN_SUBS............", "mq.pmo.options.NOT_OWN_SUBS", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NOT_OWN_SUBS , "PMO options NOT_OWN_SUBS", HFILL }},
+		{ &hf_mq_pmo_options_SUPPRESS_REPLYTO        ,{"SUPPRESS_REPLYTO........", "mq.pmo.options.SUPPRESS_REPLYTO", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SUPPRESS_REPLYTO , "PMO options SUPPRESS_REPLYTO", HFILL }},
+		{ &hf_mq_pmo_options_SCOPE_QMGR              ,{"SCOPE_QMGR..............", "mq.pmo.options.SCOPE_QMGR", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SCOPE_QMGR , "PMO options SCOPE_QMGR", HFILL }},
+		{ &hf_mq_pmo_options_MD_FOR_OUTPUT_ONLY      ,{"MD_FOR_OUTPUT_ONLY......", "mq.pmo.options.MD_FOR_OUTPUT_ONLY", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_MD_FOR_OUTPUT_ONLY , "PMO options MD_FOR_OUTPUT_ONLY", HFILL }},
+		{ &hf_mq_pmo_options_RETAIN                  ,{"RETAIN..................", "mq.pmo.options.RETAIN", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_RETAIN , "PMO options RETAIN", HFILL }},
+		{ &hf_mq_pmo_options_WARN_IF_NO_SUBS_MATCHED ,{"WARN_IF_NO_SUBS_MATCHED.", "mq.pmo.options.WARN_IF_NO_SUBS_MATCHED", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_WARN_IF_NO_SUBS_MATCHED , "PMO options WARN_IF_NO_SUBS_MATCHED", HFILL }},
+		{ &hf_mq_pmo_options_RESOLVE_LOCAL_Q         ,{"RESOLVE_LOCAL_Q.........", "mq.pmo.options.RESOLVE_LOCAL_Q", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_RESOLVE_LOCAL_Q , "PMO options RESOLVE_LOCAL_Q", HFILL }},
+		{ &hf_mq_pmo_options_SYNC_RESPONSE           ,{"SYNC_RESPONSE...........", "mq.pmo.options.SYNC_RESPONSE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SYNC_RESPONSE , "PMO options SYNC_RESPONSE", HFILL }},
+		{ &hf_mq_pmo_options_ASYNC_RESPONSE          ,{"ASYNC_RESPONSE..........", "mq.pmo.options.ASYNC_RESPONSE", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_ASYNC_RESPONSE , "PMO options ASYNC_RESPONSE", HFILL }},
+		{ &hf_mq_pmo_options_LOGICAL_ORDER           ,{"LOGICAL_ORDER...........", "mq.pmo.options.LOGICAL_ORDER", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_LOGICAL_ORDER , "PMO options LOGICAL_ORDER", HFILL }},
+		{ &hf_mq_pmo_options_NO_CONTEXT              ,{"NO_CONTEXT..............", "mq.pmo.options.NO_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NO_CONTEXT , "PMO options NO_CONTEXT", HFILL }},
+		{ &hf_mq_pmo_options_FAIL_IF_QUIESCING       ,{"FAIL_IF_QUIESCING.......", "mq.pmo.options.FAIL_IF_QUIESCING", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_FAIL_IF_QUIESCING , "PMO options FAIL_IF_QUIESCING", HFILL }},
+		{ &hf_mq_pmo_options_ALTERNATE_USER_AUTHORITY,{"ALTERNATE_USER_AUTHORITY", "mq.pmo.options.ALTERNATE_USER_AUTHORITY", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_ALTERNATE_USER_AUTHORITY , "PMO options ALTERNATE_USER_AUTHORITY", HFILL }},
+		{ &hf_mq_pmo_options_SET_ALL_CONTEXT         ,{"SET_ALL_CONTEXT.........", "mq.pmo.options.SET_ALL_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SET_ALL_CONTEXT , "PMO options SET_ALL_CONTEXT", HFILL }},
+		{ &hf_mq_pmo_options_SET_IDENTITY_CONTEXT    ,{"SET_IDENTITY_CONTEXT....", "mq.pmo.options.SET_IDENTITY_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SET_IDENTITY_CONTEXT , "PMO options SET_IDENTITY_CONTEXT", HFILL }},
+		{ &hf_mq_pmo_options_PASS_ALL_CONTEXT        ,{"PASS_ALL_CONTEXT........", "mq.pmo.options.PASS_ALL_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_PASS_ALL_CONTEXT , "PMO options PASS_ALL_CONTEXT", HFILL }},
+		{ &hf_mq_pmo_options_PASS_IDENTITY_CONTEXT   ,{"PASS_IDENTITY_CONTEXT...", "mq.pmo.options.PASS_IDENTITY_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_PASS_IDENTITY_CONTEXT , "PMO options PASS_IDENTITY_CONTEXT", HFILL }},
+		{ &hf_mq_pmo_options_NEW_CORREL_ID           ,{"NEW_CORREL_ID...........", "mq.pmo.options.NEW_CORREL_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NEW_CORREL_ID , "PMO options NEW_CORREL_ID", HFILL }},
+		{ &hf_mq_pmo_options_NEW_MSG_ID              ,{"NEW_MSG_ID..............", "mq.pmo.options.NEW_MSG_ID", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NEW_MSG_ID , "PMO options NEW_MSG_ID", HFILL }},
+		{ &hf_mq_pmo_options_DEFAULT_CONTEXT         ,{"DEFAULT_CONTEXT.........", "mq.pmo.options.DEFAULT_CONTEXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_DEFAULT_CONTEXT , "PMO options DEFAULT_CONTEXT", HFILL }},
+		{ &hf_mq_pmo_options_NO_SYNCPOINT            ,{"NO_SYNCPOINT............", "mq.pmo.options.NO_SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_NO_SYNCPOINT , "PMO options NO_SYNCPOINT", HFILL }},
+		{ &hf_mq_pmo_options_SYNCPOINT               ,{"SYNCPOINT...............", "mq.pmo.options.SYNCPOINT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQPMO_SYNCPOINT , "PMO options SYNCPOINT", HFILL }},
+		*/
 		{ &hf_mq_pmo_timeout     ,{"Timeout..", "mq.pmo.timeout", FT_INT32, BASE_DEC, NULL, 0x0, "PMO time out", HFILL }},
 		{ &hf_mq_pmo_context     ,{"Context..", "mq.pmo.context", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO context", HFILL }},
 		{ &hf_mq_pmo_knowndstcnt ,{"KnDstCnt.", "mq.pmo.kdstcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO known destination count", HFILL }},
@@ -4305,7 +4245,7 @@ void proto_register_mq(void)
 		{ &hf_mq_head_version    ,{"version.", "mq.head.version", FT_UINT32, BASE_DEC, NULL, 0x0, "Header version", HFILL }},
 		{ &hf_mq_head_length     ,{"Length..", "mq.head.length", FT_UINT32, BASE_DEC, NULL, 0x0, "Header length", HFILL }},
 		{ &hf_mq_head_encoding   ,{"Encoding", "mq.head.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "Header encoding", HFILL }},
-		{ &hf_mq_head_ccsid      ,{"CCSID...", "mq.head.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "Header character set", HFILL }},
+		{ &hf_mq_head_ccsid      ,{"CCSID...", "mq.head.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "Header character set", HFILL }},
 		{ &hf_mq_head_format     ,{"Format..", "mq.head.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Header format", HFILL }},
 		{ &hf_mq_head_flags      ,{"Flags...", "mq.head.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "Header flags", HFILL }},
 		{ &hf_mq_head_struct     ,{"Struct..", "mq.head.struct", FT_BYTES, BASE_NONE, NULL, 0x0, "Header struct", HFILL }},
@@ -4323,7 +4263,16 @@ void proto_register_mq(void)
 		{ &hf_mq_xa_tmflags_resume    ,{"RESUME", "mq.xa.tmflags.resume", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMRESUME, "XA TM Flags RESUME", HFILL }},
 		{ &hf_mq_xa_tmflags_fail      ,{"FAIL", "mq.xa.tmflags.fail", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMFAIL, "XA TM Flags FAIL", HFILL }},
 		{ &hf_mq_xa_tmflags_onephase  ,{"ONEPHASE", "mq.xa.tmflags.onephase", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMONEPHASE, "XA TM Flags ONEPHASE", HFILL }},
-
+		/*
+		{ &hf_mq_xa_tmflags_join      ,{"JOIN......", "mq.xa.tmflags.join", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMJOIN, "XA TM Flags JOIN", HFILL }},
+		{ &hf_mq_xa_tmflags_endrscan  ,{"ENDRSCAN..", "mq.xa.tmflags.endrscan", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMENDRSCAN, "XA TM Flags ENDRSCAN", HFILL }},
+		{ &hf_mq_xa_tmflags_startrscan,{"STARTRSCAN", "mq.xa.tmflags.startrscan", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSTARTRSCAN, "XA TM Flags STARTRSCAN", HFILL }},
+		{ &hf_mq_xa_tmflags_suspend   ,{"SUSPEND...", "mq.xa.tmflags.suspend", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSUSPEND, "XA TM Flags SUSPEND", HFILL }},
+		{ &hf_mq_xa_tmflags_success   ,{"SUCCESS...", "mq.xa.tmflags.success", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSUCCESS, "XA TM Flags SUCCESS", HFILL }},
+		{ &hf_mq_xa_tmflags_resume    ,{"RESUME....", "mq.xa.tmflags.resume", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMRESUME, "XA TM Flags RESUME", HFILL }},
+		{ &hf_mq_xa_tmflags_fail      ,{"FAIL......", "mq.xa.tmflags.fail", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMFAIL, "XA TM Flags FAIL", HFILL }},
+		{ &hf_mq_xa_tmflags_onephase  ,{"ONEPHASE..", "mq.xa.tmflags.onephase", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMONEPHASE, "XA TM Flags ONEPHASE", HFILL }},
+		*/
 		{ &hf_mq_xa_xid_formatid  ,{"Format ID....", "mq.xa.xid.formatid", FT_INT32, BASE_DEC, NULL, 0x0, "XA Xid Format ID", HFILL }},
 		{ &hf_mq_xa_xid_glbxid_len,{"GlbTransIDLen", "mq.xa.xid.gxidl", FT_UINT8, BASE_DEC, NULL, 0x0, "XA Xid Global TransactionId Length", HFILL }},
 		{ &hf_mq_xa_xid_brq_length,{"BranchQualLen", "mq.xa.xid.bql", FT_UINT8, BASE_DEC, NULL, 0x0, "XA Xid Branch Qualifier Length", HFILL }},
@@ -4391,8 +4340,7 @@ void proto_register_mq(void)
 		&ett_mq_fcno,
 		&ett_mq_fopa,
 		&ett_mq_lpoo,
-		&ett_mq_lpoo_options,
-		&ett_mq_lpoo_lpiopts,
+		&ett_mq_lpoo_option,
 		&ett_mq_head,
 		&ett_mq_xa,
 		&ett_mq_xa_tmflags,

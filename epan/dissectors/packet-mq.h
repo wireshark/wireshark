@@ -28,57 +28,43 @@
 #ifndef __PACKET_MQ_H__
 #define __PACKET_MQ_H__
 
-#define GET_VALSV(A) mq_##A##_vals
-#define DEF_VALSX(A) extern const value_string GET_VALSV(A)[]
-#define GET_VALSP(F) (gchar *)GET_VALSV(F)
-#define DEF_VALSB(A) const value_string GET_VALSV(A)[] = \
+#define DEF_VALSX(A)   extern const value_string mq_##A##_vals[]
+#define GET_VALSV(A)   mq_##A##_vals
+#define GET_VALSP(F)   (gchar *)GET_VALSV(F)
+
+#define DEF_VALSB(A) const value_string mq_##A##_vals[] = \
 {
+
 #define DEF_VALS1(A)   { (guint32)MQ_##A, #A }
 #define DEF_VALS2(A,B) { (guint32)MQ_##A, B }
+
 #define DEF_VALSE \
 { 0, NULL } \
 }
-#define DEF_VALSEXT(A)  value_string_ext GET_VALSV(A)_ext = VALUE_STRING_EXT_INIT(GET_VALSV(A))
-#define DEF_VALSEXTX(A) extern value_string_ext GET_VALSV(A)_ext
 
-/* | BASE_RANGE_STRING, GET_VALRV(RVALS(aaa)) */
-#define GET_VALRV(A) mq_##A##_rvals
-#define DEF_VALRX(A) extern const range_string GET_VALRV(A)[]
-#define GET_VALRP(F) (gchar *)GET_VALRV(F)
-#define DEF_VALRB(A) const range_string GET_VALRV(A)[] = \
-{
-#define DEF_VALR1(A)     { (guint32)MQ_##A, (guint32)MQ_##A, #A }
-#define DEF_VALR3(A,B,C) { (guint32)MQ_##A, (guint32)MQ_##B, C }
-#define DEF_VALRE \
-{ 0, 0, NULL } \
-}
-#define DEF_VALREXTX(A) extern value_string_ext GET_VALRV(A)_ext
+#define DEF_VALSEXT(A)  value_string_ext mq_##A##_vals_ext = VALUE_STRING_EXT_INIT(mq_##A##_vals)
+#define DEF_VALSEXTX(A) extern value_string_ext mq_##A##_vals_ext
 
-typedef struct _mq_ccsid_t
+/*
+* Private data passed from the MQ dissector to subdissectors.
+*/
+struct mqinfo 
 {
-	guint32 encod;
-	guint32 ccsid;
-} mq_ccsid_t;
+	guint32 encoding;           /* Message encoding */
+	guint32 ccsid;              /* Message character set */
+	guint8  format[8];          /* Message format */
+};
 
 typedef struct _mq_parm_t
 {
 	guint32 mq_strucID ;
 	guint32 mq_int_enc ;
 	guint32 mq_str_enc ;
+	guint32 mq_encode  ;
+	guint16 mq_ccsid   ;
 	guint8  mq_ctlf1   ;
 	guint8  mq_ctlf2   ;
 	guint8  mq_opcode  ;
-	mq_ccsid_t mq_tsh_ccsid;
-	mq_ccsid_t mq_id_ccsid;
-	mq_ccsid_t mq_md_ccsid;
-	mq_ccsid_t mq_dlh_ccsid;
-	mq_ccsid_t mq_head_ccsid;
-	mq_ccsid_t mq_msgreq_ccsid;
-	mq_ccsid_t mq_cur_ccsid;
-	guint8     mq_format[8];
-	gint32     iOfsEnc;     /* Offset to Message encoding */
-	gint32     iOfsCcs;     /* Offset to Message character set */
-	gint32     iOfsFmt;     /* Offset to Message format */
 } mq_parm_t;
 
 #define MQ_MQCA_XR_VERSION2 2120
@@ -350,11 +336,6 @@ typedef struct _mq_parm_t
 #define MQ_MQMO_MATCH_MSG_TOKEN           0x00000020
 #define MQ_MQMO_NONE                      0x00000000
 
-/* LPOO Options */
-#define MQ_LPOO_SAVE_IDENTITY_CTXT  0x00000001
-#define MQ_LPOO_SAVE_ORIGIN_CTXT    0x00000002
-#define MQ_LPOO_SAVE_USER_CTXT      0x00000004
-
 /* Group Status */
 #define MQ_MQGS_NOT_IN_GROUP              ' '
 #define MQ_MQGS_MSG_IN_GROUP              'G'
@@ -550,15 +531,13 @@ typedef struct _mq_parm_t
 #define MQ_MQENC_AS_PUBLISHED             (-1)
 
 /* Coded Character Set Identifiers */
-#define MQ_MQCCSI_AS_PUBLISHED            (-4)
-#define MQ_MQCCSI_APPL                    (-3)
-#define MQ_MQCCSI_INHERIT                 (-2)
-#define MQ_MQCCSI_EMBEDDED                (-1)
 #define MQ_MQCCSI_UNDEFINED               0
 #define MQ_MQCCSI_DEFAULT                 0
 #define MQ_MQCCSI_Q_MGR                   0
-#define MQ_MQCCSI_1                       1
-#define MQ_MQCCSI_65535                   65535
+#define MQ_MQCCSI_INHERIT                 (-2)
+#define MQ_MQCCSI_EMBEDDED                (-1)
+#define MQ_MQCCSI_APPL                    (-3)
+#define MQ_MQCCSI_AS_PUBLISHED            (-4)
 
 /* Formats */
 #define MQ_MQFMT_NONE                     "        "
@@ -1876,6 +1855,7 @@ typedef struct _mq_parm_t
 /* Capability */
 #define MQ_MQCAP_NOT_SUPPORTED            0
 #define MQ_MQCAP_SUPPORTED                1
+
 #define MQ_MQCAP_EXPIRED                  2
 /****************************************************************/
 /* Values Related to Topic Attributes                           */
@@ -4817,16 +4797,12 @@ typedef struct _mq_parm_t
 #define MQ_MQCLCT_STATIC                  0
 #define MQ_MQCLCT_DYNAMIC                 1
 
- /* Transmission queue types */
-#define MQ_MQCLXQ_SCTQ                    0
-#define MQ_MQCLXQ_CHANNEL                 1
-
 #endif
 
 extern guint32 tvb_get_guint32_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep);
 extern guint16 tvb_get_guint16_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep);
 extern guint64 tvb_get_guint64_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep);
-extern gint32  strip_trailing_blanks(guint8 *a_str, guint32 a_size);
+extern guint32 strip_trailing_blanks(guint8 *a_str, guint32 a_size);
 
 DEF_VALSX(mqcc);
 DEF_VALSX(mqrc);
@@ -4840,8 +4816,6 @@ DEF_VALSX(PrmId);
 DEF_VALSX(FilterOP);
 
 DEF_VALSX(MQCFINT_Parse);
-
-DEF_VALRX(ccsid);
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
