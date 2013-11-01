@@ -133,7 +133,7 @@ instead of 1. (ws-buglink:9126[])
 
 * Bluetooth: SDP improvements and minor fixes. (ws-buglink:9327[])
 
-* Duplicate header field abbreviation breaks filter (example: irc.response.command). (ws-buglink:9360[])
+* Duplicate IRC header field abbreviation breaks filter (example: irc.response.command). (ws-buglink:9360[])
 
 === New and Updated Features
 
