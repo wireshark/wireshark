@@ -530,7 +530,7 @@ proto_register_irc(void)
 		{ &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, BASE_NONE, 
 		  NULL, 0x0, "Response command", HFILL }},
 
-		{ &hf_irc_response_num_command, { "Command", "irc.response.command", FT_UINT16, BASE_DEC, 
+        { &hf_irc_response_num_command, { "Command", "irc.response.num_command", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, "Response (numeric) command", HFILL }},
 
 		{ &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, BASE_NONE, 

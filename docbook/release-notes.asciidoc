@@ -105,6 +105,8 @@ The following bugs have been fixed:
 
 * Fix dissection of PTP Management messages. (ws-buglink:9262[])
 
+* Duplicate IRC header field abbreviation breaks filter (example: irc.response.command). (ws-buglink:9360[])
+
 === New and Updated Features
 
 There are no new features in this release.
@@ -124,6 +126,7 @@ DIAMETER
 Ethernet
 EtherNet/IP
 IEEE 802.15.4
+IRC
 NBAP
 NTLMSSP
 OpenWire
