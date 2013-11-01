@@ -714,7 +714,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
         md5_finish(&md5state,challenges_hash);
         memcpy(challenges_hash_first8,challenges_hash,8);
         crypt_des_ecb_long(nt_challenge_response,nt_password_hash,challenges_hash_first8);
-        if( !memcmp(ref_nt_challenge_response,nt_challenge_response,24) ) {
+        if (ref_nt_challenge_response && !memcmp(ref_nt_challenge_response, nt_challenge_response, 24)) {
           found = 1;
           break;
         }
@@ -728,7 +728,11 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
       else {
         crypt_des_ecb_long(lm_challenge_response,lm_password_hash,serverchallenge);
       }
-      if( !memcmp(ref_nt_challenge_response,nt_challenge_response,24) && !memcmp(ref_lm_challenge_response,lm_challenge_response,24) ) {
+      if (ref_nt_challenge_response &&
+          !memcmp(ref_nt_challenge_response, nt_challenge_response, 24) &&
+          ref_lm_challenge_response &&
+          !memcmp(ref_lm_challenge_response, lm_challenge_response, 24))
+      {
           found = 1;
       }
     }

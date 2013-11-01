@@ -95,6 +95,8 @@ The following bugs have been fixed:
 
 * Wireshark lua dissector unable to load for media_type=application/octet-stream. (ws-buglink:9296[])
 
+* Wireshark crash when dissecting packet with NTLMSSP. (ws-buglink:9299[])
+
 * DCERPC data_blobs are not correctly dissected when NDR64 encoding is used. (ws-buglink:9301[])
 
 * multiple PDU in the same DCERPC packet are not correctly decrypted. (ws-buglink:9302[])
@@ -123,6 +125,7 @@ Ethernet
 EtherNet/IP
 IEEE 802.15.4
 NBAP
+NTLMSSP
 OpenWire
 SIP
 WiMax
