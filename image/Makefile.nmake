@@ -26,12 +26,12 @@ libwireshark.rc: libwireshark.rc.in ..\config.nmake
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< libwireshark.rc.in > $@
 
-tshark.rc  : tshark.rc.in ..\config.nmake
+tshark.rc  : tshark.rc.in wireshark.exe.manifest ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< tshark.rc.in > $@
 
-rawshark.rc  : rawshark.rc.in ..\config.nmake
+rawshark.rc  : rawshark.rc.in wireshark.exe.manifest ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< rawshark.rc.in > $@
@@ -71,7 +71,7 @@ libwsutil.rc  : libwsutil.rc.in ..\config.nmake
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< libwsutil.rc.in > $@
 
-dumpcap.rc   : dumpcap.rc.in ..\config.nmake
+dumpcap.rc   : dumpcap.rc.in wireshark.exe.manifest ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< dumpcap.rc.in > $@
