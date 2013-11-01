@@ -51,6 +51,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
 AC_PROG_CPP
+AC_PROG_MKDIR_P
 AC_WIRESHARK_CLANG_CHECK
 
 dnl Work around libtool bug (fixed in the version 1.5a?)
