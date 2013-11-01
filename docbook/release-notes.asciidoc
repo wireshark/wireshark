@@ -17,123 +17,22 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-61[]
+* ws-salink:2013-66[]
 +
-The IEEE 802.15.4 dissector could crash.
-// Fixed in trunk: r52036
-// Fixed in trunk-1.10: r52954
-// Fixed in trunk-1.8: r52956
-(ws-buglink:9139[])
+Something is up with a dissector.
+// Fixed in trunk: rXXXXX
+// Fixed in trunk-1.10: rXXXXX
+// Fixed in trunk-1.8: rXXXXX
+(ws-buglink:XXXX[])
 +
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6336[]
-
-* ws-salink:2013-62[]
-+
-The NBAP dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r52154
-// Fixed in trunk-1.10: r52957
-// Fixed in trunk-1.8: r52958
-(ws-buglink:9168[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6337[]
-
-* ws-salink:2013-63[]
-+
-The SIP dissector could crash.
-// Fixed in trunk: r52354
-// Fixed in trunk-1.10: r52959
-// Fixed in trunk-1.8: r52960
-(ws-buglink:9228[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6338[]
-
-* ws-salink:2013-64[]
-+
-The OpenWire dissector could go into a large loop. Discovered by Murali.
-// Fixed in trunk: r52457, r52458, r52463
-// Fixed in trunk-1.10: r52490
-// Fixed in trunk-1.8: r52490
-(ws-buglink:9248[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6339[]
-
-* ws-salink:2013-65[]
-+
-The TCP dissector could crash.
-// Fixed in trunk: r52570
-// Fixed in trunk-1.10: r52961
-// Fixed in trunk-1.8: r52962
-(ws-buglink:9263[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6340[]
+Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
+//+
+//cve-idlink:2013-XXXX[]
 
 
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
-
-* new_packet_list: EAP-TLS reassemble does not happen when NEW_PACKET_LIST is toggled. (ws-buglink:5349[])
-
-* TLS decryption fails with XMPP start_tls. (ws-buglink:8871[])
-
-* Wrong Interpretation of GTS starting slot. (ws-buglink:8946[])
-
-* "Follow TCP Stream" shows only the first HTTP req+res. (ws-buglink:9044[])
-
-* The value of 'SEND_TO_UE' in the DIAMETER Gx dictionary for Packet-Filter-Usage AVP is 0
-instead of 1. (ws-buglink:9126[])
-
-* Crash then try to delete the same entry (length range) twice. (ws-buglink:9129[])
-
-* Crash if wrong "packet lengths range" entered. (ws-buglink:9130[])
-
-* Bssgp =>  SGSN-INVOKE-TRACE use the wrong function... (ws-buglink:9157[])
-
-* Minor correction to dissection of DLR frames in Ethernet/IP dissector. (ws-buglink:9186[])
-
-* WebSphere MQ V7 Bug Fix 8322 TSHM_EBCDIC. (ws-buglink:9198[])
-
-* EDNS0 "Higher bits in extended RCODE" incorrectly decoded in packet-dns.c. (ws-buglink:9199[])
-
-* Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
-
-* Bug in RTP dissector if RTP extension is present. (ws-buglink:9204[])
-
-* Improve "eHRPD Indicator" NVSE dissection in 3GPP2 A11 Registration Request. (ws-buglink:9206[])
-
-* "make debian-package" fails, missing wsicon32.xpm. (ws-buglink:9209[])
-
-* Fix typo in MODCOD list of DVB-S2 dissector. (ws-buglink:9218[])
-
-* Ring buffer crash when tshark gets too far behind dumpcap. (ws-buglink:9258[])
-
-* PTP Dissector Wrongfully Reports Malformed Packet. (ws-buglink:9262[])
-
-* Wireshark lua dissector unable to load for media_type=application/octet-stream. (ws-buglink:9296[])
-
-* Wireshark crash when dissecting packet with NTLMSSP. (ws-buglink:9299[])
-
-* Padding in uint64 field in DCERPC protocol wrongly reported. (ws-buglink:9300[])
-
-* DCERPC data_blobs are not correctly dissected when NDR64 encoding is used. (ws-buglink:9301[])
-
-* Multiple PDUs in the same DCERPC packet are not correctly decrypted. (ws-buglink:9302[])
-
-* The tshark summary line doesn't display the frame number or displays it sporadically. (ws-buglink:9317[])
-
-* Bluetooth: SDP improvements and minor fixes. (ws-buglink:9327[])
-
-* Duplicate IRC header field abbreviation breaks filter (example: irc.response.command). (ws-buglink:9360[])
 
 === New and Updated Features
 
@@ -147,29 +46,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-3GPP2 A11
-Bluetooth SDP
-BSSGP
-DCERPC
-DCERPC NDR
-DCERPC NT
-DIAMETER
-DNS
-DVB-S2
-Ethernet
-EtherNet/IP
-H.225
-IEEE 802.15.4
-IRC
-NBAP
-NTLMSSP
-OpenWire
-PTP
-RTP
-SIP
-TCP
-WiMax
-XMPP
+.
 
 --sort-and-group--
 
