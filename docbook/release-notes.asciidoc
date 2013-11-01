@@ -17,65 +17,17 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-61[]
+* ws-salink:2013-66[]
 +
-The IEEE 802.15.4 dissector could crash.
-// Fixed in trunk: r52036
-// Fixed in trunk-1.10: r52954
-// Fixed in trunk-1.8: r52956
-(ws-buglink:9139[])
+Something is up with a dissector.
+// Fixed in trunk: rXXXXX
+// Fixed in trunk-1.10: rXXXXX
+// Fixed in trunk-1.8: rXXXXX
+(ws-buglink:XXXX[])
 +
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6336[]
-
-* ws-salink:2013-62[]
-+
-The NBAP dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r52154
-// Fixed in trunk-1.10: r52957
-// Fixed in trunk-1.8: r52958
-(ws-buglink:9168[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6337[]
-
-* ws-salink:2013-63[]
-+
-The SIP dissector could crash.
-// Fixed in trunk: r52354
-// Fixed in trunk-1.10: r52959
-// Fixed in trunk-1.8: r52960
-(ws-buglink:9228[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6338[]
-
-* ws-salink:2013-64[]
-+
-The OpenWire dissector could go into a large loop. Discovered by Murali.
-// Fixed in trunk: r52457, r52458, r52463
-// Fixed in trunk-1.10: r52490
-// Fixed in trunk-1.8: r52490
-(ws-buglink:9248[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6339[]
-
-* ws-salink:2013-65[]
-+
-The TCP dissector could crash.
-// Fixed in trunk: r52570
-// Fixed in trunk-1.10: r52961
-// Fixed in trunk-1.8: r52962
-(ws-buglink:9263[])
-+
-Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-+
-cve-idlink:2013-6340[]
+Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
+//+
+//cve-idlink:2013-XXXX[]
 
 
 The following bugs have been fixed:
@@ -83,29 +35,6 @@ The following bugs have been fixed:
 //* Wireshark will strip the paint off your car, then apply a hideous
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
-
-* new_packet_list: EAP-TLS reassemble does not happen when NEW_PACKET_LIST is toggled. (ws-buglink:5349[])
-
-* The value of 'SEND_TO_UE' in the DIAMETER Gx dictionary for Packet-Filter-Usage AVP is 0 instead of 1. (ws-buglink:9126[])
-
-* Bssgp =>  SGSN-INVOKE-TRACE use the wrong function... (ws-buglink:9157[])
-
-* Files with pcap-ng Simple Packet Blocks can't be read.
-(ws-buglink:9200[])
-
-* Wireshark lua dissector unable to load for media_type=application/octet-stream. (ws-buglink:9296[])
-
-* Wireshark crash when dissecting packet with NTLMSSP. (ws-buglink:9299[])
-
-* DCERPC data_blobs are not correctly dissected when NDR64 encoding is used. (ws-buglink:9301[])
-
-* multiple PDU in the same DCERPC packet are not correctly decrypted. (ws-buglink:9302[])
-
-* The tshark summary line doesn't display the frame number or displays it sporadically. (ws-buglink:9317[])
-
-* Fix dissection of PTP Management messages. (ws-buglink:9262[])
-
-* Duplicate IRC header field abbreviation breaks filter (example: irc.response.command). (ws-buglink:9360[])
 
 === New and Updated Features
 
@@ -119,19 +48,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-BSSGP
-DCERPC
-DCERPC NT
-DIAMETER
-Ethernet
-EtherNet/IP
-IEEE 802.15.4
-IRC
-NBAP
-NTLMSSP
-OpenWire
-SIP
-WiMax
+.
 
 --sort-and-group--
 
