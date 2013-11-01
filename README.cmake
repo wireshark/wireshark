@@ -111,7 +111,6 @@ What needs to be done?
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
 - Guides are not installed.
-- Release notes are not built.
 - Build source package (using CPack).
   This is obsolete if we decide to release VCS snapshots instead
 - Build rpm package (using CPack).
