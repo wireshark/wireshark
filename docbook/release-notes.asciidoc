@@ -26,8 +26,8 @@ The IEEE 802.15.4 dissector could crash.
 (ws-buglink:9139[])
 +
 Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-//+
-//cve-idlink:2013-????[]
++
+cve-idlink:2013-6336[]
 
 * ws-salink:2013-62[]
 +
@@ -38,8 +38,8 @@ The NBAP dissector could crash. Discovered by Laurent Butti.
 (ws-buglink:9168[])
 +
 Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-//+
-//cve-idlink:2013-????[]
++
+cve-idlink:2013-6337[]
 
 * ws-salink:2013-63[]
 +
@@ -50,8 +50,8 @@ The SIP dissector could crash.
 (ws-buglink:9228[])
 +
 Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-//+
-//cve-idlink:2013-????[]
++
+cve-idlink:2013-6338[]
 
 * ws-salink:2013-64[]
 +
@@ -62,8 +62,8 @@ The OpenWire dissector could go into a large loop. Discovered by Murali.
 (ws-buglink:9248[])
 +
 Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-//+
-//cve-idlink:2013-????[]
++
+cve-idlink:2013-6339[]
 
 * ws-salink:2013-65[]
 +
@@ -74,8 +74,8 @@ The TCP dissector could crash.
 (ws-buglink:9263[])
 +
 Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
-//+
-//cve-idlink:2013-????[]
++
+cve-idlink:2013-6340[]
 
 
 The following bugs have been fixed:
@@ -119,6 +119,8 @@ instead of 1. (ws-buglink:9126[])
 
 * PTP Dissector Wrongfully Reports Malformed Packet. (ws-buglink:9262[])
 
+* Wireshark crash when dissecting packet with NTLMSSP. (ws-buglink:9299[])
+
 * Padding in uint64 field in DCERPC protocol wrongly reported. (ws-buglink:9300[])
 
 * DCERPC data_blobs are not correctly dissected when NDR64 encoding is used. (ws-buglink:9301[])
@@ -141,6 +143,7 @@ There are no new protocols in this release.
 
 3GPP2 A11
 BSSGP
+DCERPC
 DCERPC NDR
 DCERPC NT
 DIAMETER
@@ -151,11 +154,13 @@ EtherNet/IP
 H.225
 IEEE 802.15.4
 NBAP
+NTLMSSP
 OpenWire
 PTP
 RTP
 SIP
 TCP
+WiMax
 XMPP
 
 --sort-and-group--
