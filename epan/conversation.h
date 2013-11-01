@@ -176,7 +176,7 @@ WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation,
 extern gboolean
 try_conversation_dissector(const address *addr_a, const address *addr_b, const port_type ptype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree);
+    proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */
 

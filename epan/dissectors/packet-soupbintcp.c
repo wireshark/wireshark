@@ -410,14 +410,9 @@ dissect_soupbintcp_common(
 
         /* If this packet is part of a conversation, call dissector
          * for the conversation if available */
-        if (try_conversation_dissector(&pinfo->dst,
-                                       &pinfo->src,
-                                       pinfo->ptype,
-                                       pinfo->srcport,
-                                       pinfo->destport,
-                                       sub_tvb,
-                                       pinfo,
-                                       tree)) {
+        if (try_conversation_dissector(&pinfo->dst, &pinfo->src, pinfo->ptype,
+                                       pinfo->srcport, pinfo->destport,
+                                       sub_tvb, pinfo, tree, NULL)) {
             return;
         }
 

@@ -1254,7 +1254,7 @@ conversation_set_dissector(conversation_t *conversation, const dissector_handle_
 gboolean
 try_conversation_dissector(const address *addr_a, const address *addr_b, const port_type ptype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree)
+    proto_tree *tree, void* data)
 {
 	conversation_t *conversation;
 
@@ -1266,7 +1266,7 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const p
 		if (conversation->dissector_handle == NULL)
 			return FALSE;
 		ret=call_dissector_only(conversation->dissector_handle, tvb, pinfo,
-		    tree, NULL);
+		    tree, data);
 		if(!ret) {
 			/* this packet was rejected by the dissector
 			 * so return FALSE in case our caller wants
