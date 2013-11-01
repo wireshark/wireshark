@@ -54,6 +54,8 @@
 #define CONNECTACK           251      /*!< Message ID definition: Connect Acknowledge */
 /**@}*/
 
+#define UDP_DATAGRAM_RELIABLE_FLAG    0x40
+#define UDP_MSG_BLOCK_RELIABLE_FLAG   0x10
 
 void proto_reg_handoff_knet(void); /* Forward declaration for use in preferences registration */
 
@@ -73,9 +75,10 @@ static int proto_knet        = -1;
 
 /* Fields used by the TCP/SCTP dissector */
 static int hf_knet_message_tree =   -1; /*!< Message tree */
-static int hf_knet_content_length = -1; /*!< Content Length */
+static int hf_knet_content_length_vle = -1; /*!< Content Length */
 
 /* Fields used by the UDP dissector */
+static int hf_knet_content_length =              -1; /*!< Content Length */
 static int hf_knet_datagram_tree =               -1; /*!< Datagram subtree */
 static int hf_knet_flags =                       -1; /*!< UDP Flags subtree */
 static int hf_knet_inorder =                     -1; /*!< Inorder Flag */
@@ -116,10 +119,6 @@ static dissector_handle_t knet_handle_sctp;
 static dissector_handle_t knet_handle_tcp;
 static dissector_handle_t knet_handle_udp;
 
-/* Few Utility Variables */
-static int messageindex =         0; /*!< Index of the kNet message inside a datagram */
-static int current_protocol =     0; /*!< Protocol currently dissected */
-
 /* Ports used by the dissectors */
 static guint32 knet_sctp_port =   PORT; /*!< Port used by kNet SCTP */
 static guint32 knet_tcp_port =    PORT; /*!< Port used by kNet TCP */
@@ -149,13 +148,11 @@ static const value_string packettypenames[] = { /*!< Messageid List */
 static int
 count_vle_bytes(tvbuff_t *tvb, int offset)
 {
-    int byte_count;
+    int byte_count = 1;
 
-    byte_count = 1;
-
-    if((tvb_get_bits8(tvb, (offset) * 8, 8) & 128) > 0)     /* If the first bit of the first byte is 1 */
+    if(tvb_get_guint8(tvb, offset) & 0x80)     /* If the first bit of the first byte is 1 */
         byte_count = 2;                                     /* There's at least 2 bytes of content length */
-    if((tvb_get_bits8(tvb, (offset) * 8 + 8, 8) & 128) > 0) /* If the next one is also 1 */
+    if(tvb_get_guint8(tvb, offset+1) & 0x80)   /* If the next one is also 1 */
         byte_count = 4;
 
     return byte_count;
@@ -177,17 +174,16 @@ count_vle_bytes(tvbuff_t *tvb, int offset)
  * @return int returns the new offset
  *
  */
-static int
+static guint32
 dissect_packetid(tvbuff_t *buffer, int offset, proto_tree *tree)
 {
     guint32 packetid;
 
-    packetid  = tvb_get_bits8(buffer, offset * 8 + 16, 8) << 14;
-    packetid += tvb_get_bits8(buffer, offset * 8 + 8, 8) << 6;
-    packetid += tvb_get_bits8(buffer, offset * 8, 8) & 63;
-    if(offset == 0 && tree != NULL)
-        proto_tree_add_uint(tree, hf_knet_packetid, buffer, 0, 3, packetid);
+    packetid  = tvb_get_guint8(buffer, offset+2) << 14;
+    packetid += tvb_get_guint8(buffer, offset+1) << 6;
+    packetid += tvb_get_guint8(buffer, offset) & 63;
 
+    proto_tree_add_uint(tree, hf_knet_packetid, buffer, 0, 3, packetid);
     return packetid;
 }
 
@@ -210,15 +206,12 @@ dissect_packetid(tvbuff_t *buffer, int offset, proto_tree *tree)
 static int
 dissect_reliable_message_index_base(tvbuff_t *buffer, int offset, proto_tree *tree)
 {
-    int byte_count;
+    int byte_count = 2;
 
-    byte_count = 2;
-
-    if((tvb_get_bits8(buffer, offset * 8 + 8, 8) & 128) > 0)
+    if(tvb_get_guint8(buffer, offset+1) & 0x80)
         byte_count = 4;
 
-    if(tree != NULL)
-        proto_tree_add_item(tree, hf_knet_rmib, buffer, offset, byte_count, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_knet_rmib, buffer, offset, byte_count, ENC_LITTLE_ENDIAN);
 
     return byte_count;
 }
@@ -251,25 +244,22 @@ dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
     switch(byte_count) /*We must calculate length by hand because we use the length later */
     {
         case 4:
-            length = tvb_get_bits8(buffer,   ((*offset) + 3) * 8, 8) <<23;
-            length += tvb_get_bits8(buffer,  ((*offset) + 2) * 8, 8) <<15;
+            length = tvb_get_guint8(buffer, (*offset) + 3) << 23;
+            length += (tvb_get_guint8(buffer, (*offset) + 2) << 15);
             /* FALLTHRU */
         case 2:
-            length +=(tvb_get_bits8(buffer,  ((*offset) + 1) * 8, 8) & 127) <<7;
+            length += (tvb_get_guint8(buffer, (*offset) + 1) << 7);
             /* FALLTHRU */
         case 1:
-            length +=(tvb_get_bits8(buffer,  (*offset) * 8, 8) & 127);
+            length += (tvb_get_guint8(buffer, (*offset)) & 0x7F);
         break;
         default:
             REPORT_DISSECTOR_BUG("Error in Content Length calculation");
         break;
     }
 
-    if(tree != NULL)
-    {
-        proto_tree_add_uint(tree, hf_knet_content_length, buffer, (*offset), byte_count, length);
-        (*offset) += byte_count;
-    }
+    proto_tree_add_uint(tree, hf_knet_content_length_vle, buffer, (*offset), byte_count, length);
+    (*offset) += byte_count;
 
     return length;
 }
@@ -305,10 +295,10 @@ dissect_content_length(tvbuff_t *buffer, int offset, proto_tree *tree)
         msgflags_ti   = proto_tree_add_item(tree, hf_knet_msg_flags, buffer, offset + 1, 1, ENC_NA);
         msgflags_tree = proto_item_add_subtree(msgflags_ti, ett_knet_message_flags);
 
-        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_fs, buffer, offset * 8 + 8, 1, ENC_LITTLE_ENDIAN); /* Fragment start flag */
-        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_ff, buffer, offset * 8 + 9, 1, ENC_LITTLE_ENDIAN);  /* Fragment flag */
-        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_inorder, buffer, offset * 8 + 10, 1, ENC_LITTLE_ENDIAN); /* Inorder flag */
-        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_reliable, buffer, offset * 8 + 11, 1, ENC_LITTLE_ENDIAN); /* Reliable flag */
+        proto_tree_add_item(msgflags_tree, hf_knet_msg_fs, buffer, offset+1, 1, ENC_NA); /* Fragment start flag */
+        proto_tree_add_item(msgflags_tree, hf_knet_msg_ff, buffer, offset+1, 1, ENC_NA);  /* Fragment flag */
+        proto_tree_add_item(msgflags_tree, hf_knet_msg_inorder, buffer, offset+1, 1, ENC_NA); /* Inorder flag */
+        proto_tree_add_item(msgflags_tree, hf_knet_msg_reliable, buffer, offset+1, 1, ENC_NA); /* Reliable flag */
 
         proto_tree_add_uint(tree, hf_knet_content_length, buffer, offset, 2, length);
     }
@@ -335,15 +325,12 @@ dissect_content_length(tvbuff_t *buffer, int offset, proto_tree *tree)
 static int
 dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
 {
-    int byte_count;
+    int byte_count = 1;
 
-    byte_count = 1;
-
-    if((tvb_get_bits8(buffer, offset * 8, 8) & 128) > 0)
+    if(tvb_get_guint8(buffer, offset) & 0x80)
         byte_count = 2;
 
-    if(tree != NULL)
-        proto_tree_add_item(tree, hf_knet_msg_reliable_message_number, buffer, offset, byte_count, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_knet_msg_reliable_message_number, buffer, offset, byte_count, ENC_LITTLE_ENDIAN);
 
     return byte_count;
 }
@@ -364,12 +351,13 @@ dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
  *
  */
 static int
-dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo, wmem_strbuf_t* info_field)
+dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo, gboolean separator)
 {
     gint   messageid_length;
     guint8 messageid;
+    gboolean col_write;
 
-    messageid = tvb_get_bits8(buffer, (*offset) * 8, 8);
+    messageid = tvb_get_guint8(buffer, (*offset));
 
     switch(messageid)
     {
@@ -385,14 +373,26 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
         break;
     }
 
-    proto_tree_add_bytes_format_value(tree, hf_knet_messageid, buffer, *offset, messageid_length, NULL,
-    "%s (%d)", val_to_str_const(messageid, packettypenames, "AppData or Malformed Message ID"), messageid);
+    proto_tree_add_uint_format_value(tree, hf_knet_messageid, buffer, *offset, messageid_length, messageid,
+            "%s (%d)", val_to_str_const(messageid, packettypenames, "AppData or Malformed Message ID"), messageid);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(messageid, packettypenames, "AppData "));
+    /* XXX - TCP reassembly disables writing columns which prevents populating COL_INFO if multiple KNET messages 
+       appear in a single packet that needed to be reassembled.
+       Force making columns writable.
+    */
+    if (separator)
+    {
+        col_write = col_get_writable(pinfo->cinfo);
+        col_set_writable(pinfo->cinfo, TRUE);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s (%d)", val_to_str_const(messageid, packettypenames, "AppData"), messageid);
+        col_set_writable(pinfo->cinfo, col_write);
+    }
+    else
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%d)", val_to_str_const(messageid, packettypenames, "AppData"), messageid);
+    }
 
     *offset += messageid_length;
-
-    wmem_strbuf_append_printf(info_field, "Msg ID (%d) ", messageid);
 
     return messageid;
 }
@@ -444,10 +444,10 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
         case CONNECTSYN:    /*TODO: Not yet implemented, implement when available*/
         case CONNECTSYNACK: /*TODO: Not yet implemented, implement when available*/
         case CONNECTACK:    /*TODO: Not yet implemented, implement when available*/
-            proto_tree_add_item(payload_tree, hf_knet_payload, buffer, offset, 0, ENC_NA);
+            proto_tree_add_item(payload_tree, hf_knet_payload, buffer, offset, content_length-1, ENC_NA);
         break;
         default: /* Application Specific Message */
-            proto_tree_add_item(payload_tree, hf_knet_payload, buffer, offset, 0, ENC_NA);
+            proto_tree_add_item(payload_tree, hf_knet_payload, buffer, offset, content_length-1, ENC_NA);
         break;
     }
 
@@ -466,41 +466,33 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
  * @param tree the parent tree where the dissected data is going to be inserted
  *
  */
-static void
-dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, wmem_strbuf_t* info_field)
+static int
+dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int messageindex)
 {
-    int offset;
-    int content_length;
-    int total_length;
-    int messageid;
+    int content_length, total_length, messageid;
+    int start_offset = offset;
 
     proto_item *msgblock_ti;
     proto_tree *msgblock_tree;
 
-    offset = 0;
-
-    total_length = dissect_content_length(tvb, offset, NULL) + 2;
-
-    if(tvb_get_bits8(tvb, 11, 1) > 0) /* If reliable flag is 1 */
-        total_length += dissect_reliable_message_number(tvb, offset + 2, NULL); /* We add the RMN into the length of the message */
-
-    msgblock_ti = proto_tree_add_item(tree, hf_knet_message_tree, tvb, offset, total_length, ENC_NA);
+    msgblock_ti = proto_tree_add_item(tree, hf_knet_message_tree, tvb, offset, -1, ENC_NA);
     msgblock_tree = proto_item_add_subtree(msgblock_ti, ett_knet_message);
 
     content_length = dissect_content_length(tvb, offset, msgblock_tree); /* Calculates the Content Length of this packet. */
 
-    wmem_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
+    if(tvb_get_guint8(tvb, offset+1) & UDP_MSG_BLOCK_RELIABLE_FLAG) /* If the reliable flag is 1 then calculate RMN */
+        offset += dissect_reliable_message_number(tvb, offset+2, msgblock_tree);
 
     offset += 2; /* Move the offset the amount of contentlength and flags fields */
 
-    if(tvb_get_bits8(tvb, 11, 1) > 0) /* If the reliable flag is 1 then calculate RMN */
-        offset += dissect_reliable_message_number(tvb, offset, msgblock_tree);
+    total_length = (offset-start_offset)+content_length;
+    proto_item_set_len(msgblock_ti, total_length);
 
-    messageid = dissect_messageid(tvb, &offset, msgblock_tree, pinfo, info_field);
+    messageid = dissect_messageid(tvb, &offset, msgblock_tree, pinfo, messageindex != 0);
 
     dissect_payload(tvb, offset, messageid, msgblock_tree, content_length);
 
-    messageindex++;
+    return total_length;
 }
 
 /**
@@ -518,136 +510,29 @@ dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, wm
  *
  */
 static void
-dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int current_protocol)
 {
-    /* Common subtrees */
-    proto_item *knet_ti;
-    proto_tree *knet_tree;
+    proto_item *knet_ti, *message_ti;
+    proto_tree *knet_tree, *message_tree;
 
-    /* Subtrees used in kNet UDP dissector */
-    proto_item *datagram_ti;
-    proto_tree *datagram_tree; /* Tree containing all header related info */
-    proto_item *udpflags_ti;
-    proto_tree *udpflags_tree; /* Tree containing UDP Datagram Flags */
+    int offset = 0, content_length, messageid;
 
-    /* Subtrees used by SCTP and TCP dissectors */
-    proto_item *message_ti;
-    proto_tree *message_tree;
+    /* Attach kNet main tree to Wireshark tree */
+    knet_ti   = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA);
+    knet_tree = proto_item_add_subtree(knet_ti, ett_knet_main);
 
-    tvbuff_t   *next_tvb;
-    gboolean    bytes_left;
+    /* Attach message tree to kNet tree */
+    message_ti = proto_tree_add_item(knet_tree, hf_knet_message_tree, tvb, offset, -1, ENC_NA);
+    message_tree = proto_item_add_subtree(message_ti, ett_knet_message);
 
-    /* String that is going to be displayed in the info column in Wireshark */
-    wmem_strbuf_t *info_field = wmem_strbuf_new(wmem_packet_scope(), "");
+    content_length = dissect_content_length_vle(tvb, &offset, message_tree); /* Calculate length and add it to the tree-view */
+    proto_item_set_len(message_ti, (current_protocol == KNET_SCTP_PACKET ? content_length + 1 : content_length + 2));
 
-    int offset;
-    int length;
-    int content_length;
-    int messageid;
-    int packetid; /* Variable used by the UDP dissector. Contains info about PacketID */
+    messageid = dissect_messageid(tvb, &offset, message_tree, pinfo, TRUE); /* Calculate messageid and add it to the tree-view */
 
-    offset       = 0;
-    messageindex = 0;
-    bytes_left   = TRUE;
+    dissect_payload(tvb, offset, messageid, message_tree, content_length); /* Calculate payload and add it to the tree-view */
 
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
-
-    if((current_protocol == KNET_SCTP_PACKET) || (current_protocol == KNET_TCP_PACKET))
-    {
-        /* Attach kNet main tree to Wireshark tree */
-        knet_ti   = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA);
-        knet_tree = proto_item_add_subtree(knet_ti, ett_knet_main);
-
-        next_tvb  = tvb_new_subset_remaining(tvb, offset); /* Prepare the next tvb for the next message */
-
-        if((tvb_length_remaining(next_tvb, offset)) > 0) /* If there's at least 2 bytes available in the buffer */
-        {
-            length = dissect_content_length_vle(next_tvb, &offset, NULL); /* Calculate the length so we can use it below */
-
-            /* Attach message tree to kNet tree */
-            message_ti = proto_tree_add_item(knet_tree, hf_knet_message_tree, next_tvb, offset,
-                                             (current_protocol == KNET_SCTP_PACKET ? length + 1 : length + 2), ENC_NA);
-
-            message_tree = proto_item_add_subtree(message_ti, ett_knet_message);
-
-            content_length = dissect_content_length_vle(next_tvb, &offset, message_tree); /* Calculate length and add it to the tree-view */
-
-            if(tree == NULL)
-                offset += count_vle_bytes(next_tvb, offset);
-
-            wmem_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
-
-            messageid = dissect_messageid(next_tvb, &offset, message_tree, pinfo, info_field); /* Calculate messageid and add it to the tree-view */
-
-            dissect_payload(next_tvb, offset, messageid, message_tree, content_length); /* Calculate payload and add it to the tree-view */
-
-            offset += content_length - 1; /* Move the offset the amount of the payload */
-        }
-    }
-    else /* This is an UDP packet */
-    {
-        /*kNet UDP Tree*/
-        knet_ti = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA); /* Attach kNet tree to wireshark main tree */
-        knet_tree = proto_item_add_subtree(knet_ti, ett_knet_main);
-
-        /*Datagram Header Tree*/
-        datagram_ti = proto_tree_add_item(knet_ti, hf_knet_datagram_tree, tvb, 0, 3, ENC_NA); /* Attach Header tree to wireshark main tree */
-        datagram_tree = proto_item_add_subtree(datagram_ti, ett_knet_datagram);
-
-        /*UDPFlags Tree*/
-        udpflags_ti = proto_tree_add_item(datagram_ti, hf_knet_flags, tvb, 0, 1, ENC_NA);         /* Attach UDP Flags tree to kNet tree */
-        udpflags_tree = proto_item_add_subtree(udpflags_ti, ett_knet_flags);
-
-        proto_tree_add_bits_item(udpflags_tree, hf_knet_inorder, tvb, 0, 1, ENC_LITTLE_ENDIAN); /* Add inorder flag to UDP Flags tree */
-        proto_tree_add_bits_item(udpflags_tree, hf_knet_reliable, tvb, 1, 1, ENC_LITTLE_ENDIAN); /* Add reliable flag to UDP Flags tree */
-
-        packetid = dissect_packetid(tvb, 0, datagram_tree); /* Lets calculate our packetid! */
-
-        wmem_strbuf_append_printf(info_field, "Packet ID: %d ", packetid);
-
-        offset += 3;
-
-        if(tvb_get_bits8(tvb, 1, 1) == 1) /* If Reliable flag is 1 */
-            offset += dissect_reliable_message_index_base(tvb, 3, datagram_tree); /* Calculate RMIB */
-
-        next_tvb = tvb_new_subset_remaining(tvb, offset);
-
-        while(bytes_left)
-        {
-            offset = 0;
-
-            if((tvb_length_remaining(next_tvb, offset)) > 2) /* If theres at least 2 bytes available in the buffer */
-            {
-                length = dissect_content_length(next_tvb, offset, NULL); /* Lets calculate how much data the whole message contains including the Payload and the Message ID */
-
-                if(length == 0) /* Empty data Abort */
-                {
-                    break;
-                }
-
-                else length += 2; /* 2 is the length of contentlength field + flags */
-
-                if(tvb_get_bits8(next_tvb, 11, 1) == 1) /* If reliable flag is 1 */
-                    length += dissect_reliable_message_number(next_tvb, offset + 2, NULL); /* We add the RMN into the length of the message */
-
-                dissect_knet_message(next_tvb, pinfo, knet_tree, info_field); /* Call the message subdissector */
-
-                offset += length; /* Move the offset the amount of the payload */
-
-                next_tvb = tvb_new_subset_remaining(next_tvb, offset); /* Prepare the next tvb for the next message */
-            }
-
-            else bytes_left = FALSE;  /* We dont have any bytes left to process... Hopefully */
-        }
-    }
-
-    if(current_protocol == KNET_TCP_PACKET && ((struct tcpinfo*)(pinfo->private_data))->is_reassembled)
-        col_set_str(pinfo->cinfo, COL_INFO, "REASSEMBLED PACKET");
-    else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Messages: %d %s", messageindex + 1, wmem_strbuf_get_str(info_field));
-
-    messageindex++;
+    col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
 /**
@@ -663,7 +548,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-    return dissect_content_length_vle(tvb, &offset, NULL) + count_vle_bytes(tvb, offset);
+    return count_vle_bytes(tvb, offset) + dissect_content_length_vle(tvb, &offset, NULL);
 }
 
 /**
@@ -676,11 +561,18 @@ get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  *
  */
 static void
+dissect_knet_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_knet(tvb, pinfo, tree, KNET_TCP_PACKET);
+}
+
+static void
 dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    current_protocol = KNET_TCP_PACKET;
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_knet_pdu_len, dissect_knet);
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_knet_pdu_len, dissect_knet_tcp_pdu);
 }
 
 /**
@@ -695,9 +587,10 @@ dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_knet_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    current_protocol = KNET_SCTP_PACKET;
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
-    dissect_knet(tvb, pinfo, tree);
+    dissect_knet(tvb, pinfo, tree, KNET_SCTP_PACKET);
 }
 
 /**
@@ -712,9 +605,51 @@ dissect_knet_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_knet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    current_protocol = KNET_UDP_PACKET;
+    /* Common subtrees */
+    proto_item *knet_ti;
+    proto_tree *knet_tree;
 
-    dissect_knet(tvb, pinfo, tree);
+    /* Subtrees used in kNet UDP dissector */
+    proto_item *datagram_ti, *udpflags_ti;
+    proto_tree *datagram_tree, /* Tree containing all header related info */
+               *udpflags_tree; /* Tree containing UDP Datagram Flags */
+
+    int offset = 0;
+    guint32 packetid; /* Contains info about PacketID */
+    int messageindex = 0; /*!< Index of the kNet message inside a datagram */
+
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
+
+    /*kNet UDP Tree*/
+    knet_ti = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA); /* Attach kNet tree to wireshark main tree */
+    knet_tree = proto_item_add_subtree(knet_ti, ett_knet_main);
+
+    /*Datagram Header Tree*/
+    datagram_ti = proto_tree_add_item(knet_ti, hf_knet_datagram_tree, tvb, 0, 3, ENC_NA); /* Attach Header tree to wireshark main tree */
+    datagram_tree = proto_item_add_subtree(datagram_ti, ett_knet_datagram);
+
+    packetid = dissect_packetid(tvb, 0, datagram_tree); /* Lets calculate our packetid! */
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Packet ID %d: ", packetid);
+
+    /*UDPFlags Tree*/
+    udpflags_ti = proto_tree_add_item(datagram_ti, hf_knet_flags, tvb, 0, 1, ENC_NA);         /* Attach UDP Flags tree to kNet tree */
+    udpflags_tree = proto_item_add_subtree(udpflags_ti, ett_knet_flags);
+
+    proto_tree_add_item(udpflags_tree, hf_knet_inorder, tvb, 0, 1, ENC_NA); /* Add inorder flag to UDP Flags tree */
+    proto_tree_add_item(udpflags_tree, hf_knet_reliable, tvb, 0, 1, ENC_NA); /* Add reliable flag to UDP Flags tree */
+
+    offset += 3;
+
+    if(tvb_get_guint8(tvb, 0) & UDP_DATAGRAM_RELIABLE_FLAG)
+        offset += dissect_reliable_message_index_base(tvb, 3, datagram_tree); /* Calculate RMIB */
+
+    while ((tvb_length_remaining(tvb, offset) > 2) && /* If theres at least 2 bytes available in the buffer */
+           (dissect_content_length(tvb, offset, NULL) > 0)) /* Empty data Abort */
+    {
+        offset += dissect_knet_message(tvb, pinfo, knet_tree, offset, messageindex); /* Call the message subdissector */
+        messageindex++;
+    }
 }
 /**
  * proto_register_knet registers our kNet protocol,
@@ -729,7 +664,7 @@ proto_register_knet(void)
     static hf_register_info hf_knet[] =
     {
         /* TCP & SCTP Header */
-        {&hf_knet_content_length,
+        {&hf_knet_content_length_vle,
          {"Content Length",      "knet.length",
           FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
         {&hf_knet_message_tree,
@@ -745,10 +680,10 @@ proto_register_knet(void)
           FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_knet_inorder,
          {"Inorder Flag",                "knet.datagram.inorder",
-          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+          FT_BOOLEAN,  8,  NULL, 0x80, NULL, HFILL}},
         {&hf_knet_reliable,
          {"Reliable Flag",               "knet.datagram.reliable",
-          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+          FT_BOOLEAN,  8,  NULL, UDP_DATAGRAM_RELIABLE_FLAG, NULL, HFILL}},
         {&hf_knet_packetid,
          {"Packet ID",                   "knet.datagram.packetid",
           FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
@@ -760,16 +695,19 @@ proto_register_knet(void)
           FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_knet_msg_fs,
          {"Fragment Start",              "knet.msg.flags.fs",
-          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+          FT_BOOLEAN,  8,  NULL, 0x80, NULL, HFILL}},
         {&hf_knet_msg_ff,
          {"Fragment Flag",               "knet.msg.flags.ff",
-          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+          FT_BOOLEAN,  8,  NULL, 0x40, NULL, HFILL}},
         {&hf_knet_msg_inorder,
          {"Inorder Flag",                "knet.msg.flags.inorder",
-          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+          FT_BOOLEAN,  8,  NULL, 0x20, NULL, HFILL}},
         {&hf_knet_msg_reliable,
          {"Reliable Flag",               "knet.msg.flags.reliable",
-          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+          FT_BOOLEAN,  8,  NULL, UDP_MSG_BLOCK_RELIABLE_FLAG, NULL, HFILL}},
+        {&hf_knet_content_length,
+         {"Content Length",      "knet.length",
+          FT_UINT16, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
         {&hf_knet_msg_reliable_message_number,
          {"Reliable Message Number",     "knet.msg.reliable_number",
           FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
@@ -783,7 +721,7 @@ proto_register_knet(void)
           FT_BYTES,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_knet_messageid,
          {"Message ID",          "knet.payload.messageid",
-          FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL}},
+          FT_UINT32,  BASE_DEC, VALS(packettypenames), 0x0, NULL, HFILL}},
         {&hf_knet_pingid,
          {"Ping ID",             "knet.payload.pingid",
           FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
