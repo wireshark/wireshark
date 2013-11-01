@@ -2929,7 +2929,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             break;
                         }
 
-                        managementData_ti = proto_tree_add_text(ptp_tree, tvb, Offset, tlv_length, "Data");
+                        managementData_ti = proto_tree_add_text(ptp_tree, tvb, Offset, tlv_length - 2, "Data");
 
                         /* data field of the management message (subtree)*/
                         ptp_managementData_tree = proto_item_add_subtree(managementData_ti, ett_ptp_v2_managementData);
