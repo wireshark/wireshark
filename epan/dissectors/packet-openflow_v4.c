@@ -938,10 +938,10 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         case OFPXMT_OFB_ETH_SRC:
         case OFPXMT_OFB_ARP_SHA:
         case OFPXMT_OFB_ARP_THA:
-            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_etheraddr, tvb, offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_etheraddr, tvb, offset, 6, ENC_NA);
             offset+=6;
             if (oxm_hm) {
-                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_etheraddr, tvb, offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_etheraddr, tvb, offset, 6, ENC_NA);
                 offset+=6;
             }
             break;
@@ -982,10 +982,10 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         case OFPXMT_OFB_IPV6_DST:
         case OFPXMT_OFB_IPV6_ND_SLL:
         case OFPXMT_OFB_IPV6_ND_TLL:
-            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ipv6addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ipv6addr, tvb, offset, 16, ENC_NA);
             offset+=16;
             if (oxm_hm) {
-                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_ipv6addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_ipv6addr, tvb, offset, 16, ENC_NA);
                 offset+=16;
             }
             break;
@@ -1004,13 +1004,13 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         default:
             /* value */
             if (field_length > 0) {
-                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value, tvb, offset, field_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value, tvb, offset, field_length, ENC_NA);
                 offset += field_length;
             }
 
             /* mask */
             if (field_length > 0 && oxm_hm != 0) {
-                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask, tvb, offset, field_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask, tvb, offset, field_length, ENC_NA);
                 offset += field_length;
             }
             break;
@@ -1087,7 +1087,7 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     /* pad; Exactly ((length + 7)/8*8 - length) (between 0 and 7) bytes of all-zero bytes. */
     if (pad_length > 0) {
-        proto_tree_add_item(match_tree, hf_openflow_v4_match_pad, tvb, offset, pad_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(match_tree, hf_openflow_v4_match_pad, tvb, offset, pad_length, ENC_NA);
         offset+=pad_length;
     }
 
@@ -1150,7 +1150,7 @@ dissect_openflow_meter_band_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     switch (band_type) {
     case OFPMBT_DROP:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(band_tree, hf_openflow_v4_meter_band_drop_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(band_tree, hf_openflow_v4_meter_band_drop_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
@@ -1160,7 +1160,7 @@ dissect_openflow_meter_band_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         offset+=1;
 
         /* uint8_t pad[3]; */
-        proto_tree_add_item(band_tree, hf_openflow_v4_meter_band_dscp_remark_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(band_tree, hf_openflow_v4_meter_band_dscp_remark_pad, tvb, offset, 3, ENC_NA);
         offset+=3;
         break;
 
@@ -1566,7 +1566,7 @@ dissect_openflow_echo_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     /* data */
     if (offset < length) {
-        proto_tree_add_item(tree, hf_openflow_v4_echo_data, tvb, offset, length - offset, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_openflow_v4_echo_data, tvb, offset, length - offset, ENC_NA);
     }
 }
 
@@ -1742,7 +1742,7 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     offset = dissect_openflow_match_v4(tvb, pinfo, tree, offset, length);
 
     /* uint8_t pad[2]; */
-    proto_tree_add_item(tree, hf_openflow_v4_packet_in_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_packet_in_pad, tvb, offset, 2, ENC_NA);
     offset+=2;
 
     /* uint8_t data[0]; */
@@ -1935,20 +1935,20 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=2;
 
         /* uint8_t pad[6]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_output_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_output_pad, tvb, offset, 6, ENC_NA);
         offset+=6;
 
         break;
 
     case OFPAT_COPY_TTL_OUT:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_copy_ttl_out_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_copy_ttl_out_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
     case OFPAT_COPY_TTL_IN:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_copy_ttl_in_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_copy_ttl_in_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
@@ -1958,13 +1958,13 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=1;
 
         /* uint8_t pad[3]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_mpls_ttl_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_mpls_ttl_pad, tvb, offset, 3, ENC_NA);
         offset+=3;
         break;
 
     case OFPAT_DEC_MPLS_TTL:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_dec_mpls_ttl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_dec_mpls_ttl_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
@@ -1974,13 +1974,13 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=2;
 
         /* uint8_t pad[2]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_vlan_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_vlan_pad, tvb, offset, 2, ENC_NA);
         offset+=2;
         break;
 
     case OFPAT_POP_VLAN:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_vlan_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_vlan_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
@@ -1990,7 +1990,7 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=2;
 
         /* uint8_t pad[2]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_mpls_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_mpls_pad, tvb, offset, 2, ENC_NA);
         offset+=2;
         break;
 
@@ -2000,7 +2000,7 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=2;
 
         /* uint8_t pad[2]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_mpls_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_mpls_pad, tvb, offset, 2, ENC_NA);
         offset+=2;
         break;
 
@@ -2026,13 +2026,13 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=1;
 
         /* uint8_t pad[3]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_nw_ttl_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_nw_ttl_pad, tvb, offset, 3, ENC_NA);
         offset+=3;
         break;
 
     case OFPAT_DEC_NW_TTL:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_dec_nw_ttl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_dec_nw_ttl_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
@@ -2041,7 +2041,7 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
         /* padded to 64 bits */
         if (offset < act_end) {
-            proto_tree_add_item(act_tree, hf_openflow_v4_action_set_field_pad, tvb, offset, act_end - offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_set_field_pad, tvb, offset, act_end - offset, ENC_NA);
             offset = act_end;
         }
         break;
@@ -2052,13 +2052,13 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset+=2;
 
         /* uint8_t pad[2]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_pbb_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_pbb_pad, tvb, offset, 2, ENC_NA);
         offset+=2;
         break;
 
     case OFPAT_POP_PBB:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_pbb_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_pbb_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
         break;
 
@@ -2126,19 +2126,19 @@ dissect_openflow_port_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(port_tree, hf_openflow_v4_port_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint8_t hw_addr[OFP_ETH_ALEN]; */
-    proto_tree_add_item(port_tree, hf_openflow_v4_port_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_NA);
     offset+=OFP_ETH_ALEN;
 
     /* uint8_t pad2[2]; */
-    proto_tree_add_item(port_tree, hf_openflow_v4_port_pad2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_pad2, tvb, offset, 2, ENC_NA);
     offset+=2;
 
     /* char name[OFP_MAX_PORT_NAME_LEN]; Null-terminated */
-    proto_tree_add_item(port_tree, hf_openflow_v4_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_tree, hf_openflow_v4_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII|ENC_NA);
     offset+=OFP_MAX_PORT_NAME_LEN;
 
     /* uint32_t config; */
@@ -2276,7 +2276,7 @@ dissect_openflow_port_status_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset+=1;
 
     /* uint8_t pad[7]; */
-    proto_tree_add_item(tree, hf_openflow_v4_port_status_pad, tvb, offset, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_port_status_pad, tvb, offset, 7, ENC_NA);
     offset+=7;
 
     /* struct ofp_port desc; */
@@ -2317,7 +2317,7 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=2;
 
     /* uint8_t pad[6]; */
-    proto_tree_add_item(tree, hf_openflow_v4_packet_out_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_packet_out_pad, tvb, offset, 6, ENC_NA);
     offset+=6;
 
     /* struct ofp_action_header actions[0]; */
@@ -2428,13 +2428,13 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         offset+=1;
 
         /* uint8_t pad[3]; */
-        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_goto_table_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_goto_table_pad, tvb, offset, 3, ENC_NA);
         offset+=3;
         break;
 
     case OFPIT_WRITE_METADATA:
         /* uint8_t pad[4]; */
-        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_write_metadata_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_write_metadata_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
 
         /* uint64_t metadata; */
@@ -2449,7 +2449,7 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     case OFPIT_WRITE_ACTIONS:
     case OFPIT_APPLY_ACTIONS:
     case OFPIT_CLEAR_ACTIONS:
-        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_actions_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_actions_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
 
         acts_end = offset + inst_length - 8;
@@ -2580,7 +2580,7 @@ dissect_openflow_flowmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset+=2;
 
     /* uint8_t pad[2]; */
-    proto_tree_add_item(tree, hf_openflow_v4_flowmod_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_flowmod_pad, tvb, offset, 2, ENC_NA);
     offset+=2;
 
     /* struct ofp_match match; */
@@ -2635,7 +2635,7 @@ dissect_openflow_bucket_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(bucket_tree, hf_openflow_v4_bucket_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /*struct ofp_action_header actions[0]; */
@@ -2688,7 +2688,7 @@ dissect_openflow_groupmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset+=1;
 
     /* uint8_t pad; */
-    proto_tree_add_item(tree, hf_openflow_v4_groupmod_pad, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_groupmod_pad, tvb, offset, 1, ENC_NA);
     offset+=1;
 
     /* uint32_t group_id; */
@@ -2724,7 +2724,7 @@ dissect_openflow_flow_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     offset+=1;
 
     /* uint8_t pad[3]; */
-    proto_tree_add_item(tree, hf_openflow_v4_flow_stats_request_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_flow_stats_request_pad, tvb, offset, 3, ENC_NA);
     offset+=3;
 
     /* uint32_t out_port; */
@@ -2744,7 +2744,7 @@ dissect_openflow_flow_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     offset+=4;
 
     /* uint8_t pad2[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_flow_stats_request_pad2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_flow_stats_request_pad2, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t cookie; */
@@ -2771,7 +2771,7 @@ dissect_openflow_aggregate_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U
     offset+=1;
 
     /* uint8_t pad[3]; */
-    proto_tree_add_item(tree, hf_openflow_v4_aggregate_stats_request_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_aggregate_stats_request_pad, tvb, offset, 3, ENC_NA);
     offset+=3;
 
     /* uint32_t out_port; */
@@ -2791,7 +2791,7 @@ dissect_openflow_aggregate_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U
     offset+=4;
 
     /* uint8_t pad2[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_aggregate_stats_request_pad2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_aggregate_stats_request_pad2, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t cookie; */
@@ -2948,7 +2948,7 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
     pad_length = (prop_length + 7)/8*8 - prop_length;
     if (pad_length > 0) {
-        proto_tree_add_item(prop_tree, hf_openflow_v4_table_feature_prop_pad, tvb, offset, pad_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prop_tree, hf_openflow_v4_table_feature_prop_pad, tvb, offset, pad_length, ENC_NA);
         offset+=pad_length;
     }
 
@@ -2980,11 +2980,11 @@ dissect_openflow_table_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset+=1;
 
     /* uint8_t pad[5]; */
-    proto_tree_add_item(feat_tree, hf_openflow_v4_table_features_pad, tvb, offset, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(feat_tree, hf_openflow_v4_table_features_pad, tvb, offset, 5, ENC_NA);
     offset+=5;
 
     /* char name[OFP_MAX_TABLE_NAME_LEN]; */
-    proto_tree_add_item(feat_tree, hf_openflow_v4_table_features_name, tvb, offset, OFP_MAX_TABLE_NAME_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(feat_tree, hf_openflow_v4_table_features_name, tvb, offset, OFP_MAX_TABLE_NAME_LEN, ENC_ASCII|ENC_NA);
     offset+=OFP_MAX_TABLE_NAME_LEN;
 
     /* uint64_t metadata_match; */
@@ -2996,7 +2996,7 @@ dissect_openflow_table_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset+=8;
 
     /* uint32_t config; */
-    proto_tree_add_item(feat_tree, hf_openflow_v4_table_features_config, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(feat_tree, hf_openflow_v4_table_features_config, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint32_t max_entries; */
@@ -3024,7 +3024,7 @@ dissect_openflow_port_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_port_stats_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_port_stats_request_pad, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -3067,7 +3067,7 @@ dissect_openflow_group_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, p
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_group_stats_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_group_stats_request_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /*return offset;*/
@@ -3086,7 +3086,7 @@ dissect_openflow_meter_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, p
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_meter_stats_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_meter_stats_request_pad, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -3103,7 +3103,7 @@ dissect_openflow_meter_config_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_meter_config_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_meter_config_request_pad, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -3163,7 +3163,7 @@ dissect_openflow_multipart_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     offset+=2;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_multipart_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_multipart_request_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint8_t body[0]; */
@@ -3241,23 +3241,23 @@ static void
 dissect_openflow_switch_description_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     /* char mfr_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_description_mfr_desc, tvb, offset, DESC_STR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_description_mfr_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
     offset+=DESC_STR_LEN;
 
     /* char hw_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_description_hw_desc, tvb, offset, DESC_STR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_description_hw_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
     offset+=DESC_STR_LEN;
 
     /* char sw_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_description_sw_desc, tvb, offset, DESC_STR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_description_sw_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
     offset+=DESC_STR_LEN;
 
     /* char serial_num[SERIAL_NUM_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_description_serial_num, tvb, offset, SERIAL_NUM_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_description_serial_num, tvb, offset, SERIAL_NUM_LEN, ENC_ASCII|ENC_NA);
     offset+=SERIAL_NUM_LEN;
 
     /* char dp_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_description_dp_desc, tvb, offset, DESC_STR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_description_dp_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
     /*offset+=DESC_STR_LEN;*/
 };
 
@@ -3284,7 +3284,7 @@ dissect_openflow_flow_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=1;
 
     /* uint8_t pad; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_flow_stats_pad, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_flow_stats_pad, tvb, offset, 1, ENC_NA);
     offset+=1;
 
     /* uint32_t duration_sec; */
@@ -3319,7 +3319,7 @@ dissect_openflow_flow_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=2;
 
     /* uint8_t pad2[4]; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_flow_stats_pad2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_flow_stats_pad2, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t cookie; */
@@ -3362,7 +3362,7 @@ dissect_openflow_aggregate_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_aggregate_stats_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_aggregate_stats_pad, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -3385,7 +3385,7 @@ dissect_openflow_table_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset+=1;
 
     /* uint8_t pad[3]; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_table_stats_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_table_stats_pad, tvb, offset, 3, ENC_NA);
     offset+=3;
 
     /* uint32_t active_count; */
@@ -3422,7 +3422,7 @@ dissect_openflow_port_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_port_stats_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_port_stats_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t rx_packets; */
@@ -3574,7 +3574,7 @@ dissect_openflow_group_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset+=2;
 
     /* uint8_t pad[2]; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_group_stats_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_group_stats_pad, tvb, offset, 2, ENC_NA);
     offset+=2;
 
     /* uint32_t group_id; */
@@ -3590,7 +3590,7 @@ dissect_openflow_group_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset+=4;
 
     /* uint8_t pad2[4]; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_group_stats_pad2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_group_stats_pad2, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t packet_count; */
@@ -3641,7 +3641,7 @@ dissect_openflow_group_desc_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=1;
 
     /* uint8_t pad; */
-    proto_tree_add_item(desc_tree, hf_openflow_v4_group_desc_pad, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(desc_tree, hf_openflow_v4_group_desc_pad, tvb, offset, 1, ENC_NA);
     offset+=1;
 
     /* uint32_t group_id; */
@@ -3836,7 +3836,7 @@ dissect_openflow_meter_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset+=2;
 
     /* uint8_t pad[6]; */
-    proto_tree_add_item(stats_tree, hf_openflow_v4_meter_stats_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(stats_tree, hf_openflow_v4_meter_stats_pad, tvb, offset, 6, ENC_NA);
     offset+=6;
 
     /* uint32_t flow_count; */
@@ -3954,7 +3954,7 @@ dissect_openflow_meter_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset+=1;
 
     /* uint8_t pad[2]; */
-    proto_tree_add_item(tree, hf_openflow_v4_meter_features_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_meter_features_pad, tvb, offset, 2, ENC_NA);
     /*offset+=2;*/
 }
 
@@ -3979,7 +3979,7 @@ dissect_openflow_multipart_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset+=2;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_multipart_reply_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_multipart_reply_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     switch(type){
