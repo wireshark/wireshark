@@ -1,8 +1,8 @@
 /* packet-text-media.c
  * Routines for text-based media dissection.
  *
- * NOTE - The media type is either found in pinfo->match_string
- *        or in pinfo->private_data.
+ * NOTE - The media type is either found in pinfo->match_string,
+ *        pinfo->private_data, or passed into the dissector (preferred)
  *
  * (C) Olivier Biot, 2004.
  *
