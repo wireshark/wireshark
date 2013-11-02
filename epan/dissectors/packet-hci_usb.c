@@ -63,6 +63,11 @@ static wmem_tree_t *fragment_info_table     = NULL;
 
 static reassembly_table hci_usb_reassembly_table;
 
+static dissector_handle_t bthci_cmd_handle;
+static dissector_handle_t bthci_evt_handle;
+static dissector_handle_t bthci_acl_handle;
+static dissector_handle_t bthci_sco_handle;
+
 typedef struct _fragment_info_t {
     gint remaining_length;
     gint fragment_id;
@@ -202,11 +207,11 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (usb_data->endpoint == 0x00) {
-            call_dissector_with_data(find_dissector("bthci_cmd"), next_tvb, pinfo, tree, hci_data);
+            call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, hci_data);
         } else if (usb_data->endpoint == 0x01) {
-            call_dissector_with_data(find_dissector("bthci_evt"), next_tvb, pinfo, tree, hci_data);
+            call_dissector_with_data(bthci_evt_handle, next_tvb, pinfo, tree, hci_data);
         } else if (usb_data->endpoint == 0x02) {
-            call_dissector_with_data(find_dissector("bthci_acl"), next_tvb, pinfo, tree, hci_data);
+            call_dissector_with_data(bthci_acl_handle, next_tvb, pinfo, tree, hci_data);
         }
     } else {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_unknown_fragment, tvb, offset, -1, ENC_NA);
@@ -214,7 +219,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (usb_data->endpoint == 0x03) {
-        call_dissector_with_data(find_dissector("bthci_sco"), next_tvb, pinfo, tree, hci_data);
+        call_dissector_with_data(bthci_sco_handle, next_tvb, pinfo, tree, hci_data);
     } else if (usb_data->endpoint > 0x03) {
         proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_NA);
     }
@@ -335,7 +340,11 @@ proto_reg_handoff_hci_usb(void)
 {
     dissector_handle_t hci_usb_handle;
 
-    hci_usb_handle = find_dissector("hci_usb");
+    hci_usb_handle   = find_dissector("hci_usb");
+    bthci_cmd_handle = find_dissector("bthci_cmd");
+    bthci_evt_handle = find_dissector("bthci_evt");
+    bthci_acl_handle = find_dissector("bthci_acl");
+    bthci_sco_handle = find_dissector("bthci_sco");
 
     dissector_add_uint("usb.product", (0x0a5c << 16) | 0x21e8, hci_usb_handle);
     dissector_add_uint("usb.product", (0x1131 << 16) | 0x1001, hci_usb_handle);

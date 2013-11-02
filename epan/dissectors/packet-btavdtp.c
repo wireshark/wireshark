@@ -1061,7 +1061,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
             }
 
-            return offset;
+            return tvb_length(tvb);
         } else if (!(cid_type_data && cid_type_data->type == STREAM_TYPE_SIGNAL && cid_type_data->cid == l2cap_data->cid)) {
             /* AVDTP not signaling - Unknown Media stream */
             ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
@@ -1069,7 +1069,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown stream on cid=0x%04x", l2cap_data->cid);
             proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-            return offset;
+            return tvb_length(tvb);
         }
     }
 
@@ -2089,12 +2089,25 @@ proto_register_bta2dp(void)
 {
     module_t *module;
 
+    static hf_register_info hf[] = {
+        { &hf_bta2dp_codec,
+            { "Codec",                           "bta2dp.codec",
+            FT_UINT8, BASE_HEX, VALS(media_codec_audio_type_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_content_protection,
+            { "Content Protection",              "bta2dp.content_protection",
+            FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
+            NULL, HFILL }
+        }
+    };
+
     static gint *ett[] = {
         &ett_bta2dp
     };
 
     proto_bta2dp = proto_register_protocol("Bluetooth A2DP Profile", "BT A2DP", "bta2dp");
-
+    proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     new_register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
@@ -2203,6 +2216,19 @@ proto_register_btvdp(void)
     module_t *module;
     expert_module_t* expert_btavdtp;
 
+    static hf_register_info hf[] = {
+        { &hf_btvdp_codec,
+            { "Codec",                           "btvdp.codec",
+            FT_UINT8, BASE_HEX, VALS(media_codec_video_type_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_content_protection,
+            { "Content Protection",              "btvdp.content_protection",
+            FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
+            NULL, HFILL }
+        }
+    };
+
     static gint *ett[] = {
         &ett_btvdp
     };
@@ -2215,7 +2241,7 @@ proto_register_btvdp(void)
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
     new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
-
+    proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_btavdtp = expert_register_protocol(proto_btvdp);
     expert_register_field_array(expert_btavdtp, ei, array_length(ei));
