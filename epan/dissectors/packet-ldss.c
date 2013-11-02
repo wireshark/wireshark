@@ -206,7 +206,8 @@ static int ett_ldss_broadcast	 = -1;
 static int ett_ldss_transfer     = -1;
 static int ett_ldss_transfer_req = -1;
 
-static dissector_handle_t	ldss_handle;
+static dissector_handle_t	ldss_udp_handle;
+static dissector_handle_t	ldss_tcp_handle;
 
 /* Global variables associated with the preferences for ldss */
 static guint	global_udp_port_ldss	= UDP_PORT_LDSS;
@@ -230,7 +231,7 @@ prepare_ldss_transfer_conv(ldss_broadcast_t *broadcast)
 	transfer_conv = conversation_new (broadcast->num, &broadcast->broadcaster->addr, &broadcast->broadcaster->addr,
 					  PT_TCP, broadcast->broadcaster->port, broadcast->broadcaster->port, NO_ADDR2|NO_PORT2);
 	conversation_add_proto_data(transfer_conv, proto_ldss, transfer_info);
-	conversation_set_dissector(transfer_conv, ldss_handle);
+	conversation_set_dissector(transfer_conv, ldss_tcp_handle);
 }
 
 /* Broadcasts are searches, offers or promises.
@@ -454,22 +455,23 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * file the implementation sends searches for is on a different TCP port
  * on the searcher's machine. */
 static int
-dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	conversation_t *transfer_conv;
 	ldss_transfer_info_t *transfer_info;
-	struct tcpinfo *transfer_tcpinfo;
+	struct tcpinfo *transfer_tcpinfo = (struct tcpinfo *)data;
 
 	proto_tree	*ti, *line_tree = NULL, *ldss_tree = NULL;
 
 	nstime_t broadcast_response_time;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 
 	/* Look for the transfer conversation; this was created during
 	 * earlier broadcast dissection (see prepate_ldss_transfer_conv) */
 	transfer_conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					   PT_TCP, pinfo->srcport, pinfo->destport, 0);
 	transfer_info = (ldss_transfer_info_t *)conversation_get_proto_data(transfer_conv, proto_ldss);
-	transfer_tcpinfo = (struct tcpinfo *)pinfo->private_data;
 
 	/* For a pull, the first packet in the TCP connection is the file request.
 	 * First packet is identified by relative seq/ack numbers of 1.
@@ -800,23 +802,16 @@ is_broadcast(address* addr)
 }
 
 static int
-dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	if (is_broadcast(&pinfo->dl_dst) &&
-	    pinfo->ipproto == IP_PROTO_UDP) {
+	if (is_broadcast(&pinfo->dl_dst)) {
 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 		return dissect_ldss_broadcast(tvb, pinfo, tree);
 	}
-	else if (pinfo->ipproto == IP_PROTO_TCP) {
 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
-		return dissect_ldss_transfer(tvb, pinfo, tree);
-	}
-	else {
-		/* Definitely not LDSS */
-		return 0;
-	}
+	/* Definitely not LDSS */
+	return 0;
 }
 
 /* Initialize the highest num seen each time a
@@ -979,13 +974,11 @@ proto_register_ldss (void) {
 
 	module_t     *ldss_module;
 
-	proto_ldss = proto_register_protocol(	"Local Download Sharing Service",
-						"LDSS", "ldss");
+	proto_ldss = proto_register_protocol("Local Download Sharing Service", "LDSS", "ldss");
 	proto_register_field_array(proto_ldss, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	ldss_module = prefs_register_protocol(	proto_ldss,
-						proto_reg_handoff_ldss);
+	ldss_module = prefs_register_protocol(	proto_ldss, proto_reg_handoff_ldss);
 	prefs_register_uint_preference(		ldss_module, "udp_port",
 						"LDSS UDP Port",
 						"The UDP port on which "
@@ -1005,12 +998,13 @@ proto_reg_handoff_ldss (void)
 	static gboolean	  ldss_initialized	= FALSE;
 
 	if (!ldss_initialized) {
-		ldss_handle = new_create_dissector_handle(dissect_ldss, proto_ldss);
+		ldss_udp_handle = new_create_dissector_handle(dissect_ldss, proto_ldss);
+		ldss_tcp_handle = new_create_dissector_handle(dissect_ldss_transfer, proto_ldss);        
 		ldss_initialized = TRUE;
 	}
 	else {
-		dissector_delete_uint("udp.port", saved_udp_port_ldss, ldss_handle);
+		dissector_delete_uint("udp.port", saved_udp_port_ldss, ldss_udp_handle);
 	}
-	dissector_add_uint("udp.port", global_udp_port_ldss, ldss_handle);
+	dissector_add_uint("udp.port", global_udp_port_ldss, ldss_udp_handle);
 	saved_udp_port_ldss = global_udp_port_ldss;
 }

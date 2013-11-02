@@ -299,7 +299,6 @@ GHashTable *rpc_progs = NULL;
 GHashTable *rpc_procs = NULL;
 
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /***********************************/
 /* Hash array with procedure names */
@@ -3084,9 +3083,8 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 int
 dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
-    int proto, int ett, gboolean defragment, gboolean first_pdu)
+    int proto, int ett, gboolean defragment, gboolean first_pdu, struct tcpinfo *tcpinfo)
 {
-	struct tcpinfo *tcpinfo;
 	guint32 seq;
 	guint32 rpc_rm;
 	volatile guint32 len;
@@ -3100,14 +3098,10 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	fragment_head *ipfd_head;
 	tvbuff_t *rec_tvb;
 
-	if (pinfo == NULL || pinfo->private_data == NULL) {
+	if (pinfo == NULL || tcpinfo == NULL) {
 		return 0;
 	}
-	tcpinfo = (struct tcpinfo *)pinfo->private_data;
 
-	if (tcpinfo == NULL) {
-		return 0;
-	}
 	seq = tcpinfo->seq + offset;
 
 	/*
@@ -3596,12 +3590,11 @@ static int
 find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, rec_dissector_t dissector,
 			      gboolean is_heur,
-			      int proto, int ett, gboolean defragment)
+			      int proto, int ett, gboolean defragment, struct tcpinfo* tcpinfo)
 {
 
 	int   offReply;
 	int   len;
-
 
 	offReply = find_rpc_over_tcp_reply_start(tvb, offset);
 	if (offReply < 0) {
@@ -3613,7 +3606,7 @@ find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				   pinfo, tree,
 				   dissector, is_heur, proto, ett,
 				   defragment,
-				   TRUE /* force first-pdu state */);
+				   TRUE /* force first-pdu state */, tcpinfo);
 
 	/* misses are reported as-is */
 	if (len == 0)
@@ -3657,7 +3650,7 @@ typedef enum {
 
 static rpc_tcp_return_t
 dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_heur)
+    gboolean is_heur, struct tcpinfo* tcpinfo)
 {
 	int offset = 0;
 	gboolean saw_rpc = FALSE;
@@ -3670,7 +3663,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
 		    dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
-		    rpc_defragment, first_pdu);
+		    rpc_defragment, first_pdu, tcpinfo);
 
 		if ((len == 0) && first_pdu && rpc_find_fragment_start) {
 			/*
@@ -3679,7 +3672,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			len = find_and_dissect_rpc_fragment(tvb, offset, pinfo, tree,
 				 dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
-				 rpc_defragment);
+				 rpc_defragment, tcpinfo);
 		}
 
 		first_pdu = FALSE;
@@ -3726,9 +3719,11 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
-dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	switch (dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE)) {
+	struct tcpinfo* tcpinfo = (struct tcpinfo *)data;
+
+	switch (dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE, tcpinfo)) {
 
 	case IS_RPC:
 		return TRUE;
@@ -3743,11 +3738,15 @@ dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	}
 }
 
-static void
-dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE) == IS_NOT_RPC)
+	struct tcpinfo* tcpinfo = (struct tcpinfo *)data;
+
+	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE, tcpinfo) == IS_NOT_RPC)
 		dissect_rpc_continuation(tvb, pinfo, tree);
+
+	return tvb_length(tvb);
 }
 
 /* Discard any state we've saved. */
@@ -4050,7 +4049,7 @@ proto_register_rpc(void)
 		&rpc_find_fragment_start);
 
 	register_dissector("rpc", dissect_rpc, proto_rpc);
-	register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
+	new_register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
 	rpc_tap = register_tap("rpc");
 
 	/*

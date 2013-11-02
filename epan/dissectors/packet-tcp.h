@@ -272,12 +272,12 @@ extern void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				guint32 seq, guint32 nxtseq, guint32 sport,
 				guint32 dport, proto_tree *tree,
 				proto_tree *tcp_tree,
-				struct tcp_analysis *tcpd);
+				struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo);
 
 extern struct tcp_analysis *get_tcp_conversation_data(conversation_t *conv,
                                 packet_info *pinfo);
 
-extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, struct tcp_analysis *);
+extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, struct tcp_analysis *, struct tcpinfo *);
 
 /** Associate process information with a given flow
  *

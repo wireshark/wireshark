@@ -2241,13 +2241,13 @@ rtmpt_init_rconv(conversation_t *conv)
         return rconv;
 }
 
-static void
-dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
         conversation_t *conv;
         rtmpt_conv_t   *rconv;
         int             cdir;
-        struct tcpinfo *tcpinfo;
+        struct tcpinfo *tcpinfo = (struct tcpinfo*)data;
 
         conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
         if (!conv) {
@@ -2264,8 +2264,8 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conv->key_ptr->port1==pinfo->srcport &&
                 conv->key_ptr->port2==pinfo->destport) ? 0 : 1;
 
-        tcpinfo = (struct tcpinfo *)pinfo->private_data;
         dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, tcpinfo->seq, tcpinfo->lastackseq);
+        return tvb_length(tvb);
 }
 
 static void
@@ -2386,7 +2386,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #if 0
 static gboolean
-dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
         conversation_t * conversation;
         if (tvb_length(tvb) >= 12)
@@ -2394,7 +2394,7 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* To avoid a too high rate of false positive, this heuristics only matches the protocol
                    from the first server response packet and not from the client request packets before.
                    Therefore it is necessary to a "Decode as" to properly decode the first packets */
-                struct tcpinfo *tcpinfo = pinfo->private_data;
+                struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
                 if (tcpinfo->lastackseq == RTMPT_HANDSHAKE_OFFSET_2
                     && tcpinfo->seq == RTMPT_HANDSHAKE_OFFSET_1
                     && tvb_get_guint8(tvb, 0) == RTMPT_MAGIC)
@@ -2690,7 +2690,7 @@ proto_reg_handoff_rtmpt(void)
         dissector_handle_t amf_handle;
 
 /*      heur_dissector_add("tcp", dissect_rtmpt_heur, proto_rtmpt); */
-        rtmpt_tcp_handle = create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
+        rtmpt_tcp_handle = new_create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
 /*      dissector_add_handle("tcp.port", rtmpt_tcp_handle); */
         dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
 

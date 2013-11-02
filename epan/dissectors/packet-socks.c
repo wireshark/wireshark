@@ -929,7 +929,7 @@ static void clear_in_socks_dissector_flag(void *s)
 
 static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *socks_tree,
-	socks_hash_entry_t *hash_info, sock_state_t* state_info)
+	socks_hash_entry_t *hash_info, sock_state_t* state_info, struct tcpinfo *tcpinfo)
 {
 
 /* Display the results for PING and TRACERT extensions or		*/
@@ -940,7 +940,6 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* the payload, and restore the pinfo port after that is done.		*/
 
 	guint32 *ptr;
-	struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
 	guint16 save_can_desegment;
 	struct tcp_analysis *tcpd=NULL;
 
@@ -971,7 +970,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		pinfo->can_desegment = pinfo->saved_can_desegment;
 		dissect_tcp_payload(tvb, pinfo, offset, tcpinfo->seq,
 			tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
-			tree, socks_tree, tcpd);
+			tree, socks_tree, tcpd, tcpinfo);
 		pinfo->can_desegment = save_can_desegment;
 
 		CLEANUP_CALL_AND_POP;
@@ -983,7 +982,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 
 	int offset = 0;
 	proto_tree *socks_tree = NULL;
@@ -992,6 +991,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	conversation_t *conversation;
 	sock_state_t* state_info;
 	guint8 version;
+	struct tcpinfo *tcpinfo = (struct tcpinfo*)data;
 
 	state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks, 0);
 	if (state_info == NULL) {
@@ -1139,7 +1139,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	/* call next dissector if ready */
 	if ( pinfo->fd->num > hash_info->start_done_frame){
 		call_next_dissector(tvb, offset, pinfo, tree, socks_tree,
-			hash_info, state_info);
+			hash_info, state_info, tcpinfo);
 	}
 
 	return tvb_reported_length(tvb);

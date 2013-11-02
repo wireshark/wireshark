@@ -243,7 +243,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	if ( redirect_info->proto == PT_TCP)
 		decode_tcp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
-			pinfo->destport, NULL);
+			pinfo->destport, NULL, NULL);
 	else
 		decode_udp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
 			pinfo->destport, -1);
@@ -1271,8 +1271,7 @@ proto_register_msproxy( void){
 
 	expert_module_t* expert_msproxy;
 
-	proto_msproxy = proto_register_protocol( "MS Proxy Protocol",
-		"MS Proxy", "msproxy");
+	proto_msproxy = proto_register_protocol( "MS Proxy Protocol", "MS Proxy", "msproxy");
 
 	proto_register_field_array(proto_msproxy, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

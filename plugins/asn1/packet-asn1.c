@@ -729,8 +729,8 @@ checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 static guint decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint len, proto_tree *pt, int level);
 static void PDUreset(int count, int counr2);
 
-static void
-dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
 
   ASN1_SCK asn1;
   guint cls, con, tag, len, offset, reassembled;
@@ -754,7 +754,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   reassembled = 1;		/* UDP is not a stream, and thus always reassembled .... */
   if (pinfo->ipproto == IP_PROTO_TCP) {	/* we have tcpinfo */
-	  info = (struct tcpinfo *)pinfo->private_data;
+	  info = (struct tcpinfo *)data;
 	  delta = info->seq - lastseq;
 	  reassembled = info->is_reassembled;
 	  lastseq = info->seq;
@@ -1029,6 +1029,8 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (asn1_verbose)
 	g_message("dissect_asn1 finished: desegment_offset=%d desegment_len=%d can_desegment=%d",
 		   pinfo->desegment_offset, pinfo->desegment_len, pinfo->can_desegment);
+
+  return tvb_length(tvb);
 }
 
 /* decode an ASN.1 sequence, until we have consumed the specified length */
@@ -5455,7 +5457,7 @@ proto_reg_handoff_asn1(void) {
 #endif /* JUST_ONE_PORT */
 
   if(!asn1_initialized) {
-    asn1_handle = create_dissector_handle(dissect_asn1,proto_asn1);
+    asn1_handle = new_create_dissector_handle(dissect_asn1,proto_asn1);
     asn1_initialized = TRUE;
   } else {	/* clean up ports and their lists */
 #ifdef JUST_ONE_PORT

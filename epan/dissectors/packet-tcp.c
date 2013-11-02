@@ -480,7 +480,7 @@ static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
     proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
     guint32 seq, guint32 nxtseq, gboolean is_tcp_segment,
-    struct tcp_analysis *tcpd);
+    struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo);
 
 
 struct tcp_analysis *
@@ -1616,9 +1616,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
               guint32 seq, guint32 nxtseq,
               guint32 sport, guint32 dport,
               proto_tree *tree, proto_tree *tcp_tree,
-              struct tcp_analysis *tcpd)
+              struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo)
 {
-    struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
     fragment_head *ipfd_head;
     int last_fragment_len;
     gboolean must_desegment;
@@ -1749,7 +1748,7 @@ again:
         tcpinfo->seq = seq;
 
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
-                            sport, dport, 0, 0, FALSE, tcpd);
+                            sport, dport, 0, 0, FALSE, tcpd, tcpinfo);
         called_dissector = TRUE;
 
         /* Did the subdissector ask us to desegment some more data
@@ -1813,7 +1812,7 @@ again:
 
             /* call subdissector */
             process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, sport,
-                                dport, 0, 0, FALSE, tcpd);
+                                dport, 0, 0, FALSE, tcpd, tcpinfo);
             called_dissector = TRUE;
 
             /*
@@ -3776,7 +3775,7 @@ static gboolean try_heuristic_first = FALSE;
 gboolean
 decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int src_port, int dst_port,
-    struct tcp_analysis *tcpd)
+    struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo)
 {
     tvbuff_t *next_tvb;
     int low_port, high_port;
@@ -3808,7 +3807,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* for the conversation if available */
 
     if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_TCP,
-                                   src_port, dst_port, next_tvb, pinfo, tree, NULL)) {
+                                   src_port, dst_port, next_tvb, pinfo, tree, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
@@ -3817,7 +3816,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* do lookup with the heuristic subdissector table */
         save_desegment_offset = pinfo->desegment_offset;
         save_desegment_len = pinfo->desegment_len;
-        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
             return TRUE;
         }
@@ -3850,7 +3849,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
        number of 0 to disable the port. */
 
     if (tcpd && tcpd->server_port != 0 &&
-        dissector_try_uint(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree)) {
+        dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, FALSE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
@@ -3864,12 +3863,12 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (low_port != 0 &&
-        dissector_try_uint(subdissector_table, low_port, next_tvb, pinfo, tree)) {
+        dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, FALSE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
     if (high_port != 0 &&
-        dissector_try_uint(subdissector_table, high_port, next_tvb, pinfo, tree)) {
+        dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, FALSE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
@@ -3878,7 +3877,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* do lookup with the heuristic subdissector table */
         save_desegment_offset = pinfo->desegment_offset;
         save_desegment_len = pinfo->desegment_len;
-        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
             return TRUE;
         }
@@ -3904,7 +3903,7 @@ static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
     proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
     guint32 seq, guint32 nxtseq, gboolean is_tcp_segment,
-    struct tcp_analysis *tcpd)
+    struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo)
 {
     pinfo->want_pdu_tracking=0;
 
@@ -3924,7 +3923,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
          */
         if( (offset!=-1) &&
             decode_tcp_ports(tvb, offset, pinfo, tree, src_port,
-                dst_port, tcpd) ) {
+                dst_port, tcpd, tcpinfo) ) {
             /*
              * We succeeded in handing off to a subdissector.
              *
@@ -3983,7 +3982,7 @@ void
 dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
             guint32 nxtseq, guint32 sport, guint32 dport,
             proto_tree *tree, proto_tree *tcp_tree,
-            struct tcp_analysis *tcpd)
+            struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo)
 {
     gboolean save_fragmented;
 
@@ -3991,7 +3990,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
     if (pinfo->can_desegment) {
         /* Yes. */
         desegment_tcp(tvb, pinfo, offset, seq, nxtseq, sport, dport, tree,
-                      tcp_tree, tcpd);
+                      tcp_tree, tcpd, tcpinfo);
     } else {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
@@ -3999,7 +3998,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree, sport, dport,
-                            seq, nxtseq, TRUE, tcpd);
+                            seq, nxtseq, TRUE, tcpd, tcpinfo);
         pinfo->fragmented = save_fragmented;
     }
 }
@@ -4397,8 +4396,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Assume we'll pass un-reassembled data to subdissectors. */
     tcpinfo.is_reassembled = FALSE;
 
-    pinfo->private_data = &tcpinfo;
-
     /*
      * Assume, initially, that we can't desegment.
      */
@@ -4707,7 +4704,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      */
                     pinfo->can_desegment = 0;
 
-                    process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq, nxtseq, FALSE, tcpd);
+                    process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq,
+                                        nxtseq, FALSE, tcpd, &tcpinfo);
 
                     return;
                 }
@@ -4777,7 +4775,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tvb_format_text(tvb, offset, length_remaining));
         } else {
             dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
-                                tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd);
+                                tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
         }
     }
 }

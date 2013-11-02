@@ -40,6 +40,6 @@ extern void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb,
 	proto_tree *tree, guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
 extern int dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
-	int proto, int ett, gboolean defragment, gboolean first_pdu);
+	int proto, int ett, gboolean defragment, gboolean first_pdu, struct tcpinfo *tcpinfo);
 
 #endif /* __RPC_DEFRAG_H__ */

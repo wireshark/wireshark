@@ -1620,10 +1620,30 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return length + 4;
 }
 
-static void
-dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_continuation_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
+    proto_tree     *nbss_tree;
+    proto_item     *ti;
+
+    /*
+     * It looks like a continuation.
+     */
+    col_set_str(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
+
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, ENC_NA);
+        nbss_tree = proto_item_add_subtree(ti, ett_nbss);
+        proto_tree_add_text(nbss_tree, tvb, 0, -1, "Continuation data");
+    }
+
+    return tvb_length(tvb);
+}
+
+static int
+dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
     int             offset  = 0;
     int             max_data;
     guint8	    msg_type;
@@ -1631,8 +1651,6 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32	    length;
     int             len;
     gboolean        is_cifs;
-    proto_tree     *nbss_tree;
-    proto_item     *ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1679,7 +1697,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * attempt to reassemble the data, if the first byte
              * is a valid message type.
              */
-            goto continuation;
+            return dissect_continuation_packet(tvb, pinfo, tree);
         }
 
         /*
@@ -1721,7 +1739,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * A bogus flag was set; assume it's a continuation.
              */
-            goto continuation;
+            return dissect_continuation_packet(tvb, pinfo, tree);
         }
 
         switch (msg_type) {
@@ -1735,7 +1753,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * protocols have them.)
              */
             if (length == 0)
-                goto continuation;
+                return dissect_continuation_packet(tvb, pinfo, tree);
 
             break;
 
@@ -1759,7 +1777,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * bytes of data.
              */
             if (length < 2 || length > 256)
-                goto continuation;
+                return dissect_continuation_packet(tvb, pinfo, tree);
             break;
 
         case POSITIVE_SESSION_RESPONSE:
@@ -1767,7 +1785,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * This has no data, so the length must be zero.
              */
             if (length != 0)
-                goto continuation;
+                return dissect_continuation_packet(tvb, pinfo, tree);
             break;
 
         case NEGATIVE_SESSION_RESPONSE:
@@ -1775,7 +1793,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * This has 1 byte of data.
              */
             if (length != 1)
-                goto continuation;
+                return dissect_continuation_packet(tvb, pinfo, tree);
             break;
 
         case RETARGET_SESSION_RESPONSE:
@@ -1783,7 +1801,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * This has 6 bytes of data.
              */
             if (length != 6)
-                goto continuation;
+                return dissect_continuation_packet(tvb, pinfo, tree);
             break;
 
         case SESSION_KEEP_ALIVE:
@@ -1791,14 +1809,14 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * This has no data, so the length must be zero.
              */
             if (length != 0)
-                goto continuation;
+                return dissect_continuation_packet(tvb, pinfo, tree);
             break;
 
         default:
             /*
              * Unknown message type; assume it's a continuation.
              */
-            goto continuation;
+            return dissect_continuation_packet(tvb, pinfo, tree);
         }
     }
 
@@ -1819,24 +1837,12 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = -len;
-            return;
+            return tvb_length(tvb);
         }
         offset += len;
     }
 
-    return;
-
-continuation:
-    /*
-     * It looks like a continuation.
-     */
-    col_set_str(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
-
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, ENC_NA);
-        nbss_tree = proto_item_add_subtree(ti, ett_nbss);
-        proto_tree_add_text(nbss_tree, tvb, 0, -1, "Continuation data");
-    }
+    return tvb_length(tvb);
 }
 
 void
@@ -2043,7 +2049,7 @@ proto_reg_handoff_nbt(void)
     nbdgm_handle = create_dissector_handle(dissect_nbdgm, proto_nbdgm);
     dissector_add_uint("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
 
-    nbss_handle  = create_dissector_handle(dissect_nbss, proto_nbss);
+    nbss_handle  = new_create_dissector_handle(dissect_nbss, proto_nbss);
     dissector_add_uint("tcp.port", TCP_PORT_NBSS, nbss_handle);
     dissector_add_uint("tcp.port", TCP_PORT_CIFS, nbss_handle);
 }

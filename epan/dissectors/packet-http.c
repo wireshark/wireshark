@@ -1916,7 +1916,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 /* Call a subdissector to handle HTTP CONNECT's traffic */
 static void
 http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
-			  packet_info *pinfo, http_conv_t *conv_data)
+			  packet_info *pinfo, http_conv_t *conv_data, void* data)
 {
 	guint32 *ptr = NULL;
  	guint32 uri_port, saved_port, srcport, destport;
@@ -1982,7 +1982,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			saved_port = *ptr;
 			*ptr = uri_port;
 			decode_tcp_ports(tvb, 0, pinfo, tree,
-				pinfo->srcport, pinfo->destport, NULL);
+				pinfo->srcport, pinfo->destport, NULL, data);
 			*ptr = saved_port;
 		}
 	}
@@ -2677,8 +2677,8 @@ check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
 	return FALSE;
 }
 
-static void
-dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	http_conv_t	*conv_data;
 	int		offset = 0;
@@ -2696,7 +2696,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   conv_data->request_uri) {
 		if(conv_data->startframe == 0 && !pinfo->fd->flags.visited)
 			conv_data->startframe = pinfo->fd->num;
-		http_payload_subdissector(tvb, tree, pinfo, conv_data);
+		http_payload_subdissector(tvb, tree, pinfo, conv_data, data);
 	} else {
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
@@ -2722,10 +2722,12 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_fence(pinfo->cinfo, COL_INFO);
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 static gboolean
-dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	gint offset = 0, next_offset, linelen;
 	conversation_t  *conversation;
@@ -2746,7 +2748,7 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.1", 8) == 0)||(tvb_strncaseeql(tvb, 0, "HTTP/1.1", 8) == 0)){
 		conversation = find_or_create_conversation(pinfo);
 		conversation_set_dissector(conversation,http_handle);
-		dissect_http(tvb, pinfo, tree);
+		dissect_http(tvb, pinfo, tree, data);
 		return TRUE;
 	}
 
@@ -3026,7 +3028,7 @@ proto_register_http(void)
 	expert_http = expert_register_protocol(proto_http);
 	expert_register_field_array(expert_http, ei, array_length(ei));
 
-	http_handle = register_dissector("http", dissect_http, proto_http);
+	http_handle = new_register_dissector("http", dissect_http, proto_http);
 
 	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",

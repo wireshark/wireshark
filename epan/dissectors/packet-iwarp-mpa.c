@@ -780,19 +780,17 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Main dissection routine.
  */
 static gboolean
-dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	tvbuff_t *next_tvb = NULL;
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
-	struct tcpinfo *tcpinfo = NULL;
+	struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
 	guint8 endpoint = 3;
 	guint16 ulpdu_length = 0;
 
 	/* FPDU */
 	if (tvb_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
-
-		tcpinfo = (struct tcpinfo *)pinfo->private_data;
 
 		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);

@@ -3164,7 +3164,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		DISSECTOR_ASSERT((pinfo != NULL) && (pinfo->private_data != NULL));
 
-		tcpinfo = (struct tcpinfo *)pinfo->private_data;
+		tcpinfo = (struct tcpinfo *)p_get_proto_data(pinfo->fd, proto_ndmp, 0);
 
 		seq = tcpinfo->seq;
 		len = (ndmp_rm & RPC_RM_FRAGLEN) + 4;
@@ -3508,12 +3508,18 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
  *  as the protocol dissector for this conversation.
  */
 static int
-dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (tvb_length(tvb) < 28)
 		return 0;
 	if (!check_if_ndmp(tvb, pinfo))
 		return 0;
+
+	/* XXX - tcp_dissect_pdus() doesn't have a way to pass dissector data, so store
+	 the tcpinfo structure from the TCP dissector as proto_data to be retrieved
+     in dissect_ndmp_message() */
+	p_add_proto_data(pinfo->fd, proto_ndmp, 0, data);
+
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
 			 get_ndmp_pdu_len, dissect_ndmp_message);
 	return tvb_length(tvb);
