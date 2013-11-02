@@ -40,15 +40,15 @@ int proto_media = -1;
 static gint ett_media = -1;
 static heur_dissector_list_t heur_subdissector_list;
 
-static void
-dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
+static int
+dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
 {
     int bytes;
     proto_item *ti;
     proto_tree *media_tree = 0;
 
-    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
-        return;
+    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, data)) {
+        return tvb_length(tvb);
     }
 
     /* Add media type to the INFO column if it is visible */
@@ -75,6 +75,8 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 }
 
 void
@@ -89,7 +91,7 @@ proto_register_media(void)
         "Media",        /* short name */
         "media"         /* abbrev */
         );
-    register_dissector("media", dissect_media, proto_media);
+    new_register_dissector("media", dissect_media, proto_media);
     register_heur_dissector_list("media", &heur_subdissector_list);
     proto_register_subtree_array(ett, array_length(ett));
 

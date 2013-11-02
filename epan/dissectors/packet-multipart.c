@@ -797,8 +797,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
  * Call this method to actually dissect the multipart body.
  * NOTE - Only do so if a boundary string has been found!
  */
-static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree)
+static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;
@@ -816,7 +815,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
                 "The multipart dissector could not find "
                 "the required boundary parameter.");
         call_dissector(data_handle, tvb, pinfo, tree);
-        return;
+        return tvb_length(tvb);
     }
     boundary = (guint8 *)m_info->boundary;
     boundary_len = m_info->boundary_length;
@@ -853,7 +852,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
         call_dissector(data_handle, tvb, pinfo, subtree);
         /* Clean up the dynamically allocated memory */
         cleanup_multipart_info(m_info);
-        return;
+        return tvb_length(tvb);
     }
     /*
      * Process the encapsulated bodies
@@ -864,7 +863,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
         if (header_start == -1) {
             /* Clean up the dynamically allocated memory */
             cleanup_multipart_info(m_info);
-            return;
+            return tvb_length(tvb);
         }
     }
     /*
@@ -877,7 +876,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
     }
     /* Clean up the dynamically allocated memory */
     cleanup_multipart_info(m_info);
-    return;
+    return tvb_length(tvb);
 }
 
 /* Returns index of method in multipart_headers */
@@ -1059,7 +1058,7 @@ proto_reg_handoff_multipart(void)
     /*
      * Handle for multipart dissection
      */
-    multipart_handle = create_dissector_handle(
+    multipart_handle = new_create_dissector_handle(
             dissect_multipart, proto_multipart);
 
     dissector_add_string("media_type",

@@ -133,8 +133,8 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 }
 
 
-static void
-dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	proto_tree	*url_tree;
 	proto_tree	*sub;
@@ -147,12 +147,18 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * No information from "match_string"
 		 */
-		data_name = (char *)(pinfo->private_data);
+		data_name = (char *)data;
 		if (! (data_name && data_name[0])) {
 			/*
-			 * No information from "private_data"
+			 * No information from dissector data
 			 */
-			data_name = NULL;
+			data_name = (char *)(pinfo->private_data);
+			if (! (data_name && data_name[0])) {
+				/*
+				 * No information from "private_data"
+				 */
+				data_name = NULL;
+			}
 		}
 	}
 
@@ -190,6 +196,8 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_item_set_len(ti, offset - start_offset);
 	}
+
+	return tvb_length(tvb);
 }
 
 void
@@ -211,7 +219,7 @@ proto_register_http_urlencoded(void)
 	proto_urlencoded = proto_register_protocol("HTML Form URL Encoded", "URL Encoded Form Data", "urlencoded-form");
 	hfi_urlencoded = proto_registrar_get_nth(proto_urlencoded);
 
-	form_urlencoded_handle = register_dissector("urlencoded-form", dissect_form_urlencoded, proto_urlencoded);
+	form_urlencoded_handle = new_register_dissector("urlencoded-form", dissect_form_urlencoded, proto_urlencoded);
 
 	proto_register_fields(proto_urlencoded, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));

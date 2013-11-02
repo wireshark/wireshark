@@ -10734,8 +10734,8 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
-static void
-dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
@@ -10762,7 +10762,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       message_tvb = tvb_new_subset_remaining(tvb, 0);
       dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT);
-      return;
+      return tvb_length(tvb);
     } else if(strstr(content_type_parameter_str,"spirou")) {
       isup_standard = ITU_STANDARD;
       itu_isup_variant = ISUP_FRENCH_VARIANT;
@@ -10824,6 +10824,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   message_tvb = tvb_new_subset_remaining(tvb, 0);
   dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant);
+  return tvb_length(tvb);
 }
 /* ---------------------------------------------------- stats tree
 */
@@ -12181,7 +12182,7 @@ proto_reg_handoff_isup(void)
   dissector_handle_t application_isup_handle;
 
   isup_handle = create_dissector_handle(dissect_isup, proto_isup);
-  application_isup_handle = create_dissector_handle(dissect_application_isup, proto_isup);
+  application_isup_handle = new_create_dissector_handle(dissect_application_isup, proto_isup);
   dissector_add_uint("mtp3.service_indicator", MTP_SI_ISUP, isup_handle);
   dissector_add_string("media_type","application/isup", application_isup_handle);
   dissector_add_string("tali.opcode", "isot", isup_handle);

@@ -47,8 +47,8 @@ static gint proto_l1_events = -1;
 /* Subtrees */
 static gint ett_l1_events = -1;
 
-static void
-dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	proto_tree	*subtree;
 	proto_item	*ti;
@@ -61,12 +61,18 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * No information from "match_string"
 		 */
-		data_name = (char *)(pinfo->private_data);
+		data_name = (char *)data;
 		if (! (data_name && data_name[0])) {
 			/*
-			 * No information from "private_data"
+			 * No information from dissector data
 			 */
-			data_name = NULL;
+			data_name = (char *)(pinfo->private_data);
+			if (! (data_name && data_name[0])) {
+				/*
+				 * No information from "private_data"
+				 */
+				data_name = NULL;
+			}
 		}
 	}
 
@@ -111,6 +117,8 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = next_offset;
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 void
@@ -126,7 +134,7 @@ proto_register_l1_events(void)
 			"Layer 1 Event Messages", /* Long name */
 			"Layer 1 Events",	  /* Short name */
 			"data-l1-events");		/* Filter name */
-	register_dissector("data-l1-events", dissect_l1_events, proto_l1_events);
+	new_register_dissector("data-l1-events", dissect_l1_events, proto_l1_events);
 }
 
 void
