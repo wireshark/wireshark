@@ -1105,7 +1105,7 @@ static const value_string openflow_v4_meter_id_reserved_values[] = {
 #define OFPMBT_DROP          1
 #define OFPMBT_DSCP_REMARK   2
 #define OFPMBT_EXPERIMENTER  0xFFFF
-static value_string openflow_v4_meter_band_type_values[] = {
+static const value_string openflow_v4_meter_band_type_values[] = {
     { OFPMBT_DROP,         "OFPMBT_DROP" },
     { OFPMBT_DSCP_REMARK,  "OFPMBT_DSCP_REMARK" },
     { OFPMBT_EXPERIMENTER, "OFPMBT_EXPERIMENTER" },
@@ -2823,7 +2823,7 @@ dissect_openflow_aggregate_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U
 #define OFPTFPT_APPLY_SETFIELD_MISS  15
 #define OFPTFPT_EXPERIMENTER         0xFFFE
 #define OFPTFPT_EXPERIMENTER_MISS    0xFFFF
-static value_string openflow_v4_table_feature_prop_type_values[] = {
+static const value_string openflow_v4_table_feature_prop_type_values[] = {
     { OFPTFPT_INSTRUCTIONS,        "OFPTFPT_INSTRUCTIONS" },
     { OFPTFPT_INSTRUCTIONS_MISS,   "OFPTFPT_INSTRUCTIONS_MISS" },
     { OFPTFPT_NEXT_TABLES,         "OFPTFPT_NEXT_TABLES" },
@@ -3029,7 +3029,7 @@ dissect_openflow_port_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 #define OFPQ_ALL  0xffffffff
-static value_string openflow_v4_queue_reserved_values[] = {
+static const value_string openflow_v4_queue_reserved_values[] = {
     { OFPQ_ALL, "OFPQ_ALL" },
     { 0,        NULL }
 };
