@@ -55,8 +55,8 @@ static gint ett_text_lines = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
-static void
-dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	proto_tree	*subtree;
 	proto_item	*ti;
@@ -74,7 +74,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_get_nstringz0(tvb, 0, sizeof(word),word);
 		if (g_ascii_strncasecmp(word, "<?xml", 5) == 0){
 			call_dissector(xml_handle, tvb, pinfo, tree);
-			return;
+			return tvb_length(tvb);
 		}
 	}
 
@@ -83,12 +83,18 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * No information from "match_string"
 		 */
-		data_name = (char *)(pinfo->private_data);
+		data_name = (char *)data;
 		if (! (data_name && data_name[0])) {
 			/*
-			 * No information from "private_data"
+			 * No information from dissector data
 			 */
-			data_name = NULL;
+			data_name = (char *)(pinfo->private_data);
+			if (! (data_name && data_name[0])) {
+				/*
+				 * No information from "private_data"
+				 */
+				data_name = NULL;
+			}
 		}
 	}
 
@@ -129,6 +135,8 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = next_offset;
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 void
@@ -144,7 +152,7 @@ proto_register_text_lines(void)
 			"Line-based text data",	/* Long name */
 			"Line-based text data",	/* Short name */
 			"data-text-lines");		/* Filter name */
-	register_dissector("data-text-lines", dissect_text_lines, proto_text_lines);
+	new_register_dissector("data-text-lines", dissect_text_lines, proto_text_lines);
 }
 
 void
