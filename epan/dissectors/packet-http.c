@@ -1982,7 +1982,8 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			saved_port = *ptr;
 			*ptr = uri_port;
 			decode_tcp_ports(tvb, 0, pinfo, tree,
-				pinfo->srcport, pinfo->destport, NULL, data);
+				pinfo->srcport, pinfo->destport, NULL,
+				(struct tcpinfo *)data);
 			*ptr = saved_port;
 		}
 	}
