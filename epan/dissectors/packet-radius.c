@@ -86,9 +86,9 @@ typedef struct _e_radiushdr {
 } e_radiushdr;
 
 typedef struct {
-	GArray* hf;
-	GArray* ett;
-	GArray* vend_vs;
+	wmem_array_t* hf;
+	wmem_array_t* ett;
+	wmem_array_t* vend_vs;
 } hfett_t;
 
 #define AUTHENTICATOR_LENGTH	16
@@ -1712,7 +1712,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	radius_attr_info_t* a = (radius_attr_info_t *)v;
 	int i;
 	gint* ett = &(a->ett);
-	gchar* abbrev = g_strconcat("radius.",a->name,NULL);
+	gchar* abbrev = wmem_strdup_printf(wmem_epan_scope(), "radius.%s", a->name);
 	hf_register_info hfri[] = {
 		{ NULL, { NULL,NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ NULL, { NULL,NULL, FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1734,15 +1734,15 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	hfri[0].hfinfo.abbrev = abbrev;
 
 	hfri[1].hfinfo.name = "Length";
-	hfri[1].hfinfo.abbrev = g_strconcat(abbrev,".len",NULL);
-	hfri[1].hfinfo.blurb = g_strconcat(a->name," Length",NULL);
+	hfri[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.len", abbrev);
+	hfri[1].hfinfo.blurb = wmem_strdup_printf(wmem_epan_scope(), "%s Length", a->name);
 
 	if (a->type == radius_integer) {
 		hfri[0].hfinfo.type = FT_UINT32;
 		hfri[0].hfinfo.display = BASE_DEC;
 
 		hfri[2].p_id = &(a->hf_alt);
-		hfri[2].hfinfo.name = g_strdup(a->name);
+		hfri[2].hfinfo.name = wmem_strdup(wmem_epan_scope(), a->name);
 		hfri[2].hfinfo.abbrev = abbrev;
 		hfri[2].hfinfo.type = FT_UINT64;
 		hfri[2].hfinfo.display = BASE_DEC;
@@ -1757,7 +1757,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.display = BASE_DEC;
 
 		hfri[2].p_id = &(a->hf_alt);
-		hfri[2].hfinfo.name = g_strdup(a->name);
+		hfri[2].hfinfo.name = wmem_strdup(wmem_epan_scope(), a->name);
 		hfri[2].hfinfo.abbrev = abbrev;
 		hfri[2].hfinfo.type = FT_INT64;
 		hfri[2].hfinfo.display = BASE_DEC;
@@ -1777,8 +1777,8 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 			 * alternative field for the encrypted value.
 			 */
 			hfri[2].p_id = &(a->hf_alt);
-			hfri[2].hfinfo.name = g_strdup_printf("%s (encrypted)", a->name);
-			hfri[2].hfinfo.abbrev = g_strdup_printf("%s_encrypted", abbrev);
+			hfri[2].hfinfo.name = wmem_strdup_printf(wmem_epan_scope(), "%s (encrypted)", a->name);
+			hfri[2].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s_encrypted", abbrev);
 			hfri[2].hfinfo.type = FT_BYTES;
 			hfri[2].hfinfo.display = BASE_NONE;
 
@@ -1813,8 +1813,8 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.display = BASE_NONE;
 
 		hfri[2].p_id = &(a->hf_alt);
-		hfri[2].hfinfo.name = g_strdup(a->name);
-		hfri[2].hfinfo.abbrev = g_strdup(abbrev);
+		hfri[2].hfinfo.name = wmem_strdup(wmem_epan_scope(), a->name);
+		hfri[2].hfinfo.abbrev = wmem_strdup(wmem_epan_scope(), abbrev);
 		hfri[2].hfinfo.type = FT_IPv6;
 		hfri[2].hfinfo.display = BASE_NONE;
 
@@ -1830,15 +1830,15 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	if (a->tagged) {
 		hfri[len_hf].p_id = &(a->hf_tag);
 		hfri[len_hf].hfinfo.name = "Tag";
-		hfri[len_hf].hfinfo.abbrev = g_strconcat(abbrev,".tag",NULL);
-		hfri[len_hf].hfinfo.blurb = g_strconcat(a->name," Tag",NULL);
+		hfri[len_hf].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.tag", abbrev);
+		hfri[len_hf].hfinfo.blurb = wmem_strdup_printf(wmem_epan_scope(), "%s Tag", a->name);
 		hfri[len_hf].hfinfo.type = FT_UINT8;
 		hfri[len_hf].hfinfo.display = BASE_HEX;
 		len_hf++;
 	}
 
-	g_array_append_vals(ri->hf,hfri,len_hf);
-	g_array_append_val(ri->ett,ett);
+	wmem_array_append(ri->hf,hfri,len_hf);
+	wmem_array_append_one(ri->ett,ett);
 
 	if (a->tlvs_by_id) {
 		g_hash_table_foreach(a->tlvs_by_id,register_attrs,ri);
@@ -1854,8 +1854,8 @@ static void register_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	vnd_vs.value = vnd->code;
 	vnd_vs.strptr = vnd->name;
 
-	g_array_append_val(ri->vend_vs,vnd_vs);
-	g_array_append_val(ri->ett,ett_p);
+	wmem_array_append_one(ri->vend_vs,vnd_vs);
+	wmem_array_append_one(ri->ett,ett_p);
 
 	g_hash_table_foreach(vnd->attrs_by_id,register_attrs,ri);
 
@@ -2018,12 +2018,12 @@ static void register_radius_fields(const char* unused _U_) {
 	 char* dir = NULL;
 	 gchar* dict_err_str = NULL;
 
-	 ri.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
-	 ri.ett = g_array_new(FALSE,TRUE,sizeof(gint *));
-	 ri.vend_vs = g_array_new(TRUE,TRUE,sizeof(value_string));
+	 ri.hf = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
+	 ri.ett = wmem_array_new(wmem_epan_scope(), sizeof(gint *));
+	 ri.vend_vs = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
 
-	 g_array_append_vals(ri.hf, base_hf, array_length(base_hf));
-	 g_array_append_vals(ri.ett, base_ett, array_length(base_ett));
+	 wmem_array_append(ri.hf, base_hf, array_length(base_hf));
+	 wmem_array_append(ri.ett, base_ett, array_length(base_ett));
 
 	 dir = get_persconffile_path("radius", FALSE);
 
@@ -2053,12 +2053,8 @@ static void register_radius_fields(const char* unused _U_) {
 
 	g_free(dir);
 
-	proto_register_field_array(proto_radius,(hf_register_info*)g_array_data(ri.hf),ri.hf->len);
-	proto_register_subtree_array((gint**)g_array_data(ri.ett), ri.ett->len);
-
-	g_array_free(ri.hf,FALSE);
-	g_array_free(ri.ett,FALSE);
-	g_array_free(ri.vend_vs,FALSE);
+	proto_register_field_array(proto_radius,(hf_register_info*)wmem_array_get_raw(ri.hf),wmem_array_get_count(ri.hf));
+	proto_register_subtree_array((gint**)wmem_array_get_raw(ri.ett), wmem_array_get_count(ri.ett));
 
 	no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 
