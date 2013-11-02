@@ -2387,7 +2387,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 				if (ext_hdr_handle != NULL) {
 					tvbuff_t *next_tvb2;
 					next_tvb2 = tvb_new_subset(tvb, value_offset, value_len, value_len);
-					dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, proto_item_add_subtree(ti_c, ett_sip_ext_hdr));
+					dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, proto_item_add_subtree(ti_c, ett_sip_ext_hdr), NULL);
  				} else {
 					expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
 					                       "Unrecognised SIP header (%s)",
@@ -3229,14 +3229,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			found_match = dissector_try_string(media_type_dissector_table,
 			                                   media_type_str_lower_case,
 			                                   next_tvb, pinfo,
-			                                   message_body_tree);
+			                                   message_body_tree, NULL);
 			if (!found_match &&
 			    !strncmp(media_type_str_lower_case, "multipart/", sizeof("multipart/")-1)) {
 				/* Try to decode the unknown multipart subtype anyway */
 				found_match = dissector_try_string(media_type_dissector_table,
 				                                   "multipart/",
 				                                   next_tvb, pinfo,
-				                                   message_body_tree);
+				                                   message_body_tree, NULL);
 			}
 			pinfo->private_data = save_private_data;
 			/* If no match dump as text */

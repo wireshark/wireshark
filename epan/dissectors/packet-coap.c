@@ -891,7 +891,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 
 		dissector_try_string(media_type_dissector_table, coap_ctype_str_dis,
-				     payload_tvb, pinfo, payload_tree);
+				     payload_tvb, pinfo, payload_tree, NULL);
 	}
 }
 

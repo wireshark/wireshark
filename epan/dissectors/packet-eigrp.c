@@ -1333,11 +1333,11 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             if (tok && tok[0] == '<') {
                 /* Looks like XML */
                 dissector_try_string(media_type_table, "application/xml",
-                                     xml_tvb, pinfo, sub_tree);
+                                     xml_tvb, pinfo, sub_tree, NULL);
             } else {
                 /* Try plain text */
                 dissector_try_string(media_type_table, "text/plain",
-                                     xml_tvb, pinfo, sub_tree);
+                                     xml_tvb, pinfo, sub_tree, NULL);
             }
         }
         sub_offset += length;

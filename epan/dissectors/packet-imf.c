@@ -811,7 +811,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     next_tvb = tvb_new_subset_remaining(tvb, end_offset);
 
-    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
+    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, NULL);
 
     pinfo->private_data = pd_save;
   } else {

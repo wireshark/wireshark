@@ -1221,7 +1221,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (media_type_str_lower_case &&
             dissector_try_string(media_type_dissector_table,
                 media_type_str_lower_case,
-                new_tvb, pinfo, rtsp_tree)){
+                new_tvb, pinfo, rtsp_tree, NULL)){
 
         }else {
             /*

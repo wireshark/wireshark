@@ -609,7 +609,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     found_match = dissector_try_string(key_mgmt_dissector_table,
                                        prtcl_id,
                                        keymgmt_tvb, pinfo,
-                                       key_tree);
+                                       key_tree, NULL);
   }
 
   if (found_match) {

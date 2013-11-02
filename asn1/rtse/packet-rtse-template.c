@@ -147,7 +147,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, NULL)){
 		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
 

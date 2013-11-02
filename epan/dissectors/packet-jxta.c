@@ -2028,7 +2028,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 }
             }
         } else {
-            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree) ? tvb_length(tvb) : 0;
+            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, NULL) ? tvb_length(tvb) : 0;
 
             if( dissected != (int) tvb_length(tvb) ) {
                 /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_length(tvb), dissected ); */

@@ -214,7 +214,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	if(!ros_try_string(oid, next_tvb, pinfo, tree) &&
-           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, NULL)){
 		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 

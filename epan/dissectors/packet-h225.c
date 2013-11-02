@@ -3740,7 +3740,7 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   if (gefx) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
     actx->pinfo->private_data = actx;
-    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree);
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, NULL);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
 
@@ -3761,7 +3761,7 @@ dissect_h225_T_raw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
-    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree);
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, NULL);
   }
 
 

@@ -2019,7 +2019,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
             if (!pattern)
                 handled = TRUE;
 
-            else if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
+            else if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, NULL))
                 handled = TRUE;
 
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {

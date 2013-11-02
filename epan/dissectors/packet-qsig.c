@@ -2077,7 +2077,7 @@ dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
     tvbuff_t *next_tvb;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_string(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree)) {
+    if (!dissector_try_string(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree, NULL)) {
         proto_item *item=NULL;
         proto_tree *next_tree=NULL;
 

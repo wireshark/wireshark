@@ -1028,7 +1028,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 			}
 			if (payload_type_str){
 				found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
-								   payload_type_str, newtvb, pinfo, tree);
+								   payload_type_str, newtvb, pinfo, tree, NULL);
 				/* If payload type string set from conversation and
 				 * no matching dissector found it's probably because no subdissector
 				 * exists. Don't call the dissectors based on payload number

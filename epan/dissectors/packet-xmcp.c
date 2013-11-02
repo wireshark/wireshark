@@ -776,11 +776,11 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       if (tok && tok[0] == '<') {
         /* Looks like XML */
         dissector_try_string(media_type_dissector_table, "application/xml",
-                             next_tvb, pinfo, attr_tree);
+                             next_tvb, pinfo, attr_tree, NULL);
       } else {
         /* Try plain text */
         dissector_try_string(media_type_dissector_table, "text/plain",
-                             next_tvb, pinfo, attr_tree);
+                             next_tvb, pinfo, attr_tree, NULL);
       }
     }
     break;

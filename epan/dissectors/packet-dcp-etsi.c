@@ -199,7 +199,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
   }
 
   sync = tvb_get_string (wmem_packet_scope(), tvb, 0, 2);
-  dissector_try_string(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree);
+  dissector_try_string(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree, NULL);
   return TRUE;
 }
 
@@ -623,19 +623,18 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  proto_tree *tpl_tree = NULL;
+  proto_tree *tpl_tree;
   guint offset=0;
   char *prot=NULL;
+  proto_item *ti;
   guint16 maj, min;
 
   pinfo->current_proto = "DCP-TPL";
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-TPL");
 
-  if(tree) {
-    proto_item *ti = NULL;
-    ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, ENC_NA);
-    tpl_tree = proto_item_add_subtree (ti, ett_tpl);
-  }
+  ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, ENC_NA);
+  tpl_tree = proto_item_add_subtree (ti, ett_tpl);
+
   while(offset<tvb_length(tvb)) {
     guint32 bits;
     guint32 bytes;
@@ -644,25 +643,24 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     bytes = bits / 8;
     if(bits % 8)
       bytes++;
-    if(tree) {
-      if(strcmp(tag, "*ptr")==0) {
+
+    if(strcmp(tag, "*ptr")==0) {
         prot = (char*)tvb_get_string (wmem_packet_scope(), tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
         proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
               offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
               "%s %s rev %d.%d", tag, prot, maj, min);
-      } else {
+    } else {
         proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
               offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
               "%s (%u bits)", tag, bits);
-      }
     }
+
     offset += bytes;
   }
-  if(prot) {  /* prot is non-NULL only if we have our tree. */
-    dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, tree->parent);
-  }
+
+  dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, tree->parent, NULL);
 }
 
 void
