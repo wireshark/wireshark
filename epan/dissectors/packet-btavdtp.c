@@ -2088,7 +2088,7 @@ void
 proto_register_bta2dp(void)
 {
     module_t *module;
-
+#if 0
     static hf_register_info hf[] = {
         { &hf_bta2dp_codec,
             { "Codec",                           "bta2dp.codec",
@@ -2101,13 +2101,16 @@ proto_register_bta2dp(void)
             NULL, HFILL }
         }
     };
+#endif
 
     static gint *ett[] = {
         &ett_bta2dp
     };
 
     proto_bta2dp = proto_register_protocol("Bluetooth A2DP Profile", "BT A2DP", "bta2dp");
+#if 0
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
+#endif
     proto_register_subtree_array(ett, array_length(ett));
 
     new_register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
@@ -2216,6 +2219,7 @@ proto_register_btvdp(void)
     module_t *module;
     expert_module_t* expert_btavdtp;
 
+#if 0
     static hf_register_info hf[] = {
         { &hf_btvdp_codec,
             { "Codec",                           "btvdp.codec",
@@ -2228,6 +2232,7 @@ proto_register_btvdp(void)
             NULL, HFILL }
         }
     };
+#endif
 
     static gint *ett[] = {
         &ett_btvdp
@@ -2241,7 +2246,9 @@ proto_register_btvdp(void)
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
     new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
+#if 0
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
+#endif
     proto_register_subtree_array(ett, array_length(ett));
     expert_btavdtp = expert_register_protocol(proto_btvdp);
     expert_register_field_array(expert_btavdtp, ei, array_length(ei));
