@@ -379,9 +379,9 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
  * Main dissection function
  ****************************************************************/
 static int
-dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
+	struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
 	guint length;
