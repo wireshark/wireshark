@@ -797,7 +797,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
  * Call this method to actually dissect the multipart body.
  * NOTE - Only do so if a boundary string has been found!
  */
-static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;

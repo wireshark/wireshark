@@ -10735,7 +10735,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
