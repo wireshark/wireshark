@@ -802,7 +802,7 @@ is_broadcast(address* addr)
 }
 
 static int
-dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (is_broadcast(&pinfo->dl_dst)) {
 
