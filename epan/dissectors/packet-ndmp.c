@@ -44,7 +44,6 @@
 #include "packet-scsi.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/dissectors/rpc_defrag.h>
 
 #define TCP_PORT_NDMP 10000
 

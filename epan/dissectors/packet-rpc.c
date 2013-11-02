@@ -43,7 +43,6 @@
 
 #include "packet-rpc.h"
 #include "packet-tcp.h"
-#include <epan/dissectors/rpc_defrag.h>
 #include "packet-nfs.h"
 
 /*
@@ -298,7 +297,12 @@ GHashTable *rpc_progs = NULL;
 /* Hash table with info on RPC procedure numbers */
 GHashTable *rpc_procs = NULL;
 
+typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
+	tvbuff_t *, fragment_head *, gboolean, guint32, gboolean);
+
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
+    guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
 
 /***********************************/
 /* Hash array with procedure names */
@@ -3080,7 +3084,7 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 	return rpc_succeeded;
 }
 
-int
+static int
 dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
     int proto, int ett, gboolean defragment, gboolean first_pdu, struct tcpinfo *tcpinfo)

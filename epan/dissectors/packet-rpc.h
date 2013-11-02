@@ -103,6 +103,9 @@
 #define RPC_STRING_DATA "<DATA>"
 #define RPC_STRING_TRUNCATED "<TRUNCATED>"
 
+#define RPC_RM_LASTFRAG	0x80000000U
+#define RPC_RM_FRAGLEN	0x7fffffffU
+
 extern const value_string rpc_authgss_svc[];
 typedef enum {
 	FLAVOR_UNKNOWN,		/* authentication flavor unknown */

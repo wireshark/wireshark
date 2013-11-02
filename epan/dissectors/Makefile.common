@@ -1632,7 +1632,6 @@ DISSECTOR_INCLUDES =	\
 	packet-zbee-zdp.h	\
 	packet-zep.h	\
 	packet-ziop.h	\
-	rpc_defrag.h	\
 	$(GENERATED_HEADER_FILES) \
 	$(CUSTOM_HEADER_FILES)
 
