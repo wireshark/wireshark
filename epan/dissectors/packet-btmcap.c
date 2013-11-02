@@ -98,8 +98,8 @@ static const value_string response_code_vals[] = {
 void proto_register_btmcap(void);
 void proto_reg_handoff_btmcap(void);
 
-static void
-dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *main_item;
     proto_tree *main_tree;
@@ -111,6 +111,9 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32     mdep_id;
     guint32     bluetooth_clock_sync_time;
     guint64     timestamp_sync_time;
+
+    main_item = proto_tree_add_item(tree, proto_btmcap, tvb, offset, -1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btmcap);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MCAP");
 
@@ -126,9 +129,6 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pinfo->p2p_dir);
             break;
     }
-
-    main_item = proto_tree_add_item(tree, proto_btmcap, tvb, offset, -1, ENC_NA);
-    main_tree = proto_item_add_subtree(main_item, ett_btmcap);
 
     pitem = proto_tree_add_item(main_tree, hf_btmcap_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     op_code = tvb_get_guint8(tvb, offset);
@@ -311,7 +311,10 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_length_remaining(tvb, offset)) {
         pitem = proto_tree_add_item(main_tree, hf_btmcap_data, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, pitem, &ei_btmcap_unexpected_data);
+        offset = tvb_length(tvb);
     }
+
+    return offset;
 }
 
 
@@ -417,7 +420,7 @@ proto_register_btmcap(void)
     };
 
     proto_btmcap = proto_register_protocol("Bluetooth MCAP Protocol", "BT MCAP", "btmcap");
-    register_dissector("btmcap", dissect_btmcap, proto_btmcap);
+    new_register_dissector("btmcap", dissect_btmcap, proto_btmcap);
 
     proto_register_field_array(proto_btmcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

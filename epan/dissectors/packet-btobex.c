@@ -1048,7 +1048,7 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
-        gint profile, gboolean is_obex_over_l2cap)
+        gint profile, gboolean is_obex_over_l2cap, void *data)
 {
     proto_tree *hdrs_tree   = NULL;
     proto_tree *hdr_tree    = NULL;
@@ -1170,7 +1170,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 if (is_obex_over_l2cap) {
                                     btl2cap_data_t      *l2cap_data;
 
-                                    l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
+                                    l2cap_data   = (btl2cap_data_t *) data;
                                     interface_id = l2cap_data->interface_id;
                                     adapter_id   = l2cap_data->adapter_id;
                                     chandle      = l2cap_data->chandle;
@@ -1178,7 +1178,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 } else {
                                     btrfcomm_data_t      *rfcomm_data;
 
-                                    rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
+                                    rfcomm_data  = (btrfcomm_data_t *) data;
                                     interface_id = rfcomm_data->interface_id;
                                     adapter_id   = rfcomm_data->adapter_id;
                                     chandle      = rfcomm_data->chandle;
@@ -1250,15 +1250,15 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-static void
-dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     fragment_head *frag_msg       = NULL;
     gboolean       save_fragmented, complete;
     tvbuff_t*      new_tvb        = NULL;
     tvbuff_t*      next_tvb       = NULL;
     guint32        no_of_segments = 0;
-    int            offset         = 0;
+    gint           offset         = 0;
     gint           profile        = PROFILE_UNKNOWN;
     gint           response_opcode = -1;
     gboolean       is_obex_over_l2cap = FALSE;
@@ -1287,7 +1287,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (is_obex_over_l2cap) {
         btl2cap_data_t      *l2cap_data;
 
-        l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
+        l2cap_data   = (btl2cap_data_t *) data;
+        DISSECTOR_ASSERT(l2cap_data);
+
         interface_id = l2cap_data->interface_id;
         adapter_id   = l2cap_data->adapter_id;
         chandle      = l2cap_data->chandle;
@@ -1295,7 +1297,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
         btrfcomm_data_t      *rfcomm_data;
 
-        rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
+        rfcomm_data  = (btrfcomm_data_t *) data;
+        DISSECTOR_ASSERT(rfcomm_data);
+
         interface_id = rfcomm_data->interface_id;
         adapter_id   = rfcomm_data->adapter_id;
         chandle      = rfcomm_data->chandle;
@@ -1420,7 +1424,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (is_obex_over_l2cap) {
                     btl2cap_data_t      *l2cap_data;
 
-                    l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
+                    l2cap_data   = (btl2cap_data_t *) data;
                     interface_id = l2cap_data->interface_id;
                     adapter_id   = l2cap_data->adapter_id;
                     chandle      = l2cap_data->chandle;
@@ -1428,7 +1432,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } else {
                     btrfcomm_data_t      *rfcomm_data;
 
-                    rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
+                    rfcomm_data  = (btrfcomm_data_t *) data;
                     interface_id = rfcomm_data->interface_id;
                     adapter_id   = rfcomm_data->adapter_id;
                     chandle      = rfcomm_data->chandle;
@@ -1514,7 +1518,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (is_obex_over_l2cap) {
                 btl2cap_data_t      *l2cap_data;
 
-                l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
+                l2cap_data   = (btl2cap_data_t *) data;
                 interface_id = l2cap_data->interface_id;
                 adapter_id   = l2cap_data->adapter_id;
                 chandle      = l2cap_data->chandle;
@@ -1522,7 +1526,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else {
                 btrfcomm_data_t      *rfcomm_data;
 
-                rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
+                rfcomm_data  = (btrfcomm_data_t *) data;
                 interface_id = rfcomm_data->interface_id;
                 adapter_id   = rfcomm_data->adapter_id;
                 chandle      = rfcomm_data->chandle;
@@ -1573,7 +1577,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
 
-        dissect_headers(st, next_tvb, offset, pinfo, profile, is_obex_over_l2cap);
+        dissect_headers(st, next_tvb, offset, pinfo, profile, is_obex_over_l2cap, data);
     } else {
         /* packet fragment */
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s Obex fragment",
@@ -1583,6 +1587,8 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     pinfo->fragmented = save_fragmented;
+
+    return offset;
 }
 
 
@@ -2318,7 +2324,7 @@ proto_register_btobex(void)
 
     proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "BT OBEX", "btobex");
 
-    register_dissector("btobex", dissect_btobex, proto_btobex);
+    new_register_dissector("btobex", dissect_btobex, proto_btobex);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btobex, hf, array_length(hf));

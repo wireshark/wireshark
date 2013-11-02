@@ -696,6 +696,9 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint8        control_operation;
     proto_item   *pitem;
 
+    ti = proto_tree_add_item(tree, proto_bthid, tvb, offset, -1, ENC_NA);
+    bthid_tree = proto_item_add_subtree(ti, ett_bthid);
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HID");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -711,9 +714,6 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pinfo->p2p_dir);
             break;
     }
-
-    ti = proto_tree_add_item(tree, proto_bthid, tvb, offset, -1, ENC_NA);
-    bthid_tree = proto_item_add_subtree(ti, ett_bthid);
 
     pitem = proto_tree_add_item(bthid_tree, hf_bthid_transaction_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     transaction_type = tvb_get_guint8(tvb, offset);

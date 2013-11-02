@@ -381,7 +381,8 @@ static int
 dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset         = 0;
-    proto_tree *btamp_tree     = NULL;
+    proto_item *ti;
+    proto_tree *btamp_tree;
     guint16     length;
     proto_item *ti_command;
     proto_tree *btamp_cmd_tree;
@@ -403,11 +404,8 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             break;
     }
 
-    if (tree) {
-        proto_item *ti;
-        ti = proto_tree_add_item(tree, proto_btamp, tvb, offset, -1, ENC_NA);
-        btamp_tree = proto_item_add_subtree(ti, ett_btamp);
-    }
+    ti = proto_tree_add_item(tree, proto_btamp, tvb, offset, -1, ENC_NA);
+    btamp_tree = proto_item_add_subtree(ti, ett_btamp);
 
     length = tvb_reported_length_remaining(tvb, offset);
     ti_command = proto_tree_add_none_format(btamp_tree,

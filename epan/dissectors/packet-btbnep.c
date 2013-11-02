@@ -273,8 +273,8 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     return offset;
 }
 
-static void
-dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item   *pi;
     proto_tree   *btbnep_tree;
@@ -286,6 +286,9 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree   *addr_tree = NULL;
     const guint8 *src_addr;
     const guint8 *dst_addr;
+
+    pi = proto_tree_add_item(tree, proto_btbnep, tvb, offset, -1, ENC_NA);
+    btbnep_tree = proto_item_add_subtree(pi, ett_btbnep);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BNEP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -302,9 +305,6 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pinfo->p2p_dir);
             break;
     }
-
-    pi = proto_tree_add_item(tree, proto_btbnep, tvb, offset, -1, ENC_NA);
-    btbnep_tree = proto_item_add_subtree(pi, ett_btbnep);
 
     proto_tree_add_item(btbnep_tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(btbnep_tree, hf_btbnep_bnep_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -375,6 +375,8 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle, next_tvb, pinfo, tree);
        }
     }
+
+    return offset;
 }
 
 void
@@ -512,7 +514,7 @@ proto_register_btbnep(void)
     };
 
     proto_btbnep = proto_register_protocol("Bluetooth BNEP Protocol", "BT BNEP", "btbnep");
-    register_dissector("btbnep", dissect_btbnep, proto_btbnep);
+    new_register_dissector("btbnep", dissect_btbnep, proto_btbnep);
 
     proto_register_field_array(proto_btbnep, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

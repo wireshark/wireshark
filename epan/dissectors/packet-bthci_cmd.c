@@ -3201,19 +3201,22 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item  *ti_cmd         = NULL;
-    proto_tree  *bthci_cmd_tree = NULL;
+    proto_item  *ti_cmd;
+    proto_tree  *bthci_cmd_tree;
     guint16      opcode;
     guint16      ocf;
     guint8       param_length;
     guint8       ogf;
-    int          offset = 0;
+    gint         offset = 0;
     proto_item  *ti_opcode;
     proto_tree  *opcode_tree;
     gint         hfx;
+
+    ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
+    bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -3226,11 +3229,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
                 pinfo->p2p_dir);
             break;
-    }
-
-    if (tree) {
-        ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
-        bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
     }
 
     opcode = tvb_get_letohs(tvb, offset);
@@ -3314,6 +3312,8 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset, -1);
         /*offset += tvb_length_remaining(tvb, offset);*/
     }
+
+    return offset;
 }
 
 
@@ -5140,7 +5140,7 @@ proto_register_bthci_cmd(void)
     /* Register the protocol name and description */
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
 
-    register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
+    new_register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_cmd, hf, array_length(hf));

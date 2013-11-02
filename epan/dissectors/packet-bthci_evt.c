@@ -43,7 +43,7 @@
 #include "packet-bluetooth-hci.h"
 #include "packet-sdp.h"
 
-static dissector_handle_t bthci_com_handle;
+static dissector_handle_t bthci_cmd_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_evt = -1;
@@ -1091,12 +1091,12 @@ dissect_bthci_evt_inq_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 }
 
 static int
-dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, hci_data_t *hci_data)
 {
     guint16       connection_handle;
     guint8        bd_addr[6];
     guint8        status;
-    hci_data_t    *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     status = tvb_get_guint8(tvb, offset);
@@ -1369,10 +1369,10 @@ dissect_bthci_evt_read_remote_support_features_complete(tvbuff_t *tvb, int offse
 }
 
 static int
-dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, hci_data_t *hci_data)
 {
     guint8      bd_addr[6];
-    hci_data_t *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -1512,14 +1512,14 @@ dissect_bthci_evt_hardware_error(tvbuff_t *tvb, int offset, packet_info *pinfo _
 }
 
 static int
-dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, hci_data_t *hci_data)
 {
     tvbuff_t *next_tvb;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if(bthci_com_handle){
-        call_dissector(bthci_com_handle, next_tvb, pinfo, tree);
-    }
+    call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, hci_data);
+
     offset+=tvb_length_remaining(tvb, offset);
 
     return offset;
@@ -1756,14 +1756,13 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset,
 
 static int
 dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
-        proto_tree *tree, guint8 size, guint8 *bd_addr)
+        proto_tree *tree, guint8 size, guint8 *bd_addr, hci_data_t *hci_data)
 {
     guint16      i, j;
     guint8       length, type;
     proto_item  *ti_eir = NULL;
     proto_item  *ti_eir_subtree = NULL;
     proto_item  *sub_item;
-    hci_data_t  *hci_data = (hci_data_t *) pinfo->private_data;
 
     if(tree){
         ti_eir = proto_tree_add_item(tree, (size == 240) ? hf_extended_inquiry_response_data : hf_advertising_data,
@@ -2108,7 +2107,8 @@ dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, hci_data_t *hci_data)
 {
     proto_item *item;
     guint8 subevent_code;
@@ -2159,7 +2159,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                 length = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_bthci_evt_data_length, tvb, offset, 1, ENC_NA);
                 offset++;
-                offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, length, NULL);
+                offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, length, NULL, hci_data);
                 proto_tree_add_item(tree, hf_bthci_evt_rssi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
                 }
@@ -2355,7 +2355,8 @@ dissect_bthci_evt_amp_status_change(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 static int
-dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, hci_data_t *hci_data)
 {
     proto_item  *ti_opcode;
     proto_tree  *opcode_tree;
@@ -2369,7 +2370,6 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
     guint8       bd_addr[6];
     gboolean     local_addr = FALSE;
     gint         hfx;
-    hci_data_t  *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_num_command_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -2892,7 +2892,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_fec_required, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, 240, NULL);
+            offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, 240, NULL, hci_data);
             break;
 
         case 0x0c55: /* Read Simple Pairing Mode */
@@ -3635,13 +3635,18 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 /* Code to actually dissect the packets */
-static int
-dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gint
+dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_tree *bthci_evt_tree = NULL;
+    proto_item *ti;
+    proto_tree *bthci_evt_tree;
     guint8      param_length, evt_code;
     guint8      bd_addr[6];
-    int         offset         = 0;
+    gint        offset = 0;
+    hci_data_t  *hci_data;
+
+    ti = proto_tree_add_item(tree, proto_bthci_evt, tvb, offset, -1, ENC_NA);
+    bthci_evt_tree = proto_item_add_subtree(ti, ett_bthci_evt);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -3656,12 +3661,8 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
     }
 
-    if (tree) {
-        proto_item *ti;
-
-        ti = proto_tree_add_item(tree, proto_bthci_evt, tvb, offset, -1, ENC_NA);
-        bthci_evt_tree = proto_item_add_subtree(ti, ett_bthci_evt);
-    }
+    hci_data = (hci_data_t *) data;
+    DISSECTOR_ASSERT(hci_data);
 
     evt_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3688,7 +3689,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x03: /* Connection Complete */
-            offset=dissect_bthci_evt_conn_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset=dissect_bthci_evt_conn_complete(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x04: /* Connection Request */
@@ -3704,7 +3705,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x07: /* Remote Name Request Complete */
-            offset=dissect_bthci_evt_remote_name_req_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset=dissect_bthci_evt_remote_name_req_complete(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x08: /* Encryption Change */
@@ -3732,7 +3733,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x0e: /* Command Complete */
-            offset=dissect_bthci_evt_command_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset=dissect_bthci_evt_command_complete(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x0f: /* Command Status */
@@ -3776,7 +3777,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x19: /* Loopback Command */
-            offset=dissect_bthci_evt_loopback_command(tvb, offset, pinfo, bthci_evt_tree);
+            offset=dissect_bthci_evt_loopback_command(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x1a: /* Data Buffer Overflow */
@@ -3834,7 +3835,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 0x2f: /* Extended Inquiry Result */
 /* TODO: Get bd_addr from first and pass to second*/
             offset = dissect_bthci_evt_inq_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bd_addr);
-            offset = dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, bthci_evt_tree, 240, bd_addr);
+            offset = dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, bthci_evt_tree, 240, bd_addr, hci_data);
             break;
 
         case 0x30: /* Encryption Key Refresh Complete */
@@ -3886,7 +3887,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x3e: /* LE Meta */
-            offset=dissect_bthci_evt_le_meta(tvb, offset, pinfo, bthci_evt_tree);
+            offset=dissect_bthci_evt_le_meta(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x40: /* Physical Link Complete */
@@ -3962,6 +3963,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
     }
+
     return offset;
 }
 
@@ -5846,7 +5848,6 @@ proto_register_bthci_evt(void)
     /* Register the protocol name and description */
     proto_bthci_evt = proto_register_protocol("Bluetooth HCI Event",
             "HCI_EVT", "bthci_evt");
-
     new_register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
 
     /* Required function calls to register the header fields and subtrees used */
@@ -5876,7 +5877,7 @@ proto_reg_handoff_bthci_evt(void)
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_EVT, bthci_evt_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_EVENT, bthci_evt_handle);
 
-    bthci_com_handle = find_dissector("bthci_cmd");
+    bthci_cmd_handle = find_dissector("bthci_cmd");
 }
 
 /*

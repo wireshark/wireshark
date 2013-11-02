@@ -51,10 +51,6 @@
 #define BTL2CAP_FIXED_CID_AMP_TEST  0x003F
 #define BTL2CAP_FIXED_CID_MAX       0x0040
 
-/* This structure is passed to higher layer protocols through
- * pinfo->private_data so that they can track "conversations" based on
- * chandle, cid and direction
- */
 typedef struct _btl2cap_data_t {
     guint32   interface_id;
     guint32   adapter_id;

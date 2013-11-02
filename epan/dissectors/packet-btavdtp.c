@@ -927,8 +927,8 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 }
 
 
-static void
-dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item       *ti;
     proto_tree       *btavdtp_tree       = NULL;
@@ -954,8 +954,6 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVDTP");
 
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
-
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
             col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
@@ -970,6 +968,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             goto LABEL_data;
             break;
     }
+
+    l2cap_data = (btl2cap_data_t *) data;
+    DISSECTOR_ASSERT(l2cap_data);
 
     if (!force_avdtp && !pinfo->fd->flags.visited && (l2cap_data->first_scid_frame == pinfo->fd->num ||
                 l2cap_data->first_dcid_frame == pinfo->fd->num)) {
@@ -1060,7 +1061,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
             }
 
-            return;
+            return offset;
         } else if (!(cid_type_data && cid_type_data->type == STREAM_TYPE_SIGNAL && cid_type_data->cid == l2cap_data->cid)) {
             /* AVDTP not signaling - Unknown Media stream */
             ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
@@ -1068,7 +1069,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown stream on cid=0x%04x", l2cap_data->cid);
             proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-            return;
+            return offset;
         }
     }
 
@@ -1316,6 +1317,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
     }
 
+    return offset;
 }
 
 
@@ -1970,7 +1972,7 @@ proto_register_btavdtp(void)
     };
 
     proto_btavdtp = proto_register_protocol("Bluetooth AVDTP Protocol", "BT AVDTP", "btavdtp");
-    register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
+    new_register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
 
     proto_register_field_array(proto_btavdtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

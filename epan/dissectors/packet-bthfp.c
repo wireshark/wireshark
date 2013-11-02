@@ -1132,8 +1132,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static void
-dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item       *main_item;
     proto_tree       *main_tree;
@@ -1163,12 +1163,8 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint             reassemble_start_offset = 0;
     guint             reassemble_end_offset   = 0;
 
-    rfcomm_data = (btrfcomm_data_t *) pinfo->private_data;
-
-    interface_id = rfcomm_data->interface_id;
-    adapter_id   = rfcomm_data->adapter_id;
-    chandle      = rfcomm_data->chandle;
-    dlci         = rfcomm_data->dlci;
+    main_item = proto_tree_add_item(tree, proto_bthfp, tvb, 0, -1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_bthfp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HFP");
 
@@ -1184,8 +1180,13 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    main_item = proto_tree_add_item(tree, proto_bthfp, tvb, 0, -1, ENC_NA);
-    main_tree = proto_item_add_subtree(main_item, ett_bthfp);
+    rfcomm_data = (btrfcomm_data_t *) data;
+    DISSECTOR_ASSERT(rfcomm_data);
+
+    interface_id = rfcomm_data->interface_id;
+    adapter_id   = rfcomm_data->adapter_id;
+    chandle      = rfcomm_data->chandle;
+    dlci         = rfcomm_data->dlci;
 
     if ((hfp_role == ROLE_AG && pinfo->p2p_dir == P2P_DIR_SENT) ||
             (hfp_role == ROLE_HS && pinfo->p2p_dir == P2P_DIR_RECV)) {
@@ -1267,7 +1268,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, "Data: %s",
                 tvb_format_text(tvb, 0, tvb_length(tvb)));
         proto_tree_add_item(main_tree, hf_data, tvb, 0, -1, ENC_NA | ENC_ASCII);
-        return;
+        return tvb_length(tvb);
     }
 
     /* save fragments */
@@ -1457,17 +1458,17 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fragment->dlci == dlci &&
             fragment->role == role &&
             fragment->reassemble_state != REASSEMBLE_FRAGMENT) {
-        guint8    *data;
+        guint8    *at_data;
         guint      i_data_offset;
 
         i_data_offset = fragment->index + fragment->length;
-        data = (guint8 *) wmem_alloc(pinfo->pool, fragment->index + fragment->length);
+        at_data = (guint8 *) wmem_alloc(pinfo->pool, fragment->index + fragment->length);
 
         i_fragment = fragment;
 
         if (i_fragment && i_fragment->reassemble_state == REASSEMBLE_PARTIALLY) {
                 i_data_offset -= i_fragment->reassemble_end_offset;
-                memcpy(data + i_data_offset, i_fragment->data, i_fragment->reassemble_end_offset);
+                memcpy(at_data + i_data_offset, i_fragment->data, i_fragment->reassemble_end_offset);
 
             i_fragment = i_fragment->previous_fragment;
         }
@@ -1475,24 +1476,24 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (i_fragment) {
             while (i_fragment && i_fragment->index > 0) {
                 i_data_offset -= i_fragment->length;
-                memcpy(data + i_data_offset, i_fragment->data, i_fragment->length);
+                memcpy(at_data + i_data_offset, i_fragment->data, i_fragment->length);
                 i_fragment = i_fragment->previous_fragment;
             }
 
             if (i_fragment && i_fragment->reassemble_state == REASSEMBLE_PARTIALLY) {
                 i_data_offset -= (i_fragment->length - i_fragment->reassemble_start_offset);
-                memcpy(data + i_data_offset, i_fragment->data + i_fragment->reassemble_start_offset,
+                memcpy(at_data + i_data_offset, i_fragment->data + i_fragment->reassemble_start_offset,
                         i_fragment->length - i_fragment->reassemble_start_offset);
             } else if (i_fragment) {
                 i_data_offset -= i_fragment->length;
-                memcpy(data + i_data_offset, i_fragment->data, i_fragment->length);
+                memcpy(at_data + i_data_offset, i_fragment->data, i_fragment->length);
             }
         }
 
         if (fragment->index > 0 && fragment->length > 0) {
             proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
                                 tvb_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
-            reassembled_tvb = tvb_new_child_real_data(tvb, data,
+            reassembled_tvb = tvb_new_child_real_data(tvb, at_data,
                     fragment->index + fragment->length, fragment->index + fragment->length);
             add_new_data_source(pinfo, reassembled_tvb, "Reassembled HFP");
         }
@@ -1520,6 +1521,8 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
                 tvb_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
     }
+
+    return offset;
 }
 
 static int
@@ -2016,7 +2019,7 @@ proto_register_bthfp(void)
     fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_bthfp = proto_register_protocol("Bluetooth HFP Profile", "BT HFP", "bthfp");
-    register_dissector("bthfp", dissect_bthfp, proto_bthfp);
+    new_register_dissector("bthfp", dissect_bthfp, proto_bthfp);
 
     proto_register_field_array(proto_bthfp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

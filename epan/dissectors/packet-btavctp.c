@@ -100,8 +100,8 @@ static const value_string ipid_vals[] = {
 void proto_register_btavctp(void);
 void proto_reg_handoff_btavctp(void);
 
-static void
-dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *ti;
     proto_tree      *btavctp_tree;
@@ -117,12 +117,12 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint           number_of_packets = 0;
     guint           length;
     guint           i_frame;
-    void            *save_private_data;
+
+    ti = proto_tree_add_item(tree, proto_btavctp, tvb, offset, -1, ENC_NA);
+    btavctp_tree = proto_item_add_subtree(ti, ett_btavctp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVCTP");
     col_clear(pinfo->cinfo, COL_INFO);
-
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -137,9 +137,8 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    ti = proto_tree_add_item(tree, proto_btavctp, tvb, offset, -1, ENC_NA);
-
-    btavctp_tree = proto_item_add_subtree(ti, ett_btavctp);
+    l2cap_data = (btl2cap_data_t *) data;
+    DISSECTOR_ASSERT(l2cap_data);
 
     proto_tree_add_item(btavctp_tree, hf_btavctp_transaction,  tvb, offset, 1, ENC_BIG_ENDIAN);
     pitem = proto_tree_add_item(btavctp_tree, hf_btavctp_packet_type,  tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -173,9 +172,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     avctp_data->chandle      = l2cap_data->chandle;
     avctp_data->psm          = l2cap_data->psm;
 
-    save_private_data = pinfo->private_data;
-    pinfo->private_data = avctp_data;
-
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s - Transaction: %u, PacketType: %s",
             val_to_str_const(cr, cr_vals, "unknown CR"), transaction,
             val_to_str_const(packet_type, packet_type_vals, "unknown packet type"));
@@ -185,7 +181,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* reassembling */
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     if (packet_type == PACKET_TYPE_SINGLE) {
-        if (!dissector_try_uint(avctp_service_dissector_table, pid, next_tvb, pinfo, tree)) {
+        if (!dissector_try_uint_new(avctp_service_dissector_table, pid, next_tvb, pinfo, tree, TRUE, avctp_data)) {
             call_dissector(data_handle, next_tvb, pinfo, tree);
         }
 
@@ -376,7 +372,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 next_tvb = tvb_new_child_real_data(tvb, reassembled, length, length);
                 add_new_data_source(pinfo, next_tvb, "Reassembled AVCTP");
 
-                if (!dissector_try_uint(avctp_service_dissector_table, fragments->pid, next_tvb, pinfo, tree)) {
+                if (!dissector_try_uint_new(avctp_service_dissector_table, fragments->pid, next_tvb, pinfo, tree, TRUE, avctp_data)) {
                     call_dissector(data_handle, next_tvb, pinfo, tree);
                 }
             }
@@ -387,7 +383,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    pinfo->private_data = save_private_data;
+    return offset;
 }
 
 void
@@ -447,7 +443,7 @@ proto_register_btavctp(void)
     avctp_service_dissector_table = register_dissector_table("btavctp.service", "BT AVCTP Service", FT_UINT16, BASE_HEX);
 
     proto_btavctp = proto_register_protocol("Bluetooth AVCTP Protocol", "BT AVCTP", "btavctp");
-    register_dissector("btavctp", dissect_btavctp, proto_btavctp);
+    new_register_dissector("btavctp", dissect_btavctp, proto_btavctp);
 
     proto_register_field_array(proto_btavctp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

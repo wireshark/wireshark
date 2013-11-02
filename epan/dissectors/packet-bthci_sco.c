@@ -45,12 +45,15 @@ void proto_register_bthci_sco(void);
 void proto_reg_handoff_bthci_sco(void);
 
 /* Code to actually dissect the packets */
-static void
-dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static gint
+dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *bthci_sco_tree;
-    int         offset = 0;
+    gint        offset = 0;
+
+    ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, -1, ENC_NA);
+    bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -65,10 +68,6 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             break;
     }
 
-    ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, -1, ENC_NA);
-    bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
-
-
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
@@ -76,6 +75,8 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     offset++;
 
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, -1, ENC_NA);
+
+    return tvb_length(tvb);
 }
 
 
@@ -107,7 +108,7 @@ proto_register_bthci_sco(void)
 
     /* Register the protocol name and description */
     proto_bthci_sco = proto_register_protocol("Bluetooth HCI SCO Packet", "HCI_SCO", "bthci_sco");
-    register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
+    new_register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_sco, hf, array_length(hf));

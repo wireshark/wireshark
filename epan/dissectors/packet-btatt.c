@@ -265,6 +265,12 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree *st, *ltree;
     guint8 opcode;
 
+    if (tvb_length_remaining(tvb, 0) < 1)
+        return 0;
+
+    ti = proto_tree_add_item(tree, proto_btatt, tvb, 0, -1, ENC_NA);
+    st = proto_item_add_subtree(ti, ett_btatt);
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATT");
 
     switch (pinfo->p2p_dir) {
@@ -279,12 +285,6 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pinfo->p2p_dir);
             break;
     }
-
-    if (tvb_length_remaining(tvb, 0) < 1)
-        return FALSE;
-
-    ti = proto_tree_add_item(tree, proto_btatt, tvb, 0, -1, ENC_NA);
-    st = proto_item_add_subtree(ti, ett_btatt);
 
     item = proto_tree_add_item(st, hf_btatt_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);
     opcode = tvb_get_guint8(tvb, 0);

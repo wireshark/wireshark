@@ -65,6 +65,9 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     gint            offset = 0;
     guint8          value;
 
+    main_item = proto_tree_add_item(tree, proto_bt3ds, tvb, offset, -1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_bt3ds);
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "3DS");
 
     switch (pinfo->p2p_dir) {
@@ -79,9 +82,6 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pinfo->p2p_dir);
             break;
     }
-
-    main_item = proto_tree_add_item(tree, proto_bt3ds, tvb, offset, -1, ENC_NA);
-    main_tree = proto_item_add_subtree(main_item, ett_bt3ds);
 
     sub_item = proto_tree_add_item(main_tree, hf_message_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     value = tvb_get_guint8(tvb, offset);

@@ -190,9 +190,6 @@ WS_DLL_PUBLIC
 GHashTable *get_conversation_hashtable_no_addr2(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_conversation_hashtable_no_addr2(void);
-
-WS_DLL_PUBLIC
 GHashTable * get_conversation_hashtable_no_port2(void);
 
 WS_DLL_PUBLIC

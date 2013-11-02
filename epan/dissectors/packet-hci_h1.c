@@ -60,14 +60,13 @@ static const value_string hci_h1_direction_vals[] = {
 void proto_register_hci_h1(void);
 void proto_reg_handoff_hci_h1(void);
 
-static void
-dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8      type;
     tvbuff_t   *next_tvb;
     proto_item *ti = NULL;
     proto_tree *hci_h1_tree = NULL;
-    void       *pd_save;
     hci_data_t *hci_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI");
@@ -107,25 +106,23 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  val_to_str(type, hci_h1_type_vals,
                     "Unknown 0x%02x"));
 
-    pd_save = pinfo->private_data;
-    hci_data = wmem_new(wmem_packet_scope(),hci_data_t);
+    hci_data = wmem_new(wmem_packet_scope(), hci_data_t);
     hci_data->interface_id = HCI_INTERFACE_H4;
     hci_data->adapter_id = HCI_ADAPTER_DEFAULT;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
     hci_data->localhost_bdaddr = localhost_bdaddr;
     hci_data->localhost_name = localhost_name;
-    pinfo->private_data = hci_data;
 
     ti = proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
     PROTO_ITEM_SET_GENERATED(ti);
 
     next_tvb = tvb_new_subset_remaining(tvb, 0);
-    if (!dissector_try_uint(hci_h1_table, type, next_tvb, pinfo, tree)) {
+    if (!dissector_try_uint_new(hci_h1_table, type, next_tvb, pinfo, tree, TRUE, hci_data)) {
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
 
-    pinfo->private_data = pd_save;
+    return tvb_length(tvb);
 }
 
 
@@ -147,7 +144,7 @@ proto_register_hci_h1(void)
     proto_hci_h1 = proto_register_protocol("Bluetooth HCI H1",
             "HCI_H1", "hci_h1");
 
-    register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
+    new_register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
 
     proto_register_field_array(proto_hci_h1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

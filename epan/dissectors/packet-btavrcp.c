@@ -996,7 +996,7 @@ dissect_subunit(tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_comman
 static gint
 dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          gint offset, guint ctype, guint32 *op, guint32 *op_arg,
-                         gboolean is_command)
+                         gboolean is_command, btavctp_data_t *avctp_data)
 {
     proto_item      *pitem;
     guint            pdu_id;
@@ -1018,11 +1018,8 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32          psm;
     guint            volume;
     guint            volume_percent;
-    btavctp_data_t  *avctp_data;
     fragment_t       *fragment;
     data_fragment_t  *data_fragment;
-
-    avctp_data = (btavctp_data_t *) pinfo->private_data;
 
     *op_arg = 0;
 
@@ -2068,8 +2065,8 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static void
-dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item      *ti;
     proto_tree      *btavrcp_tree;
@@ -2098,7 +2095,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32         psm;
     btavctp_data_t  *avctp_data;
 
-    avctp_data = (btavctp_data_t *) pinfo->private_data;
+    ti = proto_tree_add_item(tree, proto_btavrcp, tvb, offset, -1, ENC_NA);
+    btavrcp_tree = proto_item_add_subtree(ti, ett_btavrcp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVRCP");
 
@@ -2115,8 +2113,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    ti = proto_tree_add_item(tree, proto_btavrcp, tvb, offset, -1, ENC_NA);
-    btavrcp_tree = proto_item_add_subtree(ti, ett_btavrcp);
+    avctp_data = (btavctp_data_t *) data;
+    DISSECTOR_ASSERT(avctp_data);
 
     is_command = !avctp_data->cr;
 
@@ -2157,7 +2155,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case OPCODE_VENDOR_DEPENDANT:
                 offset = dissect_vendor_dependant(tvb, pinfo, btavrcp_tree,
-                        offset, ctype, &op, &op_arg, is_command);
+                        offset, ctype, &op, &op_arg, is_command, avctp_data);
                 break;
         };
 
@@ -2313,6 +2311,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         expert_add_info(pinfo, pitem, &ei_btavrcp_unexpected_data);
     }
 
+    return offset;
 }
 
 
@@ -3148,7 +3147,7 @@ proto_register_btavrcp(void)
     timing       = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "BT AVRCP", "btavrcp");
-    register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
+    new_register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
 
     proto_register_field_array(proto_btavrcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

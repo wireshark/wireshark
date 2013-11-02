@@ -24,10 +24,6 @@
 #ifndef __PACKET_BTRFCOMM_H__
 #define __PACKET_BTRFCOMM_H__
 
-/* This structure is passed to higher layer protocols through
- * pinfo->private_data so that they can track "conversations" based on
- * chandle, cid, dlci and direction
- */
 typedef struct _btrfcomm_data_t {
     guint32 interface_id;
     guint32 adapter_id;

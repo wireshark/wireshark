@@ -373,7 +373,7 @@ void proto_register_btl2cap(void);
 void proto_reg_handoff_btl2cap(void);
 
 static guint16
-get_service_uuid(packet_info *pinfo, guint16 psm, gboolean is_local_psm)
+get_service_uuid(packet_info *pinfo, btl2cap_data_t *l2cap_data, guint16 psm, gboolean is_local_psm)
 {
     wmem_tree_key_t    key[10];
     guint32            k_interface_id;
@@ -390,9 +390,6 @@ get_service_uuid(packet_info *pinfo, guint16 psm, gboolean is_local_psm)
     guint32            remote_bd_addr_oui;
     guint32            remote_bd_addr_id;
     service_info_t    *service_info;
-    btl2cap_data_t    *l2cap_data;
-
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     interface_id       = l2cap_data->interface_id;
     adapter_id         = l2cap_data->adapter_id;
@@ -493,7 +490,9 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
-dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, gboolean is_ch_request)
+dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, gboolean is_ch_request, bthci_acl_data_t *acl_data,
+        btl2cap_data_t *l2cap_data)
 {
     guint16            scid;
     guint16            psm;
@@ -510,7 +509,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
         item = proto_tree_add_item(tree, hf_btl2cap_psm_dynamic, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-        uuid = get_service_uuid(pinfo, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE);
+        uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE);
         if (uuid) {
             psm_str = val_to_str_ext_const(uuid, &vs_service_classes_ext, "Unknown PSM");
             proto_item_append_text(item, " (%s)", psm_str);
@@ -539,7 +538,6 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         guint32            interface_id;
         guint32            adapter_id;
         guint32            chandle;
-        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
         psm_data_t        *psm_data;
 
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
@@ -746,7 +744,8 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 
 
 static int
-dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length)
+dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, guint16 length, bthci_acl_data_t *acl_data)
 {
     guint16  dcid;
 
@@ -773,7 +772,6 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         guint32            adapter_id;
         guint32            chandle;
         guint32            cid;
-        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
 
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -929,7 +927,8 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length)
+dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, guint16 length, bthci_acl_data_t *acl_data)
 {
     guint16            scid;
     guint16            result;
@@ -963,7 +962,6 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         guint32            adapter_id;
         guint32            chandle;
         guint32            cid;
-        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
 
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1009,7 +1007,8 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, bthci_acl_data_t *acl_data)
 {
     guint16            scid, dcid, result;
 
@@ -1048,7 +1047,6 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
         guint32            adapter_id;
         guint32            chandle;
         guint32            cid;
-        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
 
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1111,9 +1109,9 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_chanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_chanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bthci_acl_data_t *acl_data)
 {
-    return dissect_connresponse(tvb, offset, pinfo, tree);
+    return dissect_connresponse(tvb, offset, pinfo, tree, acl_data);
 }
 
 static int
@@ -1211,7 +1209,8 @@ dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static int
-dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, bthci_acl_data_t *acl_data)
 {
     guint16 scid;
     guint16 dcid;
@@ -1239,7 +1238,6 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
         guint32            chandle;
         guint32            key_scid;
         guint32            key_dcid;
-        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
 
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1308,8 +1306,9 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static int
-dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree,
-                guint16 cid, guint16 psm, gboolean is_local_psm, guint16 length, int offset)
+dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        proto_tree *btl2cap_tree, guint16 cid, guint16 psm,
+        gboolean is_local_psm, guint16 length, int offset, btl2cap_data_t *l2cap_data)
 {
     tvbuff_t *next_tvb;
 
@@ -1321,7 +1320,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         proto_item        *psm_item;
         guint16            uuid;
 
-        uuid = get_service_uuid(pinfo, psm, is_local_psm);
+        uuid = get_service_uuid(pinfo, l2cap_data, psm, is_local_psm);
 
         if (psm < BTL2CAP_DYNAMIC_PSM_START) {
             psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
@@ -1335,10 +1334,10 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         PROTO_ITEM_SET_GENERATED(psm_item);
 
         /* call next dissector */
-        if (!dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree)) {
-            if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
+        if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
+            if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                 /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-                if (!dissector_try_uint(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree)) {
+                if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                     /* unknown protocol. declare as data */
                     proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
                 }
@@ -1346,7 +1345,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
         offset += tvb_length_remaining(tvb, offset);
     } else {
-        if (!dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree)) {
+        if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
             proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
             offset += tvb_length_remaining(tvb, offset);
         }
@@ -1355,8 +1354,9 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 }
 
 static int
-dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree,
-                psm_data_t *psm_data, guint16 length, int offset, config_data_t *config_data)
+dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        proto_tree *btl2cap_tree, psm_data_t *psm_data, guint16 length,
+        gint offset, config_data_t *config_data, btl2cap_data_t *l2cap_data)
 {
     tvbuff_t         *next_tvb = NULL;
     guint16           control, segment;
@@ -1478,7 +1478,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_item        *psm_item;
             guint16            uuid;
 
-            uuid = get_service_uuid(pinfo, psm, psm_data->local_service);
+            uuid = get_service_uuid(pinfo, l2cap_data, psm, psm_data->local_service);
 
             if (psm < BTL2CAP_DYNAMIC_PSM_START) {
                 psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
@@ -1491,9 +1491,9 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             PROTO_ITEM_SET_GENERATED(psm_item);
 
             /* call next dissector */
-            if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
+            if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                 /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-                if (!dissector_try_uint(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree)) {
+                if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                     /* unknown protocol. declare as data */
                     proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), ENC_NA);
                 }
@@ -1550,16 +1550,12 @@ dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_t
     return offset;
 }
 
-/* Code to actually dissect the packets
- * This dissector will only be called ontop of BTHCI ACL
- * and this dissector _REQUIRES_ that
- * pinfo->private_data points to a valid bthci_acl_data_t structure
- */
-static void
-dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int               offset       = 0;
-    proto_tree       *btl2cap_tree = NULL;
+    gint              offset       = 0;
+    proto_item       *ti;
+    proto_tree       *btl2cap_tree;
     guint16           length;
     guint16           cid;
     guint16           psm;
@@ -1568,7 +1564,9 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     psm_data_t       *psm_data;
     bthci_acl_data_t *acl_data;
     btl2cap_data_t   *l2cap_data;
-    void             *pd_save;
+
+    ti = proto_tree_add_item(tree, proto_btl2cap, tvb, offset, -1, ENC_NA);
+    btl2cap_tree = proto_item_add_subtree(ti, ett_btl2cap);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
 
@@ -1585,11 +1583,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    if (tree) {
-        proto_item *ti;
-        ti = proto_tree_add_item(tree, proto_btl2cap, tvb, offset, -1, ENC_NA);
-        btl2cap_tree = proto_item_add_subtree(ti, ett_btl2cap);
-    }
+    acl_data = (bthci_acl_data_t *) data;
+    DISSECTOR_ASSERT(acl_data);
 
     length  = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1599,7 +1594,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    acl_data = (bthci_acl_data_t *)pinfo->private_data;
     l2cap_data = wmem_new(wmem_packet_scope(), btl2cap_data_t);
 
     l2cap_data->interface_id     = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
@@ -1610,9 +1604,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     l2cap_data->first_scid_frame = 0;
     l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
     l2cap_data->remote_bd_addr_id = (acl_data) ? acl_data->remote_bd_addr_id : 0;
-
-    pd_save             = pinfo->private_data;
-    pinfo->private_data = l2cap_data;
 
     if (cid == BTL2CAP_FIXED_CID_SIGNAL || cid == BTL2CAP_FIXED_CID_LE_SIGNAL) {
         /* This is a command packet*/
@@ -1651,27 +1642,27 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
             case 0x02: /* Connection Request */
-                offset  = dissect_connrequest(tvb, offset, pinfo, btl2cap_cmd_tree, FALSE);
+                offset  = dissect_connrequest(tvb, offset, pinfo, btl2cap_cmd_tree, FALSE, acl_data, l2cap_data);
                 break;
 
             case 0x03: /* Connection Response */
-                offset  = dissect_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+                offset  = dissect_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
                 break;
 
             case 0x04: /* Configure Request */
-                offset  = dissect_configrequest(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length);
+                offset  = dissect_configrequest(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length, acl_data);
                 break;
 
             case 0x05: /* Configure Response */
-                offset  = dissect_configresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length);
+                offset  = dissect_configresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length, acl_data);
                 break;
 
             case 0x06: /* Disconnect Request */
-                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
                 break;
 
             case 0x07: /* Disconnect Response */
-                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
                 break;
 
             case 0x08: /* Echo Request */
@@ -1691,11 +1682,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
             case 0x0c: /* Create Channel Request */
-                offset  = dissect_connrequest(tvb, offset, pinfo, btl2cap_cmd_tree, TRUE);
+                offset  = dissect_connrequest(tvb, offset, pinfo, btl2cap_cmd_tree, TRUE, acl_data, l2cap_data);
                 break;
 
             case 0x0d: /* Create Channel Response */
-                offset  = dissect_chanresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+                offset  = dissect_chanresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
                 break;
 
             case 0x0e: /* Move Channel Request */
@@ -1740,13 +1731,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 
         /* call next dissector */
-        if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
+        if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
             /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
             guint16  uuid;
 
-            uuid = get_service_uuid(pinfo, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE );
+            uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE );
 
-            if (!dissector_try_uint(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree)) {
+            if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
                 /* unknown protocol. declare as data */
                 proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
             }
@@ -1783,8 +1774,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
         }
         /* call next dissector */
-        if (next_tvb && !dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid,
-                    next_tvb, pinfo, tree)) {
+        if (next_tvb && !dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid,
+                    next_tvb, pinfo, tree, TRUE, l2cap_data)) {
             /* unknown protocol. declare as data */
             proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
         }
@@ -1854,21 +1845,22 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
                 config_data = &(psm_data->out);
             if (config_data->mode == 0) {
-                dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset);
+                dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
             } else {
                 control = tvb_get_letohs(tvb, offset);
                 if (control & 0x1) {
                     dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset, config_data);
                 } else {
-                    dissect_i_frame(tvb, pinfo, tree, btl2cap_tree, psm_data, length, offset, config_data);
+                    dissect_i_frame(tvb, pinfo, tree, btl2cap_tree, psm_data, length, offset, config_data, l2cap_data);
                 }
             }
         } else {
             psm = 0;
-            dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, FALSE, length, offset);
+            dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, FALSE, length, offset, l2cap_data);
         }
     }
-    pinfo->private_data = pd_save;
+
+    return offset;
 }
 
 
@@ -2333,7 +2325,7 @@ proto_register_btl2cap(void)
     /* Register the protocol name and description */
     proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "BT L2CAP", "btl2cap");
 
-    register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
+    new_register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
 
     /* subdissector code */
     l2cap_psm_dissector_table     = register_dissector_table("btl2cap.psm",     "L2CAP PSM",     FT_UINT16, BASE_HEX);

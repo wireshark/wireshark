@@ -82,6 +82,7 @@ static gint ett_btsap                                                      = -1;
 static gint ett_btsap_parameter                                            = -1;
 
 static expert_field ei_btsap_parameter_error = EI_INIT;
+static expert_field ei_unexpected_data = EI_INIT;
 
 static gint top_dissect = TOP_DISSECT_INTERNAL;
 
@@ -382,8 +383,8 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     return offset;
 }
 
-static void
-dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *ti;
     proto_tree  *btsap_tree;
@@ -397,6 +398,8 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint        i_parameter;
     guint        i_next_parameter;
 
+    ti = proto_tree_add_item(tree, proto_btsap, tvb, offset, -1, ENC_NA);
+    btsap_tree = proto_item_add_subtree(ti, ett_btsap);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
 
@@ -412,9 +415,6 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pinfo->p2p_dir);
             break;
     }
-
-    ti = proto_tree_add_item(tree, proto_btsap, tvb, offset, -1, ENC_NA);
-    btsap_tree = proto_item_add_subtree(ti, ett_btsap);
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     msg_id = tvb_get_guint8(tvb, offset);
@@ -579,9 +579,10 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      tvb, offset, 0, "Too many parameters");
     }
 
-    if (tvb_length(tvb) > offset) {
-        proto_tree_add_item(btsap_tree, hf_btsap_data, tvb, offset, -1, ENC_NA);
-    }
+    if (tvb_length(tvb) > offset)
+        proto_tree_add_expert(tree, pinfo, &ei_unexpected_data, tvb, offset, -1);
+
+    return offset;
 }
 
 
@@ -708,10 +709,11 @@ proto_register_btsap(void)
 
     static ei_register_info ei[] = {
         { &ei_btsap_parameter_error, { "btsap.parameter_error", PI_PROTOCOL, PI_WARN, "Parameter error", EXPFILL }},
+        { &ei_unexpected_data,       { "btsap.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected_data", EXPFILL }},
     };
 
     proto_btsap = proto_register_protocol("Bluetooth SAP Profile", "BT SAP", "btsap");
-    register_dissector("btsap", dissect_btsap, proto_btsap);
+    new_register_dissector("btsap", dissect_btsap, proto_btsap);
 
     proto_register_field_array(proto_btsap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

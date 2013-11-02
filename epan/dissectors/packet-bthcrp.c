@@ -345,8 +345,8 @@ dissect_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static void
-dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item     *main_item;
     proto_tree     *main_tree;
@@ -354,7 +354,8 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint            offset = 0;
     gboolean        is_client_message;
 
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
+    main_item = proto_tree_add_item(tree, proto_bthcrp, tvb, offset, -1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_bthcrp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCRP");
 
@@ -371,8 +372,8 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    main_item = proto_tree_add_item(tree, proto_bthcrp, tvb, offset, -1, ENC_NA);
-    main_tree = proto_item_add_subtree(main_item, ett_bthcrp);
+    l2cap_data = (btl2cap_data_t *) data;
+    DISSECTOR_ASSERT(l2cap_data);
 
 /* TODO: Implement streams reconizing by SDP
  * Server provide SDP record for Control and Data PSM
@@ -397,6 +398,8 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pitem = proto_tree_add_item(main_tree, hf_bthcrp_data, tvb, offset, -1, ENC_NA);
         expert_add_info(pinfo, pitem, &ei_bthcrp_unexpected_data);
     }
+
+    return offset;
 }
 
 
@@ -539,7 +542,7 @@ proto_register_bthcrp(void)
     };
 
     proto_bthcrp = proto_register_protocol("Bluetooth HCRP Profile", "BT HCRP", "bthcrp");
-    register_dissector("bthcrp", dissect_bthcrp, proto_bthcrp);
+    new_register_dissector("bthcrp", dissect_bthcrp, proto_bthcrp);
 
     proto_register_field_array(proto_bthcrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

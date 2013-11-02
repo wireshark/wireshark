@@ -184,6 +184,9 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree *st;
     guint8 opcode;
 
+    ti = proto_tree_add_item(tree, proto_btsmp, tvb, 0, -1, ENC_NA);
+    st = proto_item_add_subtree(ti, ett_btsmp);
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMP");
 
     switch (pinfo->p2p_dir) {
@@ -201,9 +204,6 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     if (tvb_length_remaining(tvb, 0) < 1)
         return FALSE;
-
-    ti = proto_tree_add_item(tree, proto_btsmp, tvb, 0, -1, ENC_NA);
-    st = proto_item_add_subtree(ti, ett_btsmp);
 
     proto_tree_add_item(st, hf_btsmp_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);
     opcode = tvb_get_guint8(tvb, 0);

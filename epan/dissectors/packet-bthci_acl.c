@@ -90,20 +90,19 @@ void proto_register_bthci_acl(void);
 void proto_reg_handoff_bthci_acl(void);
 
 /* Code to actually dissect the packets */
-static void
-dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item               *ti                        = NULL;
-    proto_tree               *bthci_acl_tree            = NULL;
+    proto_item               *ti;
+    proto_tree               *bthci_acl_tree;
     guint16                   flags;
     guint16                   length;
     gboolean                  fragmented;
-    int                       offset                = 0;
+    gint                      offset                = 0;
     guint16                   pb_flag, l2cap_length = 0;
     tvbuff_t                 *next_tvb;
     bthci_acl_data_t         *acl_data;
     chandle_data_t           *chandle_data;
-    void                     *pd_save;
     hci_data_t               *hci_data;
     wmem_tree_key_t           key[5];
     guint32                   k_connection_handle;
@@ -118,6 +117,9 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                      localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
+
+    ti = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
+    bthci_acl_tree = proto_item_add_subtree(ti, ett_bthci_acl);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -134,10 +136,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
-        bthci_acl_tree = proto_item_add_subtree(ti, ett_bthci_acl);
-    }
+    hci_data = (hci_data_t *) data;
+    DISSECTOR_ASSERT(hci_data);
 
     flags   = tvb_get_letohs(tvb, offset);
     pb_flag = (flags & 0x3000) >> 12;
@@ -146,7 +146,6 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_bc_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    hci_data = (hci_data_t *) pinfo->private_data;
     acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
 
     acl_data->interface_id = hci_data->interface_id;
@@ -154,9 +153,6 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     acl_data->chandle      = flags & 0x0fff;
     acl_data->remote_bd_addr_oui = 0;
     acl_data->remote_bd_addr_id  = 0;
-
-    pd_save                = pinfo->private_data;
-    pinfo->private_data    = acl_data;
 
     k_interface_id      = hci_data->interface_id;
     k_adapter_id        = hci_data->adapter_id;
@@ -362,10 +358,10 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
         if (btl2cap_handle) {
-            call_dissector(btl2cap_handle, next_tvb, pinfo, tree);
+            call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
         }
-        pinfo->private_data = pd_save;
-        return;
+
+        return offset;
     }
 
     if (fragmented && acl_reassembly) {
@@ -421,12 +417,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* call L2CAP dissector */
                 if (btl2cap_handle) {
-                    call_dissector(btl2cap_handle, next_tvb, pinfo, tree);
+                    call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                 }
             }
         }
     }
-    pinfo->private_data = pd_save;
+
+    return offset;
 }
 
 
@@ -483,7 +480,7 @@ proto_register_bthci_acl(void)
 
     /* Register the protocol name and description */
     proto_bthci_acl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
-    register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
+    new_register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_acl, hf, array_length(hf));

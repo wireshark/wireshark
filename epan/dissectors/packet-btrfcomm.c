@@ -540,18 +540,13 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mc
     return offset;
 }
 
-/* This dissector is only called from L2CAP.
- * This dissector REQUIRES that pinfo->private_data points to a valid structure
- * since it needs this (future) to track which flow a fragment belongs to
- * in order to do reassembly of ppp streams.
- */
-static void
-dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item          *ti;
     proto_tree          *rfcomm_tree;
-    int                  offset     = 0;
-    int                  fcs_offset;
+    gint                 offset     = 0;
+    gint                 fcs_offset;
     guint8               dlci, cr_flag, ea_flag;
     guint8               frame_type, pf_flag;
     guint16              frame_len;
@@ -562,8 +557,6 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
-
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -577,6 +570,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pinfo->p2p_dir);
             break;
     }
+
+    l2cap_data = (btl2cap_data_t *) data;
+    DISSECTOR_ASSERT(l2cap_data);
 
     /* flags and dlci */
     offset = dissect_btrfcomm_address(tvb, offset, rfcomm_tree, &ea_flag, &cr_flag, &dlci);
@@ -694,7 +690,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (length > (guint32) tvb_length_remaining(tvb, offset)) {
             expert_add_info_format(pinfo, ctrl_tree, &ei_btrfcomm_mcc_length_bad, "Huge MCC length: %u", length);
-            return;
+            return offset;
         }
 
         switch(mcc_type) {
@@ -756,15 +752,14 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         rfcomm_data->dlci               = dlci;
         rfcomm_data->remote_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
         rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;
-        pinfo->private_data = rfcomm_data;
 
-        if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
-                next_tvb, pinfo, tree)) {
-            if (!dissector_try_uint(rfcomm_service_dissector_table, service_info->uuid.bt_uuid,
-                        next_tvb, pinfo, tree)) {
+        if (!dissector_try_uint_new(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
+                next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
+            if (!dissector_try_uint_new(rfcomm_service_dissector_table, service_info->uuid.bt_uuid,
+                        next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
                 decode_by_dissector = find_proto_by_channel(dlci >> 1);
                 if (rfcomm_channels_enabled && decode_by_dissector) {
-                    call_dissector(decode_by_dissector, next_tvb, pinfo, tree);
+                    call_dissector_with_data(decode_by_dissector, next_tvb, pinfo, tree, rfcomm_data);
                 } else {
                     /* unknown service, let the data dissector handle it */
                     call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -774,6 +769,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
 }
 
 void
@@ -1016,7 +1014,7 @@ proto_register_btrfcomm(void)
 
     /* Register the protocol name and description */
     proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "BT RFCOMM", "btrfcomm");
-    register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
+    new_register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btrfcomm, hf, array_length(hf));
@@ -1086,8 +1084,8 @@ proto_reg_handoff_btrfcomm(void)
 }
 
 /* Bluetooth Dial-Up Networking (DUN) profile dissection */
-static void
-dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *st;
@@ -1127,6 +1125,8 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle, tvb, pinfo, tree);
         }
     }
+
+    return length;
 }
 
 void
@@ -1146,7 +1146,7 @@ proto_register_btdun(void)
     };
 
     proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BT DUN", "btdun");
-    register_dissector("btdun", dissect_btdun, proto_btdun);
+    new_register_dissector("btdun", dissect_btdun, proto_btdun);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btdun, hf, array_length(hf));
@@ -1167,8 +1167,8 @@ proto_reg_handoff_btdun(void)
 }
 
 /* Bluetooth Serial Port profile (SPP) dissection */
-static void
-dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *st;
@@ -1194,6 +1194,8 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     proto_tree_add_item(st, hf_spp_data, tvb, 0, -1, ENC_NA);
+
+    return tvb_length(tvb);
 }
 
 void
@@ -1213,7 +1215,7 @@ proto_register_btspp(void)
     };
 
     proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BT SPP", "btspp");
-    register_dissector("btspp", dissect_btspp, proto_btspp);
+    new_register_dissector("btspp", dissect_btspp, proto_btspp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btspp, hf, array_length(hf));
@@ -1233,8 +1235,8 @@ proto_reg_handoff_btspp(void)
 
 
 /* Bluetooth Global Navigation Satellite System profile (GNSS) dissection */
-static void
-dissect_btgnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_btgnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *main_item;
     proto_tree *main_tree;
@@ -1250,6 +1252,8 @@ dissect_btgnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* GNSS using NMEA-0183 protocol, but it is not available */
     proto_tree_add_item(main_tree, hf_gnss_data, tvb, 0, -1, ENC_NA | ENC_ASCII);
+
+    return tvb_length(tvb);
 }
 
 void
@@ -1268,7 +1272,7 @@ proto_register_btgnss(void)
     };
 
     proto_btgnss = proto_register_protocol("Bluetooth GNSS Profile", "BT GNSS", "btgnss");
-    register_dissector("btgnss", dissect_btgnss, proto_btgnss);
+    new_register_dissector("btgnss", dissect_btgnss, proto_btgnss);
 
     proto_register_field_array(proto_btgnss, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

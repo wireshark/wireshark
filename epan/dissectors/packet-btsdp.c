@@ -1013,9 +1013,8 @@ print_uuid(uuid_t *uuid)
 
 
 static wmem_array_t *
-get_uuids(packet_info *pinfo, guint32 record_handle)
+get_uuids(packet_info *pinfo, guint32 record_handle, btl2cap_data_t *l2cap_data)
 {
-    btl2cap_data_t           *l2cap_data;
     record_handle_service_t  *record_handle_service;
     wmem_tree_key_t           key[7];
     guint32                   k_interface_id;
@@ -1029,8 +1028,6 @@ get_uuids(packet_info *pinfo, guint32 record_handle)
     guint32                   chandle;
     guint32                   psm;
     guint32                   frame_number;
-
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     interface_id = l2cap_data->interface_id;
     adapter_id   = l2cap_data->adapter_id;
@@ -1318,10 +1315,10 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         gint offset, guint tid, gboolean is_request,
         gint attribute_list_byte_offset, gint attribute_list_byte_count,
         guint32 pdu_type, tvbuff_t **new_tvb, gboolean *is_first,
-        gboolean *is_continued, wmem_array_t **uuid_array, guint32 *record_handle)
+        gboolean *is_continued, wmem_array_t **uuid_array,
+        guint32 *record_handle, btl2cap_data_t *l2cap_data)
 {
     guint              length;
-    btl2cap_data_t    *l2cap_data;
     tid_request_t     *tid_request;
     continuation_state_data_t *continuation_state_data;
     wmem_tree_key_t    key[12];
@@ -1340,7 +1337,6 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     guint32            frame_number;
     guint32           *continuation_state_array;
 
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
     if (new_tvb) *new_tvb = NULL;
 
     interface_id = l2cap_data->interface_id;
@@ -3653,7 +3649,7 @@ dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint
 dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, uuid_t *service_uuid)
+        packet_info *pinfo, uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
 {
     proto_item      *list_item;
     proto_tree      *list_tree;
@@ -3679,12 +3675,9 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     guint32          k_service_channel;
     guint32          k_frame_number;
     service_info_t  *service_info;
-    btl2cap_data_t  *l2cap_data;
     wmem_array_t    *uuid_array;
 
     uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(uuid_t));
-
-    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     offset = get_type_length(tvb, offset, &len);
     memset(&uuid, 0, sizeof(uuid_t));
@@ -3804,7 +3797,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
 static gint
 dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
         gint offset, packet_info *pinfo, gint attribute_list_byte_count,
-        uuid_t *service_uuid)
+        uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
 {
     proto_item   *lists_item;
     proto_tree   *lists_tree;
@@ -3828,7 +3821,7 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
         number_of_attributes += 1;
 
         offset = dissect_sdp_service_attribute_list(next_tree, tvb, offset,
-                pinfo, service_uuid);
+                pinfo, service_uuid, l2cap_data);
     }
 
     proto_item_append_text(lists_tree, " [count = %2u]", number_of_attributes);
@@ -3839,7 +3832,7 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, guint16 tid)
+        packet_info *pinfo, guint16 tid, btl2cap_data_t *l2cap_data)
 {
     gint         start_offset;
     gint         bytes_to_go;
@@ -3889,7 +3882,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     offset += 2;
 
     reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
-            0, 0, PDU_TYPE_SERVICE_SEARCH, NULL, NULL, NULL, &uuid_array, NULL);
+            0, 0, PDU_TYPE_SERVICE_SEARCH, NULL, NULL, NULL, &uuid_array, NULL, l2cap_data);
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset);
 
@@ -3899,7 +3892,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
 static gint
 dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
+        gint offset, packet_info *pinfo, guint16 tid, btl2cap_data_t *l2cap_data)
 {
     proto_tree   *st;
     proto_item   *ti;
@@ -3941,13 +3934,12 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
 
     reassemble_continuation_state(tvb, pinfo, offset, tid, FALSE,
             offset - current_count * 4, current_count * 4, PDU_TYPE_SERVICE_SEARCH,
-            &new_tvb, &is_first, &is_continued, &uuid_array, NULL);
+            &new_tvb, &is_first, &is_continued, &uuid_array, NULL, l2cap_data);
 
     if (is_continued)
         col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
 
     if (!pinfo->fd->flags.visited) {
-        btl2cap_data_t           *l2cap_data;
         record_handle_service_t  *record_handle_service;
         wmem_tree_key_t           key[7];
         guint32                   k_interface_id;
@@ -3962,8 +3954,6 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
         guint32                   psm;
         guint32                   record_handle;
         guint32                   frame_number;
-
-        l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
         interface_id = l2cap_data->interface_id;
         adapter_id   = l2cap_data->adapter_id;
@@ -4039,7 +4029,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
+        gint offset, packet_info *pinfo, guint16 tid, btl2cap_data_t *l2cap_data)
 {
     guint32        record_handle;
     wmem_array_t  *uuid_array;
@@ -4053,13 +4043,13 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    uuid_array = get_uuids(pinfo, record_handle);
+    uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
     uuid = get_most_specified_uuid(uuid_array);
 
     offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
 
     reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
-            0, 0, PDU_TYPE_SERVICE_ATTRIBUTE, NULL, NULL, NULL, NULL, &record_handle);
+            0, 0, PDU_TYPE_SERVICE_ATTRIBUTE, NULL, NULL, NULL, NULL, &record_handle, l2cap_data);
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset);
 
@@ -4069,7 +4059,7 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
+        gint offset, packet_info *pinfo, guint16 tid, btl2cap_data_t *l2cap_data)
 {
     gint           attribute_list_byte_count;
     gboolean       is_first;
@@ -4086,19 +4076,19 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
             offset + attribute_list_byte_count, tid, FALSE,
             offset, attribute_list_byte_count,
             PDU_TYPE_SERVICE_ATTRIBUTE, &new_tvb, &is_first,
-            &is_continued, NULL, &record_handle);
+            &is_continued, NULL, &record_handle, l2cap_data);
 
     if (!is_continued) {
         wmem_array_t  *uuid_array;
 
-        uuid_array = get_uuids(pinfo, record_handle);
+        uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
         uuid = get_most_specified_uuid(uuid_array);
     } else {
         memset(&uuid, 0, sizeof(uuid_t));
     }
 
     if (is_first && !is_continued) {
-        dissect_sdp_service_attribute_list(tree, tvb, offset, pinfo, &uuid);
+        dissect_sdp_service_attribute_list(tree, tvb, offset, pinfo, &uuid, l2cap_data);
     } else {
         proto_tree_add_item(tree, hf_fragment, tvb, offset,
                 attribute_list_byte_count, ENC_NA);
@@ -4123,7 +4113,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
         if (!is_continued) {
             dissect_sdp_service_attribute_list(reassembled_tree, new_tvb, 0,
-                pinfo, &uuid);
+                pinfo, &uuid, l2cap_data);
         }
     }
 
@@ -4133,7 +4123,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
+        gint offset, packet_info *pinfo, guint16 tid, btl2cap_data_t *l2cap_data)
 {
     proto_tree     *ptree;
     proto_item     *pitem;
@@ -4190,7 +4180,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
 
     reassemble_continuation_state(tvb, pinfo, offset, tid, TRUE,
-            0, 0, PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, NULL, NULL, NULL, &uuid_array, NULL);
+            0, 0, PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, NULL, NULL, NULL, &uuid_array, NULL, l2cap_data);
 
     offset = dissect_continuation_state(tvb, tree, pinfo, offset);
 
@@ -4200,7 +4190,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, packet_info *pinfo, guint16 tid)
+        gint offset, packet_info *pinfo, guint16 tid, btl2cap_data_t *l2cap_data)
 {
     gint           attribute_list_byte_count;
     gboolean       is_first;
@@ -4217,13 +4207,13 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
             offset + attribute_list_byte_count, tid, FALSE,
             offset, attribute_list_byte_count,
             PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, &new_tvb, &is_first,
-            &is_continued, &uuid_array, NULL);
+            &is_continued, &uuid_array, NULL, l2cap_data);
 
     uuid = get_most_specified_uuid(uuid_array);;
 
     if (is_first && !is_continued) {
         dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo,
-                attribute_list_byte_count, &uuid);
+                attribute_list_byte_count, &uuid, l2cap_data);
     } else {
         proto_tree_add_item(tree, hf_fragment, tvb, offset,
                 attribute_list_byte_count, ENC_NA);
@@ -4248,7 +4238,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
         if (!is_continued)
             dissect_sdp_service_attribute_list_array(reassembled_tree, new_tvb, 0,
-                    pinfo, tvb_length(new_tvb), &uuid);
+                    pinfo, tvb_length(new_tvb), &uuid, l2cap_data);
     }
 
     return offset;
@@ -4256,18 +4246,22 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
 
 static gint
-dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item    *ti;
     proto_tree    *st;
     gint          offset = 0;
     guint8        pdu_id;
     guint16       tid;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
+    btl2cap_data_t   *l2cap_data;
 
     ti = proto_tree_add_item(tree, proto_btsdp, tvb, 0, -1, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
+
+    l2cap_data = (btl2cap_data_t *) data;
+    DISSECTOR_ASSERT(l2cap_data);
 
     tap_queue_packet(btsdp_tap, NULL, (void *) &sdp_package);
 
@@ -4303,22 +4297,22 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             offset = dissect_sdp_error_response(st, tvb, offset);
             break;
         case 0x02:
-            offset = dissect_sdp_service_search_request(st, tvb, offset, pinfo, tid);
+            offset = dissect_sdp_service_search_request(st, tvb, offset, pinfo, tid, l2cap_data);
             break;
         case 0x03:
-            offset = dissect_sdp_service_search_response(st, tvb, offset, pinfo, tid);
+            offset = dissect_sdp_service_search_response(st, tvb, offset, pinfo, tid, l2cap_data);
             break;
         case 0x04:
-            offset = dissect_sdp_service_attribute_request(st, tvb, offset, pinfo, tid);
+            offset = dissect_sdp_service_attribute_request(st, tvb, offset, pinfo, tid, l2cap_data);
             break;
         case 0x05:
-            offset = dissect_sdp_service_attribute_response(st, tvb, offset, pinfo, tid);
+            offset = dissect_sdp_service_attribute_response(st, tvb, offset, pinfo, tid, l2cap_data);
             break;
         case 0x06:
-            offset = dissect_sdp_service_search_attribute_request(st, tvb, offset, pinfo, tid);
+            offset = dissect_sdp_service_search_attribute_request(st, tvb, offset, pinfo, tid, l2cap_data);
             break;
         case 0x07:
-            offset = dissect_sdp_service_search_attribute_response(st, tvb, offset, pinfo, tid);
+            offset = dissect_sdp_service_search_attribute_response(st, tvb, offset, pinfo, tid, l2cap_data);
             break;
     }
 
