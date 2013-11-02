@@ -124,7 +124,7 @@ checkRunningSession:
 
 isRunning:
     ; You'd better go catch it.
-    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PROGRAM_NAME} or one is associated programs is running.$\r$\nPlease close it first." /SD IDCANCEL IDRETRY continueChecking
+    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PROGRAM_NAME} or one of its associated programs is running.$\r$\nPlease close it first." /SD IDCANCEL IDRETRY continueChecking
     Quit
 
 notRunning:
