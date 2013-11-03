@@ -465,15 +465,6 @@ typedef struct _sep_data_t {
     gint   content_protection_type;
 } sep_data_t;
 
-void proto_register_btavdtp(void);
-void proto_reg_handoff_btavdtp(void);
-void proto_register_bta2dp(void);
-void proto_reg_handoff_bta2dp(void);
-void proto_register_bta2dp_content_protection_header_scms_t(void);
-void proto_register_btvdp(void);
-void proto_reg_handoff_btvdp(void);
-void proto_register_btvdp_content_protection_header_scms_t(void);
-
 static const char *
 get_sep_type(guint32 frame_number, guint seid)
 {
