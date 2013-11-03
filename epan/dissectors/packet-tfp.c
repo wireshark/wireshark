@@ -220,7 +220,7 @@ dissect_tfp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					 bit_count_tfp_future_use,
 					 ENC_LITTLE_ENDIAN);
 
-		bit_offset += bit_count_tfp_future_use;
+		/*bit_offset += bit_count_tfp_future_use;*/
 
 		if ((tvb_reported_length(tvb)) > 8) {
 
