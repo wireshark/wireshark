@@ -1278,7 +1278,7 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     } else if (length > 17) {
         proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_large, tvb, offset, -1);
     } else if (length == 1 && tvb_get_guint8(tvb, offset) == 0x00) {
-        cont_item = proto_tree_add_none_format(tree, hf_continuation_state, tvb,
+        proto_tree_add_none_format(tree, hf_continuation_state, tvb,
                 offset, -1, "Continuation State: no (00)");
     } else {
         proto_item  *cont_tree;
