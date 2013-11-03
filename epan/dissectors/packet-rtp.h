@@ -27,13 +27,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "epan/packet.h"
 #include "ws_symbol_export.h"
+
+#include "packet-btavdtp.h"
 
 struct _rtp_info {
 	unsigned int  info_version;
 	gboolean      info_padding_set;
 	gboolean      info_marker_set;
-	gboolean	  info_is_video;
+	gboolean      info_is_video;
 	unsigned int  info_payload_type;
 	unsigned int  info_padding_count;
 	guint16       info_seq_num;
@@ -44,10 +47,10 @@ struct _rtp_info {
 	guint         info_payload_offset; /* start of payload relative to info_data */
 	guint         info_payload_len;    /* length of payload (incl padding) */
 	gboolean      info_is_srtp;
-	guint32		  info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
+	guint32       info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
 	const guint8* info_data;           /* pointer to raw rtp data */
-	gchar		  *info_payload_type_str;
-	gint		  info_payload_rate;
+	const gchar   *info_payload_type_str;
+	gint          info_payload_rate;
 	/*
 	* info_data: pointer to raw rtp data = header + payload incl. padding.
 	* That should be safe because the "epan_dissect_t" constructed for the packet
@@ -116,6 +119,8 @@ struct _rtp_conversation_info
 	                                               * to the rtp dissector
 												   */
 	struct srtp_info *srtp_info;    /* SRTP context */
+	bta2dp_codec_info_t *bta2dp_info;
+	btvdp_codec_info_t *btvdp_info;
 };
 
 typedef struct {
@@ -143,6 +148,12 @@ void srtp_add_address(packet_info *pinfo,
 					 gboolean is_video,
                      GHashTable *rtp_dyn_payload,
                      struct srtp_info *srtp_info);
+
+/* Add an Bluetooth conversation with the given details */
+void
+bluetooth_add_address(packet_info *pinfo, address *addr,
+         const gchar *setup_method, guint32 setup_frame_number,
+         gboolean is_video, void *data);
 
 /* Free and destroy the dyn_payload hash table */
 WS_DLL_PUBLIC

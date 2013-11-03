@@ -110,6 +110,8 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     hci_data->localhost_bdaddr = localhost_bdaddr;
     hci_data->localhost_name = localhost_name;
 
+    pinfo->ptype = PT_BLUETOOTH;
+
     ti = proto_tree_add_uint(hci_h4_tree, hf_hci_h4_direction, tvb, 0, 0, pinfo->p2p_dir);
     PROTO_ITEM_SET_GENERATED(ti);
 

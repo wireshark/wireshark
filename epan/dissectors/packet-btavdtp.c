@@ -34,6 +34,7 @@
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 #include "packet-btavdtp.h"
+#include "packet-rtp.h"
 
 #define AVDTP_MESSAGE_TYPE_MASK  0x03
 #define AVDTP_PACKET_TYPE_MASK   0x0C
@@ -250,20 +251,57 @@ static wmem_tree_t *sep_open          = NULL;
 static wmem_tree_t *cid_to_type_table = NULL;
 
 /* A2DP declarations */
-static int proto_bta2dp                        = -1;
-static gint ett_bta2dp                         = -1;
+static gint proto_bta2dp                        = -1;
+static gint ett_bta2dp                          = -1;
+static gint proto_bta2dp_cph_scms_t             = -1;
+static gint ett_bta2dp_cph_scms_t               = -1;
+
+static int hf_bta2dp_codec                              = -1;
+static int hf_bta2dp_content_protection                 = -1;
+static int hf_bta2dp_l_bit                              = -1;
+static int hf_bta2dp_cp_bit                             = -1;
+static int hf_bta2dp_reserved                           = -1;
 
 static dissector_handle_t sbc_handle;
 static dissector_handle_t mp2t_handle;
 static dissector_handle_t mpeg_audio_handle;
 static dissector_handle_t atrac_handle;
 
+static gboolean  force_a2dp_scms_t = FALSE;
+static gint      force_a2dp_codec = CODEC_SBC;
+
+static const enum_val_t pref_a2dp_codec[] = {
+    { "sbc",         "SBC",          CODEC_SBC },
+    { "mp2t",        "MPEG12 AUDIO", CODEC_MPEG12_AUDIO },
+    { "mpeg-audio",  "MPEG24 AAC",   CODEC_MPEG24_AAC },
+/* XXX: Not supported in Wireshark yet  { "atrac",      "ATRAC",                                  CODEC_ATRAC },*/
+    { NULL, NULL, 0 }
+};
+
+
 /* VDP declarations */
-static int proto_btvdp                         = -1;
-static gint ett_btvdp                          = -1;
+static gint proto_btvdp                         = -1;
+static gint ett_btvdp                           = -1;
+static gint proto_btvdp_cph_scms_t              = -1;
+static gint ett_btvdp_cph_scms_t                = -1;
+
+static int hf_btvdp_codec                              = -1;
+static int hf_btvdp_content_protection                 = -1;
+static int hf_btvdp_l_bit                              = -1;
+static int hf_btvdp_cp_bit                             = -1;
+static int hf_btvdp_reserved                           = -1;
 
 static dissector_handle_t h263_handle;
 static dissector_handle_t mp4v_es_handle;
+
+static gboolean  force_vdp_scms_t = FALSE;
+static gint      force_vdp_codec = CODEC_H263_BASELINE;
+
+static const enum_val_t pref_vdp_codec[] = {
+    { "h263",    "H263",      CODEC_H263_BASELINE },
+    { "mp4v-es", "MPEG4 VSP", CODEC_MPEG4_VSP },
+    { NULL, NULL, 0 }
+};
 
 
 static const value_string message_type_vals[] = {
@@ -392,6 +430,12 @@ static const value_string media_codec_video_type_vals[] = {
     { 0, NULL }
 };
 
+static const value_string content_protection_type_vals[] = {
+    { 0x01,  "DTCP" },
+    { 0x02,  "SCMS-T" },
+    { 0, NULL }
+};
+
 extern value_string_ext bthci_evt_comp_id_ext;
 
 enum sep_state {
@@ -405,6 +449,7 @@ typedef struct _sep_entry_t {
     guint8 type;
     guint8 media_type;
     gint   codec;
+    gint   content_protection_type;
     enum sep_state state;
 } sep_entry_t;
 
@@ -414,12 +459,20 @@ typedef struct _cid_type_data_t {
     sep_entry_t  *sep;
 } cid_type_data_t;
 
+
+typedef struct _sep_data_t {
+    gint   codec;
+    gint   content_protection_type;
+} sep_data_t;
+
 void proto_register_btavdtp(void);
 void proto_reg_handoff_btavdtp(void);
 void proto_register_bta2dp(void);
 void proto_reg_handoff_bta2dp(void);
+void proto_register_bta2dp_content_protection_header_scms_t(void);
 void proto_register_btvdp(void);
 void proto_reg_handoff_btvdp(void);
+void proto_register_btvdp_content_protection_header_scms_t(void);
 
 static const char *
 get_sep_type(guint32 frame_number, guint seid)
@@ -527,6 +580,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
             sep_data->seid = seid;
             sep_data->type = type;
             sep_data->codec = -1;
+            sep_data->content_protection_type = 0;
             sep_data->media_type = media_type;
             if (in_use) {
                 sep_data->state = SEP_STATE_IN_USE;
@@ -700,7 +754,8 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 
 static gint
 dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
-                                         proto_tree *tree, gint offset, gint *codec)
+        proto_tree *tree, gint offset, gint *codec,
+        gint *content_protection_type)
 {
     proto_item  *pitem                                        = NULL;
     proto_item  *ptree                                        = NULL;
@@ -805,13 +860,19 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 losc = 0;
                 break;
             case SERVICE_CATEGORY_CONTENT_PROTECTION:
+                /* ENC_LITTLE_ENDIAN is correct here... */
                 proto_tree_add_item(service_tree, hf_btavdtp_content_protection_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                if (content_protection_type) {
+                    *content_protection_type = tvb_get_letohs(tvb, offset);
+                }
                 offset += 2;
                 losc -= 2;
 
-                proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
-                offset += losc;
-                losc = 0;
+                if (losc > 0) {
+                    proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
+                    offset += losc;
+                    losc = 0;
+                }
                 break;
             case SERVICE_CATEGORY_HEADER_COMPRESSION:
                 proto_tree_add_item(service_tree, hf_btavdtp_header_compression_backch,   tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -950,7 +1011,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tvbuff_t         *next_tvb;
     guint32          seid;
     guint32          t_seid;
-    gint             codec;
+    gint             codec = -1;
+    gint             content_protection_type = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVDTP");
 
@@ -1047,11 +1109,21 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         get_sep_type(pinfo->fd->num, cid_type_data->sep->seid));
 
                 if (cid_type_data->sep->media_type == MEDIA_TYPE_AUDIO) {
+                    sep_data_t  sep_data;
+
+                    sep_data.codec = cid_type_data->sep->codec;
+                    sep_data.content_protection_type = cid_type_data->sep->content_protection_type;
+
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
-                    call_dissector_with_data(bta2dp_handle, next_tvb, pinfo, tree, &cid_type_data->sep->codec);
+                    call_dissector_with_data(bta2dp_handle, next_tvb, pinfo, tree, &sep_data);
                 } else if (cid_type_data->sep->media_type == MEDIA_TYPE_VIDEO) {
+                    sep_data_t  sep_data;
+
+                    sep_data.codec = cid_type_data->sep->codec;
+                    sep_data.content_protection_type = cid_type_data->sep->content_protection_type;
+
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
-                    call_dissector_with_data(btvdp_handle, next_tvb, pinfo, tree, &cid_type_data->sep->codec);
+                    call_dissector_with_data(btvdp_handle, next_tvb, pinfo, tree, &sep_data);
                 } else {
                     ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
                     btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
@@ -1129,13 +1201,13 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             }
-            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL);
+            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL);
             break;
         case SIGNAL_ID_SET_CONFIGURATION:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, &seid);
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_INT, 0, NULL);
-                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec);
+                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
 
                 t_frame_number = pinfo->fd->num;
                 t_seid = seid;
@@ -1150,6 +1222,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
                 if (sep && sep->seid == seid) {
                     sep->codec = codec;
+                    sep->content_protection_type = content_protection_type;
                 }
 
                 break;
@@ -1170,12 +1243,12 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             }
-            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL);
+            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL);
             break;
         case SIGNAL_ID_RECONFIGURE:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, &seid);
-                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec);
+                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
 
                 t_frame_number = pinfo->fd->num;
                 t_seid = seid;
@@ -1190,6 +1263,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
                 if (sep && sep->seid == seid) {
                     sep->codec = codec;
+                    sep->content_protection_type = content_protection_type;
                 }
 
                 break;
@@ -1504,7 +1578,7 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_content_protection_type,
             { "Type",                           "btavdtp.content_protection_type",
-            FT_UINT16, BASE_HEX, NULL, 0x0000,
+            FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
             NULL, HFILL }
         },
         { &hf_btavdtp_media_codec_media_type,
@@ -2013,14 +2087,28 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item          *ti;
     proto_tree          *bta2dp_tree;
     proto_item          *pitem;
-    gint                offset = 0;
-    gint                codec = -1;
-    void                *save_private_data;
-    dissector_handle_t  codec_dissector = NULL;
-    btavdtp_data_t      *btavdtp_data;
+    gint                 offset = 0;
+    dissector_handle_t   codec_dissector = NULL;
+    bta2dp_codec_info_t  bta2dp_codec_info;
+    sep_data_t           sep_data;
 
-    if (data)
-        codec = *((gint *) data);
+    sep_data.codec = CODEC_SBC;
+    sep_data.content_protection_type = 0;
+
+    if (force_a2dp_scms_t || force_a2dp_codec) {
+        if (force_a2dp_scms_t)
+            sep_data.content_protection_type = 2;
+        else if (data)
+            sep_data.content_protection_type = ((sep_data_t *) data)->content_protection_type;
+
+        if (force_a2dp_codec)
+            sep_data.codec = force_a2dp_codec;
+        else if (data)
+            sep_data.codec = ((sep_data_t *) data)->codec;
+    } else {
+        if (data)
+            sep_data = *((sep_data_t *) data);
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "A2DP");
 
@@ -2046,15 +2134,19 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     ti = proto_tree_add_item(tree, proto_bta2dp, tvb, offset, -1, ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, "Audio stream - %s",
-            val_to_str_const(codec, media_codec_audio_type_vals, "unknown codec"));
+            val_to_str_const(sep_data.codec, media_codec_audio_type_vals, "unknown codec"));
 
     bta2dp_tree = proto_item_add_subtree(ti, ett_bta2dp);
 
-    pitem = proto_tree_add_text(bta2dp_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Codec: %s",
-            val_to_str_const(codec, media_codec_audio_type_vals, "unknown codec"));
+    pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_codec, tvb, offset, 0, sep_data.codec);
     PROTO_ITEM_SET_GENERATED(pitem);
 
-    switch (codec) {
+    if (sep_data.content_protection_type > 0) {
+        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_content_protection, tvb, offset, 0, sep_data.content_protection_type);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    switch (sep_data.codec) {
         case CODEC_SBC:
             codec_dissector = sbc_handle;
             break;
@@ -2069,17 +2161,12 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
     }
 
-    save_private_data = pinfo->private_data;
+    bta2dp_codec_info.codec_dissector = codec_dissector;
+    bta2dp_codec_info.content_protection_type = sep_data.content_protection_type;
 
-    btavdtp_data = wmem_new(wmem_packet_scope(), btavdtp_data_t);
-    btavdtp_data->codec_dissector = codec_dissector;
-
-    pinfo->private_data = btavdtp_data;
-
+    bluetooth_add_address(pinfo, &pinfo->net_dst, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
     offset += tvb_length_remaining(tvb, offset);
-
-    pinfo->private_data = save_private_data;
 
     return offset;
 }
@@ -2088,7 +2175,7 @@ void
 proto_register_bta2dp(void)
 {
     module_t *module;
-#if 0
+
     static hf_register_info hf[] = {
         { &hf_bta2dp_codec,
             { "Codec",                           "bta2dp.codec",
@@ -2101,16 +2188,13 @@ proto_register_bta2dp(void)
             NULL, HFILL }
         }
     };
-#endif
 
     static gint *ett[] = {
         &ett_bta2dp
     };
 
     proto_bta2dp = proto_register_protocol("Bluetooth A2DP Profile", "BT A2DP", "bta2dp");
-#if 0
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
-#endif
     proto_register_subtree_array(ett, array_length(ett));
 
     new_register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
@@ -2119,6 +2203,16 @@ proto_register_bta2dp(void)
     prefs_register_static_text_preference(module, "a2dp.version",
             "Bluetooth Profile A2DP version: 1.3",
             "Version of profile supported by this dissector.");
+
+    prefs_register_bool_preference(module, "a2dp.content_protection.scms_t",
+            "Force SCMS-T decoding",
+            "Force decoding stream as A2DP with Content Protection SCMS-T ",
+            &force_a2dp_scms_t);
+
+    prefs_register_enum_preference(module, "a2dp.codec",
+            "Force codec",
+            "Force decoding stream as A2DP with specified codec",
+            &force_a2dp_codec, pref_a2dp_codec, FALSE);
 }
 
 void
@@ -2139,21 +2233,34 @@ proto_reg_handoff_bta2dp(void)
     dissector_add_handle("btl2cap.cid", bta2dp_handle);
 }
 
-
 static gint
 dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item          *ti;
     proto_tree          *btvdp_tree;
     proto_item          *pitem;
-    gint                offset = 0;
-    gint                codec = -1;
-    void                *save_private_data;
-    dissector_handle_t  codec_dissector = NULL;
-    btavdtp_data_t      *btavdtp_data;
+    gint                 offset = 0;
+    dissector_handle_t   codec_dissector = NULL;
+    btvdp_codec_info_t   btvdp_codec_info;
+    sep_data_t           sep_data;
 
-    if (data)
-        codec = *((gint *) data);
+    sep_data.codec = CODEC_H263_BASELINE;
+    sep_data.content_protection_type = 0;
+
+    if (force_vdp_scms_t || force_vdp_codec) {
+        if (force_vdp_scms_t)
+            sep_data.content_protection_type = 2;
+        else if (data)
+            sep_data.content_protection_type = ((sep_data_t *) data)->content_protection_type;
+
+        if (force_vdp_codec)
+            sep_data.codec = force_vdp_codec;
+        else if (data)
+            sep_data.codec = ((sep_data_t *) data)->codec;
+    } else {
+        if (data)
+            sep_data = *((sep_data_t *) data);
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VDP");
 
@@ -2179,15 +2286,19 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     ti = proto_tree_add_item(tree, proto_btvdp, tvb, offset, -1, ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, "Video stream - %s",
-            val_to_str_const(codec, media_codec_video_type_vals, "unknown codec"));
+            val_to_str_const(sep_data.codec, media_codec_video_type_vals, "unknown codec"));
 
     btvdp_tree = proto_item_add_subtree(ti, ett_btvdp);
 
-    pitem = proto_tree_add_text(btvdp_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Codec: %s",
-            val_to_str_const(codec, media_codec_video_type_vals, "unknown codec"));
+    pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_codec, tvb, offset, 0, sep_data.codec);
     PROTO_ITEM_SET_GENERATED(pitem);
 
-    switch (codec) {
+    if (sep_data.content_protection_type > 0) {
+        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_content_protection, tvb, offset, 0, sep_data.content_protection_type);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    switch (sep_data.codec) {
         case CODEC_H263_BASELINE:
         case CODEC_H263_PROFILE_3:
         case CODEC_H263_PROFILE_8:
@@ -2198,17 +2309,12 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
     }
 
-    save_private_data = pinfo->private_data;
+    btvdp_codec_info.codec_dissector = codec_dissector;
+    btvdp_codec_info.content_protection_type = sep_data.content_protection_type;
 
-    btavdtp_data = wmem_new(wmem_packet_scope(), btavdtp_data_t);
-    btavdtp_data->codec_dissector = codec_dissector;
-
-    pinfo->private_data = btavdtp_data;
-
+    bluetooth_add_address(pinfo, &pinfo->net_dst, "BT VDP", pinfo->fd->num, TRUE, &btvdp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
     offset += tvb_length_remaining(tvb, offset);
-
-    pinfo->private_data = save_private_data;
 
     return offset;
 }
@@ -2219,7 +2325,6 @@ proto_register_btvdp(void)
     module_t *module;
     expert_module_t* expert_btavdtp;
 
-#if 0
     static hf_register_info hf[] = {
         { &hf_btvdp_codec,
             { "Codec",                           "btvdp.codec",
@@ -2232,7 +2337,6 @@ proto_register_btvdp(void)
             NULL, HFILL }
         }
     };
-#endif
 
     static gint *ett[] = {
         &ett_btvdp
@@ -2246,9 +2350,7 @@ proto_register_btvdp(void)
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
     new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
-#if 0
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
-#endif
     proto_register_subtree_array(ett, array_length(ett));
     expert_btavdtp = expert_register_protocol(proto_btvdp);
     expert_register_field_array(expert_btavdtp, ei, array_length(ei));
@@ -2257,6 +2359,16 @@ proto_register_btvdp(void)
     prefs_register_static_text_preference(module, "vdp.version",
             "Bluetooth Profile VDP version: 1.1",
             "Version of profile supported by this dissector.");
+
+    prefs_register_bool_preference(module, "vdp.content_protection.scms_t",
+            "Force SCMS-T decoding",
+            "Force decoding stream as VDP with Content Protection SCMS-T ",
+            &force_vdp_scms_t);
+
+    prefs_register_enum_preference(module, "vdp.codec",
+            "Force codec",
+            "Force decoding stream as VDP with specified codec",
+            &force_vdp_codec, pref_vdp_codec, FALSE);
 }
 
 void
@@ -2274,6 +2386,107 @@ proto_reg_handoff_btvdp(void)
     dissector_add_handle("btl2cap.cid", btvdp_handle);
 }
 
+
+
+static gint
+dissect_a2dp_cp_scms_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item  *main_item;
+    proto_tree  *main_tree;
+    gint         offset = 0;
+
+    main_item = proto_tree_add_item(tree, proto_bta2dp_cph_scms_t, tvb, offset, 1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_bta2dp_cph_scms_t);
+
+    proto_tree_add_item(main_tree, hf_bta2dp_reserved , tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(main_tree, hf_bta2dp_cp_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(main_tree, hf_bta2dp_l_bit , tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+void
+proto_register_bta2dp_content_protection_header_scms_t(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_bta2dp_l_bit,
+            { "L-bit",                           "bta2dp.content_protection_header.scms_t.l_bit",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_cp_bit,
+            { "Cp-bit",                          "bta2dp.content_protection_header.scms_t.cp_bit",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_reserved,
+            { "Reserved",                        "bta2dp.content_protection_header.scms_t.reserved",
+            FT_BOOLEAN, 8, NULL, 0xFC,
+            NULL, HFILL }
+        }
+    };
+
+    static gint *ett[] = {
+        &ett_bta2dp_cph_scms_t
+    };
+
+    proto_bta2dp_cph_scms_t = proto_register_protocol("Bluetooth A2DP Content Protection Header SCMS-T", "BT A2DP Content Protection Header SCMS-T", "bta2dp_content_protection_header_scms_t");
+    proto_register_field_array(proto_bta2dp_cph_scms_t, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    new_register_dissector("bta2dp_content_protection_header_scms_t", dissect_a2dp_cp_scms_t, proto_bta2dp_cph_scms_t);
+}
+
+static gint
+dissect_vdp_cp_scms_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item  *main_item;
+    proto_tree  *main_tree;
+    gint         offset = 0;
+
+    main_item = proto_tree_add_item(tree, proto_btvdp_cph_scms_t, tvb, offset, 1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btvdp_cph_scms_t);
+
+    proto_tree_add_item(main_tree, hf_btvdp_reserved , tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(main_tree, hf_btvdp_cp_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(main_tree, hf_btvdp_l_bit , tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+void
+proto_register_btvdp_content_protection_header_scms_t(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_btvdp_l_bit,
+            { "L-bit",                           "btvdp.content_protection_header.scms_t.l_bit",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_cp_bit,
+            { "Cp-bit",                          "btvdp.content_protection_header.scms_t.cp_bit",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_reserved,
+            { "Reserved",                        "btvdp.content_protection_header.scms_t.reserved",
+            FT_BOOLEAN, 8, NULL, 0xFC,
+            NULL, HFILL }
+        }
+    };
+
+    static gint *ett[] = {
+        &ett_btvdp_cph_scms_t
+    };
+
+    proto_btvdp_cph_scms_t = proto_register_protocol("Bluetooth VDP Content Protection Header SCMS-T", "BT VDP Content Protection Header SCMS-T", "btvdp_content_protection_header_scms_t");
+    proto_register_field_array(proto_btvdp_cph_scms_t, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    new_register_dissector("btvdp_content_protection_header_scms_t", dissect_vdp_cp_scms_t, proto_btvdp_cph_scms_t);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

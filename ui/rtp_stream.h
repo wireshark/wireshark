@@ -58,7 +58,7 @@ typedef struct _rtp_stream_info {
     guint32 dest_port;
     guint32 ssrc;
     guint8  pt;
-    gchar	*info_payload_type_str;
+    const gchar *info_payload_type_str;
     guint32 npackets;
 
     guint32 first_frame_num;		/**< frame number of first frame */

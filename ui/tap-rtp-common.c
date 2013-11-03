@@ -417,7 +417,7 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 #define NUM_DYN_CLOCK_VALUES	(sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
 
 static guint32
-get_dyn_pt_clock_rate(gchar *payload_type_str)
+get_dyn_pt_clock_rate(const gchar *payload_type_str)
 {
 	int i;
 
