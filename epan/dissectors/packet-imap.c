@@ -213,7 +213,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				folder_offset = offset;
 				folder_offset += (gint) (next_token - line);
 				folder_line = next_token;
-				folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen), &folder_next_token);
+				folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen - 1), &folder_next_token);
 			      }
 			    }
 
