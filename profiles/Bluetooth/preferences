@@ -1,0 +1,19 @@
+####### User Interface: Columns ########
+
+# Packet list column format
+# Each pair of strings consists of a column title and its format
+gui.column.format:
+	"No.", "%m",
+	"Time", "%Yt",
+	"Delta", "%Gt",
+	"Source", "%s",
+	"Destination", "%d",
+	"Protocol", "%p",
+	"Length", "%L",
+	"Info", "%i"
+
+####### User Interface: Layout ########
+
+# Layout type (1-6)
+# A decimal number
+gui.layout_type: 3
