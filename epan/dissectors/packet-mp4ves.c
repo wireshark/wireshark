@@ -782,14 +782,13 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * unsignedMax       INTEGER(0..65535), -- Look for max
  */
 static int
-dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
 	int offset = 0;
 	guint16 lvl;
 	const gchar *p = NULL;
-	asn1_ctx_t *actx;
+	asn1_ctx_t *actx = get_asn1_ctx(data);
 
-	actx = get_asn1_ctx(pinfo->private_data);
 	DISSECTOR_ASSERT(actx);
 
 	lvl = tvb_get_ntohs(tvb, offset);
@@ -801,14 +800,13 @@ dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	return offset;
 }
 static int
-dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
 	int offset = 0;
 	guint16 lvl;
 	const gchar *p = NULL;
-	asn1_ctx_t *actx;
+	asn1_ctx_t *actx = get_asn1_ctx(data);
 
-	actx = get_asn1_ctx(pinfo->private_data);
 	DISSECTOR_ASSERT(actx);
 
 	lvl = tvb_get_ntohs(tvb, offset);
@@ -821,11 +819,10 @@ dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	asn1_ctx_t *actx;
+	asn1_ctx_t *actx = get_asn1_ctx(data);
 
-	actx = get_asn1_ctx(pinfo->private_data);
 	DISSECTOR_ASSERT(actx);
 
 	dissect_mp4ves_config(tvb, pinfo, tree);
@@ -859,13 +856,12 @@ static mp4ves_capability_t *find_cap(const gchar *id) {
 	return ftr;
 }
 
-static void
-dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	asn1_ctx_t *actx;
-	mp4ves_capability_t *ftr = NULL;
+	asn1_ctx_t *actx = get_asn1_ctx(data);
+	mp4ves_capability_t *ftr;
 
-	actx = get_asn1_ctx(pinfo->private_data);
 	DISSECTOR_ASSERT(actx);
 	if (tree) {
 		ftr = find_cap(pinfo->match_string);
@@ -876,6 +872,8 @@ dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 void
@@ -1010,7 +1008,7 @@ proto_reg_handoff_mp4ves(void)
 		dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
 		mp4ves_prefs_initialized = TRUE;
 
-		mp4ves_name_handle = create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
+		mp4ves_name_handle = new_create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
 		for (ftr=mp4ves_capability_tab; ftr->id; ftr++) {
 		    if (ftr->name)
 				dissector_add_string("h245.gef.name", ftr->id, mp4ves_name_handle);

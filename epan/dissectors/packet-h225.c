@@ -1892,7 +1892,7 @@ dissect_h225_PartyNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 719 "../../asn1/h225/h225.cnf"
+#line 718 "../../asn1/h225/h225.cnf"
   int min_len, max_len;
   gboolean has_extension;
 
@@ -3678,7 +3678,7 @@ dissect_h225_CircuitIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 683 "../../asn1/h225/h225.cnf"
+#line 682 "../../asn1/h225/h225.cnf"
   guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
@@ -3696,7 +3696,7 @@ dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h225_T_oid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 692 "../../asn1/h225/h225.cnf"
+#line 691 "../../asn1/h225/h225.cnf"
   const gchar *oid_str = NULL;
   gef_ctx_t *gefx;
 
@@ -3739,8 +3739,7 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
-    actx->pinfo->private_data = actx;
-    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, NULL);
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
 
@@ -3751,7 +3750,7 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_h225_T_raw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 702 "../../asn1/h225/h225.cnf"
+#line 701 "../../asn1/h225/h225.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
 
@@ -3761,7 +3760,7 @@ dissect_h225_T_raw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
-    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, NULL);
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree, actx);
   }
 
 

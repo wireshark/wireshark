@@ -2022,9 +2022,8 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, 
     int          offset = 0;
     guint16      lvl;
     const gchar *p;
-    asn1_ctx_t  *actx;
+    asn1_ctx_t  *actx = get_asn1_ctx(data);
 
-    actx = get_asn1_ctx(pinfo->private_data);
     DISSECTOR_ASSERT(actx);
 
     lvl = tvb_get_ntohs(tvb, offset);
@@ -2037,11 +2036,10 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, 
 }
 
 static int
-dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    asn1_ctx_t *actx;
+    asn1_ctx_t *actx = get_asn1_ctx(data);
 
-    actx = get_asn1_ctx(pinfo->private_data);
     DISSECTOR_ASSERT(actx);
 
     dissect_h264_nal_unit(tvb, pinfo, tree);
@@ -2088,12 +2086,11 @@ static h264_capability_t *find_cap(const gchar *id) {
     return ftr;
 }
 
-static void
-dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    asn1_ctx_t        *actx;
+    asn1_ctx_t *actx = get_asn1_ctx(data);
 
-    actx = get_asn1_ctx(pinfo->private_data);
     DISSECTOR_ASSERT(actx);
     if (tree) {
         h264_capability_t *ftr;
@@ -2105,6 +2102,8 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
             proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
         }
     }
+
+    return tvb_length(tvb);
 }
 
 
@@ -2820,7 +2819,7 @@ proto_reg_handoff_h264(void)
         h264_handle = find_dissector("h264");
         dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
 
-        h264_name_handle = create_dissector_handle(dissect_h264_name, proto_h264);
+        h264_name_handle = new_create_dissector_handle(dissect_h264_name, proto_h264);
         for (ftr=h264_capability_tab; ftr->id; ftr++) {
             if (ftr->name)
                 dissector_add_string("h245.gef.name", ftr->id, h264_name_handle);

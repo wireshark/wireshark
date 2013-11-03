@@ -2128,12 +2128,11 @@ static h460_feature_t *find_ftr(const gchar *key) {
 
 /*--- dissect_h460_name -------------------------------------------*/
 static int
-dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
-  asn1_ctx_t *actx;
+  asn1_ctx_t *actx = get_asn1_ctx(data);
   h460_feature_t *ftr;
 
-  actx = get_asn1_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(actx);
   if (tree) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, 0, 0, "*** DEBUG dissect_h460_name: %s", pinfo->match_string);*/
@@ -2871,7 +2870,7 @@ void proto_register_h460(void) {
         "UnicastAddress", HFILL }},
 
 /*--- End of included file: packet-h460-hfarr.c ---*/
-#line 248 "../../asn1/h460/packet-h460-template.c"
+#line 247 "../../asn1/h460/packet-h460-template.c"
   };
 
   /* List of subtrees */
@@ -2970,7 +2969,7 @@ void proto_register_h460(void) {
     &ett_h460_21_TransmitCapabilities,
 
 /*--- End of included file: packet-h460-ettarr.c ---*/
-#line 253 "../../asn1/h460/packet-h460-template.c"
+#line 252 "../../asn1/h460/packet-h460-template.c"
   };
 
   /* Register protocol */

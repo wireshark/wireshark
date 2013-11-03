@@ -589,12 +589,11 @@ static amr_capability_t *find_cap(const gchar *id) {
     return ftr;
 }
 
-static void
-dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    asn1_ctx_t       *actx;
+    asn1_ctx_t *actx = get_asn1_ctx(data);
 
-    actx = get_asn1_ctx(pinfo->private_data);
     DISSECTOR_ASSERT(actx != NULL);
     if (tree && (actx != NULL)) {
         amr_capability_t *ftr;
@@ -606,6 +605,8 @@ dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
             proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
         }
     }
+
+    return tvb_length(tvb);
 }
 
 void proto_reg_handoff_amr(void);
@@ -816,7 +817,7 @@ proto_reg_handoff_amr(void)
         /*
          * Register H.245 Generic parameter name(s)
          */
-        amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
+        amr_name_handle = new_create_dissector_handle(dissect_amr_name, proto_amr);
         for (ftr=amr_capability_tab; ftr->id; ftr++) {
             if (ftr->name)
                 dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);

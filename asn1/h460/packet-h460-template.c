@@ -216,12 +216,11 @@ static h460_feature_t *find_ftr(const gchar *key) {
 
 /*--- dissect_h460_name -------------------------------------------*/
 static int
-dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
-  asn1_ctx_t *actx;
+  asn1_ctx_t *actx = get_asn1_ctx(data);
   h460_feature_t *ftr;
 
-  actx = get_asn1_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(actx);
   if (tree) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, 0, 0, "*** DEBUG dissect_h460_name: %s", pinfo->match_string);*/
