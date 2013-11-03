@@ -1212,7 +1212,6 @@ esac
 #
 # Add any checks here that are necessary for other OSes.
 #
-AM_PROG_SED
 AC_PATH_PROG(SED, sed)
 if test "x$SED" = x
 then
