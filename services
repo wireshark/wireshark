@@ -9169,6 +9169,7 @@ pmcs             6355/tcp # PMCS applications [Pavel_Mendl] [Pavel_Mendl] 2007-0
 pmcs             6355/udp # PMCS applications [Pavel_Mendl] [Pavel_Mendl] 2007-03
 metaedit-mu      6360/tcp # MetaEdit+ Multi-User [Steven_Kelly] [Steven_Kelly] 2007-11-12
 metaedit-mu      6360/udp # MetaEdit+ Multi-User [Steven_Kelly] [Steven_Kelly] 2007-11-12
+ndn              6363/udp # Named Data Networking [Regents_of_the_University_of_California] [Jeff_Burke] 2013-10-30
 metaedit-se      6370/tcp # MetaEdit+ Server Administration [Steven_Kelly] [Steven_Kelly] 2007-11-12
 metaedit-se      6370/udp # MetaEdit+ Server Administration [Steven_Kelly] [Steven_Kelly] 2007-11-12
 metatude-mds     6382/tcp # Metatude Dialogue Server [Menno_Zweistra] [Menno_Zweistra]
@@ -9319,7 +9320,7 @@ afesc-mc         6628/tcp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
 afesc-mc         6628/udp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
 mxodbc-connect   6632/tcp # eGenix mxODBC Connect [Marc_Andre_Lemburg] [Marc_Andre_Lemburg] 2009-11-13 Unauthorized Use Known on port 6632
 cisco-vpath-tun  6633/udp # Cisco vPath Services Overlay [Cisco2] [Surendra_Kumar] 2012-06-11
-ovsdb            6640/tcp # Open vSwitch Database protocol [Bruce_Davie_2] [Bruce_Davie_2] 2013-07-31 [draft-pfaff-ovsdb-proto-02]
+ovsdb            6640/tcp # Open vSwitch Database protocol [Bruce_Davie_2] [Bruce_Davie_2] 2013-07-31 [RFC-pfaff-ovsdb-proto-04]
 openflow         6653/tcp # OpenFlow [Open_Networking_Foundation] [Puneet_Agarwal] 2013-07-18
 openflow         6653/udp # OpenFlow [Open_Networking_Foundation] [Puneet_Agarwal] 2013-07-18
 pcs-sf-ui-man    6655/tcp # PC SOFT - Software factory UI/manager [Jerome_AERTS] [Jerome_AERTS] 2010-11-30
@@ -10753,6 +10754,7 @@ amt-redir-tls   16995/tcp # Intel(R) AMT Redirection/TLS [Nimrod_Diamant] [Nimro
 amt-redir-tls   16995/udp # Intel(R) AMT Redirection/TLS [Nimrod_Diamant] [Nimrod_Diamant] 2005-02
 isode-dua       17007/tcp # 
 isode-dua       17007/udp # 
+vestasdlp       17184/tcp # Vestas Data Layer Protocol [Vestas_Wind_Systems] [Teunis_de_Wit] 2013-10-30
 soundsvirtual   17185/tcp # Sounds Virtual [Richard_Snider] [Richard_Snider]
 soundsvirtual   17185/udp # Sounds Virtual [Richard_Snider] [Richard_Snider]
 chipper         17219/tcp # Chipper [Ronald_Jimmink] [Ronald_Jimmink]
