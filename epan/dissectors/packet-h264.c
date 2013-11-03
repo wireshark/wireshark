@@ -2017,7 +2017,7 @@ static const value_string h264_par_level_values[] = {
 };
 
 static int
-dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
     int          offset = 0;
     guint16      lvl;
