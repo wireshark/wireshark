@@ -1212,6 +1212,12 @@ esac
 #
 # Add any checks here that are necessary for other OSes.
 #
+AM_PROG_SED
+AC_PATH_PROG(SED, sed)
+if test "x$SED" = x
+then
+	AC_MSG_ERROR(I couldn't find sed; make sure it's installed and in your path)
+fi
 AC_WIRESHARK_GNU_SED_CHECK
 if test "$HAVE_GNU_SED" = no ; then
 	case "$host_os" in

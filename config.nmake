@@ -776,6 +776,9 @@ PERL=perl
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
+# command for sed (cygwin's sed recommended)
+SED=sed
+
 # command for lex/flexx (cygwin's flex recommended)
 LEX=flex
 
