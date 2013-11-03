@@ -4589,7 +4589,8 @@ dissect_openflow_async_config_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static const value_string openflow_v4_metermod_command_values[] = {
     { 0, "OFPMC_ADD" },
     { 1, "OFPMC_MODIFY" },
-    { 2, "OFPMC_DELETE" }
+    { 2, "OFPMC_DELETE" },
+    { 0, NULL }
 };
 
 static void
