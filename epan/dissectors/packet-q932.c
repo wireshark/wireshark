@@ -684,8 +684,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
           case  3 :  /* returnError */
           case  4 :  /* reject */
             q932_rose_ctx.apdu_depth = 1;
-            pinfo->private_data = &q932_rose_ctx;
-            call_dissector(q932_ros_handle, next_tvb, pinfo, tree);
+            call_dissector_with_data(q932_ros_handle, next_tvb, pinfo, tree, &q932_rose_ctx);
             break;
           /* DSE APDU */
           case 12 :  /* begin */
@@ -966,7 +965,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 303 "../../asn1/q932/packet-q932-template.c"
+#line 302 "../../asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -991,7 +990,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 310 "../../asn1/q932/packet-q932-template.c"
+#line 309 "../../asn1/q932/packet-q932-template.c"
   };
 
    module_t *q932_module;

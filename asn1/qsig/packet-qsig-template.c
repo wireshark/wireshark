@@ -372,9 +372,9 @@ static const qsig_err_t *get_err(gint32 errcode) {
 
 /*--- dissect_qsig_arg ------------------------------------------------------*/
 static int
-dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset;
-  rose_ctx_t *rctx;
+  rose_ctx_t *rctx = get_rose_ctx(data);
   gint32 opcode = 0, service;
   const qsig_op_t *op_ptr;
   const gchar *p;
@@ -382,7 +382,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_tree *qsig_tree;
 
   offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
+
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 1)  /* invoke */
     return offset;
@@ -428,9 +428,9 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /*--- dissect_qsig_res -------------------------------------------------------*/
 static int
-dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   gint offset;
-  rose_ctx_t *rctx;
+  rose_ctx_t *rctx = get_rose_ctx(data);
   gint32 opcode, service;
   const qsig_op_t *op_ptr;
   const gchar *p;
@@ -438,7 +438,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_tree *qsig_tree;
 
   offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
+
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 2)  /* returnResult */
     return offset;
@@ -479,9 +479,9 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /*--- dissect_qsig_err ------------------------------------------------------*/
 static int
-dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset;
-  rose_ctx_t *rctx;
+  rose_ctx_t *rctx = get_rose_ctx(data);
   gint32 errcode;
   const qsig_err_t *err_ptr;
   const gchar *p;
@@ -489,7 +489,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_tree *qsig_tree;
 
   offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
+
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 3)  /* returnError */
     return offset;

@@ -309,8 +309,8 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (!arg_next_tvb) {  /* empty argument */
     arg_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
   }
-  actx->pinfo->private_data = actx->rose_ctx;
-  call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
+
+  call_dissector_with_data((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree, actx->rose_ctx);
   if (!arg_handle) {
     expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
@@ -403,8 +403,8 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     if (!res_next_tvb) {  /* empty result */
       res_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
     }
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+
+    call_dissector_with_data((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree, actx->rose_ctx); 
     if (!res_handle) {
       expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
     }
@@ -482,8 +482,8 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   if (!err_next_tvb) {  /* empty error */
     err_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
   }
-  actx->pinfo->private_data = actx->rose_ctx;
-  call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
+
+  call_dissector_with_data((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree, actx->rose_ctx); 
   if (!err_handle) {
     expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
@@ -680,8 +680,8 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 #line 63 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
-static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-  rose_ctx_tmp = get_rose_ctx(pinfo->private_data);
+static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+  rose_ctx_tmp = get_rose_ctx(data);
   DISSECTOR_ASSERT(rose_ctx_tmp);
   return dissect_ROS_PDU(tvb, pinfo, tree, NULL);
 }

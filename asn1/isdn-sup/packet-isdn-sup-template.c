@@ -134,9 +134,9 @@ static const isdn_sup_err_t *get_err(gint32 errcode) {
 
 /*--- dissect_isdn_sup_arg ------------------------------------------------------*/
 static int
-dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset;
-  rose_ctx_t *rctx;
+  rose_ctx_t *rctx = get_rose_ctx(data);
   gint32 opcode = 0;
   const gchar *p;
   const isdn_sup_op_t *op_ptr;
@@ -144,7 +144,7 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_tree *isdn_sup_tree;
 
   offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
+
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 1)  /* invoke */
     return offset;
@@ -182,9 +182,9 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 /*--- dissect_isdn_sup_res -------------------------------------------------------*/
 static int
-dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   gint offset;
-  rose_ctx_t *rctx;
+  rose_ctx_t *rctx = get_rose_ctx(data);
   gint32 opcode = 0;
   const gchar *p;
   const isdn_sup_op_t *op_ptr;
@@ -192,7 +192,7 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_tree *isdn_sup_tree;
 
   offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
+
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 2)  /* returnResult */
     return offset;
@@ -229,9 +229,9 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 /*--- dissect_isdn_sup_err ------------------------------------------------------*/
 static int
-dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset;
-  rose_ctx_t *rctx;
+  rose_ctx_t *rctx = get_rose_ctx(data);
   gint32 errcode;
   const isdn_sup_err_t *err_ptr;
   const gchar *p;
@@ -239,7 +239,7 @@ dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_tree *isdn_sup_tree;
 
   offset = 0;
-  rctx = get_rose_ctx(pinfo->private_data);
+
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 3)  /* returnError */
     return offset;

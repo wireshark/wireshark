@@ -244,8 +244,8 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   if (!arg_next_tvb) {  /* empty argument */
     arg_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
   }
-  actx->pinfo->private_data = actx->rose_ctx;
-  call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
+
+  call_dissector_with_data((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree, actx->rose_ctx);
   if (!arg_handle) {
     expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
@@ -328,8 +328,8 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     if (!res_next_tvb) {  /* empty result */
       res_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
     }
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+
+    call_dissector_with_data((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree, actx->rose_ctx); 
     if (!res_handle) {
       expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
     }
@@ -397,8 +397,8 @@ dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   if (!err_next_tvb) {  /* empty error */
     err_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
   }
-  actx->pinfo->private_data = actx->rose_ctx;
-  call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
+
+  call_dissector_with_data((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree, actx->rose_ctx); 
   if (!err_handle) {
     expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }

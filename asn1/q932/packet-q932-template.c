@@ -170,8 +170,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
           case  3 :  /* returnError */
           case  4 :  /* reject */
             q932_rose_ctx.apdu_depth = 1;
-            pinfo->private_data = &q932_rose_ctx;
-            call_dissector(q932_ros_handle, next_tvb, pinfo, tree);
+            call_dissector_with_data(q932_ros_handle, next_tvb, pinfo, tree, &q932_rose_ctx);
             break;
           /* DSE APDU */
           case 12 :  /* begin */
