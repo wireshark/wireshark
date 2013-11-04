@@ -31,7 +31,9 @@
 #define GET_VALSV(A) mq_##A##_vals
 #define DEF_VALSX(A) extern const value_string GET_VALSV(A)[]
 #define GET_VALSP(F) (gchar *)GET_VALSV(F)
-#define DEF_VALSB(A) const value_string GET_VALSV(A)[] = \
+#define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
+{
+#define DEF_VALSXB(A) const value_string GET_VALSV(A)[] = \
 {
 #define DEF_VALS1(A)   { (guint32)MQ_##A, #A }
 #define DEF_VALS2(A,B) { (guint32)MQ_##A, B }
