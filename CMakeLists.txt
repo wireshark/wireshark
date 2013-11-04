@@ -33,6 +33,15 @@ if(COMMAND cmake_policy)
 #	cmake_policy(SET CMP0015 NEW)
 endif(COMMAND cmake_policy)
 
+# This cannot be implemented via option(...)
+if( NOT CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif()
+message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
+message(STATUS "${CMAKE_BUILD_TYPE}: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+
 # set(PROJECT_MAJOR_VERSION 1)
 # set(PROJECT_MINOR_VERSION 9)
 # set(PROJECT_PATCH_VERSION 0)
@@ -146,8 +155,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
     )
 else()
     set(WIRESHARK_C_FLAGS
-        -O2
-        -g
+	# -O<X> and -g get set by the CMAKE_BUILD_TYPE
         -Wall
         -W
         -Wextra
@@ -288,10 +296,10 @@ endif()
 
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	# Set in Makefile.nmake but doesn't seem to have any effect
-	# set(WIRESHARK_LD_FLAGS
-	# 	/LARGEADDRESSAWARE
-	# )
+	# Set in Makefile.nmake
+	set(WIRESHARK_LD_FLAGS
+		/LARGEADDRESSAWARE
+	)
 else()
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
