@@ -225,22 +225,20 @@ static int hf_openflow_v4_error_experimenter = -1;
 static int hf_openflow_v4_echo_data = -1;
 static int hf_openflow_v4_experimenter_experimenter = -1;
 static int hf_openflow_v4_experimenter_exp_type = -1;
-static int hf_openflow_v4_datapath_id = -1;
-static int hf_openflow_datapath_v4_mac = -1;
-static int hf_openflow_v4_datapath_impl = -1;
-static int hf_openflow_v4_n_buffers = -1;
-static int hf_openflow_v4_n_tables = -1;
-static int hf_openflow_v4_auxiliary_id = -1;
-static int hf_openflow_v4_padd16 = -1;
-static int hf_openflow_v4_padd32 = -1;
-static int hf_openflow_v4_capabilities = -1;
-static int hf_openflow_v4_cap_flow_stats = -1;
-static int hf_openflow_v4_table_stats = -1;
-static int hf_openflow_v4_port_stats = -1;
-static int hf_openflow_v4_group_stats = -1;
-static int hf_openflow__v4_ip_reasm = -1;
-static int hf_openflow_v4_queue_stats = -1;
-static int hf_openflow_v4_port_blocked = -1;
+static int hf_openflow_v4_switch_features_datapath_id = -1;
+static int hf_openflow_v4_switch_features_n_buffers = -1;
+static int hf_openflow_v4_switch_features_n_tables = -1;
+static int hf_openflow_v4_switch_features_auxiliary_id = -1;
+static int hf_openflow_v4_switch_features_pad = -1;
+static int hf_openflow_v4_switch_features_capabilities = -1;
+static int hf_openflow_v4_switch_features_capabilities_flow_stats = -1;
+static int hf_openflow_v4_switch_features_capabilities_table_stats = -1;
+static int hf_openflow_v4_switch_features_capabilities_port_stats = -1;
+static int hf_openflow_v4_switch_features_capabilities_group_stats = -1;
+static int hf_openflow_v4_switch_features_capabilities_ip_reasm = -1;
+static int hf_openflow_v4_switch_features_capabilities_queue_stats = -1;
+static int hf_openflow_v4_switch_features_capabilities_port_blocked = -1;
+static int hf_openflow_v4_switch_features_reserved = -1;
 static int hf_openflow_v4_switch_config_flags = -1;
 static int hf_openflow_v4_switch_config_flags_fragments = -1;
 static int hf_openflow_v4_switch_config_miss_send_len = -1;
@@ -654,19 +652,12 @@ static int hf_openflow_v4_metermod_meter_id = -1;
 static int hf_openflow_v4_metermod_meter_id_reserved = -1;
 
 static gint ett_openflow_v4 = -1;
-static gint ett_openflow_v4_path_id = -1;
-static gint ett_openflow_v4_cap = -1;
 static gint ett_openflow_v4_flowmod_flags = -1;
-static gint ett_openflow_v4_flowmod_instructions = -1;
 static gint ett_openflow_v4_bucket = -1;
-static gint ett_openflow_v4_bucket_actions = -1;
-static gint ett_openflow_v4_groupmod_buckets = -1;
 static gint ett_openflow_v4_oxm = -1;
 static gint ett_openflow_v4_match = -1;
-static gint ett_openflow_v4_match_oxm_fields = -1;
 static gint ett_openflow_v4_action = -1;
 static gint ett_openflow_v4_instruction = -1;
-static gint ett_openflow_v4_instruction_actions_actions = -1;
 static gint ett_openflow_v4_port = -1;
 static gint ett_openflow_v4_port_config = -1;
 static gint ett_openflow_v4_port_state = -1;
@@ -677,6 +668,7 @@ static gint ett_openflow_v4_port_peer = -1;
 static gint ett_openflow_v4_meter_band  = -1;
 static gint ett_openflow_v4_hello_element = -1;
 static gint ett_openflow_v4_error_data = -1;
+static gint ett_openflow_v4_switch_features_capabilities = -1;
 static gint ett_openflow_v4_switch_config_flags = -1;
 static gint ett_openflow_v4_packet_in_data = -1;
 static gint ett_openflow_v4_packet_out_data = -1;
@@ -735,96 +727,72 @@ static expert_field ei_openflow_v4_queue_prop_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_message_undecoded = EI_INIT;
 
 static const value_string openflow_v4_version_values[] = {
-    { 0x01, "1.0" },
-    { 0x02, "1.1" },
-    { 0x03, "1.2" },
-    { 0x04, "1.3.1" },
+    { 0x04, "1.3" },
     { 0, NULL }
 };
 
-/* Immutable messages. */
-#define OFPT_V4_HELLO                     0 /* Symmetric message */
-#define OFPT_V4_ERROR                     1 /* Symmetric message */
-#define OFPT_V4_ECHO_REQUEST              2 /* Symmetric message */
-#define OFPT_V4_ECHO_REPLY                3 /* Symmetric message */
-#define OFPT_V4_EXPERIMENTER              4 /* Symmetric message */
-/* Switch configuration messages. */
-#define OFPT_V4_FEATURES_REQUEST          5 /* Controller/switch message */
-#define OFPT_V4_FEATURES_REPLY            6 /* Controller/switch message */
-#define OFPT_V4_GET_CONFIG_REQUEST        7 /* Controller/switch message */
-#define OFPT_V4_GET_CONFIG_REPLY          8 /* Controller/switch message */
-#define OFPT_V4_SET_CONFIG                9 /* Controller/switch message */
-/* Asynchronous messages. */
-#define OFPT_V4_PACKET_IN                10 /* Async message */
-#define OFPT_V4_FLOW_REMOVED             11 /* Async message */
-#define OFPT_V4_PORT_STATUS              12 /* Async message */
-/* Controller command messages. */
-#define OFPT_V4_PACKET_OUT               13 /* Controller/switch message */
-#define OFPT_V4_FLOW_MOD                 14 /* Controller/switch message */
-#define OFPT_V4_GROUP_MOD                15 /* Controller/switch message */
-#define OFPT_V4_PORT_MOD                 16 /* Controller/switch message */
-#define OFPT_V4_TABLE_MOD                17 /* Controller/switch message */
-/* Multipart messages. */
-#define OFPT_V4_MULTIPART_REQUEST        18 /* Controller/switch message */
-#define OFPT_V4_MULTIPART_REPLY          19 /* Controller/switch message */
-/* Barrier messages. */
-#define OFPT_V4_BARRIER_REQUEST          20 /* Controller/switch message */
-#define OFPT_V4_BARRIER_REPLY            21 /* Controller/switch message */
-/* Queue Configuration messages. */
-#define OFPT_V4_QUEUE_GET_CONFIG_REQUEST 22 /* Controller/switch message */
-#define OFPT_V4_QUEUE_GET_CONFIG_REPLY   23 /* Controller/switch message */
-/* Controller role change request messages. */
-#define OFPT_V4_ROLE_REQUEST             24 /* Controller/switch message */
-#define OFPT_V4_ROLE_REPLY               25 /* Controller/switch message */
-/* Asynchronous message configuration. */
-#define OFPT_V4_GET_ASYNC_REQUEST        26 /* Controller/switch message */
-#define OFPT_V4_GET_ASYNC_REPLY          27 /* Controller/switch message */
-#define OFPT_V4_SET_ASYNC                28 /* Controller/switch message */
-/* Meters and rate limiters configuration messages. */
-#define OFPT_V4_METER_MOD                29 /* Controller/switch message */
-
+#define OFPT_HELLO                      0
+#define OFPT_ERROR                      1
+#define OFPT_ECHO_REQUEST               2
+#define OFPT_ECHO_REPLY                 3
+#define OFPT_EXPERIMENTER               4
+#define OFPT_FEATURES_REQUEST           5
+#define OFPT_FEATURES_REPLY             6
+#define OFPT_GET_CONFIG_REQUEST         7
+#define OFPT_GET_CONFIG_REPLY           8
+#define OFPT_SET_CONFIG                 9
+#define OFPT_PACKET_IN                 10
+#define OFPT_FLOW_REMOVED              11
+#define OFPT_PORT_STATUS               12
+#define OFPT_PACKET_OUT                13
+#define OFPT_FLOW_MOD                  14
+#define OFPT_GROUP_MOD                 15
+#define OFPT_PORT_MOD                  16
+#define OFPT_TABLE_MOD                 17
+#define OFPT_MULTIPART_REQUEST         18
+#define OFPT_MULTIPART_REPLY           19
+#define OFPT_BARRIER_REQUEST           20
+#define OFPT_BARRIER_REPLY             21
+#define OFPT_QUEUE_GET_CONFIG_REQUEST  22
+#define OFPT_QUEUE_GET_CONFIG_REPLY    23
+#define OFPT_ROLE_REQUEST              24
+#define OFPT_ROLE_REPLY                25
+#define OFPT_GET_ASYNC_REQUEST         26
+#define OFPT_GET_ASYNC_REPLY           27
+#define OFPT_SET_ASYNC                 28
+#define OFPT_METER_MOD                 29
 static const value_string openflow_v4_type_values[] = {
-/* Immutable messages. */
-    { 0, "OFPT_HELLO" },              /* Symmetric message */
-    { 1, "OFPT_ERROR" },              /* Symmetric message */
-    { 2, "OFPT_ECHO_REQUEST" },       /* Symmetric message */
-    { 3, "OFPT_ECHO_REPLY" },         /* Symmetric message */
-    { 4, "OFPT_EXPERIMENTER" },       /* Symmetric message */
-/* Switch configuration messages. */
-    { 5, "OFPT_FEATURES_REQUEST" },   /* Controller/switch message */
-    { 6, "OFPT_FEATURES_REPLY" },     /* Controller/switch message */
-    { 7, "OFPT_GET_CONFIG_REQUEST" }, /* Controller/switch message */
-    { 8, "OFPT_GET_CONFIG_REPLY" },   /* Controller/switch message */
-    { 9, "OFPT_SET_CONFIG" },         /* Controller/switch message */
-/* Asynchronous messages. */
-    { 10, "OFPT_PACKET_IN" },                /* Async message */
-    { 11, "OFPT_FLOW_REMOVED" },             /* Async message */
-    { 12, "OFPT_PORT_STATUS" },              /* Async message */
-/* Controller command messages. */
-    { 13, "OFPT_PACKET_OUT" },               /* Controller/switch message */
-    { 14, "OFPT_FLOW_MOD" },                 /* Controller/switch message */
-    { 15, "OFPT_GROUP_MOD" },                /* Controller/switch message */
-    { 16, "OFPT_PORT_MOD" },                 /* Controller/switch message */
-    { 17, "OFPT_TABLE_MOD" },                /* Controller/switch message */
-/* Multipart messages. */
-    { 18, "OFPT_MULTIPART_REQUEST" },        /* Controller/switch message */
-    { 19, "OFPT_MULTIPART_REPLY" },          /* Controller/switch message */
-/* Barrier messages. */
-    { 20, "OFPT_BARRIER_REQUEST" },          /* Controller/switch message */
-    { 21, "OFPT_BARRIER_REPLY" },            /* Controller/switch message */
-/* Queue Configuration messages. */
-    { 22, "OFPT_QUEUE_GET_CONFIG_REQUEST" }, /* Controller/switch message */
-    { 23, "OFPT_QUEUE_GET_CONFIG_REPLY" },   /* Controller/switch message */
-/* Controller role change request messages. */
-    { 24, "OFPT_ROLE_REQUEST" },             /* Controller/switch message */
-    { 25, "OFPT_ROLE_REPLY" },               /* Controller/switch message */
-/* Asynchronous message configuration. */
-    { 26, "OFPT_GET_ASYNC_REQUEST" },        /* Controller/switch message */
-    { 27, "OFPT_GET_ASYNC_REPLY" },          /* Controller/switch message */
-    { 28, "OFPT_SET_ASYNC" },                /* Controller/switch message */
-/* Meters and rate limiters configuration messages. */
-    { 29, "OFPT_METER_MOD" },                /* Controller/switch message */
-    { 0, NULL }
+    { OFPT_HELLO,                    "OFPT_HELLO" },
+    { OFPT_ERROR,                    "OFPT_ERROR" },
+    { OFPT_ECHO_REQUEST,             "OFPT_ECHO_REQUEST" },
+    { OFPT_ECHO_REPLY,               "OFPT_ECHO_REPLY" },
+    { OFPT_EXPERIMENTER,             "OFPT_EXPERIMENTER" },
+    { OFPT_FEATURES_REQUEST,         "OFPT_FEATURES_REQUEST" },
+    { OFPT_FEATURES_REPLY,           "OFPT_FEATURES_REPLY" },
+    { OFPT_GET_CONFIG_REQUEST,       "OFPT_GET_CONFIG_REQUEST" },
+    { OFPT_GET_CONFIG_REPLY,         "OFPT_GET_CONFIG_REPLY" },
+    { OFPT_SET_CONFIG,               "OFPT_SET_CONFIG" },
+    { OFPT_PACKET_IN,                "OFPT_PACKET_IN" },
+    { OFPT_FLOW_REMOVED,             "OFPT_FLOW_REMOVED" },
+    { OFPT_PORT_STATUS,              "OFPT_PORT_STATUS" },
+    { OFPT_PACKET_OUT,               "OFPT_PACKET_OUT" },
+    { OFPT_FLOW_MOD,                 "OFPT_FLOW_MOD" },
+    { OFPT_GROUP_MOD,                "OFPT_GROUP_MOD" },
+    { OFPT_PORT_MOD,                 "OFPT_PORT_MOD" },
+    { OFPT_TABLE_MOD,                "OFPT_TABLE_MOD" },
+    { OFPT_MULTIPART_REQUEST,        "OFPT_MULTIPART_REQUEST" },
+    { OFPT_MULTIPART_REPLY,          "OFPT_MULTIPART_REPLY" },
+    { OFPT_BARRIER_REQUEST,          "OFPT_BARRIER_REQUEST" },
+    { OFPT_BARRIER_REPLY,            "OFPT_BARRIER_REPLY" },
+    { OFPT_QUEUE_GET_CONFIG_REQUEST, "OFPT_QUEUE_GET_CONFIG_REQUEST" },
+    { OFPT_QUEUE_GET_CONFIG_REPLY,   "OFPT_QUEUE_GET_CONFIG_REPLY" },
+    { OFPT_ROLE_REQUEST,             "OFPT_ROLE_REQUEST" },
+    { OFPT_ROLE_REPLY,               "OFPT_ROLE_REPLY" },
+    { OFPT_GET_ASYNC_REQUEST,        "OFPT_GET_ASYNC_REQUEST" },
+    { OFPT_GET_ASYNC_REPLY,          "OFPT_GET_ASYNC_REPLY" },
+    { OFPT_SET_ASYNC,                "OFPT_SET_ASYNC" },
+    { OFPT_METER_MOD,                "OFPT_METER_MOD" },
+    { 0,                             NULL }
 };
 
 static int
@@ -1035,7 +1003,7 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     oxm_hm = oxm_field_hm & OXM_HM_MASK;
     field_length = (oxm_hm == 0) ? oxm_length : (oxm_length / 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, oxm_length + 4, "OXM");
+    ti = proto_tree_add_text(tree, tvb, offset, oxm_length + 4, "OXM field");
     oxm_tree = proto_item_add_subtree(ti, ett_openflow_v4_oxm);
 
     offset = dissect_openflow_oxm_header_v4(tvb, pinfo, oxm_tree, offset, length);
@@ -1151,7 +1119,7 @@ static int
 dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
-    proto_tree *match_tree, *fields_tree;
+    proto_tree *match_tree;
     guint16 match_type;
     guint16 match_length;
     guint16 fields_end;
@@ -1182,13 +1150,8 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     case OFPMT_OXM:
         fields_end = offset + match_length - 4;
-
-        if (offset < fields_end) {
-            ti = proto_tree_add_text(match_tree, tvb, offset, match_length - 4, "Fields");
-            fields_tree = proto_item_add_subtree(ti, ett_openflow_v4_match_oxm_fields);
-            while(offset < fields_end) {
-                offset = dissect_openflow_oxm_v4(tvb, pinfo, fields_tree, offset, length);
-            }
+        while(offset < fields_end) {
+            offset = dissect_openflow_oxm_v4(tvb, pinfo, match_tree, offset, length);
         }
         break;
 
@@ -1703,75 +1666,55 @@ dissect_openflow_experimenter_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 }
 
-#define OFPC_V4_FLOW_STATS   1<<0  /* Flow statistics. */
-#define OFPC_V4_TABLE_STATS  1<<1  /* Table statistics. */
-#define OFPC_V4_PORT_STATS   1<<2  /* Port statistics. */
-#define OFPC_V4_GROUP_STATS  1<<3  /* Group statistics. */
-#define OFPC_V4_IP_REASM     1<<5  /* Can reassemble IP fragments. */
-#define OFPC_V4_QUEUE_STATS  1<<6  /* Queue statistics. */
-#define OFPC_V4_PORT_BLOCKED 1<<8  /* Switch will block looping ports. */
-
-/* Switch features. /
-struct ofp_switch_features {
-    struct ofp_header header;
-    uint64_t datapath_id; / Datapath unique ID. The lower 48-bits are for
-    a MAC address, while the upper 16-bits are
-    implementer-defined. /
-    uint32_t n_buffers; / Max packets buffered at once. /
-    uint8_t n_tables; / Number of tables supported by datapath. /
-    uint8_t auxiliary_id; / Identify auxiliary connections /
-    uint8_t pad[2]; / Align to 64-bits. /
-    / Features. /
-    uint32_t capabilities; / Bitmap of support "ofp_capabilities". /
-    uint32_t reserved;
-};
-OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
-*/
-
-
+#define OFPC_FLOW_STATS    1<<0
+#define OFPC_TABLE_STATS   1<<1
+#define OFPC_PORT_STATS    1<<2
+#define OFPC_GROUP_STATS   1<<3
+#define OFPC_IP_REASM      1<<5
+#define OFPC_QUEUE_STATS   1<<6
+#define OFPC_PORT_BLOCKED  1<<8
 static void
-dissect_openflow_features_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_switch_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
-    proto_tree *path_id_tree, *cap_tree;
+    proto_tree *cap_tree;
 
-    ti = proto_tree_add_item(tree, hf_openflow_v4_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
-    path_id_tree = proto_item_add_subtree(ti, ett_openflow_v4_path_id);
-    proto_tree_add_item(path_id_tree, hf_openflow_datapath_v4_mac, tvb, offset, 6, ENC_NA);
-    offset+=6;
-    proto_tree_add_item(path_id_tree, hf_openflow_v4_datapath_impl, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
+    /* uint64_t datapath_id; */
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_datapath_id, tvb, offset, 8, ENC_NA);
+    offset+=8;
 
-    proto_tree_add_item(tree, hf_openflow_v4_n_buffers, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /* uint32_t n_buffers; */
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_n_buffers, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    /* Number of tables supported by datapath. */
-    proto_tree_add_item(tree, hf_openflow_v4_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* uint8_t n_tables; */
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* Identify auxiliary connections */
-    proto_tree_add_item(tree, hf_openflow_v4_auxiliary_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* uint8_t auxiliary_id; */
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_auxiliary_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Align to 64-bits. */
-    proto_tree_add_item(tree, hf_openflow_v4_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    /* uint8_t pad[2]; */
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_pad, tvb, offset, 2, ENC_NA);
     offset+=2;
 
-    ti = proto_tree_add_item(tree, hf_openflow_v4_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
-    cap_tree = proto_item_add_subtree(ti, ett_openflow_v4_cap);
+    /* uint32_t capabilities; */
+    ti = proto_tree_add_item(tree, hf_openflow_v4_switch_features_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
+    cap_tree = proto_item_add_subtree(ti, ett_openflow_v4_switch_features_capabilities);
 
-    /* Dissect flags */
-    proto_tree_add_item(cap_tree, hf_openflow_v4_cap_flow_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(cap_tree, hf_openflow_v4_table_stats,    tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(cap_tree, hf_openflow_v4_port_stats,     tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(cap_tree, hf_openflow_v4_group_stats,    tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(cap_tree, hf_openflow__v4_ip_reasm,       tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(cap_tree, hf_openflow_v4_queue_stats,    tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(cap_tree, hf_openflow_v4_port_blocked,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_flow_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_table_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_port_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_group_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_ip_reasm, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_queue_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_v4_switch_features_capabilities_port_blocked, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item(tree, hf_openflow_v4_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /* uint32_t reserved; */
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_reserved, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
-
 }
 
 static const value_string openflow_v4_switch_config_fragments_values[] = {
@@ -2031,7 +1974,7 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     act_length = tvb_get_ntohs(tvb, offset + 2);
     act_end = offset + act_length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Action");
+    ti = proto_tree_add_text(tree, tvb, offset, act_length, "Action");
     act_tree = proto_item_add_subtree(ti, ett_openflow_v4_action);
 
     offset = dissect_openflow_action_header_v4(tvb, pinfo, act_tree, offset, length);
@@ -2234,7 +2177,7 @@ dissect_openflow_port_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_item *ti;
     proto_tree *port_tree, *conf_tree, *state_tree, *curr_tree, *adv_tree, *supp_tree, *peer_tree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Port");
+    ti = proto_tree_add_text(tree, tvb, offset, 64, "Port");
     port_tree = proto_item_add_subtree(ti, ett_openflow_v4_port);
 
     /* uint32_t port_no; */
@@ -2531,7 +2474,7 @@ static int
 dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
-    proto_tree *inst_tree, *actions_tree;
+    proto_tree *inst_tree;
     guint16 inst_type;
     guint16 inst_length;
     guint16 acts_end;
@@ -2576,14 +2519,8 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         offset+=4;
 
         acts_end = offset + inst_length - 8;
-
-        if (offset < acts_end) {
-            ti = proto_tree_add_text(inst_tree, tvb, offset, inst_length - 8, "Actions");
-            actions_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction_actions_actions);
-
-            while (offset < acts_end) {
-                offset = dissect_openflow_action_v4(tvb, pinfo, actions_tree, offset, length);
-            }
+        while (offset < acts_end) {
+            offset = dissect_openflow_action_v4(tvb, pinfo, inst_tree, offset, length);
         }
         break;
 
@@ -2633,7 +2570,7 @@ static void
 dissect_openflow_flowmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
     proto_item *ti;
-    proto_tree *flags_tree, *instructions_tree;
+    proto_tree *flags_tree;
 
     /* uint64_t cookie; */
     proto_tree_add_item(tree, hf_openflow_v4_flowmod_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -2710,13 +2647,8 @@ dissect_openflow_flowmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset = dissect_openflow_match_v4(tvb, pinfo, tree, offset, length);
 
     /* struct ofp_instruction instructions[0]; */
-    if (offset < length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Instructions");
-        instructions_tree = proto_item_add_subtree(ti, ett_openflow_v4_flowmod_instructions);
-
-        while (offset < length) {
-            offset = dissect_openflow_instruction_v4(tvb, pinfo, instructions_tree, offset, length);
-        }
+    while (offset < length) {
+        offset = dissect_openflow_instruction_v4(tvb, pinfo, tree, offset, length);
     }
 }
 
@@ -2724,7 +2656,7 @@ static int
 dissect_openflow_bucket_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
     proto_item *ti;
-    proto_tree *bucket_tree, *actions_tree;
+    proto_tree *bucket_tree;
     guint16 bucket_length;
     guint16 acts_end;
 
@@ -2763,14 +2695,8 @@ dissect_openflow_bucket_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /*struct ofp_action_header actions[0]; */
     acts_end = offset + bucket_length - 16;
-
-    if (offset < acts_end) {
-        ti = proto_tree_add_text(bucket_tree, tvb, offset, bucket_length - 16, "Actions");
-        actions_tree = proto_item_add_subtree(ti, ett_openflow_v4_bucket_actions);
-
-        while (offset < acts_end) {
-            offset = dissect_openflow_action_v4(tvb, pinfo, actions_tree, offset, length);
-        }
+    while (offset < acts_end) {
+        offset = dissect_openflow_action_v4(tvb, pinfo, bucket_tree, offset, length);
     }
 
     return offset;
@@ -2799,9 +2725,6 @@ static const value_string openflow_v4_group_type_values[] = {
 static void
 dissect_openflow_groupmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
-    proto_item *ti;
-    proto_tree *buckets_tree;
-
     /* uint16_t command; */
     proto_tree_add_item(tree, hf_openflow_v4_groupmod_command, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
@@ -2823,13 +2746,8 @@ dissect_openflow_groupmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset+=4;
 
     /* struct ofp_bucket buckets[0]; */
-    if (offset < length) {
-        ti = proto_tree_add_text(tree, tvb, offset, length - offset, "Buckets");
-        buckets_tree = proto_item_add_subtree(ti, ett_openflow_v4_groupmod_buckets);
-
-        while (offset < length) {
-            offset = dissect_openflow_bucket_v4(tvb, pinfo, buckets_tree, offset, length);
-        }
+    while (offset < length) {
+        offset = dissect_openflow_bucket_v4(tvb, pinfo, tree, offset, length);
     }
 }
 
@@ -3494,6 +3412,7 @@ dissect_openflow_flow_stats_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* uint16_t length; */
     stats_len = tvb_get_ntohs(tvb, offset);
     stats_end = offset + stats_len;
+    proto_item_set_len(ti, stats_len);
     proto_tree_add_item(stats_tree, hf_openflow_v4_flow_stats_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
@@ -4651,87 +4570,87 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     offset = dissect_openflow_header_v4(tvb, pinfo, openflow_tree, offset, length);
 
     switch(type){
-    case OFPT_V4_HELLO: /* 0 */
+    case OFPT_HELLO:
         dissect_openflow_hello_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
 
-    case OFPT_V4_ERROR: /* 1 */
+    case OFPT_ERROR:
         dissect_openflow_error_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_ECHO_REQUEST: /* 2 */
-    case OFPT_V4_ECHO_REPLY: /* 3 */
+    case OFPT_ECHO_REQUEST:
+    case OFPT_ECHO_REPLY:
         dissect_openflow_echo_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_EXPERIMENTER: /* 4 */
+    case OFPT_EXPERIMENTER:
         dissect_openflow_experimenter_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_FEATURES_REQUEST: /* 5 */
+    case OFPT_FEATURES_REQUEST:
         /* message has no body */
         break;
-    case OFPT_V4_FEATURES_REPLY: /* 6 */
-        dissect_openflow_features_reply_v4(tvb, pinfo, openflow_tree, offset, length);
+    case OFPT_FEATURES_REPLY:
+        dissect_openflow_switch_features_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_GET_CONFIG_REQUEST: /* 7 */
+    case OFPT_GET_CONFIG_REQUEST:
         /* mesage has no body */
         break;
-    case OFPT_V4_GET_CONFIG_REPLY: /* 8 */
-    case OFPT_V4_SET_CONFIG: /* 9 */
+    case OFPT_GET_CONFIG_REPLY:
+    case OFPT_SET_CONFIG:
         dissect_openflow_switch_config_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_PACKET_IN: /* 10 */
+    case OFPT_PACKET_IN:
         dissect_openflow_packet_in_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_FLOW_REMOVED: /* 11 */
+    case OFPT_FLOW_REMOVED:
         dissect_openflow_flow_removed_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_PORT_STATUS: /* 12 */
+    case OFPT_PORT_STATUS:
         dissect_openflow_port_status_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_PACKET_OUT: /* 13 */
+    case OFPT_PACKET_OUT:
         dissect_openflow_packet_out_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_FLOW_MOD: /* 14 */
+    case OFPT_FLOW_MOD:
         dissect_openflow_flowmod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_GROUP_MOD: /* 15 */
+    case OFPT_GROUP_MOD:
         dissect_openflow_groupmod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_PORT_MOD: /* 16 */
+    case OFPT_PORT_MOD:
         dissect_openflow_portmod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_TABLE_MOD: /* 17 */
+    case OFPT_TABLE_MOD:
         dissect_openflow_tablemod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_MULTIPART_REQUEST: /* 18 */
+    case OFPT_MULTIPART_REQUEST:
         dissect_openflow_multipart_request_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_MULTIPART_REPLY: /* 19 */
+    case OFPT_MULTIPART_REPLY:
         dissect_openflow_multipart_reply_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_BARRIER_REQUEST: /* 20 */
-    case OFPT_V4_BARRIER_REPLY: /* 21 */
+    case OFPT_BARRIER_REQUEST:
+    case OFPT_BARRIER_REPLY:
         /* message has no body */
         break;
-    case OFPT_V4_QUEUE_GET_CONFIG_REQUEST: /* 22 */
+    case OFPT_QUEUE_GET_CONFIG_REQUEST:
         dissect_openflow_queue_get_config_request_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_QUEUE_GET_CONFIG_REPLY:   /* 23 */
+    case OFPT_QUEUE_GET_CONFIG_REPLY:
         dissect_openflow_queue_get_config_reply_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_ROLE_REQUEST: /* 24 */
+    case OFPT_ROLE_REQUEST:
         dissect_openflow_role_request_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_ROLE_REPLY: /* 25 */
+    case OFPT_ROLE_REPLY:
         dissect_openflow_role_reply_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_GET_ASYNC_REQUEST: /* 26 */
+    case OFPT_GET_ASYNC_REQUEST:
         /* message has no body */
         break;
-    case OFPT_V4_GET_ASYNC_REPLY: /* 27 */
-    case OFPT_V4_SET_ASYNC: /* 28 */
+    case OFPT_GET_ASYNC_REPLY:
+    case OFPT_SET_ASYNC:
         dissect_openflow_async_config_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_V4_METER_MOD: /* 29 */
+    case OFPT_METER_MOD:
         dissect_openflow_metermod_v4(tvb, pinfo, openflow_tree, offset, length);
         break;
 
@@ -4756,7 +4675,7 @@ proto_register_openflow_v4(void)
     static hf_register_info hf[] = {
         { &hf_openflow_v4_version,
             { "Version", "openflow_v4.version",
-               FT_UINT8, BASE_HEX, VALS(openflow_v4_version_values), 0x7f,
+               FT_UINT8, BASE_HEX, VALS(openflow_v4_version_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_type,
@@ -4880,7 +4799,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_match_pad,
-            { "Padding", "openflow_v4.match.pad",
+            { "Pad", "openflow_v4.match.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -4920,17 +4839,17 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_output_pad,
-            { "Padding", "openflow_v4.action.output.pad",
+            { "Pad", "openflow_v4.action.output.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_copy_ttl_out_pad,
-            { "Padding", "openflow_v4.action.copy_ttl_out.pad",
+            { "Pad", "openflow_v4.action.copy_ttl_out.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_copy_ttl_in_pad,
-            { "Padding", "openflow_v4.action.copy_ttl_in.pad",
+            { "Pad", "openflow_v4.action.copy_ttl_in.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -4940,12 +4859,12 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_set_mpls_ttl_pad,
-            { "Padding", "openflow_v4.action.set_mpls_ttl.pad",
+            { "Pad", "openflow_v4.action.set_mpls_ttl.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_dec_mpls_ttl_pad,
-            { "Padding", "openflow_v4.action.dec_mpls_ttl.pad",
+            { "Pad", "openflow_v4.action.dec_mpls_ttl.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -4955,12 +4874,12 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_push_vlan_pad,
-            { "Padding", "openflow_v4.action.push_vlan.pad",
+            { "Pad", "openflow_v4.action.push_vlan.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_pop_vlan_pad,
-            { "Padding", "openflow_v4.action.pop_vlan.pad",
+            { "Pad", "openflow_v4.action.pop_vlan.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -4970,7 +4889,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_push_mpls_pad,
-            { "Padding", "openflow_v4.action.push_mpls.pad",
+            { "Pad", "openflow_v4.action.push_mpls.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -4980,7 +4899,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_pop_mpls_pad,
-            { "Padding", "openflow_v4.action.pop_mpls.pad",
+            { "Pad", "openflow_v4.action.pop_mpls.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5005,17 +4924,17 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_set_nw_ttl_pad,
-            { "Padding", "openflow_v4.action.set_nw_ttl.pad",
+            { "Pad", "openflow_v4.action.set_nw_ttl.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_dec_nw_ttl_pad,
-            { "Padding", "openflow_v4.action.dec_nw_ttl.pad",
+            { "Pad", "openflow_v4.action.dec_nw_ttl.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_set_field_pad,
-            { "Padding", "openflow_v4.action.set_field.pad",
+            { "Pad", "openflow_v4.action.set_field.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5025,12 +4944,12 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_push_pbb_pad,
-            { "Padding", "openflow_v4.action.push_pbb.pad",
+            { "Pad", "openflow_v4.action.push_pbb.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_action_pop_pbb_pad,
-            { "Padding", "openflow_v4.action.pop_pbb.pad",
+            { "Pad", "openflow_v4.action.pop_pbb.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5055,12 +4974,12 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_instruction_goto_table_pad,
-            { "Padding", "openflow_v4.instruction.goto_table.pad",
+            { "Pad", "openflow_v4.instruction.goto_table.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_instruction_write_metadata_pad,
-            { "Padding", "openflow_v4.instruction.write_metadata.pad",
+            { "Pad", "openflow_v4.instruction.write_metadata.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5075,7 +4994,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_instruction_actions_pad,
-            { "Padding", "openflow_v4.instruction.actions.pad",
+            { "Pad", "openflow_v4.instruction.actions.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5100,7 +5019,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_port_pad,
-            { "Padding", "openflow_v4.port.pad",
+            { "Pad", "openflow_v4.port.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5110,7 +5029,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_port_pad2,
-            { "Padding", "openflow_v4.port.pad2",
+            { "Pad", "openflow_v4.port.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5535,7 +5454,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_band_drop_pad,
-            { "Padding", "openflow_v4.meter_band.drop.pad",
+            { "Pad", "openflow_v4.meter_band.drop.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5545,7 +5464,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_band_dscp_remark_pad,
-            { "Padding", "openflow_v4.meter_band.dscp_remark.pad",
+            { "Pad", "openflow_v4.meter_band.dscp_remark.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5570,7 +5489,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_hello_element_pad,
-            { "Padding", "openflow_v4.hello_element.pad",
+            { "Pad", "openflow_v4.hello_element.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5684,84 +5603,74 @@ proto_register_openflow_v4(void)
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_datapath_id,
-            { "Datapath unique ID", "openflow_v4.datapath_id",
+        { &hf_openflow_v4_switch_features_datapath_id,
+            { "datapath_id", "openflow_v4.switch_features.datapath_id",
                FT_UINT64, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_datapath_v4_mac,
-            { "MAC addr", "openflow_v4.datapath_mac",
-               FT_ETHER, BASE_NONE, NULL, 0x0,
-               NULL, HFILL }
-        },
-        { &hf_openflow_v4_datapath_impl,
-            { "Implementers part", "openflow_v4.datapath_imp",
-               FT_UINT16, BASE_HEX, NULL, 0x0,
-               NULL, HFILL }
-        },
-        { &hf_openflow_v4_n_buffers,
-            { "n_buffers", "openflow_v4.n_buffers",
+        { &hf_openflow_v4_switch_features_n_buffers,
+            { "n_buffers", "openflow_v4.switch_features.n_buffers",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_n_tables,
-            { "n_tables", "openflow_v4.n_tables",
+        { &hf_openflow_v4_switch_features_n_tables,
+            { "n_tables", "openflow_v4.switch_features.n_tables",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_auxiliary_id,
-            { "auxiliary_id", "openflow_v4.auxiliary_id",
+        { &hf_openflow_v4_switch_features_auxiliary_id,
+            { "auxiliary_id", "openflow_v4.switch_features.auxiliary_id",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_padd16,
-            { "Padding", "openflow_v4.padding16",
+        { &hf_openflow_v4_switch_features_pad,
+            { "Pad", "openflow_v4.switch_features.pad",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_padd32,
-            { "Padding", "openflow_v4.padding32",
-               FT_UINT32, BASE_DEC, NULL, 0x0,
-               NULL, HFILL }
-        },
-        { &hf_openflow_v4_capabilities,
-            { "capabilities", "openflow_v4.capabilities",
+        { &hf_openflow_v4_switch_features_capabilities,
+            { "capabilities", "openflow_v4.switch_features.capabilities",
                FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_cap_flow_stats,
-            { "Flow statistics", "openflow_v4.flow_stats",
-               FT_BOOLEAN, 32, NULL, OFPC_V4_FLOW_STATS,
+        { &hf_openflow_v4_switch_features_capabilities_flow_stats,
+            { "OFPC_FLOW_STATS", "openflow_v4.switch_features.capabilities.flow_stats",
+               FT_BOOLEAN, 32, NULL, OFPC_FLOW_STATS,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_table_stats,
-            { "Table statistics", "openflow_v4.table_stats",
-               FT_BOOLEAN, 32, NULL, OFPC_V4_TABLE_STATS,
+        { &hf_openflow_v4_switch_features_capabilities_table_stats,
+            { "OFPC_TABLE_STATS", "openflow_v4.switch_features.capabilities.table_stats",
+               FT_BOOLEAN, 32, NULL, OFPC_TABLE_STATS,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_port_stats,
-            { "Port statistics", "openflow_v4.port_stats",
-               FT_BOOLEAN, 32, NULL,  OFPC_V4_PORT_STATS,
+        { &hf_openflow_v4_switch_features_capabilities_port_stats,
+            { "OFPC_PORT_STATS", "openflow_v4.switch_features.capabilities.port_stats",
+               FT_BOOLEAN, 32, NULL,  OFPC_PORT_STATS,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_group_stats,
-            { "Group statistics", "openflow_v4.group_stats",
-               FT_BOOLEAN, 32, NULL, OFPC_V4_GROUP_STATS,
+        { &hf_openflow_v4_switch_features_capabilities_group_stats,
+            { "OFPC_GROUP_STATS", "openflow_v4.switch_features.capabilities.group_stats",
+               FT_BOOLEAN, 32, NULL, OFPC_GROUP_STATS,
                NULL, HFILL }
         },
-        { &hf_openflow__v4_ip_reasm,
-            { "Can reassemble IP fragments", "openflow_v4.ip_reasm",
-               FT_BOOLEAN, 32, NULL, OFPC_V4_IP_REASM,
+        { &hf_openflow_v4_switch_features_capabilities_ip_reasm,
+            { "OFPC_IP_REASM", "openflow_v4.switch_features.capabilities.ip_reasm",
+               FT_BOOLEAN, 32, NULL, OFPC_IP_REASM,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_queue_stats,
-            { "Queue statistics", "openflow_v4.queue_stats",
-               FT_BOOLEAN, 32, NULL, OFPC_V4_QUEUE_STATS,
+        { &hf_openflow_v4_switch_features_capabilities_queue_stats,
+            { "OFPC_QUEUE_STATS", "openflow_v4.switch_features.capabilities.queue_stats",
+               FT_BOOLEAN, 32, NULL, OFPC_QUEUE_STATS,
                NULL, HFILL }
         },
-        { &hf_openflow_v4_port_blocked,
-            { "Switch will block looping ports", "openflow_v4.port_blocked",
-               FT_BOOLEAN, 32, NULL, OFPC_V4_PORT_BLOCKED,
+        { &hf_openflow_v4_switch_features_capabilities_port_blocked,
+            { "OFPC_PORT_BLOCKED", "openflow_v4.switch_features.capabilities.port_blocked",
+               FT_BOOLEAN, 32, NULL, OFPC_PORT_BLOCKED,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_switch_features_reserved,
+            { "Reserved", "openflow_v4.switch_features_reserved",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_switch_config_flags,
@@ -5815,7 +5724,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_packet_in_pad,
-            { "Padding", "openflow_v4.packet_in.pad",
+            { "Pad", "openflow_v4.packet_in.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5875,7 +5784,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_port_status_pad,
-            { "Padding", "openflow_v4.port_status.pad",
+            { "Pad", "openflow_v4.port_status.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -5905,7 +5814,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_packet_out_pad,
-            { "Padding", "openflow_v4.packet_out.pad",
+            { "Pad", "openflow_v4.packet_out.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6010,7 +5919,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_flowmod_pad,
-            { "Padding", "openflow_v4.flowmod.pad",
+            { "Pad", "openflow_v4.flowmod.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6045,7 +5954,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_bucket_pad,
-            { "Padding", "openflow_v4.bucket.pad",
+            { "Pad", "openflow_v4.bucket.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6060,7 +5969,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_groupmod_pad,
-            { "Padding", "openflow_v4.groupmod.pad",
+            { "Pad", "openflow_v4.groupmod.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6085,7 +5994,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_portmod_pad,
-            { "Padding", "openflow_v4.portmod.pad",
+            { "Pad", "openflow_v4.portmod.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6095,7 +6004,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_portmod_pad2,
-            { "Padding", "openflow_v4.portmod.pad2",
+            { "Pad", "openflow_v4.portmod.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6235,7 +6144,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_portmod_pad3,
-            { "Padding", "openflow_v4.portmod.pad3",
+            { "Pad", "openflow_v4.portmod.pad3",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6250,7 +6159,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_tablemod_pad,
-            { "Padding", "openflow_v4.tablemod.pad",
+            { "Pad", "openflow_v4.tablemod.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6270,7 +6179,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_flow_stats_request_pad,
-            { "Padding", "openflow_v4.flow_stats_request.pad",
+            { "Pad", "openflow_v4.flow_stats_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6295,7 +6204,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_flow_stats_request_pad2,
-            { "Padding", "openflow_v4.flow_stats_request.pad2",
+            { "Pad", "openflow_v4.flow_stats_request.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6320,7 +6229,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_aggregate_stats_request_pad,
-            { "Padding", "openflow_v4.aggregate_stats_request.pad",
+            { "Pad", "openflow_v4.aggregate_stats_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6345,7 +6254,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_aggregate_stats_request_pad2,
-            { "Padding", "openflow_v4.aggregate_stats_request.pad2",
+            { "Pad", "openflow_v4.aggregate_stats_request.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6385,7 +6294,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_table_feature_prop_pad,
-            { "Padding", "openflow_v4.table_feature_prop.pad",
+            { "Pad", "openflow_v4.table_feature_prop.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6400,7 +6309,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_table_features_pad,
-            { "Padding", "openflow_v4.table_features.pad",
+            { "Pad", "openflow_v4.table_features.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6440,7 +6349,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_port_stats_request_pad,
-            { "Padding", "openflow_v4.port_stats_request.pad",
+            { "Pad", "openflow_v4.port_stats_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6475,7 +6384,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_group_stats_request_pad,
-            { "Padding", "openflow_v4.group_stats_request.pad",
+            { "Pad", "openflow_v4.group_stats_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6490,7 +6399,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_stats_request_pad,
-            { "Padding", "openflow_v4.meter_stats_request.pad",
+            { "Pad", "openflow_v4.meter_stats_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6505,7 +6414,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_config_request_pad,
-            { "Padding", "openflow_v4.aggregate_config_request.pad",
+            { "Pad", "openflow_v4.aggregate_config_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6525,7 +6434,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_multipart_request_pad,
-            { "Padding", "openflow_v4.multipart_request.pad",
+            { "Pad", "openflow_v4.multipart_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6575,7 +6484,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_flow_stats_pad,
-            { "Padding", "openflow_v4.flow_stats.pad",
+            { "Pad", "openflow_v4.flow_stats.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6635,7 +6544,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_flow_stats_pad2,
-            { "Padding", "openflow_v4.flow_stats.pad2",
+            { "Pad", "openflow_v4.flow_stats.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6670,7 +6579,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_aggregate_stats_pad,
-            { "Padding", "openflow_v4.aggregate_stats.pad",
+            { "Pad", "openflow_v4.aggregate_stats.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6685,7 +6594,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_table_stats_pad,
-            { "Padding", "openflow_v4.table_stats.pad",
+            { "Pad", "openflow_v4.table_stats.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6715,7 +6624,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_port_stats_pad,
-            { "Padding", "openflow_v4.port_stats.pad",
+            { "Pad", "openflow_v4.port_stats.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6850,7 +6759,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_group_stats_pad,
-            { "Padding", "openflow_v4.group_stats.pad",
+            { "Pad", "openflow_v4.group_stats.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6870,7 +6779,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_group_stats_pad2,
-            { "Padding", "openflow_v4.group_stats.pad2",
+            { "Pad", "openflow_v4.group_stats.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6895,7 +6804,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_group_desc_pad,
-            { "Padding", "openflow_v4.group_desc.pad2",
+            { "Pad", "openflow_v4.group_desc.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7345,7 +7254,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_stats_pad,
-            { "Padding", "openflow_v4.meter_stats.pad",
+            { "Pad", "openflow_v4.meter_stats.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7470,7 +7379,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_features_pad,
-            { "Padding", "openflow_v4.meter_features.pad",
+            { "Pad", "openflow_v4.meter_features.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7490,7 +7399,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_multipart_reply_pad,
-            { "Padding", "openflow_v4.multipart_reply.pad",
+            { "Pad", "openflow_v4.multipart_reply.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7515,7 +7424,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_queue_get_config_request_pad,
-            { "Padding", "openflow_v4.queue_get_config_request.pad",
+            { "Pad", "openflow_v4.queue_get_config_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7530,7 +7439,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_queue_prop_pad,
-            { "Padding", "openflow_v4.queue_prop.pad",
+            { "Pad", "openflow_v4.queue_prop.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7545,7 +7454,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_queue_prop_min_rate_pad,
-            { "Padding", "openflow_v4.queue_prop.min_rate.pad",
+            { "Pad", "openflow_v4.queue_prop.min_rate.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7560,7 +7469,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_queue_prop_max_rate_pad,
-            { "Padding", "openflow_v4.queue_prop.max_rate.pad",
+            { "Pad", "openflow_v4.queue_prop.max_rate.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7570,7 +7479,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_queue_prop_experimenter_pad,
-            { "Padding", "openflow_v4.queue_prop.experimenter.pad",
+            { "Pad", "openflow_v4.queue_prop.experimenter.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7600,7 +7509,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_packet_queue_pad,
-            { "Padding", "openflow_v4.packet_queue.pad",
+            { "Pad", "openflow_v4.packet_queue.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7615,7 +7524,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_queue_get_config_reply_pad,
-            { "Padding", "openflow_v4.queue_get_config_reply.pad",
+            { "Pad", "openflow_v4.queue_get_config_reply.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7625,7 +7534,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_role_request_pad,
-            { "Padding", "openflow_v4.role_request.pad",
+            { "Pad", "openflow_v4.role_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7640,7 +7549,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_role_reply_pad,
-            { "Padding", "openflow_v4.role_reply.pad",
+            { "Pad", "openflow_v4.role_reply.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7823,19 +7732,12 @@ proto_register_openflow_v4(void)
 
     static gint *ett[] = {
         &ett_openflow_v4,
-        &ett_openflow_v4_path_id,
-        &ett_openflow_v4_cap,
         &ett_openflow_v4_flowmod_flags,
-        &ett_openflow_v4_flowmod_instructions,
         &ett_openflow_v4_bucket,
-        &ett_openflow_v4_bucket_actions,
-        &ett_openflow_v4_groupmod_buckets,
         &ett_openflow_v4_oxm,
         &ett_openflow_v4_match,
-        &ett_openflow_v4_match_oxm_fields,
         &ett_openflow_v4_action,
         &ett_openflow_v4_instruction,
-        &ett_openflow_v4_instruction_actions_actions,
         &ett_openflow_v4_port,
         &ett_openflow_v4_port_config,
         &ett_openflow_v4_port_state,
@@ -7846,6 +7748,7 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_meter_band,
         &ett_openflow_v4_hello_element,
         &ett_openflow_v4_error_data,
+        &ett_openflow_v4_switch_features_capabilities,
         &ett_openflow_v4_switch_config_flags,
         &ett_openflow_v4_packet_in_data,
         &ett_openflow_v4_packet_out_data,
@@ -7948,7 +7851,7 @@ proto_register_openflow_v4(void)
     expert_module_t *expert_openflow_v4;
 
     /* Register the protocol name and description */
-    proto_openflow_v4 = proto_register_protocol("OpenFlow_V4",
+    proto_openflow_v4 = proto_register_protocol("OpenFlow 1.3",
             "openflow_v4", "openflow_v4");
 
     new_register_dissector("openflow_v4", dissect_openflow_v4, proto_openflow_v4);
