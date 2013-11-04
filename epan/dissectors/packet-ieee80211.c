@@ -528,6 +528,16 @@ enum fixed_field {
   FIELD_WNM_ACTION_CODE,
   FIELD_KEY_DATA_LENGTH,
   FIELD_WNM_NOTIFICATION_TYPE,
+  FIELD_RM_ACTION_CODE,
+  FIELD_RM_DIALOG_TOKEN,
+  FIELD_RM_REPETITIONS,
+  FIELD_RM_TX_POWER,
+  FIELD_RM_MAX_TX_POWER,
+  FIELD_RM_TPC_REPORT,
+  FIELD_RM_RX_ANTENNA_ID,
+  FIELD_RM_TX_ANTENNA_ID,
+  FIELD_RM_RCPI,
+  FIELD_RM_RSNI,
                                               /* add any new fixed field value above this line */
   MAX_FIELD_NUM
 };
@@ -1236,6 +1246,14 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define TDLS_PEER_PSM_RESPONSE          8
 #define TDLS_PEER_TRAFFIC_RESPONSE      9
 #define TDLS_DISCOVERY_REQUEST          10
+
+/* IEEE Std 802.11-2012, 8.5.7.1, Table 8-206 */
+#define RM_ACTION_RADIO_MEASUREMENT_REQUEST         0
+#define RM_ACTION_RADIO_MEASUREMENT_REPORT          1
+#define RM_ACTION_LINK_MEASUREMENT_REQUEST          2
+#define RM_ACTION_LINK_MEASUREMENT_REPORT           3
+#define RM_ACTION_NEIGHBOR_REPORT_REQUEST           4
+#define RM_ACTION_NEIGHBOR_REPORT_RESPONSE          5
 
 /* 11s draft 12.0, table 7-57v30 */
 #define MESH_ACTION_LINK_METRIC_REPORT              0
@@ -2815,6 +2833,20 @@ static int hf_ieee80211_ff_wnm_action_code = -1;
 static int hf_ieee80211_ff_key_data_length = -1;
 static int hf_ieee80211_ff_key_data = -1;
 static int hf_ieee80211_ff_wnm_notification_type = -1;
+static int hf_ieee80211_ff_rm_action_code = -1;
+static int hf_ieee80211_ff_rm_dialog_token = -1;
+static int hf_ieee80211_ff_rm_repetitions = -1;
+static int hf_ieee80211_ff_rm_tx_power = -1;
+static int hf_ieee80211_ff_rm_max_tx_power = -1;
+static int hf_ieee80211_ff_tpc = -1;
+static int hf_ieee80211_ff_tpc_element_id = -1;
+static int hf_ieee80211_ff_tpc_length = -1;
+static int hf_ieee80211_ff_tpc_tx_power = -1;
+static int hf_ieee80211_ff_tpc_link_margin = -1;
+static int hf_ieee80211_ff_rm_rx_antenna_id = -1;
+static int hf_ieee80211_ff_rm_tx_antenna_id = -1;
+static int hf_ieee80211_ff_rm_rcpi = -1;
+static int hf_ieee80211_ff_rm_rsni = -1;
 static int hf_ieee80211_ff_request_mode_pref_cand = -1;
 static int hf_ieee80211_ff_request_mode_abridged = -1;
 static int hf_ieee80211_ff_request_mode_disassoc_imminent = -1;
@@ -4264,6 +4296,8 @@ static gint ett_ff_chan_switch_announce = -1;
 static gint ett_ff_ht_info = -1;
 static gint ett_ff_psmp_sta_info = -1;
 
+static gint ett_tpc = -1;
+
 static gint ett_msdu_aggregation_parent_tree = -1;
 static gint ett_msdu_aggregation_subframe_tree = -1;
 
@@ -4397,6 +4431,17 @@ static const value_string tdls_action_codes[] = {
   {0, NULL}
 };
 static value_string_ext tdls_action_codes_ext = VALUE_STRING_EXT_INIT(tdls_action_codes);
+
+static const value_string rm_action_codes[] = {
+  {RM_ACTION_RADIO_MEASUREMENT_REQUEST,   "Radio Measurement Request"},
+  {RM_ACTION_RADIO_MEASUREMENT_REPORT,    "Radio Measurement Report"},
+  {RM_ACTION_LINK_MEASUREMENT_REQUEST,    "Link Measurement Request"},
+  {RM_ACTION_LINK_MEASUREMENT_REPORT,     "Link Measurement Report"},
+  {RM_ACTION_NEIGHBOR_REPORT_REQUEST,     "Neighbor Report Request"},
+  {RM_ACTION_NEIGHBOR_REPORT_RESPONSE,    "Neighbor Report Response"},
+  {0, NULL}
+};
+static value_string_ext rm_action_codes_ext = VALUE_STRING_EXT_INIT(rm_action_codes);
 
 AIRPDCAP_CONTEXT airpdcap_ctx;
 
@@ -6868,6 +6913,54 @@ add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 }
 
 static guint
+add_ff_action_radio_measurement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint  start = offset;
+  guint8 code;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
+  code = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_ACTION_CODE);
+
+  switch (code) {
+  case RM_ACTION_RADIO_MEASUREMENT_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_REPETITIONS);
+    /* Followed by Measurement Request Elements */
+    break;
+  case RM_ACTION_RADIO_MEASUREMENT_REPORT:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    /* Followed by Measurement Report Elements */
+    break;
+  case RM_ACTION_LINK_MEASUREMENT_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_TX_POWER);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_MAX_TX_POWER);
+    /* Followed by Optional Subelements */
+    break;
+  case RM_ACTION_LINK_MEASUREMENT_REPORT:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_TPC_REPORT);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_RX_ANTENNA_ID);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_TX_ANTENNA_ID);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_RCPI);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_RSNI);
+    /* Followed by Optional Subelements */
+    break;
+  case RM_ACTION_NEIGHBOR_REPORT_REQUEST:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    /* Followed by Optional Subelements */
+    break;
+  case RM_ACTION_NEIGHBOR_REPORT_RESPONSE:
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_RM_DIALOG_TOKEN);
+    /* Followed by Neighbor Report Elements */
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
 add_ff_action_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint  start = offset;
@@ -7303,6 +7396,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
     return add_ff_action_block_ack(tree, tvb, pinfo, offset);
   case CAT_PUBLIC:
     return add_ff_action_public(tree, tvb, pinfo, offset);
+  case CAT_RADIO_MEASUREMENT:
+    return add_ff_action_radio_measurement(tree, tvb, pinfo, offset);
   case CAT_FAST_BSS_TRANSITION:
     return add_ff_action_fast_bss_transition(tree, tvb, pinfo, offset);
   case CAT_SA_QUERY:
@@ -7449,6 +7544,98 @@ add_ff_wnm_notification_type(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   return 1;
 }
 
+/* Action frame: Radio Measurement actions */
+static guint
+add_ff_rm_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_action_code, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+static guint
+add_ff_rm_dialog_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_dialog_token, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+/* Radio Measurement Request frame, Action fields */
+static guint
+add_ff_rm_repetitions(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* Note: 65535 means repeated until cancelled or superseded */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_repetitions, tvb, offset, 2,
+                      ENC_BIG_ENDIAN);
+  return 2;
+}
+
+/* Link Measurement Request frame, Action fields*/
+static guint
+add_ff_rm_tx_power(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* In dBm, see 8.4.1.20 */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_tx_power, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+static guint
+add_ff_rm_max_tx_power(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* In dBm, see 8.4.1.19 */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_max_tx_power, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+/* Link Measurement Report frame, Action fields */
+static guint
+add_ff_rm_tpc_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree *tpc_tree;
+  proto_item *tpc_item;
+
+  /* 8.4.2.19 TPC Report element */
+  tpc_item = proto_tree_add_item(tree, hf_ieee80211_ff_tpc, tvb, offset, 4, ENC_NA);
+  tpc_tree = proto_item_add_subtree(tpc_item, ett_tpc);
+  proto_tree_add_item(tpc_tree, hf_ieee80211_ff_tpc_element_id, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(tpc_tree, hf_ieee80211_ff_tpc_length, tvb, offset + 1, 1, ENC_NA);
+  proto_tree_add_item(tpc_tree, hf_ieee80211_ff_tpc_tx_power, tvb, offset + 2, 1, ENC_NA);
+  proto_tree_add_item(tpc_tree, hf_ieee80211_ff_tpc_link_margin, tvb, offset + 3, 1, ENC_NA);
+  return 4;
+}
+
+static guint
+add_ff_rm_rx_antenna_id(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* 8.4.2.42: 0 means unknown, 1-254 is valid, 255 means multiple antennas */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_rx_antenna_id, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+static guint
+add_ff_rm_tx_antenna_id(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* 8.4.2.42: 0 means unknown, 1-254 is valid, 255 means multiple antennas */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_tx_antenna_id, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+static guint
+add_ff_rm_rcpi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* 8.4.2.40: RCPI as specified for certain PHYs */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_rcpi, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+static guint
+add_ff_rm_rsni(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  /* 8.4.2.43: RSNI in steps of 0.5 dB, calculated as:
+   * RSNI = (10 * log10((RCPI_{power} - ANPI_{power}) / ANPI_{power}) + 20)*2 */
+  proto_tree_add_item(tree, hf_ieee80211_ff_rm_rsni, tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
 #define FF_FIELD(f, func) { FIELD_ ## f, add_ff_ ## func }
 
 static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
@@ -7516,6 +7703,17 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(WNM_ACTION_CODE                       , wnm_action_code),
   FF_FIELD(KEY_DATA_LENGTH                       , key_data_length),
   FF_FIELD(WNM_NOTIFICATION_TYPE                 , wnm_notification_type),
+  FF_FIELD(RM_ACTION_CODE                        , rm_action_code),
+  FF_FIELD(RM_DIALOG_TOKEN                       , rm_dialog_token),
+  FF_FIELD(RM_REPETITIONS                        , rm_repetitions),
+  FF_FIELD(RM_TX_POWER                           , rm_tx_power),
+  FF_FIELD(RM_MAX_TX_POWER                       , rm_max_tx_power),
+  FF_FIELD(RM_TPC_REPORT                         , rm_tpc_report),
+  FF_FIELD(RM_RX_ANTENNA_ID                      , rm_rx_antenna_id),
+  FF_FIELD(RM_TX_ANTENNA_ID                      , rm_tx_antenna_id),
+  FF_FIELD(RM_RCPI                               , rm_rcpi),
+  FF_FIELD(RM_RSNI                               , rm_rsni),
+
   { (enum fixed_field)-1                         , NULL }
 };
 
@@ -15851,6 +16049,76 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wnm_notification_types_ext, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_rm_action_code,
+     {"Action code", "wlan_mgt.rm.action_code",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rm_action_codes_ext, 0,
+      "Radio Measurement Action", HFILL }},
+
+    {&hf_ieee80211_ff_rm_dialog_token,
+     {"Dialog token", "wlan_mgt.rm.dialog_token",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Non-zero Dialog Token identifies request/report transaction", HFILL }},
+
+    {&hf_ieee80211_ff_rm_repetitions,
+     {"Repetitions", "wlan_mgt.rm.repetitions",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "Numer of Repetitions, 65535 indicates repeat until cancellation", HFILL }},
+
+    {&hf_ieee80211_ff_rm_tx_power,
+     {"Transmit Power Used", "wlan_mgt.rm.tx_power",
+      FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_rm_max_tx_power,
+     {"Max Transmit Power", "wlan_mgt.rm.max_tx_power",
+      FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_tpc,
+     {"TPC Report", "wlan_mgt.rm.tpc",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_tpc_element_id,
+     {"TPC Element ID", "wlan_mgt.rm.tpc.element_id",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_tpc_length,
+     {"TPC Length", "wlan_mgt.rm.tpc.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Length of TPC Report element (always 2)", HFILL }},
+
+    {&hf_ieee80211_ff_tpc_tx_power,
+     {"TPC Transmit Power", "wlan_mgt.rm.tpc.tx_power",
+      FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_tpc_link_margin,
+     {"TPC Link Margin", "wlan_mgt.rm.tpc.link_margin",
+      FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_rm_rx_antenna_id,
+     {"Receive Antenna ID", "wlan_mgt.rm.rx_antenna_id",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_rm_tx_antenna_id,
+     {"Transmit Antenna ID", "wlan_mgt.rm.tx_antenna_id",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_rm_rcpi,
+     {"Received Channel Power", "wlan_mgt.rm.rcpi",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_rm_rsni,
+     {"Received Signal to noise indication", "wlan_mgt.rm.rsni",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_request_mode_pref_cand,
      {"Preferred Candidate List Included","wlan_mgt.fixed.request_mode.pref_cand",
       FT_UINT8, BASE_DEC, NULL, 0x01,
@@ -21425,6 +21693,7 @@ proto_register_ieee80211 (void)
     &ett_wme_ecw,
     &ett_wme_qos_info,
     &ett_ht_cap_tree,
+    &ett_tpc,
     &ett_ath_cap_tree,
     &ett_ff_ba_param_tree,
     &ett_ff_qos_info,
