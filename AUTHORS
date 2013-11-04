@@ -3537,6 +3537,10 @@ Ishraq Ibne Ashraf	<ishraq[AT]tinkerforge.com> {
 	tfp (Tinkerforge) dissector
 }
 
+RobiOneKenobi		<robionekenobi[AT]bluewin.ch> {
+	IBM WebSphere MQ protocol dissector enhancements
+}
+
 
 and by:
 
@@ -3772,7 +3776,6 @@ Karl Beldan		<karl.beldan[AT]gmail.com>
 Jiri Engelthaler	<engycz[AT]gmail.com>
 Stephen Ludin		<sludin[AT]ludin.org>
 Andreas Urke		<andurke[AT]gmail.com>
-RobiOneKenobi		<robionekenobi[AT]bluewin.ch>
 Patrik Lundquist	<patrik.lundquist[AT]gmail.com>
 Mark Vitale		<mvitale[AT]sinenomine.net>
 Peter Wu		<lekensteyn[AT]gmail.com>
