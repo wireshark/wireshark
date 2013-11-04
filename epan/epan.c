@@ -67,6 +67,8 @@
 #include <ares_version.h>
 #endif
 
+static wmem_allocator_t *pinfo_pool_cache = NULL;
+
 const gchar*
 epan_get_version(void) {
 	return VERSION;
@@ -224,6 +226,15 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 
 	edt->session = session;
 
+	memset(&edt->pi, 0, sizeof(edt->pi));
+	if (pinfo_pool_cache != NULL) {
+		edt->pi.pool = pinfo_pool_cache;
+		pinfo_pool_cache = NULL;
+	}
+	else {
+		edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+	}
+
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root(&edt->pi);
 		proto_tree_set_visible(edt->tree, proto_tree_visible);
@@ -233,9 +244,6 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 	}
 
 	edt->tvb = NULL;
-
-	memset(&edt->pi, 0, sizeof(edt->pi));
-	edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
 	return edt;
 }
@@ -334,7 +342,13 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 		proto_tree_free(edt->tree);
 	}
 
-	wmem_destroy_allocator(edt->pi.pool);
+	if (pinfo_pool_cache == NULL) {
+		wmem_free_all(edt->pi.pool);
+		pinfo_pool_cache = edt->pi.pool;
+	}
+	else {
+		wmem_destroy_allocator(edt->pi.pool);
+	}
 }
 
 void

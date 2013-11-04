@@ -252,8 +252,6 @@ struct _protocol {
 /* List of all protocols */
 static GList *protocols = NULL;
 
-static wmem_allocator_t *tree_pool_cache = NULL;
-
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
 #define FIELD_INFO_NEW(pool, fi)  fi = wmem_new(pool, field_info)
@@ -573,8 +571,6 @@ proto_tree_reset(proto_tree *tree)
 	/* Reset track of the number of children */
 	tree_data->count = 0;
 
-	wmem_free_all(tree_data->mem_pool);
-
 	PROTO_NODE_INIT(tree);
 }
 
@@ -582,7 +578,6 @@ proto_tree_reset(proto_tree *tree)
 void
 proto_tree_free(proto_tree *tree)
 {
-	wmem_allocator_t *pool = PNODE_POOL(tree);
 	tree_data_t *tree_data = PTREE_DATA(tree);
 
 	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
@@ -595,15 +590,6 @@ proto_tree_free(proto_tree *tree)
 
 		/* And then destroy the hash. */
 		g_hash_table_destroy(tree_data->interesting_hfids);
-	}
-
-	if (tree_pool_cache) {
-		/* if we already have one cached then just destroy it */
-		wmem_destroy_allocator(pool);
-	}
-	else {
-		wmem_free_all(pool);
-		tree_pool_cache = pool;
 	}
 
 	g_slice_free(tree_data_t, tree_data);
@@ -4090,16 +4076,7 @@ proto_item_get_len(const proto_item *pi)
 proto_tree *
 proto_tree_create_root(packet_info *pinfo)
 {
-	wmem_allocator_t *pool;
 	proto_node *pnode;
-
-	if (tree_pool_cache) {
-		pool = tree_pool_cache;
-		tree_pool_cache = NULL;
-	}
-	else {
-		pool = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
-	}
 
 	/* Initialize the proto_node */
 	pnode = g_slice_new(proto_tree);
@@ -4110,8 +4087,6 @@ proto_tree_create_root(packet_info *pinfo)
 
 	/* Make sure we can access pinfo everywhere */
 	pnode->tree_data->pinfo = pinfo;
-
-	pnode->tree_data->mem_pool = pool;
 
 	/* Don't initialize the tree_data_t. Wait until we know we need it */
 	pnode->tree_data->interesting_hfids = NULL;
