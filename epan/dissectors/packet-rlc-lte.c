@@ -2840,20 +2840,10 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (p_rlc_lte_info->ueid != 0) {
         proto_item_append_text(top_ti, "   UEId=%u", p_rlc_lte_info->ueid);
     }
-
-    if (p_rlc_lte_info->channelId == 0) {
-        proto_item_append_text(top_ti, " (%s) ",
-                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
-    }
-    else {
-        proto_item_append_text(top_ti, " (%s:%u) ",
-                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
-                               p_rlc_lte_info->channelId);
-    }
-
+    
     /* Append context highlights to info column */
     write_pdu_label_and_info(top_ti, NULL, pinfo,
-                             "[%s] [%s] ",
+                             " [%s] [%s] ",
                              (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
                              val_to_str_const(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
     if (p_rlc_lte_info->ueid != 0) {
