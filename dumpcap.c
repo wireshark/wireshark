@@ -411,7 +411,7 @@ static void WS_MSVC_NORETURN exit_main(int err) G_GNUC_NORETURN;
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(unsigned int packet_count);
-static void report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, gchar *name);
+static void report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, guint32 ps_ifdrop, gchar *name);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg);
 
@@ -3887,6 +3887,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         if (pcap_opts->pcap_h != NULL) {
             g_assert(!pcap_opts->from_cap_pipe);
             /* Get the capture statistics, so we know how many packets were dropped. */
+            /*
+             * Older versions of libpcap didn't set ps_ifdrop on some
+             * platforms; initialize it to 0 to handle that.
+             */
+            stats->ps_ifdrop = 0;
             if (pcap_stats(pcap_opts->pcap_h, stats) >= 0) {
                 *stats_known = TRUE;
                 /* Let the parent process know. */
@@ -3898,7 +3903,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error(errmsg, please_report);
             }
         }
-        report_packet_drops(received, pcap_dropped, pcap_opts->dropped, pcap_opts->flushed, interface_opts.console_display_name);
+        report_packet_drops(received, pcap_dropped, pcap_opts->dropped, pcap_opts->flushed, stats->ps_ifdrop, interface_opts.console_display_name);
     }
 
     /* close the input file (pcap or capture pipe) */
@@ -5089,7 +5094,7 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
 }
 
 static void
-report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, gchar *name)
+report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, guint32 ps_ifdrop, gchar *name)
 {
     char tmp[SP_DECISIZE+1+1];
     guint32 total_drops = pcap_drops + drops + flushed;
@@ -5098,14 +5103,14 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
 
     if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Packets received/dropped on interface %s: %u/%u (pcap:%u/dumpcap:%u/flushed:%u)",
-            name, received, total_drops, pcap_drops, drops, flushed);
+            "Packets received/dropped on interface %s: %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
+            name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop);
         /* XXX: Need to provide interface id, changes to consumers required. */
         pipe_write_block(2, SP_DROPS, tmp);
     } else {
         fprintf(stderr,
-            "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u) (%.1f%%)\n",
-            name, received, total_drops, pcap_drops, drops, flushed,
+            "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u) (%.1f%%)\n",
+            name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop,
             received ? 100.0 * received / (received + total_drops) : 0.0);
         /* stderr could be line buffered */
         fflush(stderr);
