@@ -43,6 +43,8 @@
 #include <epan/tap.h>
 
 #include "packet-tcp.h"
+#include "packet-ip.h"
+#include "packet-icmp.h"
 
 static int tcp_tap = -1;
 
@@ -4079,16 +4081,15 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          *  carry enough TCP payload for this dissector to put the sequence
          *  numbers in via the regular code path.
          */
-        if (pinfo->layer_names != NULL && pinfo->layer_names->str != NULL) {
-            /*  use strstr because g_strrstr is only present in glib2.0 and
-             *  g_str_has_suffix in glib2.2
-             *
-             * TODO: Both g_strrstr and g_str_has_suffix could be used now, so
-             *       should we use one of them?  And if g_str_has_suffix, then
-             *       the needle probably needs to be "icmp:ip:tcp", doesn't it?
-             */
-            if (strstr(pinfo->layer_names->str, "icmp:ip") != NULL)
-                proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        {
+            wmem_list_frame_t *frame;
+            frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+            if (proto_ip == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame))) {
+                frame = wmem_list_frame_prev(frame);
+                if (proto_icmp == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame))) {
+                    proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+                }
+            }
         }
     }
 

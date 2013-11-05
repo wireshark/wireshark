@@ -24,6 +24,8 @@
 #ifndef __PACKET_BTRFCOMM_H__
 #define __PACKET_BTRFCOMM_H__
 
+extern int proto_btrfcomm;
+
 typedef struct _btrfcomm_data_t {
     guint32 interface_id;
     guint32 adapter_id;

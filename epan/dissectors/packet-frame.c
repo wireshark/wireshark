@@ -415,11 +415,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
 			PROTO_ITEM_SET_GENERATED(ti);
 			proto_tree_set_visible(fh_tree, old_visible);
-
-			pinfo->layer_names = g_string_new("");
 		}
-		else
-			pinfo->layer_names = NULL;
 
 		if(pinfo->fd->pfd != 0){
 			proto_item *ppd_item;
@@ -523,10 +519,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	ENDTRY;
 
-	if (tree && pinfo->layer_names) {
-		proto_item_append_string(ti, pinfo->layer_names->str);
-		g_string_free(pinfo->layer_names, TRUE);
-		pinfo->layer_names = NULL;
+        if(proto_field_is_referenced(tree, hf_frame_protocols)) {
+		wmem_strbuf_t *val = wmem_strbuf_new(wmem_packet_scope(), "");
+		wmem_list_frame_t *frame;
+		/* skip the first entry, it's always the "frame" protocol */
+		frame = wmem_list_frame_next(wmem_list_head(pinfo->layers));
+		if (frame) {
+			wmem_strbuf_append(val, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame))));
+			frame = wmem_list_frame_next(frame);
+		}
+		while (frame) {
+			wmem_strbuf_append_c(val, ':');
+			wmem_strbuf_append(val, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame))));
+			frame = wmem_list_frame_next(frame);
+		}
+		proto_item_append_string(ti, wmem_strbuf_get_str(val));
 	}
 
 	/*  Call postdissectors if we have any (while trying to avoid another
@@ -846,3 +853,16 @@ proto_reg_handoff_frame(void)
 	data_handle = find_dissector("data");
 	docsis_handle = find_dissector("docsis");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

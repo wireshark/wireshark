@@ -28,6 +28,8 @@
 
 #include "ws_symbol_export.h"
 
+extern int proto_ip;
+
 typedef struct _ws_ip
 {
     guint8  ip_v_hl; /* combines ip_v and ip_hl */

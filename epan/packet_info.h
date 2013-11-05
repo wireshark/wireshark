@@ -185,11 +185,10 @@ typedef struct _packet_info {
   void    *private_data;		/**< pointer to data passed from one dissector to another */
   GHashTable *private_table;	/**< a hash table passed from one dissector to another */
 
+  wmem_list_t *layers; 		/**< layers of each protocol */
   guint8 curr_layer_num;       /**< The current "depth" or layer number in the current frame */
-  /* TODO: Use emem_strbuf_t instead */
-  GString *layer_names; 		/**< layers of each protocol */
   guint16 link_number;
-  guint8  annex_a_used;			/**< used in packet-mtp2.c 
+  guint8  annex_a_used;			/**< used in packet-mtp2.c
 								 * defined in wtap.h
 								 * MTP2_ANNEX_A_NOT_USED      0
 								 * MTP2_ANNEX_A_USED          1
@@ -210,7 +209,7 @@ typedef struct _packet_info {
 
   GSList *frame_end_routines;
 
-  struct _wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
+  wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
   struct epan_session *epan;
   nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
   const gchar  *pkt_comment; /**< NULL if not available */

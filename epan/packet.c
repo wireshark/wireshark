@@ -427,7 +427,9 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 	edt->pi.dcerpc_procedure_name="";
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
+	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;
+
 
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
@@ -551,7 +553,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	const char  *saved_proto;
 	guint16      saved_can_desegment;
 	int          ret;
-	gint         saved_layer_names_len = 0;
+	guint        saved_layers_len = 0;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -563,9 +565,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 
 	saved_proto = pinfo->current_proto;
 	saved_can_desegment = pinfo->can_desegment;
-
-	if (pinfo->layer_names != NULL)
-		saved_layer_names_len = (gint) pinfo->layer_names->len;
+	saved_layers_len = wmem_list_count(pinfo->layers);
 
 	/*
 	 * can_desegment is set to 2 by anyone which offers the
@@ -591,12 +591,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		 */
 		if (add_proto_name) {
 			pinfo->curr_layer_num++;
-			if (pinfo->layer_names) {
-				if (pinfo->layer_names->len > 0)
-					g_string_append(pinfo->layer_names, ":");
-					g_string_append(pinfo->layer_names,
-					proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
-			}
+			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(handle->protocol)));
 		}
 	}
 
@@ -614,8 +609,8 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
  		 * remove its protocol's name from the list
  		 * of protocols.
 		 */
- 		if ((pinfo->layer_names != NULL)&&(add_proto_name)) {
- 			g_string_truncate(pinfo->layer_names, saved_layer_names_len);
+		while (wmem_list_count(pinfo->layers) > saved_layers_len) {
+			wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 		}
  	}
  	pinfo->current_proto = saved_proto;
@@ -1814,7 +1809,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	GSList            *entry;
 	heur_dtbl_entry_t *hdtbl_entry;
 	guint16            saved_can_desegment;
-	gint               saved_layer_names_len = 0;
+	guint              saved_layers_len = 0;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then everytime a subdissector is called it is decremented by one.
@@ -1832,8 +1827,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	status      = FALSE;
 	saved_proto = pinfo->current_proto;
 
-	if (pinfo->layer_names != NULL)
-		saved_layer_names_len = (gint) pinfo->layer_names->len;
+	saved_layers_len = wmem_list_count(pinfo->layers);
 
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		/* XXX - why set this now and above? */
@@ -1856,12 +1850,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			 * Add the protocol name to the layers; we'll remove it
 			 * if the dissector fails.
 			 */
-			if (pinfo->layer_names) {
-				if (pinfo->layer_names->len > 0)
-					g_string_append(pinfo->layer_names, ":");
-					g_string_append(pinfo->layer_names,
-					proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol)));
-			}
+			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(hdtbl_entry->protocol)));
 		}
 		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s",
 				 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
@@ -1879,8 +1868,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			 * remove its protocol's name from the list
 			 * of protocols.
 			 */
-			if (pinfo->layer_names != NULL) {
-				g_string_truncate(pinfo->layer_names, saved_layer_names_len);
+			while (wmem_list_count(pinfo->layers) > saved_layers_len) {
+				wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 			}
 		}
 	}

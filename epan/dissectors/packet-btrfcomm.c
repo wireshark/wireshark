@@ -98,7 +98,7 @@ static int hf_address = -1;
 static int hf_control = -1;
 
 /* Initialize the protocol and registered fields */
-static int proto_btrfcomm = -1;
+int proto_btrfcomm = -1;
 static int proto_btdun = -1;
 static int proto_btspp = -1;
 static int proto_btgnss = -1;

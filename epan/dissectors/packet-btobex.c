@@ -1275,10 +1275,14 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32               k_channel;
     obex_last_opcode_data_t  *obex_last_opcode_data;
     guint32                   k_direction;
+    gint                  parent_proto;
 
     save_fragmented = pinfo->fragmented;
 
-    if (!pinfo->fd->flags.visited && pinfo->layer_names && !g_strrstr(pinfo->layer_names->str, "btrfcomm")) {
+    parent_proto = (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
+                wmem_list_frame_prev(wmem_list_tail(pinfo->layers))));
+
+    if (!pinfo->fd->flags.visited && parent_proto == proto_btrfcomm) {
         wmem_tree_insert32(obex_over_l2cap, pinfo->fd->num, (void *) TRUE);
     } else {
         is_obex_over_l2cap = wmem_tree_lookup32(obex_over_l2cap, pinfo->fd->num) ? TRUE : FALSE;

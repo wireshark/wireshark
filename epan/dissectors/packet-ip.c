@@ -88,7 +88,7 @@ static gboolean ip_use_geoip = TRUE;
 /* Interpret the reserved flag as security flag (RFC 3514) */
 static gboolean ip_security_flag = FALSE;
 
-static int proto_ip = -1;
+int proto_ip = -1;
 static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
 static int hf_ip_dsfield = -1;
