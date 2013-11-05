@@ -32,6 +32,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+#include "packet-tcp.h"
+
 void proto_register_openflow(void);
 void proto_reg_handoff_openflow(void);
 
@@ -153,6 +155,8 @@ static gint ett_openflow_port = -1;
 static gint ett_openflow_port_cnf = -1;
 static gint ett_openflow_port_state = -1;
 static gint ett_openflow_port_cf = -1;
+
+static gboolean openflow_desegment = TRUE;
 
 #define OFP_VERSION_1_0 1
 #define OFP_VERSION_1_1 2
@@ -784,7 +788,7 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 static int
-dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *openflow_tree;
@@ -871,42 +875,46 @@ dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 
-/* Code to actually dissect the packets */
-static int
-dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static guint
+get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    return tvb_get_ntohs(tvb, offset + 2);
+}
+
+
+static void
+dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint offset = 0;
     guint8 version;
-
 
     version = tvb_get_guint8(tvb, 0);
     /* Set the Protocol column to the constant string of openflow */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    if((version&0x80)==0x80){
-        /* XXX COL_INFO ? */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow experimental version");
-        proto_tree_add_text(tree, tvb, offset, -1, "Experimental versions not dissected");
-        return 0;
-    }
-    version = version & 0x7f;
-
     switch(version){
     case OFP_VERSION_1_0:
-        offset = dissect_openflow_v_1_0(tvb, pinfo, tree, data);
+        dissect_openflow_v_1_0(tvb, pinfo, tree);
         break;
     case OFP_VERSION_1_3:
         call_dissector(openflow_v4_handle, tvb, pinfo, tree);
-        offset = tvb_length(tvb);
         break;
     default:
         proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
         break;
     }
+}
 
-    return offset;
+
+#define OFP_HEADER_LEN  8
+static int
+dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, openflow_desegment, OFP_HEADER_LEN,
+                     get_openflow_pdu_length, dissect_openflow_tcp_pdu);
+    return tvb_length(tvb);
 }
 
 /*
@@ -1402,6 +1410,13 @@ proto_register_openflow(void)
     prefs_register_uint_preference(openflow_module, "tcp.port", "openflow TCP Port",
             " openflow TCP port if other than the default",
             10, &g_openflow_port);
+
+    /* Register desegment preference */
+    prefs_register_bool_preference(openflow_module, "desegment",
+                                  "Reassemble OpenFlow messages spanning multiple TCP segments",
+                                  "Whether the OpenFlow dissector should reassemble messages spanning multiple TCP segments."
+                                  " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                  &openflow_desegment);
 }
 
 void
