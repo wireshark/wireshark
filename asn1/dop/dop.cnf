@@ -107,67 +107,67 @@ OpBindingErrorParam/bindingType  BindingType
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/initiator/symmetric
 
-  offset = call_dop_oid_callback("establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric", actx->private_data);
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/initiator/roleA-initiates
 
-  offset = call_dop_oid_callback("establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("establish.rolea", tvb, offset, actx->pinfo, tree, "roleA", actx->private_data);
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/initiator/roleB-initiates
 
-  offset = call_dop_oid_callback("establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("establish.roleb", tvb, offset, actx->pinfo, tree, "roleB", actx->private_data);
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/initiator/symmetric
 
-  offset = call_dop_oid_callback("modify.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("modify.symmetric", tvb, offset, actx->pinfo, tree, "symmetric", actx->private_data);
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/initiator/roleA-initiates
 
-  offset = call_dop_oid_callback("modify.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("modify.rolea", tvb, offset, actx->pinfo, tree, "roleA", actx->private_data);
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/initiator/roleB-initiates
 
-  offset = call_dop_oid_callback("modify.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("modify.roleb", tvb, offset, actx->pinfo, tree, "roleB", actx->private_data);
 
 #.FN_BODY	TerminateOperationalBindingArgumentData/initiator/symmetric
 
-  offset = call_dop_oid_callback("terminate.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("terminate.symmetric", tvb, offset, actx->pinfo, tree, "symmetric", actx->private_data);
 
 #.FN_BODY	TerminateOperationalBindingArgumentData/initiator/roleA-initiates
 
-  offset = call_dop_oid_callback("terminate.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("terminate.rolea", tvb, offset, actx->pinfo, tree, "roleA", actx->private_data);
 
 #.FN_BODY	TerminateOperationalBindingArgumentData/initiator/roleB-initiates
 
-  offset = call_dop_oid_callback("terminate.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("terminate.roleb", tvb, offset, actx->pinfo, tree, "roleB", actx->private_data);
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/agreement
 
-  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL, actx->private_data);
 
 #.FN_BODY	EstablishOperationalBindingResult/initiator/symmetric
 
-  offset = call_dop_oid_callback("establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric", actx->private_data);
 
 #.FN_BODY	EstablishOperationalBindingResult/initiator/roleA-replies
 
-  offset = call_dop_oid_callback("establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("establish.rolea", tvb, offset, actx->pinfo, tree, "roleA", actx->private_data);
 
 #.FN_BODY	EstablishOperationalBindingResult/initiator/roleB-replies
 
-  offset = call_dop_oid_callback("establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("establish.roleb", tvb, offset, actx->pinfo, tree, "roleB", actx->private_data);
 
 #.FN_BODY	OpBindingErrorParam/agreementProposal
 
-  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL, actx->private_data);
 
 #.FN_BODY	ModifyOperationalBindingResultData/newAgreement
 
-  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL, actx->private_data);
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/newAgreement
 
-  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL, actx->private_data);
 
 
 #.FN_BODY OperationalBindingID/identifier  VAL_PTR	= &value

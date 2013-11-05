@@ -61,8 +61,6 @@ static void prefs_register_disp(void); /* forward declaration for use in prefere
 /* Initialize the protocol and registered fields */
 static int proto_disp = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 #include "packet-disp-hf.c"
 
 /* Initialize the subtree pointers */
@@ -74,13 +72,14 @@ static gint ett_disp = -1;
 /*
 * Dissect DISP PDUs inside a ROS PDUs
 */
-static void
-dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
+	struct SESSION_DATA_STRUCTURE* session;
 	int (*disp_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *disp_op_name;
 	asn1_ctx_t asn1_ctx;
@@ -88,20 +87,21 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
+	if( data == NULL ){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
 		}
-		return  ;
-	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+		return 0;
 	}
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_disp, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_disp);
-	}
+	session  = ((struct SESSION_DATA_STRUCTURE*)data);
+
+	asn1_ctx.private_data = session;
+
+	item = proto_tree_add_item(parent_tree, proto_disp, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_disp);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISP");
   	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -172,7 +172,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP PDU");
-	  return;
+	  return tvb_length(tvb);
 	}
 
 	if(disp_dissector) {
@@ -187,6 +187,8 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    }
 	  }
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -208,7 +210,7 @@ void proto_register_disp(void) {
 
   /* Register protocol */
   proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("disp", dissect_disp, proto_disp);
+  new_register_dissector("disp", dissect_disp, proto_disp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_disp, hf, array_length(hf));

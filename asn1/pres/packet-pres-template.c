@@ -58,10 +58,6 @@ static int proto_pres = -1;
 /* Initialize the connectionles protocol */
 static int proto_clpres = -1;
 
-
-/*   type of session envelop */
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 /*      pointers for acse dissector  */
 proto_tree *global_tree  = NULL;
 packet_info *global_pinfo = NULL;
@@ -230,37 +226,36 @@ pres_free_cb(void *r)
  * Dissect an PPDU.
  */
 static int
-dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* local_session)
 {
 	proto_item *ti;
-	proto_tree *pres_tree = NULL;
+	proto_tree *pres_tree;
+	struct SESSION_DATA_STRUCTURE* session;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* do we have spdu type from the session dissector?  */
-	if( !pinfo->private_data ){
-		if(tree){
-			proto_tree_add_text(tree, tvb, offset, -1,
+	if( local_session == NULL ){
+		proto_tree_add_text(tree, tvb, offset, -1,
 				"Internal error:can't get spdu type from session dissector.");
-			return 0;
-		}
-	}else{
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
-		if(session->spdu_type == 0 ){
-			if(tree){
-				proto_tree_add_text(tree, tvb, offset, -1,
-					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
-				return 0;
-			}
-		}
+		return 0;
 	}
+
+	session = local_session;
+	if(session->spdu_type == 0 ){
+		proto_tree_add_text(tree, tvb, offset, -1,
+			"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+		return 0;
+	}
+
 	/*  set up type of PPDU */
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
-	if (tree){
-		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, ENC_NA);
-		pres_tree = proto_item_add_subtree(ti, ett_pres);
-	}
+
+	asn1_ctx.private_data = session;
+
+	ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, ENC_NA);
+	pres_tree = proto_item_add_subtree(ti, ett_pres);
 
 	switch(session->spdu_type){
 		case SES_CONNECTION_REQUEST:
@@ -296,12 +291,13 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	return offset;
 }
 
-static void
-dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0, old_offset;
+	struct SESSION_DATA_STRUCTURE* session;
 
-	session = ((struct SESSION_DATA_STRUCTURE*)(pinfo->private_data));
+	session = ((struct SESSION_DATA_STRUCTURE*)data);
 
 	/* first, try to check length   */
 	/* do we have at least 4 bytes  */
@@ -309,7 +305,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (session && session->spdu_type != SES_MAJOR_SYNC_POINT) {
 			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");
-			return;  /* no, it isn't a presentation PDU */
+			return 0;  /* no, it isn't a presentation PDU */
 		}
 	}
 
@@ -335,7 +331,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		/* dissect the packet */
 		dissect_UD_type_PDU(tvb, pinfo, clpres_tree);
-		return;
+		return tvb_length(tvb);
 	}
 
 	/*  we can't make any additional checking here   */
@@ -348,22 +344,24 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* This is a reassembly initiated in packet-ses */
 		char *oid = find_oid_by_pres_ctx_id (pinfo, session->pres_ctx_id);
 		if (oid) {
-			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree, NULL);
+			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree, session);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");
 		}
-		return;
-         }
+		return tvb_length(tvb);
+	}
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset = offset;
-		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree);
+		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree, session);
 		if(offset <= old_offset){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,"Invalid offset");
 			THROW(ReportedBoundsError);
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -432,7 +430,7 @@ void proto_register_pres(void) {
 
   /* Register protocol */
   proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("pres", dissect_pres, proto_pres);
+  new_register_dissector("pres", dissect_pres, proto_pres);
 
   /* Register connectionless protocol (just for the description) */
   proto_clpres = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);

@@ -189,7 +189,7 @@ static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t 
 }
 
 
-static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* session)
 {
 	ros_info_t *rinfo;
 	gint32     opcode_lcl = 0;
@@ -199,9 +199,6 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 	const value_string *lookup;
 	proto_item *item=NULL;
 	proto_tree *ros_tree=NULL;
-	struct SESSION_DATA_STRUCTURE* session = NULL;
-
-	session = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
 
 	if((session != NULL) && ((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL)) {
 
@@ -261,14 +258,14 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 }
 
 int
-call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* session)
 {
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	if(!ros_try_string(oid, next_tvb, pinfo, tree) &&
-           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, NULL)){
+	if(!ros_try_string(oid, next_tvb, pinfo, tree, session) &&
+           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, session)){
 		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 
@@ -493,7 +490,7 @@ static int
 dissect_ros_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 32 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
@@ -505,7 +502,7 @@ dissect_ros_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 	/* now add the opcode */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -536,7 +533,7 @@ static int
 dissect_ros_OperationResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 49 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -548,7 +545,7 @@ dissect_ros_OperationResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_RESULT);
 	/* now add the opcode */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -602,7 +599,7 @@ static int
 dissect_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 66 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -614,7 +611,7 @@ dissect_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
 	/* now add the opcode  (really the error code) */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -806,7 +803,7 @@ static int
 dissect_ros_T_bind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 83 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-invoke");
@@ -814,7 +811,7 @@ dissect_ros_T_bind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -828,7 +825,7 @@ static int
 dissect_ros_T_bind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 96 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-result");
@@ -836,7 +833,7 @@ dissect_ros_T_bind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -850,7 +847,7 @@ static int
 dissect_ros_T_bind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 109 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-error");
@@ -858,7 +855,7 @@ dissect_ros_T_bind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -873,7 +870,7 @@ static int
 dissect_ros_T_unbind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 123 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-invoke");
@@ -881,7 +878,7 @@ dissect_ros_T_unbind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_ARGUMENT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -896,7 +893,7 @@ static int
 dissect_ros_T_unbind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 137 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-result");
@@ -904,7 +901,7 @@ dissect_ros_T_unbind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_RESULT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -918,7 +915,7 @@ static int
 dissect_ros_T_unbind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 150 "../../asn1/ros/ros.cnf"
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-error");
@@ -926,7 +923,7 @@ dissect_ros_T_unbind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_ERROR);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
@@ -1005,18 +1002,18 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 373 "../../asn1/ros/packet-ros-template.c"
+#line 370 "../../asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
 */
-static void
-dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	proto_tree *next_tree=NULL;
 	conversation_t *conversation;
 	ros_conv_info_t *ros_info = NULL;
@@ -1032,9 +1029,10 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error:can't get application context from ACSE dissector.");
 		}
-		return  ;
+		return 0;
 	}
 
+    asn1_ctx.private_data = data;
 	conversation = find_or_create_conversation(pinfo);
 
 	/*
@@ -1053,14 +1051,13 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  ros_info->next = ros_info_items;
 	  ros_info_items = ros_info;
-	  }
+	}
 
 	/* pinfo->private_data = ros_info; */
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_ros, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_ros);
-	}
+	item = proto_tree_add_item(parent_tree, proto_ros, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_ros);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ROS");
   	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1079,6 +1076,8 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 static void
@@ -1236,7 +1235,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 491 "../../asn1/ros/packet-ros-template.c"
+#line 490 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1257,7 +1256,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 498 "../../asn1/ros/packet-ros-template.c"
+#line 497 "../../asn1/ros/packet-ros-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1269,7 +1268,7 @@ void proto_register_ros(void) {
 
   /* Register protocol */
   proto_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ros", dissect_ros, proto_ros);
+  new_register_dissector("ros", dissect_ros, proto_ros);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

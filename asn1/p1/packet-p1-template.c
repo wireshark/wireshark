@@ -221,13 +221,13 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /*
 * Dissect P1 PDUs inside a PPDU.
 */
-static void
-dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	struct SESSION_DATA_STRUCTURE* session;
 	int (*p1_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *p1_op_name;
@@ -239,20 +239,21 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
 
 	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
+	if( data == NULL ){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
 		}
-		return;
+		return 0;
 	}
 
-	session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+	session  = ( (struct SESSION_DATA_STRUCTURE*)data );
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_p1);
-	}
+	asn1_ctx.private_data = session;
+
+	item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_p1);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -279,7 +280,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
-	  return;
+	  return tvb_length(tvb);
 	}
 
 	col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
@@ -293,6 +294,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 	p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+	return tvb_length(tvb);
 }
 
 
@@ -348,7 +350,7 @@ void proto_register_p1(void) {
 
   /* Register protocol */
   proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p1", dissect_p1, proto_p1);
+  new_register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
 

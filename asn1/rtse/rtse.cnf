@@ -6,6 +6,7 @@ RTORJapdu
 RTABapdu
 
 #.FN_BODY RTORJapdu/userDataRJ
+    struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 	const char *oid = NULL;
 
 	switch(app_proto)  {
@@ -25,32 +26,35 @@ RTABapdu
 		oid = "applicationProtocol.12";
 
 	if(oid) {
-	  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
+	  if(session != NULL)
 		session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
 
-		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
 	}
 
 #.FN_BODY RTABapdu/userdataAB
 /*XXX not implemented yet */
 
 #.FN_BODY RTORQapdu
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
+  if(session != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
   open_request=TRUE;
   %(DEFAULT_BODY)s
   open_request=FALSE;
 
 #.FN_BODY RTOACapdu
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
+  if(session != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
   %(DEFAULT_BODY)s
 
 #.FN_BODY ConnectionData/open
 
+	struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 	const char *oid = NULL;
 
 	switch(app_proto)  {
@@ -71,13 +75,14 @@ RTABapdu
 
 	if(oid) {
 
-		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
 	}
 
 	/* else XXX: need to flag we can't find the presentation context */
 
 #.FN_BODY RTTRapdu
 	tvbuff_t *next_tvb = NULL;
+    struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
 

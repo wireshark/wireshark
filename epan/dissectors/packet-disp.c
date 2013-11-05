@@ -1501,8 +1501,8 @@ static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
 /*
 * Dissect DISP PDUs inside a ROS PDUs
 */
-static void
-dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
@@ -1515,14 +1515,14 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
+	if( data == NULL ){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
 		}
-		return  ;
+		return 0;
 	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+		session  = ((struct SESSION_DATA_STRUCTURE*)data);
 	}
 
 	if(parent_tree){
@@ -1599,7 +1599,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP PDU");
-	  return;
+	  return tvb_length(tvb);
 	}
 
 	if(disp_dissector) {
@@ -1614,6 +1614,8 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    }
 	  }
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -2056,7 +2058,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 200 "../../asn1/disp/packet-disp-template.c"
+#line 202 "../../asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2121,13 +2123,13 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 206 "../../asn1/disp/packet-disp-template.c"
+#line 208 "../../asn1/disp/packet-disp-template.c"
   };
   module_t *disp_module;
 
   /* Register protocol */
   proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("disp", dissect_disp, proto_disp);
+  new_register_dissector("disp", dissect_disp, proto_disp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_disp, hf, array_length(hf));
@@ -2160,7 +2162,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 234 "../../asn1/disp/packet-disp-template.c"
+#line 236 "../../asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

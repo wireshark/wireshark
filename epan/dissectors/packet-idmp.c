@@ -116,11 +116,9 @@ static const fragment_items idmp_frag_items = {
 };
 
 
-static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree _U_)
+static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree, struct SESSION_DATA_STRUCTURE *session)
 {
-    struct SESSION_DATA_STRUCTURE *session;
-
-    if((session = (struct SESSION_DATA_STRUCTURE*)pinfo->private_data) != NULL) {
+    if(session != NULL) {
 
         if((!saved_protocolID) && (op == (ROS_OP_BIND | ROS_OP_RESULT))) {
             /* save for subsequent operations - should be into session data */
@@ -129,7 +127,7 @@ static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         /* mimic ROS! */
         session->ros_op = op;
-        offset = call_ros_oid_callback(saved_protocolID ? saved_protocolID : protocolID, tvb, offset, pinfo, top_tree);
+        offset = call_ros_oid_callback(saved_protocolID ? saved_protocolID : protocolID, tvb, offset, pinfo, tree, session);
     }
 
     return offset;
@@ -173,7 +171,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 132 "../../asn1/idmp/packet-idmp-template.c"
+#line 130 "../../asn1/idmp/packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -192,7 +190,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 136 "../../asn1/idmp/packet-idmp-template.c"
+#line 134 "../../asn1/idmp/packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -210,8 +208,9 @@ dissect_idmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_idmp_Bind_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree, session);
 
 
   return offset;
@@ -238,8 +237,9 @@ dissect_idmp_IdmBind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_idmp_Bind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree, session);
 
 
   return offset;
@@ -290,8 +290,9 @@ dissect_idmp_T_aETitleError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_idmp_Bind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND| ROS_OP_ERROR), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND| ROS_OP_ERROR), top_tree, session);
 
 
   return offset;
@@ -361,8 +362,9 @@ dissect_idmp_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_idmp_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree, session);
 
 
   return offset;
@@ -419,9 +421,9 @@ dissect_idmp_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_idmp_T_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree);
-
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree, session);
 
 
   return offset;
@@ -616,7 +618,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 138 "../../asn1/idmp/packet-idmp-template.c"
+#line 136 "../../asn1/idmp/packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -630,10 +632,9 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 {
     int offset = 0;
 
-    proto_item                    *item    = NULL;
-    proto_tree                    *tree    = NULL;
+    proto_item                    *item;
+    proto_tree                    *tree;
     asn1_ctx_t                     asn1_ctx;
-    void                          *save_private_data;
     struct SESSION_DATA_STRUCTURE  session;
     gboolean                       idmp_final;
     guint32                        idmp_length;
@@ -653,10 +654,8 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     /* save parent_tree so subdissectors can create new top nodes */
     top_tree=parent_tree;
 
-    if(parent_tree){
-        item = proto_tree_add_item(parent_tree, proto_idmp, tvb, 0, -1, ENC_NA);
-        tree = proto_item_add_subtree(item, ett_idmp);
-    }
+    item = proto_tree_add_item(parent_tree, proto_idmp, tvb, 0, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_idmp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDMP");
 
@@ -667,6 +666,8 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     idmp_final = tvb_get_guint8(tvb, offset); offset++;
     proto_tree_add_item(tree, hf_idmp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     idmp_length = tvb_get_ntohl(tvb, offset); offset += 4;
+
+    asn1_ctx.private_data = &session;
 
     if(idmp_reassemble) {
 
@@ -710,12 +711,8 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     }
     /* not reassembling - just dissect */
     if(idmp_final) {
-        save_private_data = pinfo->private_data;
-        pinfo->private_data = &session;
-
+        asn1_ctx.private_data = &session;
         dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
-
-        pinfo->private_data = save_private_data;
     }
 
 }
@@ -932,7 +929,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 321 "../../asn1/idmp/packet-idmp-template.c"
+#line 314 "../../asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -955,7 +952,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 329 "../../asn1/idmp/packet-idmp-template.c"
+#line 322 "../../asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 

@@ -322,8 +322,6 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		    proto_tree *param_tree,
 		    struct SESSION_DATA_STRUCTURE *session)
 {
-	void *saved_private_data;
-
 	/* do we have OSI presentation packet dissector ? */
 	if(!pres_handle)
 	{
@@ -340,20 +338,8 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		tvbuff_t *next_tvb;
 
 		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
-		/*   save type of session pdu. We'll need it in the presentation dissector  */
-		saved_private_data = pinfo->private_data;
-		pinfo->private_data = session;
-		TRY
-		{
-			call_dissector(pres_handle, next_tvb, pinfo, tree);
-		}
-		CATCH_ALL
-		{
-			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-		}
-		ENDTRY;
-		/* Restore private_data even if there was an exception */
-		pinfo->private_data = saved_private_data;
+		/* Pass the session pdu to the presentation dissector  */
+		call_dissector_with_data(pres_handle, next_tvb, pinfo, tree, session);
 	}
 }
 
@@ -1031,7 +1017,6 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	int len_len;
 	guint16 parameters_len;
 	tvbuff_t *next_tvb = NULL;
-	void *save_private_data;
 	guint32 *pres_ctx_id = NULL;
 	guint8 enclosure_item_flags = BEGINNING_SPDU|END_SPDU;
 	struct SESSION_DATA_STRUCTURE session;
@@ -1163,11 +1148,8 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		if (!pres_handle) {
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		} else {
-			/* save type of session pdu. We'll need it in the presentation dissector */
-			save_private_data = pinfo->private_data;
-			pinfo->private_data = &session;
-			call_dissector(pres_handle, next_tvb, pinfo, tree);
-			pinfo->private_data = save_private_data;
+			/* Pass the session pdu to the presentation dissector */
+			call_dissector_with_data(pres_handle, next_tvb, pinfo, tree, &session);
 		}
 
 		/*

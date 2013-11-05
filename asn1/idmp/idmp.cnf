@@ -28,8 +28,9 @@ IDM-PDU/result		idm_result
 IdmResult/invokeID	idm_invokeID
 
 #.FN_BODY	IdmBind/argument
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_ARGUMENT), top_tree, session);
 
 #.END
 
@@ -37,8 +38,9 @@ IdmResult/invokeID	idm_invokeID
 
 
 #.FN_BODY	IdmBindResult/result
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND | ROS_OP_RESULT), top_tree, session);
 
 #.END
 
@@ -47,23 +49,25 @@ IdmResult/invokeID	idm_invokeID
 #.END
 
 #.FN_BODY	IdmBindError/error
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND| ROS_OP_ERROR), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_BIND| ROS_OP_ERROR), top_tree, session);
 
 #.END
 
 #.FN_PARS Code/local VAL_PTR = &opcode
 
 #.FN_BODY	Request/argument
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree);
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_ARGUMENT | opcode), top_tree, session);
 
 #.END
 
 #.FN_BODY	IdmResult/result
+	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree);
-
+	return call_idmp_oid_callback(tvb, offset, actx->pinfo, (ROS_OP_INVOKE | ROS_OP_RESULT | opcode), top_tree, session);
 
 #.END
 

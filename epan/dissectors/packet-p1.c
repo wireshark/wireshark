@@ -1052,7 +1052,7 @@ dissect_p1_TokenTypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 1154 "../../asn1/p1/p1.cnf"
 
 	if(actx->external.direct_reference)
-		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1243,7 +1243,7 @@ dissect_p1_SecurityCategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 	const char *name;
 
 	if (actx->external.direct_reference) {
-		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
 		name = oid_resolved_from_string(actx->external.direct_reference);
 		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	} else {
@@ -3060,7 +3060,7 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 			expert_add_info(actx->pinfo, item, &ei_p1_unknown_standard_extension);
 		}
 	} else if (actx->external.direct_ref_present) {
-		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
 		name = oid_resolved_from_string(actx->external.direct_reference);
 		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	}
@@ -3235,7 +3235,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	if (next_tvb) {
 		if (ctx && ctx->content_type_id) {
-			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, NULL);
+			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
 	} else if (ctx && ctx->report_unknown_content_type) {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
@@ -8342,13 +8342,13 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /*
 * Dissect P1 PDUs inside a PPDU.
 */
-static void
-dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	struct SESSION_DATA_STRUCTURE* session;
 	int (*p1_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *p1_op_name;
@@ -8360,20 +8360,21 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
 
 	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
+	if( data == NULL ){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
 		}
-		return;
+		return 0;
 	}
 
-	session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+	session  = ( (struct SESSION_DATA_STRUCTURE*)data );
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_p1);
-	}
+	asn1_ctx.private_data = session;
+
+	item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_p1);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -8400,7 +8401,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
-	  return;
+	  return tvb_length(tvb);
 	}
 
 	col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
@@ -8414,6 +8415,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 	p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+	return tvb_length(tvb);
 }
 
 
@@ -10702,7 +10704,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 324 "../../asn1/p1/packet-p1-template.c"
+#line 326 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10901,7 +10903,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 337 "../../asn1/p1/packet-p1-template.c"
+#line 339 "../../asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -10916,7 +10918,7 @@ void proto_register_p1(void) {
 
   /* Register protocol */
   proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p1", dissect_p1, proto_p1);
+  new_register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
 
@@ -11104,7 +11106,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 383 "../../asn1/p1/packet-p1-template.c"
+#line 385 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

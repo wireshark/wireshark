@@ -63,8 +63,6 @@ static void prefs_register_dsp(void); /* forward declaration for use in preferen
 /* Initialize the protocol and registered fields */
 static int proto_dsp = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 
 /*--- Included file: packet-dsp-hf.c ---*/
 #line 1 "../../asn1/dsp/packet-dsp-hf.c"
@@ -207,7 +205,7 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-#line 61 "../../asn1/dsp/packet-dsp-template.c"
+#line 59 "../../asn1/dsp/packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
@@ -287,7 +285,7 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-#line 65 "../../asn1/dsp/packet-dsp-template.c"
+#line 63 "../../asn1/dsp/packet-dsp-template.c"
 
 
 /*--- Included file: packet-dsp-fn.c ---*/
@@ -1785,18 +1783,19 @@ static void dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-#line 67 "../../asn1/dsp/packet-dsp-template.c"
+#line 65 "../../asn1/dsp/packet-dsp-template.c"
 
 /*
 * Dissect X518 PDUs inside a ROS PDUs
 */
-static void
-dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
+	struct SESSION_DATA_STRUCTURE* session;
 	int (*dsp_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *dsp_op_name;
 	asn1_ctx_t asn1_ctx;
@@ -1804,22 +1803,23 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
+	if( data == NULL ){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
 		}
-		return  ;
-	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+		return  0;
 	}
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_dsp, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_dsp);
-	}
+	session  = ( (struct SESSION_DATA_STRUCTURE*)data);
+
+	item = proto_tree_add_item(parent_tree, proto_dsp, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_dsp);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAP");
   	col_clear(pinfo->cinfo, COL_INFO);
+
+	asn1_ctx.private_data = session;
 
 	switch(session->ros_op & ROS_OP_MASK) {
 	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
@@ -1966,7 +1966,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DSP PDU");
-	  return;
+	  return tvb_length(tvb);
 	}
 
 	if(dsp_dissector) {
@@ -1981,6 +1981,8 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    }
 	  }
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -2543,7 +2545,7 @@ void proto_register_dsp(void) {
         "EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 272 "../../asn1/dsp/packet-dsp-template.c"
+#line 274 "../../asn1/dsp/packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2625,14 +2627,14 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 278 "../../asn1/dsp/packet-dsp-template.c"
+#line 280 "../../asn1/dsp/packet-dsp-template.c"
   };
   module_t *dsp_module;
 
   /* Register protocol */
   proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("dsp", dissect_dsp, proto_dsp);
+  new_register_dissector("dsp", dissect_dsp, proto_dsp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dsp, hf, array_length(hf));
@@ -2666,7 +2668,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 308 "../../asn1/dsp/packet-dsp-template.c"
+#line 310 "../../asn1/dsp/packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

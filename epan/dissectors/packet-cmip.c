@@ -792,7 +792,7 @@ dissect_cmip_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_cmip_T_attributeValueAssertionvalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 286 "../../asn1/cmip/cmip.cnf"
-    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, actx->pinfo, tree, NULL);
+    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -956,7 +956,7 @@ static int
 dissect_cmip_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 274 "../../asn1/cmip/cmip.cnf"
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
-    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
   } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
     offset=tvb_length (tvb);
   } else {
@@ -1129,7 +1129,7 @@ dissect_cmip_ActionTypeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_cmip_T_actionInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 441 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1286,7 +1286,7 @@ dissect_cmip_NoSuchArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_cmip_T_eventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 471 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1391,7 +1391,7 @@ dissect_cmip_ActionError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_cmip_T_actionReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 474 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1473,7 +1473,7 @@ dissect_cmip_ModifyOperator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_cmip_T_attributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 468 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1701,7 +1701,7 @@ dissect_cmip_DeleteResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_cmip_T_eventReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 450 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1728,7 +1728,7 @@ dissect_cmip_EventReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_cmip_EventReportArgumentEventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 447 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -1995,7 +1995,7 @@ dissect_cmip_T_errorId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_cmip_T_errorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 465 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -2348,7 +2348,7 @@ dissect_cmip_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_cmip_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 481 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -2445,7 +2445,7 @@ dissect_cmip_AttributeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_cmip_T_oldAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 484 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -2457,7 +2457,7 @@ dissect_cmip_T_oldAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_cmip_T_newAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 487 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -3233,7 +3233,7 @@ dissect_cmip_T_serviceUseridentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 static int
 dissect_cmip_T_details(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 492 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -3356,7 +3356,7 @@ dissect_cmip_T_featureIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_cmip_T_featureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 497 "../../asn1/cmip/cmip.cnf"
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
 
@@ -4387,34 +4387,34 @@ static void dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /* XXX this one should be broken out later and moved into the conformance file */
-static void
-dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	static struct SESSION_DATA_STRUCTURE* session;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	struct SESSION_DATA_STRUCTURE* session;
+	proto_item *item;
+	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	session = (struct SESSION_DATA_STRUCTURE*)pinfo->private_data;
+	session = (struct SESSION_DATA_STRUCTURE*)data;
 
 	/* do we have spdu type from the session dissector?  */
 	if( !session ){
-		proto_tree_add_text(tree, tvb, 0, -1,
+		proto_tree_add_text(parent_tree, tvb, 0, -1,
 			"Internal error:can't get spdu type from session dissector.");
-		return;
-	} else {
-		if(session->spdu_type == 0 ) {
-			proto_tree_add_text(tree, tvb, 0, -1,
-				"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
-			return;
-		}
+		return 0;
 	}
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_cmip, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_cmip);
+	if(session->spdu_type == 0 ) {
+		proto_tree_add_text(parent_tree, tvb, 0, -1,
+			"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+		return 0;
 	}
+
+	asn1_ctx.private_data = session;
+
+	item = proto_tree_add_item(parent_tree, proto_cmip, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_cmip);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMIP");
   	col_clear(pinfo->cinfo, COL_INFO);
@@ -4435,6 +4435,8 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		default:
 			;
 	}
+
+	return tvb_length(tvb);
 }
 
 /*--- proto_register_cmip ----------------------------------------------*/
@@ -5580,7 +5582,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 189 "../../asn1/cmip/packet-cmip-template.c"
+#line 191 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5712,11 +5714,12 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 195 "../../asn1/cmip/packet-cmip-template.c"
+#line 197 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* Register protocol */
   proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  new_register_dissector("cmip", dissect_cmip, proto_cmip);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));
@@ -5797,7 +5800,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 204 "../../asn1/cmip/packet-cmip-template.c"
+#line 207 "../../asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", FT_UINT32, BASE_DEC);
@@ -5807,8 +5810,10 @@ void proto_register_cmip(void) {
 
 /*--- proto_reg_handoff_cmip -------------------------------------------*/
 void proto_reg_handoff_cmip(void) {
-	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
-	register_ber_oid_dissector("2.9.1.1.4", dissect_cmip, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
+	dissector_handle_t cmip_handle = find_dissector("cmip");
+
+	register_ber_oid_dissector_handle("2.9.0.0.2", cmip_handle, proto_cmip, "cmip");
+	register_ber_oid_dissector_handle("2.9.1.1.4", cmip_handle, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
 	oid_add_from_string("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");
 	oid_add_from_string("2.9.3.2.3.2","managedObjectClass(3) attributeValueChangeRecord(2)");

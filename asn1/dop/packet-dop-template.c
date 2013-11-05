@@ -58,10 +58,9 @@ static void prefs_register_dop(void); /* forward declaration for use in preferen
 /* Initialize the protocol and registered fields */
 static int proto_dop = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *binding_type = NULL; /* binding_type */
 
-static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info);
+static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data);
 
 #include "packet-dop-hf.c"
 
@@ -86,7 +85,7 @@ static void append_oid(packet_info *pinfo, const char *oid)
 #include "packet-dop-fn.c"
 
 static int
-call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info)
+call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data)
 {
   char* binding_param;
 
@@ -94,7 +93,7 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
-  if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree, NULL)) {
+  if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree, data)) {
      offset = tvb_reported_length (tvb);
   } else {
      proto_item *item=NULL;
@@ -115,13 +114,14 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
 /*
 * Dissect DOP PDUs inside a ROS PDUs
 */
-static void
-dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
+	struct SESSION_DATA_STRUCTURE* session;
 	int (*dop_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *dop_op_name;
 	asn1_ctx_t asn1_ctx;
@@ -129,22 +129,23 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
+	if( data == NULL ){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
 		}
-		return  ;
-	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+		return  0;
 	}
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_dop, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_dop);
-	}
+	session = ( (struct SESSION_DATA_STRUCTURE*)data );
+
+	item = proto_tree_add_item(parent_tree, proto_dop, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_dop);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DOP");
   	col_clear(pinfo->cinfo, COL_INFO);
+
+	asn1_ctx.private_data = session;
 
 	switch(session->ros_op & ROS_OP_MASK) {
 	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
@@ -213,7 +214,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DOP PDU");
-	  return;
+	  return tvb_length(tvb);
 	}
 
 	if(dop_dissector) {
@@ -228,6 +229,8 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    }
 	  }
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -258,7 +261,7 @@ void proto_register_dop(void) {
   /* Register protocol */
   proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("dop", dissect_dop, proto_dop);
+  new_register_dissector("dop", dissect_dop, proto_dop);
 
   dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", FT_STRING, BASE_NONE);
 

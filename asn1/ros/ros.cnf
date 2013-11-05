@@ -30,7 +30,7 @@ Reject/problem/returnResult	rejectResult
 
 #.FN_BODY Invoke/argument
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
@@ -42,12 +42,12 @@ Reject/problem/returnResult	rejectResult
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 	/* now add the opcode */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ReturnResult/result/result
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -59,12 +59,12 @@ Reject/problem/returnResult	rejectResult
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_RESULT);
 	/* now add the opcode */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ReturnError/parameter
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -76,12 +76,12 @@ Reject/problem/returnResult	rejectResult
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
 	/* now add the opcode  (really the error code) */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ROS/bind-invoke
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-invoke");
@@ -89,12 +89,12 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ROS/bind-result
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-result");
@@ -102,12 +102,12 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ROS/bind-error
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-error");
@@ -115,13 +115,13 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
 #.FN_BODY ROS/unbind-invoke
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-invoke");
@@ -129,13 +129,13 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_ARGUMENT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 
 #.FN_BODY ROS/unbind-result
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-result");
@@ -143,12 +143,12 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_RESULT);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ROS/unbind-error
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->pinfo->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE *)actx->private_data;
 
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-error");
@@ -156,7 +156,7 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_ERROR);
-    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
 #.FN_BODY ROS/reject
