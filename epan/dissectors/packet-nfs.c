@@ -6961,7 +6961,7 @@ static const value_string fattr4_names[] = {
 	{	FATTR4_SUPPATTR_EXCLCREAT, "Suppattr_ExclCreat"	},
 #define FATTR4_FS_CHARSET_CAP      76
 	{	FATTR4_FS_CHARSET_CAP,     "FS_Charset_Cap"		},
-#define FATTR4_SECURITY_LABEL      81
+#define FATTR4_SECURITY_LABEL      80
 	{	FATTR4_SECURITY_LABEL,     "Security_Label"		},
 	{	0,	NULL	}
 };
