@@ -1301,7 +1301,6 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       ETHERCAT_MBOX_HEADER hdr;
 
       init_mbx_header(&hdr, tvb, offset);
-      pinfo->private_data = &hdr;
 
       if( mailbox_length >= ETHERCAT_MBOX_HEADER_LEN + hdr.Length )
       {
