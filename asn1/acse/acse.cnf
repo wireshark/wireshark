@@ -69,7 +69,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY EXTERNALt/_untag/indirect-reference
   char *oid;
-  struct SESSION_DATA_STRUCTURE* session = actx->private_data;
+  struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*) actx->private_data;
 
   offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
                 hf_acse_indirect_reference,
