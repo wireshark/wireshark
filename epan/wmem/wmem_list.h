@@ -80,6 +80,10 @@ wmem_list_remove(wmem_list_t *list, void *data);
 
 WS_DLL_PUBLIC
 void
+wmem_list_remove_frame(wmem_list_t *list, wmem_list_frame_t *frame);
+
+WS_DLL_PUBLIC
+void
 wmem_list_prepend(wmem_list_t *list, void *data);
 
 WS_DLL_PUBLIC

@@ -91,6 +91,12 @@ wmem_list_remove(wmem_list_t *list, void *data)
         return;
     }
 
+    wmem_list_remove_frame(list, frame);
+}
+
+void
+wmem_list_remove_frame(wmem_list_t *list, wmem_list_frame_t *frame)
+{
     if (frame->prev) {
         frame->prev->next = frame->next;
     }
