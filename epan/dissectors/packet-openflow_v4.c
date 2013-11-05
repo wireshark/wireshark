@@ -51,6 +51,8 @@ static int hf_openflow_v4_oxm_length = -1;
 static int hf_openflow_v4_oxm_experimenter_experimenter = -1;
 static int hf_openflow_v4_oxm_value = -1;
 static int hf_openflow_v4_oxm_value_etheraddr = -1;
+static int hf_openflow_v4_oxm_value_vlan_present = -1;
+static int hf_openflow_v4_oxm_value_vlan_vid = -1;
 static int hf_openflow_v4_oxm_value_ethertype = -1;
 static int hf_openflow_v4_oxm_value_ipv4addr = -1;
 static int hf_openflow_v4_oxm_value_ipv6addr = -1;
@@ -983,6 +985,8 @@ dissect_openflow_oxm_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     return offset;
 }
 
+
+#define OFPVID_PRESENT  0x1000
 static int
 dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
@@ -1030,6 +1034,12 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         case OFPXMT_OFB_ETH_TYPE:
             proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            break;
+
+        case OFPXMT_OFB_VLAN_VID:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_vlan_present, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_vlan_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
             break;
 
@@ -4736,6 +4746,16 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_oxm_value_ethertype,
             { "Value", "openflow_v4.oxm.value",
                FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_vlan_present,
+            { "OFPVID_PRESENT", "openflow_v4.oxm.value",
+               FT_BOOLEAN, 16, NULL, OFPVID_PRESENT,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_vlan_vid,
+            { "Value", "openflow_v4.oxm.value",
+               FT_UINT16, BASE_DEC, NULL, 0x0fff,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_ipv4addr,
