@@ -923,6 +923,11 @@ APPVER=5.02
 #                                   add Psapi.lib to the TARGETLIBS macro and compile the program with -DPSAPI_VERSION=1. 
 #                                   To use run-time dynamic linking, load Psapi.dll.
 #                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
+# -DBUILD_WINDOWS                   Starting from VS2103, GetVersionEx is deprecated and we are recommended to use
+#                                   VerifyVersionInfo instead
+#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
+#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms725491(v=vs.85).aspx
+#                                   To continue to use GetVersionEx, we can define BUILD_WINDOWS
 #
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
@@ -939,6 +944,11 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2013EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
+
+!IF "$(MSVC_VARIANT)" == "MSVC2013"   || \
+        "$(MSVC_VARIANT)" == "MSVC2013EE"
+LOCAL_CFLAGS=$(LOCAL_CFLAGS) /DBUILD_WINDOWS
+!ENDIF
 
 !IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
 LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
