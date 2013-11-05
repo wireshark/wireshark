@@ -3161,8 +3161,6 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Figure out the tcp seq and pdu length.  Fragment tree is indexed based on seq;
 		 */
-		DISSECTOR_ASSERT((pinfo != NULL) && (pinfo->private_data != NULL));
-
 		tcpinfo = (struct tcpinfo *)p_get_proto_data(pinfo->fd, proto_ndmp, 0);
 
 		seq = tcpinfo->seq;
