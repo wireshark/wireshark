@@ -1144,7 +1144,10 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		nexttvb = tvb_new_subset_remaining(newtvb, suboffset);
-		call_dissector(p_conv_data->bta2dp_info->codec_dissector, nexttvb, pinfo, tree);
+		if (p_conv_data->bta2dp_info->codec_dissector)
+			call_dissector(p_conv_data->bta2dp_info->codec_dissector, nexttvb, pinfo, tree);
+		else
+			call_dissector(data_handle, nexttvb, pinfo, tree);
 	} else if (p_conv_data && p_conv_data->btvdp_info) {
 		tvbuff_t  *nexttvb;
 		gint       suboffset = 0;
@@ -1158,7 +1161,10 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		nexttvb = tvb_new_subset_remaining(newtvb, suboffset);
-		call_dissector(p_conv_data->btvdp_info->codec_dissector, nexttvb, pinfo, tree);
+		if (p_conv_data->btvdp_info->codec_dissector)
+			call_dissector(p_conv_data->btvdp_info->codec_dissector, nexttvb, pinfo, tree);
+		else
+			call_dissector(data_handle, nexttvb, pinfo, tree);
 	}
 
 	/* if we don't found, it is static OR could be set static from the preferences */
