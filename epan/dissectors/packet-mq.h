@@ -33,22 +33,13 @@
 #define GET_VALSP(F) (gchar *)GET_VALSV(F)
 #define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
 {
-#define DEF_VALSXB(A) const value_string GET_VALSV(A)[] = \
+#define DEF_VALSBX(A) const value_string GET_VALSV(A)[] = \
 {
-#define DEF_VALS1(A)   { (guint32)MQ_##A, #A }
-#define DEF_VALS2(A,B) { (guint32)MQ_##A, B }
+#define DEF_VALS1(A)    { (guint32)MQ_##A, #A }
+#define DEF_VALS2(A, B) { (guint32)MQ_##A, B }
 #define DEF_VALSE \
 { 0, NULL } \
 }
-#define DEF_VALSEXT(A)  DEF_VALSEXT1(GET_VALSV(A))
-#define DEF_VALSEXT1(A) DEF_VALSEXT2(A)
-#define DEF_VALSEXT2(A) value_string_ext A##_ext = VALUE_STRING_EXT_INIT(A)
-
-#if 0
-#define DEF_VALSEXTX(A)  DEF_VALSEXTX1(GET_VALS(A))
-#define DEF_VALSEXTX1(A) DEF_VALSEXTX2(A)
-#define DEF_VALSEXTX2(A) extern value_string_ext A##_ext
-#endif
 
 /* | BASE_RANGE_STRING, GET_VALRV(RVALS(aaa)) */
 #define GET_VALRV(A) mq_##A##_rvals
@@ -56,14 +47,11 @@
 #define GET_VALRP(F) (gchar *)GET_VALRV(F)
 #define DEF_VALRB(A) const range_string GET_VALRV(A)[] = \
 {
-#define DEF_VALR1(A)     { (guint32)MQ_##A, (guint32)MQ_##A, #A }
-#define DEF_VALR3(A,B,C) { (guint32)MQ_##A, (guint32)MQ_##B, C }
+#define DEF_VALR1(A)       { (guint32)MQ_##A, (guint32)MQ_##A, #A }
+#define DEF_VALR3(A, B, C) { (guint32)MQ_##A, (guint32)MQ_##B, C }
 #define DEF_VALRE \
 { 0, 0, NULL } \
 }
-#if 0
-#define DEF_VALREXTX(A) extern value_string_ext GET_VALRV(A)_ext
-#endif
 
 typedef struct _mq_ccsid_t
 {

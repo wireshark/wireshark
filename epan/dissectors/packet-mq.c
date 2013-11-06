@@ -1365,7 +1365,6 @@ DEF_VALSB(opcode)
 	DEF_VALS2(TST_XA_RECOVER_REPLY, "XA_RECOVER_REPLY"),
 	DEF_VALS2(TST_XA_COMPLETE_REPLY, "XA_COMPLETE_REPLY"),
 DEF_VALSE;
-DEF_VALSEXT(opcode);
 
 DEF_VALSB(spi_verbs)
 	DEF_VALS2(SPI_QUERY, "QUERY"),
@@ -2457,7 +2456,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (!mq_in_reassembly)
 			{
 				col_clear(pinfo->cinfo, COL_INFO);
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%-17s", val_to_str_ext(p_mq_parm->mq_opcode, &mq_opcode_vals_ext, "Unknown (0x%02x)"));
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%-17s", val_to_str(p_mq_parm->mq_opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 				col_set_fence(pinfo->cinfo, COL_INFO);
 			}
 
