@@ -1042,7 +1042,7 @@ netlogon_dissect_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
  */
 static int
 netlogon_dissect_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
-                                 packet_info *pinfo, proto_tree *parent_tree,
+                                 packet_info *pinfo _U_, proto_tree *parent_tree,
                                  dcerpc_info *di, guint8 *drep _U_)
 {
     proto_item *item=NULL;
@@ -1073,7 +1073,7 @@ netlogon_dissect_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
  */
 static int
 netlogon_dissect_NT_OWF_PASSWORD(tvbuff_t *tvb, int offset,
-                                 packet_info *pinfo, proto_tree *parent_tree,
+                                 packet_info *pinfo _U_, proto_tree *parent_tree,
                                  dcerpc_info *di, guint8 *drep _U_)
 {
     proto_item *item=NULL;
@@ -1129,7 +1129,7 @@ netlogon_dissect_INTERACTIVE_INFO(tvbuff_t *tvb, int offset,
  */
 static int
 netlogon_dissect_CHALLENGE(tvbuff_t *tvb, int offset,
-                           packet_info *pinfo, proto_tree *tree,
+                           packet_info *pinfo _U_, proto_tree *tree,
                            dcerpc_info *di, guint8 *drep _U_)
 {
     if(di->conformant_run){
@@ -1346,7 +1346,7 @@ netlogon_dissect_LEVEL(tvbuff_t *tvb, int offset,
  */
 static int
 netlogon_dissect_CREDENTIAL(tvbuff_t *tvb, int offset,
-                            packet_info *pinfo, proto_tree *tree,
+                            packet_info *pinfo _U_, proto_tree *tree,
                             dcerpc_info *di, guint8 *drep _U_)
 {
     if(di->conformant_run){
@@ -1491,7 +1491,7 @@ netlogon_dissect_GROUP_MEMBERSHIP_ARRAY(tvbuff_t *tvb, int offset,
  */
 static int
 netlogon_dissect_USER_SESSION_KEY(tvbuff_t *tvb, int offset,
-                                  packet_info *pinfo, proto_tree *tree,
+                                  packet_info *pinfo _U_, proto_tree *tree,
                                   dcerpc_info *di, guint8 *drep _U_)
 {
     if(di->conformant_run){
@@ -2656,7 +2656,7 @@ netlogon_dissect_netrserverauthenticate_reply(tvbuff_t *tvb, int offset,
  */
 static int
 netlogon_dissect_ENCRYPTED_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
-                                           packet_info *pinfo, proto_tree *tree,
+                                           packet_info *pinfo _U_, proto_tree *tree,
                                            dcerpc_info *di, guint8 *drep _U_)
 {
     if(di->conformant_run){
@@ -7579,7 +7579,7 @@ static const value_string nl_auth_types[] = {
 /* MS-NRPC : 2.2.1.3.1 NL_AUTH_MESSAGE */
 static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
                                            packet_info *pinfo,
-                                           proto_tree *tree, dcerpc_info *di, guint8 *drep)
+                                           proto_tree *tree, dcerpc_info *di _U_, guint8 *drep)
 {
     proto_item *item = NULL;
     proto_tree *subtree = NULL;
