@@ -1255,7 +1255,7 @@ tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 	guid->data1 = pletohl(ptr + 0);
 	guid->data2 = pletohs(ptr + 4);
 	guid->data3 = pletohs(ptr + 6);
-	memcpy(guid->data4, offset + 8, sizeof guid->data4);
+	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 
 /*
