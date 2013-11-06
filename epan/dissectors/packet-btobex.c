@@ -221,8 +221,6 @@ static gint ett_btobex_application_parameters = -1;
 
 static wmem_tree_t *obex_profile = NULL;
 static wmem_tree_t *obex_last_opcode = NULL;
-static wmem_tree_t *obex_over_l2cap = NULL;
-
 
 static dissector_handle_t xml_handle;
 static dissector_handle_t data_handle;
@@ -1275,18 +1273,11 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32               k_channel;
     obex_last_opcode_data_t  *obex_last_opcode_data;
     guint32                   k_direction;
-    gint                  parent_proto;
 
     save_fragmented = pinfo->fragmented;
 
-    parent_proto = (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
-                wmem_list_frame_prev(wmem_list_tail(pinfo->layers))));
-
-    if (!pinfo->fd->flags.visited && parent_proto == proto_btrfcomm) {
-        wmem_tree_insert32(obex_over_l2cap, pinfo->fd->num, (void *) TRUE);
-    } else {
-        is_obex_over_l2cap = wmem_tree_lookup32(obex_over_l2cap, pinfo->fd->num) ? TRUE : FALSE;
-    }
+    is_obex_over_l2cap = (proto_btrfcomm == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
+                wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
 
     if (is_obex_over_l2cap) {
         btl2cap_data_t      *l2cap_data;
@@ -2324,7 +2315,6 @@ proto_register_btobex(void)
 
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    obex_over_l2cap  = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "BT OBEX", "btobex");
 
