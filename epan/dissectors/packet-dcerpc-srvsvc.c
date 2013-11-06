@@ -2136,7 +2136,7 @@ srvsvc_dissect_element_NetSrvInfo102_server_type(tvbuff_t *tvb, int offset, pack
 	return srvsvc_dissect_ServerType(tvb, offset, pinfo, tree, di, drep);
 }
 static int
-srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */

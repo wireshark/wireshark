@@ -509,7 +509,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
  */
 int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
+			packet_info *pinfo _U_, proto_tree *tree,
 			dcerpc_info *di, guint8 *drep _U_, int hf_index)
 {
 	if(di->conformant_run){
@@ -1178,7 +1178,7 @@ dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-		      proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, int hfindex,
+		      proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_, int hfindex,
 		      int length, const guint8 **pdata)
 {
 	const guint8 *data;
