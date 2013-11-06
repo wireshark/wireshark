@@ -4,7 +4,7 @@
 /* packet-dcerpc-nt.c
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
- * Copyright 2011, Matthieu Patou <mat@matws.net>
+ * Copyright 2011-2013, Matthieu Patou <mat@matws.net>
  *
  * $Id$
  *
@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
+#include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -49,6 +50,7 @@ static int hf_nt_data_blob_len = -1;
 static gint ett_nt_unicode_string = -1;
 static gint ett_lsa_String = -1;
 static gint ett_nt_data_blob = -1;
+static expert_field ei_dcerpc_nt_badsid = EI_INIT;
 
 
 
@@ -1389,6 +1391,60 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 static int hf_nt_count = -1;
 static int hf_nt_domain_sid = -1;
 
+/* That's a SID that is always 28 bytes long */
+int
+dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+{
+	proto_item *item;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	char *sid_str=NULL;
+	const char *name;
+	int newoffset;
+
+	if(di->hf_index!=-1){
+		name=proto_registrar_get_name(di->hf_index);
+	} else {
+		name="Domain";
+	}
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	newoffset = dissect_nt_sid(tvb, offset, tree, name, &sid_str,
+				hf_nt_domain_sid);
+	/* The dissected stuff cant be more than 28 bytes */
+	if ((newoffset - offset) > 28) {
+		item = proto_tree_get_parent(tree->last_child);
+		expert_add_info(pinfo, item, &ei_dcerpc_nt_badsid);
+
+		/* The rest of the dissection will most probably wrong as we are not dissecting what we expect */
+		return newoffset;
+	}
+
+    /* No matter how much we used for the real dissection of the SID consume 28 bytes */
+	if (tree) {
+		item = proto_tree_get_parent(tree->last_child);
+		proto_item_set_len(item, 28);
+	}
+	offset += 28;
+	/* dcv can be null, for example when this ndr structure is embedded
+	 * inside non-dcerpc pdus, i.e. kerberos PAC structure
+	 */
+	if(dcv){
+		/*
+		 * sid_str has ephemeral storage duration;
+		 * dcerpc_call_values have session duration,
+		 * so we need to make its private data have
+		 * session duration as well.
+		 */
+		dcv->private_data = wmem_strdup(wmem_file_scope(), sid_str);
+	}
+
+	return offset;
+}
+
 int
 dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, dcerpc_info *di, guint8 *drep)
@@ -1435,6 +1491,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* same as dissect_ndr_nt_SID() but takes the same options as counted strings
    do to prettify the dissect pane and the COL_INFO summary line
 */
+/* Note this is in fact for dissecting the dom_sid2*/
 int
 dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, guint32 options)
 {
@@ -1798,6 +1855,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
  */
 void dcerpc_smb_init(int proto_dcerpc)
 {
+	expert_module_t* expert_dcerpc_nt;
 	static hf_register_info hf[] = {
 
 		/* String handling */
@@ -1954,6 +2012,9 @@ void dcerpc_smb_init(int proto_dcerpc)
 		&ett_nt_counted_ascii_string,
 		&ett_lsa_String,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_dcerpc_nt_badsid, { "dcerpc.nt.badsid", PI_MALFORMED, PI_ERROR, "Association rejected", EXPFILL }},
+	};
 
 	/* Register ett's and hf's */
 
@@ -1961,6 +2022,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 	proto_register_field_array(proto_dcerpc, hf, array_length(hf));
 
 	/* Initialise policy handle hash */
-
+	expert_dcerpc_nt = expert_register_protocol(proto_dcerpc);
+	expert_register_field_array(expert_dcerpc_nt, ei, array_length(ei));
 	register_init_routine(&init_pol_hash);
 }
