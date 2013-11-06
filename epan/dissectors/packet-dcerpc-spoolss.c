@@ -6078,7 +6078,7 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-notify_job_time_cb(packet_info *pinfo, proto_tree *tree _U_,
+notify_job_time_cb(packet_info *pinfo _U_, proto_tree *tree _U_,
 			       proto_item *item, dcerpc_info *di, tvbuff_t *tvb _U_,
 			       int start_offset _U_, int end_offset _U_,
 			       void *callback_args _U_)
