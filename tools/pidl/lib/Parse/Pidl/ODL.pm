@@ -70,7 +70,7 @@ sub ODL2IDL
 					next;
 				}
 				my $podl = Parse::Pidl::IDL::parse_file($idl_path, $opt_incdirs);
-				if (defined(@$podl)) {
+				if (defined($podl)) {
 					require Parse::Pidl::Typelist;
 					my $basename = basename($idl_path, ".idl");
 

@@ -22,7 +22,7 @@ my $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		'IS_DEFERRED' => 0,
 		'LEVEL_INDEX' => 0,
@@ -33,7 +33,7 @@ is_deeply(GetElementLevelTable($e, "unique"), [
 	}
 ]);
 
-my $ne = ParseElement($e, "unique");
+my $ne = ParseElement($e, "unique", 0);
 is($ne->{ORIGINAL}, $e);
 is($ne->{NAME}, "v");
 is($ne->{ALIGN}, 1);
@@ -60,7 +60,7 @@ $e = {
 	'TYPE' => 'uint8',
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -90,7 +90,7 @@ $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -128,7 +128,7 @@ $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -158,7 +158,7 @@ $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -204,7 +204,7 @@ $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "ref"), [
+is_deeply(GetElementLevelTable($e, "ref", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -250,7 +250,7 @@ $e = {
 	'PARENT' => { TYPE => 'FUNCTION' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -280,7 +280,7 @@ $e = {
 	'PARENT' => { TYPE => 'FUNCTION' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -326,7 +326,7 @@ $e = {
 	'PARENT' => { TYPE => 'FUNCTION' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "unique"), [
+is_deeply(GetElementLevelTable($e, "unique", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -372,7 +372,7 @@ $e = {
 	'PARENT' => { TYPE => 'FUNCTION' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "ref"), [
+is_deeply(GetElementLevelTable($e, "ref", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -418,7 +418,7 @@ $e = {
 	'PARENT' => { TYPE => 'FUNCTION' },
 	'LINE' => 42 };
 
-is_deeply(GetElementLevelTable($e, "ref"), [
+is_deeply(GetElementLevelTable($e, "ref", 0), [
 	{
 		LEVEL_INDEX => 0,
 		IS_DEFERRED => 0,
@@ -463,7 +463,7 @@ $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-$ne = ParseElement($e, undef);
+$ne = ParseElement($e, undef, 0);
 is($ne->{REPRESENTATION_TYPE}, "bar");
 
 # representation_type
@@ -476,7 +476,7 @@ $e = {
 	'PARENT' => { TYPE => 'STRUCT' },
 	'LINE' => 42 };
 
-$ne = ParseElement($e, undef);
+$ne = ParseElement($e, undef, 0);
 is($ne->{REPRESENTATION_TYPE}, "uint8");
 
 is(align_type("hyper"), 8);
@@ -521,7 +521,7 @@ $t = {
 	},
 	ALIGN => undef
 };
-is_deeply(ParseType($t->{ORIGINAL}, "ref"), $t); 
+is_deeply(ParseType($t->{ORIGINAL}, "ref", 0), $t);
 
 $t = {
 	TYPE => "UNION",
@@ -530,13 +530,14 @@ $t = {
 	ELEMENTS => undef,
 	PROPERTIES => undef,
 	HAS_DEFAULT => 0,
+	IS_MS_UNION => 0,
 	ORIGINAL => {
 		TYPE => "UNION",
 		NAME => "foo"
 	},
 	ALIGN => undef
 };
-is_deeply(ParseType($t->{ORIGINAL}, "ref"), $t); 
+is_deeply(ParseType($t->{ORIGINAL}, "ref", 0), $t);
 
 ok(not can_contain_deferred("uint32"));
 ok(can_contain_deferred("some_unknown_type"));
@@ -553,8 +554,8 @@ ok(not can_contain_deferred({ TYPE => "TYPEDEF",
 ok(can_contain_deferred({ TYPE => "STRUCT", 
 		ELEMENTS => [ { TYPE => "someunknowntype" } ]}));
 # Make sure the elements for a enum without body aren't filled in
-ok(not defined(ParseType({TYPE => "ENUM", NAME => "foo" }, "ref")->{ELEMENTS}));
+ok(not defined(ParseType({TYPE => "ENUM", NAME => "foo" }, "ref", 0)->{ELEMENTS}));
 # Make sure the elements for a bitmap without body aren't filled in
-ok(not defined(ParseType({TYPE => "BITMAP", NAME => "foo" }, "ref")->{ELEMENTS}));
+ok(not defined(ParseType({TYPE => "BITMAP", NAME => "foo" }, "ref", 0)->{ELEMENTS}));
 # Make sure the elements for a union without body aren't filled in
-ok(not defined(ParseType({TYPE => "UNION", NAME => "foo" }, "ref")->{ELEMENTS}));
+ok(not defined(ParseType({TYPE => "UNION", NAME => "foo" }, "ref", 0)->{ELEMENTS}));

@@ -183,7 +183,7 @@ sub ParseFunction($$)
 	);
 
 	pidl "";
-	pidl "if (p->rng_fault_state) {";
+	pidl "if (p->fault_state) {";
 	pidl "\ttalloc_free(r);";
 	pidl "\t/* Return true here, srv_pipe_hnd.c will take care */";
 	pidl "\treturn true;";

@@ -142,7 +142,7 @@ sub HeaderEnum($$;$)
 		my $count = 0;
 		my $with_val = 0;
 		my $without_val = 0;
-		pidl " { __donnot_use_enum_$name=0x7FFFFFFF}\n";
+		pidl " { __do_not_use_enum_$name=0x7FFFFFFF}\n";
 		foreach my $e (@{$enum->{ELEMENTS}}) {
 			my $t = "$e";
 			my $name;

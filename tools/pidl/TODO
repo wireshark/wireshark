@@ -14,7 +14,7 @@
 
 - --explain-ndr option that dumps out parse tree ?
 
-- seperate tables for NDR and DCE/RPC
+- separate tables for NDR and DCE/RPC
  - maybe no tables for NDR at all? we only need them for ndrdump 
    and that can use dlsym()
 

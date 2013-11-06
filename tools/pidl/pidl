@@ -605,7 +605,7 @@ sub process_file($)
 		require Parse::Pidl::IDL;
 
 		$pidl = Parse::Pidl::IDL::parse_file($idl_file, \@opt_incdirs);
-		defined @$pidl || die "Failed to parse $idl_file";
+		defined $pidl || die "Failed to parse $idl_file";
 	}
 
 	require Parse::Pidl::Typelist;

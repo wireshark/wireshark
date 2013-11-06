@@ -21,7 +21,7 @@ files.
 
 Conformance files are simple text files with a single command on each line.
 Empty lines and lines starting with a '#' character are ignored.
-Arguments to commands are seperated by spaces.
+Arguments to commands are separated by spaces.
 
 The following commands are currently supported:
 

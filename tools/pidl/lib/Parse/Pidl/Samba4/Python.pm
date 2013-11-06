@@ -200,9 +200,9 @@ sub PythonStruct($$$$$$)
 			$self->pidl("static PyObject *py_$name\_get_$e->{NAME}(PyObject *obj, void *closure)");
 			$self->pidl("{");
 			$self->indent;
-			$self->pidl("$cname *object = ($cname *)py_talloc_get_ptr(obj);");
+			$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(obj);");
 			$self->pidl("PyObject *py_$e->{NAME};");
-			$self->ConvertObjectToPython("py_talloc_get_mem_ctx(obj)", $env, $e, $varname, "py_$e->{NAME}", "return NULL;");
+			$self->ConvertObjectToPython("pytalloc_get_mem_ctx(obj)", $env, $e, $varname, "py_$e->{NAME}", "return NULL;");
 			$self->pidl("return py_$e->{NAME};");
 			$self->deindent;
 			$self->pidl("}");
@@ -211,14 +211,14 @@ sub PythonStruct($$$$$$)
 			$self->pidl("static int py_$name\_set_$e->{NAME}(PyObject *py_obj, PyObject *value, void *closure)");
 			$self->pidl("{");
 			$self->indent;
-			$self->pidl("$cname *object = ($cname *)py_talloc_get_ptr(py_obj);");
-			my $mem_ctx = "py_talloc_get_mem_ctx(py_obj)";
+			$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
+			my $mem_ctx = "pytalloc_get_mem_ctx(py_obj)";
 			my $l = $e->{LEVELS}[0];
 			my $nl = GetNextLevel($e, $l);
 			if ($l->{TYPE} eq "POINTER" and 
 				not ($nl->{TYPE} eq "ARRAY" and ($nl->{IS_FIXED} or is_charset_array($e, $nl))) and
 				not ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE}))) {
-				$self->pidl("talloc_unlink(py_talloc_get_mem_ctx(py_obj), $varname);");
+				$self->pidl("talloc_unlink(pytalloc_get_mem_ctx(py_obj), $varname);");
 			}
 			$self->ConvertObjectFromPython($env, $mem_ctx, $e, "value", $varname, "return -1;");
 			$self->pidl("return 0;");
@@ -242,7 +242,7 @@ sub PythonStruct($$$$$$)
 	$self->pidl("static PyObject *py_$name\_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("return py_talloc_new($cname, type);");
+	$self->pidl("return pytalloc_new($cname, type);");
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");
@@ -255,10 +255,10 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyObject *py_$name\_ndr_pack(PyObject *py_obj)");
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("$cname *object = ($cname *)py_talloc_get_ptr(py_obj);");
+		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
 		$self->pidl("DATA_BLOB blob;");
 		$self->pidl("enum ndr_err_code err;");
-		$self->pidl("err = ndr_push_struct_blob(&blob, py_talloc_get_mem_ctx(py_obj), object, (ndr_push_flags_fn_t)ndr_push_$name);");
+		$self->pidl("err = ndr_push_struct_blob(&blob, pytalloc_get_mem_ctx(py_obj), object, (ndr_push_flags_fn_t)ndr_push_$name);");
 		$self->pidl("if (err != NDR_ERR_SUCCESS) {");
 		$self->indent;
 		$self->pidl("PyErr_SetNdrError(err);");
@@ -271,16 +271,44 @@ sub PythonStruct($$$$$$)
 		$self->pidl("}");
 		$self->pidl("");
 
-		$self->pidl("static PyObject *py_$name\_ndr_unpack(PyObject *py_obj, PyObject *args)");
+		$self->pidl("static PyObject *py_$name\_ndr_unpack(PyObject *py_obj, PyObject *args, PyObject *kwargs)");
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("$cname *object = ($cname *)py_talloc_get_ptr(py_obj);");
+		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
 		$self->pidl("DATA_BLOB blob;");
+		$self->pidl("int blob_length = 0;");
 		$self->pidl("enum ndr_err_code err;");
-		$self->pidl("if (!PyArg_ParseTuple(args, \"s#:__ndr_unpack__\", &blob.data, &blob.length))");
-		$self->pidl("\treturn NULL;");
+		$self->pidl("const char * const kwnames[] = { \"data_blob\", \"allow_remaining\", NULL };");
+		$self->pidl("PyObject *allow_remaining_obj = NULL;");
+		$self->pidl("bool allow_remaining = false;");
 		$self->pidl("");
-		$self->pidl("err = ndr_pull_struct_blob_all(&blob, py_talloc_get_mem_ctx(py_obj), object, (ndr_pull_flags_fn_t)ndr_pull_$name);");
+		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"s#|O:__ndr_unpack__\",");
+		$self->indent;
+		$self->pidl("discard_const_p(char *, kwnames),");
+		$self->pidl("&blob.data, &blob_length,");
+		$self->pidl("&allow_remaining_obj)) {");
+		$self->deindent;
+		$self->indent;
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("blob.length = blob_length;");
+		$self->pidl("");
+		$self->pidl("if (allow_remaining_obj && PyObject_IsTrue(allow_remaining_obj)) {");
+		$self->indent;
+		$self->pidl("allow_remaining = true;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+		$self->pidl("if (allow_remaining) {");
+		$self->indent;
+		$self->pidl("err = ndr_pull_struct_blob(&blob, pytalloc_get_mem_ctx(py_obj), object, (ndr_pull_flags_fn_t)ndr_pull_$name);");
+		$self->deindent;
+		$self->pidl("} else {");
+		$self->indent;
+		$self->pidl("err = ndr_pull_struct_blob_all(&blob, pytalloc_get_mem_ctx(py_obj), object, (ndr_pull_flags_fn_t)ndr_pull_$name);");
+		$self->deindent;
+		$self->pidl("}");
 		$self->pidl("if (err != NDR_ERR_SUCCESS) {");
 		$self->indent;
 		$self->pidl("PyErr_SetNdrError(err);");
@@ -296,11 +324,11 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyObject *py_$name\_ndr_print(PyObject *py_obj)");
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("$cname *object = ($cname *)py_talloc_get_ptr(py_obj);");
+		$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
 		$self->pidl("PyObject *ret;");
 		$self->pidl("char *retstr;");
 		$self->pidl("");
-		$self->pidl("retstr = ndr_print_struct_string(py_talloc_get_mem_ctx(py_obj), (ndr_print_fn_t)ndr_print_$name, \"$name\", object);");
+		$self->pidl("retstr = ndr_print_struct_string(pytalloc_get_mem_ctx(py_obj), (ndr_print_fn_t)ndr_print_$name, \"$name\", object);");
 		$self->pidl("ret = PyString_FromString(retstr);");
 		$self->pidl("talloc_free(retstr);");
 		$self->pidl("");
@@ -313,7 +341,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyMethodDef $py_methods\[] = {");
 		$self->indent;
 		$self->pidl("{ \"__ndr_pack__\", (PyCFunction)py_$name\_ndr_pack, METH_NOARGS, \"S.ndr_pack(object) -> blob\\nNDR pack\" },");
-		$self->pidl("{ \"__ndr_unpack__\", (PyCFunction)py_$name\_ndr_unpack, METH_VARARGS, \"S.ndr_unpack(class, blob) -> None\\nNDR unpack\" },");
+		$self->pidl("{ \"__ndr_unpack__\", (PyCFunction)py_$name\_ndr_unpack, METH_VARARGS|METH_KEYWORDS, \"S.ndr_unpack(class, blob, allow_remaining=False) -> None\\nNDR unpack\" },");
 		$self->pidl("{ \"__ndr_print__\", (PyCFunction)py_$name\_ndr_print, METH_VARARGS, \"S.ndr_print(object) -> None\\nNDR print\" },");
 		$self->pidl("{ NULL, NULL, 0, NULL }");
 		$self->deindent;
@@ -335,7 +363,7 @@ sub PythonStruct($$$$$$)
 	}
 	$self->pidl(".tp_methods = $py_methods,");
 	$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
-	$self->pidl(".tp_basicsize = sizeof(py_talloc_Object),");
+	$self->pidl(".tp_basicsize = sizeof(pytalloc_Object),");
 	$self->pidl(".tp_new = py_$name\_new,");
 	$self->deindent;
 	$self->pidl("};");
@@ -798,9 +826,15 @@ sub use_type_variable($$)
 	my ($self, $orig_ctype) = @_;
 	# FIXME: Have a global lookup table for types that look different on the 
 	# wire than they are named in C?
-	if ($orig_ctype->{NAME} eq "dom_sid2" or $orig_ctype->{NAME} eq "dom_sid28") {
+	if ($orig_ctype->{NAME} eq "dom_sid2" or
+	    $orig_ctype->{NAME} eq "dom_sid28" or
+	    $orig_ctype->{NAME} eq "dom_sid0") {
 		$orig_ctype->{NAME} = "dom_sid";
 	}
+	if ($orig_ctype->{NAME} eq "spoolss_security_descriptor") {
+		$orig_ctype->{NAME} = "security_descriptor";
+	}
+
 	my $ctype = resolveType($orig_ctype);
 	unless (defined($ctype->{BASEFILE})) {
 		return undef;
@@ -919,13 +953,13 @@ sub ConvertObjectFromPythonData($$$$$$;$)
 			return;
 		}
 		$self->pidl("PY_CHECK_TYPE($ctype_name, $cvar, $fail);");
-		$self->pidl("if (talloc_reference($mem_ctx, py_talloc_get_mem_ctx($cvar)) == NULL) {");
+		$self->pidl("if (talloc_reference($mem_ctx, pytalloc_get_mem_ctx($cvar)) == NULL) {");
 		$self->indent;
 		$self->pidl("PyErr_NoMemory();");
 		$self->pidl("$fail");
 		$self->deindent;
 		$self->pidl("}");
-		$self->assign($target, "(".mapTypeName($ctype)." *)py_talloc_get_ptr($cvar)");
+		$self->assign($target, "(".mapTypeName($ctype)." *)pytalloc_get_ptr($cvar)");
 		return;
 	}
 
@@ -1137,13 +1171,13 @@ sub ConvertScalarToPython($$$)
 	}
 
 	# Not yet supported
-	if ($ctypename eq "string_array") { return "PyCObject_FromTallocPtr($cvar)"; }
+	if ($ctypename eq "string_array") { return "pytalloc_CObject_FromTallocPtr($cvar)"; }
 	if ($ctypename eq "ipv4address") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "ipv6address") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "dnsp_name") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "dnsp_string") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "pointer") {
-		return "PyCObject_FromTallocPtr($cvar)";
+		return "pytalloc_CObject_FromTallocPtr($cvar)";
 	}
 
 	die("Unknown scalar type $ctypename");
@@ -1176,7 +1210,7 @@ sub ConvertObjectToPythonData($$$$$;$)
 			error($location, "Unable to determine origin of type `" . mapTypeName($ctype) . "'");
 			return "NULL"; # FIXME!
 		}
-		return "py_talloc_reference_ex($ctype_name, $mem_ctx, $cvar)";
+		return "pytalloc_reference_ex($ctype_name, $mem_ctx, $cvar)";
 	}
 
 	fatal($location, "unknown type $actual_ctype->{TYPE} for ".mapTypeName($ctype) . ": $cvar");

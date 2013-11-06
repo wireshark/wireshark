@@ -227,7 +227,7 @@ $x->{conformance} = {
 };
 
 is($x->DumpHfList(), "\tstatic hf_register_info hf[] = {
-	{ &hf_bla, 
+	{ &hf_bla,
 	  { \"Bla\", \"bla.field\", FT_UINT32, BASE_DEC, NULL, 255, \"NULL\", HFILL }},
 	};
 ");

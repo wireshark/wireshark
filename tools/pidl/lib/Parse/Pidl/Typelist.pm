@@ -84,6 +84,7 @@ my %aliases = (
 	"short" => "int16",
 	"HYPER_T" => "hyper",
 	"HRESULT" => "COMRESULT",
+        "mode_t"        => "uint32",
 );
 
 sub expandAlias($)

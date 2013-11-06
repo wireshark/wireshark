@@ -52,14 +52,14 @@ is(1, typeIs("uint32", "SCALAR"));
 is(0, typeIs("uint32", "ENUM"));
 
 is(1, hasType("foo"));
-is(0, hasType("nonexistant"));
+is(0, hasType("nonexistent"));
 is(0, hasType({TYPE => "ENUM", NAME => "someUnknownType"}));
 is(1, hasType({TYPE => "ENUM", NAME => "foo"}));
 is(1, hasType({TYPE => "ENUM"}));
 is(1, hasType({TYPE => "STRUCT"}));
 
 is(1, is_scalar("uint32"));
-is(0, is_scalar("nonexistant"));
+is(0, is_scalar("nonexistent"));
 is(1, is_scalar({TYPE => "ENUM"}));
 is(0, is_scalar({TYPE => "STRUCT"}));
 is(1, is_scalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM" }}));

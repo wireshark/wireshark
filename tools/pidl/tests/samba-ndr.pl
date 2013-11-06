@@ -221,7 +221,8 @@ $generator->ParseStructPush({
 			PROPERTIES => {},
 			ALIGN => 4,
 			ELEMENTS => [ ]}, "ndr", "x");
-is($generator->{res}, "if (ndr_flags & NDR_SCALARS) {
+is($generator->{res}, "NDR_PUSH_CHECK_FLAGS(ndr, ndr_flags);
+if (ndr_flags & NDR_SCALARS) {
 	NDR_CHECK(ndr_push_align(ndr, 4));
 	NDR_CHECK(ndr_push_trailer_align(ndr, 4));
 }
@@ -245,7 +246,8 @@ $generator->ParseStructPush({
 			ALIGN => 4,
 			SURROUNDING_ELEMENT => $e,
 			ELEMENTS => [ $e ]}, "ndr", "x");
-is($generator->{res}, "if (ndr_flags & NDR_SCALARS) {
+is($generator->{res}, "NDR_PUSH_CHECK_FLAGS(ndr, ndr_flags);
+if (ndr_flags & NDR_SCALARS) {
 	NDR_CHECK(ndr_push_uint3264(ndr, NDR_SCALARS, ndr_string_array_size(ndr, x->el1)));
 	NDR_CHECK(ndr_push_align(ndr, 4));
 	NDR_CHECK(ndr_push_mytype(ndr, NDR_SCALARS, &x->el1));
