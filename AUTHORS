@@ -1079,13 +1079,14 @@ Andrew C. Feren         <acferen[AT]yahoo.com> {
 	ntop nProbe and Plixer Mailinizer extensions for the Netflow dissector
 }
 
-Tomas Kukosa            <tomas.kukosa[AT]siemens.com> {
+Tomas Kukosa            <tomas.kukosa[AT]unify.com> {
 	Additional routines made available to plugins
-	Support in Wiretap for DLT_HHDLC
-	Fix to summary-printing code to handle reallocated line buffer
 	Support for registering subdissectors for Q.931 IEs and codesets
 	Reassembly of segmented Q.931 messages
-	ASN2ETH compiler to convert ASN.1 definitions to PER/DER dissectors
+	ASN2WRS compiler to convert ASN.1 definitions to PER/DER dissectors
+	H.323 family dissectors (H.225.0, H.245, H.235, H.450, H.460)
+	QSIG
+	Plugin API for codecs (for RTP player)
 }
 
 Andreas Stockmeier      <a.stockmeier[AT]avm.de> {
