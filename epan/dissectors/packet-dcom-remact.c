@@ -59,7 +59,7 @@ static guint16  ver_remact = 0;
 
 static int
 dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
-				      packet_info *pinfo, proto_tree *tree, guint8 *drep)
+				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 u32ClientImpLevel;
 	guint32 u32Mode;
@@ -74,51 +74,51 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 	gchar 	szObjName[1000] = { 0 };
 	guint32 u32ObjNameLen = sizeof(szObjName);
 
-	offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+	offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-	offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, di, drep,
 					  hf_dcom_clsid, -1, &clsid);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
 					     &u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
 					   hf_remact_object_name, szObjName, u32ObjNameLen);
 	}
 
-	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, di, drep,
 						 hf_remact_object_storage, NULL /* XXX */);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
 				    hf_remact_client_impl_level, &u32ClientImpLevel);
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
 				    hf_remact_mode, &u32Mode);
 
 	/* Interfaces */
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
 				    hf_remact_interfaces, &u32Interfaces);
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
 					     &u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 							&u32ArraySize);
 		u32ItemIdx = 1;
 		while (u32Interfaces--) {
-			offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, di, drep,
 							  hf_dcom_iid, u32ItemIdx, &iid);
 
 			u32ItemIdx++;
 		}
 	}
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
 				   hf_remact_requested_protseqs, &u16ProtSeqs);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 						&u32ArraySize);
 	u32ItemIdx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
 					   hf_remact_protseqs, &u16ProtSeqs);
 		u32ItemIdx++;
 	}
@@ -129,7 +129,7 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
-				      packet_info *pinfo, proto_tree *tree, guint8 *drep)
+				      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32	u32Pointer;
 	e_uuid_t ipid;
@@ -142,47 +142,47 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 	guint32	u32VariableOffset;
 
 
-	offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+	offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
 				 hf_dcom_oxid, NULL);
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
 					     &u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 							&u32ArraySize);
-		offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, di, drep,
 						      hf_remact_oxid_bindings, NULL);
 	}
 
-	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, di, drep,
 				   hf_dcom_ipid, &ipid);
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
 				    hf_remact_authn_hint, &u32AuthnHint);
-	offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, di, drep,
 					 &u16VersionMajor, &u16VersionMinor);
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
 				      &u32HResult);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 						&u32ArraySize);
 	u32VariableOffset = offset + u32ArraySize * 4;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
 						     &u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_MInterfacePointer(tvb, u32VariableOffset, pinfo, tree, drep,
+			u32VariableOffset = dissect_dcom_MInterfacePointer(tvb, u32VariableOffset, pinfo, tree, di, drep,
 									   hf_remact_interface_data, NULL /* XXX */);
 		}
 	}
 	offset = u32VariableOffset;
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 						&u32ArraySize);
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
+		offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, di, drep,
 						      &u32HResult, u32Idx);
 		/* update column info now */
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]",
@@ -191,7 +191,7 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 		u32Idx++;
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
 				      &u32HResult);
 
 	/* update column info now */

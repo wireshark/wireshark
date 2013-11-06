@@ -486,7 +486,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * it with the values of the individual bits).
 		 */
 		offset = dissect_ndr_uint32(
-			tvb, offset, pinfo, NULL, drep, hf_server_type, &flags);
+			tvb, offset, pinfo, NULL, NULL, drep, hf_server_type, &flags);
 	} else {
 		/*
 		 * Called from SMB browser or RAP, where the server type

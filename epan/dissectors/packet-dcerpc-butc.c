@@ -193,9 +193,9 @@ static gint ett_butc_tciStatusS = -1;
 
 
 static int
-butc_dissect_NameString_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_NameString_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    offset=dissect_ndr_vstring(tvb, offset, pinfo, tree, drep, 1, hf_index, FALSE, NULL);
+    offset=dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, 1, hf_index, FALSE, NULL);
     return offset;
 }
 
@@ -221,7 +221,7 @@ static const true_false_string TC_RESTORE_INCR_tfs = {
 
 
 int
-butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -234,7 +234,7 @@ butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
  	   tree=proto_item_add_subtree(item, ett_butc_Restore_flags);
     }
 
-    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
 
 
     proto_tree_add_boolean(tree, hf_butc_Restore_flags_TC_RESTORE_CREATE, tvb, offset-4, 4, flags);
@@ -257,42 +257,42 @@ butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static int
-butc_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    offset=dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+    offset=dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
     return offset;
 }
 
 static int
-butc_dissect_afsNetAddr_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_afsNetAddr_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_butc_afsNetAddr_type, param);
+	 offset=butc_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_butc_afsNetAddr_type, param);
 	 return offset;
 }
 
 
 static int
-butc_dissect_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    offset=dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+    offset=dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
     return offset;
 }
 
 static int
-butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_butc_afsNetAddr_data, param);
+	 offset=butc_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_butc_afsNetAddr_data, param);
 	 return offset;
 }
 
 static int
-fixedarray_butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+fixedarray_butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 int count=14;
 	 while(count--){
-		 offset=butc_dissect_afsNetAddr_data(tvb, offset, pinfo, tree, drep);
+		 offset=butc_dissect_afsNetAddr_data(tvb, offset, pinfo, tree, di, drep);
 	 }
 
 	 return offset;
@@ -300,7 +300,7 @@ fixedarray_butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *
 
 
 int
-butc_dissect_afsNetAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_afsNetAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -314,9 +314,9 @@ butc_dissect_afsNetAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
  	   tree=proto_item_add_subtree(item, ett_butc_afsNetAddr);
     }
 
-    offset=butc_dissect_afsNetAddr_type(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_afsNetAddr_type(tvb, offset, pinfo, tree, di, drep);
 
-    offset=fixedarray_butc_dissect_afsNetAddr_data(tvb, offset, pinfo, tree, drep);
+    offset=fixedarray_butc_dissect_afsNetAddr_data(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
@@ -324,123 +324,123 @@ butc_dissect_afsNetAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 static int
-butc_dissect_udlong(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_udlong(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
 
-    offset=dissect_ndr_duint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+    offset=dissect_ndr_duint32(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
 
     return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_vid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_vid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_vid, param);
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_vid, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_name, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_name, param);
 	 return offset;
 }
 
 
 static int
-butc_dissect_int32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_int32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
     return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_partition, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_partition, param);
 	 return offset;
 }
 
 
 static int
-butc_dissect_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
     
-    offset=dissect_ndr_time_t(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+    offset=dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
 
     return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_date(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_date(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_date, param);
+	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_date, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_cloneDate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_cloneDate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_cloneDate, param);
+	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_cloneDate, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_hostAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_hostAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_hostAddr, param);
+	 offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_hostAddr, param);
 	 return offset;
 }
 
 
 static int
-butc_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep, int hf_index, guint32 param _U_)
 {
-    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, NULL);
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
     return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_spare1, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpDesc_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpDesc_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpDesc_spare4, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_dumpDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_dumpDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -454,145 +454,145 @@ butc_dissect_tc_dumpDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
  	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpDesc);
     }
 
-    offset=butc_dissect_tc_dumpDesc_vid(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_vid(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_name(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_name(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_partition(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_partition(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_date(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_date(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_cloneDate(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_cloneDate(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_hostAddr(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_hostAddr(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_spare1(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpDesc_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpDesc_spare4(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_restoreDesc_frag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_frag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_frag, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_frag, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_tapeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_tapeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_tapeName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_tapeName, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_position(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_position(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_position, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_position, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_origVid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_origVid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_origVid, param);
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_origVid, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_vid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_vid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_vid, param);
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_vid, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_partition, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_partition, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_Restore_flags(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_flags, param);
+	 offset=butc_dissect_Restore_flags(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_flags, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_hostAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_hostAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_hostAddr, param);
+	 offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_hostAddr, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_realDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_realDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_realDumpId, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_realDumpId, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_spare4, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_oldName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_oldName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_oldName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_oldName, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreDesc_newName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreDesc_newName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_newName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreDesc_newName, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_restoreDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_restoreDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -606,113 +606,113 @@ butc_dissect_tc_restoreDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
  	   tree=proto_item_add_subtree(item, ett_butc_tc_restoreDesc);
     }
 
-    offset=butc_dissect_tc_restoreDesc_frag(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_frag(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_tapeName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_tapeName(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_position(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_position(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_origVid(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_origVid(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_vid(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_vid(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_partition(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_partition(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_flags(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_flags(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_hostAddr(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_hostAddr(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_realDumpId(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_realDumpId(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_spare4(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_oldName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_oldName(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_restoreDesc_newName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreDesc_newName(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_dumpStat_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_dumpID, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_dumpID, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_bytesDumped(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_bytesDumped(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_bytesDumped, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_bytesDumped, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_volumeBeingDumped(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_volumeBeingDumped(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_volumeBeingDumped, param);
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_volumeBeingDumped, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_numVolErrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_numVolErrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_numVolErrs, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_numVolErrs, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_flags, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_flags, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_spare1, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpStat_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpStat_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpStat_spare4, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_dumpStat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_dumpStat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -726,95 +726,95 @@ butc_dissect_tc_dumpStat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
  	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpStat);
     }
 
-    offset=butc_dissect_tc_dumpStat_dumpID(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_dumpID(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_bytesDumped(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_bytesDumped(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_volumeBeingDumped(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_volumeBeingDumped(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_numVolErrs(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_numVolErrs(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_flags(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_flags(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_spare1(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpStat_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpStat_spare4(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_tapeLabel_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_size, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_size, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_size_ext(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_size_ext(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_size_ext, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_size_ext, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_spare1, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_spare4, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_nameLen(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_nameLen(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_nameLen, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_nameLen, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeLabel_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeLabel_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_name, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeLabel_name, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -828,125 +828,125 @@ butc_dissect_tc_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
  	   tree=proto_item_add_subtree(item, ett_butc_tc_tapeLabel);
     }
 
-    offset=butc_dissect_tc_tapeLabel_size(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_size(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_size_ext(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_size_ext(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_spare1(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_spare4(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_nameLen(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_nameLen(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeLabel_name(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeLabel_name(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_tapeSet_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_id, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_id, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_tapeServer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_tapeServer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_tapeServer, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_tapeServer, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_format(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_format(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_format, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_format, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_maxTapes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_maxTapes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_maxTapes, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_maxTapes, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_a(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_a(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_a, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_a, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_b(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_b(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_b, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_b, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_expDate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_expDate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_expDate, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_expDate, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_expType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_expType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_expType, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_expType, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_spare1, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tapeSet_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tapeSet_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tapeSet_spare4, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -960,77 +960,77 @@ butc_dissect_tc_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
  	   tree=proto_item_add_subtree(item, ett_butc_tc_tapeSet);
     }
 
-    offset=butc_dissect_tc_tapeSet_id(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_id(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_tapeServer(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_tapeServer(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_format(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_format(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_maxTapes(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_maxTapes(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_a(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_a(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_b(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_b(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_expDate(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_expDate(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_expType(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_expType(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_spare1(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tapeSet_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tapeSet_spare4(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_tcInfo_tcVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tcInfo_tcVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_tcVersion, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tcInfo_tcVersion, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tcInfo_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tcInfo_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tcInfo_spare1, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tcInfo_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tcInfo_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tcInfo_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tcInfo_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tcInfo_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tcInfo_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_tcInfo_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_tcInfo_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_tcInfo_spare4, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_tcInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_tcInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1044,53 +1044,53 @@ butc_dissect_tc_tcInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
  	   tree=proto_item_add_subtree(item, ett_butc_tc_tcInfo);
     }
 
-    offset=butc_dissect_tc_tcInfo_tcVersion(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tcInfo_tcVersion(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tcInfo_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tcInfo_spare1(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tcInfo_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tcInfo_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tcInfo_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tcInfo_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_tcInfo_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_tcInfo_spare4(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_restoreArray_tc_restoreArray_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreArray_tc_restoreArray_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreArray_tc_restoreArray_len, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreArray_tc_restoreArray_len, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_tc_restoreDesc(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreArray_tc_restoreArray_val, param);
+	 offset=butc_dissect_tc_restoreDesc(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_restoreArray_tc_restoreArray_val, param);
 	 return offset;
 }
 
 static int
-ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_tc_restoreArray_tc_restoreArray_val, NDR_POINTER_PTR, "tc_restoreArray_val", -1);
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_tc_restoreArray_tc_restoreArray_val, NDR_POINTER_PTR, "tc_restoreArray_val", -1);
 	 return offset;
 }
 
 static int
-ucarray_ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ucarray_ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val);
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_restoreArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_restoreArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1104,47 +1104,47 @@ butc_dissect_tc_restoreArray(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
  	   tree=proto_item_add_subtree(item, ett_butc_tc_restoreArray);
     }
 
-    offset=butc_dissect_tc_restoreArray_tc_restoreArray_len(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_restoreArray_tc_restoreArray_len(tvb, offset, pinfo, tree, di, drep);
 
-    offset=ucarray_ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvb, offset, pinfo, tree, drep);
+    offset=ucarray_ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_dumpArray_tc_dumpArray_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpArray_tc_dumpArray_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpArray_tc_dumpArray_len, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpArray_tc_dumpArray_len, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_tc_dumpDesc(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpArray_tc_dumpArray, param);
+	 offset=butc_dissect_tc_dumpDesc(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpArray_tc_dumpArray, param);
 	 return offset;
 }
 
 static int
-ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_tc_dumpArray_tc_dumpArray, NDR_POINTER_PTR, "tc_dumpArray", -1);
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_tc_dumpArray_tc_dumpArray, NDR_POINTER_PTR, "tc_dumpArray", -1);
 	 return offset;
 }
 
 static int
-ucarray_ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ucarray_ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_butc_dissect_tc_dumpArray_tc_dumpArray);
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, ptr_butc_dissect_tc_dumpArray_tc_dumpArray);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1158,97 +1158,97 @@ butc_dissect_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
  	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpArray);
     }
 
-    offset=butc_dissect_tc_dumpArray_tc_dumpArray_len(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpArray_tc_dumpArray_len(tvb, offset, pinfo, tree, di, drep);
 
-    offset=ucarray_ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvb, offset, pinfo, tree, drep);
+    offset=ucarray_ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_dumpInterface_dumpPath(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_dumpPath(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpPath, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_dumpPath, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_volumeSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_volumeSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_volumeSetName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_volumeSetName, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_dumpName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_dumpName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_dumpName, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_tc_tapeSet(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_tapeSet, param);
+	 offset=butc_dissect_tc_tapeSet(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_tapeSet, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_parentDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_parentDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_parentDumpId, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_parentDumpId, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_dumpLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_dumpLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpLevel, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_dumpLevel, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_spare1, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_dumpInterface_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_dumpInterface_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_dumpInterface_spare4, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_dumpInterface(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_dumpInterface(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1262,65 +1262,65 @@ butc_dissect_tc_dumpInterface(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
  	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpInterface);
     }
 
-    offset=butc_dissect_tc_dumpInterface_dumpPath(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_dumpPath(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_volumeSetName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_volumeSetName(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_dumpName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_dumpName(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_tapeSet(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_tapeSet(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_parentDumpId(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_parentDumpId(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_dumpLevel(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_dumpLevel(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_spare1(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_dumpInterface_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_dumpInterface_spare4(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_statusInfoSwitchVol_nKBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_statusInfoSwitchVol_nKBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_nKBytes, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitchVol_nKBytes, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_statusInfoSwitchVol_volumeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_statusInfoSwitchVol_volumeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_volumeName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitchVol_volumeName, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_statusInfoSwitchVol_volsFailed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_statusInfoSwitchVol_volsFailed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_volsFailed, param);
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitchVol_volsFailed, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_statusInfoSwitchVol_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_statusInfoSwitchVol_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitchVol_spare1, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_statusInfoSwitchVol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_statusInfoSwitchVol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1334,37 +1334,37 @@ butc_dissect_tc_statusInfoSwitchVol(tvbuff_t *tvb, int offset, packet_info *pinf
  	   tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitchVol);
     }
 
-    offset=butc_dissect_tc_statusInfoSwitchVol_nKBytes(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_statusInfoSwitchVol_nKBytes(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_statusInfoSwitchVol_volumeName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_statusInfoSwitchVol_volumeName(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_statusInfoSwitchVol_volsFailed(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_statusInfoSwitchVol_volsFailed(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_statusInfoSwitchVol_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_statusInfoSwitchVol_spare1(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_tc_statusInfoSwitchLabel_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_statusInfoSwitchLabel_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_tc_tapeLabel(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchLabel_tapeLabel, param);
+	 offset=butc_dissect_tc_tapeLabel(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitchLabel_tapeLabel, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tc_statusInfoSwitchLabel_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tc_statusInfoSwitchLabel_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchLabel_spare1, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitchLabel_spare1, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tc_statusInfoSwitchLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tc_statusInfoSwitchLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1378,97 +1378,97 @@ butc_dissect_tc_statusInfoSwitchLabel(tvbuff_t *tvb, int offset, packet_info *pi
  	   tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitchLabel);
     }
 
-    offset=butc_dissect_tc_statusInfoSwitchLabel_tapeLabel(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_statusInfoSwitchLabel_tapeLabel(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tc_statusInfoSwitchLabel_spare1(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tc_statusInfoSwitchLabel_spare1(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_NONE_none(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_NONE_none(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_NONE_none, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_NONE_none, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_DUMP_vol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_DUMP_vol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_statusInfoSwitchVol(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_DUMP_vol, param);
+    offset=butc_dissect_tc_statusInfoSwitchVol(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_DUMP_vol, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTORE_vol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTORE_vol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_statusInfoSwitchVol(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_RESTORE_vol, param);
+    offset=butc_dissect_tc_statusInfoSwitchVol(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_RESTORE_vol, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_LABELTAPE_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_LABELTAPE_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_statusInfoSwitchLabel(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_LABELTAPE_label, param);
+    offset=butc_dissect_tc_statusInfoSwitchLabel(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_LABELTAPE_label, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_READLABEL_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_READLABEL_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_statusInfoSwitchLabel(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_READLABEL_label, param);
+    offset=butc_dissect_tc_statusInfoSwitchLabel(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_READLABEL_label, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_STATUS_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_STATUS_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_STATUS_spare2, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_STATUS_spare2, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_SAVEDB_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_SAVEDB_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_SAVEDB_spare3, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_SAVEDB_spare3, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4, param);
     return offset;
 }
 
 static int
-butc_dissect_union_tc_statusInfoSwitch_TCOP_SPARE_spare5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_union_tc_statusInfoSwitch_TCOP_SPARE_spare5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitch_TCOP_SPARE_spare5, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tc_statusInfoSwitch_TCOP_SPARE_spare5, param);
     return offset;
 }
 
 
 static int
-butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1484,57 +1484,57 @@ butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *p
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
- 							 drep, hf_index, &level);
+ 							 di, drep, hf_index, &level);
 
     switch(level){
     case TCOP_NONE:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_NONE_none(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_NONE_none(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_DUMP:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_DUMP_vol(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_DUMP_vol(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_RESTORE:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTORE_vol(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTORE_vol(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_LABELTAPE:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_LABELTAPE_label(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_LABELTAPE_label(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_READLABEL:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_READLABEL_label(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_READLABEL_label(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_SCANTAPE:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_STATUS:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_STATUS_spare2(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_STATUS_spare2(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_SAVEDB:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SAVEDB_spare3(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SAVEDB_spare3(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_RESTOREDB:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     case TCOP_SPARE:
  	   ALIGN_TO_4_BYTES;
- 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SPARE_spare5(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SPARE_spare5(tvb, offset, pinfo, tree, di, drep);
  	   break;
 
     }
@@ -1544,72 +1544,72 @@ butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *p
    return offset;
 }
 static int
-butc_dissect_tciStatusS_taskName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_taskName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_taskName, param);
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_taskName, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_flags, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_flags, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_lastPolled(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_lastPolled(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_lastPolled, param);
+	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_lastPolled, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_union_tc_statusInfoSwitch(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_info, param);
+	 offset=butc_dissect_union_tc_statusInfoSwitch(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_info, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_taskId, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_taskId, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare2, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_spare2, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare3, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_spare3, param);
 	 return offset;
 }
 
 static int
-butc_dissect_tciStatusS_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_tciStatusS_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	 guint32 param=0;
-	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare4, param);
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_tciStatusS_spare4, param);
 	 return offset;
 }
 
 
 int
-butc_dissect_tciStatusS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+butc_dissect_tciStatusS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1623,613 +1623,613 @@ butc_dissect_tciStatusS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
  	   tree=proto_item_add_subtree(item, ett_butc_tciStatusS);
     }
 
-    offset=butc_dissect_tciStatusS_taskName(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_taskName(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_flags(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_flags(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_lastPolled(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_lastPolled(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_info(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_info(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_taskId(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_taskId(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_spare2(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_spare2(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_spare3(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_spare3(tvb, offset, pinfo, tree, di, drep);
 
-    offset=butc_dissect_tciStatusS_spare4(tvb, offset, pinfo, tree, drep);
+    offset=butc_dissect_tciStatusS_spare4(tvb, offset, pinfo, tree, di, drep);
 
     proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
 static int
-butc_dissect_BUTC_PerformDump_tcdiPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_PerformDump_tcdiPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_dumpInterface(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_PerformDump_tcdiPtr, param);
+    offset=butc_dissect_tc_dumpInterface(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_PerformDump_tcdiPtr, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_tcdiPtr, NDR_POINTER_REF, "tcdiPtr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_PerformDump_tcdiPtr, NDR_POINTER_REF, "tcdiPtr", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_PerformDump_dumps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_PerformDump_dumps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_dumpArray(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_PerformDump_dumps, param);
+    offset=butc_dissect_tc_dumpArray(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_PerformDump_dumps, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_PerformDump_dumps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_PerformDump_dumps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_dumps, NDR_POINTER_REF, "dumps", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_PerformDump_dumps, NDR_POINTER_REF, "dumps", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_PerformDump_dumpID, param);
+    offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_PerformDump_dumpID, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_dumpID, NDR_POINTER_REF, "dumpID", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_PerformDump_dumpID, NDR_POINTER_REF, "dumpID", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_PerformDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_PerformDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
- 	   offset=ref_butc_dissect_BUTC_PerformDump_dumps(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformDump_dumps(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_PerformDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_PerformDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_PerformDump_dumpID(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformDump_dumpID(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_PerformRestore_dumpSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_PerformRestore_dumpSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_PerformRestore_dumpSetName, param);
+    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_PerformRestore_dumpSetName, param);
     return offset;
 }
 
 static int
-ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_dumpSetName, NDR_POINTER_PTR, "dumpSetName", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_PerformRestore_dumpSetName, NDR_POINTER_PTR, "dumpSetName", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_PerformRestore_restores(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_PerformRestore_restores(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_restoreArray(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_PerformRestore_restores, param);
+    offset=butc_dissect_tc_restoreArray(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_PerformRestore_restores, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_PerformRestore_restores(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_PerformRestore_restores(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_restores, NDR_POINTER_REF, "restores", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_PerformRestore_restores, NDR_POINTER_REF, "restores", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_PerformRestore_dumpID, param);
+    offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_PerformRestore_dumpID, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_dumpID, NDR_POINTER_REF, "dumpID", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_PerformRestore_dumpID, NDR_POINTER_REF, "dumpID", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_PerformRestore_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_PerformRestore_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
- 	   offset=ref_butc_dissect_BUTC_PerformRestore_restores(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformRestore_restores(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_PerformRestore_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_PerformRestore_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_PerformRestore_dumpID(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformRestore_dumpID(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_AbortDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_AbortDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_AbortDump_dumpID, param);
+    offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_AbortDump_dumpID, param);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_AbortDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_AbortDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=butc_dissect_BUTC_AbortDump_dumpID(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=butc_dissect_BUTC_AbortDump_dumpID(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_AbortDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_AbortDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_LabelTape_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_LabelTape_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_tapeLabel(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_LabelTape_label, param);
+    offset=butc_dissect_tc_tapeLabel(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_LabelTape_label, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_LabelTape_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_LabelTape_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_LabelTape_label, NDR_POINTER_REF, "label", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_LabelTape_label, NDR_POINTER_REF, "label", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_LabelTape_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_LabelTape_taskId, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_LabelTape_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_LabelTape_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_LabelTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_LabelTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_LabelTape_label(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_LabelTape_label(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_LabelTape_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_LabelTape_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_LabelTape_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_LabelTape_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_ReadLabel_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_ReadLabel_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_ReadLabel_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_ReadLabel_taskId, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_ReadLabel_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_ReadLabel_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ReadLabel_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_ReadLabel_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_ReadLabel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_ReadLabel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_ReadLabel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_ReadLabel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_ReadLabel_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ReadLabel_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_ScanDumps_addDbFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_ScanDumps_addDbFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_ScanDumps_addDbFlag, param);
+    offset=butc_dissect_int32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_ScanDumps_addDbFlag, param);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_ScanDumps_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_ScanDumps_taskId, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanDumps_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_ScanDumps_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_ScanDumps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_ScanDumps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=butc_dissect_BUTC_ScanDumps_addDbFlag(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=butc_dissect_BUTC_ScanDumps_addDbFlag(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_ScanDumps_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_ScanDumps_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_ScanDumps_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanDumps_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_TCInfo_tciptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_TCInfo_tciptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tc_tcInfo(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_TCInfo_tciptr, param);
+    offset=butc_dissect_tc_tcInfo(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_TCInfo_tciptr, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_TCInfo_tciptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_TCInfo_tciptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_TCInfo_tciptr, NDR_POINTER_REF, "tciptr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_TCInfo_tciptr, NDR_POINTER_REF, "tciptr", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_TCInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_TCInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_TCInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_TCInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_TCInfo_tciptr(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_TCInfo_tciptr(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_SaveDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_SaveDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_SaveDb_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_SaveDb_taskId, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_SaveDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_SaveDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_SaveDb_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_SaveDb_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_SaveDb_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_SaveDb_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_SaveDb_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_SaveDb_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_SaveDb_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_SaveDb_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_RestoreDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_RestoreDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_RestoreDb_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_RestoreDb_taskId, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_RestoreDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_RestoreDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_RestoreDb_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_RestoreDb_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_RestoreDb_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_RestoreDb_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_RestoreDb_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_RestoreDb_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_RestoreDb_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_RestoreDb_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_EndStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_EndStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_EndStatus_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_EndStatus_taskId, param);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_EndStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_EndStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=butc_dissect_BUTC_EndStatus_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=butc_dissect_BUTC_EndStatus_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_EndStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_EndStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_GetStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_GetStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_GetStatus_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_GetStatus_taskId, param);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tciStatusS(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_GetStatus_statusPtr, param);
+    offset=butc_dissect_tciStatusS(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_GetStatus_statusPtr, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_GetStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_GetStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_GetStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_GetStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=butc_dissect_BUTC_GetStatus_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=butc_dissect_BUTC_GetStatus_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_GetStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_GetStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_GetStatus_statusPtr(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_GetStatus_statusPtr(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_RequestAbort_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_RequestAbort_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_RequestAbort_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_RequestAbort_taskId, param);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_RequestAbort_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_RequestAbort_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=butc_dissect_BUTC_RequestAbort_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=butc_dissect_BUTC_RequestAbort_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_RequestAbort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_RequestAbort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 static int
-butc_dissect_BUTC_ScanStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_ScanStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_ScanStatus_taskId, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_ScanStatus_taskId, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_ScanStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_ScanStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_ScanStatus_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_ScanStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_ScanStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_tciStatusS(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_ScanStatus_statusPtr, param);
+    offset=butc_dissect_tciStatusS(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_ScanStatus_statusPtr, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_ScanStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
     return offset;
 }
 
 static int
-butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
     guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_BUTC_ScanStatus_flags, param);
+    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_butc_BUTC_ScanStatus_flags, param);
     return offset;
 }
 
 static int
-ref_butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+ref_butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
-    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_flags, NDR_POINTER_REF, "flags", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, butc_dissect_BUTC_ScanStatus_flags, NDR_POINTER_REF, "flags", -1);
     return offset;
 }
 
 
 static int
-butc_dissect_BUTC_ScanStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_ScanStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
- 	   offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_ScanStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_ScanStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
- 	   offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
- 	   offset=ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
- 	   offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, drep);
- 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, di, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_GetServerInterfaces_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_GetServerInterfaces_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 
    return offset;
 }
 
 static int
-butc_dissect_BUTC_GetServerInterfaces_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+butc_dissect_BUTC_GetServerInterfaces_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-   offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
+   offset=dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_butc_rc, NULL);
 
 
    return offset;

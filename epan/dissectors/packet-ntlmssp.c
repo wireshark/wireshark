@@ -2670,7 +2670,7 @@ ntlmssp_init_protocol(void)
 
 static int
 wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                     proto_tree *tree, guint8 *drep _U_)
+                     proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
   tvbuff_t *auth_tvb;
 
@@ -2683,7 +2683,7 @@ wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                          proto_tree *tree, guint8 *drep _U_)
+                          proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
   tvbuff_t *auth_tvb;
 

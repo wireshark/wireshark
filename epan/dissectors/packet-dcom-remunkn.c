@@ -81,7 +81,7 @@ typedef struct remunk_remqueryinterface_call_s {
 
 static int
 dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
-                                      packet_info *pinfo, proto_tree *tree, guint8 *drep)
+                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     e_uuid_t     ipid;
     guint32      u32Refs;
@@ -89,22 +89,21 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
     guint32      u32ArraySize;
     guint32      u32ItemIdx;
     e_uuid_t     iid;
-    dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
     remunk_remqueryinterface_call_t *call;
 
 
-    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, di, drep,
                                hf_dcom_ipid, &ipid);
 
-    offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                                 hf_remunk_refs, &u32Refs);
 
-    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                                hf_remunk_iids, &u16IIDs);
 
-    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                                             &u32ArraySize);
 
     /* limit the allocation to a reasonable size */
@@ -112,13 +111,13 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
         call = (remunk_remqueryinterface_call_t *)wmem_alloc(wmem_file_scope(), sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_uuid_t));
         call->iid_count = u32ArraySize;
         call->iids = (e_uuid_t *) (call+1);
-        info->call_data->private_data = call;
+        di->call_data->private_data = call;
     } else {
         call = NULL;
     }
 
     for (u32ItemIdx = 0; u32ArraySize--; u32ItemIdx++) {
-        offset = dissect_dcom_append_UUID(tvb, offset,  pinfo, tree, drep,
+        offset = dissect_dcom_append_UUID(tvb, offset,  pinfo, tree, di, drep,
                                           hf_dcom_iid, u32ItemIdx+1, &iid);
         if(call != NULL) {
             call->iids[u32ItemIdx] = iid;
@@ -131,7 +130,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
-                                      packet_info *pinfo, proto_tree *tree, guint8 *drep)
+                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32      u32Pointer;
     guint32      u32ArraySize;
@@ -142,18 +141,17 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     guint32      u32SubStart;
     e_uuid_t     iid;
     e_uuid_t     iid_null = DCERPC_UUID_NULL;
-    dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
-    remunk_remqueryinterface_call_t *call = (remunk_remqueryinterface_call_t *)info->call_data->private_data;
+    remunk_remqueryinterface_call_t *call = (remunk_remqueryinterface_call_t *)di->call_data->private_data;
     guint64      oxid;
     guint64      oid;
     e_uuid_t     ipid;
 
 
-    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                                          &u32Pointer);
-    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                                             &u32ArraySize);
 
     u32ItemIdx = 1;
@@ -163,10 +161,10 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_rqi_result);
 
         /* REMQIRESULT */
-        offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep,
+        offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, di, drep,
                                       &u32HResult);
         u32SubStart = offset - 4;
-        offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
+        offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, di, drep,
                                              &u32Pointer);
 
         /* try to read the iid from the request */
@@ -178,7 +176,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
         /* XXX - this doesn't seem to be dependent on the pointer above?!? */
         /*if (u32Pointer) {*/
-        offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, 0 /* hfindex */,
+        offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, di, drep, 0 /* hfindex */,
                                         &oxid, &oid, &ipid);
         /*}*/
 
@@ -203,7 +201,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     }
 
     /* HRESULT of call */
-    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                                   &u32HResult);
 
     /* update column info now */
@@ -216,7 +214,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
-                               packet_info *pinfo, proto_tree *tree, guint8 *drep)
+                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32      u32Pointer;
     guint32      u32IntRefs;
@@ -230,12 +228,12 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
     guint32      u32SubStart;
 
 
-    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                                          &u32Pointer);
 
-    offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                                 hf_remunk_interface_refs, &u32IntRefs);
 
     /* update column info now */
@@ -253,13 +251,13 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_reminterfaceref);
         u32SubStart = offset;
 
-        offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep,
+        offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, di, drep,
                                    hf_dcom_ipid, &ipid);
 
-        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
+        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
                                     hf_remunk_public_refs, &u32PublicRefs);
 
-        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
+        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
                                     hf_remunk_private_refs, &u32PrivateRefs);
 
         /* update subtree */

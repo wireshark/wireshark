@@ -208,12 +208,9 @@ static const value_string svcctl_service_error_control_vals[] = {
 static int
 svcctl_dissect_pointer_long(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             guint8 *drep)
+                             dcerpc_info *di, guint8 *drep)
 {
-	dcerpc_info *di;
-
-	di=(dcerpc_info *)pinfo->private_data;
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
                                      di->hf_index, NULL);
 	return offset;
 }
@@ -248,16 +245,15 @@ struct access_mask_info svcctl_scm_access_mask_info = {
 static int
 svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const char *mn, *dn;
 
 	/* MachineName */
 	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 		"MachineName", hf_svcctl_machinename, cb_str_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
@@ -268,7 +264,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 	/* DatabaseName */
 	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 		"Database", hf_svcctl_database, cb_str_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
@@ -285,7 +281,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 
 	/* access mask */
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_access_mask,
 		&svcctl_scm_access_mask_info, NULL);
 
 	return offset;
@@ -294,9 +290,8 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
@@ -305,11 +300,11 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_hnd, &policy_hnd,
 		&hnd_item, TRUE, FALSE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, &status);
 
 	if( status == 0 ){
 		const char *pol_name;
@@ -334,16 +329,15 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const char *mn, *dn;
 
 	/* MachineName */
 	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"MachineName", hf_svcctl_machinename, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
@@ -354,7 +348,7 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 	/* DatabaseName */
 	dcv->private_data=NULL;
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Database", hf_svcctl_database, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
@@ -371,7 +365,7 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 
 	/* access mask */
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_access_mask,
 		&svcctl_scm_access_mask_info, NULL);
 
 	return offset;
@@ -380,9 +374,8 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
@@ -391,11 +384,11 @@ svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_hnd, &policy_hnd,
 		&hnd_item, TRUE, FALSE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, &status);
 
 	if( status == 0 ){
 		const char *pol_name;
@@ -419,81 +412,81 @@ svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 
 static int
 svcctl_dissect_CreateServiceW_rqst(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	/* policy handle */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* service name */
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep,
 		sizeof(guint16), hf_svcctl_service_name, TRUE, NULL);
 
 	/* display name */
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Display Name", hf_svcctl_display_name, cb_wstr_postprocess,
 		GINT_TO_POINTER(1));
 
 	/* access mask */
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_access_mask,
 		&svcctl_scm_access_mask_info, NULL);
 
 	/* service type */
 	offset = svcctl_dissect_dwServiceType_flags(tvb, offset, pinfo, tree, drep, SVC_CREATE_SERVICE_W);
 
 	/* service start type */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_service_start_type, NULL);
 
 	/* service error control */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_service_error_control, NULL);
 
 	/* binary path name */
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep,
 		sizeof(guint16), hf_svcctl_binarypathname, TRUE, NULL);
 
 	/* load order group */
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Load Order Group", hf_svcctl_loadordergroup, cb_wstr_postprocess,
 		GINT_TO_POINTER(1));
 
 	/* tag id */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_tagid, NULL);
 
 	/* dependencies */
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Dependencies", hf_svcctl_dependencies, cb_wstr_postprocess,
 		GINT_TO_POINTER(1));
 
 	/* depend size */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_depend_size, NULL);
 
 	/* service start name */
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Service Start Name", hf_svcctl_service_start_name, cb_wstr_postprocess,
 		GINT_TO_POINTER(1));
 
 	/* password */
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Password", hf_svcctl_password, cb_wstr_postprocess,
 		GINT_TO_POINTER(1));
 
 	/* password size */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_password_size, NULL);
 
 	return offset;
@@ -501,18 +494,18 @@ svcctl_dissect_CreateServiceW_rqst(tvbuff_t *tvb, int offset,
 
 static int
 svcctl_dissect_CreateServiceW_reply(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	/* tag id */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_tagid, NULL);
 
 	/* policy handle */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, NULL);
 
 	return offset;
 }
@@ -526,7 +519,7 @@ svcctl_dissect_CreateServiceW_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	e_ctx_hnd policy_hnd;
 	char *pol_name;
@@ -534,7 +527,7 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_hnd, &policy_hnd,
 		NULL, FALSE, TRUE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
@@ -549,14 +542,14 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_hnd, NULL,
 		NULL, FALSE, TRUE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, NULL);
 
 	return offset;
 }
@@ -572,11 +565,11 @@ svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_hnd, NULL,
 		NULL, FALSE, TRUE);
 
 	return offset;
@@ -584,15 +577,15 @@ svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	/* XXX - why is the "is an open" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_lock, NULL,
 		NULL, TRUE, FALSE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, NULL);
 
 	return offset;
 }
@@ -607,11 +600,11 @@ svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_lock, NULL,
 		NULL, FALSE, TRUE);
 
 	return offset;
@@ -619,15 +612,15 @@ svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	/* XXX - why is the "is an open" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_lock, NULL,
 		NULL, TRUE, FALSE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, NULL);
 
 	return offset;
 }
@@ -643,17 +636,17 @@ svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                      hf_svcctl_is_locked, NULL);
 
 	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 		"Owner", hf_svcctl_lock_owner);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                      hf_svcctl_lock_duration, NULL);
 
 	return offset;
@@ -670,14 +663,14 @@ svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_hnd, NULL,
 		NULL, FALSE, TRUE);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                      hf_svcctl_size, NULL);
 
 	return offset;
@@ -685,17 +678,17 @@ svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 		svcctl_dissect_QUERY_SERVICE_LOCK_STATUS, NDR_POINTER_REF,
 		"LOCK_STATUS", -1);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                      hf_svcctl_required_size, NULL);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, NULL);
 
 	return offset;
 }
@@ -712,25 +705,25 @@ svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset,
 
 static int
 svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	/* policy handle */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,
 			hf_svcctl_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* service type */
 	offset = svcctl_dissect_dwServiceType_flags(tvb, offset, pinfo, tree, drep, SVC_ENUM_SERVICES_STATUS_W);
 
 	/* service state */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_svcctl_service_state, NULL);
 
 	/* size */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_svcctl_size, NULL);
 
 	/* resume handle */
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			svcctl_dissect_pointer_long, NDR_POINTER_UNIQUE,
 			"Resume Handle", hf_svcctl_resume);
 
@@ -739,19 +732,19 @@ svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset,
 
 static int
 svcctl_dissect_OpenServiceW_rqst(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	/* policy handle */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* service name */
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep,
 		sizeof(guint16), hf_svcctl_service_name, TRUE, NULL);
 
 	/* access mask */
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_access_mask,
 		&svcctl_scm_access_mask_info, NULL);
 
 	return offset;
@@ -759,28 +752,28 @@ svcctl_dissect_OpenServiceW_rqst(tvbuff_t *tvb, int offset,
 
 static int
 svcctl_dissect_OpenServiceW_reply(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	/* policy handle */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+		tvb, offset, pinfo, tree, di, drep, hf_svcctl_rc, NULL);
 
 	return offset;
 }
 
 static int
 svcctl_dissect_QueryServiceConfigW_rqst(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	/* policy handle */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* cbBufSize */
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_svcctl_buffer, NULL);
 
 	return offset;

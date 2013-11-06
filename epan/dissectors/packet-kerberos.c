@@ -2624,7 +2624,6 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
     guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
     static dcerpc_info di;      /* fake dcerpc_info struct */
     static dcerpc_call_value call_data;
-    void *old_private_data;
 
     item=proto_tree_add_item(parent_tree, hf_krb_PAC_LOGON_INFO, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
@@ -2641,14 +2640,11 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
     di.conformant_run=0;
     /* we need di->call_data->flags.NDR64 == 0 */
     di.call_data=&call_data;
-    old_private_data=actx->pinfo->private_data;
-    actx->pinfo->private_data=&di;
-    init_ndr_pointer_list(actx->pinfo);
-    offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, drep,
+
+    init_ndr_pointer_list(&di);
+    offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
                                  netlogon_dissect_PAC_LOGON_INFO, NDR_POINTER_UNIQUE,
                                  "PAC_LOGON_INFO:", -1);
-    actx->pinfo->private_data=old_private_data;
-
     return offset;
 }
 
@@ -2660,7 +2656,6 @@ dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int
     guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
     static dcerpc_info di;      /* fake dcerpc_info struct */
     static dcerpc_call_value call_data;
-    void *old_private_data;
 
     item=proto_tree_add_item(parent_tree, hf_krb_PAC_S4U_DELEGATION_INFO, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
@@ -2678,13 +2673,11 @@ dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int
     di.conformant_run=0;
     /* we need di->call_data->flags.NDR64 == 0 */
     di.call_data=&call_data;
-    old_private_data=actx->pinfo->private_data;
-    actx->pinfo->private_data=&di;
-    init_ndr_pointer_list(actx->pinfo);
-    offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, drep,
+
+    init_ndr_pointer_list(&di);
+    offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
                                  netlogon_dissect_PAC_S4U_DELEGATION_INFO, NDR_POINTER_UNIQUE,
                                  "PAC_S4U_DELEGATION_INFO:", -1);
-    actx->pinfo->private_data=old_private_data;
 
     return offset;
 }
@@ -5439,7 +5432,7 @@ proto_register_kerberos(void)
 }
 
 static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                                 proto_tree *tree, guint8 *drep _U_)
+                                 proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
     tvbuff_t *auth_tvb;
 

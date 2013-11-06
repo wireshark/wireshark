@@ -71,16 +71,16 @@ static guint16 ver_dcerpc_tapi = 1;
 static int
 dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_unknown_long, NULL);
 
-	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
 			NDR_POINTER_REF, "unknown string",
 			 hf_tapi_unknown_string, 0);
 
-	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
 			NDR_POINTER_REF, "unknown string",
 			 hf_tapi_unknown_string, 0);
 
@@ -89,15 +89,15 @@ dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
-	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, di, drep,
 			hf_tapi_hnd, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_unknown_long, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_rc, NULL);
 
 	return offset;
@@ -113,14 +113,11 @@ dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
-	dcerpc_info *di;
-
-	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
-		offset =dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, NULL);
+		offset =dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, NULL);
 
 		return offset;
 	}
@@ -135,16 +132,16 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
-	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, di, drep,
 			hf_tapi_hnd, NULL);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_tapi_TYPE_1, NDR_POINTER_REF,
 			"unknown array", -1);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_unknown_long, NULL);
 
 	return offset;
@@ -152,9 +149,9 @@ dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_rc, NULL);
 
 	return offset;
@@ -169,14 +166,14 @@ dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset _U_,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
-			guint8 *drep _U_)
+			dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	return offset;
 }
 static int
 dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset _U_,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
-			guint8 *drep _U_)
+			dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	return offset;
 }

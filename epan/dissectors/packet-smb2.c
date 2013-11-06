@@ -1365,7 +1365,6 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 	static dcerpc_info        di; /* fake dcerpc_info struct */
 	static dcerpc_call_value  call_data;
-	void       *old_private_data;
 	e_ctx_hnd   policy_hnd;
 	e_ctx_hnd   *policy_hnd_hashtablekey;
 	proto_item *hnd_item   = NULL;
@@ -1376,12 +1375,10 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
 	di.call_data = &call_data;
-	old_private_data = pinfo->private_data;
-	pinfo->private_data = &di;
 
 	switch (mode) {
 	case FID_MODE_OPEN:
-		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
 		if (!pinfo->fd->flags.visited) {
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: %s", (char *)si->saved->extra_info);
@@ -1408,17 +1405,14 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		}
 		break;
 	case FID_MODE_CLOSE:
-		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, TRUE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, TRUE);
 		break;
 	case FID_MODE_USE:
 	case FID_MODE_DHNQ:
 	case FID_MODE_DHNC:
-		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, FALSE);
+		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, FALSE);
 		break;
 	}
-
-	pinfo->private_data = old_private_data;
-
 
 	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
 		/* put the filename in col_info */

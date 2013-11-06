@@ -60,7 +60,7 @@ static gint ett_krb5rpc_krb5 = -1;
 static int
 krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
   guint32 keysize, spare1, remain;
   proto_item *item;
@@ -77,10 +77,10 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_krb5rpc_sendto_kdc_rqst_keysize, &keysize);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_krb5rpc_sendto_kdc_rqst_spare1, &spare1);
   item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, ENC_NA);
   subtree = proto_item_add_subtree (item, ett_krb5rpc_krb5);
@@ -97,7 +97,7 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 static int
 krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
   guint32 resp_len, maxsize, spare1, keysize, remain;
   proto_item *item;
@@ -115,16 +115,16 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_krb5rpc_sendto_kdc_resp_len, &resp_len);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_krb5rpc_sendto_kdc_resp_max, &maxsize);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_krb5rpc_sendto_kdc_resp_spare1, &spare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_krb5rpc_sendto_kdc_resp_keysize, &keysize);
 
 

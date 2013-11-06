@@ -8446,7 +8446,7 @@ dissect_blocks(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO (DCE-RPC) request header */
 static int
 dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32     u32ArgsMax;
     guint32     u32ArgsLen;
@@ -8462,10 +8462,10 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
 
     /* args_max */
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                         hf_pn_io_args_max, &u32ArgsMax);
     /* args_len */
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                         hf_pn_io_args_len, &u32ArgsLen);
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_NA);
@@ -8473,11 +8473,11 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
     u32SubStart = offset;
 
     /* RPC array header */
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, di, drep,
                         hf_pn_io_array_max_count, &u32MaxCount);
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, di, drep,
                         hf_pn_io_array_offset, &u32Offset);
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, di, drep,
                         hf_pn_io_array_act_count, &u32ArraySize);
 
     proto_item_append_text(sub_item, ": Max: %u, Offset: %u, Size: %u",
@@ -8491,7 +8491,7 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO (DCE-RPC) response header */
 static int
 dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32     u32ArgsLen;
     guint32     u32MaxCount;
@@ -8508,7 +8508,7 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
     offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
 
     /* args_len */
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                         hf_pn_io_args_len, &u32ArgsLen);
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_NA);
@@ -8516,11 +8516,11 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
     u32SubStart = offset;
 
     /* RPC array header */
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, di, drep,
                         hf_pn_io_array_max_count, &u32MaxCount);
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, di, drep,
                         hf_pn_io_array_offset, &u32Offset);
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, drep,
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, sub_tree, di, drep,
                         hf_pn_io_array_act_count, &u32ArraySize);
 
     proto_item_append_text(sub_item, ": Max: %u, Offset: %u, Size: %u",
@@ -8534,10 +8534,10 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO request */
 static int
 dissect_IPNIO_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 
-    offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, di, drep);
 
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
@@ -8548,10 +8548,10 @@ dissect_IPNIO_rqst(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO response */
 static int
 dissect_IPNIO_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 
-    offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, di, drep);
 
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
@@ -8914,13 +8914,13 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO read response */
 static int
 dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint16    u16Index      = 0;
     guint32    u32RecDataLen = 0;
     pnio_ar_t *ar            = NULL;
 
-    offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, di, drep);
 
     /* IODReadHeader */
     offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
@@ -9116,11 +9116,11 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO write request */
 static int
 dissect_IPNIO_Write_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     pnio_ar_t *ar = NULL;
 
-    offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, di, drep);
 
     offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar);
 
@@ -9163,10 +9163,10 @@ dissect_IODWriteRes(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO write response */
 static int
 dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 
-    offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, di, drep);
 
     offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
 

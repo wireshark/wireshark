@@ -54,7 +54,7 @@ static guint16  ver_rpriv = 1;
 static int
 rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
-			      guint8 *drep)
+			      dcerpc_info *di, guint8 *drep)
 {
 	/*        [in]        handle_t         handle,
 	 *        [in]        unsigned32       authn_svc,
@@ -69,11 +69,11 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	const char *key_t1 = NULL;
 	const char *key_t2 = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_var1, &var1);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_var1, &var1);
 	offset += 276;
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size);
 	/* advance to get size of cell, and princ */
 
 	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA);
@@ -81,7 +81,7 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	offset += key_size;
 
 	offset += 8;
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
 	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, key_size2, ENC_ASCII|ENC_NA);
 	key_t2 = tvb_get_string(wmem_packet_scope(), tvb, offset, key_size2);
 	offset += key_size2;

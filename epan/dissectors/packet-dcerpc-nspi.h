@@ -3410,7 +3410,7 @@
 #define PR_EMS_AB_SERVER_ERROR (0xfffe000a)
 #define MAPI_PROP_RESERVED (0xFFFFFFFF)
 extern const value_string nspi_MAPITAGS_vals[];
-int nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);
+int nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 *param);
 #define MAPI_E_SUCCESS (0x00000000)
 #define MAPI_E_NO_SUPPORT (0x80040102)
 #define MAPI_E_BAD_CHARWIDTH (0x80040103)
@@ -3483,13 +3483,13 @@ int nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 #define MAPI_E_AMBIGUOUS_RECIP (0x80040700)
 #define MAPI_E_RESERVED (0xFFFFFFFF)
 extern const value_string nspi_MAPISTATUS_vals[];
-int nspi_dissect_enum_MAPISTATUS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);
-int nspi_dissect_struct_MAPIUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_input_locale(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SPropTagArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_instance_key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_enum_MAPISTATUS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 *param);
+int nspi_dissect_struct_MAPIUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_input_locale(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SPropTagArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_instance_key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
 #define RES_AND (0)
 #define RES_OR (1)
 #define RES_NOT (2)
@@ -3502,13 +3502,13 @@ int nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb, int offset, packet_info *pinfo
 #define RES_SUBRESTRICTION (9)
 #define RES_COMMENT (10)
 extern const value_string nspi_nspi_RestrictionType_vals[];
-int nspi_dissect_enum_RestrictionType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);
-int nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SSortOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SSortOrderSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_enum_RestrictionType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 *param);
+int nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SRestriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SSortOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SSortOrderSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
 #define PT_UNSPECIFIED (0x0000)
 #define PT_NULL (0x0001)
 #define PT_I2 (0x0002)
@@ -3540,18 +3540,18 @@ int nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb, int offset, packet_info *pinf
 #define PT_MV_CLSID (0x1048)
 #define PT_MV_BINARY (0x1102)
 extern const value_string nspi_property_types_vals[];
-int nspi_dissect_enum_property_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);
-int nspi_dissect_struct_SBinary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_FILETIME(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SShortArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_MV_LONG_STRUCT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_LPSTR(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SLPSTRArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SBinaryArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SGuidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_MV_UNICODE_STRUCT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SDateTimeArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SPropValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SRow(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
-int nspi_dissect_struct_SRowSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_enum_property_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 *param);
+int nspi_dissect_struct_SBinary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_FILETIME(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SShortArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_MV_LONG_STRUCT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_LPSTR(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SLPSTRArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SBinaryArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SGuidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_MV_UNICODE_STRUCT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SDateTimeArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SPropValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SRow(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
+int nspi_dissect_struct_SRowSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_);
 #endif /* __PACKET_DCERPC_NSPI_H */

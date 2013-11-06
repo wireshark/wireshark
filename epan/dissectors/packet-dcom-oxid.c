@@ -61,9 +61,9 @@ static guint16  ver_oxid = 0;
 
 static int
 dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_setid, NULL);
 
     return offset;
@@ -72,12 +72,12 @@ dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 u32HResult;
 
 
-    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                         &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
@@ -89,12 +89,12 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 u32HResult;
 
 
-    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                         &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
@@ -106,7 +106,7 @@ dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint16 u16SeqNum;
     guint16 u16AddToSet;
@@ -114,39 +114,39 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
     guint32 u32Pointer;
     guint32 u32ArraySize;
 
-    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_setid, NULL);
 
-    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_seqnum, &u16SeqNum);
-    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_addtoset, &u16AddToSet);
-    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_delfromset, &u16DelFromSet);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " AddToSet=%u DelFromSet=%u",
             u16AddToSet, u16DelFromSet);
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
     if (u32Pointer) {
-        offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                             &u32ArraySize);
 
         while (u16AddToSet--) {
-            offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+            offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_oid, NULL);
         }
     }
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
     if (u32Pointer) {
-        offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                             &u32ArraySize);
 
         while (u16DelFromSet--) {
-            offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+            offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_oid, NULL);
         }
     }
@@ -157,18 +157,18 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint16 u16PingBackoffFactor;
     guint32 u32HResult;
 
 
-    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_setid, NULL);
-    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_ping_backoff_factor, &u16PingBackoffFactor);
 
-    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                         &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
@@ -180,25 +180,25 @@ dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint16 u16ProtSeqs;
     guint32 u32ArraySize;
     guint32 u32ItemIdx;
 
 
-    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_oxid, NULL);
 
-    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                         hf_oxid_requested_protseqs, &u16ProtSeqs);
 
-    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                         &u32ArraySize);
 
     u32ItemIdx = 1;
     while (u32ArraySize--) {
-        offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_protseqs, &u16ProtSeqs);
         u32ItemIdx++;
     }
@@ -209,7 +209,7 @@ dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 u32Pointer;
     guint32 u32ArraySize;
@@ -220,26 +220,26 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
     guint32 u32HResult;
 
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
     if (u32Pointer) {
-        offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                             &u32ArraySize);
 
-        offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_bindings, NULL);
 
-        offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_ipid, &ipid);
 
-        offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_authn_hint, &u32AuthnHint);
 
-        offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, di, drep,
                     &u16VersionMajor, &u16VersionMinor);
     }
 
-    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                         &u32HResult);
 
      col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
@@ -251,17 +251,17 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                proto_tree *tree, guint8 *drep) {
+                proto_tree *tree, dcerpc_info *di, guint8 *drep) {
     guint16 u16VersionMajor;
     guint16 u16VersionMinor;
 
-    offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, drep, &u16VersionMajor, &u16VersionMinor);
+    offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, di, drep, &u16VersionMajor, &u16VersionMinor);
 
     /* XXX - understand what those 8 bytes mean! don't skip'em!*/
     dissect_dcerpc_uint64(tvb , offset, pinfo, tree, drep, hf_oxid_Unknown1, NULL);
     offset += 8;
 
-    offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, hf_oxid_ds_array, NULL);
+    offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, di, drep, hf_oxid_ds_array, NULL);
 
     /* unknown field 2 */
     dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep, hf_oxid_Unknown2, NULL);

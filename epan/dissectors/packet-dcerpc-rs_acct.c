@@ -54,14 +54,14 @@ static guint16  ver_rs_acct = 1;
 
 static int
 rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 key_size;
 	const char *keyx_t = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_lookup_rqst_var, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_lookup_rqst_key_size, &key_size);
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
@@ -83,14 +83,14 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 
 static int
 rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 key_size;
 	const char *keyx_t = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_get_projlist_rqst_var1, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_get_projlist_rqst_key_size, &key_size);
 
 	proto_tree_add_item (tree, hf_rs_acct_get_projlist_rqst_key_t,

@@ -129,22 +129,22 @@ const value_string rfr_MAPISTATUS_vals[] = {
 	{ MAPI_E_RESERVED, "MAPI_E_RESERVED" },
 { 0, NULL }
 };
-static int rfr_dissect_element_RfrGetNewDSA_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_pUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_pUserDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_ppszUnused_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_ppszUnused__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_ppszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_ppszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_pUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_pUserDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ppszUnused_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ppszUnused__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ppszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ppszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 
 
 /* IDL: enum { */
@@ -222,13 +222,13 @@ static int rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t 
 /* IDL: } */
 
 int
-rfr_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+rfr_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
 	if(param){
 		parameter=(guint32)*param;
 	}
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -236,81 +236,81 @@ rfr_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_rfr_RfrGetNewDSA_ulFlags, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_RfrGetNewDSA_ulFlags, 0);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_pUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_pUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetNewDSA_pUserDN_, NDR_POINTER_REF, "Pointer to Puserdn (uint8)",hf_rfr_RfrGetNewDSA_pUserDN);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_pUserDN_, NDR_POINTER_REF, "Pointer to Puserdn (uint8)",hf_rfr_RfrGetNewDSA_pUserDN);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_pUserDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_pUserDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_pUserDN, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_pUserDN, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused_, NDR_POINTER_UNIQUE, "Pointer to Ppszunused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused_, NDR_POINTER_UNIQUE, "Pointer to Ppszunused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ppszUnused_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ppszUnused_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused__, NDR_POINTER_UNIQUE, "Pointer to Ppszunused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused__, NDR_POINTER_UNIQUE, "Pointer to Ppszunused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ppszUnused__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ppszUnused__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_ppszUnused, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_ppszUnused, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ppszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ppszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer_, NDR_POINTER_UNIQUE, "Pointer to Ppszserver (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer_, NDR_POINTER_UNIQUE, "Pointer to Ppszserver (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ppszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ppszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer__, NDR_POINTER_UNIQUE, "Pointer to Ppszserver (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer__, NDR_POINTER_UNIQUE, "Pointer to Ppszserver (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_ppszServer, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetNewDSA_ppszServer, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -324,18 +324,18 @@ rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
 	pinfo->dcerpc_procedure_name="RfrGetNewDSA";
-	offset = rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-	offset = rfr_dissect_element_RfrGetNewDSA_ppszServer(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = rfr_dissect_element_RfrGetNewDSA_ppszServer(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_rfr_MAPISTATUS_status, &status);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_MAPISTATUS_status, &status);
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, rfr_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
@@ -343,77 +343,77 @@ rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-rfr_dissect_RfrGetNewDSA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_RfrGetNewDSA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	pinfo->dcerpc_procedure_name="RfrGetNewDSA";
-	offset = rfr_dissect_element_RfrGetNewDSA_ulFlags(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = rfr_dissect_element_RfrGetNewDSA_pUserDN(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = rfr_dissect_element_RfrGetNewDSA_ppszServer(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = rfr_dissect_element_RfrGetNewDSA_ulFlags(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = rfr_dissect_element_RfrGetNewDSA_pUserDN(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = rfr_dissect_element_RfrGetNewDSA_ppszServer(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags, 0);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN, 0);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_, NDR_POINTER_REF, "Pointer to Szmailboxserverdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_, NDR_POINTER_REF, "Pointer to Szmailboxserverdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint8), hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_, NDR_POINTER_REF, "Pointer to Ppszserverfqdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_, NDR_POINTER_REF, "Pointer to Ppszserverfqdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__, NDR_POINTER_REF, "Pointer to Ppszserverfqdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__, NDR_POINTER_REF, "Pointer to Ppszserverfqdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
 
 	return offset;
 }
 
 static int
-rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint8), hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint8), hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
@@ -427,15 +427,15 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, i
 /* IDL: ); */
 
 static int
-rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
 	pinfo->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
-	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_rfr_MAPISTATUS_status, &status);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_MAPISTATUS_status, &status);
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, rfr_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
@@ -443,15 +443,15 @@ rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-rfr_dissect_RfrGetFQDNFromLegacyDN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+rfr_dissect_RfrGetFQDNFromLegacyDN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	pinfo->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
-	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
 }
 

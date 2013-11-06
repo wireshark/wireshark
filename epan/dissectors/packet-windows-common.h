@@ -26,6 +26,7 @@
 #define __PACKET_WINDOWS_COMMON_H__
 
 #include "ws_symbol_export.h"
+#include "packet-dcerpc.h"
 
 /* Win32 errors.
  * These defines specify the WERR error codes often encountered in ms DCE/RPC
@@ -295,7 +296,7 @@ struct access_mask_info {
 
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, guint8 *drep, int hfindex,
+		       proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		       struct access_mask_info *ami,
 		       guint32 *perms);
 

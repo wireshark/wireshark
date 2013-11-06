@@ -126,16 +126,14 @@ static guint16 ver_rs_pgo = 1;
 static int
 dissect_error_status_t (tvbuff_t * tvb, int offset,
 			packet_info * pinfo, proto_tree * parent_tree,
-			guint8 * drep)
+			dcerpc_info *di, guint8 * drep)
 {
   proto_item *item;
   proto_tree *tree;
   int old_offset = offset;
   guint32 st;
-  dcerpc_info *di;
   const char *st_str;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
   {
     return offset;
@@ -145,7 +143,7 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
   tree = proto_item_add_subtree (item, ett_error_status_t);
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_status_t,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_error_status_t,
 			&st);
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
@@ -159,7 +157,7 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
 static int
 dissect_sec_rgy_pname_t (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * parent_tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
 
 
@@ -172,9 +170,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
           typedef [string] char sec_rgy_pname_t[sec_rgy_pname_t_size];
 */
   guint32 string_size;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -188,7 +184,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
       tree = proto_item_add_subtree (item, ett_sec_rgy_pname_t);
     }
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 			       hf_sec_rgy_pname_t_size, &string_size);
   col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < sec_rgy_pname_t_size)
@@ -218,7 +214,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
 static int
 dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * parent_tree,
-			     guint8 * drep)
+			     dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -228,14 +224,12 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   guint32 flags;
 
 /*
     typedef bitset  sec_rgy_pgo_flags_t;
 */
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -251,7 +245,7 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_sec_rgy_pgo_flags_t, &flags);
 
 /*
@@ -315,7 +309,7 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
 static int
 dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * parent_tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -331,12 +325,10 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   guint32 person_dtm, group_dtm, org_dtm;
   e_uuid_t uuid1;
 
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -352,7 +344,7 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_rs_uuid1, &uuid1);
+    dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_rs_uuid1, &uuid1);
   offset =
     dissect_dcerpc_time_t (tvb, offset, pinfo, tree, drep, hf_rs_timeval,
 			   &person_dtm);
@@ -379,7 +371,7 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
 static int
 dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 			packet_info * pinfo, proto_tree * parent_tree,
-			guint8 * drep)
+			dcerpc_info *di, guint8 * drep)
 {
 
 
@@ -389,9 +381,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 #define    sec_rgy_name_t_size  1025
 /*    typedef [string] char sec_rgy_name_t[sec_rgy_name_t_size]; */
   guint32 string_size;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -406,7 +396,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_sec_rgy_name_t_size, &string_size);
   col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < sec_rgy_name_t_size)
@@ -437,7 +427,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 static int
 dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
 			  packet_info * pinfo, proto_tree * parent_tree,
-			  guint8 * drep)
+			  dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -447,10 +437,8 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   guint32 domain_t;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -466,7 +454,7 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_sec_rgy_domain_t,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_sec_rgy_domain_t,
 			&domain_t);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " sec_rgy_domain_t:%u",
@@ -480,7 +468,7 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
 static int
 dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
 			    packet_info * pinfo, proto_tree * parent_tree,
-			    guint8 * drep)
+			    dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -497,11 +485,9 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   e_uuid_t id;
   guint32 unix_num, quota;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -517,16 +503,16 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_rs_uuid1, &id);
+    dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_rs_uuid1, &id);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_sec_rgy_pgo_item_t_unix_num, &unix_num);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_sec_rgy_pgo_item_t_quota, &quota);
-  offset = dissect_sec_rgy_pgo_flags_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_pgo_flags_t (tvb, offset, pinfo, tree, di, drep);
   offset += 4;			/* XXX */
-  offset = dissect_sec_rgy_pname_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_pname_t (tvb, offset, pinfo, tree, di, drep);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " sec_rgy_pgo_item_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x unix_num:%u quota:%u",
@@ -543,7 +529,7 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
 static int
 dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
 			  packet_info * pinfo, proto_tree * parent_tree,
-			  guint8 * drep)
+			  dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -561,11 +547,9 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   e_uuid_t source;
   guint32 handle, valid;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -581,12 +565,12 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_rs_uuid1, &source);
+    dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_rs_uuid1, &source);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_sec_rgy_pgo_item_t_unix_num, &handle);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_sec_rgy_pgo_item_t_quota, &valid);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -603,7 +587,7 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
 static int
 dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
 			packet_info * pinfo, proto_tree * parent_tree,
-			guint8 * drep)
+			dcerpc_info *di, guint8 * drep)
 {
 
   enum
@@ -619,10 +603,8 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   guint8 query_t;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -636,7 +618,7 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_rs_pgo_query_t);
     }
   offset =
-    dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_query_t,
+    dissect_ndr_uint8 (tvb, offset, pinfo, tree, di, drep, hf_rs_pgo_query_t,
 		       &query_t);
   col_append_str (pinfo->cinfo, COL_INFO, " rs_pgo_query_t:");
 
@@ -670,7 +652,7 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
 static int
 dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * parent_tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -684,10 +666,8 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   e_uuid_t id;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -703,8 +683,8 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_rs_uuid1, &id);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+    dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_rs_uuid1, &id);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " rs_pgo_id_key_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -720,7 +700,7 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
 static int
 dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * parent_tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -735,9 +715,7 @@ dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -751,8 +729,8 @@ dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_rs_pgo_result_t);
     }
 
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_pgo_item_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_pgo_item_t (tvb, offset, pinfo, tree, di, drep);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -763,7 +741,7 @@ dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
 static int
 dissect_rs_pgo_unix_num_key_t (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * parent_tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -780,10 +758,8 @@ r
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   guint32 rs_pgo_unix_num_key_t;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -799,9 +775,9 @@ r
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_pgo_unix_num_key_t, &rs_pgo_unix_num_key_t);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " rs_pgo_unix_num_key_t:%u", rs_pgo_unix_num_key_t);
@@ -814,7 +790,7 @@ r
 static int
 dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
 			    packet_info * pinfo, proto_tree * parent_tree,
-			    guint8 * drep)
+			    dcerpc_info *di, guint8 * drep)
 {
 
   enum
@@ -849,10 +825,8 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
   guint16 query_t;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -867,7 +841,7 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_rs_pgo_query_key_t);
     }
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_query_key_t,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep, hf_rs_pgo_query_key_t,
 			&query_t);
   col_append_str (pinfo->cinfo, COL_INFO, " rs_pgo_query_key_t:");
   offset += 4;
@@ -875,19 +849,19 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
     {
     case rs_pgo_query_name:
       col_append_str (pinfo->cinfo, COL_INFO, "NAME");
-      offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+      offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
       break;
     case rs_pgo_query_id:
       col_append_str (pinfo->cinfo, COL_INFO, "ID");
-      offset = dissect_rs_pgo_id_key_t (tvb, offset, pinfo, tree, drep);
+      offset = dissect_rs_pgo_id_key_t (tvb, offset, pinfo, tree, di, drep);
       break;
     case rs_pgo_query_unix_num:
       col_append_str (pinfo->cinfo, COL_INFO, "UNIX_NUM");
-      offset = dissect_rs_pgo_unix_num_key_t (tvb, offset, pinfo, tree, drep);
+      offset = dissect_rs_pgo_unix_num_key_t (tvb, offset, pinfo, tree, di, drep);
       break;
     case rs_pgo_query_next:
       col_append_str (pinfo->cinfo, COL_INFO, "NEXT");
-      offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+      offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
       break;
     case rs_pgo_query_none:
       col_append_str (pinfo->cinfo, COL_INFO, "NONE");
@@ -906,13 +880,12 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
 static int
 dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * parent_tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 st;
-  dcerpc_info *di;
   const char *status;
 #define error_status_ok 0
 
@@ -927,7 +900,6 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
      } rs_pgo_query_result_t;
    */
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -941,7 +913,7 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_pgo_query_result_t, &st);
   status = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
@@ -952,7 +924,7 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
   switch (st)
     {
     case error_status_ok:
-      offset = dissect_rs_pgo_result_t (tvb, offset, pinfo, tree, drep);
+      offset = dissect_rs_pgo_result_t (tvb, offset, pinfo, tree, di, drep);
       break;
     default:
       ;
@@ -968,11 +940,8 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -984,11 +953,11 @@ rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
         [in]        sec_rgy_pgo_item_t  *pgo_item,
 */
 
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
   offset += 4;
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_sec_rgy_pgo_item_t, NDR_POINTER_REF,
 			 "sec_rgy_pgo_item_t: ", -1);
 
@@ -997,12 +966,10 @@ rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   gint         buff_remain;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1018,12 +985,12 @@ rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
 /* found several add_member responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
 if (buff_remain > 8) {
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info: ", -1);
 }
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status: ",
 			 -1);
   return offset;
@@ -1032,11 +999,8 @@ if (buff_remain > 8) {
 static int
 rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, int offset,
 			    packet_info * pinfo, proto_tree * tree,
-			    guint8 * drep)
+			    dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1046,8 +1010,8 @@ rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, int offset,
         [in]        sec_rgy_domain_t    name_domain,
         [in]        sec_rgy_name_t      pgo_name,
 */
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -1055,12 +1019,10 @@ rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
 			    packet_info * pinfo, proto_tree * tree,
-			    guint8 * drep)
+			    dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   gint         buff_remain;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1076,13 +1038,13 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
 
   if (buff_remain > 8) {
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   }
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 
@@ -1092,11 +1054,8 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-			     guint8 * drep)
+			     dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1107,10 +1066,10 @@ rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, int offset,
         [in]        sec_rgy_name_t      pgo_name,
         [in]        sec_rgy_pgo_item_t  *pgo_item,
 */
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_sec_rgy_pgo_item_t, NDR_POINTER_REF,
 			 "pgo_item:", -1);
 
@@ -1120,11 +1079,8 @@ rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-			     guint8 * drep)
+			     dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1137,11 +1093,11 @@ rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 
@@ -1152,12 +1108,8 @@ rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 * drep)
+				dcerpc_info *di, guint8 * drep)
 {
-
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1171,9 +1123,9 @@ rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, int offset,
         [in]        sec_rgy_name_t      person_name,
 */
 
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
 
   return offset;
@@ -1182,11 +1134,8 @@ rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 			    packet_info * pinfo, proto_tree * tree,
-			    guint8 * drep)
+			    dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1197,9 +1146,9 @@ rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, int offset,
         [in]        sec_rgy_name_t      old_name,
         [in]        sec_rgy_name_t      new_name,
 */
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
 
   return offset;
@@ -1208,11 +1157,8 @@ rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_rename_resp (tvbuff_t * tvb, int offset,
 			    packet_info * pinfo, proto_tree * tree,
-			    guint8 * drep)
+			    dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1223,11 +1169,11 @@ rs_pgo_dissect_rename_resp (tvbuff_t * tvb, int offset,
         [out]       error_status_t      *status
 */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 
@@ -1238,12 +1184,10 @@ rs_pgo_dissect_rename_resp (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 * drep)
+				dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   gint         buff_remain;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1260,12 +1204,12 @@ rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
 if (buff_remain > 8) {
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
 }
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 
@@ -1276,11 +1220,8 @@ if (buff_remain > 8) {
 static int
 rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, int offset,
 				   packet_info * pinfo, proto_tree * tree,
-				   guint8 * drep)
+				   dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1294,9 +1235,9 @@ rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, int offset,
     );
 */
 
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 
@@ -1306,13 +1247,11 @@ rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 * drep)
+				 dcerpc_info *di, guint8 * drep)
 {
 
   guint32 max_members;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1325,15 +1264,15 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
         [in]        signed32                max_members,
 */
 
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
   offset += 4;
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_sec_rgy_cursor_t, NDR_POINTER_REF,
 			 "member_cursor:", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_var1,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rs_var1,
 			&max_members);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :max_members:%u", max_members);
@@ -1344,11 +1283,9 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
-				  guint8 * drep)
+				  dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1361,10 +1298,10 @@ rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset += 4;
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_rs_pgo_query_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_rs_pgo_query_t (tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_pgo_query_key_t, NDR_POINTER_REF, "key:",
 			 -1);
 
@@ -1374,11 +1311,8 @@ rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
-				  guint8 * drep)
+				  dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1391,15 +1325,15 @@ rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_pgo_query_key_t, NDR_POINTER_REF, "key:",
 			 -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 
@@ -1410,11 +1344,9 @@ rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1425,11 +1357,11 @@ rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, int offset,
         [out]       error_status_t      *status
 */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 
@@ -1439,27 +1371,24 @@ rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_is_member_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
 /*
         [in]        sec_rgy_domain_t    name_domain,
         [in]        sec_rgy_name_t      go_name,
         [in]        sec_rgy_name_t      person_name,
 */
 
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
     }
 
   offset += 4;
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
   offset += 4;
-  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, di, drep);
 
 
   return offset;
@@ -1470,12 +1399,10 @@ rs_pgo_dissect_is_member_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   guint32 allow_aliases;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1488,13 +1415,13 @@ rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
         [in, out]   sec_rgy_cursor_t        *item_cursor,
 */
 
-  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_pgo_query_key_t, NDR_POINTER_REF, "key:",
 			 -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_var1,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rs_var1,
 			&allow_aliases);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :allow_aliases:%u",
@@ -1504,7 +1431,7 @@ rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
   offset += 4;			/* XXX */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_sec_rgy_cursor_t, NDR_POINTER_REF,
 			 "item_cursor:", -1);
   return offset;
@@ -1514,12 +1441,8 @@ rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_get_resp (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
-
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1532,15 +1455,15 @@ rs_pgo_dissect_get_resp (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_sec_rgy_cursor_t, NDR_POINTER_REF,
 			 "item_cursor:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_pgo_query_result_t, NDR_POINTER_REF,
 			 "result:", -1);
 
@@ -1551,12 +1474,9 @@ rs_pgo_dissect_get_resp (tvbuff_t * tvb, int offset,
 static int
 rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, int offset,
 				   packet_info * pinfo, proto_tree * tree,
-				   guint8 * drep)
+				   dcerpc_info *di, guint8 * drep)
 {
 
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1569,11 +1489,11 @@ rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
 			 -1);
 

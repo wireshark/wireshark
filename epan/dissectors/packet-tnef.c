@@ -346,16 +346,12 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	guint8      drep[] = {0x10 /* LE */, /* DCE_RPC_DREP_FP_IEEE */ 0 };
 	static dcerpc_info di;
 	static dcerpc_call_value call_data;
-	void        *old_private_data;
 
 	offset = 0;
 
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
 	di.call_data = &call_data;
-
-	old_private_data = pinfo->private_data;
-	pinfo->private_data = &di;
 
 	/* first the count */
 	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -428,13 +424,13 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			/* otherwise just use the type */
 			switch(tag & 0x0000ffff) {
 			case PT_I2:
-				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_i, 0);
+				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_i, 0);
 				break;
 			case PT_LONG:
-				offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_l, 0);
+				offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_l, 0);
 				break;
 			case PT_BOOLEAN:
-				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_b, 0);
+				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_b, 0);
 				break;
 			case PT_STRING8:
 				/* XXX - code page? */
@@ -448,40 +444,40 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, TRUE, ENC_NA);
 				break;
 			case PT_CLSID:
-				offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_lpguid, 0);
+				offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_lpguid, 0);
 				break;
 			case PT_SYSTIME:
-				offset = nspi_dissect_struct_FILETIME(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_ft,0);
+				offset = nspi_dissect_struct_FILETIME(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_ft,0);
 				break;
 			case PT_ERROR:
-				offset = nspi_dissect_enum_MAPISTATUS(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_err, 0);
+				offset = nspi_dissect_enum_MAPISTATUS(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_err, 0);
 				break;
 			 case PT_MV_I2:
-				 offset = nspi_dissect_struct_SShortArray(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVi,0);
+				 offset = nspi_dissect_struct_SShortArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVi,0);
 				 break;
 			 case PT_MV_LONG:
-				 offset = nspi_dissect_struct_MV_LONG_STRUCT(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVl,0);
+				 offset = nspi_dissect_struct_MV_LONG_STRUCT(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVl,0);
 				 break;
 			 case PT_MV_STRING8:
-				 offset = nspi_dissect_struct_SLPSTRArray(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVszA,0);
+				 offset = nspi_dissect_struct_SLPSTRArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVszA,0);
 				 break;
 			 case PT_MV_BINARY:
-				 offset = nspi_dissect_struct_SBinaryArray(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVbin,0);
+				 offset = nspi_dissect_struct_SBinaryArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVbin,0);
 				 break;
 			 case PT_MV_CLSID:
-				 offset = nspi_dissect_struct_SGuidArray(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVguid,0);
+				 offset = nspi_dissect_struct_SGuidArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVguid,0);
 				 break;
 			 case PT_MV_UNICODE:
-				 offset = nspi_dissect_struct_MV_UNICODE_STRUCT(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVszW,0);
+				 offset = nspi_dissect_struct_MV_UNICODE_STRUCT(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVszW,0);
 				 break;
 			 case PT_MV_SYSTIME:
-				 offset = nspi_dissect_struct_SDateTimeArray(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_MVft,0);
+				 offset = nspi_dissect_struct_SDateTimeArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVft,0);
 				 break;
 			 case PT_NULL:
-				 offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_null, 0);
+				 offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_null, 0);
 				 break;
 			 case PT_OBJECT:
-				 offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_object, 0);
+				 offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_object, 0);
 				 break;
 			}
 		}
@@ -497,9 +493,6 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		proto_item_set_len(prop_item, offset - start_offset);
 	}
-
-	/* restore private_data */
-	pinfo->private_data = old_private_data;
 }
 
 

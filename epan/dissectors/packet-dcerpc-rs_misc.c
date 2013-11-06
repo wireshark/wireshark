@@ -50,15 +50,15 @@ static guint16  ver_rs_misc = 1;
 
 static int
 rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 
 	guint32 key_size;
 	const char *key_t1 = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 			hf_rs_misc_login_get_info_rqst_var, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 			hf_rs_misc_login_get_info_rqst_key_size, &key_size);
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */

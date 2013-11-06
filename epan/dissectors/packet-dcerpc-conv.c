@@ -53,7 +53,7 @@ static guint16  ver_conv = 3;
 static int
 conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       guint8 *drep)
+			       dcerpc_info *di, guint8 *drep)
 {
 	/*
 	 *         [in]    uuid_t          *actuid,
@@ -61,8 +61,8 @@ conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 	 */
 	e_uuid_t actuid;
 
-	offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you_rqst_actuid, &actuid);
-	offset = dissect_ndr_time_t (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you_rqst_boot_time, NULL);
+	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you_rqst_actuid, &actuid);
+	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you_rqst_boot_time, NULL);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "conv_who_are_you request actuid: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -76,7 +76,7 @@ conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       guint8 *drep)
+			       dcerpc_info *di, guint8 *drep)
 {
 	/*
 	 *         [out]   unsigned32      *seq,
@@ -84,8 +84,8 @@ conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 	 */
 	guint32 seq, st;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you_resp_seq, &seq);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_conv_rc, &st);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you_resp_seq, &seq);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_rc, &st);
 
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "conv_who_are_you response seq:%u st:%s",
@@ -99,7 +99,7 @@ conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree,
-				guint8 *drep)
+				dcerpc_info *di, guint8 *drep)
 {
 	/*
 	 *         [in]    uuid_t          *actuid,
@@ -107,8 +107,8 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 	 */
         e_uuid_t actuid;
 
-        offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you2_rqst_actuid, &actuid);
-        offset = dissect_ndr_time_t (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you2_rqst_boot_time, NULL);
+        offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_rqst_actuid, &actuid);
+        offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_rqst_boot_time, NULL);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "conv_who_are_you2 request actuid: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -121,7 +121,7 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree,
-				guint8 *drep)
+				dcerpc_info *di, guint8 *drep)
 {
 	/*
 	 *         [out]   unsigned32      *seq,
@@ -132,9 +132,9 @@ conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 	guint32 seq, st;
 	e_uuid_t cas_uuid;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you2_resp_seq, &seq);
-	offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_conv_who_are_you2_resp_casuuid, &cas_uuid);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_conv_rc, &st);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_resp_seq, &seq);
+	offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_resp_casuuid, &cas_uuid);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_rc, &st);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "conv_who_are_you2 response seq:%u st:%s cas:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",

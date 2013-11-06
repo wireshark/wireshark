@@ -308,7 +308,7 @@ inode, volume, etc all will be garbage.
   { \
     guint32 st; \
     const char *st_str; \
-    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_error_st, &st); \
     st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u"); \
     if (st){ \
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
@@ -319,7 +319,7 @@ inode, volume, etc all will be garbage.
 
 static int
 dissect_afsFid (tvbuff_t * tvb, int offset,
-		packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -334,9 +334,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 volume_low, unique, vnode, inode;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -351,22 +349,22 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
     }
 
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsFid_cell_high, NULL);
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsFid_cell_low, NULL);
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsFid_volume_high, NULL);
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsFid_volume_low, &volume_low);
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsFid_Vnode, &vnode);
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsFid_Unique, &unique);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u ", volume_low);
@@ -388,7 +386,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
 static int
 dissect_afsConnParams (tvbuff_t * tvb, int offset,
 		       packet_info * pinfo, proto_tree * parent_tree,
-		       guint8 *drep)
+		       dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -400,9 +398,7 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 mask, Values[20];
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -417,67 +413,67 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_fileexp_afsConnParams);
     }
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_mask, &mask);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[0]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[1]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[2]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[3]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[4]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[5]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[6]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[7]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[8]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[9]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[10]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[11]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[12]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[13]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[14]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[15]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[16]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[17]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[18]);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_afsconnparams_values, &Values[19]);
   if ((mask & AFS_CONN_PARAM_HOSTLIFE) == AFS_CONN_PARAM_HOSTLIFE)
     {
@@ -545,7 +541,7 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
 static int
 dissect_afsNameString_t (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * parent_tree,
-			 guint8 *drep)
+			 dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -558,9 +554,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 #define AFS_NAMEMAX    256
   guint32 string_size;
   const guint8 *namestring;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -576,7 +570,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
     }
 
  offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsNameString_t_principalName_size,
 			&string_size);
 	col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
@@ -601,7 +595,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 
 static int
 dissect_afsNetAddr (tvbuff_t * tvb, int offset,
-		    packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		    packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 /*                 unsigned16 type;
@@ -614,9 +608,7 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
   guint16 type;
   guint8 data;
   int i;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -631,7 +623,7 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsNetAddr_type, &type);
 
   if (type)
@@ -643,7 +635,7 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 	{
 
 	  offset =
-	    dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+	    dissect_ndr_uint8 (tvb, offset, pinfo, tree, di, drep,
 			       hf_fileexp_afsNetAddr_data, &data);
 
 
@@ -687,7 +679,7 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afsNetData (tvbuff_t * tvb, int offset,
-		    packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		    packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 /*
 	afsNetAddr sockAddr;
@@ -696,9 +688,7 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -712,9 +702,9 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
     }
 
 
-  offset = dissect_afsNetAddr ( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsNetAddr ( tvb, offset, pinfo, tree, di, drep);
   offset += 4; /* buffer */
-  offset = dissect_afsNameString_t ( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsNameString_t ( tvb, offset, pinfo, tree, di, drep);
 
    proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -724,7 +714,7 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
 static int
 dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
 		       packet_info * pinfo, proto_tree * parent_tree,
-		       guint8 *drep)
+		       dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -739,9 +729,7 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
   guint32 tp_tag;
   guint16 tp_length;
   const guint8 *tp_chars;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -757,10 +745,10 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsTaggedPath_tp_tag, &tp_tag);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsTaggedPath_tp_length, &tp_length);
   proto_tree_add_item (tree, hf_fileexp_afsTaggedPath_tp_chars, tvb, offset,
 		       tp_length, ENC_ASCII|ENC_NA);
@@ -775,7 +763,7 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afsAcl (tvbuff_t * tvb, int offset,
-		packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 /*
         unsigned32 afsACL_len;
@@ -789,9 +777,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   guint32 acl_len;
   e_uuid_t uuid1, defaultcell;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -807,11 +793,11 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_acl_len,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_acl_len,
 			&acl_len);
   offset += 8;			/* bypass spare and duplicate acl_len */
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsacl_uuid1, &uuid1);
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -821,7 +807,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
 		     uuid1.Data4[7]);
 
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsacl_defaultcell_uuid, &defaultcell);
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     "  %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -844,16 +830,14 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
 static int
 dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
 			packet_info * pinfo, proto_tree * parent_tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 st;
-  dcerpc_info *di;
   const char *st_str;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -867,7 +851,7 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afserrorstatus_st,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_afserrorstatus_st,
 			&st);
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
@@ -880,7 +864,7 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
 static int
 dissect_afsRecordLock (tvbuff_t * tvb, int offset,
 		       packet_info * pinfo, proto_tree * parent_tree,
-		       guint8 *drep)
+		       dcerpc_info *di, guint8 *drep)
 {
 /*
         signed16     l_type;
@@ -900,9 +884,7 @@ dissect_afsRecordLock (tvbuff_t * tvb, int offset,
   guint16 l_type, l_whence;
   guint32 l_start_pos, l_end_pos, l_pid, l_sysid, l_fstype, l_start_pos_ext,
     l_end_pos_ext;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -916,31 +898,31 @@ dissect_afsRecordLock (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_type,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep, hf_fileexp_l_type,
 			&l_type);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_whence,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep, hf_fileexp_l_whence,
 			&l_whence);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_l_start_pos, &l_start_pos);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_end_pos,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_l_end_pos,
 			&l_end_pos);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_pid,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_l_pid,
 			&l_pid);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_sysid,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_l_sysid,
 			&l_sysid);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_fstype,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_l_fstype,
 			&l_fstype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_l_start_pos_ext, &l_start_pos_ext);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_l_end_pos_ext, &l_end_pos_ext);
 
 
@@ -951,7 +933,7 @@ dissect_afsRecordLock (tvbuff_t * tvb, int offset,
 static int
 dissect_afsstorestatus (tvbuff_t * tvb, int offset,
 			packet_info * pinfo, proto_tree * parent_tree,
-			guint8 *drep)
+			dcerpc_info *di, guint8 *drep)
 {
 /*
         unsigned32              mask;
@@ -986,9 +968,7 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
     trunc_high, trunc_low, length_high, length_low, devicetype,
     cmask, modtime_usec;
   e_uuid_t typeuuid;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1003,87 +983,87 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_mask, &mask);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_modtime_sec, &modtime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_modtime_usec, &modtime_usec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_accesstime_sec,
 			&accesstime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_accesstime_usec,
 			&accesstime_usec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_changetime_sec,
 			&changetime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_changetime_usec,
 			&changetime_usec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_owner, &owner);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_group, &group);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_mode, &mode);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_trunc_high, &trunc_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_trunc_low, &trunc_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_length_high, &length_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_length_low, &length_low);
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_typeuuid, &typeuuid);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_devicetype, &devicetype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_devicenumber, &devicenumber);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_cmask, &cmask);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_clientspare1, &clientspare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_devicenumberhighbits,
 			&devicenumberhighbits);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_spare1, &spare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_spare2, &spare2);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_spare3, &spare3);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_spare4, &spare4);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_spare5, &spare5);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_storestatus_spare6, &spare6);
 
   col_append_str (pinfo->cinfo, COL_INFO, " Mask=");
@@ -1145,7 +1125,7 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afstoken (tvbuff_t * tvb, int offset,
-		  packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		  packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 /*
         afsHyper tokenID;
@@ -1162,9 +1142,7 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   guint32 tokenid_hi, tokenid_low, expirationtime, type_hi, type_low,
     beginrange, endrange, beginrangeext, endrangeext, type;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1178,31 +1156,31 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_tokenid_hi,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_tokenid_hi,
 			&tokenid_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_tokenid_low, &tokenid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_expirationtime, &expirationtime);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_type_hi,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_type_hi,
 			&type_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_type_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_type_low,
 			&type_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_beginrange,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_beginrange,
 			&beginrange);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_endrange,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_endrange,
 			&endrange);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_beginrangeext, &beginrangeext);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_endrangeext, &endrangeext);
     col_append_fstr (pinfo->cinfo, COL_INFO,
 		     "  :Tokenid:%u/%u ExpirationTime:%u beginrange:%u endrange:%u beginrangeext:%u endrangeext:%u",
@@ -1292,7 +1270,7 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
 static int
 dissect_afstaggedname (tvbuff_t * tvb, int offset,
 		       packet_info * pinfo, proto_tree * parent_tree,
-		       guint8 *drep)
+		       dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -1307,9 +1285,7 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
   guint32 tn_tag;
   guint16 tn_length;
   const guint8 *tn_string;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1324,10 +1300,10 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_tn_tag,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_tn_tag,
 			&tn_tag);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_tn_length,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep, hf_fileexp_tn_length,
 			&tn_length);
   if (tn_length < 254)
     {
@@ -1350,7 +1326,7 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
 static int
 dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
 			  packet_info * pinfo, proto_tree * parent_tree,
-			  guint8 *drep)
+			  dcerpc_info *di, guint8 *drep)
 {
 /*
         afsFid fid;
@@ -1360,9 +1336,7 @@ dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1375,8 +1349,8 @@ dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
 				  "FidTaggedName:");
       tree = proto_item_add_subtree (item, ett_fileexp_afsfidtaggedname);
     }
-  offset = dissect_afsFid (tvb, offset, pinfo, tree, drep);
-  offset = dissect_afstaggedname (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFid (tvb, offset, pinfo, tree, di, drep);
+  offset = dissect_afstaggedname (tvb, offset, pinfo, tree, di, drep);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -1385,7 +1359,7 @@ dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
 
 static int
 dissect_minvvp (tvbuff_t * tvb, int offset,
-		packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 /* unsigned32 minvvp_high
@@ -1396,9 +1370,7 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 minvvp_high, minvvp_low;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1411,10 +1383,10 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_fileexp_minvvp);
     }
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_minvvp_high, &minvvp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_minvvp_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_minvvp_low,
 			&minvvp_low);
 
     col_append_fstr (pinfo->cinfo, COL_INFO, " minVVp:%u/%u", minvvp_high,
@@ -1428,7 +1400,7 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afsuuid (tvbuff_t * tvb, int offset,
-                packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+                packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 /* uuid  UUID
@@ -1440,9 +1412,7 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1455,8 +1425,7 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_fileexp_afsuuid);
     }
 
-  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_afsuuid_uuid, &uuid1);
-
+  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fileexp_afsuuid_uuid, &uuid1);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, ":%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0], uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3], uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6], uuid1.Data4[7]);
 
@@ -1467,7 +1436,7 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
 
 static int
 dissect_offsetp (tvbuff_t * tvb, int offset,
-                packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+                packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 /* unsigned32 offsetp_high
@@ -1478,9 +1447,7 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 offsetp_high, offsetp_low;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1493,10 +1460,10 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_fileexp_offsetp);
     }
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                         hf_fileexp_offsetp_high, &offsetp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_offsetp_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_offsetp_low,
                         &offsetp_low);
 
     col_append_fstr (pinfo->cinfo, COL_INFO, " offsetp:%u/%u", offsetp_high,
@@ -1510,7 +1477,7 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
 
 static int
 dissect_returntokenidp (tvbuff_t * tvb, int offset,
-                packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+                packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 /* unsigned32 returntokenidp_high
@@ -1521,9 +1488,7 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 returntokenidp_high, returntokenidp_low;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1536,10 +1501,10 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
       tree = proto_item_add_subtree (item, ett_fileexp_returntokenidp);
     }
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                         hf_fileexp_returntokenidp_high, &returntokenidp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_returntokenidp_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_returntokenidp_low,
                         &returntokenidp_low);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u", returntokenidp_high,
@@ -1553,7 +1518,7 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
 
 static int
 dissect_volsync (tvbuff_t * tvb, int offset,
-		 packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		 packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 /*
         afsHyper VolID;
@@ -1571,9 +1536,7 @@ dissect_volsync (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   guint32 volid_hi, volid_low, vv_hi, vv_low, vvage, vvpingage, vvspare1,
     vvspare2;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1588,28 +1551,28 @@ dissect_volsync (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_volid_hi,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_volid_hi,
 			&volid_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_volid_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_volid_low,
 			&volid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vv_hi,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_vv_hi,
 			&vv_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vv_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_vv_low,
 			&vv_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvage,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_vvage,
 			&vvage);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvpingage,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_vvpingage,
 			&vvpingage);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvspare1,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_vvspare1,
 			&vvspare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvspare2,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_vvspare2,
 			&vvspare2);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -1625,7 +1588,7 @@ dissect_volsync (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afsFlags (tvbuff_t * tvb, int offset,
-		  packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+		  packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep)
 {
 
 
@@ -1637,9 +1600,7 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 flags;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1653,7 +1614,7 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_flags,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_flags,
 			&flags);
 
   if (flags)
@@ -1747,7 +1708,7 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
 static int
 dissect_fetchstatus (tvbuff_t * tvb, int offset,
 		     packet_info * pinfo, proto_tree * parent_tree,
-		     guint8 *drep)
+		     dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -1795,9 +1756,7 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
     agtypeunique, himaxspare, lomaxspare, pathconfspare, spare4, spare5,
     spare6;
   e_uuid_t typeuuid, objectuuid;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1813,116 +1772,116 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_interfaceversion, &interfaceversion);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_filetype,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_filetype,
 			&filetype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_linkcount,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_linkcount,
 			&linkcount);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_length_high, &length_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_length_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_length_low,
 			&length_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_dataversion_high, &dataversion_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_dataversion_low, &dataversion_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_author,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_author,
 			&author);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_owner,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_owner,
 			&owner);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_group,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_group,
 			&group);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_calleraccess, &calleraccess);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_anonymousaccess, &anonymousaccess);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_aclexpirationtime, &aclexpirationtime);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_mode,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_mode,
 			&mode);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_parentvnode, &parentvnode);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_parentunique, &parentunique);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_modtime_sec, &modtime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_modtime_msec, &modtime_msec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_changetime_sec, &changetime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_changetime_msec, &changetime_msec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_accesstime_sec, &accesstime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_accesstime_msec, &accesstime_msec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_servermodtime_sec, &servermodtime_sec);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_servermodtime_msec, &servermodtime_msec);
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_typeuuid,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fileexp_typeuuid,
 			&typeuuid);
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_objectuuid,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fileexp_objectuuid,
 			&objectuuid);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_devicenumber, &devicenumber);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_blocksused,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_blocksused,
 			&blocksused);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_clientspare1, &clientspare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_devicenumberhighbits,
 			&devicenumberhighbits);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_agtypeunique, &agtypeunique);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_himaxspare,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_himaxspare,
 			&himaxspare);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_lomaxspare,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_lomaxspare,
 			&lomaxspare);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_pathconfspare, &pathconfspare);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_spare4,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_spare4,
 			&spare4);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_spare5,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_spare5,
 			&spare5);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_spare6,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_spare6,
 			&spare6);
 
 
@@ -1944,7 +1903,7 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
 static int
 dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
 		       packet_info * pinfo, proto_tree * parent_tree,
-		       guint8 *drep)
+		       dcerpc_info *di, guint8 *drep)
 {
 /*
         afsFid fid;             * useful hint *
@@ -1957,9 +1916,7 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 tokenid_high, tokenid_low, type_high, type_low;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1974,24 +1931,24 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
     }
 
 
-  offset = dissect_afsFid ( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFid ( tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsreturndesc_tokenid_high, &tokenid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsreturndesc_tokenid_low, &tokenid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsreturndesc_type_high, &type_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_afsreturndesc_type_low, &type_low);
   col_append_fstr (pinfo->cinfo, COL_INFO, " TokenId:%u/%u Type:%u/%u",
 		     tokenid_high, tokenid_low, type_high, type_low);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags: ", -1);
 
   proto_item_set_len (item, offset - old_offset);
@@ -2002,7 +1959,7 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afsReturns (tvbuff_t * tvb, int offset,
-		    packet_info * pinfo, proto_tree * tree, guint8 *drep)
+		    packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
 
 /*
@@ -2012,16 +1969,13 @@ dissect_afsReturns (tvbuff_t * tvb, int offset,
 
   /* this is not really a ucvarray, but with the initial len, we can
      cheat and pretend it is */
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
     }
 
   offset =
-    dissect_ndr_ucvarray (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_ucvarray (tvb, offset, pinfo, tree, di, drep,
 			  dissect_afsReturnDesc);
 
   return offset;
@@ -2031,16 +1985,14 @@ dissect_afsReturns (tvbuff_t * tvb, int offset,
 
 static int
 dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
-                packet_info * pinfo, proto_tree * parent_tree, guint8 *drep _U_)
+                packet_info * pinfo, proto_tree * parent_tree, dcerpc_info *di, guint8 *drep _U_)
 {
 
 
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2061,15 +2013,15 @@ dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
 */
 
 /*
-        offset = dissect_afsFid(tvb, offset, pinfo, tree, drep);
+        offset = dissect_afsFid(tvb, offset, pinfo, tree, di, drep);
 */
 /* SKIPTOKEN/STAT?
-        offset = dissect_fetchstatus(tvb, offset, pinfo, tree, drep);
-        offset = dissect_afstoken(tvb, offset, pinfo, tree, drep);
+        offset = dissect_fetchstatus(tvb, offset, pinfo, tree, di, drep);
+        offset = dissect_afstoken(tvb, offset, pinfo, tree, di, drep);
 */
 /* This is currently under construction as I figure out the reverse layout of the packet. */
 /*
-        offset = dissect_afsErrorStatus (tvb, offset, pinfo, tree, drep);
+        offset = dissect_afsErrorStatus (tvb, offset, pinfo, tree, di, drep);
 */
 
 
@@ -2085,7 +2037,7 @@ return offset;
 static int
 dissect_afsBulkStat (tvbuff_t * tvb _U_, int offset,
                                   packet_info * pinfo _U_, proto_tree * tree _U_,
-                                  guint8 *drep _U_)
+                                  dcerpc_info *di _U_, guint8 *drep _U_)
 {
 /*
         unsigned32 BulkStat_len;
@@ -2107,13 +2059,10 @@ dissect_afsBulkStat (tvbuff_t * tvb _U_, int offset,
 static int
 fileexp_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
 
 
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2130,21 +2079,21 @@ fileexp_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsfidtaggedname, NDR_POINTER_REF,
 			 "afsFidTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_returntokenidp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_returntokenidp,
 			 NDR_POINTER_REF, "afsReturnTokenIDp:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "afsMinVVp:", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   return offset;
@@ -2153,12 +2102,10 @@ fileexp_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 *drep)
+				dcerpc_info *di, guint8 *drep)
 {
   guint32 position_high, position_low, length;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2177,32 +2124,32 @@ fileexp_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsstorestatus, NDR_POINTER_REF,
 			 "afsStoreStatus:", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_position_high, &position_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_position_low, &position_low);
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_length, &length);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
 		     position_high, position_low, length);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
 /* XXX need to decode pipe_t still here */
@@ -2213,11 +2160,8 @@ fileexp_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 *drep)
+			       dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2233,19 +2177,19 @@ fileexp_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   return offset;
@@ -2253,11 +2197,9 @@ fileexp_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 *drep)
+			       dcerpc_info *di, guint8 *drep)
 {
 
-  dcerpc_info *di;
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2271,20 +2213,20 @@ fileexp_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsRecordLock, NDR_POINTER_REF,
 			 "afsRecordLock: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "afsFetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsErrorStatus, NDR_POINTER_REF,
 			 "afsErrorStatus: ", -1);
 
@@ -2294,11 +2236,8 @@ fileexp_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2312,15 +2251,15 @@ fileexp_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
  */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   return offset;
@@ -2329,12 +2268,10 @@ fileexp_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 *drep)
+				dcerpc_info *di, guint8 *drep)
 {
   guint32 position_high, position_low, length;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2349,26 +2286,26 @@ fileexp_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_position_high, &position_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_position_low, &position_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_length, &length);
   col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
 		     position_high, position_low, length);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   return offset;
@@ -2377,13 +2314,11 @@ fileexp_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 *drep)
+			       dcerpc_info *di, guint8 *drep)
 {
 
   guint32 acltype;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2399,18 +2334,18 @@ fileexp_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_acltype,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_acltype,
 			&acltype);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   if (acltype)
@@ -2425,11 +2360,8 @@ fileexp_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2443,13 +2375,13 @@ fileexp_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   return offset;
@@ -2457,12 +2389,10 @@ fileexp_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 *drep)
+			       dcerpc_info *di, guint8 *drep)
 {
   guint32 acltype;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2479,22 +2409,22 @@ fileexp_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsAcl,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsAcl,
 			 NDR_POINTER_REF, "afsAcl: ", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_acltype,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fileexp_acltype,
 			&acltype);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " aclType:%u",acltype);
@@ -2505,11 +2435,9 @@ fileexp_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
-				  guint8 *drep)
+				  dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2524,17 +2452,17 @@ fileexp_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsstorestatus, NDR_POINTER_REF,
 			 "afsStoreStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
 
@@ -2544,11 +2472,8 @@ fileexp_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2564,21 +2489,21 @@ fileexp_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsstorestatus, NDR_POINTER_REF,
 			 "afsStoreStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
   return offset;
@@ -2587,11 +2512,8 @@ fileexp_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-		     guint8 *drep)
+		     dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2609,34 +2531,34 @@ fileexp_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsfidtaggedname, NDR_POINTER_REF,
 			 "afsFidTaggedName: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsFidTaggedName: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_returntokenidp, NDR_POINTER_REF,
 			 "afsReturnTokenIDp: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_minvvp, NDR_POINTER_REF,
 			 "afsminVVp: ", -1);
 
-  offset = dissect_afsFlags(tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags(tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -2644,11 +2566,8 @@ fileexp_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
 			      packet_info * pinfo, proto_tree * tree,
-			      guint8 *drep)
+			      dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2666,25 +2585,25 @@ fileexp_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsTaggedPath, NDR_POINTER_REF,
 			 "afsTaggedPath: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsstorestatus, NDR_POINTER_REF,
 			 "afsStoreStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-    offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
+    offset = dissect_afsFlags (tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -2692,12 +2611,10 @@ fileexp_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
 			      packet_info * pinfo, proto_tree * tree,
-			      guint8 *drep)
+			      dcerpc_info *di, guint8 *drep)
 {
   guint32 size;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2712,21 +2629,21 @@ fileexp_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_offsetp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_offsetp,
 			 NDR_POINTER_REF, "Offsetp: ", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_readdir_size, &size);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " Size:%u", size);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-   offset = dissect_afsFlags ( tvb, offset, pinfo, tree, drep);
+   offset = dissect_afsFlags ( tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -2734,11 +2651,8 @@ fileexp_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
 			      packet_info * pinfo, proto_tree * tree,
-			      guint8 *drep)
+			      dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2753,21 +2667,21 @@ fileexp_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsstorestatus, NDR_POINTER_REF,
 			 "afsStoreStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -2775,12 +2689,10 @@ fileexp_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 *drep)
+				dcerpc_info *di, guint8 *drep)
 {
   guint32 returntokenidp_high, returntokenidp_low;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2795,25 +2707,25 @@ fileexp_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsfidtaggedname, NDR_POINTER_REF,
 			 "afsFidTaggedName: ", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_returntokenidp_high, &returntokenidp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_returntokenidp_low, &returntokenidp_low);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u",
 		     returntokenidp_high, returntokenidp_low);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, drep );
+  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, di, drep );
 
   return offset;
 }
@@ -2821,11 +2733,8 @@ fileexp_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_lookup_rqst (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-			     guint8 *drep)
+			     dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2839,28 +2748,25 @@ fileexp_dissect_lookup_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-   offset = dissect_afsFlags ( tvb, offset, pinfo, tree, drep);
+   offset = dissect_afsFlags ( tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
 static int
 fileexp_dissect_lookup_resp (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-			     guint8 *drep)
+			     dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2875,21 +2781,21 @@ fileexp_dissect_lookup_resp (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("Lookup reply");
 
@@ -2900,12 +2806,10 @@ fileexp_dissect_lookup_resp (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 				     packet_info * pinfo, proto_tree * tree,
-				     guint8 *drep)
+				     dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
   guint16 type;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2925,33 +2829,33 @@ fileexp_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_fstype,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep, hf_fileexp_fstype,
 			&type);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsstorestatus, NDR_POINTER_REF,
 			 "afsStoreStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
 
-  offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags (tvb, offset, pinfo, tree, di, drep);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u", type);
 
@@ -2962,13 +2866,10 @@ fileexp_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 static int
 fileexp_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
   guint32 epochtime, clientsizesattrs, parm7;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2988,21 +2889,21 @@ fileexp_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
     dissect_dcerpc_time_t (tvb, offset, pinfo, tree, drep,
 			   hf_fileexp_setcontext_rqst_epochtime, &epochtime);
 
-  offset =  dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsNetData,
+  offset =  dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsNetData,
 			 NDR_POINTER_REF, "afsNetData:", -1);
 
-  offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags (tvb, offset, pinfo, tree, di, drep);
 
 col_append_str (pinfo->cinfo, COL_INFO, " setObjectID");
 
-  offset =  dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsuuid,
+  offset =  dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsuuid,
 			 NDR_POINTER_REF, "afsUUID:", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_setcontext_rqst_clientsizesattrs,
 			&clientsizesattrs);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_setcontext_rqst_parm7, &parm7);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " epochTime:%u clientSizesAttrs:%u parm7:%u", epochtime, clientsizesattrs, parm7);
@@ -3013,14 +2914,10 @@ col_append_str (pinfo->cinfo, COL_INFO, " setObjectID");
 static int
 fileexp_dissect_setcontext_resp (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
-				 guint8 *drep)
+				 dcerpc_info *di, guint8 *drep)
 {
 /* nothing but error code */
 
-  dcerpc_info *di;
-
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3033,11 +2930,8 @@ fileexp_dissect_setcontext_resp (tvbuff_t * tvb, int offset,
 static int
   fileexp_dissect_lookuproot_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3051,17 +2945,17 @@ static int
    */
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("LookupRoot reply");
   return offset;
@@ -3070,13 +2964,10 @@ static int
 static int
   fileexp_dissect_fetchdata_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-
-  dcerpc_info *di;
   guint32 pipe_t_size;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3092,7 +2983,7 @@ static int
 There is also not sign of the afsVolSync structure... Just size, and data string... aka pipe_t */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_fetchdata_pipe_t_size, &pipe_t_size);
 
   return offset;
@@ -3101,11 +2992,8 @@ There is also not sign of the afsVolSync structure... Just size, and data string
 static int
   fileexp_dissect_fetchacl_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3118,14 +3006,14 @@ static int
         [out]   afsVolSync      *Syncp
 */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsAcl,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsAcl,
 			 NDR_POINTER_REF, "afsAcl: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("FetchAcl reply");
   return offset;
@@ -3134,11 +3022,8 @@ static int
 static int
   fileexp_dissect_fetchstatus_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3151,14 +3036,14 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("FetchStatus reply");
   return offset;
@@ -3167,11 +3052,8 @@ static int
 static int
   fileexp_dissect_storedata_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3183,11 +3065,11 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("StoreData reply");
   return offset;
@@ -3196,11 +3078,8 @@ static int
 static int
   fileexp_dissect_storeacl_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3212,11 +3091,11 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("StoreAcl reply");
   return offset;
@@ -3225,11 +3104,8 @@ static int
 static int
   fileexp_dissect_storestatus_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3241,11 +3117,11 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("StoreStatus reply");
   return offset;
@@ -3254,11 +3130,8 @@ static int
 static int
   fileexp_dissect_removefile_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3271,17 +3144,17 @@ static int
         [out]   afsVolSync      *Syncp
 */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("RemoveFile reply");
   return offset;
@@ -3290,11 +3163,8 @@ static int
 static int
   fileexp_dissect_createfile_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3310,21 +3180,21 @@ static int
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("CreateFile reply");
 
@@ -3333,11 +3203,8 @@ static int
 static int
   fileexp_dissect_rename_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3354,27 +3221,27 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR("Rename reply");
   return offset;
@@ -3383,11 +3250,8 @@ static int
 static int
   fileexp_dissect_symlink_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3402,19 +3266,19 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("Symlink reply");
 
@@ -3424,11 +3288,8 @@ static int
 static int
   fileexp_dissect_hardlink_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3442,13 +3303,13 @@ static int
 
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("Hardlink reply");
 
@@ -3457,11 +3318,8 @@ static int
 static int
   fileexp_dissect_hardlink_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3477,23 +3335,23 @@ static int
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
 
-  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -3501,11 +3359,8 @@ static int
 static int
   fileexp_dissect_makedir_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3519,19 +3374,19 @@ static int
         [out]   afsVolSync      *Syncp
 */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
 
   MACRO_ST_CLEAR ("MakeDir reply");
@@ -3542,11 +3397,8 @@ static int
 static int
   fileexp_dissect_removedir_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3560,16 +3412,16 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("RemoveDir reply");
 
@@ -3580,13 +3432,10 @@ static int
 static int
   fileexp_dissect_readdir_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-
   guint32 nextoffsetp_high, nextoffsetp_low;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3602,10 +3451,10 @@ static int
 */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_nextoffsetp_high, &nextoffsetp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_nextoffsetp_low, &nextoffsetp_low);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
@@ -3614,7 +3463,7 @@ static int
   /* all packets seem to have SKIPTOKEN/SKIPSTATUS sent, and thus these structures are missing on calls holding tokens. */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   /* XXX need to add pipe_t here, once figured out. */
 
@@ -3624,11 +3473,8 @@ static int
 static int
   fileexp_dissect_releasetokens_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3642,11 +3488,8 @@ static int
 static int
   fileexp_dissect_releasetokens_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3658,10 +3501,10 @@ static int
         [in]    unsigned32      Flags
 */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsReturns,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsReturns,
 			 NDR_POINTER_REF, "afsReturns: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags: ", -1);
   return offset;
 }
@@ -3669,13 +3512,11 @@ static int
 static int
   fileexp_dissect_gettime_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
 
   guint32 secondsp, usecondsp, syncdistance, syncdispersion;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3689,16 +3530,16 @@ static int
 */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_gettime_secondsp, &secondsp);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_gettime_usecondsp, &usecondsp);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_gettime_syncdistance, &syncdistance);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_gettime_syncdispersion, &syncdispersion);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " Secondsp:%u  Usecondsp:%u SyncDistance:/%u SyncDispersion:%u", secondsp, usecondsp, syncdistance, syncdispersion);
@@ -3712,11 +3553,8 @@ static int
 static int
   fileexp_dissect_gettime_rqst
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3730,11 +3568,8 @@ static int
 static int
   fileexp_dissect_processquota_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3749,10 +3584,10 @@ static int
   /* XXX need afsQuota */
   offset += 92;
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("ProcessQuota reply");
 
@@ -3762,11 +3597,8 @@ static int
 static int
   fileexp_dissect_processquota_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3781,12 +3613,12 @@ static int
 
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags ( tvb, offset, pinfo, tree, di, drep);
 
   /* XXX need to figure out afsQuota here */
   return offset;
@@ -3795,11 +3627,8 @@ static int
 static int
   fileexp_dissect_getserverinterfaces_rqst
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3815,11 +3644,8 @@ static int
 static int
   fileexp_dissect_getserverinterfaces_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3837,11 +3663,8 @@ static int
 static int
   fileexp_dissect_setparams_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3851,9 +3674,9 @@ static int
         [in]            unsigned32      Flags,
         [in, out]       afsConnParams   *paramsP
 */
-  offset = dissect_afsFlags( tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags( tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsConnParams, NDR_POINTER_REF,
 			 "afsConnParams:", -1);
   return offset;
@@ -3862,11 +3685,8 @@ static int
 static int
   fileexp_dissect_setparams_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3877,7 +3697,7 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep,
 			 dissect_afsConnParams, NDR_POINTER_REF,
 			 "afsConnParams:", -1);
   MACRO_ST_CLEAR ("SetParams reply");
@@ -3887,11 +3707,8 @@ static int
 static int
   fileexp_dissect_makemountpoint_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3905,17 +3722,17 @@ static int
 */
   /* afsFid */
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
   MACRO_ST_CLEAR ("MakeMountPoint reply");
   return offset;
@@ -3924,11 +3741,8 @@ static int
 static int
   fileexp_dissect_getstatistics_rqst
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3941,11 +3755,8 @@ static int
 static int
   fileexp_dissect_getstatistics_resp
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3961,13 +3772,11 @@ static int
 static int
   fileexp_dissect_bulkfetchvv_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
 
   guint32 cellidp_high, cellidp_low, numvols, spare1, spare2;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3982,10 +3791,10 @@ static int
         [in]    unsigned32      spare2,
 */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_cellidp_high, &cellidp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_cellidp_low, &cellidp_low);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " CellIDp:%u/%u", cellidp_high,
@@ -3993,15 +3802,15 @@ static int
 
   /* XXX figure out the afsBulkVolIDS */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkfetchvv_numvols, &numvols);
 
-  offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags (tvb, offset, pinfo, tree, di, drep);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkfetchvv_spare1, &spare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkfetchvv_spare2, &spare2);
   return offset;
 }
@@ -4009,11 +3818,8 @@ static int
 static int
   fileexp_dissect_bulkfetchvv_resp
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4030,12 +3836,10 @@ static int
 static int
   fileexp_dissect_bulkkeepalive_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
   guint32 spare4;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4046,7 +3850,7 @@ static int
 */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkkeepalive_spare4, &spare4);
   MACRO_ST_CLEAR ("BulkKeepAlive reply");
   return offset;
@@ -4055,12 +3859,10 @@ static int
 static int
   fileexp_dissect_bulkkeepalive_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
   guint32 numexecfids, spare1, spare2;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4075,16 +3877,16 @@ static int
 */
   /* XXX figure out afsBulkFEX */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkkeepalive_numexecfids, &numexecfids);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkkeepalive_spare1, &spare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkkeepalive_spare2, &spare2);
   return offset;
 }
@@ -4092,12 +3894,10 @@ static int
 static int
   fileexp_dissect_bulkfetchstatus_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
   guint32 offsetp_high, offsetp_low, size;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4113,24 +3913,24 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFid,
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_offsetp_high, &offsetp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_offsetp_low, &offsetp_low);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " Offsetp:%u/%u", offsetp_high,
 		     offsetp_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_bulkfetchstatus_size, &size);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
-  offset = dissect_afsFlags(tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsFlags(tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -4138,12 +3938,8 @@ static int
 static int
   fileexp_dissect_bulkfetchstatus_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb, int offset, packet_info * pinfo, proto_tree * tree, dcerpc_info *di, guint8 *drep)
 {
-
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4159,28 +3955,28 @@ static int
 */
 
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsBulkStat,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsBulkStat,
 			 NDR_POINTER_REF, "BulkStat: ", -1);
 /* Under construction. The packet seems to have the pipe_t before the rest of the data listed in idl. */
 
 /*
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_nextoffsetp_high, &nextoffsetp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fileexp_nextoffsetp_low, &nextoffsetp_low);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
 		     nextoffsetp_high, nextoffsetp_low);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_fetchstatus,
 			 NDR_POINTER_REF, "FetchStatus: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afstoken,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afstoken,
 			 NDR_POINTER_REF, "afsToken: ", -1);
   offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_volsync,
+    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_volsync,
 			 NDR_POINTER_REF, "VolSync: ", -1);
 */
   /* XXX figure out pipe_t */

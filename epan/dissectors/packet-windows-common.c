@@ -1830,7 +1830,7 @@ static void map_standard_access(guint32 *access_mask,
 
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, guint8 *drep, int hfindex,
+		       proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		       struct access_mask_info *ami, guint32 *perms)
 {
 	proto_item *item;
@@ -1844,7 +1844,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		 * an NT access mask; extract the access mask
 		 * with an NDR call.
 		 */
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
 					    hfindex, &access);
 	} else {
 		/*
@@ -2315,7 +2315,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case ACE_TYPE_SYSTEM_MANDATORY_LABEL:
 		/* access mask */
 		offset = dissect_nt_access_mask(
-			tvb, offset, pinfo, tree, drep,
+			tvb, offset, pinfo, tree, NULL, drep,
 			hf_nt_access_mask, ami, &perms);
 
 		/* these aces contain an extra object */

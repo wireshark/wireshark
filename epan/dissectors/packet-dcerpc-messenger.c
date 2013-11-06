@@ -62,15 +62,15 @@ static guint16 ver_dcerpc_messenger = 1;
  */
 static int
 messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, guint8 *drep)
+			    proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_REF,
 			"Server", hf_messenger_server);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_REF,
 			"Client", hf_messenger_client);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_REF,
 			"Message", hf_messenger_message);
 
@@ -79,9 +79,9 @@ messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 static int
 messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, guint8 *drep)
+			    proto_tree *tree, dcerpc_info *di _U_, guint8 *drep)
 {
-        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
 				  hf_messenger_rc, NULL);
 
 	return offset;

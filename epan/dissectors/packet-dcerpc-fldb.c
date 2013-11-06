@@ -228,7 +228,7 @@ static const guint8 *st_str;
 #define VLSF_ZEROIXHERE         0x80000000
 
 #define MACRO_ST_CLEAR(name) \
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
+  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_error_st, &st); \
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");              \
   if (st){                                                              \
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
@@ -239,7 +239,7 @@ static const guint8 *st_str;
 static int
 dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 		    packet_info * pinfo, proto_tree * parent_tree,
-		    guint8 * drep)
+		    dcerpc_info *di, guint8 * drep)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -260,7 +260,7 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_afsnetaddr_type, &type);
 
   if (type)
@@ -272,7 +272,7 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 	{
 
 	  offset =
-	    dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+	    dissect_ndr_uint8 (tvb, offset, pinfo, tree, di, drep,
 			       hf_fldb_afsnetaddr_data, &data);
 
 
@@ -319,7 +319,7 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 static int
 dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 		     packet_info * pinfo, proto_tree * parent_tree,
-		     guint8 * drep)
+		     dcerpc_info *di, guint8 * drep)
 {
 
   proto_item *item = NULL;
@@ -349,10 +349,10 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
   /* afsHyper CellID;                     identifier for that cell  */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_cellid_high, &cellid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_cellid_low, &cellid_low);
   col_append_fstr (pinfo->cinfo, COL_INFO, " CellID:%u-%u", cellid_high,
 		     cellid_low);
@@ -360,14 +360,14 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 
   /* unsigned32 numServers;              *Num active servers for the cell */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_numservers, &numservers);
   col_append_fstr (pinfo->cinfo, COL_INFO, " numServers:%u", numservers);
 
   /*    afsNetAddr hostAddr[MAXVLHOSTSPERCELL]; *addresses for cell's servers */
   for (i = 0; i < MAXVLHOSTSPERCELL; i++)
     {
-      offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
+      offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
     }
 
 
@@ -384,33 +384,33 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 
   /*     unsigned32 spare1; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_spare1, &spare1);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
 
 
   /*     unsigned32 spare2; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_spare2, &spare2);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
 
   /*     unsigned32 spare3; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_spare3, &spare3);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
 
 
   /*     unsigned32 spare4; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_spare4, &spare4);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
 
   /*     unsigned32 spare5; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vlconf_cell_spare5, &spare5);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare5:%u", spare5);
 
@@ -423,7 +423,7 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 static int
 dissect_afsNameString_t (tvbuff_t * tvb, int offset,
 			 packet_info * pinfo, proto_tree * parent_tree,
-			 guint8 * drep)
+			 dcerpc_info *di, guint8 * drep)
 {
 
 /*
@@ -436,9 +436,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 #define AFS_NAMEMAX    256
   guint32 string_size;
   const guint8 *namestring;
-  dcerpc_info *di;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -452,7 +450,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
       tree = proto_item_add_subtree (item, ett_fldb_afsNameString_t);
     }
 
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fldb_afsNameString_t_principalName_size,
 			       &string_size);
   col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
@@ -481,7 +479,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 static int
 dissect_afsflags (tvbuff_t * tvb, int offset,
 		  packet_info * pinfo, proto_tree * parent_tree,
-		  guint8 * drep)
+		  dcerpc_info *di, guint8 * drep)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -495,7 +493,7 @@ dissect_afsflags (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_afsflags_flags, &afsflags);
   if (afsflags)
     {
@@ -594,7 +592,7 @@ dissect_afsflags (tvbuff_t * tvb, int offset,
 static int
 dissect_siteflags (tvbuff_t * tvb, int offset,
 		   packet_info * pinfo, proto_tree * parent_tree,
-		   guint8 * drep)
+		   dcerpc_info *di, guint8 * drep)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -608,7 +606,7 @@ dissect_siteflags (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_siteflags,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_siteflags,
 			&siteflags);
 
   if (siteflags)
@@ -659,7 +657,7 @@ dissect_siteflags (tvbuff_t * tvb, int offset,
 static int
 dissect_vldbentry (tvbuff_t * tvb, int offset,
 		   packet_info * pinfo, proto_tree * parent_tree,
-		   guint8 * drep)
+		   dcerpc_info *di, guint8 * drep)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -692,13 +690,13 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* unsigned32      volumeType; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_volumetype, &volumetype);
     col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u", volumetype);
 
   /*unsigned32      nServers; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_nservers, &nservers);
     col_append_fstr (pinfo->cinfo, COL_INFO, " nServers:%u", nservers);
 
@@ -707,14 +705,14 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
     {
       /* col_append_fstr (pinfo->cinfo, COL_INFO, " Site:%u", i); */
 
-      offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
+      offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
     }
 
 /*                unsigned32      sitePartition[MAXNSERVERS]; */
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_sitepartition, &sitepartition);
       if (sitepartition)
 	{
@@ -727,14 +725,14 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   /* unsigned32      siteFlags[MAXNSERVERS]; */
   for (i = 0; i < MAXNSERVERS; i++)
     {
-      offset = dissect_siteflags (tvb, offset, pinfo, tree, drep);
+      offset = dissect_siteflags (tvb, offset, pinfo, tree, di, drep);
     }
 
   /*  unsigned32      sitemaxReplicaLatency[MAXNSERVERS]; */
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_sitemaxreplicalatency,
 			    &sitemaxreplicalatency);
       if (sitemaxreplicalatency)
@@ -758,7 +756,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_siteowner, &siteowner);
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " SiteOwner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -774,7 +772,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_siteobjid, &siteobjid);
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " SiteObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -792,10 +790,10 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXVOLTYPES; i++)
     {
       offset =
-	dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_volids_high, &volids_high);
       offset =
-	dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_volids_low, &volids_low);
 	col_append_fstr (pinfo->cinfo, COL_INFO, " VolIDs%d:%u", i,
 			 volids_low);
@@ -806,7 +804,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXVOLTYPES; i++)
     {
       offset =
-	dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			    hf_fldb_vldbentry_voltypes, &voltypes);
       if (voltypes)
 	{
@@ -817,10 +815,10 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* afsHyper        cloneId;         Used during cloning  */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_cloneid_high, &cloneid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_cloneid_low, &cloneid_low);
   if (cloneid_low)
     {
@@ -828,13 +826,13 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
     }
 
   /*  unsigned32      flags;           General flags  */
-  offset = dissect_afsflags (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsflags (tvb, offset, pinfo, tree, di, drep);
 
 
 
   /* unsigned32      maxTotalLatency; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_maxtotallatency, &maxtotallatency);
     col_append_fstr (pinfo->cinfo, COL_INFO, " MaxTotLat:%u",
 		     maxtotallatency);
@@ -842,7 +840,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* unsigned32      hardMaxTotalLatency; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_hardmaxtotallatency,
 			&hardmaxtotallatency);
     col_append_fstr (pinfo->cinfo, COL_INFO, " HardMaxTotLat:%u",
@@ -851,7 +849,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* unsigned32      minimumPounceDally; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_minimumpouncedally,
 			&minimumpouncedally);
     col_append_fstr (pinfo->cinfo, COL_INFO, " minPounceDally:%u",
@@ -860,7 +858,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* unsigned32      defaultMaxReplicaLatency; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_defaultmaxreplicalatency,
 			&defaultmaxreplicalatency);
     col_append_fstr (pinfo->cinfo, COL_INFO, " defaultMaxReplicaLatency:%u",
@@ -868,7 +866,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* unsigned32      reclaimDally; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_reclaimdally, &reclaimdally);
     col_append_fstr (pinfo->cinfo, COL_INFO, " reclaimDally:%u",
 		     reclaimdally);
@@ -876,33 +874,33 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /*   unsigned32      WhenLocked; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_whenlocked, &whenlocked);
     col_append_fstr (pinfo->cinfo, COL_INFO, " WhenLocked:%u", whenlocked);
 
 
   /*                unsigned32      spare1; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_spare1, &spare1);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
 
   /*                unsigned32      spare2; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_spare2, &spare2);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
 
 
   /*                unsigned32      spare3; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_spare3, &spare3);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
 
   /*                unsigned32      spare4; */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_vldbentry_spare4, &spare4);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
 
@@ -933,11 +931,8 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getcellinfo_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -945,7 +940,7 @@ fldb_dissect_getcellinfo_resp (tvbuff_t * tvb, int offset,
 
 
 /* [out] vlconf_cell *MyCell */
-  offset = dissect_vlconf_cell (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vlconf_cell (tvb, offset, pinfo, tree, di, drep);
 
 
   return offset;
@@ -956,11 +951,8 @@ fldb_dissect_getcellinfo_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getentrybyname_rqst (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
-				  guint8 * drep)
+				  dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -972,7 +964,7 @@ fldb_dissect_getentrybyname_rqst (tvbuff_t * tvb, int offset,
    */
 
   offset += 4;
-  offset = dissect_afsNameString_t (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsNameString_t (tvb, offset, pinfo, tree, di, drep);
 
 
   return offset;
@@ -982,20 +974,17 @@ fldb_dissect_getentrybyname_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getentrybyname_resp (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
-				  guint8 * drep)
+				  dcerpc_info *di, guint8 * drep)
 {
   /*
      [out] vldbentry *entry
    */
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
     }
 
-  offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
 
   MACRO_ST_CLEAR ("GetEntryByName reply");
   return offset;
@@ -1004,11 +993,8 @@ fldb_dissect_getentrybyname_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1021,7 +1007,7 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
    *
    */
 
-  offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
 
 
   /*
@@ -1037,16 +1023,13 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-
-  dcerpc_info *di;
   const guint8 *namestring;
   e_uuid_t owner, objid;
   guint32 creationquota, creationuses, deletedflag, spare2, spare3, spare4,
     spare5;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1067,7 +1050,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
      unsigned32 spare5;
    */
 
-  offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
+  offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
 
   /* handle byte KerbPrin[64]. */
 
@@ -1078,7 +1061,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
   offset += 64;
   col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
 
-  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fldb_uuid_owner, &owner);
+  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fldb_uuid_owner, &owner);
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " Owner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     owner.Data1, owner.Data2, owner.Data3, owner.Data4[0],
@@ -1087,7 +1070,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 		     owner.Data4[7]);
 
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fldb_uuid_objid,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fldb_uuid_objid,
 			&objid);
   col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " ObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -1097,25 +1080,25 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 		     objid.Data4[7]);
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_creationquota,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_creationquota,
 			&creationquota);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_creationuses,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_creationuses,
 			&creationuses);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_deletedflag,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_deletedflag,
 			&deletedflag);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_spare2,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare2,
 			&spare2);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_spare3,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare3,
 			&spare3);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_spare4,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare4,
 			&spare4);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_spare5,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare5,
 			&spare5);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -1132,13 +1115,10 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-			     guint8 * drep)
+			     dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
   guint32 var1, previous_index;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1153,11 +1133,11 @@ fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_listentry_rqst_previous_index,
 			&previous_index);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_listentry_rqst_var1, &var1);
 
 
@@ -1172,12 +1152,10 @@ fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
-			     guint8 * drep)
+			     dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   guint32 count, next_index;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1191,12 +1169,12 @@ fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_listentry_resp_count, &count);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_listentry_resp_next_index, &next_index);
-  offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
   return offset;
 
 }
@@ -1204,12 +1182,10 @@ fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
 			   packet_info * pinfo, proto_tree * tree,
-			   guint8 * drep)
+			   dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   guint32 fsid_high, fsid_low, voltype, voloper;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1217,16 +1193,16 @@ fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_setlock_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_setlock_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_setlock_rqst_voltype, &voltype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_setlock_rqst_voloper, &voloper);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -1239,11 +1215,8 @@ fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_setlock_resp (tvbuff_t * tvb, int offset,
 			   packet_info * pinfo, proto_tree * tree,
-			   guint8 * drep)
+			   dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1258,11 +1231,8 @@ fldb_dissect_setlock_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_deleteentry_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1277,18 +1247,15 @@ fldb_dissect_deleteentry_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
 
 /*
                 [in] afsHyper *Volid,
 		[in] unsigned32 voltype
 */
-  dcerpc_info *di;
-
   guint32 fsid_high, fsid_low, voltype, voloper;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1297,16 +1264,16 @@ fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_deleteentry_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_deleteentry_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_deleteentry_rqst_voltype, &voltype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_deleteentry_rqst_voloper, &voloper);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
@@ -1320,11 +1287,8 @@ fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_createentry_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1338,18 +1302,15 @@ fldb_dissect_createentry_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_createentry_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
     }
 
 
-  offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
   return offset;
 
 }
@@ -1357,13 +1318,10 @@ fldb_dissect_createentry_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 * drep)
+				dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
   guint32 volid_high, volid_low, voltype;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1377,14 +1335,14 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_volid_high,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_volid_high,
 			&volid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_volid_low,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_volid_low,
 			&volid_low);
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_voltype,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_voltype,
 			&voltype);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " VolID:%u/%u VolType:0x%x",
@@ -1397,29 +1355,25 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getnewvolumeids_rqst (tvbuff_t * tvb, int offset,
 				   packet_info * pinfo, proto_tree * tree,
-				   guint8 * drep)
+				   dcerpc_info *di, guint8 * drep)
 {
 /*              [in] unsigned32 numWanted,
                 [in] afsNetAddr *ServerAddr,
 */
-  dcerpc_info *di;
   guint32 numwanted;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_numwanted,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_numwanted,
 			&numwanted);
   col_append_fstr (pinfo->cinfo, COL_INFO, " numWanted:%u", numwanted);
 
 
-  offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
-
-
+  offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
@@ -1427,29 +1381,23 @@ fldb_dissect_getnewvolumeids_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getentrybyid_resp (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 * drep)
+				dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
     }
 
 
-  offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
   return offset;
 }
 
 static int
 fldb_dissect_releaselock_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1465,12 +1413,10 @@ fldb_dissect_releaselock_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
-			       guint8 * drep)
+			       dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   guint32 fsid_high, fsid_low, voltype, voloper;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1478,16 +1424,16 @@ fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_releaselock_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_releaselock_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_releaselock_rqst_voltype, &voltype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_releaselock_rqst_voloper, &voloper);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
@@ -1499,11 +1445,8 @@ fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_replaceentry_resp (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 * drep)
+				dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1518,13 +1461,10 @@ fldb_dissect_replaceentry_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
 				      packet_info * pinfo, proto_tree * tree,
-				      guint8 * drep)
+				      dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
-
   guint32 nextstartp, flagsp;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1537,19 +1477,19 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
   /*    [out] unsigned32 *nextStartP, */
 /* XXX */
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_nextstartp,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_nextstartp,
 			&nextstartp);
   col_append_fstr (pinfo->cinfo, COL_INFO, " nextStartP:%u", nextstartp);
 
 
   /*  [out] vldbentry *entry, */
-  offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
 
 
   /* [out] unsigned32 *flagsP */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_flagsp,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_flagsp,
 			&flagsp);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " flagsp:%u", flagsp);
@@ -1560,12 +1500,10 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
 static int
 fldb_dissect_replaceentry_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
-				guint8 * drep)
+				dcerpc_info *di, guint8 * drep)
 {
-  dcerpc_info *di;
   guint32 fsid_high, fsid_low, voltype;
 
-  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1579,20 +1517,20 @@ fldb_dissect_replaceentry_rqst (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_replaceentry_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_replaceentry_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_fldb_replaceentry_rqst_voltype, &voltype);
 
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " FSID:%u/%u Name:", fsid_high,
 		     fsid_low);
 
-  offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);
+  offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 
