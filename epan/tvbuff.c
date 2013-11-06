@@ -1239,21 +1239,23 @@ tvb_get_ipv6(tvbuff_t *tvb, const gint offset, struct e_in6_addr *addr)
 void
 tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 {
-	ensure_contiguous(tvb, offset, sizeof(*guid));
-	guid->data1 = tvb_get_ntohl(tvb, offset);
-	guid->data2 = tvb_get_ntohs(tvb, offset + 4);
-	guid->data3 = tvb_get_ntohs(tvb, offset + 6);
-	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
+	const guint8 *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
+
+	guid->data1 = pntohl(ptr + 0);
+	guid->data2 = pntohs(ptr + 4);
+	guid->data3 = pntohs(ptr + 6);
+	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 
 void
 tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 {
-	ensure_contiguous(tvb, offset, sizeof(*guid));
-	guid->data1 = tvb_get_letohl(tvb, offset);
-	guid->data2 = tvb_get_letohs(tvb, offset + 4);
-	guid->data3 = tvb_get_letohs(tvb, offset + 6);
-	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
+	const guint8 *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
+
+	guid->data1 = pletohl(ptr + 0);
+	guid->data2 = pletohs(ptr + 4);
+	guid->data3 = pletohs(ptr + 6);
+	memcpy(guid->data4, offset + 8, sizeof guid->data4);
 }
 
 /*
