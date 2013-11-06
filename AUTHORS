@@ -3542,6 +3542,9 @@ RobiOneKenobi		<robionekenobi[AT]bluewin.ch> {
 	IBM WebSphere MQ protocol dissector enhancements
 }
 
+Zoltan Lajos Kis	<zoltan.lajos.kis[AT]ericsson.com> {
+	OpenFlow dissector
+}
 
 and by:
 

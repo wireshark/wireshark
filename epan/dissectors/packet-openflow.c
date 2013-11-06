@@ -1,6 +1,7 @@
 /* packet-openflow.c
  * Routines for OpenFlow dissection
  * Copyright 2013, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2013, Zoltan Lajos Kis <zoltan.lajos.kis@ericsson.com>
  *
  * $Id$
  *
