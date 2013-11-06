@@ -6037,9 +6037,16 @@ void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 fla
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
-  if (octets_to_next_header != 16) {
-    expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 16)");
-    return;
+  if (rtps_version < 0x0200) {
+    if (octets_to_next_header != 16) {
+      expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 16)");
+      return;
+    }
+  } else {
+    if (octets_to_next_header != 20) {
+      expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 20)");
+      return;
+    }
   }
 
   offset += 4;
@@ -6177,9 +6184,16 @@ static void dissect_INFO_DST(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
-  if (octets_to_next_header != 8) {
-    expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 8)");
-    return;
+  if (version < 0x0200) {
+    if (octets_to_next_header != 8) {
+      expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 8)");
+      return;
+    }
+  } else {
+      if (octets_to_next_header != 12) {
+      expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 12)");
+      return;
+    }
   }
 
   offset += 4;
