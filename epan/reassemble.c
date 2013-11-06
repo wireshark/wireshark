@@ -1630,7 +1630,7 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 			 * sequence number of that fragment (which is NOT
 			 * the length of the packet!)
 			 */
-			fd_head->datalen = fd->offset;
+			fd_head->datalen = fd->offset + fd->len;
 			fd_head->flags |= FD_DATALEN_SET;
 		}
 	}
@@ -1753,18 +1753,18 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	max = 0;
 	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
 	  if ( fd_i->offset==max ){
-		max++;
+		max += fd_i->len;
 	  }
 	}
 	/* max will now be datalen+1 if all fragments have been seen */
 
-	if (max <= fd_head->datalen) {
+	if (max < fd_head->datalen) {
 		/* we have not received all packets yet */
 		return FALSE;
 	}
 
 
-	if (max > (fd_head->datalen+1)) {
+	if (max > fd_head->datalen) {
 		/* oops, too long fragment detected */
 		fd->flags	|= FD_TOOLONGFRAGMENT;
 		fd_head->flags	|= FD_TOOLONGFRAGMENT;
@@ -1866,7 +1866,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 */
 			for (fd = fd_head; fd != NULL; fd = fd->next) {
 				if (fd->next == NULL)
-					frag_number = fd->offset + 1;
+					frag_number = fd->offset + fd->len;
 			}
 		}
 	}
