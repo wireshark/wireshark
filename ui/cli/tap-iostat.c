@@ -630,11 +630,19 @@ iostat_draw(void *arg)
     else
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
 
-    /* Update the width of the time interval column for "-t ad" */
-    if (timestamp_get_type()==TS_ABSOLUTE_WITH_DATE)
+    /* Update the width of the time interval column if date is shown */
+    switch (timestamp_get_type()) {
+    case TS_ABSOLUTE_WITH_YMD:
+    case TS_ABSOLUTE_WITH_YDOY:
+    case TS_UTC_WITH_YMD:
+    case TS_UTC_WITH_YDOY:
         invl_col_w = MAX(invl_col_w, 23);
-    else
+        break;
+
+    default:
         invl_col_w = MAX(invl_col_w, 12);
+        break;
+    }
 
     borderlen = MAX(borderlen, invl_col_w);
 
@@ -898,7 +906,10 @@ iostat_draw(void *arg)
     case TS_ABSOLUTE:
         printf("\n| Time    ");
         break;
-    case TS_ABSOLUTE_WITH_DATE:
+    case TS_ABSOLUTE_WITH_YMD:
+    case TS_ABSOLUTE_WITH_YDOY:
+    case TS_UTC_WITH_YMD:
+    case TS_UTC_WITH_YDOY:
         printf("\n| Date and time");
         k = 16;
         break;
@@ -973,18 +984,19 @@ iostat_draw(void *arg)
         /* Patch for Absolute Time */
         /* XXX - has a Y2.038K problem with 32-bit time_t */
         the_time = (time_t)(iot->start_time + (t/1000000ULL));
-        tm_time = localtime(&the_time);
 
         /* Display the interval for this row */
         switch (timestamp_get_type()) {
         case TS_ABSOLUTE:
+          tm_time = localtime(&the_time);
           printf("| %02d:%02d:%02d |",
              tm_time->tm_hour,
              tm_time->tm_min,
              tm_time->tm_sec);
           break;
 
-        case TS_ABSOLUTE_WITH_DATE:
+        case TS_ABSOLUTE_WITH_YMD:
+          tm_time = localtime(&the_time);
           printf("| %04d-%02d-%02d %02d:%02d:%02d |",
              tm_time->tm_year + 1900,
              tm_time->tm_mon + 1,
@@ -994,9 +1006,47 @@ iostat_draw(void *arg)
              tm_time->tm_sec);
           break;
 
+        case TS_ABSOLUTE_WITH_YDOY:
+          tm_time = localtime(&the_time);
+          printf("| %04d/%03d %02d:%02d:%02d |",
+             tm_time->tm_year + 1900,
+             tm_time->tm_yday + 1,
+             tm_time->tm_hour,
+             tm_time->tm_min,
+             tm_time->tm_sec);
+          break;
+
+        case TS_UTC:
+          tm_time = gmtime(&the_time);
+          printf("| %02d:%02d:%02d |",
+             tm_time->tm_hour,
+             tm_time->tm_min,
+             tm_time->tm_sec);
+          break;
+
+        case TS_UTC_WITH_YMD:
+          tm_time = gmtime(&the_time);
+          printf("| %04d-%02d-%02d %02d:%02d:%02d |",
+             tm_time->tm_year + 1900,
+             tm_time->tm_mon + 1,
+             tm_time->tm_mday,
+             tm_time->tm_hour,
+             tm_time->tm_min,
+             tm_time->tm_sec);
+          break;
+
+        case TS_UTC_WITH_YDOY:
+          tm_time = gmtime(&the_time);
+          printf("| %04d/%03d %02d:%02d:%02d |",
+             tm_time->tm_year + 1900,
+             tm_time->tm_yday + 1,
+             tm_time->tm_hour,
+             tm_time->tm_min,
+             tm_time->tm_sec);
+          break;
+
         case TS_RELATIVE:
         case TS_NOT_SET:
-
           if (invl_prec==0) {
               if(last_row) {
                   int maxw;
@@ -1021,8 +1071,6 @@ iostat_draw(void *arg)
      /* case TS_DELTA:
         case TS_DELTA_DIS:
         case TS_EPOCH:
-        case TS_UTC:
-        case TS_UTC_WITH_DATE:
             are not implemented */
         default:
           break;
@@ -1337,9 +1385,7 @@ iostat_init(const char *opt_arg, void* userdata _U_)
     case TS_DELTA:
     case TS_DELTA_DIS:
     case TS_EPOCH:
-    case TS_UTC:
-    case TS_UTC_WITH_DATE:
-        fprintf(stderr, "\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad>\n");
+        fprintf(stderr, "\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad|adoy|u|ud|udoy>\n");
         exit(1);
     default:
         break;

@@ -1424,7 +1424,9 @@ main(int argc, char *argv[])
       else if (strcmp(optarg, "a") == 0)
         timestamp_set_type(TS_ABSOLUTE);
       else if (strcmp(optarg, "ad") == 0)
-        timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
+        timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
+      else if (strcmp(optarg, "adoy") == 0)
+        timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
       else if (strcmp(optarg, "d") == 0)
         timestamp_set_type(TS_DELTA);
       else if (strcmp(optarg, "dd") == 0)
@@ -1434,13 +1436,21 @@ main(int argc, char *argv[])
       else if (strcmp(optarg, "u") == 0)
         timestamp_set_type(TS_UTC);
       else if (strcmp(optarg, "ud") == 0)
-        timestamp_set_type(TS_UTC_WITH_DATE);
+        timestamp_set_type(TS_UTC_WITH_YMD);
+      else if (strcmp(optarg, "udoy") == 0)
+        timestamp_set_type(TS_UTC_WITH_YDOY);
       else {
-        cmdarg_err("Invalid time stamp type \"%s\"",
-                   optarg);
-        cmdarg_err_cont("It must be \"a\" for absolute, \"ad\" for absolute with date, \"d\" for delta,");
-        cmdarg_err_cont("\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative, \"u\" for UTC, ");
-        cmdarg_err_cont("or \"ud\" for UTC with date.");
+        cmdarg_err("Invalid time stamp type \"%s\"", optarg);
+        cmdarg_err_cont(
+"It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
+        cmdarg_err_cont(
+"\"adoy\" for absolute with YYYY/DOY date, \"d\" for delta,");
+        cmdarg_err_cont(
+"\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative,");
+        cmdarg_err_cont(
+"\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
+        cmdarg_err_cont(
+"or \"udoy\" for absolute UTC with YYYY/DOY date.");
         return 1;
       }
       break;
@@ -3552,9 +3562,11 @@ print_columns(capture_file *cf)
     case COL_CLS_TIME:
     case COL_REL_TIME:
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
+    case COL_ABS_YMD_TIME:  /* XXX - wider */
+    case COL_ABS_YDOY_TIME: /* XXX - wider */
     case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME: /* XXX - wider */
+    case COL_UTC_YMD_TIME:  /* XXX - wider */
+    case COL_UTC_YDOY_TIME: /* XXX - wider */
       column_len = col_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 10)
         column_len = 10;

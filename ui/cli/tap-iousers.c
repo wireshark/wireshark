@@ -373,10 +373,14 @@ iousers_draw(void *arg)
 
 	switch (timestamp_get_type()) {
 	case TS_ABSOLUTE:
+	case TS_UTC:
 		printf("                                               |       <-      | |       ->      | |     Total     | Absolute Time  |   Duration   |\n");
 		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n");
 		break;
-	case TS_ABSOLUTE_WITH_DATE:
+	case TS_ABSOLUTE_WITH_YMD:
+	case TS_ABSOLUTE_WITH_YDOY:
+	case TS_UTC_WITH_YMD:
+	case TS_UTC_WITH_YDOY:
 		printf("                                               |       <-      | |       ->      | |     Total     | Absolute Date  |   Duration   |\n");
 		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |     Start      |              |\n");
 		break;
@@ -413,20 +417,60 @@ iousers_draw(void *arg)
 					iui->bytes1+iui->bytes2
 				);
 
-				tm_time = localtime(&iui->start_abs_time.secs);
 				switch (timestamp_get_type()) {
 				case TS_ABSOLUTE:
+					tm_time = localtime(&iui->start_abs_time.secs);
 					printf("%02d:%02d:%02d   %12.4f\n",
 						 tm_time->tm_hour,
 						 tm_time->tm_min,
 						 tm_time->tm_sec,
 						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
 					break;
-				case TS_ABSOLUTE_WITH_DATE:
+				case TS_ABSOLUTE_WITH_YMD:
+					tm_time = localtime(&iui->start_abs_time.secs);
 					printf("%04d-%02d-%02d %02d:%02d:%02d   %12.4f\n",
 						 tm_time->tm_year + 1900,
 						 tm_time->tm_mon + 1,
 						 tm_time->tm_mday,
+						 tm_time->tm_hour,
+						 tm_time->tm_min,
+						 tm_time->tm_sec,
+						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
+					break;
+				case TS_ABSOLUTE_WITH_YDOY:
+					tm_time = localtime(&iui->start_abs_time.secs);
+					printf("%04d/%03d %02d:%02d:%02d   %12.4f\n",
+						 tm_time->tm_year + 1900,
+						 tm_time->tm_yday + 1,
+						 tm_time->tm_hour,
+						 tm_time->tm_min,
+						 tm_time->tm_sec,
+						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
+					break;
+				case TS_UTC:
+					tm_time = gmtime(&iui->start_abs_time.secs);
+					printf("%02d:%02d:%02d   %12.4f\n",
+						 tm_time->tm_hour,
+						 tm_time->tm_min,
+						 tm_time->tm_sec,
+						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
+					break;
+				case TS_UTC_WITH_YMD:
+					tm_time = gmtime(&iui->start_abs_time.secs);
+					printf("%04d-%02d-%02d %02d:%02d:%02d   %12.4f\n",
+						 tm_time->tm_year + 1900,
+						 tm_time->tm_mon + 1,
+						 tm_time->tm_mday,
+						 tm_time->tm_hour,
+						 tm_time->tm_min,
+						 tm_time->tm_sec,
+						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
+					break;
+				case TS_UTC_WITH_YDOY:
+					tm_time = gmtime(&iui->start_abs_time.secs);
+					printf("%04d/%03d %02d:%02d:%02d   %12.4f\n",
+						 tm_time->tm_year + 1900,
+						 tm_time->tm_yday + 1,
 						 tm_time->tm_hour,
 						 tm_time->tm_min,
 						 tm_time->tm_sec,

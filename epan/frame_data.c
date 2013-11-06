@@ -212,9 +212,11 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
   case COL_CLS_TIME:
     switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
-    case TS_ABSOLUTE_WITH_DATE:
+    case TS_ABSOLUTE_WITH_YMD:
+    case TS_ABSOLUTE_WITH_YDOY:
     case TS_UTC:
-    case TS_UTC_WITH_DATE:
+    case TS_UTC_WITH_YMD:
+    case TS_UTC_WITH_YDOY:
     case TS_EPOCH:
       return COMPARE_TS(abs_ts);
 
@@ -233,9 +235,11 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
     return 0;
 
   case COL_ABS_TIME:
-  case COL_ABS_DATE_TIME:
+  case COL_ABS_YMD_TIME:
+  case COL_ABS_YDOY_TIME:
   case COL_UTC_TIME:
-  case COL_UTC_DATE_TIME:
+  case COL_UTC_YMD_TIME:
+  case COL_UTC_YDOY_TIME:
     return COMPARE_TS(abs_ts);
 
   case COL_REL_TIME:

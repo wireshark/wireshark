@@ -1045,13 +1045,15 @@ static const char *ui_desc_menubar =
 "      <menuitem name='PacketBytes' action='/View/PacketBytes'/>\n"
 "      <separator/>\n"
 "      <menu name= 'TimeDisplayFormat' action='/View/TimeDisplayFormat'>\n"
-"        <menuitem name='DateandTimeofDay' action='/View/TimeDisplayFormat/DateandTimeofDay'/>\n"
+"        <menuitem name='DateYMDandTimeofDay' action='/View/TimeDisplayFormat/DateYMDandTimeofDay'/>\n"
+"        <menuitem name='DateYDOYandTimeofDay' action='/View/TimeDisplayFormat/DateYDOYandTimeofDay'/>\n"
 "        <menuitem name='TimeofDay' action='/View/TimeDisplayFormat/TimeofDay'/>\n"
 "        <menuitem name='SecondsSinceEpoch' action='/View/TimeDisplayFormat/SecondsSinceEpoch'/>\n"
 "        <menuitem name='SecondsSinceBeginningofCapture' action='/View/TimeDisplayFormat/SecondsSinceBeginningofCapture'/>\n"
 "        <menuitem name='SecondsSincePreviousCapturedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket'/>\n"
 "        <menuitem name='SecondsSincePreviousDisplayedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket'/>\n"
-"        <menuitem name='UTCDateandTimeofDay' action='/View/TimeDisplayFormat/UTCDateandTimeofDay'/>\n"
+"        <menuitem name='UTCDateYMDandTimeofDay' action='/View/TimeDisplayFormat/UTCDateYMDandTimeofDay'/>\n"
+"        <menuitem name='UTCDateYDOYandTimeofDay' action='/View/TimeDisplayFormat/UTCDateYDOYandTimeofDay'/>\n"
 "        <menuitem name='UTCTimeofDay' action='/View/TimeDisplayFormat/UTCTimeofDay'/>\n"
 "        <separator/>\n"
 "        <menuitem name='FileFormatPrecision-Automatic' action='/View/TimeDisplayFormat/FileFormatPrecision-Automatic'/>\n"
@@ -1797,13 +1799,15 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 {
     /* name, stock id, label, accel, tooltip,  value */
-    { "/View/TimeDisplayFormat/DateandTimeofDay",                   NULL, "Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", NULL, TS_ABSOLUTE_WITH_DATE },
+    { "/View/TimeDisplayFormat/DateYMDandTimeofDay",                NULL, "Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", NULL, TS_ABSOLUTE_WITH_YMD },
+    { "/View/TimeDisplayFormat/DateYDOYandTimeofDay",               NULL, "Date (with day of year) and Time of Day:   1970/001 01:02:03.123456", NULL, NULL, TS_ABSOLUTE_WITH_YDOY },
     { "/View/TimeDisplayFormat/TimeofDay",                          NULL, "Time of Day:   01:02:03.123456", "<alt><control>2", NULL, TS_ABSOLUTE },
     { "/View/TimeDisplayFormat/SecondsSinceEpoch",                  NULL, "Seconds Since Epoch (1970-01-01):   1234567890.123456", "<alt><control>3", NULL, TS_EPOCH },
     { "/View/TimeDisplayFormat/SecondsSinceBeginningofCapture",     NULL, "Seconds Since Beginning of Capture:   123.123456", "<alt><control>4", NULL, TS_RELATIVE },
     { "/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket", NULL, "Seconds Since Previous Captured Packet:   1.123456", "<alt><control>5", NULL, TS_DELTA },
     { "/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket",NULL, "Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", NULL, TS_DELTA_DIS },
-    { "/View/TimeDisplayFormat/UTCDateandTimeofDay",                NULL, "UTC Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>7", NULL, TS_UTC_WITH_DATE },
+    { "/View/TimeDisplayFormat/UTCDateYMDandTimeofDay",             NULL, "UTC Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>7", NULL, TS_UTC_WITH_YMD },
+    { "/View/TimeDisplayFormat/UTCDateYDOYandTimeofDay",            NULL, "UTC Date (with day of year) and Time of Day:   1970/001 01:02:03.123456", NULL, NULL, TS_UTC_WITH_YDOY },
     { "/View/TimeDisplayFormat/UTCTimeofDay",                       NULL, "UTC Time of Day:   01:02:03.123456", "<alt><control>7", NULL, TS_UTC },
 };
 

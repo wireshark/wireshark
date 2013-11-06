@@ -36,13 +36,15 @@ extern "C" {
  */
 typedef enum {
 	TS_RELATIVE,            /* Since start of capture */
-	TS_ABSOLUTE,
-	TS_ABSOLUTE_WITH_DATE,
+	TS_ABSOLUTE,		/* Local absolute time, without date */
+	TS_ABSOLUTE_WITH_YMD,	/* Local absolute time, with date in YYYY-MM-DD form */
+	TS_ABSOLUTE_WITH_YDOY,	/* Local absolute time, with date in YYYY DOY form */
 	TS_DELTA,               /* Since previous captured packet */
 	TS_DELTA_DIS,           /* Since previous displayed packet */
 	TS_EPOCH,               /* Seconds (and fractions) since epoch */
-	TS_UTC,
-	TS_UTC_WITH_DATE,
+	TS_UTC,			/* UTC absolute time, without date */
+	TS_UTC_WITH_YMD,	/* UTC absolute time, with date in YYYY-MM-DD form */
+	TS_UTC_WITH_YDOY,	/* UTC absolute time, with date in YYYY DOY form */
 
 /*
  * Special value used for the command-line setting in Wireshark, to indicate

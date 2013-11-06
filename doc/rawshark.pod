@@ -18,7 +18,7 @@ S<[ B<-r> E<lt>pipeE<gt>|- ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> ]>
 S<[ B<-S> E<lt>field formatE<gt> ]>
-S<[ B<-t> ad|a|r|d|e ]>
+S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
 S<[ B<-v> ]>
 
 =head1 DESCRIPTION
@@ -217,24 +217,44 @@ B<%S> String value of the field.
 For something similar to Wireshark's standard display ("Type: A (1)") you
 could use B<%D: %S (%N)>.
 
-=item -t  ad|a|r|d|e
+=item -t  a|ad|adoy|d|dd|e|r|u|ud|udoy
 
-Set the format of the packet timestamp printed in summary lines, the default
-is relative. The format can be one of:
+Set the format of the packet timestamp printed in summary lines.
+The format can be one of:
 
-B<ad> absolute with date: The absolute date and time is the actual time and
-date the packet was captured
+B<a> absolute: The absolute time, as local time in your time zone,
+is the actual time the packet was captured, with no date displayed
 
-B<a> absolute: The absolute time is the actual time the packet was captured,
-with no date displayed
+B<ad> absolute with date: The absolute date, displayed as YYYY-MM-DD,
+and time, as local time in your time zone, is the actual time and date
+the packet was captured
 
-B<r> relative: The relative time is the time elapsed between the first packet
-and the current packet
+B<adoy> absolute with date using day of year: The absolute date,
+displayed as YYYY/DOY, and time, as local time in your time zone,
+is the actual time and date the packet was captured
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
 
+B<dd> delta_displayed: The delta_displayed time is the time since the
+previous displayed packet was captured
+
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+B<r> relative: The relative time is the time elapsed between the first packet
+and the current packet
+
+B<u> UTC: The absolute time, as UTC, is the actual time the packet was
+captured, with no date displayed
+
+B<ud> UTC with date: The absolute date, displayed as YYYY-MM-DD,
+and time, as UTC, is the actual time and date the packet was captured
+
+B<udoy> UTC with date using day of year: The absolute date, displayed
+as YYYY/DOY, and time, as UTC, is the actual time and date the packet
+was captured
+
+The default format is relative.
 
 =item -v
 

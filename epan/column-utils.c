@@ -656,16 +656,18 @@ col_has_time_fmt(column_info *cinfo, const gint col)
 {
   return ((cinfo->fmt_matx[col][COL_CLS_TIME]) ||
           (cinfo->fmt_matx[col][COL_ABS_TIME]) ||
-          (cinfo->fmt_matx[col][COL_ABS_DATE_TIME]) ||
+          (cinfo->fmt_matx[col][COL_ABS_YMD_TIME]) ||
+          (cinfo->fmt_matx[col][COL_ABS_YDOY_TIME]) ||
           (cinfo->fmt_matx[col][COL_UTC_TIME]) ||
-          (cinfo->fmt_matx[col][COL_UTC_DATE_TIME]) ||
+          (cinfo->fmt_matx[col][COL_UTC_YMD_TIME]) ||
+          (cinfo->fmt_matx[col][COL_UTC_YDOY_TIME]) ||
           (cinfo->fmt_matx[col][COL_REL_TIME]) ||
           (cinfo->fmt_matx[col][COL_DELTA_TIME]) ||
           (cinfo->fmt_matx[col][COL_DELTA_TIME_DIS]));
 }
 
 static void
-set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
+set_abs_ymd_time(const frame_data *fd, gchar *buf, gboolean local)
 {
   struct tm *tmp;
   time_t then;
@@ -754,9 +756,9 @@ set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
 }
 
 static void
-col_set_abs_date_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_abs_ymd_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  set_abs_date_time(fd, cinfo->col_buf[col], TRUE);
+  set_abs_ymd_time(fd, cinfo->col_buf[col], TRUE);
   cinfo->col_expr.col_expr[col] = "frame.time";
   g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 
@@ -764,9 +766,112 @@ col_set_abs_date_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static void
-col_set_utc_date_time(const frame_data *fd, column_info *cinfo, const int col)
+col_set_utc_ymd_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  set_abs_date_time(fd, cinfo->col_buf[col], FALSE);
+  set_abs_ymd_time(fd, cinfo->col_buf[col], FALSE);
+  cinfo->col_expr.col_expr[col] = "frame.time";
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+
+  cinfo->col_data[col] = cinfo->col_buf[col];
+}
+
+static void
+set_abs_ydoy_time(const frame_data *fd, gchar *buf, gboolean local)
+{
+  struct tm *tmp;
+  time_t then;
+
+  if (fd->flags.has_ts) {
+    then = fd->abs_ts.secs;
+    if (local)
+      tmp = localtime(&then);
+    else
+      tmp = gmtime(&then);
+  } else
+    tmp = NULL;
+  if (tmp != NULL) {
+    switch (timestamp_get_precision()) {
+    case TS_PREC_FIXED_SEC:
+    case TS_PREC_AUTO_SEC:
+      g_snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec);
+      break;
+    case TS_PREC_FIXED_DSEC:
+    case TS_PREC_AUTO_DSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d.%01d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 100000000);
+      break;
+    case TS_PREC_FIXED_CSEC:
+    case TS_PREC_AUTO_CSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d.%02d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 10000000);
+      break;
+    case TS_PREC_FIXED_MSEC:
+    case TS_PREC_AUTO_MSEC:
+      g_snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d.%03d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 1000000);
+      break;
+    case TS_PREC_FIXED_USEC:
+    case TS_PREC_AUTO_USEC:
+      g_snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d.%06d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 1000);
+      break;
+    case TS_PREC_FIXED_NSEC:
+    case TS_PREC_AUTO_NSEC:
+      g_snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d.%09d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs);
+      break;
+    default:
+      g_assert_not_reached();
+    }
+  } else {
+    buf[0] = '\0';
+  }
+}
+
+static void
+col_set_abs_ydoy_time(const frame_data *fd, column_info *cinfo, const int col)
+{
+  set_abs_ydoy_time(fd, cinfo->col_buf[col], TRUE);
+  cinfo->col_expr.col_expr[col] = "frame.time";
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+
+  cinfo->col_data[col] = cinfo->col_buf[col];
+}
+
+static void
+col_set_utc_ydoy_time(const frame_data *fd, column_info *cinfo, const int col)
+{
+  set_abs_ydoy_time(fd, cinfo->col_buf[col], FALSE);
   cinfo->col_expr.col_expr[col] = "frame.time";
   g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 
@@ -1202,8 +1307,12 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
     set_abs_time(fd, buf, TRUE);
     break;
 
-  case TS_ABSOLUTE_WITH_DATE:
-    set_abs_date_time(fd, buf, TRUE);
+  case TS_ABSOLUTE_WITH_YMD:
+    set_abs_ymd_time(fd, buf, TRUE);
+    break;
+
+  case TS_ABSOLUTE_WITH_YDOY:
+    set_abs_ydoy_time(fd, buf, TRUE);
     break;
 
   case TS_RELATIVE:
@@ -1277,8 +1386,12 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
     set_abs_time(fd, buf, FALSE);
     break;
 
-  case TS_UTC_WITH_DATE:
-    set_abs_date_time(fd, buf, FALSE);
+  case TS_UTC_WITH_YMD:
+    set_abs_ymd_time(fd, buf, FALSE);
+    break;
+
+  case TS_UTC_WITH_YDOY:
+    set_abs_ydoy_time(fd, buf, FALSE);
     break;
 
   case TS_NOT_SET:
@@ -1296,8 +1409,12 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
     col_set_abs_time(fd, cinfo, col);
     break;
 
-  case TS_ABSOLUTE_WITH_DATE:
-    col_set_abs_date_time(fd, cinfo, col);
+  case TS_ABSOLUTE_WITH_YMD:
+    col_set_abs_ymd_time(fd, cinfo, col);
+    break;
+
+  case TS_ABSOLUTE_WITH_YDOY:
+    col_set_abs_ydoy_time(fd, cinfo, col);
     break;
 
   case TS_RELATIVE:
@@ -1320,8 +1437,12 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
     col_set_utc_time(fd, cinfo, col);
     break;
 
-  case TS_UTC_WITH_DATE:
-    col_set_utc_date_time(fd, cinfo, col);
+  case TS_UTC_WITH_YMD:
+    col_set_utc_ymd_time(fd, cinfo, col);
+    break;
+
+  case TS_UTC_WITH_YDOY:
+    col_set_utc_ydoy_time(fd, cinfo, col);
     break;
 
   case TS_NOT_SET:
@@ -1346,8 +1467,12 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
     col_set_abs_time(fd, cinfo, col);
     break;
 
-  case COL_ABS_DATE_TIME:
-    col_set_abs_date_time(fd, cinfo, col);
+  case COL_ABS_YMD_TIME:
+    col_set_abs_ymd_time(fd, cinfo, col);
+    break;
+
+  case COL_ABS_YDOY_TIME:
+    col_set_abs_ydoy_time(fd, cinfo, col);
     break;
 
   case COL_REL_TIME:
@@ -1366,8 +1491,12 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
     col_set_utc_time(fd, cinfo, col);
     break;
 
-  case COL_UTC_DATE_TIME:
-    col_set_utc_date_time(fd, cinfo, col);
+  case COL_UTC_YMD_TIME:
+    col_set_utc_ymd_time(fd, cinfo, col);
+    break;
+
+  case COL_UTC_YDOY_TIME:
+    col_set_utc_ydoy_time(fd, cinfo, col);
     break;
 
   default:
@@ -1633,9 +1762,11 @@ col_based_on_frame_data(column_info *cinfo, const gint col)
   case COL_NUMBER:
   case COL_CLS_TIME:
   case COL_ABS_TIME:
-  case COL_ABS_DATE_TIME:
+  case COL_ABS_YMD_TIME:
+  case COL_ABS_YDOY_TIME:
   case COL_UTC_TIME:
-  case COL_UTC_DATE_TIME:
+  case COL_UTC_YMD_TIME:
+  case COL_UTC_YDOY_TIME:
   case COL_REL_TIME:
   case COL_DELTA_TIME:
   case COL_DELTA_TIME_DIS:
@@ -1659,9 +1790,11 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col,
 
   case COL_CLS_TIME:
   case COL_ABS_TIME:
-  case COL_ABS_DATE_TIME:
+  case COL_ABS_YMD_TIME:
+  case COL_ABS_YDOY_TIME:
   case COL_UTC_TIME:
-  case COL_UTC_DATE_TIME:
+  case COL_UTC_YMD_TIME:
+  case COL_UTC_YDOY_TIME:
   case COL_REL_TIME:
   case COL_DELTA_TIME:
   case COL_DELTA_TIME_DIS:
@@ -1694,9 +1827,11 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col,
 
   case COL_CLS_TIME:
   case COL_ABS_TIME:
-  case COL_ABS_DATE_TIME:
+  case COL_ABS_YMD_TIME:
+  case COL_ABS_YDOY_TIME:
   case COL_UTC_TIME:
-  case COL_UTC_DATE_TIME:
+  case COL_UTC_YMD_TIME:
+  case COL_UTC_YDOY_TIME:
   case COL_REL_TIME:
   case COL_DELTA_TIME:
   case COL_DELTA_TIME_DIS:
@@ -1729,9 +1864,11 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
     case COL_NUMBER:
     case COL_CLS_TIME:
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
+    case COL_ABS_YMD_TIME:
+    case COL_ABS_YDOY_TIME:
     case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME:
+    case COL_UTC_YMD_TIME:
+    case COL_UTC_YDOY_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1847,9 +1984,11 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
     case COL_NUMBER:
     case COL_CLS_TIME:
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
+    case COL_ABS_YMD_TIME:
+    case COL_ABS_YDOY_TIME:
     case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME:
+    case COL_UTC_YMD_TIME:
+    case COL_UTC_YDOY_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1918,11 +2057,13 @@ col_fill_fdata(packet_info *pinfo)
     case COL_NUMBER:           /* frame number */
     case COL_PACKET_LENGTH:    /* fd->pkt_len */
     case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
-    case COL_CLS_TIME:
+    case COL_CLS_TIME:         /* from times in fd structure */
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
+    case COL_ABS_YMD_TIME:
+    case COL_ABS_YDOY_TIME:
     case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME:  /* from fd structures */
+    case COL_UTC_YMD_TIME:
+    case COL_UTC_YDOY_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -2065,11 +2206,17 @@ col_get_text(frame_data *fd, column_info *cinfo, gint col)
   case COL_UTC_TIME:
     set_abs_time(fd, buf, FALSE);
     break;
-  case COL_ABS_DATE_TIME:
-    set_abs_date_time(fd, buf, TRUE);
+  case COL_ABS_YMD_TIME:
+    set_abs_ymd_time(fd, buf, TRUE);
     break;
-  case COL_UTC_DATE_TIME:
-    set_abs_date_time(fd, buf, FALSE);
+  case COL_ABS_YDOY_TIME:
+    set_abs_ydoy_time(fd, buf, TRUE);
+    break;
+  case COL_UTC_YMD_TIME:
+    set_abs_ymd_time(fd, buf, FALSE);
+    break;
+  case COL_UTC_YDOY_TIME:
+    set_abs_ydoy_time(fd, buf, FALSE);
     break;
   case COL_REL_TIME:
     set_rel_time(fd, buf);
