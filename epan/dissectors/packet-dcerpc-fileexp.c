@@ -3553,7 +3553,7 @@ static int
 static int
   fileexp_dissect_gettime_rqst
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo _U_, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
   if (di->conformant_run)
     {
@@ -3627,7 +3627,7 @@ static int
 static int
   fileexp_dissect_getserverinterfaces_rqst
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo _U_, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
   if (di->conformant_run)
     {
@@ -3741,7 +3741,7 @@ static int
 static int
   fileexp_dissect_getstatistics_rqst
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo _U_, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
   if (di->conformant_run)
     {
@@ -3755,7 +3755,7 @@ static int
 static int
   fileexp_dissect_getstatistics_resp
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo _U_, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
   if (di->conformant_run)
     {
@@ -3818,7 +3818,7 @@ static int
 static int
   fileexp_dissect_bulkfetchvv_resp
   (tvbuff_t *
-   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
+   tvb _U_, int offset, packet_info * pinfo _U_, proto_tree * tree _U_, dcerpc_info *di, guint8 *drep _U_)
 {
   if (di->conformant_run)
     {
