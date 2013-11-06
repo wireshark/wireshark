@@ -1851,11 +1851,7 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 
 	len = (size > 0) ? size : 0;
 
-	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
-		len = tvb_length_remaining(tvb, offset);
-		ptr = ensure_contiguous(tvb, offset, len);
-	}
-
+	ptr = ensure_contiguous(tvb, offset, size);
 	return format_text(ptr, len);
 }
 
@@ -1870,13 +1866,7 @@ tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 
 	len = (size > 0) ? size : 0;
 
-	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
-
-		len = tvb_length_remaining(tvb, offset);
-		ptr = ensure_contiguous(tvb, offset, len);
-
-	}
-
+	ptr = ensure_contiguous(tvb, offset, size);
 	return format_text_wsp(ptr, len);
 }
 
@@ -1893,13 +1883,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 
 	len = (size > 0) ? size : 0;
 
-	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
-
-		len = tvb_length_remaining(tvb, offset);
-		ptr = ensure_contiguous(tvb, offset, len);
-
-	}
-
+	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
 	return format_text(ptr, stringlen);
@@ -1918,13 +1902,7 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 
 	len = (size > 0) ? size : 0;
 
-	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
-
-		len = tvb_length_remaining(tvb, offset);
-		ptr = ensure_contiguous(tvb, offset, len);
-
-	}
-
+	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
 	return format_text_wsp(ptr, stringlen);
