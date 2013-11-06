@@ -130,9 +130,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'fix': [
         'UNKNOWN',
     ],
-    'tools/pidl': [
-        'UNKNOWN',
-    ],
     'wsutil/g711.c': [
         'UNKNOWN',
     ],
@@ -170,6 +167,14 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
         # Special IDL license that appears to be compatible as far as I (not a
         # lawyer) can tell. See
         # https://www.wireshark.org/lists/wireshark-dev/201310/msg00234.html
+        'UNKNOWN',
+    ],
+    # The following tools are under incompatible licenses (mostly GPLv3 or
+    # GPLv3+), but this is OK since they are not actually linked into Wireshark
+    'tools/pidl': [
+        'UNKNOWN',
+    ],
+    'tools/html2text.py': [
         'UNKNOWN',
     ],
 }
