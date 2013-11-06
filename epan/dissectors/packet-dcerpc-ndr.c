@@ -554,7 +554,7 @@ dissect_ndr_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * attributes and the uuid_t?
  */
 int
-dissect_ndr_ctx_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_ndr_ctx_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                     proto_tree *tree, dcerpc_info *di, guint8 *drep,
                     int hfindex, e_ctx_hnd *pdata)
 {
