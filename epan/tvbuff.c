@@ -57,7 +57,7 @@ tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
 {
 	tvbuff_t *tvb;
-	gsize     size = ops->tvb_size ? ops->tvb_size : sizeof(*tvb);
+	gsize     size = ops->tvb_size;
 
 	g_assert(size >= sizeof(*tvb));
 
@@ -86,7 +86,7 @@ tvb_free_internal(tvbuff_t *tvb)
 	if (tvb->ops->tvb_free)
 		tvb->ops->tvb_free(tvb);
 
-	size = (tvb->ops->tvb_size) ? tvb->ops->tvb_size : sizeof(*tvb);
+	size = tvb->ops->tvb_size;
 
 	g_slice_free1(size, tvb);
 }
