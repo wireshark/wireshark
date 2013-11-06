@@ -38,7 +38,7 @@ MANUAL mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_GetProps
 CODE START
 
 static int
-mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item	*item = NULL;
 	proto_tree	*tree = NULL;
@@ -76,16 +76,16 @@ mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_
 		if (retval == MAPI_E_SUCCESS) {
 			switch(opnum) {
 				case op_MAPI_Release:
-					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_Release(tvb, offset, pinfo, tree, drep);
+					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_Release(tvb, offset, pinfo, tree, di, drep);
 					break;
 				case op_MAPI_OpenFolder:
-					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_OpenFolder(tvb, offset, pinfo, tree, drep);
+					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_OpenFolder(tvb, offset, pinfo, tree, di, drep);
 					break;
 				case op_MAPI_GetProps:
-					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_GetProps(tvb, offset, pinfo, tree, drep);
+					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_GetProps(tvb, offset, pinfo, tree, di, drep);
 					break;
 /* 				case op_MAPI_OpenMsgStore: */
-/* 					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_OpenMsgStore(tvb, offset, pinfo, tree, drep); */
+/* 					offset = mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_OpenMsgStore(tvb, offset, pinfo, tree, di, drep); */
 /* 					break; */
 				default:
 					offset += param - 6;
@@ -102,16 +102,16 @@ mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mapi_dissect_element_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = mapi_dissect_element_EcDoRpc_response_(tvb, offset, pinfo, tree, drep);
+	offset = mapi_dissect_element_EcDoRpc_response_(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
 
 static int
-mapi_dissect_element_EcDoRpc_response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32		size;
 	int		start_offset = offset;
@@ -165,7 +165,7 @@ mapi_dissect_element_EcDoRpc_response_(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 static int
-mapi_dissect_element_EcDoRpc_response__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_response__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint16		length;
 	tvbuff_t	*subtvb;
@@ -263,7 +263,7 @@ mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int
 		tree = proto_item_add_subtree(item, ett_mapi_OpenMsgStore_repl);
 	}
 
-	offset = mapi_dissect_element_OpenMsgStore_repl_PR_OBJECT_TYPE(tvb, offset, pinfo, tree, drep);
+	offset = mapi_dissect_element_OpenMsgStore_repl_PR_OBJECT_TYPE(tvb, offset, pinfo, tree, di, drep);
 
 	proto_item_set_len(item, offset - origin_offset);
 

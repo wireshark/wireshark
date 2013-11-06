@@ -1,6 +1,6 @@
-TYPE lsa_StringLarge "offset=lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
-TYPE winreg_Type "offset=misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
-IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
+TYPE lsa_StringLarge "offset=lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE winreg_Type "offset=misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
 
 
 #
@@ -101,7 +101,7 @@ PARAM_VALUE winreg_dissect_element_CloseKey_handle_ PIDL_POLHND_CLOSE
 #
 # Create a new type to handle winreg_String so that we can get nice and
 # pretty dissection of the strings contained within winreg
-TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4 
+TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4 
 #
 #
 #
@@ -157,23 +157,21 @@ struct access_mask_info winreg_access_mask_info = {
 };
 
 static int
-winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 len;
-	dcerpc_info *di;
 
-	di=(dcerpc_info*)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
 
 	/* this is a varying and conformant array */
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
                                      hf_winreg_sd_max_size, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
                                      hf_winreg_sd_offset, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
                                      hf_winreg_sd_actual_size, &len);
 
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
@@ -185,10 +183,10 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 }
 
 int
-winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
+winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
 {
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_winreg_access_mask,
+		tvb, offset, pinfo, tree, di, drep, hf_winreg_access_mask,
 		&winreg_access_mask_info, NULL);
 	return offset;
 }
@@ -201,7 +199,7 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
  *	} winreg_String;
  */
 static int
-cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
+cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, guint32 param, int hfindex)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -218,12 +216,12 @@ cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		tree = proto_item_add_subtree(item, ett_winreg_winreg_String);
 	}
 	
-	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, di, drep);
 
-	offset = winreg_dissect_element_String_name_size(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_String_name_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
+		tvb, offset, pinfo, tree, di, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		hf_info->name, hfindex, cb_wstr_postprocess,
 		GINT_TO_POINTER(param));
