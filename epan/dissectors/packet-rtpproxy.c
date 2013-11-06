@@ -66,10 +66,12 @@ static int hf_rtpproxy_version_supported = -1;
 /* Request/response tracking */
 static int hf_rtpproxy_request_in = -1;
 static int hf_rtpproxy_response_in = -1;
+static int hf_rtpproxy_response_time = -1;
 
 typedef struct _rtpproxy_info {
 	guint32 req_frame;
 	guint32 resp_frame;
+	nstime_t req_time;
 } rtpproxy_info_t;
 
 typedef struct _rtpproxy_conv_info {
@@ -177,6 +179,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 			rtpproxy_info = wmem_new(wmem_file_scope(), rtpproxy_info_t);
 			rtpproxy_info->req_frame = PINFO_FD_NUM(pinfo);
 			rtpproxy_info->resp_frame = 0;
+			rtpproxy_info->req_time = pinfo->fd->abs_ts;
 			wmem_tree_insert_string(rtpproxy_conv->trans, cookie, rtpproxy_info, 0);
 		} else {
 			rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
@@ -187,8 +190,17 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	} else {
 		rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
 		if (rtpproxy_info && (is_request ? rtpproxy_info->resp_frame : rtpproxy_info->req_frame)) {
+			nstime_t ns;
+
 			pi = proto_tree_add_uint(rtpproxy_tree, is_request ? hf_rtpproxy_response_in : hf_rtpproxy_request_in, tvb, 0, 0, is_request ? rtpproxy_info->resp_frame : rtpproxy_info->req_frame);
 			PROTO_ITEM_SET_GENERATED(pi);
+
+			/* If reply then calculate response time */
+			if (!is_request){
+				nstime_delta(&ns, &pinfo->fd->abs_ts, &rtpproxy_info->req_time);
+				pi = proto_tree_add_time(rtpproxy_tree, hf_rtpproxy_response_time, tvb, 0, 0, &ns);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
 		}
 	}
 }
@@ -822,6 +834,19 @@ proto_register_rtpproxy(void)
 				NULL,
 				HFILL
 			}
+		},
+		{
+			&hf_rtpproxy_response_time,
+			{
+				"Response Time",
+				"rtpproxy.response_time",
+				FT_RELATIVE_TIME,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"The time between the Request and the Reply",
+				HFILL
+			 }
 		}
 	};
 
