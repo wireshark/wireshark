@@ -464,8 +464,6 @@ set(PACKAGELIST ${PACKAGELIST} YAPP)
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 
-set(WANT_PACKET_EDITOR 1)
-
 set(PROGLIST text2pcap mergecap capinfos editcap reordercap dumpcap)
 
 #Sort the package list
