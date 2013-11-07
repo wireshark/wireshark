@@ -2122,7 +2122,7 @@ proto_custom_set(proto_tree* tree, const int field_id,
 /* #define HAVE_HFI_SECTION_INIT */
 
 #ifdef HAVE_HFI_SECTION_INIT
- #define HFI_INIT(proto) __attribute__((section( "_data_" G_STRINGIFY(proto) )))
+ #define HFI_INIT(proto) __attribute__((section( "_data_" G_STRINGIFY(proto)))) __attribute__((aligned(sizeof(void *))))
 
  #define proto_register_fields(proto, hfi, count) \
 	extern header_field_info __start__data_ ##proto[]; \
