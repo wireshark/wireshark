@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
 
-	<application id="16777216" name="3GPP Cx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
+<application id="16777216" name="3GPP Cx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
 
-		<!-- IMS Cx Dx Application -->
-		<command name="User-Authorization"       code="300" vendor-id="TGPP"/>
-		<command name="Server-Assignment"        code="301" vendor-id="TGPP"/>
-		<command name="Location-Info"            code="302" vendor-id="TGPP"/>
-		<command name="Multimedia-Auth"          code="303" vendor-id="TGPP"/>
-		<command name="Registration-Termination" code="304" vendor-id="TGPP"/>
-		<command name="Push-Profile"             code="305" vendor-id="TGPP"/>
+    <!-- IMS Cx Dx Application -->
+    <command name="User-Authorization"       code="300" vendor-id="TGPP"/>
+    <command name="Server-Assignment"        code="301" vendor-id="TGPP"/>
+    <command name="Location-Info"            code="302" vendor-id="TGPP"/>
+    <command name="Multimedia-Auth"          code="303" vendor-id="TGPP"/>
+    <command name="Registration-Termination" code="304" vendor-id="TGPP"/>
+    <command name="Push-Profile"             code="305" vendor-id="TGPP"/>
 
-		<!-- ************************** IMS Cx Dx AVPS ********************* -->
+    <!-- ************************** IMS Cx Dx AVPS ********************* -->
 <!--
-	These AVP:s collide(share AVP code number) with other 3GPP AVP:s (TGPPGmb.xml)
-	uncomment 1 - 28 here and uncomment the ones in TGPPGmb.xml if you want to use these.
+	These AVPs collide(share AVP code number) with other 3GPP AVPs (TGPPGmb.xml)
+	uncomment 1 - 28 here and comment out the ones in TGPPGmb.xml if you want to use these.
     <avp name="Visited-Network-Identifier(Obsolete CN#25)" code="1" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="OctetString"/>
     </avp>
@@ -143,10 +143,11 @@
     <avp name="Integrity-Key(Obsolete CN#25)" code="28" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    -->
+-->
+
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
-		<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.229 version 6.7.0 Release 6 ********************* -->
-		<!-- Note: The AVP codes from 633 to 699 are reserved for TS 29.229. -->
+    <!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.229 version 6.7.0 Release 6 ********************* -->
+    <!-- Note: The AVP codes from 633 to 699 are reserved for TS 29.229. -->
     <avp name="Visited-Network-Identifier" code="600" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="OctetString"/>
     </avp>
@@ -404,9 +405,9 @@
         <gavp name="Restoration-Info"/>
       </grouped>
     </avp>
- <!-- 
-652 Priviledged-Sender-Indication Enumerated
--->   
+    <!--
+    652 Priviledged-Sender-Indication Enumerated
+    -->
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 
-	</application>
+</application>
