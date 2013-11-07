@@ -93,8 +93,8 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *wsmp_tree, *wsmdata_tree;
     tvbuff_t   *wsmdata_tvb;
     guint16     wsmlength, offset;
-    guint32     psidLen, psid;
-    guint8      elemenId, elemenLen, msb, supLen;
+    guint32     psidLen, psid, supLen;
+    guint8      elemenId, elemenLen, msb;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WSMP");
