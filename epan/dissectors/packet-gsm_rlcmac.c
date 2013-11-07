@@ -28,14 +28,14 @@
 
  /* Notes on the use of this dissector:-
   *
-  * These dissectors should be called with pinfo->private_data pointing to a
+  * These dissectors should be called with data parameter pointing to a
   * populated RlcMacPrivateData_t structure, this is needed to pass the Physical
   * Layer Coding scheme and other parameters required for correct Data Block decoding.
   * For backward compatibility, a NULL pointer causes the dissector to assume GPRS CS1.
   *
   * To dissect EGPRS blocks, the gsm_rlcmac_ul or gsm_rlcmac_dl dissector should be
   * called 1, 2 or 3 times, for the header block and then each available data block,
-  * with the flags in pinfo->private_data indicating which block is to be dissected.
+  * with the flags in data parameter indicating which block is to be dissected.
   *
   *   - The EGPRS Header Block occupies 4, 5 or 6 octets, the last octet is right-aligned
   *     (as viewed in wireshark) with any null bits at the high bits of the last octet.
@@ -7369,7 +7369,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
 }
 
 static void
-dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacDownlink_t *data)
+dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacDownlink_t *data, RlcMacPrivateData_t *rlc_mac)
 {
    if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
    {
@@ -7390,32 +7390,32 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                           "GSM RLC/MAC: EGPRS DL HEADER");
       rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-      ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = MCS_INVALID;
+      rlc_mac->mcs = MCS_INVALID;
 
       csnStreamInit(&ar, 0, bit_length);
       switch(data->block_format)
       {
          case RLCMAC_HDR_TYPE_3:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type3_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            rlc_mac->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
             break;
 
          case RLCMAC_HDR_TYPE_2:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type2_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            rlc_mac->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
             break;
 
          case RLCMAC_HDR_TYPE_1:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type1_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            rlc_mac->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
             break;
 
          default:
                proto_tree_add_text(tree, tvb, 0, -1, "EGPRS Header Type not handled (yet)");
             break;
       }
-      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
-      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 =
+      rlc_mac->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
+      rlc_mac->u.egprs_dl_header_info.bsn2 =
          (data->u.DL_Data_Block_EGPRS_Header.BSN1 + data->u.DL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
    }
 }
@@ -7543,7 +7543,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    }
 }
 static void
-dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacUplink_t *data)
+dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacUplink_t *data, RlcMacPrivateData_t *rlc_mac)
 {
    if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
    {
@@ -7563,23 +7563,23 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                            "GSM RLC/MAC: EGPRS UL HEADER");
        rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
        data->u.UL_Data_Block_EGPRS_Header.PI = 0;
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = MCS_INVALID;
+       rlc_mac->mcs = MCS_INVALID;
        csnStreamInit(&ar, 0, bit_length);
        switch(data->block_format)
        {
           case RLCMAC_HDR_TYPE_3:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type3_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
+             rlc_mac->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
              break;
 
           case RLCMAC_HDR_TYPE_2:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type2_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
+             rlc_mac->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
              break;
 
           case RLCMAC_HDR_TYPE_1:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type1_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
+             rlc_mac->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
              break;
 
           default:
@@ -7587,10 +7587,9 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
              break;
        }
 
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 =
-          (data->u.UL_Data_Block_EGPRS_Header.BSN1 + data->u.UL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
+       rlc_mac->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
+       rlc_mac->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
+       rlc_mac->u.egprs_ul_header_info.bsn2 = (data->u.UL_Data_Block_EGPRS_Header.BSN1 + data->u.UL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
    }
 }
 
@@ -7699,19 +7698,20 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
-dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     RlcMacDownlink_t * data;
+    RlcMacPrivateData_t *rlc_mac = (RlcMacPrivateData_t*)data;
 
     /* allocate a data structure and guess the coding scheme */
     data = wmem_new(wmem_packet_scope(), RlcMacDownlink_t);
 
-    if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
+    if ((rlc_mac != NULL) && (rlc_mac->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
        /* the transport protocol dissector has provided a data structure that contains (at least) the Coding Scheme */
-	   data->block_format = ((RlcMacPrivateData_t *)pinfo->private_data)->block_format;
-       data->flags = ((RlcMacPrivateData_t *)(pinfo->private_data))->flags;
+	   data->block_format = rlc_mac->block_format;
+       data->flags = rlc_mac->flags;
     }
     else
     {
@@ -7733,11 +7733,11 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        case RLCMAC_HDR_TYPE_3:
           if (data->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
           {
-             dissect_egprs_dl_data_block(tvb, pinfo, tree, data, &((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info);
+             dissect_egprs_dl_data_block(tvb, pinfo, tree, data, &rlc_mac->u.egprs_dl_header_info);
           }
           else
           {
-             dissect_egprs_dl_header_block(tvb, pinfo, tree, data);
+             dissect_egprs_dl_header_block(tvb, pinfo, tree, data, rlc_mac);
           }
           break;
 
@@ -7745,23 +7745,26 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->block_format);
           break;
     }
+
+    return tvb_length(tvb);
 }
 
 
 
-static void
-dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     RlcMacUplink_t *data;
+    RlcMacPrivateData_t *rlc_mac = (RlcMacPrivateData_t*)data;
 
     /* allocate a data structure and set the coding scheme */
-   data = wmem_new(wmem_packet_scope(), RlcMacUplink_t);
+    data = wmem_new(wmem_packet_scope(), RlcMacUplink_t);
 
-    if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
+    if ((rlc_mac != NULL) && (rlc_mac->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
        /* the transport protocol dissector has provided a data structure that contains (at least) the Coding Scheme */
-       data->block_format = ((RlcMacPrivateData_t *)pinfo->private_data)->block_format;
-       data->flags = ((RlcMacPrivateData_t *)(pinfo->private_data))->flags;
+       data->block_format = rlc_mac->block_format;
+       data->flags = rlc_mac->flags;
     }
 	else if (tvb_length(tvb) < 3)
 	{
@@ -7793,18 +7796,20 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        case RLCMAC_HDR_TYPE_3:
            if (data->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
            {
-              dissect_egprs_ul_data_block(tvb, pinfo, tree, data, &((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info);
+              dissect_egprs_ul_data_block(tvb, pinfo, tree, data, &rlc_mac->u.egprs_ul_header_info);
            }
            else
            {
-              dissect_egprs_ul_header_block(tvb, pinfo, tree, data);
+              dissect_egprs_ul_header_block(tvb, pinfo, tree, data, rlc_mac);
            }
-            break;
+           break;
 
        default:
           proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->block_format);
           break;
     }
+
+    return tvb_length(tvb);
 }
 
 void
@@ -12167,8 +12172,8 @@ proto_register_gsm_rlcmac(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_gsm_rlcmac = expert_register_protocol(proto_gsm_rlcmac);
   expert_register_field_array(expert_gsm_rlcmac, ei, array_length(ei));
-  register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
-  register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
+  new_register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
+  new_register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
 }
 
 void
