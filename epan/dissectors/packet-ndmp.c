@@ -3478,7 +3478,7 @@ check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo)
  *  At this point we may have either an NDMP PDU or an NDMP PDU fragment.
  */
 static int
-dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	/* If we are doing defragmentation, don't check more than the record mark here,
 	 * because if this is a continuation of a fragmented NDMP PDU there won't be a
@@ -3492,6 +3492,11 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	if(!(ndmp_desegment && ndmp_defragment) && !check_if_ndmp(tvb, pinfo)) {
 		return 0;
 	}
+
+	/* XXX - tcp_dissect_pdus() doesn't have a way to pass dissector data, so store
+	   the tcpinfo structure from the TCP dissector as proto_data to be retrieved
+	   in dissect_ndmp_message() */
+	p_add_proto_data(pinfo->fd, proto_ndmp, 0, data);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 4,
 			 get_ndmp_pdu_len, dissect_ndmp_message);
