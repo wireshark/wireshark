@@ -19340,8 +19340,8 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 47: /*reportSM-DeliveryStatus*/
     offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_ISDN_AddressString, hf_gsm_map_sm_storedMSISDN,
-			      FALSE, NULL, -1,
-			      FALSE , dissect_gsm_map_sm_ReportSM_DeliveryStatusRes, -1);/*undefined*/
+			      FALSE, dissect_gsm_map_sm_ReportSM_DeliveryStatusRes, -1,
+			      FALSE, NULL, -1);/*undefined*/
 
     break;
   case 48: /*noteSubscriberPresent*/
