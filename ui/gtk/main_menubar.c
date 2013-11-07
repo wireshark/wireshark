@@ -2668,6 +2668,9 @@ static const char *ui_desc_packet_list_menu_popup =
 "     <menuitem name='IgnorePacket' action='/IgnorePacket'/>\n"
 "     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
 "     <menuitem name='TimeShift' action='/TimeShift'/>\n"
+#ifdef WANT_PACKET_EDITOR
+"     <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
+#endif
 "     <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
 "     <separator/>\n"
 "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
@@ -2817,8 +2820,10 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/Set Time Reference",              WIRESHARK_STOCK_TIME,   "Set Time Reference (toggle)",  NULL,                   NULL,           G_CALLBACK(packet_list_menu_set_ref_time_cb) },
   { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
+#ifdef WANT_PACKET_EDITOR
+   { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },//AL
+#endif
   { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
-
 
   { "/Conversation Filter",             NULL, "Conversation Filter",    NULL, NULL, NULL },
   { "/Conversation Filter/Ethernet",    NULL, "Ethernet",               NULL, NULL, G_CALLBACK(packet_list_menu_conversation_ethernet_cb) },
@@ -2989,6 +2994,9 @@ static const char *ui_desc_tree_view_menu_popup =
 "        </menu>\n"
 "     </menu>\n"
 "     <menuitem name='ExportSelectedPacketBytes' action='/ExportSelectedPacketBytes'/>\n"
+#ifdef WANT_PACKET_EDITOR
+"     <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
+#endif
 "     <separator/>\n"
 "     <menuitem name='WikiProtocolPage' action='/WikiProtocolPage'/>\n"
 "     <menuitem name='FilterFieldReference' action='/FilterFieldReference'/>\n"
@@ -3043,7 +3051,9 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/Copy/Bytes/BinaryStream",                     NULL,       "Binary Stream",                        NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_bin_strm_cb) },
 
   { "/ExportSelectedPacketBytes",                   NULL,       "Export Selected Packet Bytes...",      NULL, NULL, G_CALLBACK(savehex_cb) },
-
+#ifdef WANT_PACKET_EDITOR
+  { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
+#endif
   { "/WikiProtocolPage",            WIRESHARK_STOCK_WIKI,       "Wiki Protocol Page",                   NULL, NULL, G_CALLBACK(selected_ptree_info_cb) },
   { "/FilterFieldReference",    WIRESHARK_STOCK_INTERNET,       "Filter Field Reference",               NULL, NULL, G_CALLBACK(selected_ptree_ref_cb) },
   { "/ProtocolHelp",                                NULL,       "Protocol Help",                        NULL, NULL, NULL },
@@ -4966,6 +4976,8 @@ set_menus_for_selected_packet(capture_file *cf)
 #ifdef WANT_PACKET_EDITOR
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
                          prefs.gui_packet_editor ? frame_selected : FALSE);
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/EditPacket",
+                         prefs.gui_packet_editor ? frame_selected : FALSE);
 #endif /* WANT_PACKET_EDITOR */
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
                          frame_selected && wtap_dump_can_write(cf->linktypes, WTAP_COMMENT_PER_PACKET));
@@ -5627,6 +5639,10 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              cf->finfo_selected->tree_type != -1);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseSubtrees",
                              cf->finfo_selected->tree_type != -1);
+#ifdef WANT_PACKET_EDITOR
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/EditPacket",
+                             prefs.gui_packet_editor ? TRUE : FALSE); //TODO FIX ICI
+#endif
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
