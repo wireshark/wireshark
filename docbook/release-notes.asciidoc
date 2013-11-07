@@ -34,6 +34,8 @@ The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
+* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
+
 === New and Updated Features
 
 There are no new features in this release.
