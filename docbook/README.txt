@@ -98,7 +98,8 @@ AsciiDoc
 --------
 Text documentation format and conversion suite: http://asciidoc.org/.
 AsciiDoc can use either w3m (default) or Lynx for plain text output.
-We use Lynx for the official release notes.
+We use AsciiDoc for the release notes and Lynx to for the official
+plaintext release announcments.
 
 Lynx
 ----
