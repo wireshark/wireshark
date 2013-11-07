@@ -483,6 +483,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     case 0x07: str = "Latin/Hebrew"; break;
     case 0x08: str = "ISO 8859-1"; break;
     case 0x09: str = "GSM 7-bit default alphabet"; break;
+    case 0x10: str = "KSC5601 (Korean)"; break;
     default: str = "Reserved"; break;
     }
 
@@ -804,6 +805,42 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
         proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
                                       required_octs, gsm_sms_chars_to_utf8(gsm_637_bigbuf, num_fields));
+    }
+    else if (encoding == 0x10)/* KSC5601 (Korean) */
+    {
+        saved_offset = offset - 1;
+        buf = (gchar*)wmem_alloc(pinfo->pool, num_fields);
+        for (i=0; i < num_fields; i++)
+        {
+            oct = tvb_get_guint8(tvb, saved_offset);
+            oct2 = tvb_get_guint8(tvb, saved_offset + 1);
+            buf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
+            saved_offset += 1;
+        }
+        tvb_out = tvb_new_child_real_data(tvb, buf, num_fields, num_fields);
+        add_new_data_source(pinfo, tvb_out, "Characters");
+        offset = 0;
+        required_octs = len - used;
+        if (*has_private_data == TRUE) {
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, FALSE, &bit);
+        }
+
+        if ((cd = g_iconv_open("UTF-8","EUC-KR")) != (GIConv)-1)
+        {
+            utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, num_fields), num_fields , cd , NULL , NULL , &l_conv_error);
+            if (!l_conv_error)
+            {
+                proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
+                                              num_fields, utf8_text);
+            }
+            else
+            {
+                proto_tree_add_text(tree, tvb_out, offset, num_fields, "%s", "Failed on EUC-KR contact Wireshark developers");
+            }
+            if (utf8_text)
+                g_free(utf8_text);
+            g_iconv_close(cd);
+        }
     }
     else
     {
