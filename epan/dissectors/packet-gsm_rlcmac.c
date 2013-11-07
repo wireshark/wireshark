@@ -7701,48 +7701,48 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    RlcMacDownlink_t * data;
+    RlcMacDownlink_t * rlc_dl;
     RlcMacPrivateData_t *rlc_mac = (RlcMacPrivateData_t*)data;
 
     /* allocate a data structure and guess the coding scheme */
-    data = wmem_new(wmem_packet_scope(), RlcMacDownlink_t);
+    rlc_dl = (RlcMacDownlink_t *)wmem_new(wmem_packet_scope(), RlcMacDownlink_t);
 
     if ((rlc_mac != NULL) && (rlc_mac->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
        /* the transport protocol dissector has provided a data structure that contains (at least) the Coding Scheme */
-	   data->block_format = rlc_mac->block_format;
-       data->flags = rlc_mac->flags;
+	   rlc_dl->block_format = rlc_mac->block_format;
+       rlc_dl->flags = rlc_mac->flags;
     }
     else
     {
-       data->block_format = RLCMAC_CS1;
-       data->flags = 0;
+       rlc_dl->block_format = RLCMAC_CS1;
+       rlc_dl->flags = 0;
     }
 
-    switch(data->block_format)
+    switch(rlc_dl->block_format)
     {
        case RLCMAC_CS1:
        case RLCMAC_CS2:
        case RLCMAC_CS3:
        case RLCMAC_CS4:
-         dissect_dl_gprs_block(tvb, pinfo, tree, data);
+         dissect_dl_gprs_block(tvb, pinfo, tree, rlc_dl);
          break;
 
        case RLCMAC_HDR_TYPE_1:
        case RLCMAC_HDR_TYPE_2:
        case RLCMAC_HDR_TYPE_3:
-          if (data->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
+          if (rlc_dl->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
           {
-             dissect_egprs_dl_data_block(tvb, pinfo, tree, data, &rlc_mac->u.egprs_dl_header_info);
+             dissect_egprs_dl_data_block(tvb, pinfo, tree, rlc_dl, &rlc_mac->u.egprs_dl_header_info);
           }
           else
           {
-             dissect_egprs_dl_header_block(tvb, pinfo, tree, data, rlc_mac);
+             dissect_egprs_dl_header_block(tvb, pinfo, tree, rlc_dl, rlc_mac);
           }
           break;
 
        default:
-          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->block_format);
+          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_dl->block_format);
           break;
     }
 
@@ -7754,58 +7754,58 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    RlcMacUplink_t *data;
+    RlcMacUplink_t * rlc_ul;
     RlcMacPrivateData_t *rlc_mac = (RlcMacPrivateData_t*)data;
 
     /* allocate a data structure and set the coding scheme */
-    data = wmem_new(wmem_packet_scope(), RlcMacUplink_t);
+    rlc_ul = (RlcMacUplink_t*)wmem_new(wmem_packet_scope(), RlcMacUplink_t);
 
     if ((rlc_mac != NULL) && (rlc_mac->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
        /* the transport protocol dissector has provided a data structure that contains (at least) the Coding Scheme */
-       data->block_format = rlc_mac->block_format;
-       data->flags = rlc_mac->flags;
+       rlc_ul->block_format = rlc_mac->block_format;
+       rlc_ul->flags = rlc_mac->flags;
     }
 	else if (tvb_length(tvb) < 3)
 	{
        /* assume that little packets are PACCH */
-       data->block_format = RLCMAC_PRACH;
-       data->flags = 0;
+       rlc_ul->block_format = RLCMAC_PRACH;
+       rlc_ul->flags = 0;
 	}
     else
     {
-       data->block_format = RLCMAC_CS1;
-       data->flags = 0;
+       rlc_ul->block_format = RLCMAC_CS1;
+       rlc_ul->flags = 0;
     }
 
-    switch(data->block_format)
+    switch(rlc_ul->block_format)
     {
        case RLCMAC_PRACH:
-          dissect_ul_pacch_access_burst(tvb, pinfo, tree, data);
+          dissect_ul_pacch_access_burst(tvb, pinfo, tree, rlc_ul);
           break;
 
         case RLCMAC_CS1:
         case RLCMAC_CS2:
         case RLCMAC_CS3:
         case RLCMAC_CS4:
-          dissect_ul_gprs_block(tvb, pinfo, tree, data);
+          dissect_ul_gprs_block(tvb, pinfo, tree, rlc_ul);
           break;
 
        case RLCMAC_HDR_TYPE_1:
        case RLCMAC_HDR_TYPE_2:
        case RLCMAC_HDR_TYPE_3:
-           if (data->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
+           if (rlc_ul->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
            {
-              dissect_egprs_ul_data_block(tvb, pinfo, tree, data, &rlc_mac->u.egprs_ul_header_info);
+              dissect_egprs_ul_data_block(tvb, pinfo, tree, rlc_ul, &rlc_mac->u.egprs_ul_header_info);
            }
            else
            {
-              dissect_egprs_ul_header_block(tvb, pinfo, tree, data, rlc_mac);
+              dissect_egprs_ul_header_block(tvb, pinfo, tree, rlc_ul, rlc_mac);
            }
            break;
 
        default:
-          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->block_format);
+          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_ul->block_format);
           break;
     }
 
