@@ -2778,15 +2778,15 @@ dissect_openflow_portmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_portmod_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_portmod_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint8_t hw_addr[OFP_ETH_ALEN]; */
-    proto_tree_add_item(tree, hf_openflow_v4_portmod_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_portmod_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_NA);
     offset+=OFP_ETH_ALEN;
 
     /* uint8_t pad2[2]; */
-    proto_tree_add_item(tree, hf_openflow_v4_portmod_pad2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_portmod_pad2, tvb, offset, 2, ENC_NA);
     offset+=2;
 
     /* uint32_t config; */
@@ -2832,7 +2832,7 @@ dissect_openflow_portmod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset+=4;
 
     /* uint8_t pad3[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_portmod_pad3, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_portmod_pad3, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -2849,11 +2849,11 @@ dissect_openflow_tablemod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset+=1;
 
     /* uint8_t pad[3]; */
-    proto_tree_add_item(tree, hf_openflow_v4_tablemod_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_tablemod_pad, tvb, offset, 3, ENC_NA);
     offset+=3;
 
     /* uint32_t config; */
-    proto_tree_add_item(tree, hf_openflow_v4_tablemod_config, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_tablemod_config, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -4229,7 +4229,7 @@ dissect_openflow_queue_get_config_request_v4(tvbuff_t *tvb, packet_info *pinfo _
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_queue_get_config_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_queue_get_config_request_pad, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -4280,7 +4280,7 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=2;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     switch (prop_type) {
@@ -4294,7 +4294,7 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         offset+=2;
 
         /* uint8_t pad[6]; */
-        proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_min_rate_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_min_rate_pad, tvb, offset, 6, ENC_NA);
         offset+=6;
         break;
 
@@ -4308,7 +4308,7 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         offset+=2;
 
         /* uint8_t pad[6]; */
-        proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_max_rate_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_max_rate_pad, tvb, offset, 6, ENC_NA);
         offset+=6;
         break;
 
@@ -4318,7 +4318,7 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         offset+=4;
 
         /* uint8_t pad[4]; */
-        proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_experimenter_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_experimenter_pad, tvb, offset, 4, ENC_NA);
         offset+=4;
 
         /* uint8_t data[0]; */
@@ -4379,7 +4379,7 @@ dissect_openflow_packet_queue_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset+=2;
 
     /* uint8_t pad[6]; */
-    proto_tree_add_item(queue_tree, hf_openflow_v4_packet_queue_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(queue_tree, hf_openflow_v4_packet_queue_pad, tvb, offset, 6, ENC_NA);
     offset+=6;
 
     /* struct ofp_queue_prop_header properties[0]; */
@@ -4402,7 +4402,7 @@ dissect_openflow_queue_get_config_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_queue_get_config_reply_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_queue_get_config_reply_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* struct ofp_packet_queue queues[0]; */
@@ -4427,7 +4427,7 @@ dissect_openflow_role_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_role_request_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_role_request_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t generation_id; */
@@ -4444,7 +4444,7 @@ dissect_openflow_role_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v4_role_reply_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v4_role_reply_pad, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* uint64_t generation_id; */
