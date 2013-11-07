@@ -21,49 +21,33 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-include(UseMakefileCommon)
-VARS_FROM_MAKEFILE_COMMON(
-	"."
-	PROTOCOL_NAME
-	ASN_FILE_LIST
-	EXTRA_DIST
-	SRC_FILES
-	A2W_FLAGS
-	EXTRA_CNF
-)
-
-#message( STATUS "Values used in c1222\n PROTOCOL_NAME: ${PROTOCOL_NAME}\n ASN_FILE_LIST: ${ASN_FILE_LIST}\n EXTRA_DIST: ${EXTRA_DIST}\n SRC_FILES: ${SRC_FILES}\n A2W_FLAGS: ${A2W_FLAGS}\n")
-#foreach(v2 ${EXTRA_DIST})
-#  message(STATUS "::${v2}::")
-#endforeach()
-
-#set( PROTOCOL_NAME c1222 )
+set( PROTOCOL_NAME c1222 )
 
 set( PROTO_OPT )
 
 set( EXT_ASN_FILE_LIST
 )
 
-#set( ASN_FILE_LIST
-#	${PROTOCOL_NAME}.asn
-#)
+set( ASN_FILE_LIST
+	${PROTOCOL_NAME}.asn
+)
 
-#set( EXTRA_DIST
-#	${ASN_FILE_LIST}
-#	packet-${PROTOCOL_NAME}-template.c
-#	packet-${PROTOCOL_NAME}-template.h
-#	${PROTOCOL_NAME}.cnf
-#)
+set( EXTRA_DIST
+	${ASN_FILE_LIST}
+	packet-${PROTOCOL_NAME}-template.c
+	packet-${PROTOCOL_NAME}-template.h
+	${PROTOCOL_NAME}.cnf
+)
 
-#set( SRC_FILES
-#	${EXTRA_DIST}
-#	${EXT_ASN_FILE_LIST}
-#)
+set( SRC_FILES
+	${EXTRA_DIST}
+	${EXT_ASN_FILE_LIST}
+)
 
-#set( A2W_FLAGS -b )
+set( A2W_FLAGS -b )
 
-#set( EXTRA_CNF
-#)
+set( EXTRA_CNF
+)
 
 ASN2WRS()
 
