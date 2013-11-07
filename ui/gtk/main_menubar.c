@@ -4965,7 +4965,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
 #ifdef WANT_PACKET_EDITOR
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
-                         frame_selected);
+                         prefs.gui_packet_editor ? frame_selected : FALSE);
 #endif /* WANT_PACKET_EDITOR */
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
                          frame_selected && wtap_dump_can_write(cf->linktypes, WTAP_COMMENT_PER_PACKET));

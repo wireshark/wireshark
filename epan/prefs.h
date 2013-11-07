@@ -207,6 +207,7 @@ typedef struct _e_prefs {
   gboolean     unknown_prefs;         /* unknown or obsolete pref(s) */ 
   gboolean     unknown_colorfilters;  /* unknown or obsolete color filter(s) */
   guint        gui_qt_language;       /* Qt Translation language selection */
+  gboolean     gui_packet_editor;     /* Enable Packet Editor */
 } e_prefs;
 
 WS_DLL_PUBLIC e_prefs prefs;

@@ -86,6 +86,7 @@ static gint scroll_percent_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GUI_EXPERT_EYECANDY_KEY		"expert_eyecandy"
 #define GUI_AUTO_SCROLL_KEY		"auto_scroll_on_expand"
 #define GUI_SCROLL_PERCENT_KEY		"scroll_percent_on_expand"
+#define GUI_PACKET_EDITOR		"packet_editor"
 
 static const enum_val_t filter_toolbar_placement_vals[] _U_ = {
 	{ "FALSE", "Below the main toolbar", FALSE },
@@ -160,6 +161,7 @@ gui_prefs_show(void)
 	GtkWidget *macosx_style_cb;
 #endif
 	GtkWidget *expert_info_eyecandy_cb;
+	GtkWidget *packet_editor_cb;
 
 	int        pos = 0;
 	char       current_val_str[128];
@@ -340,6 +342,13 @@ gui_prefs_show(void)
 	    prefs.gui_expert_composite_eyecandy );
 	g_object_set_data(G_OBJECT(main_vb), GUI_EXPERT_EYECANDY_KEY, expert_info_eyecandy_cb);
 
+	/* Enable Experimental Packet Editor */
+	packet_editor_cb = create_preference_check_button(main_grid, pos++,
+	    "Enable Packet Editor (Experimental):",
+	    "Activate Packet Editor (Experimental)",
+	    prefs.gui_packet_editor);
+	g_object_set_data(G_OBJECT(main_vb), GUI_PACKET_EDITOR, packet_editor_cb);
+
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
 
@@ -408,6 +417,8 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_expert_composite_eyecandy =
 		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_EXPERT_EYECANDY_KEY));
 
+	prefs.gui_packet_editor =
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_PACKET_EDITOR));
 }
 
 
