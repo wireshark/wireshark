@@ -485,6 +485,15 @@ rpathify_file () {
 			fi
 
 			#
+			# Show the minimum supported version of Mac OS X
+			# for each executable or library
+			#
+			if [[ "$filetype" = "EXECUTE" || "$filetype" = "DYLIB" ]] && [[ "$VERSION" -ge "7" ]] ; then
+				echo "Minimum Mac OS X version for $1:"
+				otool -l $1 | grep -A3 LC_VERSION_MIN_MACOSX
+			fi
+
+			#
 			# Get the list of dynamic libraries on which this
 			# file depends, and select only the libraries that
 			# are in $LIBPREFIX, as those are the only ones
