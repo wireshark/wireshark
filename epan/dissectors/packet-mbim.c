@@ -488,6 +488,7 @@ static int hf_mbim_bulk_ndp_length = -1;
 static int hf_mbim_bulk_ndp_next_ndp_index = -1;
 static int hf_mbim_bulk_ndp_next_ndp_index_32 = -1;
 static int hf_mbim_bulk_ndp_reserved = -1;
+static int hf_mbim_bulk_ndp_reserved2 = -1;
 static int hf_mbim_bulk_ndp_datagram_index = -1;
 static int hf_mbim_bulk_ndp_datagram_index_32 = -1;
 static int hf_mbim_bulk_ndp_datagram_length = -1;
@@ -4539,6 +4540,9 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             pi = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_next_ndp_index_32,
                                      tvb, offset, 4, next_index);
             offset += 4;
+            proto_tree_add_item(subtree, hf_mbim_bulk_ndp_reserved2, tvb,
+                                offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
         }
         if (next_index % 4) {
             expert_add_info_format(pinfo, pi, &ei_mbim_alignment_error,
@@ -6837,6 +6841,11 @@ proto_register_mbim(void)
         { &hf_mbim_bulk_ndp_reserved,
             { "Reserved", "mbim.bulk.ndp.reserved",
                FT_UINT16, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_reserved2,
+            { "Reserved", "mbim.bulk.ndp.reserved",
+               FT_UINT32, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_bulk_ndp_datagram_index,
