@@ -67,6 +67,7 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 #include "frame_tvbuff.h"
 
