@@ -3513,8 +3513,8 @@ dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		return 0;
 
 	/* XXX - tcp_dissect_pdus() doesn't have a way to pass dissector data, so store
-	 the tcpinfo structure from the TCP dissector as proto_data to be retrieved
-     in dissect_ndmp_message() */
+	   the tcpinfo structure from the TCP dissector as proto_data to be retrieved
+	   in dissect_ndmp_message() */
 	p_add_proto_data(pinfo->fd, proto_ndmp, 0, data);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
@@ -4323,7 +4323,20 @@ proto_register_ndmp(void)
 void
 proto_reg_handoff_ndmp(void)
 {
-  ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
-  dissector_add_uint("tcp.port",TCP_PORT_NDMP, ndmp_handle);
-  heur_dissector_add("tcp", dissect_ndmp_heur, proto_ndmp);
+	ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
+	dissector_add_uint("tcp.port",TCP_PORT_NDMP, ndmp_handle);
+	heur_dissector_add("tcp", dissect_ndmp_heur, proto_ndmp);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
