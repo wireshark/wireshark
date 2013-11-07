@@ -203,11 +203,13 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void
 proto_register_http_urlencoded(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_form_keyvalue,
 		&hfi_form_key,
 		&hfi_form_value,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_form_urlencoded,

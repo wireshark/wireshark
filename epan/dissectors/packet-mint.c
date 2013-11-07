@@ -674,6 +674,7 @@ dissect_mint_ethshim_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 proto_register_mint(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 
 	/* MiNT Eth Shim */
@@ -722,6 +723,8 @@ proto_register_mint(void)
 		&hfi_mint_control_0x22_length,
 		&hfi_mint_control_0x22_value,
 	};
+#endif
+
 	static gint *ett[] = {
 		&ett_mint_ethshim,
 		&ett_mint,

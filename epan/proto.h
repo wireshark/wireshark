@@ -1675,7 +1675,8 @@ proto_register_prefix(const char *prefix,  prefix_initializer_t initializer);
 /** Initialize every remaining uninitialized prefix. */
 WS_DLL_PUBLIC void proto_initialize_all_prefixes(void);
 
-WS_DLL_PUBLIC void proto_register_fields(const int parent, header_field_info **hfi, const int num_records);
+WS_DLL_PUBLIC void proto_register_fields_manual(const int parent, header_field_info **hfi, const int num_records);
+WS_DLL_PUBLIC void proto_register_fields_section(const int parent, header_field_info *hfi, const int num_records);
 
 /** Register a header_field array.
  @param parent the protocol handle from proto_register_protocol()
@@ -2118,7 +2119,21 @@ proto_custom_set(proto_tree* tree, const int field_id,
                              gchar *result,
                              gchar *expr, const int size );
 
-#define HFI_INIT(proto)
+/* #define HAVE_HFI_SECTION_INIT */
+
+#ifdef HAVE_HFI_SECTION_INIT
+ #define HFI_INIT(proto) __attribute__((section( "_data_" G_STRINGIFY(proto) )))
+
+ #define proto_register_fields(proto, hfi, count) \
+	extern header_field_info __start__data_ ##proto[]; \
+	extern header_field_info __stop__data_ ##proto[]; \
+\
+	proto_register_fields_section(proto, __start__data_ ##proto, (int) (__stop__data_ ##proto - __start__data_ ##proto))
+#else
+ #define HFI_INIT(proto)
+ #define proto_register_fields(proto, hfi, count) \
+	proto_register_fields_manual(proto, hfi, count)
+#endif
 
 #ifdef NEW_PROTO_TREE_API
 #define proto_tree_add_item(tree, hfinfo, tvb, start, length, encoding) \

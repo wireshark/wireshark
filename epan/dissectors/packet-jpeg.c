@@ -259,7 +259,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 void
 proto_register_jpeg(void)
 {
-
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] =
 	{
 		&hfi_rtp_jpeg_main_hdr,
@@ -281,6 +281,7 @@ proto_register_jpeg(void)
 		&hfi_rtp_jpeg_qtable_hdr_data,
 		&hfi_rtp_jpeg_payload,
 	};
+#endif
 
 	static gint *ett[] =
 	{

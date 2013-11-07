@@ -629,6 +629,7 @@ dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 void
 proto_register_dbus(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 	/* Header */
 		&hfi_dbus_hdr,
@@ -651,6 +652,7 @@ proto_register_dbus(void)
 		&hfi_dbus_value_str,
 		&hfi_dbus_value_double,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_dbus,

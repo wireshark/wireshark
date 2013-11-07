@@ -406,6 +406,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 void
 proto_register_png(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] =
 	{
 		&hfi_png_signature,
@@ -440,6 +441,7 @@ proto_register_png(void)
 		&hfi_png_bkgd_green,
 		&hfi_png_bkgd_blue,
 	};
+#endif
 
 	static gint *ett[] =
 	{

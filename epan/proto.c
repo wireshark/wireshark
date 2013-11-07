@@ -4580,14 +4580,30 @@ proto_set_cant_toggle(const int proto_id)
 	protocol->can_toggle = FALSE;
 }
 
+static int
+proto_register_field_common(protocol_t *proto, header_field_info *hfi, const int parent)
+{
+	if (proto != NULL) {
+		if (proto->fields == NULL) {
+			proto->fields = g_slist_append(NULL, hfi);
+			proto->last_field = proto->fields;
+		} else {
+			proto->last_field =
+				g_slist_append(proto->last_field, hfi)->next;
+		}
+	}
+
+	return proto_register_field_init(hfi, parent);
+}
+
 /* for use with static arrays only, since we don't allocate our own copies
 of the header_field_info struct contained within the hf_register_info struct */
 void
 proto_register_field_array(const int parent, hf_register_info *hf, const int num_records)
 {
-	int		  field_id, i;
 	hf_register_info *ptr = hf;
 	protocol_t	 *proto;
+	int		  i;
 
 	proto = find_protocol_by_id(parent);
 	for (i = 0; i < num_records; i++, ptr++) {
@@ -4606,22 +4622,34 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 			return;
 		}
 
-		if (proto != NULL) {
-			if (proto->fields == NULL) {
-				proto->fields = g_slist_append(NULL, &ptr->hfinfo);
-				proto->last_field = proto->fields;
-			} else {
-				proto->last_field =
-					g_slist_append(proto->last_field, &ptr->hfinfo)->next;
-			}
-		}
-		field_id = proto_register_field_init(&ptr->hfinfo, parent);
-		*ptr->p_id = field_id;
+		*ptr->p_id = proto_register_field_common(proto, &ptr->hfinfo, parent);
 	}
 }
 
 void
-proto_register_fields(const int parent, header_field_info **hfi, const int num_records)
+proto_register_fields_section(const int parent, header_field_info *hfi, const int num_records)
+{
+	int		  i;
+	protocol_t	 *proto;
+
+	proto = find_protocol_by_id(parent);
+	for (i = 0; i < num_records; i++) {
+		/*
+		 * Make sure we haven't registered this yet.
+		 */
+		if (hfi[i].id != -1) {
+			fprintf(stderr,
+				"Duplicate field detected in call to proto_register_fields: %s is already registered\n",
+				hfi[i].abbrev);
+			return;
+		}
+
+		proto_register_field_common(proto, &hfi[i], parent);
+	}
+}
+
+void
+proto_register_fields_manual(const int parent, header_field_info **hfi, const int num_records)
 {
 	int		  i;
 	protocol_t	 *proto;
@@ -4633,21 +4661,12 @@ proto_register_fields(const int parent, header_field_info **hfi, const int num_r
 		 */
 		if (hfi[i]->id != -1) {
 			fprintf(stderr,
-				"Duplicate field detected in call to proto_register_field_array: %s is already registered\n",
+				"Duplicate field detected in call to proto_register_fields: %s is already registered\n",
 				hfi[i]->abbrev);
 			return;
 		}
 
-		if (proto != NULL) {
-			if (proto->fields == NULL) {
-				proto->fields = g_slist_append(NULL, hfi[i]);
-				proto->last_field = proto->fields;
-			} else {
-				proto->last_field =
-					g_slist_append(proto->last_field, hfi[i])->next;
-			}
-		}
-		proto_register_field_init(hfi[i], parent);
+		proto_register_field_common(proto, hfi[i], parent);
 	}
 }
 

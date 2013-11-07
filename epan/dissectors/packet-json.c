@@ -566,6 +566,7 @@ proto_register_json(void) {
 		&ett_json_member
 	};
 
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_json_array,
 		&hfi_json_object,
@@ -577,6 +578,7 @@ proto_register_json(void) {
 		&hfi_json_value_null,
 		&hfi_json_value_true,
 	};
+#endif
 
 	int proto_json;
 

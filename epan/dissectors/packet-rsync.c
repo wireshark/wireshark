@@ -308,6 +308,7 @@ void proto_reg_handoff_rsync(void);
 void
 proto_register_rsync(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
     static header_field_info *hfi[] = {
 	&hfi_rsync_hdr_magic,
 	&hfi_rsync_hdr_version,
@@ -318,6 +319,7 @@ proto_register_rsync(void)
 	&hfi_rsync_command_string,
 	&hfi_rsync_data,
     };
+#endif
 
     static gint *ett[] = {
 	&ett_rsync,

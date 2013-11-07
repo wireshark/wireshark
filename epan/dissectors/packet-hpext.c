@@ -104,10 +104,12 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_hpext(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_hpext_dxsap,
 		&hfi_hpext_sxsap,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_hpext

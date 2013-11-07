@@ -716,6 +716,7 @@ proto_register_udp(void)
   module_t *udplite_module;
   expert_module_t* expert_udp;
 
+#ifndef HAVE_HFI_SECTION_INIT
   static header_field_info *hfi[] = {
     &hfi_udp_srcport,
     &hfi_udp_dstport,
@@ -738,6 +739,7 @@ proto_register_udp(void)
     &hfi_udplite_checksum_coverage_bad,
     &hfi_udplite_checksum_coverage,
   };
+#endif
 
   static gint *ett[] = {
     &ett_udp,

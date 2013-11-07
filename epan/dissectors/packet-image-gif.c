@@ -610,6 +610,7 @@ dissect_gif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 void
 proto_register_gif(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
     /*
      * Setup list of header fields.
      */
@@ -661,6 +662,7 @@ proto_register_gif(void)
          */
         &hfi_trailer,
     };
+#endif
 
     /* Setup protocol subtree array */
     static gint *ett[] = {

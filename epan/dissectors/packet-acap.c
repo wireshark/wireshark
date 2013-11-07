@@ -174,10 +174,12 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_acap(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_acap_response,
 		&hfi_acap_request,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_acap,

@@ -326,6 +326,7 @@ static const vsff stat1_proc[] = {
 void
 proto_register_stat(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_stat_procedure_v1,
 		&hfi_stat_mon_name,
@@ -343,6 +344,7 @@ proto_register_stat(void)
 		&hfi_stat_state,
 		&hfi_stat_stat_chge,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_stat,

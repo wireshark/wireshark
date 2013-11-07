@@ -180,11 +180,13 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_tali(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
   static header_field_info *hfi[] = {
     &hfi_tali_sync_indicator,
     &hfi_tali_opcode_indicator,
     &hfi_tali_length_indicator
   };
+#endif
 
   /* Setup protocol subtree array */
   static gint *ett[] = {

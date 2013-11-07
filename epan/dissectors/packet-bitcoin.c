@@ -1120,6 +1120,7 @@ dissect_bitcoin_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 void
 proto_register_bitcoin(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
   static header_field_info *hfi[] = {
     &hfi_bitcoin_magic,
     &hfi_bitcoin_command,
@@ -1248,6 +1249,7 @@ proto_register_bitcoin(void)
     &hfi_string_varint_count32,
     &hfi_string_varint_count64,
   };
+#endif
 
   static gint *ett[] = {
     &ett_bitcoin,

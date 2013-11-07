@@ -63,10 +63,12 @@ static const vsff rwall1_proc[] = {
 void
 proto_register_rwall(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_rwall_procedure_v1,
 		&hfi_rwall_message,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_rwall,

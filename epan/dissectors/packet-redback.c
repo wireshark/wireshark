@@ -186,6 +186,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_redback(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_redback_context,
 		&hfi_redback_flags,
@@ -197,6 +198,7 @@ proto_register_redback(void)
 		&hfi_redback_padding,
 		&hfi_redback_unknown,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_redback

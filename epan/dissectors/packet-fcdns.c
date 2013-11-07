@@ -1860,7 +1860,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_fcdns (void)
 {
-
+#ifndef HAVE_HFI_SECTION_INIT
     static header_field_info *hfi[] = {
         /* &hfi_fcdns_gssubtype */
         &hfi_fcdns_opcode,
@@ -1927,6 +1927,7 @@ proto_register_fcdns (void)
         &hfi_fcdns_fc4features_i,
         &hfi_fcdns_fc4features_t,
     };
+#endif
 
     static gint *ett[] = {
         &ett_fcdns,

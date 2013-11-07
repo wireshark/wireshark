@@ -354,6 +354,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_nflog(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 	/* Header */
 		&hfi_nflog_family,
@@ -371,6 +372,7 @@ proto_register_nflog(void)
 		&hfi_nflog_tlv_timestamp,
 		&hfi_nflog_tlv_unknown,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_nflog,

@@ -119,12 +119,14 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 void
 proto_register_data(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_data_data,
 		&hfi_data_text,
 		&hfi_data_md5_hash,
 		&hfi_data_len,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_data

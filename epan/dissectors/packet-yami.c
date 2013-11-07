@@ -547,6 +547,7 @@ dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 void
 proto_register_yami(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 	/* Header */
 		&hfi_yami_message_id,
@@ -568,6 +569,7 @@ proto_register_yami(void)
 		&hfi_yami_params_count,
 		&hfi_yami_items_count,
 	};
+#endif
 
 	static gint *ett[] = {
 		&ett_yami,

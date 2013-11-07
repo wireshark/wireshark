@@ -323,7 +323,7 @@ static gboolean dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 /* register the various xcsl protocol filters */
 void proto_register_xcsl(void) {
-
+#ifndef HAVE_HFI_SECTION_INIT
     static header_field_info *hfi[] = {
         &hfi_xcsl_protocol_version,
         &hfi_xcsl_transaction_id,
@@ -332,6 +332,7 @@ void proto_register_xcsl(void) {
         &hfi_xcsl_parameter,
         &hfi_xcsl_information,
     };
+#endif
 
     /* Setup protocol subtree array */
     static gint *ett[] = {

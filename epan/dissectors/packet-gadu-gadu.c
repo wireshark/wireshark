@@ -2038,6 +2038,7 @@ dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_gadu_gadu(void)
 {
+#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 	/* Header */
 		&hfi_gadu_gadu_header_type_recv,
@@ -2114,6 +2115,7 @@ proto_register_gadu_gadu(void)
 	/* Not dissected data */
 		&hfi_gadu_gadu_data,
 	};
+#endif /* HAVE_HFI_SECTION_INIT */
 
 	static gint *ett[] = {
 		&ett_gadu_gadu,

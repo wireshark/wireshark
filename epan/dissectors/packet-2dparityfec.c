@@ -295,6 +295,7 @@ void proto_register_2dparityfec(void)
 {
    module_t *module_2dparityfec;
 
+#ifndef HAVE_HFI_SECTION_INIT
 /* Payload type definitions */
    static header_field_info *hfi[] = {
       &hfi_2dparityfec_snbase_low,
@@ -312,6 +313,7 @@ void proto_register_2dparityfec(void)
       &hfi_2dparityfec_snbase_ext,
       &hfi_2dparityfec_payload,
    };
+#endif
 
 /* Setup protocol subtree array */
    static gint *ett[] = {
