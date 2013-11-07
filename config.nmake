@@ -239,8 +239,8 @@ PATH=$(PYTHON_DIR);$(PATH)
 PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 
 ##### To Use packet editor uncomment this line ####
-### Warning Experimental - work in progress
-#WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
+### Experimental - work in progress
+WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 ##### Win32 Libraries #####

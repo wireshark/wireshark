@@ -1248,8 +1248,8 @@ AC_ARG_ENABLE(wireshark,
 
 AC_ARG_ENABLE(packet-editor,
   AC_HELP_STRING( [--enable-packet-editor],
-                  [add support for packet editor in Wireshark @<:@default=no@:>@]),
-    enable_packet_editor=$enableval,enable_packet_editor=no)
+                  [add support for packet editor in Wireshark @<:@default=yes@:>@]),
+    enable_packet_editor=$enableval,enable_packet_editor=yes)
 if test x$enable_packet_editor = xyes; then
 	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
 fi
