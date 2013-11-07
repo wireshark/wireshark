@@ -5641,7 +5641,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              cf->finfo_selected->tree_type != -1);
 #ifdef WANT_PACKET_EDITOR
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/EditPacket",
-                             prefs.gui_packet_editor ? TRUE : FALSE); //TODO FIX ICI
+                             prefs.gui_packet_editor ? TRUE : FALSE);
 #endif
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
                              (id == -1) ? FALSE : TRUE);
