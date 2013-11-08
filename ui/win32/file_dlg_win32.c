@@ -44,6 +44,7 @@
 #include "wsutil/unicode-utils.h"
 
 #include "wiretap/merge.h"
+#include "wiretap/wtap.h"
 
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
@@ -369,7 +370,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     else
         required_comment_types = 0; /* none of them */
 
-    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
+    savable_file_types = wtap_get_savable_file_types_subtypes(cf->cd_t, cf->linktypes,
                                                      required_comment_types);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
@@ -444,7 +445,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
     }
 
-    savable_file_types = wtap_get_savable_file_types(cf->cd_t,
+    savable_file_types = wtap_get_savable_file_types_subtypes(cf->cd_t,
                                                      cf->linktypes, 0);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
@@ -1109,7 +1110,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     /* Format */
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
+    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_subtype_string(wtap_file_type_subtype(wth))));
 
     /* Size */
     filesize = wtap_file_size(wth, &err);
@@ -1514,7 +1515,7 @@ append_file_type(GArray *sa, int ft)
     }
 
     /* Construct the description. */
-    g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
+    g_string_printf(description_str, "%s (%s)", wtap_file_type_subtype_string(ft),
                     pattern_str->str);
     str16 = utf_8to16(description_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
