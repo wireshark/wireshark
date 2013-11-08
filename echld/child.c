@@ -76,7 +76,7 @@ static int debug_lvl = DEBUG_CHILD;
 static FILE* debug_fp = NULL;
 #define DBG_BUF_LEN 1024
 
-#define DCOM() 
+#define DCOM()
 
 int child_debug(int level, const char* fmt, ...) {
 	va_list ap;
@@ -130,18 +130,18 @@ static long dbg_resp(GByteArray* em, echld_msg_type_t t) {
 #define CHILD_STATE(ST) do { DISP_DBG((0,"State %s => %s")) } while(0)
 #else
 #define CHILD_DBG(attrs)
-#define CHILD_DBG_INIT() 
-#define CHILD_DBG_START(fname) 
+#define CHILD_DBG_INIT()
+#define CHILD_DBG_START(fname)
 #define CHILD_RESP(BA,T) echld_write_frame(child.fds.pipe_to_parent,(BA),child.chld_id,T,child.reqh_id,NULL)
 #endif
 
 
-static struct timeval close_sleep_time; 
+static struct timeval close_sleep_time;
 
 
 static void sig_term(int sig _U_) {
 	CHILD_DBG((3,"Terminated, Closing"));
-	exit(0);	
+	exit(0);
 }
 
 extern void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id, echld_epan_stuff_t* es) {
@@ -234,7 +234,7 @@ static char* param_get_packet_count(char** err) {
 
 static echld_bool_t param_set_dfilter(char* val , char** err _U_) {
 	dfilter_t *dfn = NULL;
-	
+
 	if (child.state != IDLE && child.state != DONE ) {
 		*err = g_strdup("Only while idle or done");
 		return FALSE;
@@ -258,7 +258,7 @@ static echld_bool_t param_set_profile(char* val , char** err ) {
 
 	if (child.state != IDLE) {
 		*err = g_strdup_printf("Cannot set Profile \"%s\", too late.", val);
-		return FALSE;		
+		return FALSE;
 	}
 
 	if (profile_exists (val, FALSE)) {
@@ -288,21 +288,21 @@ static char* param_get_file_list(char** err) {
 
 	while(( file = g_dir_read_name(dir) )) {
 		g_string_append_printf(str,"{filename='%s'},\n",file);
- 	} 
- 	g_dir_close(dir);
+	}
+	g_dir_close(dir);
 
 	g_string_truncate(str, str->len-2); /* ',\n' */
 	g_string_append(str, "]}");
 
- 	s=str->str;
- 	g_string_free(str,FALSE);
- 	return s;
+	s=str->str;
+	g_string_free(str,FALSE);
+	return s;
 }
 
 #ifdef PCAP_NG_DEFAULT
-static int out_file_type = WTAP_FILE_PCAPNG;
+static int out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
 #else
-static int out_file_type = WTAP_FILE_PCAP;
+static int out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 #endif
 
 static echld_bool_t param_set_out_file_type(char* val, char** err) {
@@ -311,7 +311,7 @@ static echld_bool_t param_set_out_file_type(char* val, char** err) {
       if (oft < 0) {
         *err = g_strdup_printf("\"%s\" isn't a valid capture file type", val);
         return FALSE;
-      } else {	
+      } else {
 		out_file_type = oft;
 		return TRUE;
 	  }
@@ -384,7 +384,7 @@ static void child_start_capture(void) {
 static void child_stop_capure(void) {
 	CHILD_DBG((2,"CMD stop capture"));
 	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"stop capture not implemented yet!");
-	child.state = DONE;	
+	child.state = DONE;
 }
 
 static void child_get_summary(char* range) {
@@ -428,7 +428,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 	// gettimeofday(&(child.now), NULL);
 
-	if (child.chld_id != chld_id) {	
+	if (child.chld_id != chld_id) {
 		child_err(ECHLD_ERR_WRONG_MSG,reqh_id,
 			"chld_id: own:%d given:%d msg_type='%s'",child.chld_id,chld_id,TY(type));
 		return 0;
@@ -484,7 +484,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 					g_free(err);
 					return 0;
 				}
-								
+
 				gba = child.enc->param(param,val);
 				CHILD_RESP(gba,ECHLD_PARAM);
 				g_byte_array_free(gba,TRUE);
@@ -517,7 +517,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 			char* pars;
 
 			if (child.state != IDLE) goto wrong_state;
-			
+
 			if ( child.dec->open_interface(b,len,&intf,&pars) ) {
 				child_open_interface(intf,pars);
 			} else {
@@ -529,7 +529,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 			if (child.state != READY) goto wrong_state;
 			child_start_capture();
 			break;
-		}					
+		}
 		case ECHLD_STOP_CAPTURE: {
 			if (child.state != CAPTURING) goto wrong_state;
 			child_stop_capure();
@@ -549,7 +549,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		}
 		case ECHLD_GET_TREE:{
 			char* range;
-			
+
 			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
 
 			if ( child.dec->get_tree(b,len,&range) ) {
@@ -561,7 +561,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		}
 		case ECHLD_GET_BUFFER:{
 			char* name;
-			
+
 			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
 
 			if ( child.dec->get_buffer(b,len,&name) ) {
@@ -574,7 +574,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		case ECHLD_ADD_NOTE: {
 			int framenum;
 			char* note;
-			
+
 			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
 
 			if ( child.dec->add_note(b,len,&framenum,&note) ) {
@@ -586,7 +586,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		}
 		case ECHLD_APPLY_FILTER: {
 			char* filter;
-			
+
 			if (child.state != DONE) goto wrong_state;
 
 			if ( child.dec->apply_filter(b,len,&filter) ) {
@@ -599,7 +599,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		case ECHLD_SAVE_FILE: {
 			char* filename;
 			char* pars;
-			
+
 			if (child.state != DONE) goto wrong_state;
 
 			if ( child.dec->save_file(b,len,&filename,&pars) ) {

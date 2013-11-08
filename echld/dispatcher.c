@@ -26,7 +26,7 @@
  */
 
 #include "echld-int.h"
-/** 
+/**
   DISPATCHER
   **/
 
@@ -77,7 +77,7 @@ int dispatcher_debug(int level, const char* fmt, ...) {
 
 	if (debug_lvl<level) return 1;
 
-    va_start(ap, fmt);
+	va_start(ap, fmt);
 	str = g_strdup_vprintf(fmt,ap);
 	va_end(ap);
 
@@ -140,7 +140,7 @@ static echld_epan_stuff_t stuff;
 static void init_stuff(void) {
 #ifdef HAVE_LIBPCAP
 	capture_opts_init(&stuff.cap_opts);
-  	capture_session_init(&stuff.cap_sess, (void *)&stuff.cfile);
+	capture_session_init(&stuff.cap_sess, (void *)&stuff.cfile);
 #endif
 
 }
@@ -255,7 +255,7 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
             default:
                 g_string_append_printf(str,"'<type unknown %u>',", if_addr->ifat_type);
             }
-	
+
         }
 
 	    g_string_truncate(str,str->len - 1); /* the last comma or space (on empty list) */
@@ -282,11 +282,11 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
 
 				    data_link_info = (data_link_info_t *)lt_entry->data;
 				    g_string_append_printf(str,"{ name='%s', desc='%s' }, ", data_link_info->name, (data_link_info->description) ? data_link_info->description : "" );
-				}				    
+				}
 
 				g_string_truncate(str,str->len - 2); /* the comma and space */
 				g_string_append(str,"]");
-			}	
+			}
 
 			g_string_append_printf(str,", can_set_rfmon=%s", caps->can_set_rfmon ? "1" : "0");
 
@@ -312,7 +312,7 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
 
 			free_if_capabilities(caps);
 		}
-		  
+
         g_string_append(str,"},\n");
     }
 
@@ -329,8 +329,8 @@ static char* intf_list = NULL;
 static void get_interfaces(char** err) {
 	int err_no = 0;
 	GList* if_list;
-	
-	err = NULL;	
+
+	err = NULL;
 	if_list = capture_interface_list(&err_no, err, NULL);
 
 	if (err) {
@@ -377,7 +377,7 @@ static char* version_long_str = NULL;
 
 
 static char* param_get_long_version(char** err _U_) {
-  	return g_strdup(version_long_str);
+	return g_strdup(version_long_str);
 }
 
 static char* param_get_version(char** err _U_) {
@@ -389,10 +389,10 @@ static char* param_get_capture_types(char** err _U_) {
   char* s;
   int i;
 
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+  for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
     if (wtap_dump_can_open(i)) {
       g_string_append_printf(str,"%s: %s\n",
-      	wtap_file_type_short_string(i), wtap_file_type_string(i));
+	wtap_file_type_short_string(i), wtap_file_type_string(i));
     }
   }
 
@@ -484,11 +484,11 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 
 	error = init_progfile_dir(argv0, main);
 
-	comp_info_str = g_string_new("Compiled ");	
-  	get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+	comp_info_str = g_string_new("Compiled ");
+	get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
 
- 	runtime_info_str = g_string_new("Running ");
-  	get_runtime_version_info(runtime_info_str, NULL);
+	runtime_info_str = g_string_new("Running ");
+	get_runtime_version_info(runtime_info_str, NULL);
 
 	version_long_str = g_strdup_printf("%s%s\n%s\n%s\n%s",
 		version_str, wireshark_svnversion, get_copyright_info(),
@@ -503,13 +503,13 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 		wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
 
 	init_stuff();
-		
+
 	capture_sync_set_fetch_dumpcap_pid_cb(set_dumpcap_pid);
 
-  	init_process_policies();
+	init_process_policies();
 
 	get_interfaces(&error);
-	
+
 	if (error) {
 		DISP_FATAL((CANNOT_PREINIT_EPAN,"Error getting interfaces: %s", error));
 	}
@@ -561,7 +561,7 @@ void dispatcher_reaper(int sig) {
 	struct dispatcher_child* cc = dispatcher->children;
 	int max_children = dispatcher->max_children;
 	int pid =  waitpid(-1, &status, WNOHANG);
-	int reqh_id_save = 	dispatcher->reqh_id;
+	int reqh_id_save =	dispatcher->reqh_id;
 
 	dispatcher->reqh_id = 0;
 
@@ -584,19 +584,19 @@ void dispatcher_reaper(int sig) {
 
 				if (WIFEXITED(status)) {
 				    s = g_strdup_printf(
-				    		"Unexpected dead: reason='exited' pid=%d status=%d",
-				    		pid, WEXITSTATUS(status));
+						"Unexpected dead: reason='exited' pid=%d status=%d",
+						pid, WEXITSTATUS(status));
 				} else if ( WIFSIGNALED(status) ) {
 				    s = g_strdup_printf(
-				    	"Unexpected dead: reason='signaled' pid=%d termsig=%d coredump=%s",
-				    	pid, WTERMSIG(status), WCOREDUMP(status) ? "yes":"no");
+					"Unexpected dead: reason='signaled' pid=%d termsig=%d coredump=%s",
+					pid, WTERMSIG(status), WCOREDUMP(status) ? "yes":"no");
 
 					/*if (WCOREDUMP(status)) { system("analyze_coredump.sh pid=%d") } */
 
 				} else if (WIFSTOPPED(status)) {
 				    s = g_strdup_printf(
-				    	"Unexpected dead: reason='stopped' pid=%d stopsig=%d",
-				    	pid, WSTOPSIG(status));
+					"Unexpected dead: reason='stopped' pid=%d stopsig=%d",
+					pid, WSTOPSIG(status));
 				}
 
 				em = dispatcher->enc.to_parent->child_dead(s);
@@ -645,7 +645,7 @@ static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, e
 	struct dispatcher_child* c = (struct dispatcher_child*)data;
 
 	dispatcher->reqh_id = c->reqh_id = reqh_id;
-	
+
 	in_ba.data = b;
 	in_ba.len = (guint)len;
 
@@ -674,14 +674,14 @@ static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, e
 		case ECHLD_EOF:
 		case ECHLD_CAPTURE_STOPPED: CHLD_SET_STATE(c,DONE); break;
 
-		case ECHLD_NOTE_ADDED: break; 
+		case ECHLD_NOTE_ADDED: break;
 		case ECHLD_PACKET_LIST: break;
 		case ECHLD_FILE_SAVED: break;
 
 		default:
 			goto misbehabing;
 	}
-	
+
 	DISP_DBG((4,"Dispatching to parent reqh_id=%d chld_id=%d type='%c'",reqh_id,c->chld_id,type));
 	return DISP_WRITE(dispatcher->parent_out, &in_ba, chld_id, type, reqh_id);
 
@@ -694,13 +694,13 @@ misbehabing:
 
 }
 
-static struct timeval start_wait_time; 
+static struct timeval start_wait_time;
 static long start_wait_time_us = CHILD_START_WAIT_TIME;
 
 static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 	struct dispatcher_child* c;
 	int reqh_id = dispatcher->reqh_id;
-	int pid; 
+	int pid;
 
 	if (( c = dispatcher_get_child(dispatcher, chld_id) )) {
 		dispatcher_err(ECHLD_ERR_CHILD_EXISTS,"chld_id=%d exists already while creating new child",chld_id);
@@ -756,7 +756,7 @@ static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 				exit( echld_child_loop() );
 
 				/* it won't */
-				return; 
+				return;
 			}
 			default: {
 			/* I'm the parent */
@@ -809,7 +809,7 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 			case ECHLD_CLOSE_CHILD:
 				dispatcher_destroy();
 				return 0;
-			case ECHLD_PING: 
+			case ECHLD_PING:
 				DISP_DBG((2,"PONG reqh_id=%d",reqh_id));
 				DISP_WRITE(dispatcher->parent_out, NULL, chld_id, ECHLD_PONG, reqh_id);
 				return 0;
@@ -848,7 +848,7 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 						g_free(err);
 						return 0;
 					}
-					
+
 					ba = dispatcher->enc.to_parent->param(param,val);
 					DISP_RESP(ba,ECHLD_PARAM);
 					g_byte_array_free(ba,TRUE);
@@ -878,7 +878,7 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 			}
 		} else {
 			switch(type) {
-				case ECHLD_CLOSE_CHILD: 
+				case ECHLD_CLOSE_CHILD:
 					CHLD_SET_STATE(c,CLOSED);
 					goto relay_frame;
 
@@ -997,7 +997,7 @@ int dispatcher_loop(void) {
 					kill(c->pid,SIGTERM);
 					select(0,NULL,NULL,NULL,&wait_time);
 					dispatcher_clear_child(c);
-					continue;	
+					continue;
 				}
 
 				if (FD_ISSET(c->reader.fd,&rfds)) {
