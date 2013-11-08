@@ -1932,8 +1932,8 @@ decode_as_ok(void)
     return (cfile.edt->pi.ethertype != G_MAXINT) || cfile.edt->pi.ipproto ||
         cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP ||
         cfile.edt->pi.mpls_label ||
-        cfile.cd_t == WTAP_FILE_BER ||
         cfile.edt->pi.ptype == PT_BLUETOOTH ||
+        wtap_file_encap(cfile.wth) == WTAP_ENCAP_BER ||
         wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
         wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
 }
