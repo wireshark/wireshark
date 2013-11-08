@@ -13,9 +13,11 @@ What's New
   Bug Fixes
 
    The following bugs have been fixed:
-     * "Follow TCP Stream" shows only the first HTTP req+res. ([1]Bug
+     * "On-the-wire" packet lengths are limited to 65535 bytes. ([1]Bug
+       8808, ws-buglink:9390)
+     * "Follow TCP Stream" shows only the first HTTP req+res. ([2]Bug
        9044)
-     * Files with pcap-ng Simple Packet Blocks can't be read. ([2]Bug
+     * Files with pcap-ng Simple Packet Blocks can't be read. ([3]Bug
        9200)
 
   New and Updated Features
@@ -69,14 +71,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [3]http://www.wireshark.org/download.html.
+   [4]http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [4]download page on the Wireshark web site.
+   found on the [5]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -89,73 +91,74 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([5]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([6]Bug 1419)
 
-   The BER dissector might infinitely loop. ([6]Bug 1516)
+   The BER dissector might infinitely loop. ([7]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
    (ws-buglink:1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([7]Bug 2234)
+   ([8]Bug 2234)
 
    The 64-bit Windows installer does not support Kerberos decryption.
-   ([8]Win64 development page)
+   ([9]Win64 development page)
 
-   Resolving ([9]Bug 9044) reopens ([10]Bug 3528) so that Wireshark no
+   Resolving ([10]Bug 9044) reopens ([11]Bug 3528) so that Wireshark no
    longer automatically decodes gzip data when following a TCP stream.
 
-   Application crash when changing real-time option. ([11]Bug 4035)
+   Application crash when changing real-time option. ([12]Bug 4035)
 
-   Hex pane display issue after startup. ([12]Bug 4056)
+   Hex pane display issue after startup. ([13]Bug 4056)
 
-   Packet list rows are oversized. ([13]Bug 4357)
+   Packet list rows are oversized. ([14]Bug 4357)
 
-   Summary pane selected frame highlighting not maintained. ([14]Bug 4445)
+   Summary pane selected frame highlighting not maintained. ([15]Bug 4445)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([15]Bug 4985)
+   ([16]Bug 4985)
 
-   The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 ([16]Bug
+   The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 ([17]Bug
    9242)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [17]Wireshark's Q&A site and on the
+   Community support is available on [18]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [18]the web site.
+   all of Wireshark's mailing lists can be found on [19]the web site.
 
    Official Wireshark training and certification are available from
-   [19]Wireshark University.
+   [20]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [20]Wireshark web site.
+   A complete FAQ is available on the [21]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-10-28 22:19:21 CET
+   Last updated 2013-11-07 03:11:51 CET
 
 References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9200
-   3. http://www.wireshark.org/download.html
-   4. http://www.wireshark.org/download.html#thirdparty
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   8. https://wiki.wireshark.org/Development/Win64
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9242
-  17. http://ask.wireshark.org/
-  18. http://www.wireshark.org/lists/
-  19. http://www.wiresharktraining.com/
-  20. http://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8808
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9200
+   4. http://www.wireshark.org/download.html
+   5. http://www.wireshark.org/download.html#thirdparty
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   9. https://wiki.wireshark.org/Development/Win64
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9242
+  18. http://ask.wireshark.org/
+  19. http://www.wireshark.org/lists/
+  20. http://www.wiresharktraining.com/
+  21. http://www.wireshark.org/faq.html
