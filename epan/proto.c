@@ -29,6 +29,8 @@
 #include <ctype.h>
 #include <glib.h>
 #include <float.h>
+
+#include <wsutil/bits_ctz.h>
 #include <wsutil/swar.h>
 
 #include "packet.h"
@@ -5603,21 +5605,7 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 int
 hfinfo_bitshift(const header_field_info *hfinfo)
 {
-	const guint32 bitmask = hfinfo->bitmask;
-
-#if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
-	g_assert(bitmask != 0);
-
-	return __builtin_ctz(bitmask);
-#else
-	/* From http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup */
-	static const int table[32] = {
-		0,   1, 28,  2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17,  4, 8,
-		31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18,  6, 11,  5, 10, 9
-	};
-
-	return table[((guint32)((bitmask & -(gint32)bitmask) * 0x077CB531U)) >> 27];
-#endif
+	return ws_ctz(hfinfo->bitmask);
 }
 
 int

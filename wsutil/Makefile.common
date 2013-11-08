@@ -62,6 +62,7 @@ LIBWSUTIL_SRC = 	\
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
 	aes.h		\
+	bits_ctz.h	\
 	crash_info.h	\
 	crc6.h		\
 	crc7.h		\
