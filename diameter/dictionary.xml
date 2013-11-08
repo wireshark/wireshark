@@ -5765,7 +5765,26 @@
 			<type type-name="Time"/>
 		</avp>
 		<avp name="Diagnostics" code="2039" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Time"/>
+			<type type-name="Enumerated"/>
+			<enum name="UNSPECIFIED" code="0"/>
+			<enum name="SESSION_TIMEOUT" code="1"/>
+			<enum name="RESOURCE_LIMITATION" code="2"/>
+			<enum name="ADMIN_DISCONNECT" code="3"/>
+			<enum name="IDLE_TIMEOUT" code="4"/>
+			<enum name="PCRF_UNREACHABLE" code="5"/>
+			<enum name="AAA_UNREACHABLE" code="6"/>
+			<enum name="AAA_INITIATED_SESSION_TERMINATION" code="7"/>
+			<enum name="REAUTHENTICATION_FAILED" code="8"/>
+			<enum name="PCRF_INITIATED_SESSION_TERMINATION" code="9"/>
+			<enum name="PCRF_INITIATED_FLOW_TERMINATION" code="10"/>
+			<enum name="PCRF_ACCOUNTING_PARAMETERS_CHANGED" code="11"/>
+			<enum name="PMIP_INITIATED_SESSION_TERMINATION" code="12"/>
+			<enum name="PPP_INITIATED_SESSION_TERMINATION" code="13"/>
+			<enum name="GTP_INITIATED_SESSION_TERMINATION" code="14"/>
+			<enum name="PMIP_REVOCATION" code="15"/>
+			<enum name="HANDOVER_ERROR" code="16"/>
+			<enum name="PMIP_LIFETIME_EXPIRED" code="17"/>
+			<enum name="REAUTHORIZATION_FAILED" code="18"/>
 		</avp>
 		<avp name="Service-Data-Container" code="2040" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -5946,8 +5965,8 @@
 			<enum name="Roaming-Default" code="4"/>
 			<enum name="Visiting-Default" code="5"/>
 		</avp>
-		<avp name="SGW-Address" code="2067" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+		<avp name="SGW-Address" code="2067" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Dynamic-Address-Flag-Extension" code="2068" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -6354,12 +6373,25 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Policy-Counter-Status-Report" code="2903" mandatory="must" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
+			<grouped>
+				<gavp name="Policy-Counter-Identifier"/>
+				<gavp name="Policy-Counter-Status"/>
+				<gavp name="Pending-Policy-Counter-Information"/>
+			</grouped>
 		</avp>
 		<avp name="SL-Request-Type" code="2904" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="INITIAL_REQUEST"        code="0"/>
 			<enum name="INTERMEDIATE_REQUEST"   code="1"/>
+		</avp>
+		<avp name="Pending-Policy-Counter-Information" code="2905" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Policy-Counter-Status"/>
+				<gavp name="Pending-Policy-Counter-Change-Time"/>
+			</grouped>
+		</avp>
+		<avp name="Pending-Policy-Counter-Change-Time" code="2906" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
 		</avp>
 
 		<avp name="Device-Action" code="3001" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
