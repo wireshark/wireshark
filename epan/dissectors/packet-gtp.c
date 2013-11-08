@@ -4502,7 +4502,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         if(length > 13 ||((type == 2) && (length == 13))) {
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
             proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
-        }
+        } 
+		
 
         if(length > 14) {
             /* Octet 15 */
@@ -6897,7 +6898,7 @@ decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo 
 static int
 decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
-    guint16     length;
+    guint16     length, rfsp;
     proto_tree *ext_tree;
     proto_item *te;
 
@@ -6910,7 +6911,8 @@ decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+    rfsp = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(ext_tree, tvb, offset, length, "RFSP Index: %u", rfsp+1);
 
     return 3 + length;
 }

@@ -376,7 +376,8 @@ static int hf_gtpv2_mbms_ip_mc_src_addrv4 = -1;
 static int hf_gtpv2_mbms_ip_mc_src_addrv6 = -1;
 static int hf_gtpv2_mbms_hc_indicator = -1;
 static int hf_gtpv2_mbms_dist_indication = -1;
-static int hf_gtpv2_rfsp_index = -1;
+static int hf_gtpv2_subscriber_rfsp = -1;
+static int hf_gtpv2_rfsp_inuse = -1;
 static int hf_gtpv2_mbms_service_id = -1;
 static int hf_gtpv2_add_flags_for_srvcc_ics = -1;
 static int hf_gtpv2_vsrvcc_flag = -1;
@@ -4681,8 +4682,11 @@ dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_gtpv2_rfsp_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-
+    if(instance == 0){
+		proto_tree_add_item(tree, hf_gtpv2_subscriber_rfsp, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }else if(instance == 1){
+    		proto_tree_add_item(tree, hf_gtpv2_rfsp_inuse, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
 }
 
 /* 8.78 CSG ID */
@@ -6815,8 +6819,13 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_dist_indication_vals), 0x03,
           NULL, HFILL}
         },
-        { &hf_gtpv2_rfsp_index,
-          {"RFSP Index", "gtpv2.rfsp_index",
+        { &hf_gtpv2_subscriber_rfsp,
+          {"Subscribed RFSP Index", "gtpv2.subscriber_rfsp",
+          FT_INT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_rfsp_inuse,
+          {"RFSP Index in Use", "gtpv2.rfsp_inuse",
           FT_INT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
