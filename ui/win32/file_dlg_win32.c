@@ -44,7 +44,6 @@
 #include "wsutil/unicode-utils.h"
 
 #include "wiretap/merge.h"
-#include "wiretap/wtap.h"
 
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
