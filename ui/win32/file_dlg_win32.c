@@ -369,8 +369,9 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     else
         required_comment_types = 0; /* none of them */
 
-    savable_file_types = wtap_get_savable_file_types_subtypes(cf->cd_t, cf->linktypes,
-                                                     required_comment_types);
+    savable_file_types = wtap_get_savable_file_types_subtypes(cf->cd_t,
+                                                              cf->linktypes,
+                                                              required_comment_types);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
     g_compressed = FALSE;
@@ -445,7 +446,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     }
 
     savable_file_types = wtap_get_savable_file_types_subtypes(cf->cd_t,
-                                                     cf->linktypes, 0);
+                                                              cf->linktypes, 0);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
