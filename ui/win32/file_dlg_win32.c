@@ -1357,11 +1357,11 @@ append_file_extension_type(GArray *sa, int et)
 {
     GString* pattern_str = g_string_new("");
     GString* description_str = g_string_new("");
-    const struct file_extension_info *extension_info;
     gchar sep;
     GSList *extensions_list, *extension;
     TCHAR *str16;
     guint16 zero = 0;
+    int et;
 
     /* Construct the list of patterns. */
     extensions_list = wtap_get_file_extension_type_extensions(et);
