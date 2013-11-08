@@ -653,9 +653,9 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* compressed or uncompressed Sniffer file? */
 	if (version.format != 1) {
-		wth->file_type = WTAP_FILE_NGSNIFFER_COMPRESSED;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_COMPRESSED;
 	} else {
-		wth->file_type = WTAP_FILE_NGSNIFFER_UNCOMPRESSED;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED;
 	}
 
 	/* Set encap type before reading header records because the
@@ -2487,7 +2487,7 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 		comp_stream = &ngsniffer->seq;
 	}
 
-	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
 		errno = WTAP_ERR_CANT_READ;
 		copied_bytes = file_read(buffer, copybytes, infile);
 		if ((unsigned int) copied_bytes != copybytes)
@@ -2655,7 +2655,7 @@ ng_file_skip_seq(wtap *wth, gint64 delta, int *err, gchar **err_info)
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
-	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
 		ngsniffer->seq.uncomp_offset += delta;
 		return file_skip(wth->fh, delta, err);
 	}
@@ -2700,7 +2700,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
-	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
 		if (file_seek(wth->random_fh, offset, SEEK_SET, err) == -1)
 			return FALSE;
 		return TRUE;

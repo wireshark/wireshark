@@ -248,7 +248,7 @@ int vms_open(wtap *wth, int *err, gchar **err_info)
     }
 
     wth->file_encap = WTAP_ENCAP_RAW_IP;
-    wth->file_type = WTAP_FILE_VMS;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VMS;
     wth->snapshot_length = 0; /* not known */
     wth->subtype_read = vms_read;
     wth->subtype_seek_read = vms_seek_read;

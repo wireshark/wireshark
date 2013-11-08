@@ -678,9 +678,9 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = WTAP_ENCAP_IXVERIWAVE;
 
     if (fpgaVer == S2_W_FPGA || fpgaVer == S1_W_FPGA || fpgaVer == S3_W_FPGA)
-        wth->file_type = WTAP_FILE_VWR_80211;
+        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_80211;
     else if (fpgaVer == vVW510012_E_FPGA || fpgaVer == vVW510024_E_FPGA)
-        wth->file_type = WTAP_FILE_VWR_ETH;
+        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_ETH;
 
     return 1;
 }

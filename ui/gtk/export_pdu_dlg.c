@@ -180,7 +180,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
-    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE, FALSE, shb_hdr, idb_inf, &err);
+    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE, FALSE, shb_hdr, idb_inf, &err);
     if (exp_pdu_tap_data->wdh == NULL) {
         open_failure_alert_box(capfile_name, err, TRUE);
         goto end;

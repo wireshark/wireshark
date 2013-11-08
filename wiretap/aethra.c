@@ -152,7 +152,7 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
-	wth->file_type = WTAP_FILE_AETHRA;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_AETHRA;
 	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
 	wth->priv = (void *)aethra;
 	wth->subtype_read = aethra_read;

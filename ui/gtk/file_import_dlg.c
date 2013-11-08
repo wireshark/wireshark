@@ -516,7 +516,7 @@ file_import_open(text_import_info_t *info)
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
-    info->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_PCAPNG, info->encapsulation, info->max_frame_length, FALSE, shb_hdr, idb_inf, &err);
+    info->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, info->encapsulation, info->max_frame_length, FALSE, shb_hdr, idb_inf, &err);
     if (info->wdh == NULL) {
         open_failure_alert_box(capfile_name, err, TRUE);
         fclose(info->import_text_file);

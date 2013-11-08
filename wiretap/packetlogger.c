@@ -89,7 +89,7 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = packetlogger_read;
 	wth->subtype_seek_read = packetlogger_seek_read;
 
-	wth->file_type = WTAP_FILE_PACKETLOGGER;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER;
 	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 

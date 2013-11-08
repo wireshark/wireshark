@@ -162,7 +162,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   /* type */
-  g_strlcpy(string_buff, wtap_file_type_string(wtap_file_type(wth)), PREVIEW_STR_MAX);
+  g_strlcpy(string_buff, wtap_file_type_subtype_string(wtap_file_type_subtype(wth)), PREVIEW_STR_MAX);
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
@@ -1483,7 +1483,7 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
                    gboolean must_support_all_comments)
 {
   guint32 required_comment_types;
-  GArray *savable_file_types;
+  GArray *savable_file_types_subtypes;
   guint   i;
   int     ft;
   int     default_ft = -1;
@@ -1495,22 +1495,23 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
     required_comment_types = 0; /* none of them */
 
   /* What types of file can we save this file as? */
-  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
-                                                   required_comment_types);
+  savable_file_types_subtypes = wtap_get_savable_file_types_subtypes(cf->cd_t,
+                                                                     cf->linktypes,
+                                                                     required_comment_types);
 
-  if (savable_file_types != NULL) {
+  if (savable_file_types_subtypes != NULL) {
     /* OK, we have at least one file type we can save this file as.
        (If we didn't, we shouldn't have gotten here in the first
        place.)  Add them all to the combo box.  */
-    for (i = 0; i < savable_file_types->len; i++) {
-      ft = g_array_index(savable_file_types, int, i);
+    for (i = 0; i < savable_file_types_subtypes->len; i++) {
+      ft = g_array_index(savable_file_types_subtypes, int, i);
       if (default_ft == -1)
         default_ft = ft; /* first file type is the default */
       ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
-                                           wtap_file_type_string(ft),
+                                           wtap_file_type_subtype_string(ft),
                                            GINT_TO_POINTER(ft));
     }
-    g_array_free(savable_file_types, TRUE);
+    g_array_free(savable_file_types_subtypes, TRUE);
   }
 
   return default_ft;

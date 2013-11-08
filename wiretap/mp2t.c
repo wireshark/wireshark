@@ -229,7 +229,7 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
         return -1;
     }
 
-    wth->file_type = WTAP_FILE_MPEG_2_TS;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG_2_TS;
     wth->file_encap = WTAP_ENCAP_MPEG_2_TS;
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
     wth->subtype_read = mp2t_read;

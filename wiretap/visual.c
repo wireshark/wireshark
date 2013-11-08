@@ -260,7 +260,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Fill in the wiretap struct with data from the file header */
-    wth->file_type = WTAP_FILE_VISUAL_NETWORKS;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VISUAL_NETWORKS;
     wth->file_encap = encap;
     wth->snapshot_length = pletohs(&vfile_hdr.max_length);
 

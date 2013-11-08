@@ -265,7 +265,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
   }
 
   /* This is an ERF file */
-  wth->file_type = WTAP_FILE_ERF;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ERF;
   wth->snapshot_length = 0;     /* not available in header, only in frame */
 
   /*
@@ -702,8 +702,8 @@ int erf_dump_open(wtap_dumper *wdh, int *err)
   wdh->subtype_write = erf_dump;
   wdh->subtype_close = NULL;
 
-  switch(wdh->file_type){
-    case WTAP_FILE_ERF:
+  switch(wdh->file_type_subtype){
+    case WTAP_FILE_TYPE_SUBTYPE_ERF:
       wdh->tsprecision = WTAP_FILE_TSPREC_NSEC;
       break;
     default:

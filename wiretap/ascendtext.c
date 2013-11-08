@@ -182,7 +182,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
     return 0;
   }
 
-  wth->file_type = WTAP_FILE_ASCEND;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
 
   switch(wth->phdr.pseudo_header.ascend.type) {
     case ASCEND_PFX_ISDN_X:

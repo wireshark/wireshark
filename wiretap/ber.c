@@ -176,7 +176,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wth->file_type = WTAP_FILE_BER;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BER;
   wth->file_encap = WTAP_ENCAP_BER;
   wth->snapshot_length = 0;
 

@@ -334,7 +334,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 	case 5:
 	case 6:
-		wth->file_type = WTAP_FILE_PEEKCLASSIC_V56;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56;
 		/*
 		 * XXX - can we get the file encapsulation from the
 		 * header in the same way we do for V7 files?
@@ -345,7 +345,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		break;
 
 	case 7:
-		wth->file_type = WTAP_FILE_PEEKCLASSIC_V7;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V7;
 		wth->file_encap = file_encap;
 		wth->subtype_read = peekclassic_read_v7;
 		wth->subtype_seek_read = peekclassic_seek_read_v7;

@@ -165,13 +165,13 @@ list_capture_types(void) {
   struct string_elem *captypes;
   GSList *list = NULL;
 
-  captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES);
+  captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES_SUBTYPES);
 
   fprintf(stderr, "mergecap: The available capture file types for the \"-F\" flag are:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+  for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
     if (wtap_dump_can_open(i)) {
-      captypes[i].sstr = wtap_file_type_short_string(i);
-      captypes[i].lstr = wtap_file_type_string(i);
+      captypes[i].sstr = wtap_file_type_subtype_short_string(i);
+      captypes[i].lstr = wtap_file_type_subtype_string(i);
       list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
   }
@@ -209,9 +209,9 @@ main(int argc, char *argv[])
   int          in_file_count = 0;
   guint        snaplen = 0;
 #ifdef PCAP_NG_DEFAULT
-  int          file_type = WTAP_FILE_PCAPNG;    /* default to pcap format */
+  int          file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;    /* default to pcap format */
 #else
-  int          file_type = WTAP_FILE_PCAP;      /* default to pcapng format */
+  int          file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;      /* default to pcapng format */
 #endif
   int          frame_type = -2;
   int          out_fd;
@@ -240,7 +240,7 @@ main(int argc, char *argv[])
       break;
 
     case 'F':
-      file_type = wtap_short_string_to_file_type(optarg);
+      file_type = wtap_short_string_to_file_type_subtype(optarg);
       if (file_type < 0) {
         fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
                 optarg);
@@ -326,7 +326,7 @@ main(int argc, char *argv[])
   if (verbose) {
     for (i = 0; i < in_file_count; i++)
       fprintf(stderr, "mergecap: %s is type %s.\n", argv[optind + i],
-              wtap_file_type_string(wtap_file_type(in_files[i].wth)));
+              wtap_file_type_subtype_string(wtap_file_type_subtype(in_files[i].wth)));
   }
 
   if (snaplen == 0) {
@@ -389,7 +389,7 @@ main(int argc, char *argv[])
   }
 
   /* prepare the outfile */
-  if(file_type == WTAP_FILE_PCAPNG ){
+  if(file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG ){
     wtapng_section_t *shb_hdr;
     GString *comment_gstr;
 

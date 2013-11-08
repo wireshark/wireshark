@@ -182,7 +182,7 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
-	wth->file_type = WTAP_FILE_NETSCREEN;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETSCREEN;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = netscreen_read;
 	wth->subtype_seek_read = netscreen_seek_read;

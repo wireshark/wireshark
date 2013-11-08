@@ -268,7 +268,7 @@ good_magic:
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
-	wth->file_type = WTAP_FILE_MPEG;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG;
 	wth->file_encap = WTAP_ENCAP_MPEG;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 	wth->subtype_read = mpeg_read;

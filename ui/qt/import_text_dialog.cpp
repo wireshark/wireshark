@@ -122,7 +122,7 @@ void ImportTextDialog::convertTextFile() {
     import_file_fd = create_tempfile(&tmpname, "import");
     capfile_name_.append(tmpname);
 
-    import_info_.wdh = wtap_dump_fdopen(import_file_fd, WTAP_FILE_PCAP, import_info_.encapsulation, import_info_.max_frame_length, FALSE, &err);
+    import_info_.wdh = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAP, import_info_.encapsulation, import_info_.max_frame_length, FALSE, &err);
     qDebug() << capfile_name_ << ":" << import_info_.wdh << import_info_.encapsulation << import_info_.max_frame_length;
     if (import_info_.wdh == NULL) {
         open_failure_alert_box(capfile_name_.toUtf8().constData(), err, TRUE);

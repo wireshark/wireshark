@@ -634,19 +634,19 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
     nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
     page_size = GET_READ_PAGE_SIZE(file_size);
 
-    switch ((wth->file_type = nspm_signature_version(wth, nstrace_buf, page_size)))
+    switch ((wth->file_type_subtype = nspm_signature_version(wth, nstrace_buf, page_size)))
     {
-    case WTAP_FILE_NETSCALER_1_0:
+    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
         wth->file_encap = WTAP_ENCAP_NSTRACE_1_0;
         break;
 
-    case WTAP_FILE_NETSCALER_2_0:
+    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0:
         wth->file_encap = WTAP_ENCAP_NSTRACE_2_0;
         break;
 
     default:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("nstrace: file type %d unsupported", wth->file_type);
+        *err_info = g_strdup_printf("nstrace: file type %d unsupported", wth->file_type_subtype);
         g_free(nstrace_buf);
         return 0;
     }
@@ -668,14 +668,14 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         return 0;
     }
 
-    switch (wth->file_type)
+    switch (wth->file_type_subtype)
     {
-    case WTAP_FILE_NETSCALER_1_0:
+    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
         wth->subtype_read = nstrace_read_v10;
         wth->subtype_seek_read = nstrace_seek_read_v10;
         break;
 
-    case WTAP_FILE_NETSCALER_2_0:
+    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0:
         wth->subtype_read = nstrace_read_v20;
         wth->subtype_seek_read = nstrace_seek_read_v20;
         break;
@@ -760,7 +760,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                 (pletohs(&sigv10p->nsprRecordSize) <= len) &&
                 ((gint32)sizeof(NSPR_SIGSTR_V10) <= len) &&
                 (!nspm_signature_isv10(sigv10p->sig_Signature)))
-                return WTAP_FILE_NETSCALER_1_0;
+                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0;
 #undef    sigv10p
 
 #define sigv20p    ((nspr_signature_v20_t*)dp)
@@ -768,7 +768,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                 (sigv20p->sig_RecordSize <= len) &&
                 ((gint32)sizeof(NSPR_SIGSTR_V20) <= len) &&
                 (!nspm_signature_isv20(sigv20p->sig_Signature)))
-                return WTAP_FILE_NETSCALER_2_0;
+                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0;
 #undef    sigv20p
         }
     }
@@ -835,9 +835,9 @@ nstrace_set_start_time_ver(20)
 */
 static gboolean nstrace_set_start_time(wtap *wth)
 {
-    if (wth->file_type == WTAP_FILE_NETSCALER_1_0)
+    if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         return nstrace_set_start_time_v10(wth);
-    else if (wth->file_type == WTAP_FILE_NETSCALER_2_0)
+    else if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         return nstrace_set_start_time_v20(wth);
 
     return FALSE;
@@ -1346,7 +1346,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
-    if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
+    if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
     {
         guint16 val16b;
         nspr_signature_v10_t sig10;
@@ -1367,7 +1367,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Move forward the page offset */
         nstrace->page_offset += (guint16) nspr_signature_v10_s;
 
-    } else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
+    } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
     {
         nspr_signature_v20_t sig20;
 
@@ -1400,7 +1400,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
     guint64 nsg_creltime;
 
-    if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
+    if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
     {
         guint16 val16;
         guint32 reltime;
@@ -1427,7 +1427,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         /* Move forward the page offset */
         nstrace->page_offset += nspr_abstime_v10_s;
 
-    } else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
+    } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
     {
         guint32 reltime;
         guint64 abstime;
@@ -1470,12 +1470,12 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (nstrace->page_offset == 0)
     {
         /* Add the signature record and abs time record */
-        if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
+        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, phdr, pd, err))
                 return FALSE;
-        } else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
+        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, phdr, pd, err))
@@ -1491,7 +1491,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     {
     case NSPR_HEADER_VERSION100:
 
-        if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
+        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {
@@ -1511,7 +1511,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                 return FALSE;
 
             nstrace->page_offset += (guint16) phdr->caplen;
-        } else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
+        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
             *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
             return FALSE;
@@ -1526,11 +1526,11 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     case NSPR_HEADER_VERSION204:
     case NSPR_HEADER_VERSION205:
     case NSPR_HEADER_VERSION206:
-        if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
+        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
             *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
             return FALSE;
-        } else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
+        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {

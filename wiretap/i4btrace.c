@@ -97,7 +97,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Get capture start time */
 
-	wth->file_type = WTAP_FILE_I4BTRACE;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_I4BTRACE;
 	i4btrace = (i4btrace_t *)g_malloc(sizeof(i4btrace_t));
 	wth->priv = (void *)i4btrace;
 	wth->subtype_read = i4btrace_read;

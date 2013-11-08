@@ -142,7 +142,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	wth->file_type = WTAP_FILE_EYESDN;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_EYESDN;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = eyesdn_read;
 	wth->subtype_seek_read = eyesdn_seek_read;

@@ -148,7 +148,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-	wth->file_type = WTAP_FILE_BTSNOOP;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
 	return 1;
 }
 
@@ -381,9 +381,9 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
     wdh->subtype_close = NULL;
 
     /* Write the file header. */
-    switch (wdh->file_type) {
+    switch (wdh->file_type_subtype) {
 
-    case WTAP_FILE_BTSNOOP:
+    case WTAP_FILE_TYPE_SUBTYPE_BTSNOOP:
         wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
         break;
 
@@ -423,9 +423,9 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
     wdh->subtype_close = NULL;
 
     /* Write the file header. */
-    switch (wdh->file_type) {
+    switch (wdh->file_type_subtype) {
 
-    case WTAP_FILE_BTSNOOP:
+    case WTAP_FILE_TYPE_SUBTYPE_BTSNOOP:
         wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
         break;
 

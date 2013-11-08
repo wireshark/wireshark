@@ -183,7 +183,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a 5views capture file */
-	wth->file_type = WTAP_FILE_5VIEWS;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_5VIEWS;
 	wth->subtype_read = _5views_read;
 	wth->subtype_seek_read = _5views_seek_read;
 	wth->file_encap = encap;

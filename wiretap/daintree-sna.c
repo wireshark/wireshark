@@ -127,7 +127,7 @@ int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = daintree_sna_seek_read;
 
 	/* set up for file type */
-	wth->file_type = WTAP_FILE_DAINTREE_SNA;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DAINTREE_SNA;
 	wth->file_encap = WTAP_ENCAP_IEEE802_15_4_NOFCS;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 	wth->snapshot_length = 0; /* not available in header */

@@ -134,7 +134,7 @@ QString SummaryDialog::SummaryToString()
     out << "\t" << tr("Name:\t\t%1\n").arg(summary_.filename);
     out << "\t" << tr("Length:\t\t%1 bytes\n").arg(summary_.file_length);
     out << "\t" << tr("Format:\t\t%1%2\n")
-           .arg(wtap_file_type_string(summary_.file_type))
+           .arg(wtap_file_type_subtype_string(summary_.file_type))
            .arg(summary_.iscompressed? tr(" (gzip compressed)") : "");
     out << "\t" << tr("Encapsulation:\t\t%1\n").arg(ui->lEncapsulation->text());
 
@@ -281,7 +281,7 @@ void SummaryDialog::UpdateValues()
     ui->lLength->setText(QString(tr("%1 bytes (%2 Mbytes)")).arg((ulong)summary_.file_length).arg((float)summary_.file_length/1048576));
 
     /* format */
-    ui->lFormat->setText(QString("%1%2").arg(wtap_file_type_string(summary_.file_type), summary_.iscompressed? tr(" (gzip compressed)") : ""));
+    ui->lFormat->setText(QString("%1%2").arg(wtap_file_type_subtype_string(summary_.file_type), summary_.iscompressed? tr(" (gzip compressed)") : ""));
 
     /* encapsulation */
     if (summary_.file_encap_type == WTAP_ENCAP_PER_PACKET)

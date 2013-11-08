@@ -207,7 +207,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created */
     Dumper d;
     const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
-    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_PCAP);
+    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap  = luaL_optint(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
     const char* filename;
@@ -223,12 +223,12 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
         switch (err) {
         case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
-                       wtap_file_type_string(filetype));
+                       wtap_file_type_subtype_string(filetype));
             break;
 
         case WTAP_ERR_UNSUPPORTED_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
-                       wtap_file_type_string(filetype),
+                       wtap_file_type_subtype_string(filetype),
                        wtap_encap_short_string(encap));
             break;
 
@@ -338,7 +338,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
     Dumper d;
     const char* fname = luaL_checkstring(L,1);
-    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_PCAP);
+    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap;
     int err = 0;
     const char* filename;
@@ -358,12 +358,12 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
         switch (err) {
         case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
-                       wtap_file_type_string(filetype));
+                       wtap_file_type_subtype_string(filetype));
             break;
 
         case WTAP_ERR_UNSUPPORTED_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
-                       wtap_file_type_string(filetype),
+                       wtap_file_type_subtype_string(filetype),
                        wtap_encap_short_string(encap));
             break;
 

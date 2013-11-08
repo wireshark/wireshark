@@ -334,7 +334,7 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
     QString filter;
     GSList *extensions_list;
 
-    filter = wtap_file_type_string(ft);
+    filter = wtap_file_type_subtype_string(ft);
 
     if (!extension_globs) {
         return filter;
@@ -672,7 +672,7 @@ int CaptureFileDialog::merge(QString &file_name) {
 QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_comments) {
     QStringList filters;
     guint32 required_comment_types;
-    GArray *savable_file_types;
+    GArray *savable_file_types_subtypes;
     guint i;
 
     type_hash_.clear();
@@ -684,25 +684,25 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
         required_comment_types = 0; /* none of them */
 
   /* What types of file can we save this file as? */
-    savable_file_types = wtap_get_savable_file_types(cap_file_->cd_t,
-                                                     cap_file_->linktypes,
-                                                     required_comment_types);
+    savable_file_types_subtypes = wtap_get_savable_file_types_subtypes(cap_file_->cd_t,
+                                                                       cap_file_->linktypes,
+                                                                       required_comment_types);
 
-    if (savable_file_types != NULL) {
+    if (savable_file_types_subtypes != NULL) {
         QString file_type;
         int ft;
         /* OK, we have at least one file type we can save this file as.
            (If we didn't, we shouldn't have gotten here in the first
            place.)  Add them all to the combo box.  */
-        for (i = 0; i < savable_file_types->len; i++) {
-            ft = g_array_index(savable_file_types, int, i);
+        for (i = 0; i < savable_file_types_subtypes->len; i++) {
+            ft = g_array_index(savable_file_types_subtypes, int, i);
             if (default_ft_ < 1)
                 default_ft_ = ft; /* first file type is the default */
             file_type = fileType(ft);
             filters << file_type;
             type_hash_[file_type] = ft;
         }
-        g_array_free(savable_file_types, TRUE);
+        g_array_free(savable_file_types_subtypes, TRUE);
     }
 
     return filters;
@@ -777,7 +777,7 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     // Format
-    preview_format_.setText(QString::fromUtf8(wtap_file_type_string(wtap_file_type(wth))));
+    preview_format_.setText(QString::fromUtf8(wtap_file_type_subtype_string(wtap_file_type_subtype(wth))));
 
     // Size
     preview_size_.setText(QString(tr("%1 bytes")).arg(wtap_file_size(wth, &err)));

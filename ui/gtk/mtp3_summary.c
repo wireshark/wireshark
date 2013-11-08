@@ -316,7 +316,7 @@ mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
     add_string_to_box(string_buff, file_box);
 
     /* format */
-    file_type = wtap_file_type_string(summary.file_type);
+    file_type = wtap_file_type_subtype_string(summary.file_type);
     g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", (file_type ? file_type : "N/A"));
     add_string_to_box(string_buff, file_box);
 

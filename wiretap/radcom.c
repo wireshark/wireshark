@@ -163,7 +163,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a radcom file */
-	wth->file_type = WTAP_FILE_RADCOM;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_RADCOM;
 	wth->subtype_read = radcom_read;
 	wth->subtype_seek_read = radcom_seek_read;
 	wth->snapshot_length = 0; /* not available in header, only in frame */

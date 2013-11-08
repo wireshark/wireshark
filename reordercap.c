@@ -226,13 +226,13 @@ int main(int argc, char *argv[])
         }
         exit(1);
     }
-    DEBUG_PRINT("file_type is %u\n", wtap_file_type(wth));
+    DEBUG_PRINT("file_type_subtype is %u\n", wtap_file_type_subtype(wth));
 
     shb_hdr = wtap_file_get_shb_info(wth);
     idb_inf = wtap_file_get_idb_info(wth);
 
     /* Open outfile (same filetype/encap as input file) */
-    pdh = wtap_dump_open_ng(outfile, wtap_file_type(wth), wtap_file_encap(wth),
+    pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
                             65535, FALSE, shb_hdr, idb_inf, &err);
     g_free(idb_inf);
     if (pdh == NULL) {

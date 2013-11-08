@@ -376,7 +376,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   cf->computed_elapsed = 0;
 
-  cf->cd_t        = wtap_file_type(cf->wth);
+  cf->cd_t        = wtap_file_type_subtype(cf->wth);
   cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
   cf->count     = 0;
   cf->packet_comment_count = 0;
@@ -409,7 +409,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   packet_list_queue_draw();
   cf_callback_invoke(cf_cb_file_opened, cf);
 
-  if (cf->cd_t == WTAP_FILE_BER) {
+  if (cf->cd_t == WTAP_FILE_TYPE_SUBTYPE_BER) {
     /* tell the BER dissector the file name */
     ber_set_filename(cf->filename);
   }
@@ -1349,7 +1349,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
    * We need something similar when merging pcapng files possibly with an option to say
    * the same interface(s) used in all in files. SHBs comments should be merged together.
    */
-  if ((selected_frame_type == WTAP_ENCAP_PER_PACKET)&&(file_type == WTAP_FILE_PCAP)) {
+  if ((selected_frame_type == WTAP_ENCAP_PER_PACKET)&&(file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP)) {
     /* Write output in pcapng format */
     wtapng_section_t            *shb_hdr;
     wtapng_iface_descriptions_t *idb_inf, *idb_inf_merge_file;
@@ -1362,7 +1362,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     comment_gstr = g_string_new("");
     g_string_append_printf(comment_gstr, "%s \n",shb_hdr->opt_comment);
     g_string_append_printf(comment_gstr, "File created by merging: \n");
-    file_type = WTAP_FILE_PCAPNG;
+    file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
 
     for (i = 0; i < in_file_count; i++) {
         g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
@@ -1523,9 +1523,10 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       break;
     }
 
-    /* If we have WTAP_ENCAP_PER_PACKETend the infiles are of type WTAP_FILE_PCAP
-     * we need to set the interface id in the paket header = the interface index we used
-     * in the IDBs interface description for this file(encapsulation type).
+    /* If we have WTAP_ENCAP_PER_PACKET and the infiles are of type
+     * WTAP_FILE_TYPE_SUBTYPE_PCAP, we need to set the interface id
+     * in the paket header = the interface index we used in the IDBs
+     * interface description for this file(encapsulation type).
      */
     if (fake_interface_ids) {
       struct wtap_pkthdr *phdr;
@@ -1623,7 +1624,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         simple_error_message_box(
                       "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.",
                       in_file->packet_num, display_basename,
-                      wtap_file_type_string(file_type));
+                      wtap_file_type_subtype_string(file_type));
         g_free(display_basename);
         break;
 
@@ -4144,7 +4145,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
          */
         simple_error_message_box(
                       "Frame %u has a network type that can't be saved in a \"%s\" file.",
-                      fdata->num, wtap_file_type_string(args->file_type));
+                      fdata->num, wtap_file_type_subtype_string(args->file_type));
         break;
 
       default:
@@ -4322,7 +4323,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t        = wtap_file_type(cf->wth);
+  cf->cd_t        = wtap_file_type_subtype(cf->wth);
   cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
 
   cf->snap      = wtap_snapshot_length(cf->wth);
@@ -4986,7 +4987,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
       simple_error_message_box(
             "The file \"%s\" is a pipe, and %s capture files can't be "
             "written to a pipe.",
-            display_basename, wtap_file_type_string(file_type));
+            display_basename, wtap_file_type_subtype_string(file_type));
       break;
 
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:

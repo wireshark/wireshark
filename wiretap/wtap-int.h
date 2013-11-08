@@ -52,7 +52,7 @@ typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
 struct wtap {
     FILE_T                      fh;
     FILE_T                      random_fh;              /**< Secondary FILE_T for random access */
-    int                         file_type;
+    int                         file_type_subtype;
     guint                       snapshot_length;
     struct Buffer               *frame_buffer;
     struct wtap_pkthdr          phdr;
@@ -93,7 +93,7 @@ typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 struct wtap_dumper {
     WFILE_T                 fh;
-    int                     file_type;
+    int                     file_type_subtype;
     int                     snaplen;
     int                     encap;
     gboolean                compressed;

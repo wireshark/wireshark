@@ -157,9 +157,9 @@ static struct select_item selectfrm[MAX_SELECTIONS];
 static int max_selected = -1;
 static int keep_em = 0;
 #ifdef PCAP_NG_DEFAULT
-static int out_file_type = WTAP_FILE_PCAPNG; /* default to pcapng   */
+static int out_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
 #else
-static int out_file_type = WTAP_FILE_PCAP;   /* default to pcap     */
+static int out_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;   /* default to pcap     */
 #endif
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
@@ -810,12 +810,12 @@ list_capture_types(void) {
     struct string_elem *captypes;
     GSList *list = NULL;
 
-    captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES);
+    captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES_SUBTYPES);
     fprintf(stderr, "editcap: The available capture file types for the \"-F\" flag are:\n");
-    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
         if (wtap_dump_can_open(i)) {
-            captypes[i].sstr = wtap_file_type_short_string(i);
-            captypes[i].lstr = wtap_file_type_string(i);
+            captypes[i].sstr = wtap_file_type_subtype_short_string(i);
+            captypes[i].lstr = wtap_file_type_subtype_string(i);
             list = g_slist_insert_sorted(list, &captypes[i], string_compare);
         }
     }
@@ -1037,8 +1037,8 @@ main(int argc, char *argv[])
             break;
 
         case 'F':
-            out_file_type = wtap_short_string_to_file_type(optarg);
-            if (out_file_type < 0) {
+            out_file_type_subtype = wtap_short_string_to_file_type_subtype(optarg);
+            if (out_file_type_subtype < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
                         optarg);
                 list_capture_types();
@@ -1176,7 +1176,7 @@ main(int argc, char *argv[])
 
     if (verbose) {
         fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
-                wtap_file_type_string(wtap_file_type(wth)));
+                wtap_file_type_subtype_string(wtap_file_type_subtype(wth)));
     }
 
     shb_hdr = wtap_file_get_shb_info(wth);
@@ -1228,7 +1228,7 @@ main(int argc, char *argv[])
                     shb_hdr->shb_user_appl = appname;
                 }
 
-                pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
+                pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
                                         FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
@@ -1259,7 +1259,7 @@ main(int argc, char *argv[])
                     if (verbose)
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                    pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
+                    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
                                             FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
@@ -1287,7 +1287,7 @@ main(int argc, char *argv[])
                     if (verbose)
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                    pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
+                    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
                                             FALSE /* compressed */, shb_hdr, idb_inf, &err);
                     if (pdh == NULL) {
@@ -1482,7 +1482,7 @@ main(int argc, char *argv[])
                     int real_data_start = 0;
 
                     /* Protect non-protocol data */
-                    if (wtap_file_type(wth) == WTAP_FILE_CATAPULT_DCT2000)
+                    if (wtap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
                         real_data_start = find_dct2000_real_data(buf);
 
                     for (i = real_data_start; i < (int) phdr->caplen; i++) {
@@ -1576,7 +1576,7 @@ main(int argc, char *argv[])
             g_free (filename);
             filename = g_strdup(argv[optind+1]);
 
-            pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
+            pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
                                     FALSE /* compressed */, shb_hdr, idb_inf, &err);
             if (pdh == NULL) {

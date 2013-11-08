@@ -295,7 +295,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 
 	state->offset = 5;
 	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-	wth->file_type = WTAP_FILE_PPPDUMP;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PPPDUMP;
 
 	wth->snapshot_length = PPPD_BUF_SIZE; /* just guessing */
 	wth->subtype_read = pppdump_read;

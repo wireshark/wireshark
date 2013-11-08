@@ -754,7 +754,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
         }
     } while(1);
 
-    wth->file_type = WTAP_FILE_K12;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12;
     wth->file_encap = WTAP_ENCAP_K12;
     wth->snapshot_length = 0;
     wth->subtype_read = k12_read;

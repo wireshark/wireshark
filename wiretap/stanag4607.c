@@ -187,7 +187,7 @@ int stanag4607_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wth->file_type = WTAP_FILE_STANAG_4607;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_STANAG_4607;
   wth->file_encap = WTAP_ENCAP_STANAG_4607;
   wth->snapshot_length = 0; /* not known */
 

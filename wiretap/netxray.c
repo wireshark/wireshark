@@ -408,7 +408,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	if (is_old) {
 		version_major = 0;
 		version_minor = 0;
-		file_type = WTAP_FILE_NETXRAY_OLD;
+		file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD;
 	} else {
 		/* It appears that version 1.1 files (as produced by Windows
 		 * Sniffer Pro 2.0.01) have the time stamp in microseconds,
@@ -420,27 +420,27 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
 			version_major = 1;
 			version_minor = 0;
-			file_type = WTAP_FILE_NETXRAY_1_0;
+			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_0;
 		} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
 			version_major = 1;
 			version_minor = 1;
-			file_type = WTAP_FILE_NETXRAY_1_1;
+			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_1;
 		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0) {
 			version_major = 2;
 			version_minor = 0;
-			file_type = WTAP_FILE_NETXRAY_2_00x;
+			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
 		} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0) {
 			version_major = 2;
 			version_minor = 1;
-			file_type = WTAP_FILE_NETXRAY_2_00x;
+			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
 		} else if (memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
 			version_major = 2;
 			version_minor = 2;
-			file_type = WTAP_FILE_NETXRAY_2_00x;
+			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
 		} else if (memcmp(hdr.version, vers_2_003, sizeof vers_2_003) == 0) {
 			version_major = 2;
 			version_minor = 3;
-			file_type = WTAP_FILE_NETXRAY_2_00x;
+			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
 		} else {
 			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
@@ -491,17 +491,17 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	    + (double)pletohl(&hdr.timehi)*4294967296.0;
 	switch (file_type) {
 
-	case WTAP_FILE_NETXRAY_OLD:
+	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD:
 		ticks_per_sec = 1000.0;
 		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 		break;
 
-	case WTAP_FILE_NETXRAY_1_0:
+	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_0:
 		ticks_per_sec = 1000.0;
 		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 		break;
 
-	case WTAP_FILE_NETXRAY_1_1:
+	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_1:
 		/*
 		 * In version 1.1 files (as produced by Windows Sniffer
 		 * Pro 2.0.01), the time stamp is in microseconds,
@@ -512,7 +512,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
-	case WTAP_FILE_NETXRAY_2_00x:
+	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x:
 		/*
 		 * Get the time stamp units from the appropriate TpS
 		 * table or from the file header.
@@ -773,7 +773,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		file_encap = netxray_encap[network_type];
 
 	/* This is a netxray file */
-	wth->file_type = file_type;
+	wth->file_type_subtype = file_type;
 	netxray = (netxray_t *)g_malloc(sizeof(netxray_t));
 	wth->priv = (void *)netxray;
 	wth->subtype_read = netxray_read;

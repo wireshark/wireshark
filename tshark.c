@@ -221,13 +221,13 @@ list_capture_types(void) {
   struct string_elem *captypes;
   GSList             *list = NULL;
 
-  captypes = g_new(struct string_elem, WTAP_NUM_FILE_TYPES);
+  captypes = g_new(struct string_elem, WTAP_NUM_FILE_TYPES_SUBTYPES);
 
   fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+  for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
     if (wtap_dump_can_open(i)) {
-      captypes[i].sstr = wtap_file_type_short_string(i);
-      captypes[i].lstr = wtap_file_type_string(i);
+      captypes[i].sstr = wtap_file_type_subtype_short_string(i);
+      captypes[i].lstr = wtap_file_type_subtype_string(i);
       list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
   }
@@ -915,9 +915,9 @@ main(int argc, char *argv[])
 #endif
   gboolean             quiet = FALSE;
 #ifdef PCAP_NG_DEFAULT
-  volatile int         out_file_type = WTAP_FILE_PCAPNG;
+  volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
 #else
-  volatile int         out_file_type = WTAP_FILE_PCAP;
+  volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 #endif
   volatile gboolean    out_file_name_res = FALSE;
   gchar               *volatile cf_name = NULL;
@@ -1314,7 +1314,7 @@ main(int argc, char *argv[])
       }
       break;
     case 'F':
-      out_file_type = wtap_short_string_to_file_type(optarg);
+      out_file_type = wtap_short_string_to_file_type_subtype(optarg);
       if (out_file_type < 0) {
         cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
         list_capture_types();
@@ -1735,11 +1735,13 @@ main(int argc, char *argv[])
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
 
         /* When capturing, we only support writing pcap or pcap-ng format. */
-        if (out_file_type != WTAP_FILE_PCAP && out_file_type != WTAP_FILE_PCAPNG) {
+        if (out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAP &&
+            out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
           cmdarg_err("Live captures can only be saved in libpcap format.");
           return 1;
         }
-        if (global_capture_opts.capture_comment && out_file_type != WTAP_FILE_PCAPNG) {
+        if (global_capture_opts.capture_comment &&
+            out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
           cmdarg_err("A capture comment can only be written to a pcapng file.");
           return 1;
         }
@@ -2997,7 +2999,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         shb_hdr->shb_user_appl = appname;
     }
 
-    if (linktype != WTAP_ENCAP_PER_PACKET && out_file_type == WTAP_FILE_PCAP)
+    if (linktype != WTAP_ENCAP_PER_PACKET &&
+        out_file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP)
         pdh = wtap_dump_open(save_file, out_file_type, linktype,
             snapshot_length, FALSE /* compressed */, &err);
     else
@@ -3018,7 +3021,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
         cmdarg_err("The capture file being read can't be written as a "
-          "\"%s\" file.", wtap_file_type_short_string(out_file_type));
+          "\"%s\" file.", wtap_file_type_subtype_short_string(out_file_type));
         break;
 
       case WTAP_ERR_CANT_OPEN:
@@ -3054,7 +3057,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   if (pdh && out_file_name_res) {
     if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
       cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
-                 wtap_file_type_short_string(out_file_type));
+                 wtap_file_type_subtype_short_string(out_file_type));
     }
   }
 
@@ -3155,7 +3158,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 fprintf(stderr,
                         "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
                         framenum, cf->filename,
-                        wtap_file_type_short_string(out_file_type));
+                        wtap_file_type_subtype_short_string(out_file_type));
                 break;
 
               default:
@@ -3219,7 +3222,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               fprintf(stderr,
                       "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
                       framenum, cf->filename,
-                      wtap_file_type_short_string(out_file_type));
+                      wtap_file_type_subtype_short_string(out_file_type));
               break;
 
             default:
@@ -3886,7 +3889,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t      = wtap_file_type(cf->wth);
+  cf->cd_t      = wtap_file_type_subtype(cf->wth);
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
@@ -4024,7 +4027,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       /* Seen only when opening a capture file for writing. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The file \"%%s\" is a pipe, and \"%s\" capture files can't be "
-                 "written to a pipe.", wtap_file_type_short_string(file_type));
+                 "written to a pipe.", wtap_file_type_subtype_short_string(file_type));
       errmsg = errmsg_errno;
       break;
 
@@ -4037,7 +4040,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       if (for_writing) {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                    "TShark can't save this capture as a \"%s\" file.",
-                   wtap_file_type_short_string(file_type));
+                   wtap_file_type_subtype_short_string(file_type));
       } else {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The file \"%%s\" is a capture for a network type that TShark doesn't support.\n"
@@ -4051,7 +4054,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       if (for_writing) {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                    "TShark can't save this capture as a \"%s\" file.",
-                   wtap_file_type_short_string(file_type));
+                   wtap_file_type_subtype_short_string(file_type));
         errmsg = errmsg_errno;
       } else
         errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";

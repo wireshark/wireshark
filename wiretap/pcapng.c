@@ -1130,7 +1130,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         memset((void *)&wblock->packet_header->pseudo_header, 0, sizeof(union wtap_pseudo_header));
         pseudo_header_len = pcap_process_pseudo_header(fh,
-                                                       WTAP_FILE_PCAPNG,
+                                                       WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                                                        int_data.wtap_encap,
                                                        packet.cap_len,
                                                        TRUE,
@@ -1272,7 +1272,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         g_free(option_content);
 
-        pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
+        pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)&wblock->packet_header->pseudo_header,
             buffer_start_ptr(wblock->frame_buffer),
             (int) (packet.cap_len - pseudo_header_len),
@@ -1412,7 +1412,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
         memset((void *)&wblock->packet_header->pseudo_header, 0, sizeof(union wtap_pseudo_header));
         pseudo_header_len = pcap_process_pseudo_header(fh,
-                                                       WTAP_FILE_PCAPNG,
+                                                       WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                                                        int_data.wtap_encap,
                                                        simple_packet.cap_len,
                                                        TRUE,
@@ -1450,7 +1450,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                 block_read += 4 - (simple_packet.cap_len % 4);
         }
 
-        pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
+        pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)&wblock->packet_header->pseudo_header,
             buffer_start_ptr(wblock->frame_buffer),
             (int) simple_packet.cap_len,
@@ -2220,7 +2220,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         wth->subtype_read = pcapng_read;
         wth->subtype_seek_read = pcapng_seek_read;
         wth->subtype_close = pcapng_close;
-        wth->file_type = WTAP_FILE_PCAPNG;
+        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
 
         /* Read IDBs */
         wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));

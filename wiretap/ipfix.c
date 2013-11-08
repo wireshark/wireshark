@@ -271,7 +271,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_read = ipfix_read;
     wth->subtype_seek_read = ipfix_seek_read;
     wth->subtype_close = ipfix_close;
-    wth->file_type = WTAP_FILE_IPFIX;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPFIX;
 
     /* go back to beginning of file */
     if (file_seek (wth->fh, 0, SEEK_SET, err) != 0)

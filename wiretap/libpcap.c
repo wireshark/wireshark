@@ -310,7 +310,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * and for the ERF link-layer header type, and set the
 		 * precision to nanosecond precision.
 		 */
-		wth->file_type = WTAP_FILE_PCAP_AIX;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
 		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 		return 1;
 	}
@@ -355,7 +355,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 *
 		 * Try ss991029, the last of his patches, first.
 		 */
-		wth->file_type = WTAP_FILE_PCAP_SS991029;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029;
 		first_packet_offset = file_tell(wth->fh);
 		switch (libpcap_try(wth, err)) {
 
@@ -390,7 +390,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * so we put the seek pointer back and treat
 		 * it as 990915.
 		 */
-		wth->file_type = WTAP_FILE_PCAP_SS990915;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915;
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			return -1;
 		}
@@ -401,9 +401,9 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * Try the standard format first.
 		 */
 		if(wth->tsprecision == WTAP_FILE_TSPREC_NSEC) {
-			wth->file_type = WTAP_FILE_PCAP_NSEC;
+			wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
 		} else {
-			wth->file_type = WTAP_FILE_PCAP;
+			wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 		}
 		first_packet_offset = file_tell(wth->fh);
 		switch (libpcap_try(wth, err)) {
@@ -438,7 +438,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * a standard file.  Put the seek pointer back and try
 		 * ss990417.
 		 */
-		wth->file_type = WTAP_FILE_PCAP_SS990417;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417;
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			return -1;
 		}
@@ -475,7 +475,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * to try after that, so we put the seek pointer back
 		 * and treat it as a Nokia file.
 		 */
-		wth->file_type = WTAP_FILE_PCAP_NOKIA;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA;
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			return -1;
 		}
@@ -491,7 +491,7 @@ done:
 	 * If this is a Nokia capture, treat 13 as WTAP_ENCAP_ATM_PDUS,
 	 * rather than as what we normally treat it.
 	 */
-	if (wth->file_type == WTAP_FILE_PCAP_NOKIA && hdr.network == 13)
+	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA && hdr.network == 13)
 		wth->file_encap = WTAP_ENCAP_ATM_PDUS;
 
 	if (wth->file_encap == WTAP_ENCAP_ERF) {
@@ -644,7 +644,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	 * AIX appears to put 3 bytes of padding in front of FDDI
 	 * frames; strip that crap off.
 	 */
-	if (wth->file_type == WTAP_FILE_PCAP_AIX &&
+	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX &&
 	    (wth->file_encap == WTAP_ENCAP_FDDI ||
 	     wth->file_encap == WTAP_ENCAP_FDDI_BITSWAPPED)) {
 		/*
@@ -661,7 +661,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			return FALSE;
 	}
 
-	phdr_len = pcap_process_pseudo_header(fh, wth->file_type,
+	phdr_len = pcap_process_pseudo_header(fh, wth->file_type_subtype,
 	    wth->file_encap, packet_size, TRUE, phdr, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
@@ -696,7 +696,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		return FALSE;	/* failed */
 
 	libpcap = (libpcap_t *)wth->priv;
-	pcap_read_post_process(wth->file_type, wth->file_encap,
+	pcap_read_post_process(wth->file_type_subtype, wth->file_encap,
 	    &phdr->pseudo_header, buffer_start_ptr(buf), packet_size,
 	    libpcap->byte_swapped, -1);
 	return TRUE;
@@ -712,24 +712,24 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	switch (wth->file_type) {
+	switch (wth->file_type_subtype) {
 
-	case WTAP_FILE_PCAP:
-	case WTAP_FILE_PCAP_AIX:
-	case WTAP_FILE_PCAP_NSEC:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC:
 		bytes_to_read = sizeof (struct pcaprec_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_SS990417:
-	case WTAP_FILE_PCAP_SS991029:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029:
 		bytes_to_read = sizeof (struct pcaprec_modified_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_SS990915:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915:
 		bytes_to_read = sizeof (struct pcaprec_ss990915_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_NOKIA:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA:
 		bytes_to_read = sizeof (struct pcaprec_nokia_hdr);
 		break;
 
@@ -848,22 +848,22 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
-	switch (wdh->file_type) {
+	switch (wdh->file_type_subtype) {
 
-	case WTAP_FILE_PCAP:
-	case WTAP_FILE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
-	case WTAP_FILE_PCAP_NOKIA:	/* Nokia libpcap of some sort */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA:	/* Nokia libpcap of some sort */
 		magic = PCAP_MAGIC;
 		wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
-	case WTAP_FILE_PCAP_SS990915:	/* new magic, extra crap */
-	case WTAP_FILE_PCAP_SS991029:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915:	/* new magic, extra crap */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029:
 		magic = PCAP_MODIFIED_MAGIC;
 		wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
-	case WTAP_FILE_PCAP_NSEC:		/* same as WTAP_FILE_PCAP, but nsec precision */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC:		/* same as WTAP_FILE_TYPE_SUBTYPE_PCAP, but nsec precision */
 		magic = PCAP_NSEC_MAGIC;
 		wdh->tsprecision = WTAP_FILE_TSPREC_NSEC;
 		break;
@@ -932,15 +932,15 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	switch (wdh->file_type) {
+	switch (wdh->file_type_subtype) {
 
-	case WTAP_FILE_PCAP:
-	case WTAP_FILE_PCAP_NSEC:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC:
 		hdr_size = sizeof (struct pcaprec_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
-	case WTAP_FILE_PCAP_SS991029:
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029:
 		/* XXX - what should we supply here?
 
 		   Alexey's "libpcap" looks up the interface in the system's
@@ -966,7 +966,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		hdr_size = sizeof (struct pcaprec_modified_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_SS990915:	/* new magic, extra crap at the end */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915:	/* new magic, extra crap at the end */
 		rec_hdr.ifindex = 0;
 		rec_hdr.protocol = 0;
 		rec_hdr.pkt_type = 0;
@@ -975,7 +975,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		hdr_size = sizeof (struct pcaprec_ss990915_hdr);
 		break;
 
-	case WTAP_FILE_PCAP_NOKIA:	/* old magic, extra crap at the end */
+	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA:	/* old magic, extra crap at the end */
 		/* restore the "mysterious stuff" that came with the packet */
 		memcpy(&rec_hdr.ifindex, pseudo_header->nokia.stuff, 4);
 		/* not written */

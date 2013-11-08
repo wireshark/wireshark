@@ -116,7 +116,7 @@ int tnef_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wth->file_type = WTAP_FILE_TNEF;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_TNEF;
   wth->file_encap = WTAP_ENCAP_TNEF;
   wth->snapshot_length = 0;
 

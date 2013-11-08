@@ -552,7 +552,7 @@ main(int argc, char **argv)
 	example = find_example(produce_type);
 
 
-	dump = wtap_dump_open(produce_filename, WTAP_FILE_PCAP,
+	dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
 		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
 	if (!dump) {
 		fprintf(stderr,

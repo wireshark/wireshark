@@ -132,7 +132,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             /* Seen only when opening a capture file for writing. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" is a pipe, and %s capture files can't be "
-                       "written to a pipe.", wtap_file_type_string(file_type));
+                       "written to a pipe.", wtap_file_type_subtype_string(file_type));
             errmsg = errmsg_errno;
             break;
 
@@ -220,7 +220,7 @@ gboolean capture_info_new_file(const char *new_filename)
 
     info_data.wtap = wtap_open_offline(new_filename, &err, &err_info, FALSE);
     if (!info_data.wtap) {
-        err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_PCAP),
+        err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
                                   new_filename);
         g_warning("capture_info_new_file: %d (%s)", err, err_msg);
         g_free (err_msg);

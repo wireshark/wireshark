@@ -236,11 +236,11 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	switch (hdr.ver_major) {
 
 	case 1:
-		file_type = WTAP_FILE_NETMON_1_x;
+		file_type = WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x;
 		break;
 
 	case 2:
-		file_type = WTAP_FILE_NETMON_2_x;
+		file_type = WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x;
 		break;
 
 	default:
@@ -259,7 +259,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a netmon file */
-	wth->file_type = file_type;
+	wth->file_type_subtype = file_type;
 	netmon = (netmon_t *)g_malloc(sizeof(netmon_t));
 	wth->priv = (void *)netmon;
 	wth->subtype_read = netmon_read;
@@ -1108,9 +1108,9 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		nsecs += 1000000000;
 		secs--;
 	}
-	switch (wdh->file_type) {
+	switch (wdh->file_type_subtype) {
 
-	case WTAP_FILE_NETMON_1_x:
+	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
 		rec_1_x_hdr.ts_delta = htolel(secs*1000 + (nsecs + 500000)/1000000);
 		rec_1_x_hdr.orig_len = htoles(phdr->len + atm_hdrsize);
 		rec_1_x_hdr.incl_len = htoles(phdr->caplen + atm_hdrsize);
@@ -1118,7 +1118,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		hdr_size = sizeof rec_1_x_hdr;
 		break;
 
-	case WTAP_FILE_NETMON_2_x:
+	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
 		rec_2_x_hdr.ts_delta = htolell(secs*1000000 + (nsecs + 500)/1000);
 		rec_2_x_hdr.orig_len = htolel(phdr->len + atm_hdrsize);
 		rec_2_x_hdr.incl_len = htolel(phdr->caplen + atm_hdrsize);
@@ -1244,9 +1244,9 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
 		return FALSE;
 	memset(&file_hdr, '\0', sizeof file_hdr);
-	switch (wdh->file_type) {
+	switch (wdh->file_type_subtype) {
 
-	case WTAP_FILE_NETMON_1_x:
+	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
 		magicp = netmon_1_x_magic;
 		magic_size = sizeof netmon_1_x_magic;
 		/* NetMon file version, for 1.x, is 1.1 */
@@ -1254,7 +1254,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		file_hdr.ver_minor = 1;
 		break;
 
-	case WTAP_FILE_NETMON_2_x:
+	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
 		magicp = netmon_2_x_magic;
 		magic_size = sizeof netmon_2_x_magic;
 		/*

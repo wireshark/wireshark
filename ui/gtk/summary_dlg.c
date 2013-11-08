@@ -269,7 +269,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* format */
   g_snprintf(string_buff, SUM_STR_MAX, "%s%s",
-             wtap_file_type_string(summary.file_type),
+             wtap_file_type_subtype_string(summary.file_type),
              summary.iscompressed? " (gzip compressed)" : "");
   add_string_to_grid(grid, &row, "Format:", string_buff);
 
@@ -716,7 +716,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
 
   /* format */
   g_snprintf(string_buff, SUM_STR_MAX, INDENT "Format: %s%s",
-             wtap_file_type_string(summary.file_type),
+             wtap_file_type_subtype_string(summary.file_type),
              summary.iscompressed? " (gzip compressed)\n" : "\n");
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 

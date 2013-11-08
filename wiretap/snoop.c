@@ -397,7 +397,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		file_encap = shomiti_encap[hdr.network];
 
 		/* This is a Shomiti file */
-		wth->file_type = WTAP_FILE_SHOMITI;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SHOMITI;
 	} else if (hdr.network & SNOOP_PRIVATE_BIT) {
 		if ((hdr.network^SNOOP_PRIVATE_BIT) >= NUM_SNOOP_PRIVATE_ENCAPS
 		    || snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT] == WTAP_ENCAP_UNKNOWN) {
@@ -409,7 +409,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		file_encap = snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT];
 
 		/* This is a snoop file */
-		wth->file_type = WTAP_FILE_SNOOP;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SNOOP;
 	} else {
 		if (hdr.network >= NUM_SNOOP_ENCAPS
 		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
@@ -421,7 +421,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		file_encap = snoop_encap[hdr.network];
 
 		/* This is a snoop file */
-		wth->file_type = WTAP_FILE_SNOOP;
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SNOOP;
 	}
 
 	/*
@@ -600,7 +600,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		 * this frame; if this is a Shomit file, we assume there
 		 * is.  (XXX - or should we treat it a "maybe"?)
 		 */
-		if (wth->file_type == WTAP_FILE_SHOMITI)
+		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_SHOMITI)
 			phdr->pseudo_header.eth.fcs_len = 4;
 		else
 			phdr->pseudo_header.eth.fcs_len = 0;

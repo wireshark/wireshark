@@ -251,7 +251,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_sequential_close = NULL;
     wth->snapshot_length = 0;    /* not available in header */
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
-    wth->file_type = WTAP_FILE_NETWORK_INSTRUMENTS;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETWORK_INSTRUMENTS;
 
     /* reset the pointer to the first packet */
     if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)

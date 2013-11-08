@@ -334,7 +334,7 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
      */
     file_encap = peektagged_encap[mediaSubType];
 
-    wth->file_type = WTAP_FILE_PEEKTAGGED;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKTAGGED;
     wth->file_encap = file_encap;
     wth->subtype_read = peektagged_read;
     wth->subtype_seek_read = peektagged_seek_read;

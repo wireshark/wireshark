@@ -356,7 +356,7 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
 
    wth->subtype_read = camins_read;
    wth->subtype_seek_read = camins_seek_read;
-   wth->file_type = WTAP_FILE_CAMINS;
+   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CAMINS;
 
    *err = 0;
    return 1;

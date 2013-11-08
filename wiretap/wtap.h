@@ -252,77 +252,79 @@ extern "C" {
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
-/* File types that can be read by wiretap.
+/* File types/subtypes that can be read by wiretap.
    We support writing many of these file types, too, so we
-   distinguish between different versions of them. */
-#define WTAP_FILE_UNKNOWN                        0
-#define WTAP_FILE_PCAP                           1
-#define WTAP_FILE_PCAPNG                         2
-#define WTAP_FILE_PCAP_NSEC                      3
-#define WTAP_FILE_PCAP_AIX                       4
-#define WTAP_FILE_PCAP_SS991029                  5
-#define WTAP_FILE_PCAP_NOKIA                     6
-#define WTAP_FILE_PCAP_SS990417                  7
-#define WTAP_FILE_PCAP_SS990915                  8
-#define WTAP_FILE_5VIEWS                         9
-#define WTAP_FILE_IPTRACE_1_0                   10
-#define WTAP_FILE_IPTRACE_2_0                   11
-#define WTAP_FILE_BER                           12
-#define WTAP_FILE_HCIDUMP                       13
-#define WTAP_FILE_CATAPULT_DCT2000              14
-#define WTAP_FILE_NETXRAY_OLD                   15
-#define WTAP_FILE_NETXRAY_1_0                   16
-#define WTAP_FILE_COSINE                        17
-#define WTAP_FILE_CSIDS                         18
-#define WTAP_FILE_DBS_ETHERWATCH                19
-#define WTAP_FILE_ERF                           20
-#define WTAP_FILE_EYESDN                        21
-#define WTAP_FILE_NETTL                         22
-#define WTAP_FILE_ISERIES                       23
-#define WTAP_FILE_ISERIES_UNICODE               24
-#define WTAP_FILE_I4BTRACE                      25
-#define WTAP_FILE_ASCEND                        26
-#define WTAP_FILE_NETMON_1_x                    27
-#define WTAP_FILE_NETMON_2_x                    28
-#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED        29
-#define WTAP_FILE_NGSNIFFER_COMPRESSED          30
-#define WTAP_FILE_NETXRAY_1_1                   31
-#define WTAP_FILE_NETXRAY_2_00x                 32
-#define WTAP_FILE_NETWORK_INSTRUMENTS           33
-#define WTAP_FILE_LANALYZER                     34
-#define WTAP_FILE_PPPDUMP                       35
-#define WTAP_FILE_RADCOM                        36
-#define WTAP_FILE_SNOOP                         37
-#define WTAP_FILE_SHOMITI                       38
-#define WTAP_FILE_VMS                           39
-#define WTAP_FILE_K12                           40
-#define WTAP_FILE_TOSHIBA                       41
-#define WTAP_FILE_VISUAL_NETWORKS               42
-#define WTAP_FILE_PEEKCLASSIC_V56               43
-#define WTAP_FILE_PEEKCLASSIC_V7                44
-#define WTAP_FILE_PEEKTAGGED                    45
-#define WTAP_FILE_MPEG                          46
-#define WTAP_FILE_K12TEXT                       47
-#define WTAP_FILE_NETSCREEN                     48
-#define WTAP_FILE_COMMVIEW                      49
-#define WTAP_FILE_BTSNOOP                       50
-#define WTAP_FILE_TNEF                          51
-#define WTAP_FILE_DCT3TRACE                     52
-#define WTAP_FILE_PACKETLOGGER                  53
-#define WTAP_FILE_DAINTREE_SNA                  54
-#define WTAP_FILE_NETSCALER_1_0                 55
-#define WTAP_FILE_NETSCALER_2_0                 56
-#define WTAP_FILE_JPEG_JFIF                     57 /* obsoleted by WTAP_FILE_MIME */
-#define WTAP_FILE_IPFIX                         58
-#define WTAP_FILE_MIME                          59
-#define WTAP_FILE_AETHRA                        60
-#define WTAP_FILE_MPEG_2_TS                     61
-#define WTAP_FILE_VWR_80211                     62
-#define WTAP_FILE_VWR_ETH                       63
-#define WTAP_FILE_CAMINS                        64
-#define WTAP_FILE_STANAG_4607                   65
+   distinguish between different subtypes of them, as
+   different subtypes need to be written in a different
+   fashion. */
+#define WTAP_FILE_TYPE_SUBTYPE_UNKNOWN                        0
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP                           1
+#define WTAP_FILE_TYPE_SUBTYPE_PCAPNG                         2
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC                      3
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX                       4
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029                  5
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA                     6
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417                  7
+#define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915                  8
+#define WTAP_FILE_TYPE_SUBTYPE_5VIEWS                         9
+#define WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0                   10
+#define WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0                   11
+#define WTAP_FILE_TYPE_SUBTYPE_BER                           12
+#define WTAP_FILE_TYPE_SUBTYPE_HCIDUMP                       13
+#define WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000              14
+#define WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD                   15
+#define WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_0                   16
+#define WTAP_FILE_TYPE_SUBTYPE_COSINE                        17
+#define WTAP_FILE_TYPE_SUBTYPE_CSIDS                         18
+#define WTAP_FILE_TYPE_SUBTYPE_DBS_ETHERWATCH                19
+#define WTAP_FILE_TYPE_SUBTYPE_ERF                           20
+#define WTAP_FILE_TYPE_SUBTYPE_EYESDN                        21
+#define WTAP_FILE_TYPE_SUBTYPE_NETTL                         22
+#define WTAP_FILE_TYPE_SUBTYPE_ISERIES                       23
+#define WTAP_FILE_TYPE_SUBTYPE_ISERIES_UNICODE               24
+#define WTAP_FILE_TYPE_SUBTYPE_I4BTRACE                      25
+#define WTAP_FILE_TYPE_SUBTYPE_ASCEND                        26
+#define WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x                    27
+#define WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x                    28
+#define WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED        29
+#define WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_COMPRESSED          30
+#define WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_1                   31
+#define WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x                 32
+#define WTAP_FILE_TYPE_SUBTYPE_NETWORK_INSTRUMENTS           33
+#define WTAP_FILE_TYPE_SUBTYPE_LANALYZER                     34
+#define WTAP_FILE_TYPE_SUBTYPE_PPPDUMP                       35
+#define WTAP_FILE_TYPE_SUBTYPE_RADCOM                        36
+#define WTAP_FILE_TYPE_SUBTYPE_SNOOP                         37
+#define WTAP_FILE_TYPE_SUBTYPE_SHOMITI                       38
+#define WTAP_FILE_TYPE_SUBTYPE_VMS                           39
+#define WTAP_FILE_TYPE_SUBTYPE_K12                           40
+#define WTAP_FILE_TYPE_SUBTYPE_TOSHIBA                       41
+#define WTAP_FILE_TYPE_SUBTYPE_VISUAL_NETWORKS               42
+#define WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56               43
+#define WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V7                44
+#define WTAP_FILE_TYPE_SUBTYPE_PEEKTAGGED                    45
+#define WTAP_FILE_TYPE_SUBTYPE_MPEG                          46
+#define WTAP_FILE_TYPE_SUBTYPE_K12TEXT                       47
+#define WTAP_FILE_TYPE_SUBTYPE_NETSCREEN                     48
+#define WTAP_FILE_TYPE_SUBTYPE_COMMVIEW                      49
+#define WTAP_FILE_TYPE_SUBTYPE_BTSNOOP                       50
+#define WTAP_FILE_TYPE_SUBTYPE_TNEF                          51
+#define WTAP_FILE_TYPE_SUBTYPE_DCT3TRACE                     52
+#define WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER                  53
+#define WTAP_FILE_TYPE_SUBTYPE_DAINTREE_SNA                  54
+#define WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0                 55
+#define WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0                 56
+#define WTAP_FILE_TYPE_SUBTYPE_JPEG_JFIF                     57 /* obsoleted by WTAP_FILE_TYPE_SUBTYPE_MIME */
+#define WTAP_FILE_TYPE_SUBTYPE_IPFIX                         58
+#define WTAP_FILE_TYPE_SUBTYPE_MIME                          59
+#define WTAP_FILE_TYPE_SUBTYPE_AETHRA                        60
+#define WTAP_FILE_TYPE_SUBTYPE_MPEG_2_TS                     61
+#define WTAP_FILE_TYPE_SUBTYPE_VWR_80211                     62
+#define WTAP_FILE_TYPE_SUBTYPE_VWR_ETH                       63
+#define WTAP_FILE_TYPE_SUBTYPE_CAMINS                        64
+#define WTAP_FILE_TYPE_SUBTYPE_STANAG_4607                   65
 
-#define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
+#define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC        0
@@ -1141,7 +1143,7 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
 #define WTAP_COMMENT_PER_INTERFACE	0x00000002	/* per-interface */
 #define WTAP_COMMENT_PER_PACKET		0x00000004	/* per-packet */
 
-struct file_type_info {
+struct file_type_subtype_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
     const char *name;
@@ -1246,7 +1248,7 @@ gboolean wtap_iscompressed(wtap *wth);
 WS_DLL_PUBLIC
 guint wtap_snapshot_length(wtap *wth); /* per file */
 WS_DLL_PUBLIC
-int wtap_file_type(wtap *wth);
+int wtap_file_type_subtype(wtap *wth);
 WS_DLL_PUBLIC
 int wtap_file_encap(wtap *wth);
 WS_DLL_PUBLIC
@@ -1343,21 +1345,21 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types);
 
 /**
- * Get a GArray of WTAP_FILE_ values for file types that can be used
- * to save a file of a given type with a given GArray of WTAP_ENCAP_
- * types and the given bitmask of comment types.
+ * Get a GArray of WTAP_FILE_TYPE_SUBTYPE_ values for file types/subtypes
+ * that can be used to save a file of a given type with a given GArray of
+ * WTAP_ENCAP_ types and the given bitmask of comment types.
  */
 WS_DLL_PUBLIC
-GArray *wtap_get_savable_file_types(int file_type, const GArray *file_encaps,
-    guint32 required_comment_types);
+GArray *wtap_get_savable_file_types_subtypes(int file_type,
+    const GArray *file_encaps, guint32 required_comment_types);
 
 /*** various string converter functions ***/
 WS_DLL_PUBLIC
-const char *wtap_file_type_string(int filetype);
+const char *wtap_file_type_subtype_string(int file_type_subtype);
 WS_DLL_PUBLIC
-const char *wtap_file_type_short_string(int filetype);
+const char *wtap_file_type_subtype_short_string(int file_type_subtype);
 WS_DLL_PUBLIC
-int wtap_short_string_to_file_type(const char *short_name);
+int wtap_short_string_to_file_type_subtype(const char *short_name);
 
 /*** various file extension functions ***/
 WS_DLL_PUBLIC
@@ -1385,7 +1387,7 @@ int wtap_get_num_file_type_extensions(void);
 WS_DLL_PUBLIC
 int wtap_get_num_encap_types(void);
 WS_DLL_PUBLIC
-int wtap_get_num_file_types(void);
+int wtap_get_num_file_types_subtypes(void);
 
 /*** get information for file type extension ***/
 WS_DLL_PUBLIC
@@ -1399,7 +1401,7 @@ void wtap_register_file_type_extension(const struct file_extension_info *ei);
 WS_DLL_PUBLIC
 void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);
 WS_DLL_PUBLIC
-int wtap_register_file_type(const struct file_type_info* fi);
+int wtap_register_file_type(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char* name, const char* short_name);
 

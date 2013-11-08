@@ -180,7 +180,7 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	wth->file_encap = WTAP_ENCAP_GSM_UM;
-	wth->file_type = WTAP_FILE_DCT3TRACE;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DCT3TRACE;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = dct3trace_read;
 	wth->subtype_seek_read = dct3trace_seek_read;

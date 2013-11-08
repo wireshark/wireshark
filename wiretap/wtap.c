@@ -71,9 +71,9 @@ wtap_fstat(wtap *wth, ws_statb64 *statb, int *err)
 }
 
 int
-wtap_file_type(wtap *wth)
+wtap_file_type_subtype(wtap *wth)
 {
-	return wth->file_type;
+	return wth->file_type_subtype;
 }
 
 gboolean

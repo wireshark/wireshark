@@ -124,7 +124,7 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
-	wth->file_type = WTAP_FILE_HCIDUMP;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_HCIDUMP;
 	wth->file_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
 	wth->snapshot_length = 0;
 

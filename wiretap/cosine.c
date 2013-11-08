@@ -279,7 +279,7 @@ int cosine_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 
 	wth->file_encap = WTAP_ENCAP_COSINE;
-	wth->file_type = WTAP_FILE_COSINE;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COSINE;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = cosine_read;
 	wth->subtype_seek_read = cosine_seek_read;

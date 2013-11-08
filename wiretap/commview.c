@@ -124,7 +124,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = commview_read;
 	wth->subtype_seek_read = commview_seek_read;
 
-	wth->file_type = WTAP_FILE_COMMVIEW;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COMMVIEW;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 

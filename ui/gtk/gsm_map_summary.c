@@ -114,7 +114,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   add_string_to_box(string_buff, file_box);
 
   /* format */
-  g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", wtap_file_type_string(summary.file_type));
+  g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", wtap_file_type_subtype_string(summary.file_type));
   add_string_to_box(string_buff, file_box);
 
   if (summary.has_snap) {

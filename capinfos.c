@@ -469,7 +469,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   gchar                 *size_string;
 
   /* Build printable strings for various stats */
-  file_type_string = wtap_file_type_string(cf_info->file_type);
+  file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
   file_encap_string = wtap_encap_string(cf_info->file_encap);
   start_time_t = (time_t)cf_info->start_time;
   stop_time_t = (time_t)cf_info->stop_time;
@@ -644,7 +644,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   time_t                stop_time_t;
 
   /* Build printable strings for various stats */
-  file_type_string = wtap_file_type_string(cf_info->file_type);
+  file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
   file_encap_string = wtap_encap_string(cf_info->file_encap);
   start_time_t = (time_t)cf_info->start_time;
   stop_time_t = (time_t)cf_info->stop_time;
@@ -941,7 +941,7 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.filesize = size;
 
   /* File Type */
-  cf_info.file_type = wtap_file_type(wth);
+  cf_info.file_type = wtap_file_type_subtype(wth);
   cf_info.iscompressed = wtap_iscompressed(wth);
 
   /* File Encapsulation */

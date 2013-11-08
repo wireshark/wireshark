@@ -137,7 +137,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   wth->priv = (void *)csids;
   csids->byteswapped = byteswap;
   wth->file_encap = WTAP_ENCAP_RAW_IP;
-  wth->file_type = WTAP_FILE_CSIDS;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CSIDS;
   wth->snapshot_length = 0; /* not known */
   wth->subtype_read = csids_read;
   wth->subtype_seek_read = csids_seek_read;

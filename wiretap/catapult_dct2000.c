@@ -252,7 +252,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     /* File is for us. Fill in details so packets can be read   */
 
     /* Set our file type */
-    wth->file_type = WTAP_FILE_CATAPULT_DCT2000;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000;
 
     /* Use our own encapsulation to send all packets to our stub dissector */
     wth->file_encap = WTAP_ENCAP_CATAPULT_DCT2000;
