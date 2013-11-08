@@ -202,10 +202,6 @@ static header_field_info hfi_mint_control_0x0c_unknown3 MINT_HF_INIT =
 	{ "Unknown3",	"mint.control.0x0c.unknown3", FT_UINT8, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_unknown4 MINT_HF_INIT =
-	{ "Unknown4",	"mint.control.0x0c.unknown4", FT_UINT8, BASE_HEX, NULL,
-		0x0, NULL, HFILL };
-
 static header_field_info hfi_mint_control_0x0c_header_length MINT_HF_INIT =
 	{ "Headerlength",	"mint.control.0x0c.header.length", FT_UINT8, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
@@ -703,7 +699,6 @@ proto_register_mint(void)
 		&hfi_mint_control_0x0c_unknown1,
 		&hfi_mint_control_0x0c_unknown2,
 		&hfi_mint_control_0x0c_unknown3,
-		&hfi_mint_control_0x0c_unknown4,
 		&hfi_mint_control_0x0c_header_length,
 		&hfi_mint_control_0x0c_header_unknown,
 		&hfi_mint_control_0x0c_type_unknown,
