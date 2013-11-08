@@ -37,7 +37,7 @@
  * - The architecture name (variable, one of "x86", "x86-64")
  * - The locale (fixed, "en-US)
  * - The update channel (variable, one of "development" or "stable") + .xml
- * 
+ *
  * Based on https://wiki.mozilla.org/Software_Update:Checking_For_Updates
  */
 
@@ -61,16 +61,16 @@ static GString *update_url_str = NULL;
 static const char *get_appcast_update_url(software_update_channel_e chan) {
     const char *chan_name;
     const char *arch = "x86";
-    
+
     if (!update_url_str) {
         update_url_str = g_string_new("");
     }
-    
+
     /* XXX Add WOW64 checks similar to version_info.c? */
     if (sizeof(arch) != 4) {
         arch = "x86-64";
     }
-    
+
     switch (chan) {
         case UPDATE_CHANNEL_DEVELOPMENT:
             chan_name = "development";
@@ -95,7 +95,7 @@ static const char *get_appcast_update_url(software_update_channel_e chan) {
 void
 software_update_init(void) {
     const char *update_url = get_appcast_update_url(prefs.gui_update_channel);
-    
+
     win_sparkle_set_registry_path("Software\\Wireshark\\WinSparkle Settings");
     win_sparkle_set_appcast_url(update_url);
     win_sparkle_set_automatic_check_for_updates(prefs.gui_update_enabled ? 1 : 0);
@@ -112,7 +112,7 @@ software_update_check(void) {
 
 /** Clean up software update checking.
  *
- * Does nothing on platforms that don't support software updates. 
+ * Does nothing on platforms that don't support software updates.
  */
 extern void software_update_cleanup(void) {
     win_sparkle_cleanup();
@@ -134,7 +134,7 @@ software_update_check(void) {
 
 /** Clean up software update checking.
  *
- * Does nothing on platforms that don't support software updates. 
+ * Does nothing on platforms that don't support software updates.
  */
 extern void software_update_cleanup(void) {
 }

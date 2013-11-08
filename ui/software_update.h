@@ -31,19 +31,19 @@ extern "C" {
 
 /** Initialize software updates.
  *
- * Does nothing on platforms that don't support software updates. 
+ * Does nothing on platforms that don't support software updates.
  */
 extern void software_update_init(void);
 
 /** Force a software update check.
  *
- * Does nothing on platforms that don't support software updates. 
+ * Does nothing on platforms that don't support software updates.
  */
 extern void software_update_check(void);
 
 /** Clean up software update checking.
  *
- * Does nothing on platforms that don't support software updates. 
+ * Does nothing on platforms that don't support software updates.
  */
 extern void software_update_cleanup(void);
 
