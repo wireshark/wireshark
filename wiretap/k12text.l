@@ -347,12 +347,12 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	k12text = (k12text_t *)g_malloc(sizeof(k12text_t));
 	wth->priv = (void *)k12text;
 	k12text->next_frame_offset = 0;
-	wth->file_type = WTAP_FILE_TYPE_SUBTYPE_K12TEXT;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12TEXT;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;
 	wth->subtype_read = k12text_read;
 	wth->subtype_seek_read = k12text_seek_read;
-	wth->tsprecision = WTAP_FILE_TYPE_SUBTYPE_TSPREC_NSEC;
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
 }
