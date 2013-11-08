@@ -2018,7 +2018,7 @@ decode_add_notebook (GtkWidget *format_hb)
         g_object_set_data(G_OBJECT(decode_w), E_PAGE_DCERPC, page);
     }
 
-    if(cfile.cd_t == WTAP_FILE_BER) {
+    if (wtap_file_encap(cfile.wth) == WTAP_ENCAP_BER) {
         page = decode_ber_add_page(&cfile.edt->pi);
         label = gtk_label_new("ASN.1");
         gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
