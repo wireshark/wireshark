@@ -1351,56 +1351,34 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-/* Generate a list of the file types we can save this file as.
-
-   "g_filetype" is the type it has now.
-
-   "encap" is the encapsulation for its packets (which could be
-   "unknown" or "per-packet").
-
-   "filtered" is TRUE if we're to save only the packets that passed
-   the display filter (in which case we have to save it using Wiretap)
-   and FALSE if we're to save the entire file (in which case, if we're
-   saving it in the type it has already, we can just copy it).
-
-   The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
-*/
+/* Generate a list of the file types we can filter for in the open dialog. */
 static void
-append_file_type(GArray *sa, int ft)
+append_file_extension_type(GArray *sa, int et)
 {
     GString* pattern_str = g_string_new("");
     GString* description_str = g_string_new("");
+    const struct file_extension_info *extension_info;
     gchar sep;
     GSList *extensions_list, *extension;
     TCHAR *str16;
     guint16 zero = 0;
 
-    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
-    if (extensions_list == NULL) {
-        /* This file type doesn't have any particular extension
-           conventionally used for it, so we'll just use "*.*"
-           as the pattern; on Windows, that matches all file names
-           - even those with no extension -  so we don't need to
-           worry about compressed file extensions.  (It does not
-           do so on UN*X; the right pattern on UN*X would just
-           be "*".) */
-           g_string_printf(pattern_str, "*.*");
-    } else {
-        /* Construct the list of patterns. */
-        g_string_printf(pattern_str, "");
-        sep = '\0';
-        for (extension = extensions_list; extension != NULL;
-             extension = g_slist_next(extension)) {
-            if (sep != '\0')
-                g_string_append_c(pattern_str, sep);
-            g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
-            sep = ';';
-        }
-        wtap_free_file_extensions_list(extensions_list);
+    /* Construct the list of patterns. */
+    extensions_list = wtap_get_file_extension_type_extensions(et);
+    g_string_printf(pattern_str, "");
+    sep = '\0';
+    for (extension = extensions_list; extension != NULL;
+         extension = g_slist_next(extension)) {
+        if (sep != '\0')
+            g_string_append_c(pattern_str, sep);
+        g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
+        sep = ';';
     }
+    wtap_free_extensions_list(extensions_list);
 
     /* Construct the description. */
-    g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
+    g_string_printf(description_str, "%s (%s)",
+                    wtap_get_file_extension_type_name(et),
                     pattern_str->str);
     str16 = utf_8to16(description_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
@@ -1472,23 +1450,82 @@ build_file_open_type_list(void) {
         g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
         sep = ';';
     }
-    wtap_free_file_extensions_list(extensions_list);
+    wtap_free_extensions_list(extensions_list);
     str16 = utf_8to16(pattern_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
 
-    /* Include all the file types Wireshark supports. */
-    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (ft == WTAP_FILE_UNKNOWN)
-            continue;  /* not a real file type */
-
-        append_file_type(sa, ft);
+    /* Include all the file type extensions Wireshark supports. */
+    for (et = 0; et < wtap_get_num_file_type_extensions; et++) {
+        append_file_extension_type(sa, et);
     }
 
     /* terminate the array */
     sa = g_array_append_val(sa, zero);
 
     return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
+}
+
+/* Generate a list of the file types we can save this file as.
+
+   "g_filetype" is the type it has now.
+
+   "encap" is the encapsulation for its packets (which could be
+   "unknown" or "per-packet").
+
+   "filtered" is TRUE if we're to save only the packets that passed
+   the display filter (in which case we have to save it using Wiretap)
+   and FALSE if we're to save the entire file (in which case, if we're
+   saving it in the type it has already, we can just copy it).
+
+   The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
+*/
+static void
+append_file_type(GArray *sa, int ft)
+{
+    GString* pattern_str = g_string_new("");
+    GString* description_str = g_string_new("");
+    gchar sep;
+    GSList *extensions_list, *extension;
+    TCHAR *str16;
+    guint16 zero = 0;
+
+    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
+    if (extensions_list == NULL) {
+        /* This file type doesn't have any particular extension
+           conventionally used for it, so we'll just use "*.*"
+           as the pattern; on Windows, that matches all file names
+           - even those with no extension -  so we don't need to
+           worry about compressed file extensions.  (It does not
+           do so on UN*X; the right pattern on UN*X would just
+           be "*".) */
+           g_string_printf(pattern_str, "*.*");
+    } else {
+        /* Construct the list of patterns. */
+        g_string_printf(pattern_str, "");
+        sep = '\0';
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            if (sep != '\0')
+                g_string_append_c(pattern_str, sep);
+            g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
+            sep = ';';
+        }
+        wtap_free_extensions_list(extensions_list);
+    }
+
+    /* Construct the description. */
+    g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
+                    pattern_str->str);
+    str16 = utf_8to16(description_str->str);
+    sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
+    sa = g_array_append_val(sa, zero);
+    g_string_free(description_str, TRUE);
+
+    str16 = utf_8to16(pattern_str->str);
+    sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
+    sa = g_array_append_val(sa, zero);
+    g_string_free(pattern_str, TRUE);
 }
 
 static TCHAR *

@@ -1367,7 +1367,7 @@ const char *wtap_default_file_extension(int filetype);
 WS_DLL_PUBLIC
 GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed);
 WS_DLL_PUBLIC
-void wtap_free_file_extensions_list(GSList *extensions);
+void wtap_free_extensions_list(GSList *extensions);
 
 WS_DLL_PUBLIC
 const char *wtap_encap_string(int encap);
@@ -1381,9 +1381,17 @@ const char *wtap_strerror(int err);
 
 /*** get available number of file types and encapsulations ***/
 WS_DLL_PUBLIC
+int wtap_get_num_file_type_extensions(void);
+WS_DLL_PUBLIC
 int wtap_get_num_encap_types(void);
 WS_DLL_PUBLIC
 int wtap_get_num_file_types(void);
+
+/*** get information for file type extension ***/
+WS_DLL_PUBLIC
+const char *wtap_get_file_extension_type_name(int extension_type);
+WS_DLL_PUBLIC
+GSList *wtap_get_file_extension_type_extensions(guint extension_type);
 
 /*** dynamically register new file types and encapsulations ***/
 WS_DLL_PUBLIC

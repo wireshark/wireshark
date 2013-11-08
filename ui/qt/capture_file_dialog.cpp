@@ -299,6 +299,36 @@ int CaptureFileDialog::mergeType() {
 }
 
 #else // not Q_OS_WINDOWS
+QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
+{
+    QString filter;
+    GSList *extensions_list;
+    GSList *extension;
+
+    filter = wtap_get_file_extension_type_name(et);
+
+    if (!extension_globs) {
+        return filter;
+    }
+
+    filter += " (";
+
+    extensions_list = wtap_get_file_extension_type_extensions(et);
+
+    /* Construct the list of patterns. */
+    for (extension = extensions_list; extension != NULL;
+         extension = g_slist_next(extension)) {
+        if (!filter.endsWith('('))
+            filter += ' ';
+        filter += "*.";
+        filter += (char *)extension->data;
+    }
+    wtap_free_extensions_list(extensions_list);
+    filter += ')';
+    return filter;
+    /* XXX - does QStringList's destructor destroy the strings in the list? */
+}
+
 QString CaptureFileDialog::fileType(int ft, bool extension_globs)
 {
     QString filter;
@@ -332,7 +362,7 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
             filter += "*.";
             filter += (char *)extension->data;
         }
-        wtap_free_file_extensions_list(extensions_list);
+        wtap_free_extensions_list(extensions_list);
     }
     filter += ')';
     return filter;
@@ -341,17 +371,54 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
 
 QStringList CaptureFileDialog::buildFileOpenTypeList() {
     QStringList filters;
-    int   ft;
+    QString filter, sep;
+    GSList *extensions_list;
+    GSList *extension;
+    int   et;
 
+    /*
+     * Microsoft's UI guidelines say, of the file filters in open and
+     * save dialogs:
+     *
+     *    For meta-filters, remove the file extension list to eliminate
+     *    clutter. Examples: "All files," "All pictures," "All music,"
+     *    and "All videos."
+     *
+     * On both Windows XP and Windows 7, Wordpad doesn't do that, but
+     * Paint does.
+     *
+     * XXX - on Windows, does Qt do that here?  For "All Capture Files",
+     * the filter will be a bit long, so it *really* shouldn't be shown.
+     * What about other platforms?
+     */
     /* Add the "All Files" entry. */
     filters << QString(tr("All Files (*.*)"));
 
-    /* Include all the file types Wireshark supports. */
-    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (ft == WTAP_FILE_UNKNOWN)
-            continue;  /* not a real file type */
+    /*
+     * Add an "All Capture Files" entry, with all the extensions we
+     * know about.
+     */
+    filter = "All Capture Files";
 
-        filters << fileType(ft);
+    /*
+     * Construct its list of patterns from a list of all extensions
+     * we support.
+     */
+    extensions_list = wtap_get_all_file_extensions_list();
+    sep = " (";
+    for (extension = extensions_list; extension != NULL;
+         extension = g_slist_next(extension)) {
+        filter += sep;
+        filter += "*.";
+        filter += (char *)extension->data;
+        sep = " ";
+    }
+    filter += ")";
+    filters << filter;
+
+    /* Include all the file types Wireshark supports. */
+    for (et = 0; et < wtap_get_num_file_type_extensions(); et++) {
+        filters << fileExtensionType(et);
     }
 
     return filters;

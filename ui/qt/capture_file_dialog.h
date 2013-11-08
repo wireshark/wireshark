@@ -89,6 +89,7 @@ private:
     void addMergeControls(QVBoxLayout &v_box);
     void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
+    QString fileExtensionType(int et, bool extension_globs = true);
     QString fileType(int ft, bool extension_globs = true);
     QStringList buildFileOpenTypeList(void);
 
