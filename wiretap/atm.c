@@ -72,7 +72,7 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 	 * guessing based on the contents, if we have enough data
 	 * to guess.
 	 */
-	 
+
 	if (len >= 3) {
 		if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
 			/*

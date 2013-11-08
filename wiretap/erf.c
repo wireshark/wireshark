@@ -607,10 +607,10 @@ static gboolean erf_dump(
     if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
     wdh->bytes_dumped += phdr->caplen;
 
-    /*XXX: this pads the record to its original length, which is fine in most 
-     * cases. However with >MAX_ERF_EHDR unnecessary padding will be added, and 
-     * if the record was truncated this will be incorrectly treated as payload. 
-     * More than 8 extension headers is unusual though, only the first 8 are 
+    /*XXX: this pads the record to its original length, which is fine in most
+     * cases. However with >MAX_ERF_EHDR unnecessary padding will be added, and
+     * if the record was truncated this will be incorrectly treated as payload.
+     * More than 8 extension headers is unusual though, only the first 8 are
      * written out anyway and fixing properly would require major refactor.*/
     while(wdh->bytes_dumped < alignbytes){
       if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;

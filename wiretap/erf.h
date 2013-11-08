@@ -96,7 +96,7 @@ typedef struct erf_eth_hdr {
 	guint16	eth;
 } erf_eth_header_t;
 
-union erf_subhdr { 
+union erf_subhdr {
   struct erf_mc_hdr mc_hdr;
   struct erf_eth_hdr eth_hdr;
 };

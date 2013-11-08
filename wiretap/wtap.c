@@ -578,7 +578,7 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR */
 	{ "BACnet MS/TP with Directional Info", "bacnet-ms-tp-with-direction" },
- 
+
  	/* WTAP_ENCAP_IXVERIWAVE */
  	{ "IxVeriWave header and stats block", "ixveriwave" },
 

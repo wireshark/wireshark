@@ -515,7 +515,7 @@ typedef struct nspr_pktracepart_v26
 #define TRACE_V26_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
     TRACE_V25_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
     __TNO(phdr,enumprefix,structprefix,structname,ns_activity,ns_activity)\
-    
+
     TRACE_V10_REC_LEN_OFF(NULL,v10_part,pp,pktracepart_v10)
     TRACE_V10_REC_LEN_OFF(NULL,v10_full,fp,pktracefull_v10)
     TRACE_V20_REC_LEN_OFF(NULL,v20_part,pp,pktracepart_v20)

@@ -175,7 +175,7 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	}
 	if (bytes_read == 0)
 		return 0;
-		
+
 	found_file = FALSE;
 	for (i = 0; i < N_MAGIC_TYPES; i++) {
 		if ((guint) bytes_read >= magic_files[i].magic_len && !memcmp(magic_buf, magic_files[i].magic, MIN(magic_files[i].magic_len, (guint) bytes_read))) {

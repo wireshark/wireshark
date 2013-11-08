@@ -30,7 +30,7 @@ int network_instruments_dump_can_write_encap(int encap);
 gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err);
 
 /*
- * In v15 the high_byte was added to allow a larger offset This was done by 
+ * In v15 the high_byte was added to allow a larger offset This was done by
  * reducing the size of observer_version by 1 byte.  Since version strings are
  * only 30 characters the high_byte will always be 0 in previous versions.
  */

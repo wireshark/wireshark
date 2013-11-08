@@ -103,7 +103,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
-static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
+static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info);
 static gboolean process_packet_header(wtap *wth,
     packet_entry_header *packet_header, struct wtap_pkthdr *phdr, int *err,
@@ -343,7 +343,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static int
-read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
+read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info)
 {
     int offset;

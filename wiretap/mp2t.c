@@ -62,7 +62,7 @@ typedef struct {
 } mp2t_filetype_t;
 
 static gboolean
-mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset, 
+mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
                  struct wtap_pkthdr *phdr, Buffer *buf, int *err,
                  gchar **err_info)
 {

@@ -786,7 +786,7 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
            + sizeof (LA_CyclicInformationFake)
            + LA_IndexRecordSize;
 
-      if (wtap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1) 
+      if (wtap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1)
 	      return FALSE;
 
       wdh->bytes_dumped = jump;

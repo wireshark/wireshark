@@ -86,7 +86,7 @@ typedef enum {
     SIZE_HAVE_NONE,
     SIZE_HAVE_LOW,
     SIZE_HAVE_HIGH,
-    SIZE_HAVE_ALL 
+    SIZE_HAVE_ALL
 } size_read_t;
 
 #define RESET_STAT_VALS \
@@ -124,7 +124,7 @@ read_block(FILE_T fh, guint8 *buf, guint16 buf_len, int *err, gchar **err_info)
         }
         return FALSE;
     }
-    
+
     return TRUE;
 }
 
@@ -200,7 +200,7 @@ find_next_pkt_dat_type_len(FILE_T fh,
 static gint
 read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
                  int *err, gchar **err_info)
-{   
+{
     guint8  *p;
     guint8   block[2];
     guint16  bytes_count = 0;
@@ -224,7 +224,7 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
         else if (IS_TRANS_SIZE(block[1])) {
             /* go back before the size transaction block
                the next packet should be able to pick up this block */
-            if (-1 == file_seek(fh, -(gint64)sizeof(block), SEEK_CUR, err)) 
+            if (-1 == file_seek(fh, -(gint64)sizeof(block), SEEK_CUR, err))
                 return -1;
             break;
         }
@@ -232,7 +232,7 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
 
     return bytes_count;
 }
- 
+
 
 /* create a DVB-CI pseudo header
    return its length or -1 for error */
@@ -257,7 +257,7 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
     return DVB_CI_PSEUDO_HDR_LEN;
 }
 
- 
+
 static gboolean
 camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)

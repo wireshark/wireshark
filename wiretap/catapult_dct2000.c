@@ -1231,7 +1231,7 @@ parse_line(gchar *linebuff, gint line_length,
             g_strlcpy(protocol_name, "sprint", MAX_PROTOCOL_NAME);
         }
     }
-    
+
     if (!(*is_sprint)) {
         /* Now skip ahead to find start of data (marked by '$') */
         for (; (linebuff[n] != '$') && (linebuff[n] != '\'') && (n+1 < line_length); n++);

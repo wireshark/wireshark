@@ -34,10 +34,10 @@
 /* This module reads the output of the EyeSDN USB S0/E1 ISDN probes
  * They store HDLC frames of D and B channels in a binary format
  * The fileformat is
- * 
+ *
  * 1-6 Byte: EyeSDN - Magic
  * 7-n Byte: Frames
- * 
+ *
  * Each Frame starts with the 0xff Flag byte
  * - Bytes 0-2: timestamp (usec in network byte order)
  * - Bytes 3-7: timestamp (40bits sec since 1970 in network byte order)
@@ -45,7 +45,7 @@
  * - Byte 9: Sender Bit 0(0 NT, 1 TE), Protocol in Bits 7:1, see enum
  * - Byte 10-11: frame size in bytes
  * - Byte 12-n: Frame Payload
- * 
+ *
  * All multibyte values are represented in network byte order
  * The frame is terminated with a flag character (0xff)
  * bytes 0xff within a frame are escaped using the 0xfe escape character
@@ -203,14 +203,14 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-    
+
         /* extract information from header */
         usecs = pntoh24(&hdr[0]);
-#ifdef TV64BITS    
+#ifdef TV64BITS
         secs = hdr[3];
-#else    
+#else
         secs = 0;
-#endif    
+#endif
         secs = (secs << 8) | hdr[4];
         secs = (secs << 8) | hdr[5];
         secs = (secs << 8) | hdr[6];
@@ -239,7 +239,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		pseudo_header->l1event.uton = (direction & 1);
 		break;
 
-	case EYESDN_ENCAP_LAPB: /* X.25 via LAPB */ 
+	case EYESDN_ENCAP_LAPB: /* X.25 via LAPB */
 		phdr->pkt_encap = WTAP_ENCAP_LAPB;
 		pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
 		break;
@@ -280,7 +280,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	case EYESDN_ENCAP_MTP2: /* SS7 frames */
 		pseudo_header->mtp2.sent = direction & 1;
 		pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
-		pseudo_header->mtp2.link_number = channel;		
+		pseudo_header->mtp2.link_number = channel;
 		phdr->pkt_encap = WTAP_ENCAP_MTP2_WITH_PHDR;
 		break;
 
@@ -350,7 +350,7 @@ esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
 	int i;
 	guint8 byte;
 	static const guint8 esc = 0xfe;
-	
+
 	for(i=0; i<len; i++) {
 		byte=buf[i];
 		if(byte == 0xff || byte == 0xfe) {
@@ -460,7 +460,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	case WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR:
 		protocol=EYESDN_ENCAP_BACNET;
 		break;
-	    
+
 	case WTAP_ENCAP_V5_EF:
 		protocol=EYESDN_ENCAP_V5_EF;
 		break;
@@ -481,7 +481,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	buf[8] = (guint8) channel;
 	buf[9] = (guint8) (origin?1:0) + (protocol << 1);
 	phtons(&buf[10], size);
-	
+
 	/* start flag */
 	if (!wtap_dump_file_write(wdh, &start_flag, sizeof start_flag, err))
 		return FALSE;

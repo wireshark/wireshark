@@ -39,11 +39,11 @@
  * The first packet index is (4 * num_pkts) octets from the end of the file
  * and the last index is in the last four octets of the file.
  *
- * All integer and time values are stored in little-endian format, except for 
+ * All integer and time values are stored in little-endian format, except for
  *  the ATM Packet Header, which is stored in network byte order.
  *
- * [ File Header ] 
- * 
+ * [ File Header ]
+ *
  *
  * [ Packet Header 1 ] [(opt) ATM Packet Header] [ Data ]
  * ...
@@ -106,7 +106,7 @@ struct visual_pkt_hdr
 /* This structure is used to extract information */
 struct visual_atm_hdr
 {
-   guint16 vpi;           /* 4 bits of zeros; 12 bits of ATM VPI */ 
+   guint16 vpi;           /* 4 bits of zeros; 12 bits of ATM VPI */
    guint16 vci;           /* ATM VCI */
    guint8  info;          /* 4 bits version; 3 bits unused-zero; 1 bit direction */
    guint8  category;      /* indicates type of traffic. 4 bits of status + 4 bits of type */
@@ -363,7 +363,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     usecs = (guint32)(t - secs*1000000);
     phdr->ts.secs = secs;
     phdr->ts.nsecs = usecs * 1000;
-    
+
     phdr->len = pletohs(&vpkt_hdr.orig_len);
 
     packet_status = pletohl(&vpkt_hdr.status);
@@ -404,7 +404,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
            set the FCS length to 0? */
         phdr->pseudo_header.eth.fcs_len = -1;
         break;
-    
+
     case WTAP_ENCAP_CHDLC_WITH_PHDR:
         /* This has a 2-byte FCS. */
         if (phdr->len < 2)
@@ -473,8 +473,8 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             }
             return FALSE;
         }
-       
-        /* Remove ATM header from length of included bytes in capture, as 
+
+        /* Remove ATM header from length of included bytes in capture, as
            this header was appended by the processor doing the packet
            reassembly, and was not transmitted across the wire */
         packet_size -= (guint32)sizeof vatm_hdr;
@@ -487,10 +487,10 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         /* Next two items not supported. Defaulting to zero */
         phdr->pseudo_header.atm.aal5t_u2u = 0;
         phdr->pseudo_header.atm.aal5t_chksum = 0;
-       
+
         /* Flags appear only to convey that packet is a raw cell. Set to 0 */
-        phdr->pseudo_header.atm.flags = 0; 
-       
+        phdr->pseudo_header.atm.flags = 0;
+
         /* Not supported. Defaulting to zero */
         phdr->pseudo_header.atm.aal2_cid = 0;
 
@@ -503,17 +503,17 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         case VN_AAL2:
             phdr->pseudo_header.atm.aal = AAL_2;
             break;
-       
+
         case VN_AAL34:
             phdr->pseudo_header.atm.aal = AAL_3_4;
             break;
-       
+
         case VN_AAL5:
             phdr->pseudo_header.atm.aal = AAL_5;
             phdr->pseudo_header.atm.type = TRAF_LLCMX;
             phdr->pseudo_header.atm.aal5t_len = pntohl(&vatm_hdr.data_length);
             break;
-       
+
         case VN_OAM:
         /* Marking next 3 as OAM versus unknown */
         case VN_O191:
@@ -530,7 +530,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         phdr->pseudo_header.atm.vpi = pntohs(&vatm_hdr.vpi) & 0x0FFF;
         phdr->pseudo_header.atm.vci = pntohs(&vatm_hdr.vci);
         phdr->pseudo_header.atm.cells = pntohs(&vatm_hdr.cell_count);
-       
+
         /* Using bit value of 1 (DCE -> DTE) to indicate From Network */
         phdr->pseudo_header.atm.channel = vatm_hdr.info & FROM_NETWORK;
         break;
@@ -665,7 +665,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
     /* All of the fields in the file header aren't known yet so
        just skip over it for now.  It will be created after all
        of the packets have been written. */
-    if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1) 
+    if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
 	return FALSE;
 
     return TRUE;

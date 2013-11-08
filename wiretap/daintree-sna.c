@@ -9,10 +9,10 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Started with packetlogger.c as a template, but little packetlogger code 
- * remains. Borrowed many snippets from dbs-etherwatch.c, the 
+ * Started with packetlogger.c as a template, but little packetlogger code
+ * remains. Borrowed many snippets from dbs-etherwatch.c, the
  * daintree_sna_process_hex_data function having the largest chunk.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -29,7 +29,7 @@
  * USA.
  */
 
-/* This module reads capture files saved by Daintree's Sensor Network Analyzer. 
+/* This module reads capture files saved by Daintree's Sensor Network Analyzer.
  * Daintree captures are plain text files with a two line header,
  * followed by packet records, one per line, with whitespace separated fields
  * consisting of: packet number, time, bytes of capture data, capture data,
@@ -37,7 +37,7 @@
  */
 
 /* Example capture file:
- 
+
 #Format=4
 # SNA v2.2.0.4 SUS:20090709 ACT:819705
 1 1233783799.326400 10 030809ffffffff07ffff 42 1 -69 25 2 0 1 32767
@@ -96,7 +96,7 @@ static gboolean daintree_sna_process_hex_data(struct wtap_pkthdr *phdr,
 int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
-	guint i; 
+	guint i;
 
 	/* get first line of file header */
 	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
@@ -111,7 +111,7 @@ int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 	while (i < DAINTREE_MAGIC_TEXT_SIZE) {
 		if (readLine[i] != daintree_magic_text[i]) return 0; /* not daintree format */
 		i++;
-	} 
+	}
 
 	/* read second header line */
 	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
@@ -164,7 +164,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	    readData, err, err_info);
 }
 
-/* Read the capture file randomly 
+/* Read the capture file randomly
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
 daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,

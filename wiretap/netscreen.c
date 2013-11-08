@@ -88,7 +88,7 @@ static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 static gboolean info_line(const gchar *line)
 {
 	int i=NETSCREEN_SPACES_ON_INFO_LINE;
-	
+
 	while (i-- > 0) {
 		if (isspace((guchar)*line)) {
 			line++;
@@ -187,7 +187,7 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = netscreen_read;
 	wth->subtype_seek_read = netscreen_seek_read;
 	wth->tsprecision = WTAP_FILE_TSPREC_DSEC;
-	
+
 	return 1;
 }
 
@@ -273,7 +273,7 @@ netscreen_seek_read(wtap *wth, gint64 seek_off,
 }
 
 /* Parses a packet record header. There are a few possible formats:
- * 
+ *
  * XXX list extra formats here!
 6843828.0: trust(o) len=98:00121ebbd132->00600868d659/0800
               192.168.1.1 -> 192.168.1.10/6
@@ -354,11 +354,11 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 		if (*p == '\0') {
 			break;
 		}
-		
+
 		n = parse_single_hex_dump_line(p, pd, offset);
 
 		/* the smallest packet has a length of 6 bytes, if
-		 * the first hex-data is less then check whether 
+		 * the first hex-data is less then check whether
 		 * it is a info-line and act accordingly
 		 */
 		if (offset == 0 && n < 6) {
@@ -385,7 +385,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 		/* Adjust the offset to the data that was just added to the buffer */
 		offset += n;
 
-		/* If there was more hex-data than was announced in the len=x 
+		/* If there was more hex-data than was announced in the len=x
 		 * header, then then there must be an error in the file
 		 */
 		if(offset > pkt_len) {
@@ -411,7 +411,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
                  */
                 g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
                    pd[0], pd[1], pd[2], pd[3], pd[4], pd[5]);
-                if (strncmp(dststr, cap_dst, 12) == 0) 
+                if (strncmp(dststr, cap_dst, 12) == 0)
 		        phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
                 else
 		        phdr->pkt_encap = WTAP_ENCAP_PPP;

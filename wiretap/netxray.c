@@ -1495,7 +1495,7 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
-	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1) 
+	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
 		return FALSE;
 	wdh->bytes_dumped += CAPTUREFILE_HEADER_SIZE;
 
@@ -1655,7 +1655,7 @@ gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
-	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1) 
+	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
 		return FALSE;
 
 	wdh->bytes_dumped += CAPTUREFILE_HEADER_SIZE;

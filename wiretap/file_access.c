@@ -1864,7 +1864,7 @@ gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err
 		} else
 		{
 			return 0;
-		}	
+		}
 	}
 }
 gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
@@ -1883,6 +1883,6 @@ gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 		} else
 		{
 			return rval;
-		}	
+		}
 	}
 }

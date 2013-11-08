@@ -438,7 +438,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    hdr_info.length = pletohl(&tag_value[2]);
 	    saw_length = TRUE;
 	    break;
-    
+
 	case TAG_PEEKTAGGED_TIMESTAMP_LOWER:
 	    if (saw_timestamp_lower) {
 		*err = WTAP_ERR_BAD_FILE;

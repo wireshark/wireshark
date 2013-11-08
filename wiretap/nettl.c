@@ -523,7 +523,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	    }
 
-	    length = pntohs(&drv_eth_hdr.length); 
+	    length = pntohs(&drv_eth_hdr.length);
 	    caplen = pntohs(&drv_eth_hdr.caplen);
 	    /*
 	     * XXX - is there a length field that would give the length
@@ -785,7 +785,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 		case WTAP_ENCAP_TOKEN_RING:
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_PCI_TR);
 			break;
-/*	
+#if 0
 		case WTAP_ENCAP_NETTL_X25:
 			rec_hdr.caplen = g_htonl(phdr->caplen + 24);
 			rec_hdr.length = g_htonl(phdr->len + 24);
@@ -795,7 +795,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 			rec_hdr.pid = g_htonl(pseudo_header->nettl.pid);
 			rec_hdr.uid = g_htons(pseudo_header->nettl.uid);
 			break;
-*/
+#endif
 		default:
 			/* found one we don't support */
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;

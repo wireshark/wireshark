@@ -51,7 +51,7 @@ typedef struct {
 	time_t t0;
 } mpeg_t;
 
-static int 
+static int
 mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 {
 	gint64 offset = file_tell(wth->fh);
@@ -72,7 +72,7 @@ mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 	return count;
 }
 
-static int 
+static int
 mpeg_read_header(wtap *wth, int *err, gchar **err_info, guint32 *n)
 {
 	int bytes_read;
@@ -93,7 +93,7 @@ mpeg_read_header(wtap *wth, int *err, gchar **err_info, guint32 *n)
 
 #define SCRHZ 27000000
 
-static gboolean 
+static gboolean
 mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
@@ -239,14 +239,14 @@ struct _mpeg_magic {
 	{ 0, NULL }
 };
 
-int 
+int
 mpeg_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic_buf[16];
 	struct _mpeg_magic* m;
 	mpeg_t *mpeg;
-	
+
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic_buf, sizeof magic_buf, wth->fh);
 	if (bytes_read != (int) sizeof magic_buf) {
@@ -260,7 +260,7 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 		if (memcmp(magic_buf, m->match, m->len) == 0)
 			goto good_magic;
 	}
-	
+
 	return 0;
 
 good_magic:

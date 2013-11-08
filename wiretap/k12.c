@@ -979,7 +979,7 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
     if (! wtap_dump_file_write(wdh, k12_eof, 2, err))
         return FALSE;
 
-    if (wtap_dump_file_seek(wdh, 8, SEEK_SET, err) == -1) 
+    if (wtap_dump_file_seek(wdh, 8, SEEK_SET, err) == -1)
         return FALSE;
 
     d.u = g_htonl(k12->file_len);
@@ -1003,7 +1003,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
         return FALSE;
     }
 
-    if (wtap_dump_file_seek(wdh, 0x200, SEEK_SET, err) == -1) 
+    if (wtap_dump_file_seek(wdh, 0x200, SEEK_SET, err) == -1)
         return FALSE;
 
     wdh->subtype_write = k12_dump;
