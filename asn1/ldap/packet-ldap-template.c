@@ -183,6 +183,7 @@ static int hf_ldap_AccessMask_ADS_WRITE_PROP = -1;
 static int hf_ldap_AccessMask_ADS_DELETE_TREE = -1;
 static int hf_ldap_AccessMask_ADS_LIST_OBJECT = -1;
 static int hf_ldap_AccessMask_ADS_CONTROL_ACCESS = -1;
+static int hf_ldap_LDAPMessage_PDU = -1;
 
 #include "packet-ldap-hf.c"
 
@@ -744,10 +745,9 @@ static void ldap_do_protocolop(packet_info *pinfo)
 }
 
 static ldap_call_response_t *
-ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint messageId, guint protocolOpTag)
+ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint messageId, guint protocolOpTag, ldap_conv_info_t *ldap_info)
 {
   ldap_call_response_t lcr, *lcrp=NULL;
-  ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)pinfo->private_data;
 
   /* first see if we have already matched this */
 
@@ -879,6 +879,16 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 }
 
 #include "packet-ldap-fn.c"
+static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
+
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+  asn1_ctx.private_data = ldap_info;
+  offset = dissect_ldap_LDAPMessage(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_LDAPMessage_PDU);
+  return offset;
+}
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -964,8 +974,7 @@ one_more_pdu:
      * Now dissect the LDAP message.
      */
     ldap_info->is_mscldap = is_mscldap;
-    pinfo->private_data = ldap_info;
-    dissect_LDAPMessage_PDU(msg_tvb, pinfo, tree);
+    dissect_LDAPMessage_PDU(msg_tvb, pinfo, tree, ldap_info);
 
     offset += msg_len;
 
@@ -2231,6 +2240,9 @@ void proto_register_ldap(void) {
 
     { &hf_ldap_AccessMask_ADS_CONTROL_ACCESS,
       { "Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CONTROL_ACCESS_tfs), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, NULL, HFILL }},
+
+    { &hf_ldap_LDAPMessage_PDU,
+      { "LDAPMessage", "ldap.LDAPMessage_element", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 #include "packet-ldap-hfarr.c"
   };
