@@ -30,6 +30,7 @@
 #define CMP_MATCHES cmp_matches
 
 #include <ctype.h>
+#include <strutil.h>
 
 static void
 string_fvalue_new(fvalue_t *fv)
@@ -60,32 +61,12 @@ string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 static int
 string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
-	gchar *p, c;
-	int repr_len;
-
 	switch (rtype) {
 		case FTREPR_DISPLAY:
 			return (int)strlen(fv->value.string);
+
 		case FTREPR_DFILTER:
-			repr_len = 0;
-			for (p = fv->value.string; (c = *p) != '\0'; p++) {
-				/* Backslashes and double-quotes must
-				 * be escaped */
-				if (c == '\\' || c == '"') {
-					repr_len += 2;
-				}
-				/* Values that can't nicely be represented
-				 * in ASCII need to be escaped. */
-				else if (!isprint((unsigned char)c)) {
-					/* c --> \xNN */
-					repr_len += 4;
-				}
-				/* Other characters are just passed through. */
-				else {
-					repr_len++;
-				}
-			}
-			return repr_len + 2;	/* string plus leading and trailing quotes */
+			return escape_string_len(fv->value.string);
 	}
 	g_assert_not_reached();
 	return -1;
@@ -94,41 +75,16 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 static void
 string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
-	gchar *p, c;
-	char *bufp;
-	char hex[3];
+	switch (rtype) {
+		case FTREPR_DISPLAY:
+			strcpy(buf, fv->value.string);
+			return;
 
-	if (rtype == FTREPR_DFILTER) {
-		bufp = buf;
-		*bufp++ = '"';
-		for (p = fv->value.string; (c = *p) != '\0'; p++) {
-			/* Backslashes and double-quotes must
-			 * be escaped. */
-			if (c == '\\' || c == '"') {
-				*bufp++ = '\\';
-				*bufp++ = c;
-			}
-			/* Values that can't nicely be represented
-			 * in ASCII need to be escaped. */
-			else if (!isprint((unsigned char)c)) {
-				/* c --> \xNN */
-				g_snprintf(hex, sizeof(hex), "%02x", (unsigned char) c);
-				*bufp++ = '\\';
-				*bufp++ = 'x';
-				*bufp++ = hex[0];
-				*bufp++ = hex[1];
-			}
-			/* Other characters are just passed through. */
-			else {
-				*bufp++ = c;
-			}
-		}
-		*bufp++ = '"';
-		*bufp = '\0';
+		case FTREPR_DFILTER:
+			escape_string(buf, fv->value.string);
+			return;
 	}
-	else {
-		strcpy(buf, fv->value.string);
-	}
+	g_assert_not_reached();
 }
 
 
