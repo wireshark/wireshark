@@ -1393,13 +1393,12 @@ append_file_extension_type(GArray *sa, int et)
 static TCHAR *
 build_file_open_type_list(void) {
     TCHAR *str16;
-    int   ft;
+    int et;
     GArray* sa;
     static const guint16 zero = 0;
     GString* pattern_str;
     gchar sep;
     GSList *extensions_list, *extension;
-    int et;
 
     /*
      * Microsoft's UI guidelines say, of the file filters in open and
@@ -1456,7 +1455,7 @@ build_file_open_type_list(void) {
     sa = g_array_append_val(sa, zero);
 
     /* Include all the file type extensions Wireshark supports. */
-    for (et = 0; et < wtap_get_num_file_type_extensions; et++) {
+    for (et = 0; et < wtap_get_num_file_type_extensions(); et++) {
         append_file_extension_type(sa, et);
     }
 
