@@ -23,6 +23,13 @@
 
 include(UseABICheck)
 
+if (HAVE_HFI_SECTION_INIT)
+	add_definitions(
+		-DHAVE_HFI_SECTION_INIT
+	)
+endif()
+
+
 if (HAVE_LIBLUA)
 	include( wslua/CMakeLists.txt )
 endif()
