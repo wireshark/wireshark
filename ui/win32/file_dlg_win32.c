@@ -1361,7 +1361,6 @@ append_file_extension_type(GArray *sa, int et)
     GSList *extensions_list, *extension;
     TCHAR *str16;
     guint16 zero = 0;
-    int et;
 
     /* Construct the list of patterns. */
     extensions_list = wtap_get_file_extension_type_extensions(et);
@@ -1400,6 +1399,7 @@ build_file_open_type_list(void) {
     GString* pattern_str;
     gchar sep;
     GSList *extensions_list, *extension;
+    int et;
 
     /*
      * Microsoft's UI guidelines say, of the file filters in open and
