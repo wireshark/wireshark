@@ -209,6 +209,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 		g_free(graph_item->comment);
 		g_free((void *)graph_item->src_addr.data);
 		g_free((void *)graph_item->dst_addr.data);
+		g_free(graph_item->time_str);        
 		g_free(list->data);
 		list = g_list_next(list);
 	}
@@ -245,6 +246,7 @@ void graph_analysis_data_init(void) {
 static void add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style)
 {
 	seq_analysis_item_t *gai;
+	gchar time_str[COL_MAX_LEN];
 
 	gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
 	gai->fd = pinfo->fd;
@@ -264,6 +266,8 @@ static void add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, 
 		gai->comment = g_strdup("");
 	gai->conv_num=call_num;
 	gai->line_style=line_style;
+	set_fd_time(cfile.epan, gai->fd, time_str);
+	gai->time_str = g_strdup(time_str);
 	gai->display=FALSE;
 
 	tapinfo->graph_analysis->list = g_list_prepend(tapinfo->graph_analysis->list, gai);
@@ -359,6 +363,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 	GList *list;
 	guint item_num;
 	gboolean inserted;
+	gchar time_str[COL_MAX_LEN];
 
 	new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
 	new_gai->fd = packet_list_get_row_data(frame_num);
@@ -378,6 +383,8 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 		new_gai->comment = g_strdup("");
 	new_gai->conv_num=call_num;
 	new_gai->line_style=line_style;
+	set_fd_time(cfile.epan, new_gai->fd, time_str);
+	new_gai->time_str = g_strdup(time_str);
 	new_gai->display=FALSE;
 
 	item_num = 0;
@@ -602,6 +609,7 @@ static void RTP_packet_draw(void *prs _U_)
 	seq_analysis_item_t *new_gai;
 	guint16 conv_num;
 	guint32 duration;
+	gchar time_str[COL_MAX_LEN];
 
 	/* add each rtp stream to the graph */
 	rtp_streams_list = g_list_first(rtp_tapinfo->list);
@@ -641,6 +649,8 @@ static void RTP_packet_draw(void *prs _U_)
 													(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
 													duration/1000,(duration%1000), rtp_listinfo->ssrc);
 				new_gai->conv_num = conv_num;
+				set_fd_time(cfile.epan, new_gai->fd, time_str);
+				new_gai->time_str = g_strdup(time_str);
 				new_gai->display=FALSE;
 				new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
 				the_tapinfo_struct.graph_analysis->list = g_list_prepend(the_tapinfo_struct.graph_analysis->list, new_gai);
@@ -662,6 +672,7 @@ static void RTP_packet_draw(void *prs _U_)
 	seq_analysis_item_t *new_gai;
 	guint16 conv_num;
 	guint32 duration;
+	gchar time_str[COL_MAX_LEN];
 
 	/* add each rtp stream to the graph */
 	rtp_streams_list = g_list_first(rtp_tapinfo->list);
@@ -714,6 +725,8 @@ static void RTP_packet_draw(void *prs _U_)
 															(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
 															duration/1000,(duration%1000), rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
+						set_fd_time(cfile.epan, new_gai->fd, time_str);
+						new_gai->time_str = g_strdup(time_str);
 						new_gai->display=FALSE;
 						new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
 						the_tapinfo_struct.graph_analysis->list = g_list_insert(the_tapinfo_struct.graph_analysis->list, new_gai, item);
