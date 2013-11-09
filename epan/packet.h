@@ -29,7 +29,6 @@
 #include "proto.h"
 #include "tvbuff.h"
 #include "wsutil/pint.h"
-#include "to_str.h"
 #include "value_string.h"
 #include "column-info.h"
 #include "frame_data.h"

@@ -29,6 +29,7 @@
 
 #include <string.h>
 
+#include <epan/to_str.h>
 #include "packet-rpc.h"
 #include "packet-mount.h"
 #include "packet-nfs.h"

@@ -27,6 +27,7 @@
 
 #include <ftypes-int.h>
 #include <epan/guid-utils.h>
+#include <epan/to_str.h>
 
 static void
 guid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)

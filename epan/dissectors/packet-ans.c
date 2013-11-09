@@ -48,6 +48,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <etypes.h>
 
 void proto_register_ans(void);

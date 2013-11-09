@@ -5737,6 +5737,7 @@ def produce_code():
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/ptvcursor.h>
 #include <epan/emem.h>

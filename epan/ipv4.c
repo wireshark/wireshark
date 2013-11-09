@@ -32,7 +32,7 @@
 #include <stdio.h>
 
 #include "ipv4.h"
-#include "packet.h" /* for ip_to_str */
+#include "to_str.h"
 #include "addr_and_mask.h"
 
 

@@ -30,6 +30,7 @@
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
+#include <epan/to_str.h>
 
 /* Forward declarations */
 void proto_register_aarp(void);

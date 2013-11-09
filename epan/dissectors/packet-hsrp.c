@@ -139,6 +139,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 static gint proto_hsrp = -1;
 static dissector_handle_t data_handle;

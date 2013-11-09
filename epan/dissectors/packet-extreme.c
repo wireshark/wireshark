@@ -145,6 +145,7 @@ These are the structures you will see most often in EDP frames.
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/in_cksum.h>
 #include "packet-llc.h"

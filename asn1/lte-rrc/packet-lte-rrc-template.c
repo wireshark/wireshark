@@ -31,6 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>

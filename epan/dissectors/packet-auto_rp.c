@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 void proto_register_auto_rp(void);
 void proto_reg_handoff_auto_rp(void);

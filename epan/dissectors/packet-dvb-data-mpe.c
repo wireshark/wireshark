@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
 void proto_register_dvb_data_mpe(void);

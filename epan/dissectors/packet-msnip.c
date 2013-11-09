@@ -40,6 +40,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include "packet-igmp.h"
 #include "packet-msnip.h"
 

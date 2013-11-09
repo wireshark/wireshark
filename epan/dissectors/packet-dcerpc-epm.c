@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"

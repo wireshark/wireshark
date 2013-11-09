@@ -32,6 +32,7 @@
 
 #include <epan/emem.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/tcap-persistentdata.h>
 #include <epan/dissectors/packet-tcap.h>

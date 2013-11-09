@@ -50,6 +50,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 #include <epan/ipproto.h>
 #include <epan/expert.h>

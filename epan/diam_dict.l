@@ -66,6 +66,7 @@
 #include <stdarg.h>
 #include "diam_dict.h"
 #include "diam_dict_lex.h"
+#include <epan/to_str.h>
 #include <wsutil/file_util.h>
 
 typedef struct entity_t {

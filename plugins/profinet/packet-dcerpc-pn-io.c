@@ -51,6 +51,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>

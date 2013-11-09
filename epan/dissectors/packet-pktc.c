@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/asn1.h>
 #include "packet-pktc.h"
 #include "packet-kerberos.h"

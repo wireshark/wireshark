@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 /* Offsets of fields within a PagP PDU */
 

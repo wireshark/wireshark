@@ -28,7 +28,6 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/packet_info.h>
-#include <epan/to_str.h>
 #include <epan/tap.h>
 #include "../stat_menu.h"
 #include "../register.h"

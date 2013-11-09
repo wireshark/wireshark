@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/etypes.h>
 #include <epan/conversation.h>
 #include "packet-scsi.h"

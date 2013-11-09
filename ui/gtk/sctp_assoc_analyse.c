@@ -28,6 +28,7 @@
 
 #include <epan/epan_dissect.h>
 #include "epan/filesystem.h"
+#include <epan/to_str.h>
 #include <epan/strutil.h>
 
 #include "../globals.h"

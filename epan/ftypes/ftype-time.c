@@ -38,6 +38,7 @@
 #include <time.h>
 
 #include <ftypes-int.h>
+#include <epan/to_str.h>
 
 #ifdef NEED_STRPTIME_H
 #include "wsutil/strptime.h"

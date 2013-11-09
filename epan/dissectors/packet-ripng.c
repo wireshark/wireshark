@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 static int proto_ripng = -1;
 static int hf_ripng_cmd = -1;

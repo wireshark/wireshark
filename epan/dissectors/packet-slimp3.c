@@ -33,6 +33,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 static int proto_slimp3 = -1;
 static int hf_slimp3_opcode = -1;

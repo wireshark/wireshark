@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/sminmpec.h>
 
 void proto_register_mip(void);

@@ -34,6 +34,7 @@
 
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
+#include <epan/to_str.h>
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include <epan/emem.h>

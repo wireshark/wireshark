@@ -49,6 +49,7 @@
 #include <epan/wmem/wmem.h>
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
+#include <epan/to_str.h>
 
 #include "packet-radius.h"
 

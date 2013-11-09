@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 

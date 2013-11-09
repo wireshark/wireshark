@@ -42,6 +42,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/sctpppids.h>
 
 void proto_register_enrp(void);

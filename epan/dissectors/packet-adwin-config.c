@@ -32,6 +32,7 @@
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/ipproto.h>
+#include <epan/to_str.h>
 
 /* Forward declarations */
 void proto_register_adwin_config(void);

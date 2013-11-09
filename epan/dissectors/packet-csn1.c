@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include "packet-csn1.h"
 
 #define pvDATA(_pv, _offset) ((void*) ((unsigned char*)_pv + _offset))

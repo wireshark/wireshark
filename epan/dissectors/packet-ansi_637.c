@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
+#include <epan/to_str.h>
 
 #include "packet-gsm_sms.h"
 

@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/expert.h>
 
 #define UDP_PORT_XDMCP 177
