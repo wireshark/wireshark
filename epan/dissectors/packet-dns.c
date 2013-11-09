@@ -1085,9 +1085,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
 
             if (maxname > 0) {
               print_len = g_snprintf(np, maxname + 1, "\\[x");
-              if (print_len != -1 && print_len <= maxname) {
-                /* Some versions of g_snprintf return -1 if they'd truncate
-                   the output.  Others return <buf_size> or greater. */
+              if (print_len <= maxname) {
                 np      += print_len;
                 maxname -= print_len;
               } else {
@@ -1100,9 +1098,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
               if (maxname > 0) {
                 print_len = g_snprintf(np, maxname + 1, "%02x",
                                        tvb_get_guint8(tvb, offset));
-                if (print_len != -1 && print_len <= maxname) {
-                  /* Some versions of g_snprintf return -1 if they'd truncate
-                     the output.  Others return <buf_size> or greater. */
+                if (print_len <= maxname) {
                   np      += print_len;
                   maxname -= print_len;
                 } else {
@@ -1115,9 +1111,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             }
             if (maxname > 0) {
               print_len = g_snprintf(np, maxname + 1, "/%d]", bit_count);
-              if (print_len != -1 && print_len <= maxname) {
-                /* Some versions of g_snprintf return -1 if they'd truncate
-                   the output.  Others return <buf_size> or greater. */
+              if (print_len <= maxname) {
                 np      += print_len;
                 maxname -= print_len;
               } else {
