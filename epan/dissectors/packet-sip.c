@@ -2108,6 +2108,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	 */
 	orig_offset = offset;
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	if(linelen==0){
+		return -2;
+	}
+
 	if (tvb_strnlen(tvb, offset, linelen) > -1)
 	{
 		/*
