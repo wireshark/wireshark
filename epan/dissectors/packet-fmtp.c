@@ -70,7 +70,7 @@ static const value_string system_message_names[] = {
 };
 
 static int
-dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8      packet_type;
     guint16     packet_len;

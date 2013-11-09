@@ -6741,7 +6741,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
  *  Main dissector entry points
  */
 static int
-dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data_U_)
+dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *r3_tree = NULL;
 

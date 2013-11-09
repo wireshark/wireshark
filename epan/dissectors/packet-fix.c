@@ -340,12 +340,12 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 {
                     proto_tree *checksum_tree;
                     guint8 sum = 0;
-                    const guint8 *data = tvb_get_ptr(tvb, 0, field_offset);
+                    const guint8 *sum_data = tvb_get_ptr(tvb, 0, field_offset);
                     gboolean sum_ok;
                     int j;
 
-                    for (j = 0; j < field_offset; j++, data++) {
-                         sum += *data;
+                    for (j = 0; j < field_offset; j++, sum_data++) {
+                         sum += *sum_data;
                     }
                     sum_ok = (atoi(value) == sum);
                     if (sum_ok) {
