@@ -47,6 +47,7 @@
 #include "charsets.h"
 #include "asm_utils.h"
 #include "column-utils.h"
+#include "to_str-int.h"
 #include "to_str.h"
 #include "expert.h"
 #include "show_exception.h"
@@ -5670,12 +5671,6 @@ _hfinfo_type_hex_octet(int type)
 	}
 	return -1;
 }
-
-/* private to_str.c API don't export to .h! */
-char *oct_to_str_back(char *ptr, guint32 value);
-char *hex_to_str_back(char *ptr, int pad, guint32 value);
-char *uint_to_str_back(char *ptr, guint32 value);
-char *int_to_str_back(char *ptr, gint32 value);
 
 static const char *
 hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value)

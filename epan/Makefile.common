@@ -257,6 +257,7 @@ LIBWIRESHARK_INCLUDES =		\
 	tfs.h			\
 	time_fmt.h		\
 	to_str.h		\
+	to_str-int.h		\
 	tvbparse.h		\
 	tvbuff.h		\
 	tvbuff-int.h		\

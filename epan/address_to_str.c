@@ -51,6 +51,7 @@
 # include "wsutil/inet_v6defs.h"
 #endif
 
+#include "to_str-int.h"
 #include "to_str.h"
 #include "value_string.h"
 #include "addr_resolv.h"
@@ -61,14 +62,6 @@
 #include <epan/dissectors/packet-mtp3.h>
 #include <stdio.h>
 #include "emem.h"
-
-/* private to_str.c API, don't export to .h! */
-char *word_to_hex(char *out, guint16 word);
-char *word_to_hex_npad(char *out, guint16 word);
-char *dword_to_hex_punct(char *out, guint32 dword, char punct);
-char *dword_to_hex(char *out, guint32 dword);
-char *bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
-char *bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct);
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably

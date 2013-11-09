@@ -32,6 +32,7 @@
 #include "emem.h"
 #include "proto.h"
 #include "to_str.h"
+#include "to_str-int.h"
 #include "strutil.h"
 
 /*
