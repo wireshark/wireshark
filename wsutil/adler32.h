@@ -26,13 +26,15 @@
 #ifndef ADLER32_H
 #define ADLER32_H
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len);
-guint32 adler32_bytes(const guint8 *buf, size_t len);
-guint32 adler32_str(const char *buf);
+WS_DLL_PUBLIC guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len);
+WS_DLL_PUBLIC guint32 adler32_bytes(const guint8 *buf, size_t len);
+WS_DLL_PUBLIC guint32 adler32_str(const char *buf);
 
 #ifdef __cplusplus
 }
