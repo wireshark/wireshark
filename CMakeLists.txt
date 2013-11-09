@@ -27,11 +27,20 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
-if(COMMAND cmake_policy)
-	# Backward compatibility for versions < 2.6.3
-	cmake_policy(SET CMP0011 OLD)
-#	cmake_policy(SET CMP0015 NEW)
-endif(COMMAND cmake_policy)
+# Policy since 2.6.1
+cmake_policy(SET CMP0008 NEW)
+# Policy since 2.6.3
+# Backward compatibility for versions < 2.6.3
+cmake_policy(SET CMP0011 OLD)
+# Policy since 2.8.1
+#cmake_policy(SET CMP0015 NEW)
+# Policy since 2.8.11
+if( ${CMAKE_MAJOR_VERSION} GREATER 2 OR
+    ${CMAKE_MINOR_VERSION} GREATER 8 OR
+    (${CMAKE_MINOR_VERSION} EQUAL 8 AND ${CMAKE_PATCH_VERSION} GREATER 10) )
+	# Don't: Automatically link Qt executable to qtmain target on Windows
+	cmake_policy(SET CMP0020 OLD)
+endif()
 
 # This cannot be implemented via option(...)
 if( NOT CMAKE_BUILD_TYPE )
