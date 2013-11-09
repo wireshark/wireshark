@@ -297,7 +297,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->getdouble(tvb, offset);
 			offset += 8;
 
-			proto_tree_add_double_format(tree, hfi_dbus_value_double.id, tvb, org_offset, offset - org_offset, val, "DOUBLE: %." STRINGIFY(DBL_DIG) "g", val);
+			proto_tree_add_double_format(tree, hfi_dbus_value_double.id, tvb, org_offset, offset - org_offset, val, "DOUBLE: %." G_STRINGIFY(DBL_DIG) "g", val);
 			/* XXX ret */
 			return offset;
 		}

@@ -830,7 +830,7 @@ static void get_NVA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
   fvalue = (float)value / 32768;
 
   /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
+  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." G_STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
   (*offset) += 2;
 }
@@ -844,7 +844,7 @@ static void get_NVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
   fvalue = (float)value / 32768;
 
   /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
+  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." G_STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
   (*offset) += 2;
 }

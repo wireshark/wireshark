@@ -500,7 +500,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             num_bss_entries = tvb_get_ntohl(tvb, starting_offset + 8);
 
             if (num_bss_entries > NUM_BSS) {
-                proto_item_append_text(pi, " [**Too large: Limiting to " STRINGIFY(NUM_BSS) "]");
+                proto_item_append_text(pi, " [**Too large: Limiting to " G_STRINGIFY(NUM_BSS) "]");
                 num_bss_entries = NUM_BSS;
             }
             /* Add 4 bytes of pad for the offset */

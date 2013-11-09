@@ -138,7 +138,7 @@ typedef struct {
     gboolean    optional;
 } symbol_table_t;
 
-#define SYM(x, y)   { STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
+#define SYM(x, y)   { G_STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
 
 void
 wpcap_packet_load(void)

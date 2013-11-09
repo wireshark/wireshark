@@ -127,7 +127,7 @@ typedef struct {
 	gboolean	optional;
 } symbol_table_t;
 
-#define SYM(x, y)	{ STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
+#define SYM(x, y)	{ G_STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
 
 void
 load_wpcap(void)
@@ -903,7 +903,7 @@ cant_get_if_list_error_message(const char *err_str)
 void
 get_compiled_pcap_version(GString *str)
 {
-	g_string_append(str, "with WinPcap (" STRINGIFY(PCAP_VERSION) ")");
+	g_string_append(str, "with WinPcap (" G_STRINGIFY(PCAP_VERSION) ")");
 }
 
 /*

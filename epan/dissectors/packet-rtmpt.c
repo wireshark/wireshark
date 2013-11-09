@@ -968,9 +968,9 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
                 proto_tree_add_double(val_tree, hf_amf_number, tvb, iValueOffset, 8, iDoubleValue);
                 iValueOffset += 8;
-                proto_item_append_text(ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                proto_item_append_text(ti, " %." G_STRINGIFY(DBL_DIG) "g", iDoubleValue);
                 if (parent_ti != NULL)
-                        proto_item_append_text(parent_ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                        proto_item_append_text(parent_ti, " %." G_STRINGIFY(DBL_DIG) "g", iDoubleValue);
                 break;
         case AMF0_BOOLEAN:
                 iBooleanValue = tvb_get_guint8(tvb, iValueOffset);
@@ -1229,9 +1229,9 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
                 proto_tree_add_double(val_tree, hf_amf_number, tvb, iValueOffset, 8, iDoubleValue);
                 iValueOffset += 8;
-                proto_item_append_text(ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                proto_item_append_text(ti, " %." G_STRINGIFY(DBL_DIG) "g", iDoubleValue);
                 if (parent_ti != NULL)
-                        proto_item_append_text(parent_ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                        proto_item_append_text(parent_ti, " %." G_STRINGIFY(DBL_DIG) "g", iDoubleValue);
                 break;
         case AMF3_STRING:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);

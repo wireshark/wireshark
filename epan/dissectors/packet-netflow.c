@@ -8303,7 +8303,7 @@ proto_register_netflow(void)
                                    "Maximum number of fields allowed in a template",
                                    "Set the number of fields allowed in a template.  "
                                    "Use 0 (zero) for unlimited.  "
-                                   " (default: " STRINGIFY(V9TEMPLATE_MAX_FIELDS_DEF) ")",
+                                   " (default: " G_STRINGIFY(V9TEMPLATE_MAX_FIELDS_DEF) ")",
                                    10, &v9_tmplt_max_fields);
 
     register_init_routine(&netflow_init);

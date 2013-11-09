@@ -239,10 +239,6 @@ WS_DLL_PUBLIC
 const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
 		const guint8 *needle, guint needle_len);
 
-/** Surround a string or a macro, resolved to a string, with double quotes */
-#define _STRINGIFY(a)           # a
-#define STRINGIFY(a)            _STRINGIFY(a)
-
 /** Scan a string to make sure it's valid hex.
  *
  * @param string The string to validate
