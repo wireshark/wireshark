@@ -31,7 +31,7 @@
 #include <float.h>
 
 #include <wsutil/bits_ctz.h>
-#include <wsutil/swar.h>
+#include <wsutil/bits_count_ones.h>
 
 #include "packet.h"
 #include "ptvcursor.h"
@@ -3127,7 +3127,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		/* Shift bits */
 		integer >>= hfinfo_bitshift(hfinfo);
 
-		no_of_bits = swar_count_bits(hfinfo->bitmask);
+		no_of_bits = ws_count_ones(hfinfo->bitmask);
 		if (integer & (1 << (no_of_bits-1)))
 			integer |= (-1 << no_of_bits);
 	}

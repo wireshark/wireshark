@@ -1,5 +1,5 @@
 /*
- *  swar.c
+ * bits_count_ones.h
  *
  * $Id$
  *
@@ -23,11 +23,12 @@
  *
  */
 
+#ifndef __WSUTIL_BITS_COUNT_ONES_H__
+#define __WSUTIL_BITS_COUNT_ONES_H__
+
 #include "config.h"
 
 #include <glib.h>
-
-#include "swar.h"
 
 /*
  * The variable-precision SWAR algorithm is an interesting way to count 
@@ -37,9 +38,10 @@
  * http://playingwithpointers.com/swar.html
  */
 
-int swar_count_bits(const guint32 bitmask)
+static inline int
+ws_count_ones(const guint32 x)
 {
-	int bits = bitmask;
+	int bits = x;
 
 	bits = bits - ((bits >> 1) & 0x55555555);
 	bits = (bits & 0x33333333) + ((bits >> 2) & 0x33333333);
@@ -47,3 +49,5 @@ int swar_count_bits(const guint32 bitmask)
 
 	return (bits * 0x01010101) >> 24;
 }
+
+#endif /* __WSUTIL_BITS_COUNT_ONES_H__ */

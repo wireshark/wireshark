@@ -61,7 +61,6 @@ set(WSUTIL_FILES
   str_util.c
   rc4.c
   report_err.c
-  swar.c
   tempfile.c
   type_util.c
   u3.c
