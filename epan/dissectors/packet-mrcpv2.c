@@ -957,14 +957,14 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return num_msg_len;
 }
 
-static void
-dissect_mrcpv2_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mrcpv2_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_mrcpv2_common(tvb, pinfo, tree);
+    return dissect_mrcpv2_common(tvb, pinfo, tree);
 }
 
 static int
-dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint len;
     gint value_size;
@@ -1019,7 +1019,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* if we are here, then we have MRCP v 2.0 protocol, so proceed with the dissection */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MRCPV2_MIN_PDU_LEN,
                     get_mrcpv2_pdu_len,
-                    dissect_mrcpv2_tcp_pdu);
+                    dissect_mrcpv2_tcp_pdu, data);
     return len;
 }
 

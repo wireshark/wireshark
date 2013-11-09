@@ -47,10 +47,6 @@
 
 #include "packet-tcp.h"
 
-/* Prototypes   */
-static void dissect_ucp_tcp(tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_ucp_common(tvbuff_t *, packet_info *, proto_tree *);
-
 /* Tap Record */
 typedef struct _ucp_tap_rec_t {
     guint message_type; /* 0 = Operation; 1 = Result */
@@ -1713,46 +1709,6 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
 #undef UcpHandleTime
 #undef UcpHandleData
 
-/*
- * The heuristic dissector
- */
-
-static gboolean
-dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-    conversation_t *conversation;
-
-    /* Heuristic */
-
-    if (tvb_length(tvb) < UCP_HEADER_SIZE)
-        return FALSE;
-
-    if ((tvb_get_guint8(tvb, 0)                            != UCP_STX) ||
-        (tvb_get_guint8(tvb, UCP_TRN_OFFSET + UCP_TRN_LEN) != '/') ||
-        (tvb_get_guint8(tvb, UCP_LEN_OFFSET + UCP_LEN_LEN) != '/') ||
-        (tvb_get_guint8(tvb, UCP_O_R_OFFSET + UCP_O_R_LEN) != '/') ||
-        (tvb_get_guint8(tvb, UCP_OT_OFFSET  + UCP_OT_LEN)  != '/'))
-        return FALSE;
-
-    if (try_val_to_str(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
-        return FALSE;
-
-    /*
-     * Ok, looks like a valid packet
-     */
-
-    /* Set up a conversation with attached dissector so dissect_ucp_heur
-     *  won't be called any more for this TCP connection.
-     */
-
-    conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, ucp_handle);
-
-    dissect_ucp_tcp(tvb, pinfo, tree);
-
-    return TRUE;
-}
-
 static guint
 get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -1769,21 +1725,14 @@ get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return intval + 2;
 }
 
-
-static void
-dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    tcp_dissect_pdus(tvb, pinfo, tree, ucp_desegment, UCP_HEADER_SIZE,
-                     get_ucp_pdu_len, dissect_ucp_common);
-}
 /*
  * The actual dissector
  */
 
 /* We get here only with at least LEN+2 bytes in the buffer */
 
-static void
-dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int          offset = 0;    /* Offset in packet within tvbuff       */
     guint8       O_R;           /* Request or response                  */
@@ -1806,9 +1755,9 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tvb_get_guint8(tvb, 0) != UCP_STX){
-                proto_tree_add_text(tree, tvb, 0, -1,"UCP_STX missing, this is not a new packet");
-                return;
-        }
+        proto_tree_add_text(tree, tvb, 0, -1,"UCP_STX missing, this is not a new packet");
+        return tvb_length(tvb);
+    }
 
     /* Get data needed for dissect_ucp_common */
     result = check_ucp(tvb, &endpkt);
@@ -1975,7 +1924,55 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Queue packet for Tap */
     tap_queue_packet(ucp_tap, pinfo, tap_rec);
 
-    return;
+    return tvb_length(tvb);
+}
+
+static int
+dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, ucp_desegment, UCP_HEADER_SIZE,
+                     get_ucp_pdu_len, dissect_ucp_common, data);
+    return tvb_length(tvb);
+}
+
+/*
+ * The heuristic dissector
+ */
+
+static gboolean
+dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    conversation_t *conversation;
+
+    /* Heuristic */
+
+    if (tvb_length(tvb) < UCP_HEADER_SIZE)
+        return FALSE;
+
+    if ((tvb_get_guint8(tvb, 0)                            != UCP_STX) ||
+        (tvb_get_guint8(tvb, UCP_TRN_OFFSET + UCP_TRN_LEN) != '/') ||
+        (tvb_get_guint8(tvb, UCP_LEN_OFFSET + UCP_LEN_LEN) != '/') ||
+        (tvb_get_guint8(tvb, UCP_O_R_OFFSET + UCP_O_R_LEN) != '/') ||
+        (tvb_get_guint8(tvb, UCP_OT_OFFSET  + UCP_OT_LEN)  != '/'))
+        return FALSE;
+
+    if (try_val_to_str(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
+        return FALSE;
+
+    /*
+     * Ok, looks like a valid packet
+     */
+
+    /* Set up a conversation with attached dissector so dissect_ucp_heur
+     *  won't be called any more for this TCP connection.
+     */
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, ucp_handle);
+
+    dissect_ucp_tcp(tvb, pinfo, tree, data);
+
+    return TRUE;
 }
 
 /* Register the protocol with Wireshark */
@@ -2772,7 +2769,7 @@ proto_reg_handoff_ucp(void)
     /*
      * Also register as a dissector that can be selected by a TCP port number via "decode as".
      */
-    ucp_handle = create_dissector_handle(dissect_ucp_tcp, proto_ucp);
+    ucp_handle = new_create_dissector_handle(dissect_ucp_tcp, proto_ucp);
     dissector_add_handle("tcp.port", ucp_handle);
 
     /* Tapping setup */

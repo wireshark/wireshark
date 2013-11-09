@@ -4295,21 +4295,21 @@ get_ndps_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return tvb_get_ntohs(tvb, offset +2) + 4;
 }
 
-static void
-dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree      *ndps_tree = NULL;
+    proto_tree      *ndps_tree;
     proto_item      *ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, ENC_NA);
-        ndps_tree = proto_item_add_subtree(ti, ett_ndps);
-    }
+    ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, ENC_NA);
+    ndps_tree = proto_item_add_subtree(ti, ett_ndps);
+
     dissect_ndps(tvb, pinfo, ndps_tree);
+    return tvb_length(tvb);
 }
 
 /*
@@ -4470,10 +4470,11 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
     }
 }
 
-static void
-dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, ndps_desegment, 4, get_ndps_pdu_len, dissect_ndps_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, ndps_desegment, 4, get_ndps_pdu_len, dissect_ndps_pdu, data);
+    return tvb_length(tvb);
 }
 
 
@@ -9801,7 +9802,7 @@ proto_reg_handoff_ndps(void)
     dissector_handle_t ndps_handle, ndps_tcp_handle;
 
     ndps_handle = new_create_dissector_handle(dissect_ndps_ipx, proto_ndps);
-    ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
+    ndps_tcp_handle = new_create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 
     dissector_add_uint("spx.socket", SPX_SOCKET_PA, ndps_handle);
     dissector_add_uint("spx.socket", SPX_SOCKET_BROKER, ndps_handle);

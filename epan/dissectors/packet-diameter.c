@@ -896,8 +896,8 @@ static const char *msgflags_str[] = {
 	"RP--", "RP-T", "RPE-", "RPET"
 };
 
-static void
-dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint32 first_word  = tvb_get_ntohl(tvb,0);
 	guint32 version = (first_word & 0xff000000) >> 24;
@@ -1137,6 +1137,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(have_tap_listener(exported_pdu_tap)){
 		export_diameter_pdu(pinfo,tvb);
 	}
+
+	return tvb_length(tvb);
 }
 
 static guint
@@ -1166,16 +1168,15 @@ check_diameter(tvbuff_t *tvb)
 /************************************************/
 /* Main dissection function                     */
 static int
-dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (!check_diameter(tvb))
 		return 0;
-	dissect_diameter_common(tvb, pinfo, tree);
-	return tvb_length(tvb);
+	return dissect_diameter_common(tvb, pinfo, tree, data);
 }
 
-static void
-dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	/* Check if we have the start of a PDU or if this is segment */
 	if (!check_diameter(tvb)) {
@@ -1184,8 +1185,10 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(data_handle, tvb, pinfo, tree);
 	} else {
 		tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
-				 get_diameter_pdu_len, dissect_diameter_common);
+				 get_diameter_pdu_len, dissect_diameter_common, data);
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -1929,7 +1932,7 @@ proto_reg_handoff_diameter(void)
 
 	if (!Initialized) {
 		diameter_sctp_handle = find_dissector("diameter");
-		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
+		diameter_tcp_handle = new_create_dissector_handle(dissect_diameter_tcp,
 							      proto_diameter);
 		diameter_udp_handle = new_create_dissector_handle(dissect_diameter, proto_diameter);
 		data_handle = find_dissector("data");

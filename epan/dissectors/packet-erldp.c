@@ -474,7 +474,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 /*--- dissect_erldp_pdu -------------------------------------------------*/
-static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   gint offset;
   guint32 msg_len;
   guint8 type, ctl_op;
@@ -489,7 +489,7 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   if (is_handshake(tvb, 0)) {
     dissect_erldp_handshake(tvb, pinfo, erldp_tree);
-    return;
+    return tvb_length(tvb);
   }
 
   offset = 0;
@@ -500,7 +500,7 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   if (msg_len == 0) {
     col_set_str(pinfo->cinfo, COL_INFO, "KEEP_ALIVE");
-    return;
+    return offset;
   }
 
   type = tvb_get_guint8(tvb, offset);
@@ -526,26 +526,28 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       proto_tree_add_item(erldp_tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
       col_set_str(pinfo->cinfo, COL_INFO, "unknown header format");
-      return;
   }
+
+  return tvb_length(tvb);
 }
 
 /*--- get_erldp_pdu_len -------------------------------------------------*/
 static guint get_erldp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
   if (is_handshake(tvb, offset))
     return(2 + tvb_get_ntohs(tvb, offset));
-  else
-    return(4 + tvb_get_ntohl(tvb, offset));
+
+  return(4 + tvb_get_ntohl(tvb, offset));
 }
 
 /*--- dissect_erldp -------------------------------------------------*/
-static void
-dissect_erldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_erldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
   tcp_dissect_pdus(tvb, pinfo, tree,
                    erldp_desegment,    /* desegment or not   */
                     4,               /* fixed-length part of the PDU */
                    get_erldp_pdu_len,  /* routine to get the length of the PDU */
-                   dissect_erldp_pdu); /* routine to dissect a PDU */
+                   dissect_erldp_pdu, data); /* routine to dissect a PDU */
+  return tvb_length(tvb);
 }
 
 /*--- proto_register_erldp ----------------------------------------------*/
@@ -677,7 +679,7 @@ void proto_register_erldp(void) {
   /* Register protocol and dissector */
   proto_erldp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  erldp_handle = register_dissector(PFNAME, dissect_erldp, proto_erldp);
+  erldp_handle = new_register_dissector(PFNAME, dissect_erldp, proto_erldp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_erldp, hf, array_length(hf));

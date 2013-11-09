@@ -560,7 +560,7 @@ static const value_string tipcv2_networkplane_strings[] = {
 };
 
 /* functions forward declarations */
-static void dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 void proto_reg_handoff_tipc(void);
 
 static reassembly_table tipc_msg_reassembly_table;
@@ -966,7 +966,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				col_append_str(pinfo->cinfo, COL_INFO, " | ");
 				col_set_fence(pinfo->cinfo, COL_INFO);
 
-				dissect_tipc(data_tvb, pinfo, top_tree);
+				dissect_tipc(data_tvb, pinfo, top_tree, NULL);
 
 				/* the modulo is used to align the messages to 4 Bytes */
 				offset += msg_in_bundle_size + ((msg_in_bundle_size%4)?(4-(msg_in_bundle_size%4)):0);
@@ -1422,7 +1422,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					 * encapsulated messages */
 					col_append_str(pinfo->cinfo, COL_INFO, " | ");
 					col_set_fence(pinfo->cinfo, COL_INFO);
-					dissect_tipc(new_tvb, pinfo, top_tree);
+					dissect_tipc(new_tvb, pinfo, top_tree, NULL);
 				} else { /* make a new subset */
 					data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
 					call_dissector(data_handle, data_tvb, pinfo, top_tree);
@@ -1915,7 +1915,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 							val_to_str_const(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
 					data_tvb = tvb_new_subset_remaining(tvb, offset);
 					col_set_fence(pinfo->cinfo, COL_INFO);
-					dissect_tipc(data_tvb, pinfo, tipc_tree);
+					dissect_tipc(data_tvb, pinfo, tipc_tree, NULL);
 					break;
 				default:
 					/* INFO_MSG: Even when there are no packets in the send queue of a removed link, the other
@@ -1977,7 +1977,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			pinfo->fragmented = save_fragmented;
 			if (new_tvb) {
 				col_set_fence(pinfo->cinfo, COL_INFO);
-				dissect_tipc(next_tvb, pinfo, tipc_tree);
+				dissect_tipc(next_tvb, pinfo, tipc_tree, NULL);
 				return;
 			}
 
@@ -1991,7 +1991,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				proto_tree_add_text(tipc_tree, tvb, offset, msg_in_bundle_size, "%u Message in Bundle", msg_no);
 				data_tvb = tvb_new_subset(tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
 				col_set_fence(pinfo->cinfo, COL_INFO);
-				dissect_tipc(data_tvb, pinfo, tipc_tree);
+				dissect_tipc(data_tvb, pinfo, tipc_tree, NULL);
 				offset = offset + msg_in_bundle_size;
 			}
 			break;
@@ -2012,15 +2012,15 @@ get_tipc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* triggers the dissection of TIPC-over-TCP */
 static int
-dissect_tipc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+dissect_tipc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, tipc_tcp_desegment, 4, get_tipc_pdu_len,
-			dissect_tipc);
+			dissect_tipc, data);
 	return tvb_length(tvb);
 }
 
-static void
-dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti, *tipc_data_item, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
@@ -2147,7 +2147,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 	if (version == TIPCv2) {
 		dissect_tipc_v2(tipc_tvb, tipc_tree, pinfo, offset, user, msg_size, hdr_size, datatype_hdr);
-		return;
+		return tvb_length(tvb);
 	}
 
 	/* Word 0-2 common for all messages */
@@ -2184,7 +2184,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TIPC_SEGMENTATION_MANAGER:
 		case TIPC_MSG_BUNDLER:
 			dissect_tipc_int_prot_msg(tipc_tvb, pinfo, tipc_tree, offset, user, msg_size);
-			return;
+			return tvb_length(tvb);
 		default:
 			break;
 	}
@@ -2262,7 +2262,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
 				data_tvb = tvb_new_subset_remaining(tipc_tvb, offset);
 				dissect_tipc_name_dist_data(data_tvb, tipc_data_tree, 0);
-				return;
+				return tvb_length(tvb);
 			} else {
 				/* Port name type / Connection level sequence number */
 				proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "Port name type / Connection level sequence number");
@@ -2298,6 +2298,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_tipc_v2_data_subdissectors(next_tvb, pinfo, name_type_p, user);
 		}
 	} /*if (hdr_size <= 5) */
+
+	return tvb_length(tvb);
 }
 
 /* Register TIPC with Wireshark */
@@ -2921,7 +2923,7 @@ proto_register_tipc(void)
 	register_heur_dissector_list("tipc", &tipc_heur_subdissector_list);
 
 	/* Register by name */
-	register_dissector("tipc", dissect_tipc, proto_tipc);
+	new_register_dissector("tipc", dissect_tipc, proto_tipc);
 
 	register_init_routine(tipc_defragment_init);
 
@@ -2979,7 +2981,7 @@ proto_reg_handoff_tipc(void)
 	static range_t *tipc_udp_port_range;
 
 	if (!inited) {
-		tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
+		tipc_handle = new_create_dissector_handle(dissect_tipc, proto_tipc);
 		tipc_tcp_handle = new_create_dissector_handle(dissect_tipc_tcp, proto_tipc);
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");

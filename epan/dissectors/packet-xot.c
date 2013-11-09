@@ -184,7 +184,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int off
   return offset_next - offset_before;
 }
 
-static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
   guint16 version;
@@ -271,9 +271,11 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            call_dissector(x25_handle, next_tvb, pinfo, tree);
         }
      }
+
+     return tvb_length(tvb);
 }
 
-static void dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
    int offset = 0;
    int len = get_xot_pdu_len_mult(pinfo, tvb, offset);
@@ -295,11 +297,12 @@ static void dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       next_tvb = tvb_new_subset(tvb, offset,plen, plen);
                                 /*MIN(plen,tvb_length_remaining(tvb, offset)),plen*/
 
-      dissect_xot_pdu(next_tvb, pinfo, tree);
+      dissect_xot_pdu(next_tvb, pinfo, tree, data);
       offset += plen;
    }
+   return tvb_length(tvb);
 }
-static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
    int tvb_len = tvb_length(tvb);
    int len = 0;
@@ -312,14 +315,14 @@ static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
                        get_xot_pdu_len,
-                       dissect_xot_pdu);
+                       dissect_xot_pdu, data);
       len=get_xot_pdu_len(pinfo, tvb, 0);
    } else {
       /* Use length version that "peeks" into X25, possibly several XOT packets */
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
                        get_xot_pdu_len_mult,
-                       dissect_xot_mult);
+                       dissect_xot_mult, data);
       len=get_xot_pdu_len_mult(pinfo, tvb, 0);
    }
    /*As tcp_dissect_pdus will not report the success/failure, we have to compute

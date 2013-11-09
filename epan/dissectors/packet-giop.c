@@ -4652,7 +4652,7 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 /* Main entry point */
 
-static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
   guint offset = 0;
   MessageHeader header;
   tvbuff_t *payload_tvb;
@@ -4715,7 +4715,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
     call_dissector(data_handle,payload_tvb, pinfo, tree);
-    return;
+    return tvb_length(tvb);
   }
 
   switch (header.GIOP_version.minor)
@@ -4758,7 +4758,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   {
       expert_add_info_format(pinfo, ti, &ei_giop_message_size_too_big,
             "Message size %u is too big, perhaps it's an endian issue?", message_size);
-      return;
+      return 8;
   }
 
   if (header.flags & GIOP_MESSAGE_FLAGS_ZIOP_ENABLED)
@@ -4767,7 +4767,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
     rem_len = tvb_length_remaining(tvb, GIOP_HEADER_SIZE);
     if (rem_len <= 0)
-      return;
+      return 8;
 
     payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, rem_len);
     if (payload_tvb) {
@@ -4775,7 +4775,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     } else {
       /* Decompression failed. */
       /* XXX: Consider:  add expert item ? do data dissection ? */
-      return;
+      return 8;
     }
   } else {
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
@@ -4831,6 +4831,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     break;
 
   }                               /* switch message_type */
+  return tvb_length(tvb);
 }
 
 static guint
@@ -4868,23 +4869,25 @@ gboolean dissect_giop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 
-static void
-dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static int
+dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data) {
 
     if (tvb_get_ntohl(tvb, 0) != GIOP_MAGIC_NUMBER) {
 
     if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) == 0)
-      dissect_ziop_heur(tvb, pinfo, tree, NULL);
+      if (!dissect_ziop_heur(tvb, pinfo, tree, NULL))
+          return 0;
 
-      return;
+      return tvb_length(tvb);
     }
 
   tcp_dissect_pdus(tvb, pinfo, tree, giop_desegment, GIOP_HEADER_SIZE,
-                   get_giop_pdu_len, dissect_giop_common);
+                   get_giop_pdu_len, dissect_giop_common, data);
+  return tvb_length(tvb);
 }
 
 static gboolean
-dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
+dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data) {
 
   guint tot_len;
 
@@ -4922,11 +4925,11 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
       /* Set dissector */
       conversation_set_dissector(conversation, giop_tcp_handle);
     }
-    dissect_giop_tcp (tvb, pinfo, tree);
+    dissect_giop_tcp (tvb, pinfo, tree, data);
   }
   else
   {
-    dissect_giop_common (tvb, pinfo, tree);
+    dissect_giop_common (tvb, pinfo, tree, data);
   }
 
   return TRUE;
@@ -5383,7 +5386,7 @@ proto_register_giop (void)
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP", "giop");
 
   /* Register by name */
-  giop_tcp_handle = register_dissector("giop", dissect_giop_tcp, proto_giop);
+  giop_tcp_handle = new_register_dissector("giop", dissect_giop_tcp, proto_giop);
 
   proto_register_field_array (proto_giop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

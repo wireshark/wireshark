@@ -79,11 +79,12 @@ get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return tvb_get_ntohs(tvb,offset);
 }
 
-static void
-dissect_ilp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ilp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, ilp_desegment, ILP_HEADER_SIZE,
-                   get_ilp_pdu_len, dissect_ILP_PDU_PDU);
+                   get_ilp_pdu_len, dissect_ILP_PDU_PDU, data);
+  return tvb_length(tvb);
 }
 
 void proto_reg_handoff_ilp(void);
@@ -108,7 +109,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  new_register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));

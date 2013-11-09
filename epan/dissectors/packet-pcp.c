@@ -432,8 +432,6 @@ static int dissect_pcp_message_text_req(tvbuff_t *tvb, packet_info *pinfo, proto
 static int dissect_pcp_message_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
-static void dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* message length for dissect_tcp */
 static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -1374,7 +1372,7 @@ static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 }
 
 /* MAIN DISSECTING ROUTINE (after passed from dissect_tcp, all packets hit function) */
-static void dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *root_pcp_item;
     proto_tree *pcp_tree;
@@ -1484,12 +1482,14 @@ static void dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             expert_add_info(pinfo, pcp_tree, &ei_pcp_unimplemented_packet_type);
             break;
     }
+    return tvb_length(tvb);
 }
 
-static void dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /* pass all packets through TCP-reassembally */
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message);
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
+    return tvb_length(tvb);
 }
 
 /* setup the dissecting */
@@ -2260,7 +2260,7 @@ void proto_reg_handoff_pcp(void)
 {
     dissector_handle_t pcp_handle;
 
-    pcp_handle = create_dissector_handle(dissect_pcp, proto_pcp);
+    pcp_handle = new_create_dissector_handle(dissect_pcp, proto_pcp);
     dissector_add_uint("tcp.port", PCP_PORT, pcp_handle);
 }
 

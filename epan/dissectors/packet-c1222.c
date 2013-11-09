@@ -1576,8 +1576,8 @@ static void dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
  * \param pinfo the packet info of the current data
  * \param tree the tree to append this item to
  */
-static void
-dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item      *c1222_item = NULL;
     proto_tree      *c1222_tree = NULL;
@@ -1591,6 +1591,8 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
       dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
     }
+
+    return tvb_length(tvb);
 }
 
 /**
@@ -1621,11 +1623,12 @@ get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
  * \param pinfo the packet info of the current data
  * \param tree the tree to append this item to
  */
-static void
-dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
-          get_c1222_message_len, dissect_c1222_common);
+          get_c1222_message_len, dissect_c1222_common, data);
+  return tvb_length(tvb);
 }
 
 /*--- proto_register_c1222 -------------------------------------------*/
@@ -1954,7 +1957,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1333 "../../asn1/c1222/packet-c1222-template.c"
+#line 1336 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1977,7 +1980,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1343 "../../asn1/c1222/packet-c1222-template.c"
+#line 1346 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2058,8 +2061,8 @@ proto_reg_handoff_c1222(void)
   guint8 *temp = NULL;
 
   if( !initialized ) {
-    c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
-    c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
+    c1222_handle = new_create_dissector_handle(dissect_c1222, proto_c1222);
+    c1222_udp_handle = new_create_dissector_handle(dissect_c1222_common, proto_c1222);
     dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
     dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
     initialized = TRUE;

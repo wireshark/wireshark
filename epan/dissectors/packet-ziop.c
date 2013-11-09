@@ -104,99 +104,10 @@ static const value_string giop_message_types[] = {
 
 static gboolean ziop_desegment = TRUE;
 
-static void dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-
-static guint
-get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
-{
-  guint8 flags;
-  guint message_size;
-  gboolean stream_is_big_endian;
-
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
-    return 0;
-
-  flags = tvb_get_guint8(tvb, offset + 6);
-
-  stream_is_big_endian =  ((flags & 0x1) == 0);
-
-  if (stream_is_big_endian)
-    message_size = tvb_get_ntohl(tvb, offset + 8);
-  else
-    message_size = tvb_get_letohl(tvb, offset + 8);
-
-  return message_size + ZIOP_HEADER_SIZE;
-}
-
-
-static void
-dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
-
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) != 0) {
-
-      if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
-         dissect_giop(tvb, pinfo, tree);
-
-    return;
-  }
-
-  tcp_dissect_pdus(tvb, pinfo, tree, ziop_desegment, ZIOP_HEADER_SIZE,
-                   get_ziop_pdu_len, dissect_ziop);
-}
-
-
-gboolean
-dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
-
-  guint tot_len;
-
-  conversation_t *conversation;
-  /* check magic number and version */
-
-
-  tot_len = tvb_length(tvb);
-
-
-  if (tot_len < ZIOP_HEADER_SIZE) /* tot_len < 12 */
-    {
-      /* Not enough data captured to hold the ZIOP header; don't try
-         to interpret it as GIOP. */
-      return FALSE;
-    }
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0) {
-    return FALSE;
-  }
-
-  if ( pinfo->ptype == PT_TCP )
-    {
-      /*
-       * Make the ZIOP dissector the dissector for this conversation.
-       *
-       * If this isn't the first time this packet has been processed,
-       * we've already done this work, so we don't need to do it
-       * again.
-       */
-      if (!pinfo->fd->flags.visited)
-        {
-          conversation = find_or_create_conversation(pinfo);
-
-          /* Set dissector */
-          conversation_set_dissector(conversation, ziop_tcp_handle);
-        }
-      dissect_ziop_tcp (tvb, pinfo, tree);
-    }
-  else
-    {
-      dissect_ziop (tvb, pinfo, tree);
-    }
-  return TRUE;
-
-}
-
 
 /* Main entry point */
-static void
-dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static int
+dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
   guint offset = 0;
   guint8 giop_version_major, giop_version_minor, message_type;
 
@@ -227,7 +138,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
                                giop_version_minor);
         }
       call_dissector(data_handle, tvb, pinfo, tree);
-      return;
+      return tvb_length(tvb);
     }
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
@@ -272,8 +183,97 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       offset += 4;
       proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, byte_order);
     }
+
+    return tvb_length(tvb);
 }
 
+static guint
+get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+  guint8 flags;
+  guint message_size;
+  gboolean stream_is_big_endian;
+
+  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
+    return 0;
+
+  flags = tvb_get_guint8(tvb, offset + 6);
+
+  stream_is_big_endian =  ((flags & 0x1) == 0);
+
+  if (stream_is_big_endian)
+    message_size = tvb_get_ntohl(tvb, offset + 8);
+  else
+    message_size = tvb_get_letohl(tvb, offset + 8);
+
+  return message_size + ZIOP_HEADER_SIZE;
+}
+
+static int
+dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data) {
+
+  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) != 0) {
+
+      if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER) {
+         dissect_giop(tvb, pinfo, tree);
+	     return tvb_length(tvb);
+      }
+      return 0;
+  }
+
+  tcp_dissect_pdus(tvb, pinfo, tree, ziop_desegment, ZIOP_HEADER_SIZE,
+                   get_ziop_pdu_len, dissect_ziop, data);
+  return tvb_length(tvb);
+}
+
+
+gboolean
+dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data) {
+
+  guint tot_len;
+
+  conversation_t *conversation;
+  /* check magic number and version */
+
+
+  tot_len = tvb_length(tvb);
+
+
+  if (tot_len < ZIOP_HEADER_SIZE) /* tot_len < 12 */
+    {
+      /* Not enough data captured to hold the ZIOP header; don't try
+         to interpret it as GIOP. */
+      return FALSE;
+    }
+  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0) {
+    return FALSE;
+  }
+
+  if ( pinfo->ptype == PT_TCP )
+    {
+      /*
+       * Make the ZIOP dissector the dissector for this conversation.
+       *
+       * If this isn't the first time this packet has been processed,
+       * we've already done this work, so we don't need to do it
+       * again.
+       */
+      if (!pinfo->fd->flags.visited)
+        {
+          conversation = find_or_create_conversation(pinfo);
+
+          /* Set dissector */
+          conversation_set_dissector(conversation, ziop_tcp_handle);
+        }
+      dissect_ziop_tcp (tvb, pinfo, tree, data);
+    }
+  else
+    {
+      dissect_ziop (tvb, pinfo, tree, data);
+    }
+  return TRUE;
+
+}
 
 void proto_register_ziop (void) {
 
@@ -321,14 +321,14 @@ void proto_register_ziop (void) {
   proto_register_field_array (proto_ziop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector("ziop", dissect_ziop, proto_ziop);
+  new_register_dissector("ziop", dissect_ziop, proto_ziop);
 
 }
 
 
 void proto_reg_handoff_ziop (void) {
 
-  ziop_tcp_handle = create_dissector_handle(dissect_ziop_tcp, proto_ziop);
+  ziop_tcp_handle = new_create_dissector_handle(dissect_ziop_tcp, proto_ziop);
   dissector_add_handle("udp.port", ziop_tcp_handle);  /* For 'Decode As' */
 
   heur_dissector_add("tcp", dissect_ziop_heur, proto_ziop);

@@ -1407,8 +1407,8 @@ get_aim_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return plen + 6;
 }
 
-static void
-dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/* Header fields */
 	unsigned char  hdr_channel;           /* channel ID */
@@ -1469,11 +1469,12 @@ dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 
+	return tvb_length(tvb);
 }
 
 /* Code to actually dissect the packets */
 static int
-dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	/* check, if this is really an AIM packet, they start with 0x2a */
 	/* XXX - I've seen some stuff starting with 0x5a followed by 0x2a */
@@ -1490,7 +1491,7 @@ dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, aim_desegment, 6, get_aim_pdu_len,
-			 dissect_aim_pdu);
+			 dissect_aim_pdu, data);
 	return tvb_length(tvb);
 }
 

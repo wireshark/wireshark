@@ -324,9 +324,6 @@ static const value_string ymsg_status_vals[] = {
 	{0, NULL}
 };
 
-static guint get_ymsg_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
-static void dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Find the end of the current content line and return its length */
 static int get_content_item_length(tvbuff_t *tvb, int offset)
 {
@@ -340,23 +337,6 @@ static int get_content_item_length(tvbuff_t *tvb, int offset)
 		offset += 1;
 	}
 	return offset - origoffset;
-}
-
-
-static gboolean
-dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	if (tvb_length(tvb) < 4) {
-		return FALSE;
-	}
-	if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {
-		/* Not a Yahoo Messenger packet. */
-		return FALSE;
-	}
-
-	tcp_dissect_pdus(tvb, pinfo, tree, ymsg_desegment, 10, get_ymsg_pdu_len,
-			 dissect_ymsg_pdu);
-	return TRUE;
 }
 
 static guint
@@ -375,8 +355,8 @@ get_ymsg_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return plen + YAHOO_HEADER_SIZE;
 }
 
-static void
-dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *ymsg_tree, *ti;
 	proto_item *content_item;
@@ -488,7 +468,24 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	return;
+	return tvb_length(tvb);
+}
+
+
+static gboolean
+dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	if (tvb_length(tvb) < 4) {
+		return FALSE;
+	}
+	if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {
+		/* Not a Yahoo Messenger packet. */
+		return FALSE;
+	}
+
+	tcp_dissect_pdus(tvb, pinfo, tree, ymsg_desegment, 10, get_ymsg_pdu_len,
+			 dissect_ymsg_pdu, data);
+	return TRUE;
 }
 
 void

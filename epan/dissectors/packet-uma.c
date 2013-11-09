@@ -1614,8 +1614,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 
 
-static void
-dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int		offset = 0;
 	guint8	octet, pd;
@@ -1641,7 +1641,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if ((octet & 0xf0) != 0 ){
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Skip this message");
-		return;
+		return tvb_length(tvb);
 	}
 
 	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1675,6 +1675,8 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
 		break;
 	}
+
+	return tvb_length(tvb);
 }
 
 static guint
@@ -1684,11 +1686,12 @@ get_uma_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohs(tvb,offset)+2;
 }
 
-static void
-dissect_uma_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_uma_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, uma_desegment, UMA_HEADER_SIZE,
-	    get_uma_pdu_len, dissect_uma);
+	    get_uma_pdu_len, dissect_uma, data);
+	return tvb_length(tvb);
 }
 
 static int
@@ -2280,7 +2283,7 @@ proto_register_uma(void)
 /* Register the protocol name and description */
 	proto_uma = proto_register_protocol("Unlicensed Mobile Access","UMA", "uma");
 	/* subdissector code */
-	register_dissector("umatcp", dissect_uma_tcp, proto_uma);
+	new_register_dissector("umatcp", dissect_uma_tcp, proto_uma);
         new_register_dissector("umaudp", dissect_uma_urlc_udp, proto_uma);
 
 /* Required function calls to register the header fields and subtrees used */

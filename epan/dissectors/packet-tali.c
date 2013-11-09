@@ -97,8 +97,8 @@ get_tali_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return length+TALI_HEADER_LENGTH;
 }
 
-static void
-dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   char opcode[TALI_OPCODE_LENGTH+1]; /* TALI opcode */
   guint16 length; /* TALI length */
@@ -133,13 +133,16 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(data_handle, payload_tvb, pinfo, tree);
     }
   }
+
+  return tvb_length(tvb);
 }
 
-static void
-dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, tali_desegment, TALI_HEADER_LENGTH,
-                   get_tali_pdu_len, dissect_tali_pdu);
+                   get_tali_pdu_len, dissect_tali_pdu, data);
+  return tvb_length(tvb);
 }
 
 /*
@@ -150,7 +153,7 @@ dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *	it is a 'well-known' operation
  */
 static gboolean
-dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   char opcode[TALI_OPCODE_LENGTH]; /* TALI opcode */
 
@@ -173,7 +176,7 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       strncmp(opcode, TALI_SAAL, TALI_OPCODE_LENGTH) != 0)
     return FALSE;
 
-  dissect_tali(tvb, pinfo, tree);
+  dissect_tali(tvb, pinfo, tree, data);
   return TRUE;
 }
 
@@ -203,7 +206,7 @@ proto_register_tali(void)
   proto_tali = proto_register_protocol("Transport Adapter Layer Interface v1.0, RFC 3094", "TALI", "tali");
   hfi_tali   = proto_registrar_get_nth(proto_tali);
 
-  register_dissector("tali", dissect_tali, proto_tali);
+  new_register_dissector("tali", dissect_tali, proto_tali);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_fields(proto_tali, hfi, array_length(hfi));

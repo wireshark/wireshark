@@ -1412,8 +1412,8 @@ get_srvloc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
         return tvb_get_ntohs(tvb, offset + 2);
 }
 
-static void
-dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree	    *srvloc_tree = NULL;
     proto_item	    *ti;
@@ -1427,10 +1427,11 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     }
     dissect_srvloc(tvb, pinfo, srvloc_tree, NULL);
+    return tvb_length(tvb);
 }
 
-static void
-dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /*
      * XXX - in SLPv1, the fixed length need only be 4, as the length
@@ -1441,7 +1442,8 @@ dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * and we can't handle a length < 4 anyway.
      */
     tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 5, get_srvloc_pdu_len,
-	dissect_srvloc_pdu);
+                     dissect_srvloc_pdu, data);
+    return tvb_length(tvb);
 }
 
 /* Register protocol with Wireshark. */
@@ -1915,7 +1917,7 @@ proto_reg_handoff_srvloc(void)
     dissector_handle_t srvloc_handle, srvloc_tcp_handle;
     srvloc_handle = new_create_dissector_handle(dissect_srvloc, proto_srvloc);
     dissector_add_uint("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
-    srvloc_tcp_handle = create_dissector_handle(dissect_srvloc_tcp,
+    srvloc_tcp_handle = new_create_dissector_handle(dissect_srvloc_tcp,
 						proto_srvloc);
     dissector_add_uint("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
 }

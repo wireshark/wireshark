@@ -2116,8 +2116,8 @@ get_dhcpv6_bulk_leasequery_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int of
     return (tvb_get_ntohs(tvb, offset)+2);
 }
 
-static void
-dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *bulk_tree, *option_tree;
@@ -2162,13 +2162,16 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     while ((offset < end) && !at_end)
         offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset,
                                 end, &at_end, proto_dhcpv6_bulk_leasequery);
+
+    return tvb_length(tvb);
 }
 
-static void
-dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, dhcpv6_bulk_leasequery_desegment, 2,
-                    get_dhcpv6_bulk_leasequery_pdu_len, dissect_dhcpv6_bulk_leasequery_pdu);
+                    get_dhcpv6_bulk_leasequery_pdu_len, dissect_dhcpv6_bulk_leasequery_pdu, data);
+    return tvb_length(tvb);
 }
 
 void
@@ -2521,7 +2524,7 @@ proto_reg_handoff_dhcpv6(void)
     dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_upstream,
                                             proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
-    dhcpv6_bulkquery_handle = create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
+    dhcpv6_bulkquery_handle = new_create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
                                             proto_dhcpv6_bulk_leasequery);
     dissector_add_uint("tcp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);
 }

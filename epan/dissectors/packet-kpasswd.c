@@ -256,8 +256,8 @@ dissect_kpasswd_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_kpasswd_common(tvb, pinfo, tree, FALSE);
 }
 
-static void
-dissect_kpasswd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kpasswd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     pinfo->fragmented = TRUE;
     if (dissect_kpasswd_common(tvb, pinfo, tree, TRUE) < 0) {
@@ -267,16 +267,17 @@ dissect_kpasswd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
     }
+    return tvb_length(tvb);
 }
 
-static void
-dissect_kpasswd_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kpasswd_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    tcp_dissect_pdus(tvb, pinfo, tree, kpasswd_desegment, 4, get_krb_pdu_len,
-    dissect_kpasswd_tcp_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, kpasswd_desegment, 4, get_krb_pdu_len, dissect_kpasswd_tcp_pdu, data);
+    return tvb_length(tvb);
 }
 
 void
@@ -341,7 +342,7 @@ proto_reg_handoff_kpasswd(void)
     dissector_handle_t kpasswd_handle_tcp;
 
     kpasswd_handle_udp = create_dissector_handle(dissect_kpasswd_udp, proto_kpasswd);
-    kpasswd_handle_tcp = create_dissector_handle(dissect_kpasswd_tcp, proto_kpasswd);
+    kpasswd_handle_tcp = new_create_dissector_handle(dissect_kpasswd_tcp, proto_kpasswd);
     dissector_add_uint("udp.port", UDP_PORT_KPASSWD, kpasswd_handle_udp);
     dissector_add_uint("tcp.port", TCP_PORT_KPASSWD, kpasswd_handle_tcp);
 }

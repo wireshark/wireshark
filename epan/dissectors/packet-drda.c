@@ -671,8 +671,8 @@ drda_init(void)
     iPreviousFrameNumber = 0;
 }
 
-static void
-dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint offset = 0;
 
@@ -788,6 +788,8 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += iLength;
         }
     }
+
+    return tvb_length(tvb);
 }
 
 static guint
@@ -800,15 +802,16 @@ get_drda_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return 0;
 }
 
-static void
-dissect_drda_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_drda_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, drda_desegment, 10, get_drda_pdu_len, dissect_drda);
+    tcp_dissect_pdus(tvb, pinfo, tree, drda_desegment, 10, get_drda_pdu_len, dissect_drda, data);
+    return tvb_length(tvb);
 }
 
 
 static gboolean
-dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t * conversation;
     if (tvb_length(tvb) >= 10)
@@ -824,7 +827,7 @@ dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             conversation_set_dissector(conversation, drda_tcp_handle);
 
             /* Dissect the packet */
-            dissect_drda(tvb, pinfo, tree);
+            dissect_drda(tvb, pinfo, tree, data);
             return TRUE;
         }
     }
@@ -957,5 +960,5 @@ void
 proto_reg_handoff_drda(void)
 {
     heur_dissector_add("tcp", dissect_drda_heur, proto_drda);
-    drda_tcp_handle = create_dissector_handle(dissect_drda_tcp, proto_drda);
+    drda_tcp_handle = new_create_dissector_handle(dissect_drda_tcp, proto_drda);
 }

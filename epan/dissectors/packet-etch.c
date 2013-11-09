@@ -716,8 +716,8 @@ get_column_info(tvbuff_t *tvb)
 /*
  * main dissector function for an etch message
  */
-static void
-dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
   wmem_strbuf_t *colInfo = NULL;
@@ -758,6 +758,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     read_struct(&offset, tvb, etch_tree, 0);
   }
 
+  return tvb_length(tvb);
 }
 
 /*
@@ -775,7 +776,7 @@ get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  * main dissector function for the etch protocol
  */
 static int
-dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (tvb_length(tvb) < 4) {
     /* Too small for an etch packet. */
@@ -788,7 +789,7 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   }
 
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_etch_message_len,
-                   dissect_etch_message);
+                   dissect_etch_message, data);
 
   if (gbl_pdu_counter > 0) {
     col_set_writable(pinfo->cinfo, TRUE);

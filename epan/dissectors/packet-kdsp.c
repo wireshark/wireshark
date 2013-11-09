@@ -257,8 +257,8 @@ get_kdsp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* This method dissects fully reassembled messages */
-static void
-dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint32 offset = 0;
   guint32 command, length, numChan, bitmap, cptbitmap;
@@ -538,13 +538,16 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     expert_add_info(pinfo, command_item, &ei_kdsp_cmdnum);
   }
+
+  return tvb_length(tvb);
 }
 
-static void
-dissect_kdsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kdsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-                   get_kdsp_message_len, dissect_kdsp_message);
+                   get_kdsp_message_len, dissect_kdsp_message, data);
+  return tvb_length(tvb);
 }
 
 void
@@ -1164,7 +1167,7 @@ proto_reg_handoff_kdsp(void)
 
 
   if (!initialized) {
-    kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
+    kdsp_handle = new_create_dissector_handle(dissect_kdsp, proto_kdsp);
     dlt_handle = find_dissector("radiotap");
     if (dlt_handle)
         dissector_add_uint( "kdsp.cpt.dlt", DATALINK_RADIOTAP, dlt_handle);

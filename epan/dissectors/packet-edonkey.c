@@ -2934,7 +2934,7 @@ static guint get_edonkey_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int 
     return msg_len + EDONKEY_TCP_HEADER_LENGTH;
 }
 
-static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL, *emule_zlib_tree = NULL;
@@ -3024,9 +3024,11 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
           }
         }
     }
+
+    return tvb_length(tvb);
 }
 
-static int dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8 protocol;
 
@@ -3042,7 +3044,7 @@ static int dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     tcp_dissect_pdus(tvb, pinfo, tree, edonkey_desegment,
                      EDONKEY_TCP_HEADER_LENGTH, get_edonkey_tcp_pdu_len,
-                     dissect_edonkey_tcp_pdu);
+                     dissect_edonkey_tcp_pdu, data);
     return tvb_reported_length(tvb);
 }
 

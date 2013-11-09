@@ -612,16 +612,16 @@ get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return len_hdr + len_body;
 }
 
-static void
-dissect_dbus_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dbus_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	dissect_dbus(tvb, pinfo, tree, NULL);
+	return dissect_dbus(tvb, pinfo, tree, data);
 }
 
 static int
-dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, dbus_desegment, DBUS_HEADER_LEN, get_dbus_message_len, dissect_dbus_pdu);
+	tcp_dissect_pdus(tvb, pinfo, tree, dbus_desegment, DBUS_HEADER_LEN, get_dbus_message_len, dissect_dbus_pdu, data);
 	return tvb_length(tvb);
 }
 

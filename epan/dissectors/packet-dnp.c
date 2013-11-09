@@ -3064,8 +3064,8 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*****************************************************************/
 /* Data Link and Transport layer dissector */
 /*****************************************************************/
-static void
-dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *ti, *tdl, *tc;
   proto_tree  *dnp3_tree, *dl_tree, *field_tree;
@@ -3381,6 +3381,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_set_fence(pinfo->cinfo, COL_INFO);
     }
   }
+
+  return tvb_length(tvb);
 }
 
 static guint
@@ -3403,7 +3405,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static gboolean
-dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   gint length = tvb_length(tvb);
 
@@ -3414,13 +3416,13 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   }
 
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DNP_HDR_LEN,
-                   get_dnp3_message_len, dissect_dnp3_message);
+                   get_dnp3_message_len, dissect_dnp3_message, data);
 
   return TRUE;
 }
 
 static gboolean
-dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   gint length = tvb_length(tvb);
 
@@ -3430,7 +3432,7 @@ dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return FALSE;
   }
 
-  dissect_dnp3_message(tvb, pinfo, tree);
+  dissect_dnp3_message(tvb, pinfo, tree, data);
   return TRUE;
 }
 

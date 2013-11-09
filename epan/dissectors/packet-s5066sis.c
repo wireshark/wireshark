@@ -36,9 +36,9 @@
 /* Register functions */
 void proto_reg_handoff_s5066(void);
 /* Main dissectors */
-static void dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static guint get_s5066_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
-static void dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 /* Service type and address dissectors */
 static guint dissect_s5066_servicetype(tvbuff_t *tvb, guint offset, proto_tree *tree);
 static guint dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source);
@@ -802,7 +802,7 @@ proto_reg_handoff_s5066(void)
 	static guint saved_s5066_port;
 
 	if (!Initialized) {
-		s5066_tcp_handle = create_dissector_handle(dissect_s5066_tcp, proto_s5066);
+		s5066_tcp_handle = new_create_dissector_handle(dissect_s5066_tcp, proto_s5066);
 		data_handle = find_dissector("data");
 		Initialized = TRUE;
 	} else {
@@ -1267,25 +1267,26 @@ get_s5066_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return plen + s5066_header_size;
 }
 
-static void
-dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	/* Make sure there are enough bytes... */
 	if (tvb_length(tvb) < 5)
-		return;
+		return 0;
 	/* Check if the first two bytes are 0x90 0xEB: if not,
 	   then this is not a S5066 PDU or an unreassembled one.
 	   The third byte is the STANAG 5066 version: Right now only 0x00 is defined. */
 	if( (tvb_get_guint8(tvb, 0) != 0x90) ||
 	    (tvb_get_guint8(tvb, 1) != 0xEB) ||
 	    (tvb_get_guint8(tvb, 2) != 0x00) ) {
-		return;
+		return 0;
 	}
-	tcp_dissect_pdus(tvb, pinfo, tree, s5066_desegment, s5066_header_size, get_s5066_pdu_len, dissect_s5066_common);
+	tcp_dissect_pdus(tvb, pinfo, tree, s5066_desegment, s5066_header_size, get_s5066_pdu_len, dissect_s5066_common, data);
+	return tvb_length(tvb);
 }
 
-static void
-dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint pdu_size = 0;
@@ -1357,5 +1358,5 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset(tvb, offset, MIN(available_length, reported_length), reported_length);
 	call_dissector(data_handle, next_tvb, pinfo, tree);
 
-	return;
+	return tvb_length(tvb);
 }

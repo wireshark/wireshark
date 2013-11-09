@@ -11913,8 +11913,8 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 
 
 
-static void
-dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *sub_tree = NULL;
     proto_item *ti       = NULL;
@@ -11983,8 +11983,9 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset, trailer_len, sub_tree, Options);
         /*offset += trailer_len;*/
     }
-}
 
+    return tvb_length(tvb);
+}
 
 
 static guint
@@ -11996,7 +11997,7 @@ get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 static int
-dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 /*
  *
@@ -12015,7 +12016,7 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
  */
 
     tcp_dissect_pdus(tvb, pinfo, tree, ff_desegment,
-        12, get_ff_pdu_len, dissect_ff);
+        12, get_ff_pdu_len, dissect_ff, data);
 
     return tvb_reported_length(tvb);
 }
@@ -12023,7 +12024,7 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
 static int
-dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint32 length;
 
@@ -12038,7 +12039,7 @@ dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         (length < 12))
         return 0;
 
-    dissect_ff(tvb, pinfo, tree);
+    dissect_ff(tvb, pinfo, tree, data);
     return tvb_reported_length(tvb);
 }
 

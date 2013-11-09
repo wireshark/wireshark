@@ -177,8 +177,8 @@ get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return tvb_get_ntohl(tvb, offset+8)+GEARMAN_COMMAND_HEADER_SIZE;
 }
 
-static void
-dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   gint offset, start_offset;
   char *magic_code;
@@ -414,6 +414,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   col_set_fence(pinfo->cinfo, COL_INFO);
+  return tvb_length(tvb);
 }
 
 static void
@@ -466,18 +467,20 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static void
-dissect_gearman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gearman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   if ((0 == tvb_memeql(tvb, 0, GEARMAN_MAGIC_CODE_REQUEST, 4)) ||
       (0 == tvb_memeql(tvb, 0, GEARMAN_MAGIC_CODE_RESPONSE, 4)))
   {
-    tcp_dissect_pdus(tvb, pinfo, tree, gearman_desegment, GEARMAN_COMMAND_HEADER_SIZE, get_gearman_pdu_len, dissect_binary_packet);
+    tcp_dissect_pdus(tvb, pinfo, tree, gearman_desegment, GEARMAN_COMMAND_HEADER_SIZE, get_gearman_pdu_len, dissect_binary_packet, data);
   }
   else
   {
     dissect_management_packet(tvb, pinfo, tree);
   }
+
+  return tvb_length(tvb);
 }
 
 void
@@ -547,7 +550,7 @@ proto_reg_handoff_gearman(void)
 {
   dissector_handle_t gearman_handle;
 
-  gearman_handle = create_dissector_handle(dissect_gearman, proto_gearman);
+  gearman_handle = new_create_dissector_handle(dissect_gearman, proto_gearman);
   dissector_add_uint("tcp.port", GEARMAN_PORT, gearman_handle);
 }
 

@@ -1736,8 +1736,8 @@ dissect_gadu_gadu_xml_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset + ret;
 }
 
-static void
-dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *gadu_gadu_tree = NULL;
 
@@ -2008,6 +2008,8 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree_add_item(gadu_gadu_tree, &hfi_gadu_gadu_data, tvb, offset, -1, ENC_NA);
 	}
+
+	return tvb_length(tvb);
 }
 
 static guint
@@ -2019,7 +2021,7 @@ get_gadu_gadu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (pinfo->srcport == pinfo->match_uint && pinfo->destport != pinfo->match_uint)
 		pinfo->p2p_dir = P2P_DIR_RECV;
@@ -2031,7 +2033,7 @@ dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gadu-Gadu");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	tcp_dissect_pdus(tvb, pinfo, tree, gadu_gadu_desegment, 8, get_gadu_gadu_pdu_len, dissect_gadu_gadu_pdu);
+	tcp_dissect_pdus(tvb, pinfo, tree, gadu_gadu_desegment, 8, get_gadu_gadu_pdu_len, dissect_gadu_gadu_pdu, data);
 	return tvb_length(tvb);
 }
 

@@ -232,8 +232,8 @@ dissect_get_values_result(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, gui
    return;
 }
 
-static void
-dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    gint offset = 0;
    guint8 type;
@@ -321,6 +321,8 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          /*offset += plen;*/
       }
    }
+
+   return tvb_length(tvb);
 }
 
 static guint
@@ -329,10 +331,11 @@ get_fcgi_record_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
    return 8 + tvb_get_ntohs(tvb, offset + 4) + tvb_get_guint8(tvb, offset + 6);
 }
 
-static void
-dissect_fcgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_fcgi_record_len, dissect_fcgi_record);
+   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_fcgi_record_len, dissect_fcgi_record, data);
+   return tvb_length(tvb);
 }
 
 void
@@ -398,7 +401,7 @@ proto_register_fcgi(void)
                                   10,
                                   &tcp_port);
 
-   fcgi_handle = register_dissector("fcgi", dissect_fcgi, proto_fcgi);
+   fcgi_handle = new_register_dissector("fcgi", dissect_fcgi, proto_fcgi);
 }
 
 void

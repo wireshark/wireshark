@@ -536,8 +536,8 @@ cmpp_deliver_resp(proto_tree *tree, tvbuff_t *tvb)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -552,7 +552,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_len = tvb_length(tvb);
 	/* if the length of the tvb is shorder then the cmpp header length exit */
 	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
-		return;
+		return 0;
 
 	total_length = tvb_get_ntohl(tvb, 0); /* Get the pdu length */
 	command_id = tvb_get_ntohl(tvb, 4); /* get the pdu command id */
@@ -560,7 +560,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (try_val_to_str(command_id, vals_command_Id) == NULL)
 	{
 		/* Should never happen: we checked this in dissect_cmpp() */
-		return;
+		return 0;
 	}
 
 	command_str = val_to_str(command_id, vals_command_Id,
@@ -570,7 +570,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_len < total_length)
 	{
 		/* Should never happen: TCP should have desegmented for us */
-		return;
+		return 0;
 	}
 
 	/* Make entries in Protocol column and Info column on summary display */
@@ -618,6 +618,8 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 
@@ -630,7 +632,7 @@ get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
 
 
 static int
-dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint total_length, command_id, tvb_len;
 	/* Check that there's enough data */
@@ -655,7 +657,7 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, cmpp_desegment, CMPP_FIX_HEADER_LENGTH,
-			 get_cmpp_pdu_len, dissect_cmpp_tcp_pdu);
+			 get_cmpp_pdu_len, dissect_cmpp_tcp_pdu, data);
 
 	/* Return the amount of data this dissector was able to dissect */
 	return tvb_length(tvb);

@@ -6268,10 +6268,13 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 /*--- PDUs ---*/
 
-static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_ulp_ULP_PDU(tvb, 0, &asn1_ctx, tree, hf_ulp_ULP_PDU_PDU);
+  offset = dissect_ulp_ULP_PDU(tvb, offset, &asn1_ctx, tree, hf_ulp_ULP_PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
@@ -6286,11 +6289,12 @@ get_ulp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohs(tvb,offset);
 }
 
-static void
-dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, ulp_desegment, ULP_HEADER_SIZE,
-	    get_ulp_pdu_len, dissect_ULP_PDU_PDU);
+	    get_ulp_pdu_len, dissect_ULP_PDU_PDU, data);
+	return tvb_length(tvb);
 }
 
 void proto_reg_handoff_ulp(void);
@@ -8690,7 +8694,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 99 "../../asn1/ulp/packet-ulp-template.c"
+#line 100 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -8909,7 +8913,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 105 "../../asn1/ulp/packet-ulp-template.c"
+#line 106 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;
@@ -8917,7 +8921,7 @@ void proto_register_ulp(void) {
 
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+  new_register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));

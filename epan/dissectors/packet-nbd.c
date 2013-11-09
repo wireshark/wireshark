@@ -170,8 +170,8 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	return 0;
 }
 
-static void
-dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	guint32 magic, error, packet;
 	guint32 handle[2];
@@ -205,7 +205,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		handle[1]=tvb_get_ntohl(tvb, offset+8);
 		break;
 	default:
-		return;
+		return 4;
 	}
 
 	conversation = find_or_create_conversation(pinfo);
@@ -367,11 +367,11 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	}
 
-	return;
+	return tvb_length(tvb);
 }
 
 static gboolean
-dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 magic, type;
 
@@ -399,14 +399,14 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 			return FALSE;
 		}
 
-		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 28, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu);
+		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 28, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
 		return TRUE;
 	case NBD_RESPONSE_MAGIC:
 		/* responses are 16 bytes or more */
 		if(tvb_length(tvb)<16){
 			return FALSE;
 		}
-		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu);
+		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
 		return TRUE;
 	default:
 		break;

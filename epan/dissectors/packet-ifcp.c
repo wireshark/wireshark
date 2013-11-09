@@ -307,8 +307,8 @@ dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	}
 }
 
-static void
-dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	gint offset = 0, frame_len = 0;
 	guint8 sof = 0, eof = 0;
@@ -324,7 +324,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* verify we have a full header  (do we need to do this? */
 	if(tvb_length(tvb)<iFCP_ENCAP_HEADER_LEN){
-		return;
+		return 0;
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iFCP");
@@ -492,7 +492,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		call_dissector(data_handle, next_tvb, pinfo, parent_tree);
 	}
 
-	return;
+	return tvb_length(tvb);
 }
 
 static guint
@@ -508,10 +508,11 @@ get_ifcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return pdu_len;
 }
 
-static void
-dissect_ifcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_ifcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, parent_tree, ifcp_desegment, iFCP_MIN_HEADER_LEN, get_ifcp_pdu_len, dissect_ifcp_pdu);
+	tcp_dissect_pdus(tvb, pinfo, parent_tree, ifcp_desegment, iFCP_MIN_HEADER_LEN, get_ifcp_pdu_len, dissect_ifcp_pdu, data);
+	return tvb_length(tvb);
 }
 
 
@@ -520,20 +521,20 @@ dissect_ifcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
  * In this case we will not check the port number for sanity and just
  * do as the user said.
  */
-static void
-dissect_ifcp_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ifcp_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	dissect_ifcp(tvb, pinfo, tree);
+	return dissect_ifcp(tvb, pinfo, tree, data);
 }
 
 static gboolean
-dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if(!ifcp_header_test(tvb, 0)){
 		return FALSE;
 	}
 
-	dissect_ifcp(tvb, pinfo, tree);
+	dissect_ifcp(tvb, pinfo, tree, data);
 
 	/* our heuristics are so strong that if the heuristics above passed
 	 * and the dissection of the pdu did not cause any exceptions
@@ -660,7 +661,7 @@ proto_reg_handoff_ifcp (void)
 {
     heur_dissector_add("tcp", dissect_ifcp_heur, proto_ifcp);
 
-    ifcp_handle = create_dissector_handle(dissect_ifcp_handle, proto_ifcp);
+    ifcp_handle = new_create_dissector_handle(dissect_ifcp_handle, proto_ifcp);
     dissector_add_handle("tcp.port", ifcp_handle);
 
     data_handle = find_dissector("data");

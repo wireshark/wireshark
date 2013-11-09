@@ -283,8 +283,6 @@ static const value_string cast_callSecurityStatusTypes[] = {
 #define StationMaxDirnumSize           24  /* max size of calling or called party dirnum  */
 
 
-static void dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Initialize the protocol and registered fields */
 static int proto_cast          = -1;
 static int hf_cast_data_length = -1;
@@ -400,8 +398,8 @@ static gboolean cast_desegment = TRUE;
 static dissector_handle_t data_handle;
 
 /* Dissect a single CAST PDU */
-static void
-dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
 
@@ -1030,6 +1028,8 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
+
+  return tvb_length(tvb);
 }
 
 /* Get the length of a single CAST PDU */
@@ -1051,8 +1051,8 @@ get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*CAST}
    * CAST-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
@@ -1070,16 +1070,15 @@ dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
 
   if (hdr_data_length < 4 || hdr_marker != 0) {
-    /* Not an CAST packet, just happened to use the same port */
-    call_dissector(data_handle,tvb, pinfo, tree);
-    return;
+    return 0;
   }
 
   /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAST");
 
   col_set_str(pinfo->cinfo, COL_INFO, "Cast Client Control Protocol");
-  tcp_dissect_pdus(tvb, pinfo, tree, cast_desegment, 4, get_cast_pdu_len, dissect_cast_pdu);
+  tcp_dissect_pdus(tvb, pinfo, tree, cast_desegment, 4, get_cast_pdu_len, dissect_cast_pdu, data);
+  return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1745,7 +1744,7 @@ proto_reg_handoff_cast(void)
   dissector_handle_t cast_handle;
 
   data_handle = find_dissector("data");
-  cast_handle = create_dissector_handle(dissect_cast, proto_cast);
+  cast_handle = new_create_dissector_handle(dissect_cast, proto_cast);
   dissector_add_uint("tcp.port", TCP_PORT_CAST, cast_handle);
 }
 

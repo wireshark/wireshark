@@ -64,7 +64,7 @@ static ecm_interpretation tab_ecm_inter[] = {
 
 #define ECM_INTERPRETATION_SIZE (sizeof(tab_ecm_inter)/sizeof(ecm_interpretation))
 
-static void  dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
                                     tvbuff_t *tvb, proto_tree *tree, int offset,
@@ -682,11 +682,12 @@ static gint ett_simulcrypt_table_period_pair = -1;
 #define FRAME_HEADER_LEN 8
 
 /* The main dissecting routine */
-static void
-dissect_simulcrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_simulcrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-			 get_simulcrypt_message_len, dissect_simulcrypt_message);
+			 get_simulcrypt_message_len, dissect_simulcrypt_message, data);
+	return tvb_length(tvb);
 }
 
 /* Informative tree structure is shown here:
@@ -1197,8 +1198,8 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 }
 
 /* This method dissects fully reassembled messages */
-static void
-dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *simulcrypt_item;
 	proto_tree *simulcrypt_tree;
@@ -1268,6 +1269,8 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_simulcrypt_data(simulcrypt_message_tree, simulcrypt_item, pinfo, tvb, tree, offset, (msg_length+5), iftype, FALSE); /* offset is from beginning of the 5 byte header */
 
 	} /* end tree */
+
+	return tvb_length(tvb);
 }
 
 /* this method is used to dissect TLV parameters */
@@ -1838,7 +1841,7 @@ proto_reg_handoff_simulcrypt(void)
 	guint  i;
 
 	if (!initialized) {
-		simulcrypt_handle = create_dissector_handle(dissect_simulcrypt, proto_simulcrypt);
+		simulcrypt_handle = new_create_dissector_handle(dissect_simulcrypt, proto_simulcrypt);
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 		{
 			tab_ecm_inter[i].protocol_handle = find_dissector(tab_ecm_inter[i].protocol_name);

@@ -756,17 +756,19 @@ get_gryphon_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return padded_len + FRAME_HEADER_LEN;
 }
 
-static void
-dissect_gryphon_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gryphon_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_gryphon_message(tvb, pinfo, tree, FALSE);
+    return tvb_length(tvb);
 }
 
-static void
-dissect_gryphon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gryphon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, gryphon_desegment, FRAME_HEADER_LEN,
-                     get_gryphon_pdu_len, dissect_gryphon_pdu);
+                     get_gryphon_pdu_len, dissect_gryphon_pdu, data);
+    return tvb_length(tvb);
 }
 
 static void
@@ -2803,6 +2805,6 @@ proto_reg_handoff_gryphon(void)
 {
     dissector_handle_t gryphon_handle;
 
-    gryphon_handle = create_dissector_handle(dissect_gryphon, proto_gryphon);
+    gryphon_handle = new_create_dissector_handle(dissect_gryphon, proto_gryphon);
     dissector_add_uint("tcp.port", 7000, gryphon_handle);
 }

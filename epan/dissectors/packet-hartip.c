@@ -950,21 +950,21 @@ get_dissect_hartip_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
    return tvb_get_ntohs(tvb, offset+6);
 }
 
-static void
-dissect_hartip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hartip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_hartip_common(tvb, pinfo, tree, 0);
+    return dissect_hartip_common(tvb, pinfo, tree, 0);
 }
 
 static int
 dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   void *data _U_)
+                   void *data)
 {
    if (!tvb_bytes_exist(tvb, 0, HARTIP_HEADER_LENGTH))
       return 0;
 
    tcp_dissect_pdus(tvb, pinfo, tree, hartip_desegment, HARTIP_HEADER_LENGTH,
-                    get_dissect_hartip_len, dissect_hartip_pdu);
+                    get_dissect_hartip_len, dissect_hartip_pdu, data);
    return tvb_reported_length(tvb);
 }
 

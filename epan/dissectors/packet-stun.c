@@ -1065,22 +1065,17 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 }
 
 static int
-dissect_stun_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_stun_message(tvb, pinfo, tree, FALSE);
 }
 
-static void
-dissect_stun_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    dissect_stun_message(tvb, pinfo, tree, FALSE);
-}
-
-static void
-dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LEN,
-        get_stun_message_len, dissect_stun_message_no_return);
+        get_stun_message_len, dissect_stun, data);
+    return tvb_length(tvb);
 }
 
 static gboolean
@@ -1333,7 +1328,7 @@ proto_register_stun(void)
     /* heuristic subdissectors (used for the DATA field) */
     register_heur_dissector_list("stun", &heur_subdissector_list);
 
-	new_register_dissector("stun-udp", dissect_stun_udp, proto_stun);
+	new_register_dissector("stun-udp", dissect_stun, proto_stun);
 	new_register_dissector("stun-heur", dissect_stun_heur, proto_stun);
 }
 
@@ -1343,8 +1338,8 @@ proto_reg_handoff_stun(void)
     dissector_handle_t stun_tcp_handle;
     dissector_handle_t stun_udp_handle;
 
-    stun_tcp_handle = create_dissector_handle(dissect_stun_tcp, proto_stun);
-    stun_udp_handle = new_create_dissector_handle(dissect_stun_udp, proto_stun);
+    stun_tcp_handle = new_create_dissector_handle(dissect_stun_tcp, proto_stun);
+    stun_udp_handle = new_create_dissector_handle(dissect_stun, proto_stun);
 
     dissector_add_uint("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);

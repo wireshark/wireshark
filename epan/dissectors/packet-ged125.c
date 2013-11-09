@@ -987,8 +987,8 @@ get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset _U_)
 	return tvb_get_ntohl(tvb, 0) + 8;
 }
 
-static void
-dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+static int
+dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
 	gint size = tvb_reported_length(tvb);
 	proto_item *ti, *message_item;
@@ -1233,7 +1233,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
-		return;
+		return tvb_length(tvb);
 
 	case GED125_ROUTE_SELECT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CrossRefID, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1279,10 +1279,11 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	}
 
 	proto_item_set_len(message_item, offset-8);
+	return tvb_length(tvb);
 }
 
 static int
-dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	gint size;
 	guint32 message_type;
@@ -1298,11 +1299,8 @@ dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if (try_val_to_str(message_type, base_message_values) == NULL)
 		return 0;   /* not a known command */
 
-	if (tree)
-	{
-		tcp_dissect_pdus(tvb, pinfo, tree, ged125_desegment_body, 4,
-						 get_ged125_pdu_len, dissect_ged125_base_messages);
-	}
+	tcp_dissect_pdus(tvb, pinfo, tree, ged125_desegment_body, 4,
+						 get_ged125_pdu_len, dissect_ged125_base_messages, data);
 
 	return size;
 }

@@ -273,10 +273,10 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean dissect_other_as_continuation);
 
 
-static void dissect_pvfs_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_pvfs_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_pvfs_common(tvb, pinfo, tree, FALSE);
-
+	return tvb_reported_length(tvb);
 }
 
 static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -292,7 +292,7 @@ static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 magic_nr, mode;
 	guint64 size;
@@ -331,7 +331,7 @@ dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, pvfs_desegment, 24, get_pvfs_pdu_len,
-		dissect_pvfs_pdu);
+		dissect_pvfs_pdu, data);
 
 	return tvb_reported_length(tvb);
 }

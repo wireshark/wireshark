@@ -507,8 +507,8 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-static void
-dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *memcache_tree;
   proto_item *memcache_item, *ti;
@@ -610,6 +610,8 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             val_to_str_const (status, status_vals, "Unknown"), status);
   }
+
+  return tvb_length(tvb);
 }
 
 /* Obtain the content length by peeping into the header.
@@ -1904,8 +1906,8 @@ dissect_memcache_text (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Dissect tcp packets based on the type of protocol (text/binary) */
-static void
-dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   gint        offset = 0;
   guint8      magic;
@@ -1914,15 +1916,17 @@ dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (try_val_to_str (magic, magic_vals) != NULL) {
     tcp_dissect_pdus (tvb, pinfo, tree, memcache_desegment_body, 12,
-                      get_memcache_pdu_len, dissect_memcache);
+                      get_memcache_pdu_len, dissect_memcache, data);
   } else {
     dissect_memcache_text (tvb, pinfo, tree);
   }
+
+  return tvb_length(tvb);
 }
 
 /* Dissect udp packets based on the type of protocol (text/binary) */
-static void
-dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   gint        offset = 0;
   guint8      magic;
@@ -1930,10 +1934,12 @@ dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   magic = tvb_get_guint8 (tvb, offset);
 
   if (try_val_to_str (magic, magic_vals) != NULL) {
-    dissect_memcache (tvb, pinfo, tree);
+    dissect_memcache (tvb, pinfo, tree, data);
   } else {
     dissect_memcache_message (tvb, 0, pinfo, tree);
   }
+
+  return tvb_length(tvb);
 }
 
 /* Registration functions; register memcache protocol,
@@ -2118,8 +2124,8 @@ proto_register_memcache (void)
   expert_module_t *expert_memcache;
 
   proto_memcache = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  memcache_tcp_handle = register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
-  memcache_udp_handle = register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
+  memcache_tcp_handle = new_register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
+  memcache_udp_handle = new_register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
 
   proto_register_field_array (proto_memcache, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

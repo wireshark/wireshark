@@ -430,8 +430,8 @@ get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return 1 + 1 + size_bytes + (guint)size + 4;
 }
 
-static void
-dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint offset = 0;
 	guint8 tmp;
@@ -442,9 +442,8 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Set the protocol column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netsync");
 
-
 	if (tree == NULL)
-		return;
+		return tvb_length(tvb);
 
 	while (tvb_reported_length_remaining(tvb, offset)  > 0) {
 		ti = proto_tree_add_item(tree, proto_netsync, tvb, offset, -1, ENC_NA);
@@ -549,13 +548,16 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_item_set_len(netsync_tree, 1+1+size_bytes+size+4);
 	}
+
+	return tvb_length(tvb);
 }
 
-static void
-dissect_netsync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_netsync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, netsync_desegment, 7, get_netsync_pdu_len,
-					dissect_netsync_pdu);
+					dissect_netsync_pdu, data);
+	return tvb_length(tvb);
 }
 
 void
@@ -751,7 +753,7 @@ proto_reg_handoff_netsync(void)
 	static gboolean initialized = FALSE;
 
 	if (!initialized) {
-		netsync_handle = create_dissector_handle(dissect_netsync, proto_netsync);
+		netsync_handle = new_create_dissector_handle(dissect_netsync, proto_netsync);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", tcp_port_netsync, netsync_handle);

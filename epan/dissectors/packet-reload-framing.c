@@ -445,23 +445,18 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_reload_framing_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_reload_framing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return dissect_reload_framing_message(tvb, pinfo, tree, FALSE);
 }
 
-static void
-dissect_reload_framing_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_reload_framing_message(tvb, pinfo, tree, FALSE);
-}
-
-static void
-dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   /* XXX: Check if we have a valid RELOAD Frame Type ? */
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LENGTH,
-                   get_reload_framing_message_length, dissect_reload_framing_message_no_return);
+                   get_reload_framing_message_length, dissect_reload_framing, data);
+  return tvb_length(tvb);
 }
 
 /* ToDo: If a TCP connection is identified heuristically as reload-framing, then
@@ -584,7 +579,7 @@ proto_register_reload_framing(void)
   expert_reload_framing = expert_register_protocol(proto_reload_framing);
   expert_register_field_array(expert_reload_framing, ei, array_length(ei));
 
-  register_dissector("reload-framing", dissect_reload_framing_message_no_return, proto_reload_framing);
+  new_register_dissector("reload-framing", dissect_reload_framing, proto_reload_framing);
 
 }
 
@@ -595,8 +590,8 @@ proto_reg_handoff_reload_framing(void)
   dissector_handle_t reload_framing_tcp_handle;
   dissector_handle_t reload_framing_udp_handle;
 
-  reload_framing_tcp_handle = create_dissector_handle(dissect_reload_framing_tcp, proto_reload_framing);
-  reload_framing_udp_handle = new_create_dissector_handle(dissect_reload_framing_udp, proto_reload_framing);
+  reload_framing_tcp_handle = new_create_dissector_handle(dissect_reload_framing_tcp, proto_reload_framing);
+  reload_framing_udp_handle = new_create_dissector_handle(dissect_reload_framing, proto_reload_framing);
 
   reload_handle = find_dissector("reload");
 

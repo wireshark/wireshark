@@ -826,8 +826,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   }
 }
 
-static void
-dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint16 msg_type, msg_length;
   proto_item *ti = NULL;
@@ -842,16 +842,16 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   xmcp_transaction_t *xmcp_trans;
 
   if (tvb_reported_length(tvb) < XMCP_HDR_LEN) {
-    return;
+    return 0;
   }
   /* Check for valid message type field */
   msg_type = tvb_get_ntohs(tvb, 0);
   if (msg_type & XMCP_TYPE_RESERVED) { /* First 2 bits must be 0 */
-    return;
+    return 0;
   }
   /* Check for valid "magic cookie" field */
   if (tvb_get_ntohl(tvb, 4) != XMCP_MAGIC_COOKIE) {
-    return;
+    return 0;
   }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "XMCP");
@@ -944,7 +944,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   msg_length = tvb_get_ntohs(tvb, 2);
   if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
     expert_add_info_format(pinfo, ti, &ei_xmcp_length_bad, "XMCP message length (%u-byte header + %u) exceeds packet length (%u)", XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
-    return;
+    return tvb_length(tvb);
   }
 
   /* ...a 4 byte magic cookie... */
@@ -1050,17 +1050,20 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       expert_add_info_format(pinfo, xmcp_tree, &ei_xmcp_session_termination, "Session termination - %s %s", val_to_str_const(xmcp_msg_type_method, methods, ""), val_to_str_const(xmcp_msg_type_class, classes, ""));
     }
   }
+
+  return tvb_length(tvb);
 }
 
-static void
-dissect_xmcp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_xmcp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, XMCP_HDR_LEN,
-                   get_xmcp_message_len, dissect_xmcp_message);
+                   get_xmcp_message_len, dissect_xmcp_message, data);
+  return tvb_length(tvb);
 }
 
 static gboolean
-dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   /* See if this looks like a real XMCP packet */
   if (tvb_length(tvb) < XMCP_HDR_LEN) {
@@ -1077,7 +1080,7 @@ dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   /* Good enough to consider a match! */
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, XMCP_HDR_LEN,
-                   get_xmcp_message_len, dissect_xmcp_message);
+                   get_xmcp_message_len, dissect_xmcp_message, data);
   return TRUE;
 }
 
@@ -1373,7 +1376,7 @@ proto_reg_handoff_xmcp(void)
   static guint xmcp_tcp_port;
 
   if (!xmcp_prefs_initialized) {
-    xmcp_tcp_handle = create_dissector_handle(dissect_xmcp_tcp, proto_xmcp);
+    xmcp_tcp_handle = new_create_dissector_handle(dissect_xmcp_tcp, proto_xmcp);
     heur_dissector_add("tcp", dissect_xmcp_heur, proto_xmcp);
     media_type_dissector_table = find_dissector_table("media_type");
     xmcp_prefs_initialized = TRUE;

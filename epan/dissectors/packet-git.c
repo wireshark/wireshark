@@ -49,7 +49,7 @@ static gint hf_git_packet_terminator = -1;
 /* desegmentation of Git over TCP */
 static gboolean git_desegment = TRUE;
 
-static gboolean tvb_get_packet_length(tvbuff_t *tvb, int offset,
+static gboolean get_packet_length(tvbuff_t *tvb, int offset,
 									  guint16 *length)
 {
 	guint8 *lenstr;
@@ -64,19 +64,19 @@ get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint16 plen;
 
-	if (!tvb_get_packet_length(tvb, offset, &plen))
+	if (!get_packet_length(tvb, offset, &plen))
 		return 0; /* No idea what this is */
 
 	if (plen == 0) {
 		/* Terminator packet */
 		return 4;
-	} else {
-		return plen;
 	}
+
+	return plen;
 }
 
-static void
-dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree             *git_tree;
   proto_item             *ti;
@@ -90,13 +90,13 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
   git_tree = proto_item_add_subtree(ti, ett_git);
 
-  if (!tvb_get_packet_length(tvb, 0, &plen))
-	  return;
+  if (!get_packet_length(tvb, 0, &plen))
+	  return 0;
 
   if (plen == 0) {
 	  proto_tree_add_uint(git_tree, hf_git_packet_terminator, tvb, offset,
 								4, plen);
-	  return;
+	  return 4;
   }
 
   if (git_tree)
@@ -106,14 +106,17 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset+4,
 								plen-4, ENC_NA);
-	}
+  }
+
+  return tvb_length(tvb);
 }
 
-static void
-dissect_git(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_git(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, git_desegment, 4, get_git_pdu_len,
-			 dissect_git_pdu);
+			 dissect_git_pdu, data);
+	return tvb_length(tvb);
 }
 
 void
@@ -137,7 +140,7 @@ proto_register_git(void)
 
   module_t *git_module;
   proto_git = proto_register_protocol("Git Smart Protocol", "GIT", "git");
-  register_dissector("git", dissect_git, proto_git);
+  new_register_dissector("git", dissect_git, proto_git);
   proto_register_field_array(proto_git, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

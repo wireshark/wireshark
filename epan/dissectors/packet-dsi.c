@@ -501,8 +501,8 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	return ofs;
 }
 
-static void
-dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree      *dsi_tree;
 	proto_item	*ti;
@@ -598,6 +598,8 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						pinfo, dsi_tree);
 		break;
 	}
+
+	return tvb_length(tvb);
 }
 
 static guint
@@ -626,11 +628,13 @@ get_dsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return plen + 16;
 }
 
-static void
-dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, dsi_desegment, 12,
-	    get_dsi_pdu_len, dissect_dsi_packet);
+	    get_dsi_pdu_len, dissect_dsi_packet, data);
+
+	return tvb_length(tvb);
 }
 
 void
@@ -880,7 +884,7 @@ proto_reg_handoff_dsi(void)
 {
 	dissector_handle_t dsi_handle;
 
-	dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
+	dsi_handle = new_create_dissector_handle(dissect_dsi, proto_dsi);
 	dissector_add_uint("tcp.port", TCP_PORT_DSI, dsi_handle);
 
 	data_handle = find_dissector("data");

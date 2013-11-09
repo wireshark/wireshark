@@ -748,8 +748,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 /* main dissector function. wireshark calls it for segments in both
  * directions.
  */
-static void
-dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint16 mag;
   /* guint16 len; */
@@ -829,6 +829,8 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     display_rsp(tvb, pinfo, ajp13_tree, cd);
 
   }
+
+  return tvb_length(tvb);
 }
 
 
@@ -851,8 +853,8 @@ get_ajp13_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* Code to actually dissect the packets.
  */
-static void
-dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   /* Set up structures needed to add the protocol subtree and manage it
    */
@@ -860,7 +862,9 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    TRUE,                   /* desegment or not   */
                    4,                      /* magic + length */
                    get_ajp13_pdu_len,      /* use first 4, calc data len */
-                   dissect_ajp13_tcp_pdu); /* the naive dissector */
+                   dissect_ajp13_tcp_pdu, data); /* the naive dissector */
+
+  return tvb_length(tvb);
 }
 
 
@@ -1118,6 +1122,6 @@ void
 proto_reg_handoff_ajp13(void)
 {
   dissector_handle_t ajp13_handle;
-  ajp13_handle = create_dissector_handle(dissect_ajp13, proto_ajp13);
+  ajp13_handle = new_create_dissector_handle(dissect_ajp13, proto_ajp13);
   dissector_add_uint("tcp.port", 8009, ajp13_handle);
 }

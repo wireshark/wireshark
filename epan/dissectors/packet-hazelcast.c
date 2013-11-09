@@ -93,10 +93,6 @@ static int hf_hazelcast_flags_lockAddrNull = -1;
 static gint ett_hazelcast = -1;
 static gint ett_hazelcast_flags = -1;
 
-static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset);
-static void dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-
 /* prefs */
 static gboolean hazelcast_desegment = TRUE;
 static guint gPORT_PREF = 5701;
@@ -239,18 +235,6 @@ static value_string_ext responseTypes_ext = VALUE_STRING_EXT_INIT(responseTypes)
 
 
 
-/*
- * Code to actually dissect the packets
- *
- * this really just works in TCP reassembly and calls the real dissector
- *
-*/
-static void dissect_hazelcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-
-	tcp_dissect_pdus(tvb, pinfo, tree, hazelcast_desegment, 13, get_hazelcast_message_len, dissect_hazelcast_message);
-
-}
-
 /* Get the length of a single HAZELCAST message */
 static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
 
@@ -271,8 +255,7 @@ static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, in
 
 }
 
-
-static void dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
 
 	guint8 version;
 
@@ -310,13 +293,13 @@ static void dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	}
 	if (tvb_length_remaining(tvb, 0) < 13) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Hazelcast too short");
-		return;
+		return 0;
 	}
 
 	version = tvb_get_guint8(tvb, 12);
 	if ( version != 6 ) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Hazelcast unsupported version");
-		return;
+		return 12;
 	}
 
 	proto_tree_add_item(hcast_tree, hf_hazelcast_headerLength, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -439,7 +422,19 @@ static void dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		/*offset += valueLength;*/
 	}
 
+	return tvb_length(tvb);
+}
 
+/*
+ * Code to actually dissect the packets
+ *
+ * this really just works in TCP reassembly and calls the real dissector
+ *
+*/
+static int dissect_hazelcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
+
+	tcp_dissect_pdus(tvb, pinfo, tree, hazelcast_desegment, 13, get_hazelcast_message_len, dissect_hazelcast_message, data);
+	return tvb_length(tvb);
 }
 
 void proto_register_hazelcast(void) {
@@ -592,7 +587,7 @@ proto_reg_handoff_hazelcast(void) {
 	static int currentPort;
 
 	if (!initialized) {
-		hazelcast_handle = create_dissector_handle(dissect_hazelcast, proto_hazelcast);
+		hazelcast_handle = new_create_dissector_handle(dissect_hazelcast, proto_hazelcast);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", currentPort, hazelcast_handle);

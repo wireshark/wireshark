@@ -75,8 +75,6 @@ typedef struct {
 /*  Function declarations */
 void proto_reg_handoff_scop(void);
 
-static void dissect_scop           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_scop_tcp       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_scop_zip       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_scop_bridge    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -129,50 +127,6 @@ static dissector_handle_t ieee802154_handle;
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      get_scop_length
- *  DESCRIPTION
- *      Returns the length of a SCoP packet. For use with the TCP
- *      transport type.
- *  PARAMETERS
- *      packet_info *pinfo  - pointer to packet information fields
- *      tvbuff_t    *tvb    - pointer to buffer containing the packet.
- *      int         offset  - beginning of packet.
- *  RETURNS
- *      guint               - Length of SCoP packet
- *---------------------------------------------------------------
- */
-static guint
-get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
-{
-    /* Byte  0:   Protocol Type.
-     * Byte  1:   Protocol Version.
-     * Bytes 2-3: Packet Length (network order).
-     */
-    return tvb_get_ntohs(tvb, offset + SCOP_LENGTH_OFFSET);
-} /* get_scop_length */
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_scop_tcp
- *  DESCRIPTION
- *      ZigBee SCoP packet dissection routine for Wireshark.
- *      for use with TCP ports.
- *  PARAMETERS
- *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
-static void
-dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop);
-} /* dissect_scop_tcp */
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
  *      dissect_scop
  *  DESCRIPTION
  *      ZigBee SCoP packet dissection routine for Wireshark.
@@ -184,8 +138,8 @@ dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      void
  *---------------------------------------------------------------
  */
-static void
-dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t    *next_tvb;
     proto_item  *proto_root;
@@ -225,7 +179,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (   (packet.transport == SCOP_TRANSPORT_UDP_CCM)
         || (packet.transport == SCOP_TRANSPORT_TCP_CCM)) {
         /* Decryption Failed. */
-        return;
+        return offset;
     }
     next_tvb = tvb;
 
@@ -249,7 +203,55 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle, tvb_new_subset_remaining(next_tvb, offset), pinfo, tree);
             break;
     }
+
+    return tvb_length(tvb);
 } /* dissect_scop() */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      get_scop_length
+ *  DESCRIPTION
+ *      Returns the length of a SCoP packet. For use with the TCP
+ *      transport type.
+ *  PARAMETERS
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      tvbuff_t    *tvb    - pointer to buffer containing the packet.
+ *      int         offset  - beginning of packet.
+ *  RETURNS
+ *      guint               - Length of SCoP packet
+ *---------------------------------------------------------------
+ */
+static guint
+get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    /* Byte  0:   Protocol Type.
+     * Byte  1:   Protocol Version.
+     * Bytes 2-3: Packet Length (network order).
+     */
+    return tvb_get_ntohs(tvb, offset + SCOP_LENGTH_OFFSET);
+} /* get_scop_length */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_scop_tcp
+ *  DESCRIPTION
+ *      ZigBee SCoP packet dissection routine for Wireshark.
+ *      for use with TCP ports.
+ *  PARAMETERS
+ *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static int
+dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop, data);
+    return tvb_length(tvb);
+} /* dissect_scop_tcp */
+
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -374,8 +376,8 @@ void proto_register_scop(void)
                  10, &gPREF_scop_port_secured);
 
     /*  Register dissector with Wireshark. */
-    register_dissector("scop.udp", dissect_scop, proto_scop);
-    register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
+    new_register_dissector("scop.udp", dissect_scop, proto_scop);
+    new_register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
 } /* proto_register_scop() */
 
 /*FUNCTION:------------------------------------------------------

@@ -248,8 +248,8 @@ get_hpfeeds_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return tvb_get_ntohl(tvb, offset + 0);
 }
 
-static void
-dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* We have already parsed msg length we need to skip to opcode offset */
     guint offset = HPFEEDS_OPCODE_OFFSET;
@@ -297,10 +297,12 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * block earlier */
         }
     }
+
+    return tvb_length(tvb);
 }
 
-static void
-dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint msglen = 0;
     guint8 offset = 0;
@@ -309,7 +311,7 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* At lease header is needed */
     if (tvb_reported_length(tvb) < HPFEEDS_HDR_LEN)
-        return;
+        return 0;
 
     /* get message length in order to decide if we need to reassemble packet */
     msglen = tvb_get_ntohl(tvb, offset);
@@ -325,9 +327,11 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_reported_length(tvb) < msglen) {
         /* we need to reassemble */
         tcp_dissect_pdus(tvb, pinfo, hpfeeds_tree, hpfeeds_desegment, 5,
-            get_hpfeeds_pdu_len, dissect_hpfeeds_pdu);
-    } else
-        dissect_hpfeeds_pdu(tvb, pinfo, hpfeeds_tree);
+            get_hpfeeds_pdu_len, dissect_hpfeeds_pdu, data);
+        return tvb_length(tvb);
+    }
+    
+    return dissect_hpfeeds_pdu(tvb, pinfo, hpfeeds_tree, data);
 }
 
 void
@@ -457,7 +461,7 @@ proto_reg_handoff_hpfeeds(void)
     static gint16 hpfeeds_dissector_port;
 
     if (!hpfeeds_prefs_initialized) {
-        hpfeeds_handle = create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
+        hpfeeds_handle = new_create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
         hpfeeds_prefs_initialized = TRUE;
     }
     else {

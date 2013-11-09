@@ -192,7 +192,7 @@ static const value_string tns_control_cmds[] = {
 
 void proto_reg_handoff_tns(void);
 static guint get_tns_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
-static void dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 static void dissect_tns_service_options(tvbuff_t *tvb, int offset,
 	proto_tree *sopt_tree)
@@ -841,7 +841,7 @@ get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint8 type;
 
@@ -860,12 +860,12 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, tns_desegment, 2,
-	    get_tns_pdu_len, dissect_tns_pdu);
+	    get_tns_pdu_len, dissect_tns_pdu, data);
 	return tvb_length(tvb);
 }
 
-static void
-dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree      *tns_tree = NULL, *ti;
 	proto_item *hidden_item;
@@ -971,6 +971,8 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tns_tree);
 			break;
 	}
+
+	return tvb_length(tvb);
 }
 
 void proto_register_tns(void)

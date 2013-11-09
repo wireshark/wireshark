@@ -909,8 +909,8 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 }
 
 
-static void
-dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
+static int
+dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* data _U_)
 {
   proto_tree *tree;
   proto_item *ti;
@@ -995,6 +995,8 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
     }
     break;
   }
+
+  return tvb_length(tvb);
 }
 
 
@@ -1110,12 +1112,12 @@ get_rpcap_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 static gboolean
-dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (check_rpcap_heur (tvb, TRUE)) {
     /* This is probably a rpcap tcp package */
     tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
-		      get_rpcap_pdu_len, dissect_rpcap);
+		      get_rpcap_pdu_len, dissect_rpcap, data);
 
     return TRUE;
   }
@@ -1125,11 +1127,11 @@ dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
 static gboolean
-dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (check_rpcap_heur (tvb, FALSE)) {
     /* This is probably a rpcap udp package */
-    dissect_rpcap (tvb, pinfo, tree);
+    dissect_rpcap (tvb, pinfo, tree, data);
 
     return TRUE;
   }
@@ -1442,7 +1444,7 @@ proto_register_rpcap (void)
   expert_module_t* expert_rpcap;
 
   proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
+  new_register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
   expert_rpcap = expert_register_protocol(proto_rpcap);
   expert_register_field_array(expert_rpcap, ei, array_length(ei));
 

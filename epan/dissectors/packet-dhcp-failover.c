@@ -361,8 +361,8 @@ get_dhcpfo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohs(tvb, offset);
 }
 
-static void
-dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	proto_item *ti, *pi, *oi;
@@ -467,10 +467,10 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4;
 
 	if (bogus_poffset)
-		return;	/* payload offset was bogus */
+		return offset;	/* payload offset was bogus */
 
 	if (!tree)
-		return;
+		return tvb_length(tvb);
 
 	/* if there are any additional header bytes */
 	if (poffset != offset) {
@@ -481,7 +481,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* payload-data */
 	if (poffset == length)
-		return;	/* no payload */
+		return length;	/* no payload */
 	/* create display subtree for the payload */
 	pi = proto_tree_add_item(dhcpfo_tree, hf_dhcpfo_payload_data,
 	    tvb, poffset, length-poffset, ENC_NA);
@@ -871,13 +871,16 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += option_length;
 	}
+
+	return tvb_length(tvb);
 }
 
-static void
-dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, dhcpfo_desegment, 2,
-	    get_dhcpfo_pdu_len, dissect_dhcpfo_pdu);
+	    get_dhcpfo_pdu_len, dissect_dhcpfo_pdu, data);
+	return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1158,7 +1161,7 @@ proto_reg_handoff_dhcpfo(void)
 	static guint saved_tcp_port;
 
 	if (!initialized) {
-		dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
+		dhcpfo_handle = new_create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", saved_tcp_port, dhcpfo_handle);

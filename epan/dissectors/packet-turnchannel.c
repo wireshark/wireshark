@@ -119,25 +119,18 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	return tvb_length(tvb);
 }
 
-
-static void
-dissect_turnchannel_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_turnchannel_message(tvb, pinfo, tree, NULL);
-}
-
-
 static guint
 get_turnchannel_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	return (guint)tvb_get_ntohs(tvb, offset+2) + TURNCHANNEL_HDR_LEN;
 }
 
-static void
-dissect_turnchannel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_turnchannel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, TURNCHANNEL_HDR_LEN,
-			get_turnchannel_message_len, dissect_turnchannel_message_no_return);
+			get_turnchannel_message_len, dissect_turnchannel_message, data);
+	return tvb_length(tvb);
 }
 
 
@@ -210,7 +203,7 @@ proto_reg_handoff_turnchannel(void)
 	dissector_handle_t turnchannel_tcp_handle;
 	dissector_handle_t turnchannel_udp_handle;
 
-	turnchannel_tcp_handle = create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
+	turnchannel_tcp_handle = new_create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
 	turnchannel_udp_handle = find_dissector("turnchannel");
 
 	/* Used for "Decode As" in case STUN negotiation isn't captured */

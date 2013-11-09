@@ -504,8 +504,8 @@ dissect_sense_service(tvbuff_t *tvb, proto_tree *tree, int offset)
 /*
 	here we really dissect the message(s)
 */
-static void
-dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *sametime_tree;
 	proto_item *ti;
@@ -622,6 +622,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	tap_queue_packet(sametime_tap, pinfo, sinfo);
+	return tvb_length(tvb);
 }
 
 
@@ -679,14 +680,15 @@ get_sametime_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 /*
 	the dissector itself
 */
-static void
-dissect_sametime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sametime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAMETIME");
 	col_clear(pinfo->cinfo,COL_INFO);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, global_sametime_reassemble_packets, 4,
-			 get_sametime_message_len, dissect_sametime_content);
+			 get_sametime_message_len, dissect_sametime_content, data);
+	return tvb_length(tvb);
 }
 
 
@@ -920,7 +922,7 @@ proto_reg_handoff_sametime(void)
 	static guint saved_sametime_tcp_port;
 
 	if (!initialized) {
-		sametime_handle = create_dissector_handle(dissect_sametime, proto_sametime);
+		sametime_handle = new_create_dissector_handle(dissect_sametime, proto_sametime);
 		stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
 				    sametime_stats_tree_packet,
 				    sametime_stats_tree_init, NULL );

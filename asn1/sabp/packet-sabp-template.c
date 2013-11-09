@@ -199,8 +199,8 @@ get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 
-static void
-dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*sabp_item = NULL;
 	proto_tree	*sabp_tree = NULL;
@@ -213,14 +213,16 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sabp_tree = proto_item_add_subtree(sabp_item, ett_sabp);
 
 	dissect_SABP_PDU_PDU(tvb, pinfo, sabp_tree, NULL);
+    return tvb_length(tvb);
 }
 
 /* Note a little bit of a hack assumes length max takes two bytes and that the length starts at byte 4 */
-static void
-dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, gbl_sabp_desegment, 5,
-					 get_sabp_pdu_len, dissect_sabp);
+					 get_sabp_pdu_len, dissect_sabp, data);
+	return tvb_length(tvb);
 }
 
 /*--- proto_register_sbap -------------------------------------------*/
@@ -270,8 +272,8 @@ void proto_register_sabp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("sabp", dissect_sabp, proto_sabp);
-  register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
+  new_register_dissector("sabp", dissect_sabp, proto_sabp);
+  new_register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
 
   /* Register dissector tables */
   sabp_ies_dissector_table = register_dissector_table("sabp.ies", "SABP-PROTOCOL-IES", FT_UINT32, BASE_DEC);

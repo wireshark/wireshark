@@ -218,8 +218,8 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
 }
 
 /* ---------------------------------------------- */
-static void
-dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *ti;
@@ -244,7 +244,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, ENC_NA);
         fix_tree = proto_item_add_subtree(ti, ett_fix);
         proto_tree_add_item(fix_tree, hf_fix_data, tvb, 0, -1, ENC_NA);
-        return;
+        return tvb_length(tvb);
     }
 
     pdu_len = tvb_reported_length(tvb);
@@ -254,20 +254,20 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* begin string */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return;
+        return tvb_length(tvb);
     }
     offset = ctrla_offset + 1;
 
     /* msg length */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return;
+        return tvb_length(tvb);
     }
     offset = ctrla_offset + 1;
 
     /* msg type */
     if (!(tag = fix_param(tvb, offset)) || tag->value_len < 1) {
-        return;
+        return tvb_length(tvb);
     }
 
     value = tvb_get_string(wmem_packet_scope(), tvb, tag->value_offset, tag->value_len);
@@ -385,7 +385,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         tag_str = NULL;
     }
-    return;
+    return tvb_length(tvb);
 }
 
 static guint
@@ -409,23 +409,24 @@ get_fix_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 #define FIX_MIN_LEN 24
 
-static void
-dissect_fix_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fix_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, fix_desegment, FIX_MIN_LEN,
-                     get_fix_pdu_len, dissect_fix_packet);
+                     get_fix_pdu_len, dissect_fix_packet, data);
 
+    return tvb_length(tvb);
 }
 
-static void
-dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    dissect_fix_pdus(tvb, pinfo, tree);
+    return dissect_fix_pdus(tvb, pinfo, tree, data);
 }
 
 /* Code to actually dissect the packets */
 static gboolean
-dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conv;
 
@@ -438,7 +439,7 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     conv = find_or_create_conversation(pinfo);
     conversation_set_dissector(conv, fix_handle);
 
-    dissect_fix_pdus(tvb, pinfo, tree);
+    dissect_fix_pdus(tvb, pinfo, tree, data);
     return TRUE;
 }
 
@@ -504,7 +505,7 @@ proto_register_fix(void)
                                         "FIX", "fix");
 
     /* Allow dissector to find be found by name. */
-    fix_handle = register_dissector("fix", dissect_fix, proto_fix);
+    fix_handle = new_register_dissector("fix", dissect_fix, proto_fix);
 
     proto_register_field_array(proto_fix, hf, array_length(hf));
     proto_register_field_array(proto_fix, hf_FIX, array_length(hf_FIX));

@@ -4572,15 +4572,13 @@ dissect_krb5_ERROR(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 
 
 
-static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
-                                 proto_tree *tree);
 static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, gboolean do_col_info,
                                     gboolean do_col_protocol,
                                     gboolean have_rm,
                                     kerberos_callbacks *cb);
-static void dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree);
+static int dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree, void* data _U_);
 
 
 gint
@@ -4637,8 +4635,8 @@ get_krb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return (pdulen + 4);
 }
 
-static void
-dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     pinfo->fragmented = TRUE;
     if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, TRUE, NULL) < 0) {
@@ -4648,16 +4646,19 @@ dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
     }
+
+    return tvb_length(tvb);
 }
 
-static void
-dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
     col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
-                     dissect_kerberos_tcp_pdu);
+                     dissect_kerberos_tcp_pdu, data);
+    return tvb_length(tvb);
 }
 
 /*
@@ -5484,7 +5485,7 @@ proto_reg_handoff_kerberos(void)
 
     kerberos_handle_udp = new_create_dissector_handle(dissect_kerberos_udp,
                                                       proto_kerberos);
-    kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
+    kerberos_handle_tcp = new_create_dissector_handle(dissect_kerberos_tcp,
                                                   proto_kerberos);
     dissector_add_uint("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
     dissector_add_uint("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);

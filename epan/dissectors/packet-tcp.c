@@ -2082,7 +2082,7 @@ void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  gboolean proto_desegment, guint fixed_len,
                  guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),
-                 dissector_t dissect_pdu)
+                 new_dissector_t dissect_pdu, void* dissector_data)
 {
     volatile int offset = 0;
     int offset_before;
@@ -2235,7 +2235,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         pd_save = pinfo->private_data;
         TRY {
-            (*dissect_pdu)(next_tvb, pinfo, tree);
+            (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
         }
         CATCH_NONFATAL_ERRORS {
             /*  Restore the private_data structure in case one of the

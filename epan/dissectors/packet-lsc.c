@@ -134,8 +134,8 @@ static guint global_lsc_port = 0;
 static gint ett_lsc = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   proto_tree *lsc_tree;
@@ -151,7 +151,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tvb_length(tvb) < LSC_MIN_LEN)
   {
     col_set_str(pinfo->cinfo, COL_INFO, "[Too short]");
-    return;
+    return 0;
   }
 
   /* Get the op code */
@@ -272,13 +272,15 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           break;
       }
   }
+
+  return tvb_length(tvb);
 }
 
 /* Decode LSC over UDP */
-static void
-dissect_lsc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lsc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  dissect_lsc_common(tvb, pinfo, tree);
+  return dissect_lsc_common(tvb, pinfo, tree, data);
 }
 
 /* Determine length of LSC message */
@@ -330,11 +332,12 @@ get_lsc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* Decode LSC over TCP */
-static void
-dissect_lsc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lsc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, LSC_OPCODE_LEN, get_lsc_pdu_len,
-                   dissect_lsc_common);
+                   dissect_lsc_common, data);
+  return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -434,8 +437,8 @@ proto_reg_handoff_lsc(void)
   static guint saved_lsc_port;
 
   if (!initialized) {
-    lsc_udp_handle = create_dissector_handle(dissect_lsc_udp, proto_lsc);
-    lsc_tcp_handle = create_dissector_handle(dissect_lsc_tcp, proto_lsc);
+    lsc_udp_handle = new_create_dissector_handle(dissect_lsc_udp, proto_lsc);
+    lsc_tcp_handle = new_create_dissector_handle(dissect_lsc_tcp, proto_lsc);
     dissector_add_handle("udp.port", lsc_udp_handle);   /* for 'decode-as' */
     dissector_add_handle("tcp.port", lsc_tcp_handle);   /* ...             */
     initialized = TRUE;

@@ -41,10 +41,7 @@ extern const value_string g_requesttypes[];
 extern const int g_NumServices;
 
 /* forward reference */
-static void dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void proto_reg_handoff_opcua(void);
-
 /* declare parse function pointer */
 typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 
@@ -230,22 +227,12 @@ static guint get_opcua_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int of
     return plen;
 }
 
-/** The main OpcUa dissector functions.
-  * It uses tcp_dissect_pdus from packet-tcp.h
-  * to reassemble the TCP data.
-  */
-static void dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-      get_opcua_message_len, dissect_opcua_message);
-}
-
 /** The OpcUa message dissector.
   * This method dissects full OpcUa messages.
   * It gets only called with reassembled data
   * from tcp_dissect_pdus.
   */
-static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     FctParse pfctParse = NULL;
     enum MessageType msgtype = MSG_INVALID;
@@ -447,6 +434,19 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             }
         }
     }
+
+    return tvb_length(tvb);
+}
+
+/** The main OpcUa dissector functions.
+  * It uses tcp_dissect_pdus from packet-tcp.h
+  * to reassemble the TCP data.
+  */
+static int dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+      get_opcua_message_len, dissect_opcua_message, data);
+	return tvb_length(tvb);
 }
 
 static void register_tcp_port(guint32 port)
@@ -468,7 +468,7 @@ void proto_reg_handoff_opcua(void)
 
   if(!opcua_initialized)
   {
-    opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
+    opcua_handle = new_create_dissector_handle(dissect_opcua, proto_opcua);
     opcua_initialized = TRUE;
   }
   else

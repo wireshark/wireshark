@@ -83,9 +83,9 @@
 #define SMPP_MIN_LENGTH 16
 
 /* Forward declarations         */
-static void dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static guint get_smpp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
-static void dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 /*
  * Initialize the protocol and registered fields
@@ -2358,7 +2358,7 @@ huawei_sm_result_notify_resp(proto_tree *tree, tvbuff_t *tvb)
  *      has a 'well-known' or 'reserved' status
  */
 static gboolean
-dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint        command_id;            /* SMPP command         */
     guint        command_status;        /* Status code          */
@@ -2376,7 +2376,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (try_val_to_str(command_status, vals_command_status) == NULL &&
                 try_rval_to_str(command_status, reserved_command_status) == NULL)
         return FALSE;
-    dissect_smpp(tvb, pinfo, tree);
+    dissect_smpp(tvb, pinfo, tree, data);
     return TRUE;
 }
 
@@ -2396,8 +2396,8 @@ get_smpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  */
 static gboolean first = TRUE;
 
-static void
-dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     first = TRUE;
     if (pinfo->ptype == PT_TCP) {       /* are we running on top of TCP */
@@ -2405,7 +2405,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 reassemble_over_tcp,    /* Do we try to reassemble      */
                 16,                     /* Length of fixed header       */
                 get_smpp_pdu_len,       /* Function returning PDU len   */
-                dissect_smpp_pdu);      /* PDU dissector                */
+                dissect_smpp_pdu, data);      /* PDU dissector                */
     } else {                            /* no? probably X.25            */
         guint32 offset = 0;
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -2417,21 +2417,23 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 THROW(ReportedBoundsError);
 
             if (pdu_real_len <= 0)
-                return;
+                return offset;
             if (pdu_real_len > pdu_len)
                 pdu_real_len = pdu_len;
             pdu_tvb = tvb_new_subset(tvb, offset, pdu_real_len, pdu_len);
-            dissect_smpp_pdu(pdu_tvb, pinfo, tree);
+            dissect_smpp_pdu(pdu_tvb, pinfo, tree, data);
             offset += pdu_len;
             first = FALSE;
         }
     }
+
+    return tvb_length(tvb);
 }
 
 
 /* Dissect a single SMPP PDU contained within "tvb". */
-static void
-dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int             offset      = 0; /* Offset within tvbuff */
     guint           command_length;  /* length of PDU        */
@@ -2450,7 +2452,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * when the mandatory header isn't present.
      */
     if (tvb_reported_length(tvb) < SMPP_MIN_LENGTH)
-        return;
+        return 0;
     command_length = tvb_get_ntohl(tvb, offset);
     offset += 4;
     command_id = tvb_get_ntohl(tvb, offset);
@@ -2726,7 +2728,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         first = FALSE;
     }
 
-    return;
+    return tvb_length(tvb);
 }
 
 
@@ -3766,7 +3768,7 @@ proto_register_smpp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("smpp", dissect_smpp, proto_smpp);
+    new_register_dissector("smpp", dissect_smpp, proto_smpp);
 
     /* Register for tapping */
     smpp_tap = register_tap("smpp");

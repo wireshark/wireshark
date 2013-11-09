@@ -4081,10 +4081,13 @@ dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 /*--- PDUs ---*/
 
-static void dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_ilp_ILP_PDU(tvb, 0, &asn1_ctx, tree, hf_ilp_ILP_PDU_PDU);
+  offset = dissect_ilp_ILP_PDU(tvb, offset, &asn1_ctx, tree, hf_ilp_ILP_PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
@@ -4099,11 +4102,12 @@ get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return tvb_get_ntohs(tvb,offset);
 }
 
-static void
-dissect_ilp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ilp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, ilp_desegment, ILP_HEADER_SIZE,
-                   get_ilp_pdu_len, dissect_ILP_PDU_PDU);
+                   get_ilp_pdu_len, dissect_ILP_PDU_PDU, data);
+  return tvb_length(tvb);
 }
 
 void proto_reg_handoff_ilp(void);
@@ -5639,7 +5643,7 @@ void proto_register_ilp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ilp-hfarr.c ---*/
-#line 98 "../../asn1/ilp/packet-ilp-template.c"
+#line 99 "../../asn1/ilp/packet-ilp-template.c"
   };
 
   /* List of subtrees */
@@ -5785,7 +5789,7 @@ void proto_register_ilp(void) {
     &ett_ilp_T_tia801Payload,
 
 /*--- End of included file: packet-ilp-ettarr.c ---*/
-#line 104 "../../asn1/ilp/packet-ilp-template.c"
+#line 105 "../../asn1/ilp/packet-ilp-template.c"
   };
 
   module_t *ilp_module;
@@ -5793,7 +5797,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  new_register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));

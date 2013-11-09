@@ -883,8 +883,8 @@ get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 
-static void
-dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint offset = 0;
     guint8 version;
@@ -906,15 +906,16 @@ dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
         break;
     }
+    return tvb_length(tvb);
 }
 
 
 #define OFP_HEADER_LEN  8
 static int
-dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, openflow_desegment, OFP_HEADER_LEN,
-                     get_openflow_pdu_length, dissect_openflow_tcp_pdu);
+                     get_openflow_pdu_length, dissect_openflow_tcp_pdu, data);
     return tvb_length(tvb);
 }
 

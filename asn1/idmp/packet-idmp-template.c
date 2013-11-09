@@ -142,7 +142,7 @@ register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto 
 }
 
 
-static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     int offset = 0;
 
@@ -229,6 +229,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
     }
 
+    return tvb_length(tvb);
 }
 
 static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -240,11 +241,10 @@ static guint get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return len + 6;
 }
 
-static void dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-
-    tcp_dissect_pdus(tvb, pinfo, parent_tree, idmp_desegment, 0, get_idmp_pdu_len, dissect_idmp);
-
+    tcp_dissect_pdus(tvb, pinfo, parent_tree, idmp_desegment, 0, get_idmp_pdu_len, dissect_idmp, data);
+	return tvb_length(tvb);
 }
 
 static void idmp_reassemble_init (void)
@@ -329,7 +329,7 @@ void proto_register_idmp(void)
     proto_register_field_array(proto_idmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
+    new_register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
 
     register_init_routine (&idmp_reassemble_init);
 

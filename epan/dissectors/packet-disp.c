@@ -69,8 +69,6 @@ static void prefs_register_disp(void); /* forward declaration for use in prefere
 /* Initialize the protocol and registered fields */
 static int proto_disp = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 
 /*--- Included file: packet-disp-hf.c ---*/
 #line 1 "../../asn1/disp/packet-disp-hf.c"
@@ -183,7 +181,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 67 "../../asn1/disp/packet-disp-template.c"
+#line 65 "../../asn1/disp/packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -246,7 +244,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 71 "../../asn1/disp/packet-disp-template.c"
+#line 69 "../../asn1/disp/packet-disp-template.c"
 
 
 /*--- Included file: packet-disp-fn.c ---*/
@@ -1496,7 +1494,7 @@ static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 73 "../../asn1/disp/packet-disp-template.c"
+#line 71 "../../asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -1506,8 +1504,9 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 {
 	int offset = 0;
 	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
+	struct SESSION_DATA_STRUCTURE* session;
 	int (*disp_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *disp_op_name;
 	asn1_ctx_t asn1_ctx;
@@ -1521,14 +1520,15 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 				"Internal error: can't get operation information from ROS dissector.");
 		}
 		return 0;
-	} else {
-		session  = ((struct SESSION_DATA_STRUCTURE*)data);
 	}
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_disp, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_disp);
-	}
+	session  = ((struct SESSION_DATA_STRUCTURE*)data);
+
+	asn1_ctx.private_data = session;
+
+	item = proto_tree_add_item(parent_tree, proto_disp, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_disp);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISP");
   	col_clear(pinfo->cinfo, COL_INFO);
 

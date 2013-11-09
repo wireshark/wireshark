@@ -1421,8 +1421,8 @@ dissect_skinny_xml(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const gi
 }
 
 /* Dissect a single SCCP PDU */
-static void
-dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int      offset   = 0;
   gboolean is_video = FALSE;    /* FIX ME: need to indicate video or not */
@@ -3458,12 +3458,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   tap_queue_packet(skinny_tap, pinfo, si);
+  return tvb_length(tvb);
 }
 
 
 /* Code to actually dissect the packets */
 static gboolean
-dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
    * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
@@ -3503,7 +3504,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
 
   tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4,
-                   get_skinny_pdu_len, dissect_skinny_pdu);
+                   get_skinny_pdu_len, dissect_skinny_pdu, data);
 
   return TRUE;
 }

@@ -812,10 +812,6 @@ typedef struct _cops_call_t
 } cops_call_t;
 
 void proto_reg_handoff_cops(void);
-
-static guint get_cops_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
-static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type, guint32* handle_value);
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
                                      guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len, guint32* handle_value);
@@ -919,16 +915,6 @@ static int cops_tag_cls2syntax ( guint tag, guint cls ) {
     return hf_cops_epd_unknown;
 }
 
-
-
-/* Code to actually dissect the packets */
-static void
-dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    tcp_dissect_pdus(tvb, pinfo, tree, cops_desegment, 8,
-                     get_cops_pdu_len, dissect_cops_pdu);
-}
-
 static guint
 get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -938,8 +924,8 @@ get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return tvb_get_ntohl(tvb, offset + 4);
 }
 
-static void
-dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8 op_code;
     guint16 client_type;
@@ -998,7 +984,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
         object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type, &handle_value);
         if (object_len < 0)
-            return;
+            return offset;
         offset += object_len;
     }
 
@@ -1018,7 +1004,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           op_code != COPS_MSG_CC &&
           op_code != COPS_MSG_KA &&
           op_code != COPS_MSG_SSC) ) {
-        return ;
+        return offset;
     }
 
 
@@ -1090,7 +1076,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pdus_array = (GPtrArray *)wmem_tree_lookup32(cops_conv_info->pdus_tree, handle_value);
 
         if (pdus_array == NULL) /* There's no request with this handle value */
-            return;
+            return offset;
 
         if (!pinfo->fd->flags.visited) {
             for (i=0; i < pdus_array->len; i++) {
@@ -1136,6 +1122,17 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
+}
+
+/* Code to actually dissect the packets */
+static int
+dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, cops_desegment, 8,
+                     get_cops_pdu_len, dissect_cops_pdu, data);
+    return tvb_length(tvb);
 }
 
 static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
@@ -2771,7 +2768,7 @@ void proto_register_cops(void)
     expert_register_field_array(expert_cops, ei, array_length(ei));
 
     /* Make dissector findable by name */
-    register_dissector("cops", dissect_cops, proto_cops);
+    new_register_dissector("cops", dissect_cops, proto_cops);
 
     /* Register our configuration options for cops */
     cops_module = prefs_register_protocol(proto_cops, proto_reg_handoff_cops);

@@ -119,7 +119,7 @@ get_rpkirtr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 
-static void dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     proto_item *ti = NULL, *ti_flags;
@@ -240,12 +240,15 @@ static void dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 break;
         }
     }
+
+    return tvb_length(tvb);
 }
 
-static void
-dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, 1, 8, get_rpkirtr_pdu_len, dissect_rpkirtr_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, 1, 8, get_rpkirtr_pdu_len, dissect_rpkirtr_pdu, data);
+    return tvb_length(tvb);
 }
 
 void
@@ -379,7 +382,7 @@ proto_reg_handoff_rpkirtr(void)
 
     if (!initialized) {
 
-        rpkirtr_handle = create_dissector_handle(dissect_rpkirtr,
+        rpkirtr_handle = new_create_dissector_handle(dissect_rpkirtr,
                                                         proto_rpkirtr);
         ssl_handle           = find_dissector("ssl");
         initialized = TRUE;

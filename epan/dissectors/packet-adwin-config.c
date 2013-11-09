@@ -328,8 +328,8 @@ get_adwin_TCPUpdate_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohl(tvb, offset);
 }
 
-static void
-dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin_tree)
+static int
+dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin_tree, void* data _U_)
 {
 	gint length, offset;
 	guint8 *filename;
@@ -337,7 +337,7 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin
 	tmp_time.nsecs = 0;
 
 	if (! adwin_tree)
-		return;
+		return 0;
 
 	ADWIN_ADD_BE(adwin_tree, stream_length,        0,    4);
 	offset = 4;
@@ -346,12 +346,12 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin
 	if (strncmp(filename, "eeprom_on", length) == 0) {
 		proto_tree_add_text(adwin_tree, tvb, offset, length,
 				    "Enable EEPROM Support");
-		return;
+		return offset+length;
 	}
 	if (strncmp(filename, "eeprom_off", length) == 0) {
 		proto_tree_add_text(adwin_tree, tvb, offset, length,
 				    "Disable EEPROM Support");
-		return;
+		return offset+length;
 	}
 	ADWIN_ADD_BE(adwin_tree, filename,       4,  length);
 	offset += length;
@@ -372,6 +372,8 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin
 	offset += 128;
 	length = tvb_length(tvb) - offset;
 	ADWIN_ADD_BE(adwin_tree, data,             offset,  length);
+
+    return tvb_length(tvb);
 }
 
 /* 00:50:c2:0a:2*:** */
@@ -472,7 +474,7 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 	switch (pinfo->ipproto) {
 	case IP_PROTO_TCP:
-		tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_adwin_TCPUpdate_len, dissect_TCPFlashUpdate);
+		tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_adwin_TCPUpdate_len, dissect_TCPFlashUpdate, NULL);
 		col_set_str(pinfo->cinfo, COL_INFO, "TCPFlashUpdate");
 		break;
 	case IP_PROTO_UDP:

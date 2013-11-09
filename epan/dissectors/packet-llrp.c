@@ -2594,8 +2594,8 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *llrp_tree;
@@ -2638,6 +2638,8 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (try_val_to_str_ext(type, &message_types_ext))
         dissect_llrp_message(tvb, pinfo, llrp_tree, type, offset);
+
+    return tvb_length(tvb);
 }
 
 /* Determine length of LLRP message */
@@ -2649,11 +2651,12 @@ get_llrp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* The main dissecting routine */
-static void
-dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, LLRP_HEADER_LENGTH,
-        get_llrp_message_len, dissect_llrp_packet);
+        get_llrp_message_len, dissect_llrp_packet, data);
+    return tvb_length(tvb);
 }
 
 void
@@ -3725,7 +3728,7 @@ proto_reg_handoff_llrp(void)
 {
     dissector_handle_t llrp_handle;
 
-    llrp_handle = create_dissector_handle(dissect_llrp, proto_llrp);
+    llrp_handle = new_create_dissector_handle(dissect_llrp, proto_llrp);
     dissector_add_uint("tcp.port", LLRP_PORT, llrp_handle);
 }
 

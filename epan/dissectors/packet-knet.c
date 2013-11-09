@@ -560,19 +560,21 @@ get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  * @param tree the parent tree where the dissected data is going to be inserted
  *
  */
-static void
-dissect_knet_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_knet_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_knet(tvb, pinfo, tree, KNET_TCP_PACKET);
+	return tvb_length(tvb);
 }
 
-static void
-dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_knet_pdu_len, dissect_knet_tcp_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_knet_pdu_len, dissect_knet_tcp_pdu, data);
+    return tvb_length(tvb);
 }
 
 /**
@@ -754,7 +756,7 @@ proto_register_knet(void)
     proto_knet = proto_register_protocol ("kNet Protocol", "KNET", "knet");
 
     knet_handle_sctp = register_dissector("knetsctp", dissect_knet_sctp, proto_knet);
-    knet_handle_tcp = register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
+    knet_handle_tcp = new_register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
     knet_handle_udp = register_dissector("knetudp",  dissect_knet_udp, proto_knet);
 
     knet_module = prefs_register_protocol(proto_knet, proto_reg_handoff_knet);

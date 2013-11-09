@@ -448,30 +448,6 @@ static void synphasor_init(void)
 
 }
 
-/* the main dissection routine */
-static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-/* called for synchrophasors over UDP */
-static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	dissect_common(tvb, pinfo, tree);
-
-	return tvb_length(tvb);
-}
-
-/* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
-static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
-{
-	return tvb_get_ntohs(tvb, offset + 2);
-}
-
-static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common);
-
-	return tvb_length(tvb);
-}
-
 /* Checks the CRC of a synchrophasor frame, 'tvb' has to include the whole
  * frame, including CRC, the calculated CRC is returned in '*computedcrc'.
  */
@@ -501,7 +477,7 @@ static gint dissect_header(tvbuff_t *, proto_tree *);
 /* Dissects the header (common to all types of frames) and then calls
  * one of the subdissectors (declared above) for the rest of the frame.
  */
-static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8	frame_type;
 	guint16 crc;
@@ -511,7 +487,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvbsize < 17		    /* 17 bytes = header frame with only a
 					       NULL character, useless but valid */
 	 || tvb_get_guint8(tvb, 0) != 0xAA) /* every synchrophasor frame starts with 0xAA */
-		return;
+		return 0;
 
 	/* write the protocol name to the info column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORT_NAME);
@@ -617,7 +593,29 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/*offset += 2;*/ /* CRC */
 	} /* if (tree) */
+
+    return tvb_length(tvb);
 } /* dissect_synphasor() */
+
+/* called for synchrophasors over UDP */
+static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return dissect_common(tvb, pinfo, tree, data);
+}
+
+/* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
+static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+	return tvb_get_ntohs(tvb, offset + 2);
+}
+
+static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common, data);
+
+	return tvb_length(tvb);
+}
+
 
 /* Dissects the common header of frames.
  *

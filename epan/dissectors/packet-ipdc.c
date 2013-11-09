@@ -695,7 +695,6 @@ static gint ett_ipdc_tag = -1;
 
 static gboolean ipdc_desegment = TRUE;
 static guint ipdc_port_pref = TCP_PORT_IPDC;
-static gboolean new_packet = FALSE;
 
 static dissector_handle_t q931_handle;
 
@@ -711,8 +710,8 @@ get_ipdc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return raw_len + 4;
 }
 
-static void
-dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *ipdc_tree;
@@ -745,18 +744,12 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* short frame... */
 	if (payload_len < 4)
-		return;
+		return 0;
 
 	/* clear info column and display send/receive sequence numbers */
-	if (new_packet == TRUE) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		new_packet = FALSE;
-	}
 	col_append_fstr(pinfo->cinfo, COL_INFO, "r=%u s=%u ", nr, ns);
 
 	if (payload_len == 4) {
-		if (!tree)
-			return;
 
 		ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, ENC_NA);
 		ipdc_tree = proto_item_add_subtree(ti, ett_ipdc);
@@ -764,8 +757,8 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ipdc_tree, hf_ipdc_ns, tvb, 1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(ipdc_tree, hf_ipdc_payload_len, tvb, 2, 2,
 				    payload_len);
-
-		return;
+		col_set_fence(pinfo->cinfo, COL_INFO);
+		return 4;
 	}
 
 	/* IPDC tags present - display message code and trans. ID */
@@ -945,20 +938,23 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} /* switch */
 		offset += len + 2;
 	}
+
+	col_set_fence(pinfo->cinfo, COL_INFO);
+	return tvb_length(tvb);
 }
 
-static void
-dissect_ipdc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipdc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	dissect_ipdc_common(tvb, pinfo, tree);
+	return dissect_ipdc_common(tvb, pinfo, tree, data);
 }
 
-static void
-dissect_ipdc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipdc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	new_packet = TRUE;
 	tcp_dissect_pdus(tvb, pinfo, tree, ipdc_desegment, 4,
-			 get_ipdc_pdu_len, dissect_ipdc_tcp_pdu);
+			 get_ipdc_pdu_len, dissect_ipdc_tcp_pdu, data);
+	return tvb_length(tvb);
 }
 
 void
@@ -1044,7 +1040,7 @@ proto_reg_handoff_ipdc(void)
 			ipdc_tcp_handle);
 	} else {
 		ipdc_tcp_handle =
-			create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
+			new_create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
 		q931_handle = find_dissector("q931");
 	}
 

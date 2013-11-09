@@ -270,8 +270,8 @@ static const value_string dlsw_refuse_vals[] = {
 static void
 dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti);
 
-static void
-dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint version,hlen = 0,mlen = 0,mtype,dlchlen = 0,flags;
   proto_tree      *dlsw_tree = NULL, *dlsw_header_tree = NULL;
@@ -360,7 +360,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
           expert_add_info_format(pinfo, ti, &ei_dlsw_dlc_header_length,
               "DLC Header Length = %u (bogus, must be <= message length %u)",dlchlen, mlen) ;
-          return;
+          return 44;
         }
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_origin_dlc_port_id, tvb, 44, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_origin_dlc, tvb, 48, 4, ENC_BIG_ENDIAN);
@@ -404,6 +404,8 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
   }
+
+  return tvb_length(tvb);
 }
 
 static void
@@ -495,7 +497,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
 }
 
 static int
-dissect_dlsw_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_dlsw_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (try_val_to_str(tvb_get_guint8(tvb, 0), dlsw_version_vals) == NULL)
   {
@@ -503,8 +505,7 @@ dissect_dlsw_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return 0;
   }
 
-  dissect_dlsw_pdu(tvb, pinfo, tree);
-  return tvb_length(tvb);
+  return dissect_dlsw_pdu(tvb, pinfo, tree, data);
 }
 
 static guint
@@ -529,7 +530,7 @@ get_dlsw_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_dlsw_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_dlsw_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (try_val_to_str(tvb_get_guint8(tvb, 0), dlsw_version_vals) == NULL)
   {
@@ -537,7 +538,7 @@ dissect_dlsw_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return 0;
   }
 
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_dlsw_pdu_len, dissect_dlsw_pdu);
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_dlsw_pdu_len, dissect_dlsw_pdu, data);
   return tvb_length(tvb);
 }
 

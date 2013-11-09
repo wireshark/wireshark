@@ -69,8 +69,8 @@ static const value_string system_message_names[] = {
     { 0, NULL }
 };
 
-static void
-dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint8      packet_type;
     guint16     packet_len;
@@ -123,6 +123,8 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next_tvb = tvb_new_subset_remaining(tvb, FMTP_HEADER_LEN);
         call_dissector(data_handle, next_tvb, pinfo, fmtp_tree);
     }
+
+    return tvb_length(tvb);
 }
 
 static guint
@@ -132,7 +134,7 @@ get_fmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static gboolean
-dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*
      * Check that packet looks like FMTP before going further
@@ -148,7 +150,7 @@ dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return (FALSE);
 
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FMTP_HEADER_LEN,
-                     get_fmtp_message_len, dissect_fmtp_message);
+                     get_fmtp_message_len, dissect_fmtp_message, data);
     return (TRUE);
 }
 

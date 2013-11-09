@@ -2468,8 +2468,8 @@ get_pcep_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return plen;
 }
 
-static void
-dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -2480,13 +2480,15 @@ dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	dissect_pcep_msg_tree(tvb, tree, ett_pcep, pinfo);
+	return tvb_length(tvb);
 }
 
-static void
-dissect_pcep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pcep_message_len,
-		dissect_pcep_pdu);
+		dissect_pcep_pdu, data);
+    return tvb_length(tvb);
 }
 
 /*Register the protocol with wireshark*/
@@ -2988,7 +2990,7 @@ proto_reg_handoff_pcep(void)
 {
 	dissector_handle_t pcep_handle;
 
-	pcep_handle = create_dissector_handle(dissect_pcep, proto_pcep);
+	pcep_handle = new_create_dissector_handle(dissect_pcep, proto_pcep);
 	dissector_add_uint("tcp.port", TCP_PORT_PCEP, pcep_handle);
 }
 

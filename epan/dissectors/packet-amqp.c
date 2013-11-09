@@ -415,11 +415,11 @@ static void
 dissect_amqp_0_10_struct32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, guint32 struct_length);
 
-static void
-dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int
+dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
-static void
-dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int
+dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 static int
 dissect_amqp_0_9_method_connection_start(tvbuff_t *tvb, packet_info *pinfo,
@@ -1825,7 +1825,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     amqp_conv *conn;
     guint fixed_length;
     guint (*length_getter)(packet_info *, tvbuff_t *, int);
-    dissector_t dissector;
+    new_dissector_t dissector;
 
     /*  Minimal frame size is 8 bytes - smaller frames are malformed  */
     if (tvb_reported_length (tvb) < 8) {
@@ -1858,7 +1858,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, fixed_length,
-                     length_getter, dissector);
+                     length_getter, dissector, NULL);
 }
 
 static void
@@ -5557,8 +5557,8 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
     }
 }
 
-static void
-dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_item *amqp_tree = NULL;
@@ -5604,7 +5604,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(amqp_tree, hf_amqp_init_version_major, tvb, 6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(amqp_tree, hf_amqp_init_version_minor, tvb, 7, 1, ENC_BIG_ENDIAN);
         }
-        return;
+        return 8;
     }
 
     /* Protocol frame */
@@ -5703,12 +5703,14 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
     }
+
+    return tvb_length(tvb);
 }
 
 /*  Dissection routine for AMQP 0-9 frames  */
 
-static void
-dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item    *ti;
     proto_item    *amqp_tree = NULL;
@@ -5746,7 +5748,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(amqp_tree, hf_amqp_init_version_major, tvb, 6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(amqp_tree, hf_amqp_init_version_minor, tvb, 7, 1, ENC_BIG_ENDIAN);
         }
-        return;
+        return 8;
     }
 
     if (tree) {
@@ -6348,6 +6350,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
     }
+
+    return tvb_length(tvb);
 }
 
 /*  Dissection routine for method Connection.Start                        */

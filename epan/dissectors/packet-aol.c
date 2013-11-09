@@ -211,7 +211,7 @@ static guint get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) 
 /**
  * Dissect a PDU
  */
-static void dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 	proto_item    *ti         = NULL;
 	proto_tree    *aol_tree   = NULL;
 	guint          offset     = 0;
@@ -296,18 +296,18 @@ static void dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		expert_add_info(pinfo,ti,&ei_aol_end_missing);
 	}
 
-	return;
+	return tvb_length(tvb);
 }
 
 /**
  * Dissect a packet
  */
-static int dissect_aol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+static int dissect_aol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 	/* Ensure this really is an AOL packet */
 	if (tvb_length(tvb) >= 1 && tvb_get_guint8(tvb,0) != AOL_P3_FRAME_START) return 0;
 
 	/* Dissect PDUs */
-	tcp_dissect_pdus(tvb,pinfo,tree,aol_desegment,9,get_aol_pdu_len,dissect_aol_pdu);
+	tcp_dissect_pdus(tvb,pinfo,tree,aol_desegment,9,get_aol_pdu_len,dissect_aol_pdu,data);
 	return tvb_length(tvb);
 }
 

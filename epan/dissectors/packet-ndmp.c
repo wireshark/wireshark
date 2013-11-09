@@ -3077,8 +3077,8 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-static void
-dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	int offset = 0;
 	guint32 ndmp_rm;
@@ -3161,7 +3161,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Figure out the tcp seq and pdu length.  Fragment tree is indexed based on seq;
 		 */
-		tcpinfo = (struct tcpinfo *)p_get_proto_data(pinfo->fd, proto_ndmp, 0);
+		tcpinfo = (struct tcpinfo *)data;
 
 		seq = tcpinfo->seq;
 		len = (ndmp_rm & RPC_RM_FRAGLEN) + 4;
@@ -3277,7 +3277,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(ndmp_tree, tvb, 4, nbytes, "NDMP fragment data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
 
 			pinfo->fragmented = save_fragmented;
-			return;
+			return tvb_length(tvb);
 		}
 	}
 	else
@@ -3291,7 +3291,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (size < 24) {
 		/* too short to be NDMP */
 		pinfo->fragmented = save_fragmented;
-		return;
+		return tvb_length(tvb);
 	}
 
 	/*
@@ -3301,7 +3301,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!check_ndmp_hdr(new_tvb))
 	{
 		pinfo->fragmented = save_fragmented;
-		return;
+		return tvb_length(tvb);
 	}
 
 	nh.seq = tvb_get_ntohl(new_tvb, offset);
@@ -3398,7 +3398,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->fragmented = save_fragmented;
 	col_set_writable(pinfo->cinfo, save_writable);
 
-	return;
+	return tvb_length(tvb);
 }
 
 static guint
@@ -3493,13 +3493,8 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		return 0;
 	}
 
-	/* XXX - tcp_dissect_pdus() doesn't have a way to pass dissector data, so store
-	   the tcpinfo structure from the TCP dissector as proto_data to be retrieved
-	   in dissect_ndmp_message() */
-	p_add_proto_data(pinfo->fd, proto_ndmp, 0, data);
-
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 4,
-			 get_ndmp_pdu_len, dissect_ndmp_message);
+			 get_ndmp_pdu_len, dissect_ndmp_message, data);
 	return tvb_length(tvb);
 }
 
@@ -3517,13 +3512,8 @@ dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if (!check_if_ndmp(tvb, pinfo))
 		return 0;
 
-	/* XXX - tcp_dissect_pdus() doesn't have a way to pass dissector data, so store
-	   the tcpinfo structure from the TCP dissector as proto_data to be retrieved
-	   in dissect_ndmp_message() */
-	p_add_proto_data(pinfo->fd, proto_ndmp, 0, data);
-
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
-			 get_ndmp_pdu_len, dissect_ndmp_message);
+			 get_ndmp_pdu_len, dissect_ndmp_message, data);
 	return tvb_length(tvb);
 }
 

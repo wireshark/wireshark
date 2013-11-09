@@ -524,8 +524,8 @@ dissect_resp_locatedblocks (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
 }
 
 
-static void
-dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint offset = 0;
     int success = 0;
@@ -556,7 +556,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             if (success != 0) {
-                return;
+                return offset;
             }
 
             if (!tvb_memeql(tvb, offset + 2, "long", 4)) {
@@ -653,6 +653,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+    return tvb_length(tvb);
 }
 
 /* determine PDU length of protocol  */
@@ -668,8 +669,8 @@ static guint get_hdfs_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int off
 
 }
 
-static void
-dissect_hdfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hdfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     int frame_header_len = 0;
     gboolean need_reassemble = FALSE;
@@ -680,8 +681,8 @@ dissect_hdfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         need_reassemble = TRUE;
     }
 
-
-    tcp_dissect_pdus(tvb, pinfo, tree, need_reassemble, frame_header_len, get_hdfs_message_len, dissect_hdfs_message);
+    tcp_dissect_pdus(tvb, pinfo, tree, need_reassemble, frame_header_len, get_hdfs_message_len, dissect_hdfs_message, data);
+    return tvb_length(tvb);
 }
 
 /* registers the protcol with the given names */
@@ -1061,7 +1062,7 @@ proto_register_hdfs(void)
                                    10,
                                    &tcp_port);
 
-    hdfs_handle = register_dissector("hdfs", dissect_hdfs, proto_hdfs);
+    hdfs_handle = new_register_dissector("hdfs", dissect_hdfs, proto_hdfs);
 }
 
 /* registers handoff */

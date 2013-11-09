@@ -40,10 +40,6 @@
 
 #define PALTALK_HEADER_LENGTH 6
 
-/* forward reference */
-static guint dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset);
-static void dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static int proto_paltalk = -1;
 
 static int hf_paltalk_pdu_type = -1;
@@ -52,6 +48,34 @@ static int hf_paltalk_length = -1;
 static int hf_paltalk_content = -1;
 
 static gint ett_paltalk = -1;
+
+static guint
+dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+	return tvb_get_ntohs(tvb, offset + 4) + PALTALK_HEADER_LENGTH;
+}
+
+static int
+dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *ti = NULL;
+	proto_tree *pt_tree = NULL;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Paltalk");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	if (tree)		/* we are being asked for details */
+	{
+		ti = proto_tree_add_item(tree, proto_paltalk, tvb, 0, -1, ENC_NA);
+		pt_tree = proto_item_add_subtree(ti, ett_paltalk);
+		proto_tree_add_item(pt_tree, hf_paltalk_pdu_type, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pt_tree, hf_paltalk_version, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pt_tree, hf_paltalk_length, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), ENC_NA);
+	}
+
+    return tvb_length(tvb);
+}
 
 static gboolean
 dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -78,35 +102,9 @@ dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		return FALSE;
 
 	/* Dissect result of desegmented TCP data */
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PALTALK_HEADER_LENGTH
-			, dissect_paltalk_get_len, dissect_paltalk_desegmented);
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PALTALK_HEADER_LENGTH,
+			dissect_paltalk_get_len, dissect_paltalk_desegmented, data);
 	return TRUE;
-}
-
-static guint
-dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
-{
-	return tvb_get_ntohs(tvb, offset + 4) + PALTALK_HEADER_LENGTH;
-}
-
-static void
-dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	proto_item *ti = NULL;
-	proto_tree *pt_tree = NULL;
-
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Paltalk");
-	col_clear(pinfo->cinfo, COL_INFO);
-
-	if (tree)		/* we are being asked for details */
-	{
-		ti = proto_tree_add_item(tree, proto_paltalk, tvb, 0, -1, ENC_NA);
-		pt_tree = proto_item_add_subtree(ti, ett_paltalk);
-		proto_tree_add_item(pt_tree, hf_paltalk_pdu_type, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt_tree, hf_paltalk_version, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt_tree, hf_paltalk_length, tvb, 4, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), ENC_NA);
-	}
 }
 
 void

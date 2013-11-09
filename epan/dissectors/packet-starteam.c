@@ -483,8 +483,8 @@ starteam_init(void)
   iPreviousFrameNumber = -1;
 }
 
-static void
-dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   gint offset = 0;
 
@@ -573,6 +573,8 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
   }
+
+  return tvb_length(tvb);
 }
 
 static guint
@@ -589,15 +591,16 @@ get_starteam_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return iPDULength;
 }
 
-static void
-dissect_starteam_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_starteam_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, starteam_desegment, 8, get_starteam_pdu_len, dissect_starteam);
+  tcp_dissect_pdus(tvb, pinfo, tree, starteam_desegment, 8, get_starteam_pdu_len, dissect_starteam, data);
+  return tvb_length(tvb);
 }
 
 
 static gboolean
-dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if(tvb_length(tvb) >= 32){
     gint iOffsetLengths = -1;
@@ -619,7 +622,7 @@ dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         conversation_set_dissector(conversation, starteam_tcp_handle);
 
         /* Dissect the packet */
-        dissect_starteam(tvb, pinfo, tree);
+        dissect_starteam(tvb, pinfo, tree, data);
         return TRUE;
       }
     }
@@ -709,5 +712,5 @@ void
 proto_reg_handoff_starteam(void)
 {
   heur_dissector_add("tcp", dissect_starteam_heur, proto_starteam);
-  starteam_tcp_handle = create_dissector_handle(dissect_starteam_tcp, proto_starteam);
+  starteam_tcp_handle = new_create_dissector_handle(dissect_starteam_tcp, proto_starteam);
 }

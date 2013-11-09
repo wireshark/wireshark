@@ -1574,11 +1574,6 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	return offset;
 }
 
-static void dissect_cmp_tcp_pdu_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-	dissect_cmp_tcp_pdu(tvb, pinfo, parent_tree, NULL);
-}
-
 static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint32 plen;
@@ -1594,7 +1589,7 @@ static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* CMP over TCP: RFC2510 section 5.2 and "Transport Protocols for CMP" draft */
 static int
-dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	guint32 pdu_len;
 	guint8 pdu_type;
@@ -1644,7 +1639,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, cmp_desegment, offset, get_cmp_pdu_len,
-			dissect_cmp_tcp_pdu_no_return);
+			dissect_cmp_tcp_pdu, data);
 
 	return tvb_length(tvb);
 }
@@ -2342,7 +2337,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 331 "../../asn1/cmp/packet-cmp-template.c"
+#line 326 "../../asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2400,7 +2395,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 337 "../../asn1/cmp/packet-cmp-template.c"
+#line 332 "../../asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2494,7 +2489,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 409 "../../asn1/cmp/packet-cmp-template.c"
+#line 404 "../../asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

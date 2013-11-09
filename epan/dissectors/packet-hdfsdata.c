@@ -400,8 +400,8 @@ get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* This method dissects fully reassembled messages */
-static void
-dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
 
@@ -487,10 +487,12 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
   }
+
+  return tvb_length(tvb);
 }
 
-static void
-dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int frame_header_len = 0;
 
@@ -522,7 +524,8 @@ dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     frame_header_len = WRITE_REQ_HEAD_LEN;
   }
 
-  tcp_dissect_pdus(tvb, pinfo, tree, need_reassemble, frame_header_len, get_hdfsdata_message_len, dissect_hdfsdata_message);
+  tcp_dissect_pdus(tvb, pinfo, tree, need_reassemble, frame_header_len, get_hdfsdata_message_len, dissect_hdfsdata_message, data);
+  return tvb_length(tvb);
 }
 
 /* registers the protcol with the given names */
@@ -791,7 +794,7 @@ proto_register_hdfsdata(void)
                                    10,
                                    &tcp_port);
 
-    hdfsdata_handle = register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
+    hdfsdata_handle = new_register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
 }
 
 /* registers handoff */

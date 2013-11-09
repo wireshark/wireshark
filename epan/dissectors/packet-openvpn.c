@@ -80,7 +80,8 @@ static gint hf_openvpn_rsessionid = -1;
 static gint hf_openvpn_sessionid = -1;
 static gint proto_openvpn = -1;
 
-static dissector_handle_t openvpn_handle;
+static dissector_handle_t openvpn_udp_handle;
+static dissector_handle_t openvpn_tcp_handle;
 
 static dissector_handle_t ssl_handle;
 
@@ -180,47 +181,26 @@ check_for_valid_hmac(guint32 hmac)
   }
 }
 
-static void
-dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvpn_tree, proto_tree *parent_tree, gint offset)
 {
-  gint           offset        = 0;
-  gboolean       protocol_tcp;
   gboolean       tls_auth;
   guint          openvpn_keyid;
   guint          openvpn_opcode;
   guint32        msg_mpid      = -1;
   guint32        msg_sessionid = -1;
   guint8         openvpn_predict_tlsauth_arraylength;
-  proto_item    *ti            = NULL;
-  proto_item    *ti2;
-  proto_item    *ti3;
-  proto_tree    *openvpn_tree  = NULL;
-  proto_tree    *packetarray_tree;
-  proto_tree    *type_tree;
+  proto_item    *ti2, *ti3;
+  proto_tree    *packetarray_tree, *type_tree;
   guint32        msg_length_remaining;
   gboolean       msg_lastframe;
   fragment_head *frag_msg;
   tvbuff_t      *new_tvb;
   gboolean       save_fragmented;
 
-  /* check whether we are dealing with tcp or udp encapsulation */
-  protocol_tcp = (pinfo->ipproto == IP_PROTO_TCP ? TRUE : FALSE);
-
   /* Clear out stuff in the info column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(pinfo->cinfo,COL_INFO);
-
-  /* we are being asked for details */
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_openvpn, tvb, 0, -1, ENC_NA);
-    openvpn_tree = proto_item_add_subtree(ti, ett_openvpn);
-  }
-
-  /* openvpn packet length field is only present in tcp packets */
-  if (protocol_tcp) {
-    proto_tree_add_item(openvpn_tree, hf_openvpn_plen, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-  }
 
   /* read opcode and write to info column */
   openvpn_opcode = tvb_get_bits8(tvb, offset*8, 5);
@@ -229,12 +209,12 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   openvpn_keyid = tvb_get_bits8(tvb, offset*8 + 5, 3);
-  proto_item_append_text(ti, ", Opcode: %s, Key ID: %d",
+  proto_item_append_text(parent_tree, ", Opcode: %s, Key ID: %d",
                          val_to_str(openvpn_opcode, openvpn_message_types, "Unknown (0x%02x)"),
                          openvpn_keyid);
 
   ti2 = proto_tree_add_item(openvpn_tree, hf_openvpn_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_item_append_text(ti2, " %s", "[opcode/key_id]");
+  proto_item_append_text(ti2, " [opcode/key_id]");
 
   type_tree = proto_item_add_subtree(ti2, ett_openvpn_type);
   proto_tree_add_item(type_tree, hf_openvpn_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -313,11 +293,11 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  /* if we have more data left, determine wht to do */
+  /* if we have more data left, determine what to do */
   msg_length_remaining = tvb_length_remaining(tvb, offset);
 
   if (msg_length_remaining == 0) {
-    return;
+    return tvb_length(tvb);
   }
 
   if (openvpn_opcode != P_CONTROL_V1) {
@@ -327,7 +307,7 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     data_tree = proto_item_add_subtree(ti2, ett_openvpn_data);
     proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, -1, ENC_NA);
-    return;
+    return tvb_length(tvb);
   }
 
   /* Try to reassemble */
@@ -336,7 +316,7 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      fragmented message and is not the last fragment of the current transmission.
      Note that the tvb contains exactly one openvpn PDU:
      UDP: by definition;
-     TCP: beacuse of the use of tcp_dissect_pdus().
+     TCP: because of the use of tcp_dissect_pdus().
   */
   if (msg_length_remaining == 100) {
     msg_lastframe = FALSE;
@@ -394,8 +374,10 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (new_tvb) {
     /* call SSL/TLS dissector if we just processed the last fragment */
-    call_dissector(ssl_handle, new_tvb, pinfo, tree);
+    call_dissector(ssl_handle, new_tvb, pinfo, parent_tree);
   }
+
+  return tvb_length(tvb);
 }
 
 static guint
@@ -405,26 +387,42 @@ get_msg_length(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
                                                    +2 to account for the length field itself */
 }
 
-static void
-dissect_openvpn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_openvpn_msg_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    proto_item    *ti;
+    proto_tree    *openvpn_tree;
 
-  /* If TCP, then TCP desegmentation is needed */
-  if (pinfo->ipproto == IP_PROTO_TCP) {
-    tcp_dissect_pdus(
-      tvb,
-      pinfo,
-      tree,
+    ti = proto_tree_add_item(tree, proto_openvpn, tvb, 0, -1, ENC_NA);
+    openvpn_tree = proto_item_add_subtree(ti, ett_openvpn);
+
+    proto_tree_add_item(openvpn_tree, hf_openvpn_plen, tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    return dissect_openvpn_msg_common(tvb, pinfo, openvpn_tree, tree, 2);
+}
+
+static int
+dissect_openvpn_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus( tvb, pinfo, tree,
       TRUE,           /* should data be reassembled? */
       2,              /* how much bytes do we need for get_msg_length to be successful,
                          since the length is the first thing in an openvpn packet we choose 2 */
       get_msg_length, /* fptr for function to get the packetlength of current frame */
-      dissect_openvpn_msg
-      );
-  } else {
-    /* Must be UDP */
-    dissect_openvpn_msg(tvb, pinfo, tree);
-  }
+      dissect_openvpn_msg_tcp, data);
+    return tvb_length(tvb);
+}
+
+static int
+dissect_openvpn_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item    *ti;
+    proto_tree    *openvpn_tree;
+
+    ti = proto_tree_add_item(tree, proto_openvpn, tvb, 0, -1, ENC_NA);
+    openvpn_tree = proto_item_add_subtree(ti, ett_openvpn);
+
+    return dissect_openvpn_msg_common(tvb, pinfo, openvpn_tree, tree, 0);
 }
 
 void
@@ -597,7 +595,8 @@ proto_register_openvpn(void)
   proto_register_field_array(proto_openvpn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  openvpn_handle = register_dissector(PFNAME, dissect_openvpn, proto_openvpn);
+  openvpn_udp_handle = new_register_dissector(PFNAME, dissect_openvpn_udp, proto_openvpn);
+  openvpn_tcp_handle = new_register_dissector(PFNAME, dissect_openvpn_tcp, proto_openvpn);
 
   register_init_routine(&openvpn_reassemble_init);
 
@@ -655,18 +654,18 @@ proto_reg_handoff_openvpn(void)
     initialized    = TRUE;
   } else {
     if (tcp_port > 0)
-      dissector_delete_uint("tcp.port", tcp_port, openvpn_handle);
+      dissector_delete_uint("tcp.port", tcp_port, openvpn_tcp_handle);
     if (udp_port > 0)
-      dissector_delete_uint("udp.port", udp_port, openvpn_handle);
+      dissector_delete_uint("udp.port", udp_port, openvpn_udp_handle);
   }
 
   tcp_port = pref_tcp_port;
   udp_port = pref_udp_port;
 
   if (tcp_port > 0)
-    dissector_add_uint("tcp.port", tcp_port, openvpn_handle);
+    dissector_add_uint("tcp.port", tcp_port, openvpn_tcp_handle);
   if (udp_port > 0)
-    dissector_add_uint("udp.port", udp_port, openvpn_handle);
+    dissector_add_uint("udp.port", udp_port, openvpn_udp_handle);
 }
 
 /*

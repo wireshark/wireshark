@@ -3574,191 +3574,192 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	mq_parm_t mq_parm;
+
 	/* Reassembly of the MQ messages that span several PDU (several TSH) */
 	/* Typically a TCP PDU is 1460 bytes and a MQ PDU is 32766 bytes */
-	if (tvb_length(tvb) >= 28)
+	if (tvb_length(tvb) < 28)
+        return 0;
+
+	memset(&mq_parm,0,sizeof(mq_parm_t));
+	mq_parm.mq_strucID = tvb_get_ntohl(tvb, 0);
+
+	if ( (mq_parm.mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx || (mq_parm.mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx_EBCDIC )
 	{
-		mq_parm_t mq_parm;
+		guint8   iCtlF = 0;
+		gint32   iSegL = 0;
+		gint32   iBegL = 0;
+		gint32   iEnco = 0;
+		gint32   iMulS = 0;
+		gint32   iHdrL = 0;
+		gint32   iNxtP = 0;
+		guint8   iOpcd = 0;
+		gboolean bSeg1st = FALSE;
+		gboolean bSegLst = FALSE;
+		gboolean bMore = FALSE;
 
-		memset(&mq_parm,0,sizeof(mq_parm_t));
-		mq_parm.mq_strucID = tvb_get_ntohl(tvb, 0);
+		gint32 iHdl  = 0;
+		gint32 iGlbMsgIdx = 0;
+		gint32 iSegLength = 0;
+		gint16 iSegmIndex = 0;
 
-		if ( (mq_parm.mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx || (mq_parm.mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx_EBCDIC )
+		guint32 uStrL = 0;
+		guint32 uPadL = 0;
+
+		/* TSHM structure as 8 bytes more after the length (convid/requestid) */
+		if (mq_parm.mq_strucID == MQ_STRUCTID_TSHM || mq_parm.mq_strucID == MQ_STRUCTID_TSHM_EBCDIC)
+			iMulS=8;
+
+		/* Get the Encoding scheme */
+		iEnco = (tvb_get_guint8(tvb,  8+iMulS) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+		/* Get the Operation Code */
+		iOpcd =  tvb_get_guint8(tvb,  9+iMulS);
+		/* Get the Control Flag */
+		iCtlF =  tvb_get_guint8(tvb, 10+iMulS);
+		/* Get the Semgnet Length */
+		iSegL =  tvb_get_ntohl (tvb, 4);
+		/* First Segment ? */
+		bSeg1st = ((iCtlF & MQ_TCF_FIRST) != 0);
+		/* Last Segment */
+		bSegLst = ((iCtlF & MQ_TCF_LAST) != 0);
+
+		mq_in_reassembly=FALSE;
+
+		if ((iOpcd > 0x80 && !(bSeg1st && bSegLst)) || iOpcd==MQ_TST_ASYNC_MESSAGE)
 		{
-			guint8   iCtlF = 0;
-			gint32   iSegL = 0;
-			gint32   iBegL = 0;
-			gint32   iEnco = 0;
-			gint32   iMulS = 0;
-			gint32   iHdrL = 0;
-			gint32   iNxtP = 0;
-			guint8   iOpcd = 0;
-			gboolean bSeg1st = FALSE;
-			gboolean bSegLst = FALSE;
-			gboolean bMore = FALSE;
+			proto_tree* mq_tree = NULL;
 
-			gint32 iHdl  = 0;
-			gint32 iGlbMsgIdx = 0;
-			gint32 iSegLength = 0;
-			gint16 iSegmIndex = 0;
+			/* Optimisation : only fragmented segments go through the reassembly process */
+			/*
+			It seems that after a PUT on a Queue, when doing a GET, MQ first get
+			a small part of the response (4096 bytes)
+			The response contain the number of bytes returned for this request (ActMsgLen)
+			and the total number of bytes of this reply	(TotMsgLen)
 
-			guint32 uStrL = 0;
-			guint32 uPadL = 0;
+			this mean the flow seems to be :
 
-			/* TSHM structure as 8 bytes more after the length (convid/requestid) */
-			if (mq_parm.mq_strucID == MQ_STRUCTID_TSHM || mq_parm.mq_strucID == MQ_STRUCTID_TSHM_EBCDIC)
-				iMulS=8;
+			PUT
+			REQUEST_MSG (MaxLen=4096)
+			ASYNC_MSG (1st/Lst Segment, ActMsgLen=4096, TotMsgLen=279420)
+				as ActMsgLen!=TotMsgLen, this mean the MSG is not complete, we only receive some of 279420 bytes
+			REQUEST_MSG (MaxLen=279420)
+			ASYNC_MSG (1st Segment, SegIndex=0 ActMsgLen=279420, TotMsgLen=279420)
+			ASYNC_MSG (Mid Segment, SegIndex=1)
+			ASYNC_MSG (Mid Segment, SegIndex=2)
+			.
+			ASYNC_MSG (Lst Segment, SegIndex=n)
+			End of reassembling (we have 279420 bytes to decode)
+			*/
 
-			/* Get the Encoding scheme */
-			iEnco = (tvb_get_guint8(tvb,  8+iMulS) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
-			/* Get the Operation Code */
-			iOpcd =  tvb_get_guint8(tvb,  9+iMulS);
-			/* Get the Control Flag */
-			iCtlF =  tvb_get_guint8(tvb, 10+iMulS);
-			/* Get the Semgnet Length */
-			iSegL =  tvb_get_ntohl (tvb, 4);
-			/* First Segment ? */
-			bSeg1st = ((iCtlF & MQ_TCF_FIRST) != 0);
-			/* Last Segment */
-			bSegLst = ((iCtlF & MQ_TCF_LAST) != 0);
-
-			mq_in_reassembly=FALSE;
-
-			if ((iOpcd > 0x80 && !(bSeg1st && bSegLst)) || iOpcd==MQ_TST_ASYNC_MESSAGE)
+			if (mq_reassembly)
 			{
-				proto_tree* mq_tree = NULL;
+				fragment_head* fd_head;
+				guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
+				iHdrL=28+iMulS;
 
-				/* Optimisation : only fragmented segments go through the reassembly process */
+				/* Get the MQ Handle of the Object */
+				iHdl = tvb_get_guint32_endian(tvb, iHdrL + 4, iEnco);
+				/* Get the Global Message Index */
+				iGlbMsgIdx = tvb_get_guint32_endian(tvb, iHdrL + 12, iEnco);
+				/* Get the Segment Length */
+				iSegLength = tvb_get_guint32_endian(tvb, iHdrL + 16, iEnco);
+				/* Get the Segment Index */
+				iSegmIndex = tvb_get_guint16_endian(tvb, iHdrL +20, iEnco);
+
 				/*
-				It seems that after a PUT on a Queue, when doing a GET, MQ first get
-				a small part of the response (4096 bytes)
-				The response contain the number of bytes returned for this request (ActMsgLen)
-				and the total number of bytes of this reply	(TotMsgLen)
-
-				this mean the flow seems to be :
-
-				PUT
-				REQUEST_MSG (MaxLen=4096)
-				ASYNC_MSG (1st/Lst Segment, ActMsgLen=4096, TotMsgLen=279420)
-					as ActMsgLen!=TotMsgLen, this mean the MSG is not complete, we only receive some of 279420 bytes
-				REQUEST_MSG (MaxLen=279420)
-				ASYNC_MSG (1st Segment, SegIndex=0 ActMsgLen=279420, TotMsgLen=279420)
-				ASYNC_MSG (Mid Segment, SegIndex=1)
-				ASYNC_MSG (Mid Segment, SegIndex=2)
-				.
-				ASYNC_MSG (Lst Segment, SegIndex=n)
-				End of reassembling (we have 279420 bytes to decode)
+				if SegmIndex==0, it has 54 bytes + the length and padding
+				of a variable string at the end of the Header
 				*/
-
-				if (mq_reassembly)
+				if (iSegmIndex==0)
 				{
-					fragment_head* fd_head;
-					guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
-					iHdrL=28+iMulS;
+					uStrL = tvb_get_guint8(tvb,iHdrL+54);
+					uPadL = ((((2+1+uStrL)/4)+1)*4)-(2+1+uStrL);
+				}
+				bMore=!bSegLst;
+				/*
+				First segment has a longer header
+				*/
+				iNxtP = iHdrL + ((bSeg1st)?(54 + 1 + uStrL + uPadL):(24));
+				iNxtP += dissect_mq_md(tvb, NULL, iNxtP, &mq_parm, FALSE);
 
-					/* Get the MQ Handle of the Object */
-					iHdl = tvb_get_guint32_endian(tvb, iHdrL + 4, iEnco);
-					/* Get the Global Message Index */
-					iGlbMsgIdx = tvb_get_guint32_endian(tvb, iHdrL + 12, iEnco);
-					/* Get the Segment Length */
-					iSegLength = tvb_get_guint32_endian(tvb, iHdrL + 16, iEnco);
-					/* Get the Segment Index */
-					iSegmIndex = tvb_get_guint16_endian(tvb, iHdrL +20, iEnco);
+				/*
+				if it is the 1st Segment, it means we are
+				of the beginning of a reassembling. We must take the whole segment (with tSHM, and headers)
+				*/
+				iBegL = (bSeg1st)?0:iNxtP;
 
-					/*
-					if SegmIndex==0, it has 54 bytes + the length and padding
-					of a variable string at the end of the Header
-					*/
-					if (iSegmIndex==0)
-					{
-						uStrL = tvb_get_guint8(tvb,iHdrL+54);
-						uPadL = ((((2+1+uStrL)/4)+1)*4)-(2+1+uStrL);
-					}
-					bMore=!bSegLst;
-					/*
-					First segment has a longer header
-					*/
-					iNxtP = iHdrL + ((bSeg1st)?(54 + 1 + uStrL + uPadL):(24));
-					iNxtP += dissect_mq_md(tvb, NULL, iNxtP, &mq_parm, FALSE);
+				fd_head = fragment_add_seq_next(&mq_reassembly_table,
+					tvb, iBegL,
+					pinfo, iConnectionId, NULL,
+					iSegL - iBegL, bMore);
 
-					/*
-					if it is the 1st Segment, it means we are
-					of the beginning of a reassembling. We must take the whole segment (with tSHM, and headers)
-					*/
-					iBegL = (bSeg1st)?0:iNxtP;
-
-					fd_head = fragment_add_seq_next(&mq_reassembly_table,
-						tvb, iBegL,
-						pinfo, iConnectionId, NULL,
-						iSegL - iBegL, bMore);
-
-					if (tree)
-					{
-						proto_item* ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
-						if (bMore)
-							proto_item_append_text(ti, " [%s of a Reassembled MQ Segment] Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
-								val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
-								iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-						else
-							proto_item_append_text(ti, " %s Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
-								val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
-								iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-						mq_tree = proto_item_add_subtree(ti, ett_mq_reaasemb);
-					}
-					else
-					{
-						mq_tree=tree;
-					}
-
-					if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in)
-					{
-						tvbuff_t* next_tvb;
-
-						/* Reassembly finished */
-						if (fd_head->next != NULL)
-						{
-							/* 2 or more fragments */
-							next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
-							add_new_data_source(pinfo, next_tvb, "Reassembled MQ");
-						}
-						else
-						{
-							/* Only 1 fragment */
-							next_tvb = tvb;
-						}
-						dissect_mq_pdu(next_tvb, pinfo, mq_tree);
-						return;
-					}
-					else
-					{
-						mq_in_reassembly=TRUE;
-						/* Reassembly in progress */
-						col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
-						col_add_fstr(pinfo->cinfo, COL_INFO, "[%s of a Reassembled MQ Segment] Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+				if (tree)
+				{
+					proto_item* ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
+					if (bMore)
+						proto_item_append_text(ti, " [%s of a Reassembled MQ Segment] Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
 							val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
 							iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-						dissect_mq_pdu(tvb, pinfo, mq_tree);
-						return;
-					}
+					else
+						proto_item_append_text(ti, " %s Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+							val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
+							iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
+					mq_tree = proto_item_add_subtree(ti, ett_mq_reaasemb);
 				}
 				else
 				{
-					dissect_mq_pdu(tvb, pinfo, mq_tree);
-					if (bSeg1st)
+					mq_tree=tree;
+				}
+
+				if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in)
+				{
+					tvbuff_t* next_tvb;
+
+					/* Reassembly finished */
+					if (fd_head->next != NULL)
 					{
-						/* MQ segment is the first of a unreassembled series */
-						col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
+						/* 2 or more fragments */
+						next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+						add_new_data_source(pinfo, next_tvb, "Reassembled MQ");
 					}
-					return;
+					else
+					{
+						/* Only 1 fragment */
+						next_tvb = tvb;
+					}
+					dissect_mq_pdu(next_tvb, pinfo, mq_tree);
+					return tvb_length(tvb);
+				}
+				else
+				{
+					mq_in_reassembly=TRUE;
+					/* Reassembly in progress */
+					col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
+					col_add_fstr(pinfo->cinfo, COL_INFO, "[%s of a Reassembled MQ Segment] Hdl=0x%08x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+						val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"),
+						iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
+					dissect_mq_pdu(tvb, pinfo, mq_tree);
+					return tvb_length(tvb);
 				}
 			}
-			/* Reassembly not enabled or non-fragmented message */
-			dissect_mq_pdu(tvb, pinfo, tree);
-			return;
+			else
+			{
+				dissect_mq_pdu(tvb, pinfo, mq_tree);
+				if (bSeg1st)
+				{
+					/* MQ segment is the first of a unreassembled series */
+					col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
+				}
+				return tvb_length(tvb);
+			}
 		}
+		/* Reassembly not enabled or non-fragmented message */
+		dissect_mq_pdu(tvb, pinfo, tree);
 	}
+
+	return tvb_length(tvb);
 }
 
 static guint get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -3774,9 +3775,10 @@ static guint get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return 0;
 }
 
-static void dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, mq_desegment, 28, get_mq_pdu_len, reassemble_mq);
+	tcp_dissect_pdus(tvb, pinfo, tree, mq_desegment, 28, get_mq_pdu_len, reassemble_mq, data);
+	return tvb_length(tvb);
 }
 
 static void dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3785,7 +3787,7 @@ static void dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_mq_pdu(tvb, pinfo, tree);
 }
 
-static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto, void *data _U_)
+static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto, void *data)
 {
 	if (tvb_length(tvb) >= 28)
 	{
@@ -3799,7 +3801,7 @@ static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			if (iProto == MQ_XPT_TCP) conversation_set_dissector(conversation, mq_tcp_handle);
 
 			/* Dissect the packet */
-			reassemble_mq(tvb, pinfo, tree);
+			reassemble_mq(tvb, pinfo, tree, data);
 			return TRUE;
 		}
 	}
@@ -4428,7 +4430,7 @@ void proto_reg_handoff_mq(void)
 	*  class of applications (web browser, e-mail client, ...) and have a very well
 	*  known port number, the MQ applications are most often specific to a business application */
 
-	mq_tcp_handle = create_dissector_handle(dissect_mq_tcp, proto_mq);
+	mq_tcp_handle = new_create_dissector_handle(dissect_mq_tcp, proto_mq);
 	mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
 
 	dissector_add_handle("tcp.port", mq_tcp_handle);

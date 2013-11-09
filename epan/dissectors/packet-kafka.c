@@ -777,8 +777,8 @@ dissect_kafka_produce_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 /* MAIN */
 
-static void
-dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item             *ti;
     proto_tree             *kafka_tree;
@@ -882,7 +882,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (wmem_queue_count(match_queue) == 0) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Kafka Response (Unknown API, Missing Request)");
                 /* TODO: expert info, don't have request, can't dissect */
-                return;
+                return tvb_length(tvb);
             }
 
             matcher = (kafka_query_response_t *) wmem_queue_pop(match_queue);
@@ -922,14 +922,15 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
 
+    return tvb_length(tvb);
 }
 
 static int
 dissect_kafka_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+        void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
-            get_kafka_pdu_len, dissect_kafka);
+            get_kafka_pdu_len, dissect_kafka, data);
 
     return tvb_length(tvb);
 }

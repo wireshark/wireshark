@@ -541,8 +541,8 @@ ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
     return 1;
 }
 
-static void
-dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint               offset;
     guint8             mtype;
@@ -554,7 +554,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset = 0;
     if (tvb_get_ntohs(tvb, offset) != ANCP_GSMP_ETHER_TYPE)
-        return; /* XXX: this dissector is not a heuristic dissector */
+        return 0; /* XXX: this dissector is not a heuristic dissector */
                 /* Should do "expert" & dissect rest as "data"      */
                 /*  (after setting COL_PROTOCOL & etc) ?            */
 
@@ -635,6 +635,8 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
     tap_queue_packet(ancp_tap, pinfo, ancp_info);
+
+    return tvb_length(tvb);
 }
 
 static guint
@@ -643,11 +645,13 @@ get_ancp_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return (guint)tvb_get_ntohs(tvb, offset + 2) + 4; /* 2B len + 4B hdr */
 }
 
-static void
-dissect_ancp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ancp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, ANCP_MIN_HDR,
-            get_ancp_msg_len, dissect_ancp_message);
+            get_ancp_msg_len, dissect_ancp_message, data);
+
+    return tvb_length(tvb);
 }
 
 void
@@ -928,7 +932,7 @@ proto_reg_handoff_ancp(void)
 {
     dissector_handle_t ancp_handle;
 
-    ancp_handle = create_dissector_handle(dissect_ancp, proto_ancp);
+    ancp_handle = new_create_dissector_handle(dissect_ancp, proto_ancp);
     dissector_add_uint("tcp.port", ANCP_PORT, ancp_handle);
     stats_tree_register("ancp", "ancp", "ANCP", 0,
             ancp_stats_tree_packet, ancp_stats_tree_init, NULL);

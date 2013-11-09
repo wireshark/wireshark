@@ -1309,8 +1309,8 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     return (offset - startOffset);
 }
 
-static void
-dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint        offset            = 0;
 
@@ -1343,7 +1343,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
             expert_add_info(pinfo, openwireroot_tree, &ei_openwire_tight_encoding_not_supported);
-            return;
+            return tvb_length(tvb);
         }
 
         caching = retrieve_caching(pinfo);
@@ -1359,6 +1359,8 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             expert_add_info_format(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command fields unknown to Wireshark: %d", iCommand);
         }
     }
+
+    return tvb_length(tvb);
 }
 
 static guint
@@ -1371,15 +1373,16 @@ get_openwire_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return 0;
 }
 
-static void
-dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, openwire_desegment, 5, get_openwire_pdu_len, dissect_openwire);
+    tcp_dissect_pdus(tvb, pinfo, tree, openwire_desegment, 5, get_openwire_pdu_len, dissect_openwire, data);
+    return tvb_length(tvb);
 }
 
 
 static gboolean
-dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
     gboolean        detected = FALSE;
@@ -1421,7 +1424,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         conversation_set_dissector(conversation, openwire_tcp_handle);
 
         /* Dissect the packet */
-        dissect_openwire(tvb, pinfo, tree);
+        dissect_openwire(tvb, pinfo, tree, data);
         return TRUE;
     }
     return FALSE;
@@ -2014,6 +2017,6 @@ void
 proto_reg_handoff_openwire(void)
 {
     heur_dissector_add("tcp", dissect_openwire_heur, proto_openwire);
-    openwire_tcp_handle = create_dissector_handle(dissect_openwire_tcp, proto_openwire);
+    openwire_tcp_handle = new_create_dissector_handle(dissect_openwire_tcp, proto_openwire);
     dissector_add_handle("tcp.port", openwire_tcp_handle);
 }

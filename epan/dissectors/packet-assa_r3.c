@@ -6740,8 +6740,8 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
  *
  *  Main dissector entry points
  */
-static void
-dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data_U_)
 {
   proto_tree *r3_tree = NULL;
 
@@ -6761,7 +6761,7 @@ dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_r3_packet (tvb, pinfo, r3_tree);
 
-  return;
+  return tvb_length(tvb);
 }
 
 static guint
@@ -6770,10 +6770,11 @@ get_r3_message_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return (guint) tvb_get_guint8 (tvb, offset + 3) + 1;
 }
 
-static void
-dissect_r3 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_r3 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus (tvb, pinfo, tree, TRUE, 4, get_r3_message_len, dissect_r3_message);
+  tcp_dissect_pdus (tvb, pinfo, tree, TRUE, 4, get_r3_message_len, dissect_r3_message, data);
+  return tvb_length(tvb);
 }
 
 /*
@@ -10068,7 +10069,7 @@ void proto_register_r3 (void)
   expert_module_t* expert_r3;
 
   proto_r3 = proto_register_protocol ("Assa Abloy R3", "R3", "r3");
-  register_dissector ("r3", dissect_r3, proto_r3);
+  new_register_dissector ("r3", dissect_r3, proto_r3);
   proto_register_field_array (proto_r3, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   expert_r3 = expert_register_protocol(proto_r3);

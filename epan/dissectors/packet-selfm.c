@@ -2247,8 +2247,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 /* Code to dissect SEL Fast Message Protocol packets */
 /* Will call other sub-dissectors, as needed         */
 /******************************************************************************************************/
-static void
-dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *selfm_item=NULL;
@@ -2441,6 +2441,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
         } /* remaining length > 0 */
     } /* tree */
 
+    return tvb_length(selfm_tvb);
 }
 
 /******************************************************************************************************/
@@ -2469,7 +2470,7 @@ get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 /* Dissect (and possibly Re-assemble) SEL protocol payload data */
 /******************************************************************************************************/
 static gboolean
-dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     tvbuff_t      *selfm_tvb;
@@ -2492,7 +2493,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     tcp_dissect_pdus(selfm_tvb, pinfo, tree, selfm_desegment, 2,
-                   get_selfm_len, dissect_selfm);
+                   get_selfm_len, dissect_selfm, data);
 
     return TRUE;
 }
@@ -2501,7 +2502,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 /* Dissect "simple" SEL protocol payload (no TCP re-assembly) */
 /******************************************************************************************************/
 static gboolean
-dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint length = tvb_length(tvb);
 
@@ -2511,7 +2512,7 @@ dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return FALSE;
     }
 
-    dissect_selfm(tvb, pinfo, tree);
+    dissect_selfm(tvb, pinfo, tree, data);
 
     return TRUE;
 }

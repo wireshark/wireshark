@@ -249,7 +249,7 @@ static void dissect_tpncp_command(gint command_id, tvbuff_t *tvb,
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     proto_item *item = NULL, *tpncp_item = NULL;
     proto_tree *tpncp_tree = NULL;
     gint offset = 0;
@@ -315,6 +315,8 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             }
         }
     }
+
+    return tvb_length(tvb);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -332,13 +334,15 @@ static guint get_tpncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offse
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static void dissect_tpncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_tpncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     if (pinfo->can_desegment)
         /* If desegmentation is enabled (TCP preferences) use the desegmentation API. */
-        tcp_dissect_pdus(tvb, pinfo, tree, tpncp_desegment, 4, get_tpncp_pdu_len, dissect_tpncp);
+        tcp_dissect_pdus(tvb, pinfo, tree, tpncp_desegment, 4, get_tpncp_pdu_len, dissect_tpncp, data);
     else
         /* Otherwise use the regular dissector (might not give correct dissection). */
-        dissect_tpncp(tvb, pinfo, tree);
+        dissect_tpncp(tvb, pinfo, tree, data);
+
+    return tvb_length(tvb);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -767,7 +771,7 @@ void proto_reg_handoff_tpncp(void) {
 	return;
 
     if (!tpncp_prefs_initialized) {
-        tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
+        tpncp_tcp_handle = new_create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
 
         tpncp_prefs_initialized = TRUE;
     }
@@ -829,7 +833,7 @@ void proto_register_tpncp(void) {
 
     proto_register_subtree_array(ett, array_length(ett));
 
-    tpncp_handle = register_dissector("tpncp", dissect_tpncp, proto_tpncp);
+    tpncp_handle = new_register_dissector("tpncp", dissect_tpncp, proto_tpncp);
 
     tpncp_module = prefs_register_protocol(proto_tpncp, proto_reg_handoff_tpncp);
 

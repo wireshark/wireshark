@@ -794,7 +794,7 @@ dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static
-void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
 
@@ -815,18 +815,20 @@ void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     col_append_str(pinfo->cinfo, COL_INFO, "  ");
     col_set_fence(pinfo->cinfo, COL_INFO);
 
+    return tvb_length(tvb);
 }
 
 static
-void dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
    tcp_dissect_pdus(tvb, pinfo, tree, bittorrent_desegment, BITTORRENT_HEADER_LENGTH,
-                    get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu);
+                    get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu, data);
+   return tvb_length(tvb);
 }
 
 static
 gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
-                                 proto_tree *tree, void *data _U_)
+                                 proto_tree *tree, void *data)
 {
    conversation_t *conversation;
 
@@ -836,7 +838,7 @@ gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
       conversation = find_or_create_conversation(pinfo);
       conversation_set_dissector(conversation, dissector_handle);
 
-      dissect_bittorrent(tvb, pinfo, tree);
+      dissect_bittorrent(tvb, pinfo, tree, data);
 
       return TRUE;
    }
@@ -957,7 +959,7 @@ proto_register_bittorrent(void)
    proto_register_field_array(proto_bittorrent, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
+   new_register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
 
    bittorrent_module = prefs_register_protocol(proto_bittorrent, NULL);
    prefs_register_bool_preference(bittorrent_module, "desegment",

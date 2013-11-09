@@ -1703,8 +1703,8 @@ get_dtn_contact_header_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return len+bytecount+8;
 }
 
-static void
-dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *conv_proto_tree, *conv_tree, *conv_flag_tree;
@@ -1743,10 +1743,11 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_int(tree, hf_contact_hdr_local_eid_length, tvb, offset, sdnv_length, eid_length);
     if(eid_length < 0) {
         expert_add_info(pinfo, ti, &ei_bundle_sdnv_length);
-        return;
+        return offset;
     }
 
     proto_tree_add_item(conv_tree, hf_contact_hdr_local_eid, tvb, sdnv_length + offset, eid_length, ENC_NA|ENC_ASCII);
+    return tvb_length(tvb);
 }
 
 static guint
@@ -1786,8 +1787,8 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return 0;
 }
 
-static void
-dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8      conv_hdr;
     int         offset = 0;
@@ -1831,7 +1832,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sub_item = proto_tree_add_int(conv_tree, hf_tcp_convergence_data_segment_length, tvb, 1, sdnv_length, segment_length);
         if(segment_length < 0) {
             expert_add_info(pinfo, sub_item, &ei_tcp_convergence_segment_length);
-            return;
+            return 1;
         }
 
         convergence_hdr_size = sdnv_length + 1;
@@ -1876,7 +1877,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(bundle_size == 0) {
                 /*Couldn't parse bundle, treat as raw data */
                 call_dissector(data_handle, new_tvb, pinfo, sub_tree);
-                return;
+                return tvb_length(tvb);
             }
         }
         else {
@@ -1933,10 +1934,11 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 
+    return tvb_length(tvb);
 }
 
 static int
-dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8  conv_hdr;
     int     offset, bytecount;
@@ -1988,7 +1990,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 return 0;
             }
 
-            tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_dtn_contact_header_len, dissect_dtn_contact_header);
+            tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_dtn_contact_header_len, dissect_dtn_contact_header, data);
             return tvb_length(tvb);
         }
 
@@ -1996,7 +1998,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         return 0;
     };
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 1, get_tcpcl_pdu_len, dissect_tcpcl_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 1, get_tcpcl_pdu_len, dissect_tcpcl_pdu, data);
     return tvb_length(tvb);
 }
 

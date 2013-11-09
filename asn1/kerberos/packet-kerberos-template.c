@@ -1894,8 +1894,8 @@ kerberos_prefs_apply_cb(void) {
 #endif
 }
 
-static void
-dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	pinfo->fragmented = TRUE;
 	if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, TRUE, NULL) < 0) {
@@ -1905,16 +1905,19 @@ dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
+
+	return tvb_length(tvb);
 }
 
-static void
-dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
-					 dissect_kerberos_tcp_pdu);
+					 dissect_kerberos_tcp_pdu, data);
+	return tvb_length(tvb);
 }
 
 /*--- proto_register_kerberos -------------------------------------------*/

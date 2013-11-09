@@ -1043,7 +1043,7 @@ static msg_dissector_t msg_dissectors[] =
   {"alert",       dissect_bitcoin_msg_empty}
 };
 
-static void dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     i;
@@ -1074,7 +1074,7 @@ static void dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
       tvb_sub = tvb_new_subset_remaining(tvb, offset);
       msg_dissectors[i].function(tvb_sub, pinfo, tree);
-      return;
+      return tvb_length(tvb);
     }
   }
 
@@ -1082,14 +1082,15 @@ static void dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "[unknown command]");
 
   expert_add_info(pinfo, ti, &ei_bitcoin_command_unknown);
+  return tvb_length(tvb);
 }
 
 static int
-dissect_bitcoin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_bitcoin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   col_clear(pinfo->cinfo, COL_INFO);
   tcp_dissect_pdus(tvb, pinfo, tree, bitcoin_desegment, BITCOIN_HEADER_LENGTH,
-      get_bitcoin_pdu_length, dissect_bitcoin_tcp_pdu);
+      get_bitcoin_pdu_length, dissect_bitcoin_tcp_pdu, data);
 
   return tvb_reported_length(tvb);
 }

@@ -81,8 +81,8 @@ static const value_string op_vals[] = {
   { 0, NULL }
 };
 
-static void
-dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *db_lsp_tree;
   proto_item *db_lsp_item;
@@ -116,7 +116,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (magic != 0x0301 || length > tvb_length_remaining (tvb, offset)) {
     /* Probably an unknown packet */
     /* expert_add_info_format (pinfo, db_lsp_item, PI_UNDECODED, PI_WARN, "Unknown packet"); */
-    return;
+    return 0;
   }
 
   if (type == TYPE_CONFIG) {
@@ -139,6 +139,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_item_append_text (db_lsp_item, ", Type: %d, Length: %d", type, length);
   proto_item_set_len (db_lsp_item, length + 5);
+  return tvb_length(tvb);
 }
 
 static guint
@@ -152,11 +153,12 @@ get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return tvb_get_ntohs (tvb, offset + 3) + 5;
 }
 
-static void
-dissect_db_lsp_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_db_lsp_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus (tvb, pinfo, tree, db_lsp_desegment, 5,
-                    get_db_lsp_pdu_len, dissect_db_lsp_pdu);
+                    get_db_lsp_pdu_len, dissect_db_lsp_pdu, data);
+  return tvb_length(tvb);
 }
 
 static void
@@ -223,7 +225,7 @@ proto_register_db_lsp (void)
 
   proto_db_lsp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   proto_db_lsp_disc = proto_register_protocol (PNAME_DISC, PSNAME_DISC, PFNAME_DISC);
-  register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
+  new_register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
   register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
   proto_register_field_array (proto_db_lsp, hf, array_length (hf));

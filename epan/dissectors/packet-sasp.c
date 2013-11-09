@@ -33,7 +33,6 @@
 #include <epan/prefs.h>
 
 /* forward reference */
-static void dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
@@ -325,18 +324,9 @@ get_sasp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohl(tvb, offset + 5);
 }
 
-
-static void
-dissect_sasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	tcp_dissect_pdus(tvb, pinfo, tree, sasp_desegment, SASP_MIN_PACKET_LEN, get_sasp_pdu_len,
-			 (dissector_t)dissect_sasp_pdu);
-}
-
-
 /* Called from tcp_dissect_pdus with a complete SASP pdu */
-static void
-dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -366,7 +356,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Invalid SASP Header Type [0x%04x]", hdr_type);
 		/* XXX: The folowing should actually happen automatically ? */
 		col_set_str(pinfo->cinfo, COL_INFO, "[Malformed: Invalid SASP Header Type]");
-		return;
+		return tvb_length(tvb);
 	}
 	offset += 2;
 
@@ -401,67 +391,67 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Registration  Request */
 			col_set_str(pinfo->cinfo, COL_INFO, "Registration Request");
 			dissect_reg_req(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1015:
 			/* Registration Reply */
 			col_set_str(pinfo->cinfo, COL_INFO, "Registration Reply");
 			dissect_reg_rep(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1020:
 			/* Deregistration Request */
 			col_set_str(pinfo->cinfo, COL_INFO, "Deregistration Request");
 			dissect_dereg_req(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1025:
 			/* Deregistration Reply */
 			col_set_str(pinfo->cinfo, COL_INFO, "Deregistration Reply");
 			dissect_dereg_rep(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1030:
 			/* Get Weights Request */
 			col_set_str(pinfo->cinfo, COL_INFO, "Get Weights Request");
 			dissect_wt_req(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1035:
 			/* Get Weights Response */
 			col_set_str(pinfo->cinfo, COL_INFO, "Get Weights Response");
 			dissect_wt_rep(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1040:
 			/* Send Weights Request */
 			col_set_str(pinfo->cinfo, COL_INFO, "Send Weights Request");
 			dissect_sendwt(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1050:
 			/* Set LB State Request */
 			col_set_str(pinfo->cinfo, COL_INFO, "Set LB State Request");
 			dissect_setlbstate_req(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1055:
 			/* Set LB state Reply */
 			col_set_str(pinfo->cinfo, COL_INFO, "Set LB State Reply");
 			dissect_setlbstate_rep(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1060:
 			/* Set Member State Request*/
 			col_set_str(pinfo->cinfo, COL_INFO, "Set Member State Request");
 			dissect_setmemstate_req(tvb, pay_load, offset);
-			return;
+			break;
 
 		case 0x1065:
 			/* Set Member State Reply */
 			col_set_str(pinfo->cinfo, COL_INFO, "Set Member State Reply");
 			dissect_setmemstate_rep(tvb, pay_load, offset);
-			return;
+			break;
 
 		default:
 			/* Unknown SASP Message Type */
@@ -469,8 +459,18 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"[Malformed: Unknown Message Type [0x%04x]", msg_type);
 			expert_add_info_format(pinfo, mti, &ei_msg_type_invalid,
 				"Unknown SASP Message Type: 0x%4x", msg_type);
-			return;
+			break;
 	}
+	return tvb_length(tvb);
+}
+
+
+static int
+dissect_sasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, sasp_desegment, SASP_MIN_PACKET_LEN, get_sasp_pdu_len,
+						dissect_sasp_pdu, data);
+	return tvb_length(tvb);
 }
 
 
@@ -1580,7 +1580,7 @@ proto_reg_handoff_sasp(void)
 {
 	dissector_handle_t sasp_handle;
 
-	sasp_handle = create_dissector_handle(dissect_sasp, proto_sasp);
+	sasp_handle = new_create_dissector_handle(dissect_sasp, proto_sasp);
 	dissector_add_uint("tcp.port", SASP_GLOBAL_PORT, sasp_handle);
 }
 

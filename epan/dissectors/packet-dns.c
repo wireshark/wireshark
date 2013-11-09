@@ -3839,19 +3839,21 @@ get_dns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return plen + 2;
 }
 
-static void
-dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
   dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE, FALSE);
+  return tvb_length(tvb);
 }
 
-static void
-dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2, get_dns_pdu_len,
-                   dissect_dns_tcp_pdu);
+                   dissect_dns_tcp_pdu, data);
+  return tvb_length(tvb);
 }
 
 void
@@ -3868,7 +3870,7 @@ proto_reg_handoff_dns(void)
 
   if (!Initialized) {
     dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
-    dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
+    dns_tcp_handle = new_create_dissector_handle(dissect_dns_tcp, proto_dns);
     Initialized    = TRUE;
 
   } else {

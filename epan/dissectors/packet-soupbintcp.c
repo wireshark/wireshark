@@ -453,28 +453,30 @@ get_soupbintcp_pdu_len(
 
 
 /** Dissect a possibly-reassembled TCP PDU */
-static void
+static int
 dissect_soupbintcp_tcp_pdu(
     tvbuff_t *tvb,
     packet_info *pinfo,
-    proto_tree *tree)
+    proto_tree *tree, void* data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SoupBinTCP");
     dissect_soupbintcp_common(tvb, pinfo, tree);
+    return tvb_length(tvb);
 }
 
 
 /** Dissect a TCP segment containing SoupBinTCP data */
-static void
+static int
 dissect_soupbintcp_tcp(
     tvbuff_t *tvb,
     packet_info *pinfo,
-    proto_tree *tree)
+    proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree,
                      soupbintcp_desegment, 2,
                      get_soupbintcp_pdu_len,
-                     dissect_soupbintcp_tcp_pdu);
+                     dissect_soupbintcp_tcp_pdu, data);
+    return tvb_length(tvb);
 }
 
 static void
@@ -613,7 +615,7 @@ proto_register_soupbintcp(void)
 void
 proto_reg_handoff_soupbintcp(void)
 {
-    soupbintcp_handle = create_dissector_handle(dissect_soupbintcp_tcp,
+    soupbintcp_handle = new_create_dissector_handle(dissect_soupbintcp_tcp,
                                                 proto_soupbintcp);
 
     /* For "decode-as" */

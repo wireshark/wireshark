@@ -4591,11 +4591,11 @@ get_sasl_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohl(tvb, offset)+4;
 }
 
-static void
-dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-	return;
+	return tvb_length(tvb);
 }
 
 static guint
@@ -4613,11 +4613,11 @@ get_normal_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return len+data_offset-offset;
 }
 
-static void
-dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
-	return;
+	return tvb_length(tvb);
 }
 
 static void
@@ -4754,8 +4754,8 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    uuid.Data4[6], uuid.Data4[7]);
 }
 
-static void
-dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint32 sasl_len;
 	guint32 ldap_len;
@@ -4808,8 +4808,8 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto this_was_not_sasl;
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
-	return;
+	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
+	return tvb_length(tvb);
 
 this_was_not_sasl:
 	/* check if it is a normal BER encoded LDAP packet
@@ -4858,7 +4858,7 @@ this_was_not_sasl:
 	 * the pdu, but as the smallest pdu can be 7 bytes
 	 * we can use 7.
 	 */
-	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 7, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
+	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 7, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu, data);
 
 	goto end;
 
@@ -4889,16 +4889,16 @@ this_was_not_normal_ldap:
 	  dissector_add_uint("tcp.port", tcp_port, ldap_handle);
 
 	  /* we are done */
-	  return;
+	  return tvb_length(tvb);
 	}
 	/* Ok it might be a strange case of SASL still
 	 * It has been seen with Exchange setup to MS AD
 	 * when Exchange pretend that there is SASL but in fact data are still
 	 * in clear*/
 	if ((sasl_len + 4) == (guint32)tvb_length_remaining(tvb, 0))
-		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
+		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
  end:
-	return;
+	return tvb_length(tvb);
 }
 
 static void
@@ -5878,7 +5878,7 @@ void proto_register_ldap(void) {
   expert_ldap = expert_register_protocol(proto_ldap);
   expert_register_field_array(expert_ldap, ei, array_length(ei));
 
-  register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
+  new_register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
 
   ldap_module = prefs_register_protocol(proto_ldap, prefs_register_ldap);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",

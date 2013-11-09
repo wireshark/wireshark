@@ -301,7 +301,7 @@ static guint get_slsk_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* Code to actually dissect the packets */
 
-static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -2381,14 +2381,14 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
    expert_add_info(pinfo, ti_len, &ei_slsk_unknown_data);
   }
 
-
+  return tvb_length(tvb);
 }
 
 
-static void dissect_slsk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_slsk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, slsk_desegment, 4, get_slsk_pdu_len, dissect_slsk_pdu);
-
+  tcp_dissect_pdus(tvb, pinfo, tree, slsk_desegment, 4, get_slsk_pdu_len, dissect_slsk_pdu, data);
+  return tvb_length(tvb);
 }
 
 
@@ -2630,7 +2630,7 @@ proto_reg_handoff_slsk(void)
 {
   dissector_handle_t slsk_handle;
 
-  slsk_handle = create_dissector_handle(dissect_slsk, proto_slsk);
+  slsk_handle = new_create_dissector_handle(dissect_slsk, proto_slsk);
   dissector_add_uint("tcp.port", TCP_PORT_SLSK_1, slsk_handle);
   dissector_add_uint("tcp.port", TCP_PORT_SLSK_2, slsk_handle);
   dissector_add_uint("tcp.port", TCP_PORT_SLSK_3, slsk_handle);

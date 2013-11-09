@@ -468,10 +468,10 @@ dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
 	return offset;
 }
 
-static void
-dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_tree *yami_tree = NULL;
+	proto_tree *yami_tree;
 	proto_item *ti;
 
 	gint frame_number;
@@ -483,10 +483,8 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YAMI");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, hfi_yami, tvb, 0, -1, ENC_NA);
-		yami_tree = proto_item_add_subtree(ti, ett_yami);
-	}
+	ti = proto_tree_add_item(tree, hfi_yami, tvb, 0, -1, ENC_NA);
+	yami_tree = proto_item_add_subtree(ti, ett_yami);
 
 	offset = 0;
 
@@ -525,6 +523,8 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_yami_data(tvb, TRUE, yami_tree, offset);
 		}
 	}
+
+	return tvb_length(tvb);
 }
 
 #define FRAME_HEADER_LEN 16
@@ -538,9 +538,9 @@ get_yami_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, yami_desegment, FRAME_HEADER_LEN, get_yami_message_len, dissect_yami_pdu);
+	tcp_dissect_pdus(tvb, pinfo, tree, yami_desegment, FRAME_HEADER_LEN, get_yami_message_len, dissect_yami_pdu, data);
 	return tvb_length(tvb);
 }
 

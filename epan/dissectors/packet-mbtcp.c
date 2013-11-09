@@ -367,8 +367,8 @@ static const enum_val_t mbus_register_addr_type[] = {
 };
 
 /* Code to dissect Modbus/TCP packets */
-static void
-dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *mi;
@@ -497,11 +497,12 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     p_remove_proto_data(pinfo->fd, proto_modbus, 0);
     p_add_proto_data(pinfo->fd, proto_modbus, 0, p_save_proto_data);
+    return tvb_length(tvb);
 }
 
 /* Code to dissect Modbus RTU over TCP packets */
-static void
-dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *mi, *crc_item;
@@ -638,6 +639,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     p_remove_proto_data(pinfo->fd, proto_modbus, 0);
     p_add_proto_data(pinfo->fd, proto_modbus, 0, p_save_proto_data);
+    return tvb_length(tvb);
 }
 
 
@@ -671,7 +673,7 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 
 /* Code to dissect Modbus/TCP messages */
 static int
-dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     /* Make sure there's at least enough data to determine it's a Modbus TCP packet */
@@ -690,14 +692,14 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     /* build up protocol tree and iterate over multiple packets */
     tcp_dissect_pdus(tvb, pinfo, tree, mbtcp_desegment, 6,
-                     get_mbtcp_pdu_len, dissect_mbtcp_pdu);
+                     get_mbtcp_pdu_len, dissect_mbtcp_pdu, data);
 
     return tvb_length(tvb);
 }
 
 /* Code to dissect Modbus RTU over TCP messages */
 static int
-dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     /* Make sure there's at least enough data to determine it's a Modbus packet */
@@ -711,7 +713,7 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     /* build up protocol tree and iterate over multiple packets */
     tcp_dissect_pdus(tvb, pinfo, tree, mbrtu_desegment, 6,
-                     get_mbrtu_pdu_len, dissect_mbrtu_pdu);
+                     get_mbrtu_pdu_len, dissect_mbrtu_pdu, data);
 
     return tvb_length(tvb);
 }

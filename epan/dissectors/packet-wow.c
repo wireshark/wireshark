@@ -138,37 +138,6 @@ static gboolean wow_preference_desegment = TRUE;
 static gint ett_wow = -1;
 static gint ett_wow_realms = -1;
 
-static void dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static guint get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
-
-
-static gboolean
-dissect_wow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	gint8 size_field_offset = -1;
-	guint8 cmd;
-
-	cmd = tvb_get_guint8(tvb, 0);
-
-	if(WOW_SERVER_TO_CLIENT && cmd == REALM_LIST)
-		size_field_offset = 1;
-	if(WOW_CLIENT_TO_SERVER && cmd == AUTH_LOGON_CHALLENGE)
-		size_field_offset = 2;
-
-	if(size_field_offset > -1) {
-		tcp_dissect_pdus(tvb, pinfo, tree, wow_preference_desegment,
-				 size_field_offset+2, get_wow_pdu_len,
-				 dissect_wow_pdu);
-
-	} else {
-		/* Doesn't have a size field, so it cannot span multiple
-		   segments.  Therefore, dissect this packet normally. */
-		dissect_wow_pdu(tvb, pinfo, tree);
-	}
-
-	return TRUE;
-}
-
 static guint
 get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
@@ -189,8 +158,8 @@ get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 }
 
 
-static void
-dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *wow_tree, *wow_realms_tree;
@@ -427,6 +396,35 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+
+	return tvb_length(tvb);
+}
+
+static gboolean
+dissect_wow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	gint8 size_field_offset = -1;
+	guint8 cmd;
+
+	cmd = tvb_get_guint8(tvb, 0);
+
+	if(WOW_SERVER_TO_CLIENT && cmd == REALM_LIST)
+		size_field_offset = 1;
+	if(WOW_CLIENT_TO_SERVER && cmd == AUTH_LOGON_CHALLENGE)
+		size_field_offset = 2;
+
+	if(size_field_offset > -1) {
+		tcp_dissect_pdus(tvb, pinfo, tree, wow_preference_desegment,
+				 size_field_offset+2, get_wow_pdu_len,
+				 dissect_wow_pdu, data);
+
+	} else {
+		/* Doesn't have a size field, so it cannot span multiple
+		   segments.  Therefore, dissect this packet normally. */
+		dissect_wow_pdu(tvb, pinfo, tree, data);
+	}
+
+	return TRUE;
 }
 
 

@@ -2022,8 +2022,8 @@ get_enip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    enum enip_packet_type packet_type;
    guint16             encap_cmd, encap_data_length;
@@ -2194,10 +2194,12 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       } /* end of switch() */
 
    } /* end of if( encapsulated data ) */
+
+   return tvb_length(tvb);
 } /* end of dissect_enip_pdu() */
 
 static int
-dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
    guint16  encap_cmd;
 
@@ -2210,12 +2212,11 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
    if (try_val_to_str(encap_cmd, encap_cmd_vals) == NULL)
       return 0;   /* not a known command */
 
-   dissect_enip_pdu(tvb, pinfo, tree);
-   return tvb_length(tvb);
+   return dissect_enip_pdu(tvb, pinfo, tree, data);
 }
 
 static int
-dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
    guint16  encap_cmd;
 
@@ -2228,7 +2229,7 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
    if (try_val_to_str(encap_cmd, encap_cmd_vals) == NULL)
       return 0;   /* not a known command */
 
-   tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4, get_enip_pdu_len, dissect_enip_pdu);
+   tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4, get_enip_pdu_len, dissect_enip_pdu, data);
    return tvb_length(tvb);
 }
 

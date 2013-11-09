@@ -921,7 +921,7 @@ static guint get_icep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return tvb_get_letohl(tvb, offset + 10);
 }
 
-static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /*  p. 611, chapter 23.3.1:
      *
@@ -1021,10 +1021,11 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         expert_add_info_format(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
         break;
     }
+    return tvb_length(tvb);
 }
 
 /* entry point */
-static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     DBG0("triggered\n");
 
@@ -1036,12 +1037,12 @@ static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* start dissecting */
 
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, ICEP_HEADER_SIZE,
-        get_icep_pdu_len, dissect_icep_pdu);
+        get_icep_pdu_len, dissect_icep_pdu, data);
 
     return TRUE;
 }
 
-static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     DBG0("triggered\n");
 
@@ -1051,7 +1052,7 @@ static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /* start dissecting */
-    dissect_icep_pdu(tvb, pinfo, tree);
+    dissect_icep_pdu(tvb, pinfo, tree, data);
     return TRUE;
 }
 

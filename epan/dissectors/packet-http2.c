@@ -430,8 +430,8 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     return offset;
 }
 
-static void
-dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     proto_item *ti;
     proto_tree *http2_tree;
@@ -474,7 +474,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         proto_item_append_text(ti, ": Magic");
 
         proto_tree_add_item(http2_tree, hf_http2_magic, tvb, offset, MAGIC_FRAME_LENGTH, ENC_ASCII|ENC_NA);
-        return;
+        return MAGIC_FRAME_LENGTH;
     }
 
     proto_tree_add_item(http2_tree, hf_http2_length, tvb, offset, 2, ENC_NA);
@@ -543,7 +543,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             proto_tree_add_item(http2_tree, hf_http2_unknown, tvb, offset, -1, ENC_NA);
         break;
     }
-    return;
+    return tvb_length(tvb);
 }
 
 
@@ -559,7 +559,7 @@ static guint get_http2_message_len( packet_info *pinfo _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-              void *data _U_)
+              void *data)
 {
     proto_item *ti;
     proto_tree *http2_tree;
@@ -577,7 +577,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     http2_tree = proto_item_add_subtree(ti, ett_http2);
 
     tcp_dissect_pdus(tvb, pinfo, http2_tree, TRUE, FRAME_HEADER_LENGTH,
-                     get_http2_message_len, dissect_http2_pdu);
+                     get_http2_message_len, dissect_http2_pdu, data);
 
     return tvb_length(tvb);
 }

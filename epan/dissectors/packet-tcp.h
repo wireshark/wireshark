@@ -113,7 +113,7 @@ WS_DLL_PUBLIC void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 gboolean proto_desegment, guint fixed_len,
 		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),
-		 dissector_t dissect_pdu);
+		 new_dissector_t dissect_pdu, void* dissector_data);
 
 extern struct tcp_multisegment_pdu *
 pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, wmem_tree_t *multisegment_pdus);

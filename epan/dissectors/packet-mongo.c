@@ -578,17 +578,14 @@ dissect_mongo_kill_cursors(tvbuff_t *tvb, guint offset, proto_tree *tree)
   }
   return offset;
 }
-static void
-dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    proto_item *ti;
+    proto_tree *mongo_tree;
+    guint offset = 0, opcode;
 
-  proto_item *ti;
-  proto_tree *mongo_tree;
-  guint offset = 0, opcode;
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MONGO");
-
-  if (tree) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MONGO");
 
     ti = proto_tree_add_item(tree, proto_mongo, tvb, 0, -1, ENC_NA);
 
@@ -652,8 +649,8 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(mongo_tree, hf_mongo_unknown, tvb, offset, -1, ENC_NA);
       expert_add_info(pinfo, ti, &ei_mongo_unknown);
     }
-  }
 
+    return tvb_length(tvb);
 }
 static guint
 get_mongo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -668,10 +665,11 @@ get_mongo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return plen;
 }
 
-static void
-dissect_mongo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mongo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_mongo_pdu_len, dissect_mongo_pdu);
+  tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_mongo_pdu_len, dissect_mongo_pdu, data);
+  return tvb_length(tvb);
 }
 
 void
@@ -1059,7 +1057,7 @@ proto_reg_handoff_mongo(void)
 
   if (!initialized) {
 
-    mongo_handle = create_dissector_handle(dissect_mongo, proto_mongo);
+    mongo_handle = new_create_dissector_handle(dissect_mongo, proto_mongo);
     initialized = TRUE;
   } else {
     dissector_delete_uint("tcp.port", currentPort, mongo_handle);

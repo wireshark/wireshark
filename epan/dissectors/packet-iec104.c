@@ -1348,7 +1348,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
 /* Is is called twice: For 'Packet List' and for 'Packet Details' */
-static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint TcpLen = tvb_reported_length(tvb);
 	guint8 Start, len, type, temp8;
@@ -1383,7 +1383,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			if (len < APDU_MIN_LEN) {
 				expert_add_info_format(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
 				wmem_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
-				return;
+				return tvb_length(tvb);
 			}
 
 			temp8 = tvb_get_guint8(tvb, Off + 2);
@@ -1439,18 +1439,19 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (Start != APCI_START) {
 		/* Everything is bad (no APCI found) */
 		proto_tree_add_item(it104tree, hf_apcidata, tvb, 0, Off, ENC_NA);
-		return;
 	}
 
+	return tvb_length(tvb);
 }
 
-static void dissect_iec104reas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_iec104reas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	/* 5th parameter = 6 = minimum bytes received to calculate the length.
 	 * (Not 2 in order to find more APCIs in case of 'noisy' bytes between the APCIs)
 	 */
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, APCI_LEN,
-			get_iec104apdu_len, dissect_iec104apci);
+			get_iec104apdu_len, dissect_iec104apci, data);
+	return tvb_length(tvb);
 }
 
 /* The protocol has two subprotocols: Register APCI */
@@ -1798,7 +1799,7 @@ proto_reg_handoff_iec104(void)
 {
 	dissector_handle_t iec104apci_handle;
 
-	iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
+	iec104apci_handle = new_create_dissector_handle(dissect_iec104reas, proto_iec104apci);
 	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
 
 	dissector_add_uint("tcp.port", IEC104_PORT, iec104apci_handle);

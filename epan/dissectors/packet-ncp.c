@@ -858,17 +858,19 @@ get_ncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     return tvb_get_ntohl(tvb, offset + 4) & 0x7fffffff;
 }
 
-static void
-dissect_ncp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ncp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_ncp_common(tvb, pinfo, tree, TRUE);
+	return tvb_length(tvb);
 }
 
-static void
-dissect_ncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, ncp_desegment, 8, get_ncp_pdu_len,
-                     dissect_ncp_tcp_pdu);
+                     dissect_ncp_tcp_pdu, data);
+	return tvb_length(tvb);
 }
 
 void
@@ -1106,7 +1108,7 @@ proto_reg_handoff_ncp(void)
     dissector_handle_t ncp_tcp_handle;
 
     ncp_handle = create_dissector_handle(dissect_ncp, proto_ncp);
-    ncp_tcp_handle = create_dissector_handle(dissect_ncp_tcp, proto_ncp);
+    ncp_tcp_handle = new_create_dissector_handle(dissect_ncp_tcp, proto_ncp);
     dissector_add_uint("tcp.port", TCP_PORT_NCP, ncp_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_NCP, ncp_handle);
     dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);
