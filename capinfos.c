@@ -447,12 +447,6 @@ time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
   return time_string_buf;
 }
 
-static double
-secs_nsecs(const nstime_t * nstime) /* nstime_to_sec */
-{
-  return (nstime->nsecs / 1000000000.0) + (double)nstime->secs;
-}
-
 static void print_value(const gchar *text_p1, gint width, const gchar *text_p2, double value) {
   if (value > 0.0)
     printf("%s%.*f%s\n", text_p1, width, value, text_p2);
@@ -856,7 +850,7 @@ process_cap_file(wtap *wth, const char *filename)
     phdr = wtap_phdr(wth);
     if (phdr->presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
-      cur_time = secs_nsecs(&phdr->ts);
+      cur_time = nstime_to_sec(&phdr->ts);
       if(packet==0) {
         start_time = cur_time;
         stop_time = cur_time;
