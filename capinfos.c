@@ -448,7 +448,7 @@ time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
 }
 
 static double
-secs_nsecs(const struct wtap_nstime * nstime)
+secs_nsecs(const nstime_t * nstime) /* nstime_to_sec */
 {
   return (nstime->nsecs / 1000000000.0) + (double)nstime->secs;
 }

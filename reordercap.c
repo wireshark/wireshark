@@ -59,11 +59,11 @@ static void usage(void)
 
 /* Remember where this frame was in the file */
 typedef struct FrameRecord_t {
-    gint64               offset;
-    guint32              length;
-    guint                num;
+    gint64       offset;
+    guint32      length;
+    guint        num;
 
-    struct wtap_nstime   time;
+    nstime_t     time;
 } FrameRecord_t;
 
 
@@ -137,8 +137,8 @@ frames_compare(gconstpointer a, gconstpointer b)
     const FrameRecord_t *frame1 = *(const FrameRecord_t **) a;
     const FrameRecord_t *frame2 = *(const FrameRecord_t **) b;
 
-    const struct wtap_nstime *time1 = &frame1->time;
-    const struct wtap_nstime *time2 = &frame2->time;
+    const nstime_t *time1 = &frame1->time;
+    const nstime_t *time2 = &frame2->time;
 
     if (time1->secs > time2->secs)
         return 1;

@@ -182,7 +182,7 @@ static void handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
                             gboolean adjlen);
 
 static gchar *
-abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
+abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
 {
     struct tm *tmp;
     gchar *buf = (gchar *)g_malloc(16);
@@ -213,7 +213,7 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
 }
 
 static gchar*
-fileset_get_filename_by_pattern(guint idx, const struct wtap_nstime *time_val,
+fileset_get_filename_by_pattern(guint idx, const nstime_t *time_val,
                                 gchar *fprefix, gchar *fsuffix)
 {
     gchar filenum[5+1];

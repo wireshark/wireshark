@@ -150,7 +150,8 @@ merge_max_snapshot_length(int count, merge_in_file_t in_files[])
  * returns TRUE if first argument is earlier than second
  */
 static gboolean
-is_earlier(struct wtap_nstime *l, struct wtap_nstime *r) {
+is_earlier(nstime_t *l, nstime_t *r) /* XXX, move to nstime.c */
+{
   if (l->secs > r->secs) {  /* left is later */
     return FALSE;
   } else if (l->secs < r->secs) { /* left is earlier */
@@ -183,7 +184,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
 {
   int i;
   int ei = -1;
-  struct wtap_nstime tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
+  nstime_t tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
   struct wtap_pkthdr *phdr;
 
   /*

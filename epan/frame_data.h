@@ -28,6 +28,7 @@
 #include <epan/column-info.h>
 #include <epan/tvbuff.h>
 #include <wsutil/nstime.h>
+#include <wiretap/wtap.h>
 #include "ws_symbol_export.h"
 
 #define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)

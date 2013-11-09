@@ -195,7 +195,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   time(&time_preview);
   while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
     phdr = wtap_phdr(wth);
-    cur_time = wtap_nstime_to_sec(&phdr->ts);
+    cur_time = nstime_to_sec(&phdr->ts);
     if (packets == 0) {
       start_time = cur_time;
       stop_time = cur_time;

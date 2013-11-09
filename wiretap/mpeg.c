@@ -47,7 +47,7 @@
 #define PES_VALID(n) (((n) >> 8 & 0xffffff) == PES_PREFIX)
 
 typedef struct {
-	struct wtap_nstime now;
+	nstime_t now;
 	time_t t0;
 } mpeg_t;
 
@@ -100,7 +100,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	guint32 n;
 	int bytes_read = mpeg_read_header(wth, err, err_info, &n);
 	unsigned int packet_size;
-	struct wtap_nstime ts = mpeg->now;
+	nstime_t ts = mpeg->now;
 
 	if (bytes_read == -1)
 		return FALSE;

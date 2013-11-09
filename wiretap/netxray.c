@@ -1440,7 +1440,7 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 
 typedef struct {
 	gboolean first_frame;
-	struct wtap_nstime start;
+	nstime_t start;
 	guint32	nframes;
 } netxray_dump_t;
 

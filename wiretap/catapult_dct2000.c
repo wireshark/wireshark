@@ -546,8 +546,8 @@ catapult_dct2000_close(wtap *wth)
 /***************************/
 
 typedef struct {
-    gboolean           first_packet_written;
-    struct wtap_nstime start_time;
+    gboolean   first_packet_written;
+    nstime_t   start_time;
 } dct2000_dump_t;
 
 /*****************************************************/

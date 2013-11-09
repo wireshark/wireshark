@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <time.h>
 #include <wiretap/buffer.h>
+#include <wsutil/nstime.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -865,14 +866,9 @@ union wtap_pseudo_header {
     struct llcp_phdr    llcp;
 };
 
-struct wtap_nstime {
-    time_t secs;
-    int    nsecs;
-};
-
 struct wtap_pkthdr {
     guint32             presence_flags; /* what stuff do we have? */
-    struct wtap_nstime  ts;
+    nstime_t            ts;
     guint32             caplen;         /* data length in the file */
     guint32             len;            /* data length on the wire */
     int                 pkt_encap;

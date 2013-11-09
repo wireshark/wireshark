@@ -927,7 +927,7 @@ netmon_sequential_close(wtap *wth)
 
 typedef struct {
 	gboolean got_first_record_time;
-	struct wtap_nstime first_record_time;
+	nstime_t first_record_time;
 	guint32	frame_table_offset;
 	guint32	*frame_table;
 	guint	frame_table_index;

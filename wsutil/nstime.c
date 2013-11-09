@@ -178,16 +178,6 @@ double nstime_to_sec(const nstime_t *nstime)
 }
 
 /*
- * function: wtap_nstime_to_sec
- * converts wtap_nstime to double, time base is seconds
- */
-
-double wtap_nstime_to_sec(const struct wtap_nstime *nstime)
-{
-    return ((double)nstime->secs + (double)nstime->nsecs/1000000000);
-}
-
-/*
  * Editor modelines
  *
  * Local Variables:

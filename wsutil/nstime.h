@@ -27,7 +27,6 @@
 
 #include <time.h>
 
-#include <wiretap/wtap.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -104,9 +103,6 @@ WS_DLL_PUBLIC double nstime_to_msec(const nstime_t *nstime);
 
 /** converts nstime to double, time base is seconds */
 WS_DLL_PUBLIC double nstime_to_sec(const nstime_t *nstime);
-
-/** converts wtap_nstime to double, time base is seconds */
-WS_DLL_PUBLIC double wtap_nstime_to_sec(const struct wtap_nstime *nstime);
 
 #ifdef __cplusplus
 }
