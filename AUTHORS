@@ -2982,6 +2982,7 @@ Alexis La Goutte	<alexis.lagoutte[AT]gmail.com> {
 	CAPWAP dissector
 	HTTP2 dissector
 	PAPI dissector
+	QUIC dissector
 	MONGO dissector
 	WebSocket dissector
 	Miscellaneous ISAKMP enhancements

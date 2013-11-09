@@ -1057,6 +1057,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-quake2.c
 	dissectors/packet-quake3.c
 	dissectors/packet-quakeworld.c
+	dissectors/packet-quic.
 	dissectors/packet-radius.c
 	dissectors/packet-radius_packetcable.c
 	dissectors/packet-raw.c
