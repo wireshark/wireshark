@@ -167,8 +167,11 @@ static gboolean
 dissect_tcpencap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 reported_length = tvb_reported_length(tvb);
+	guint32 length = tvb_length(tvb);
 
 	if (reported_length <= TRAILERLENGTH + 8 ||
+		/* Ensure we have enough bytes for packet_is_tcpencap analysis */
+		(reported_length - length) > (TRAILERLENGTH - 13) ||
 		!packet_is_tcpencap(tvb, pinfo, reported_length - TRAILERLENGTH) ) {
 		return FALSE;
 	}
