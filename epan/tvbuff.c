@@ -603,29 +603,6 @@ tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 		tvb->length = reported_length;
 }
 
-
-#if 0
-static const guint8*
-first_real_data_ptr(tvbuff_t *tvb)
-{
-	tvbuff_t *member;
-
-	switch(tvb->type) {
-		case TVBUFF_REAL_DATA:
-			return tvb->real_data;
-		case TVBUFF_SUBSET:
-			member = tvb->tvbuffs.subset.tvb;
-			return first_real_data_ptr(member);
-		case TVBUFF_COMPOSITE:
-			member = tvb->tvbuffs.composite.tvbs->data;
-			return first_real_data_ptr(member);
-	}
-
-	DISSECTOR_ASSERT_NOT_REACHED();
-	return NULL;
-}
-#endif
-
 guint
 tvb_offset_from_real_beginning_counter(const tvbuff_t *tvb, const guint counter)
 {
