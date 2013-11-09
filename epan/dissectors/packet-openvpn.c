@@ -595,8 +595,8 @@ proto_register_openvpn(void)
   proto_register_field_array(proto_openvpn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  openvpn_udp_handle = new_register_dissector(PFNAME, dissect_openvpn_udp, proto_openvpn);
-  openvpn_tcp_handle = new_register_dissector(PFNAME, dissect_openvpn_tcp, proto_openvpn);
+  openvpn_udp_handle = new_register_dissector("openvpn.udp", dissect_openvpn_udp, proto_openvpn);
+  openvpn_tcp_handle = new_register_dissector("openvpn.tcp", dissect_openvpn_tcp, proto_openvpn);
 
   register_init_routine(&openvpn_reassemble_init);
 
