@@ -156,10 +156,19 @@ packagemaker --doc "Wireshark_package.pmdoc" \
     --verbose || exit 1
 
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-	echo -e "Signing the $pkg_file"
-	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$pkg_file" || exit 1
-	codesign --verify --verbose "$pkg_file" || exit 1
+	pkg_dir_unsigned="$pkg_title UNSIGNED"
+	pkg_file_unsigned="$pkg_title_unsigned.pkg"
+	pkg_file_flattened="$pkg_title FLATTENED.pkg"
+
+	echo -e "Signing $pkg_file"
+	mv "$pkg_file" "$pkg_file_unsigned" || exit 1
+	pkgutil --expand "$pkg_file_unsigned" "$pkg_dir_unsigned" || exit 1
+	pkgutil --flatten "$pkg_file_unsigned" "$pkg_file_flattened" || exit 1
+	
+	productsign --sign "$CODE_SIGN_IDENTITY" --force --verbose "$pkg_file_flattened" "$pkg_file" || exit 1
 	spctl --assess --type install "$pkg_file" || exit 1
+        shasum "$pkg_file"
+	rm -rf "$pkg_dir_unsigned" "$pkg_file_unsigned" "$pkg_file_flattened"
 else
 	echo "Code signing not performed (no identity)"
 fi
@@ -174,14 +183,14 @@ mkdir "$tmp_dir" || exit 1
 echo -e "Copying files to temp directory"
 # Wireshark itself
 # Copy Wireshark.app
-cp -rf "$pkg_file" "$tmp_dir"/ || exit 1
+cp "$pkg_file" "$tmp_dir"/ || exit 1
 # Link to Applications in order to drag and drop wireshark onto it
 #ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
 #cp -rf "$utilities" "$tmp_dir"/
 #ln -sf /Library/StartupItems "$tmp_dir/$utilities"/
 # Copy the readme
-cp -rf  "$readme_name" "$tmp_dir"/"Read me first.rtf" || exit 1
+cp "$readme_name" "$tmp_dir"/"Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
