@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/oui.h>
 #include <epan/addr_resolv.h>
 #include <epan/ppptypes.h>

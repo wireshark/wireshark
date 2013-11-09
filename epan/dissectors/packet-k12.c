@@ -30,6 +30,7 @@
 #include <string.h>
 #include <wsutil/str_util.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/conversation.h>
 #include <prefs.h>
 #include <epan/emem.h>

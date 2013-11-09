@@ -30,6 +30,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/pint.h>
 #include "packet-cip.h"
 #include "packet-enip.h"
 #include "packet-cipsafety.h"

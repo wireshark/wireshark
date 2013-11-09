@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/chdlctypes.h>

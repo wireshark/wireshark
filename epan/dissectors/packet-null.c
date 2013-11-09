@@ -27,8 +27,10 @@
 #include "config.h"
 
 #include <glib.h>
-
 #include <string.h>
+
+#include <wsutil/pint.h>
+
 #include <epan/packet.h>
 #include "packet-null.h"
 #include <epan/atalk-utils.h>

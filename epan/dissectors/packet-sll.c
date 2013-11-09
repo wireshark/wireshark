@@ -30,6 +30,7 @@
 #include <epan/arptypes.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include "packet-sll.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"

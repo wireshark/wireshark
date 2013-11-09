@@ -29,6 +29,8 @@
 #ifndef __wimax_bits_h__
 #define __wimax_bits_h__
 
+#include <wsutil/pint.h>
+
 /********************************************************************
  * Functions for working with nibbles and bits
  */

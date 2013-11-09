@@ -28,7 +28,6 @@
 #include "wiretap/wtap.h"
 #include "proto.h"
 #include "tvbuff.h"
-#include "wsutil/pint.h"
 #include "value_string.h"
 #include "column-info.h"
 #include "frame_data.h"

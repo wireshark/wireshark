@@ -299,6 +299,7 @@
 #include "packet-ziop.h"
 #include "packet-tcp.h"
 #include <wsutil/file_util.h>
+#include <wsutil/pint.h>
 
 
 /*

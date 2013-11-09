@@ -28,6 +28,8 @@
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
 
+#include <wsutil/pint.h>
+
 static void
 int_fvalue_new(fvalue_t *fv)
 {

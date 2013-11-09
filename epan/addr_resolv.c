@@ -126,6 +126,7 @@
 
 #include <wsutil/report_err.h>
 #include <wsutil/file_util.h>
+#include <wsutil/pint.h>
 
 #include <epan/strutil.h>
 #include <epan/prefs.h>

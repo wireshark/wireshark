@@ -28,6 +28,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
 #include <epan/prefs.h>

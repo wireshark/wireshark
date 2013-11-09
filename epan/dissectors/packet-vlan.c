@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/expert.h>
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"

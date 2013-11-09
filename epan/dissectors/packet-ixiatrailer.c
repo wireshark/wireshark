@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>

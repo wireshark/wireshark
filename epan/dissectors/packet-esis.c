@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/nlpid.h>
 #include "packet-osi.h"
 #include "packet-osi-options.h"

@@ -56,6 +56,7 @@
 #include <epan/reassemble.h>
 #include <epan/frequency-utils.h>
 #include <epan/wmem/wmem.h>
+#include <wsutil/pint.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>

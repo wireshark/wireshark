@@ -69,6 +69,7 @@
 
 #include <epan/wmem/wmem.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>

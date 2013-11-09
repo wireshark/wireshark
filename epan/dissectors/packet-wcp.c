@@ -102,6 +102,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/circuit.h>
 #include <epan/wmem/wmem.h>
 #include <epan/etypes.h>

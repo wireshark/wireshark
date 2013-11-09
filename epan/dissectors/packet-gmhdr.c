@@ -33,6 +33,7 @@
 #include <epan/in_cksum.h>
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
+#include <wsutil/pint.h>
 #include <epan/expert.h>
 
 #include "packet-ieee8023.h"

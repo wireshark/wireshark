@@ -82,6 +82,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wsutil/pint.h>
 #include <epan/bitswap.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>

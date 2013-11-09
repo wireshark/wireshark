@@ -32,6 +32,7 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/aftypes.h>
+#include <wsutil/pint.h>
 #include "packet-enc.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
