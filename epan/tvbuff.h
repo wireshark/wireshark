@@ -345,13 +345,6 @@ WS_DLL_PUBLIC guint64 tvb_get_bits64(tvbuff_t *tvb, guint bit_offset,
 WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
     const gint no_of_bits, const guint encoding);
 
-WS_DLL_PUBLIC
-void tvb_get_bits_buf(tvbuff_t *tvb, guint bit_offset, gint no_of_bits,
-    guint8 *buf, gboolean lsb0);
-WS_DLL_PUBLIC
-guint8 *wmem_packet_tvb_get_bits(tvbuff_t *tvb, guint bit_offset,
-    gint no_of_bits, gboolean lsb0);
-
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in
