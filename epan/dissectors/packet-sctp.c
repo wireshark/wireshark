@@ -64,7 +64,7 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <wsutil/crc32.h>
-#include <epan/adler32.h>
+#include <wsutil/adler32.h>
 
 #include "packet-sctp.h"
 

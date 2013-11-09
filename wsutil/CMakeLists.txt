@@ -36,6 +36,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 set(WSUTIL_FILES
+  adler32.c
   aes.c
   airpdcap_wep.c
   crash_info.c

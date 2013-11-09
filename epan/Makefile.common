@@ -27,7 +27,6 @@ LIBWIRESHARK_SRC =		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
 	address_to_str.c	\
-	adler32.c		\
 	afn.c			\
 	app_mem_usage.c		\
 	asn1.c			\
@@ -150,7 +149,6 @@ LIBWIRESHARK_INCLUDES =		\
 	addr_and_mask.h		\
 	addr_resolv.h		\
 	address.h		\
-	adler32.h		\
 	afn.h			\
 	aftypes.h		\
 	app_mem_usage.h		\

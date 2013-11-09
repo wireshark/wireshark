@@ -1453,7 +1453,6 @@ set(LIBWIRESHARK_FILES
 	addr_and_mask.c
 	addr_resolv.c
 	address_to_str.c
-	adler32.c
 	afn.c
 	app_mem_usage.c
 	asn1.c
