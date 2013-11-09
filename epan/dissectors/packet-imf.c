@@ -30,7 +30,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/base64.h>

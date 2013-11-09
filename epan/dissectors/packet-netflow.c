@@ -133,7 +133,6 @@
 #include <epan/dissectors/packet-udp.h>
 #include "packet-ntp.h"
 #include <epan/expert.h>
-#include <epan/strutil.h>
 
 
 #if 0

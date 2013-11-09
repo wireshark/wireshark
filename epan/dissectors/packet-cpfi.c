@@ -35,7 +35,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 
 void proto_register_cpfi(void);
 void proto_reg_handoff_cpfi(void);

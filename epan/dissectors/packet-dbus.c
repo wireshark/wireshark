@@ -30,7 +30,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
 

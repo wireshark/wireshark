@@ -30,7 +30,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 
 #include <wiretap/tnef.h>

@@ -36,7 +36,6 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/show_exception.h>
-#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-ses.h"

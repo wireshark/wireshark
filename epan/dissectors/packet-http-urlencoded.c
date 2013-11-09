@@ -29,7 +29,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 
 static dissector_handle_t form_urlencoded_handle;

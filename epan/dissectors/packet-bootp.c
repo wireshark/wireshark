@@ -119,7 +119,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>

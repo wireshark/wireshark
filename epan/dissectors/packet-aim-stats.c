@@ -28,7 +28,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
 #include "packet-aim.h"
 

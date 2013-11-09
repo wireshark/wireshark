@@ -29,7 +29,6 @@
 
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
-#include <epan/strutil.h>
 
 #define ETHERNET_INTERFACE      1
 #define WLAN_INTERFACE          2

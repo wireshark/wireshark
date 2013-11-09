@@ -26,7 +26,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/nlpid.h>
 
 static int proto_x29 = -1;
