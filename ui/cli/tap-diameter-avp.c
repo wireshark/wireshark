@@ -42,6 +42,7 @@
 
 #include <string.h>
 #include "epan/packet_info.h"
+#include <epan/ftypes/ftypes-int.h>
 #include <epan/tap.h>
 #include <epan/epan_dissect.h>
 #include <epan/stat_cmd_args.h>

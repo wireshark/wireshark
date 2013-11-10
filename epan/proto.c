@@ -33,6 +33,8 @@
 #include <wsutil/bits_ctz.h>
 #include <wsutil/bits_count_ones.h>
 
+#include <ftypes/ftypes-int.h>
+
 #include "packet.h"
 #include "ptvcursor.h"
 #include "strutil.h"

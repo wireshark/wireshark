@@ -24,6 +24,8 @@
 
 #include "dfvm.h"
 
+#include <ftypes/ftypes-int.h>
+
 dfvm_insn_t*
 dfvm_insn_new(dfvm_opcode_t op)
 {

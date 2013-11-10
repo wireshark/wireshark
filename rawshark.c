@@ -73,6 +73,7 @@
 
 #include "globals.h"
 #include <epan/packet.h>
+#include <epan/ftypes/ftypes-int.h>
 #include "file.h"
 #include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>

@@ -34,6 +34,7 @@
 #include <epan/exceptions.h>
 #include <epan/packet.h>
 
+#include <ftypes/ftypes-int.h>
 
 /* Enable debug logging by defining AM_CFLAGS
  * so that it contains "-DDEBUG_dfilter".

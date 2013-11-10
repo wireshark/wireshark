@@ -32,6 +32,7 @@
 #include "dfilter-int.h"
 #include "dfilter.h"
 #include "dfilter-macro.h"
+#include <ftypes/ftypes-int.h>
 #include <epan/emem.h>
 #include <epan/uat-int.h>
 #include <epan/proto.h>

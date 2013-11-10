@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <ftypes/ftypes-int.h>
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
 #include <epan/emem.h>

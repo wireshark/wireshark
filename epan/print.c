@@ -37,6 +37,7 @@
 #include <epan/to_str.h>
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
+#include <ftypes/ftypes-int.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
 
