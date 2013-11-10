@@ -164,8 +164,9 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	mv "$pkg_file" "$pkg_file_unsigned" || exit 1
 	productsign --sign "Developer ID Installer: $CODE_SIGN_IDENTITY" "$pkg_file_unsigned" "$pkg_file" || exit 1
 	codesign --sign "$CODE_SIGN_IDENTITY" --verify "$pkg_file" || exit 1
-	spctl --assess --type install "$pkg_file" #|| exit 1
-        shasum "$pkg_file"
+	spctl --assess --type install "$pkg_file" || exit 1
+	pkgutil --check-signature "$pkg_file" || exit 1
+	shasum "$pkg_file"
 	rm -rf "$pkg_dir_unsigned" "$pkg_file_unsigned" "$pkg_file_flattened"
 else
 	echo "Code signing not performed (no identity)"
