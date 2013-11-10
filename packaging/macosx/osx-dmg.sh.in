@@ -152,7 +152,7 @@ pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
 packagemaker --doc "Wireshark_package.pmdoc" \
     --title "$pkg_title" \
-    --id "org.wireshark.pkg.Wireshark"
+    --id "org.wireshark.pkg.Wireshark" \
     --version "$version" \
     --target 10.5 \
     --verbose || exit 1
