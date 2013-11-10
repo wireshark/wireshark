@@ -840,7 +840,8 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 static void
-dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint16 feedback_data_len, rohc_info *p_rohc_info, guint16 cid){
+dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint16 feedback_data_len,
+                           rohc_info *p_rohc_info, guint16 cid, gboolean cid_context){
 
     proto_item         *ti;
     proto_tree         *rohc_feedback_tree;
@@ -859,7 +860,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     }
 
     if(!rohc_cid_context){
-        if (p_rohc_info == pinfo->private_data) {
+        if (cid_context) {
             /* Reuse info coming from private data */
             rohc_cid_context = wmem_new(wmem_packet_scope(), rohc_cid_context_t);
             /*rohc_cid_context->d_mode;*/
@@ -2205,7 +2206,7 @@ start_over:
             }
 
             /* Dissect feedback */
-            dissect_rohc_feedback_data(tvb, sub_tree, pinfo, offset, feedback_data_len, p_rohc_info, cid);
+            dissect_rohc_feedback_data(tvb, sub_tree, pinfo, offset, feedback_data_len, p_rohc_info, cid, p_rohc_info != &g_rohc_info);
             offset = offset + size;
             if(offset<length)
                 goto start_over;
