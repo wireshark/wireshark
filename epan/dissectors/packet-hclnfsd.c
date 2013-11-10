@@ -31,9 +31,29 @@
 
 #include "packet-rpc.h"
 #include "packet-nfs.h"
-#include "packet-hclnfsd.h"
 
 #include <epan/wmem/wmem.h>
+
+#define HCLNFSD_PROGRAM  0x2f00dbad
+
+#define HCLNFSDPROC_NULL					0
+#define HCLNFSDPROC_SPOOL_INQUIRE		1
+#define HCLNFSDPROC_SPOOL_FILE			2
+#define HCLNFSDPROC_AUTHORIZE				3
+#define HCLNFSDPROC_GRP_NAME_TO_NUMB	4
+#define HCLNFSDPROC_GRP_TO_NUMBER		5
+#define HCLNFSDPROC_RETURN_HOST			6
+#define HCLNFSDPROC_UID_TO_NAME			7
+#define HCLNFSDPROC_NAME_TO_UID			8
+#define HCLNFSDPROC_SHARE					20
+#define HCLNFSDPROC_UNSHARE				21
+#define HCLNFSDPROC_LOCK					22
+#define HCLNFSDPROC_REMOVE					23
+#define HCLNFSDPROC_UNLOCK					24
+#define HCLNFSDPROC_GET_PRINTERS			30
+#define HCLNFSDPROC_GET_PRINTQ			31
+#define HCLNFSDPROC_CANCEL_PRJOB			32
+#define HCLNFSDPROC_ZAP_LOCKS				105
 
 static int proto_hclnfsd = -1;
 static int hf_hclnfsd_procedure_v1 = -1;
