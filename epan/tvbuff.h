@@ -39,7 +39,6 @@
 #include <epan/ipv6-utils.h>
 #include <epan/guid-utils.h>
 #include <epan/wmem/wmem.h>
-#include "exceptions.h"
 
 #ifdef __cplusplus
 extern "C" {
