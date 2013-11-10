@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "tvbuff.h"
+#include "exceptions.h"
 #include "wsutil/pint.h"
 
 gboolean failed = FALSE;
@@ -36,7 +37,7 @@ gboolean failed = FALSE;
 /* Tests a tvbuff against the expected pattern/length.
  * Returns TRUE if all tests succeeed, FALSE if any test fails */
 gboolean
-test(tvbuff_t *tvb, gchar* name,
+test(tvbuff_t *tvb, const gchar* name,
      guint8* expected_data, guint expected_length, guint expected_reported_length)
 {
 	guint			length;
