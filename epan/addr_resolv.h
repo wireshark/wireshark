@@ -36,6 +36,7 @@
 
 #include <epan/address.h>
 #include <epan/tvbuff.h>
+#include <epan/ipv6-utils.h>
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include "ws_symbol_export.h"
