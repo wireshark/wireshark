@@ -67,9 +67,9 @@ static gint ett_gluster_dump_detail = -1;
 /* PMAP PORTBYBRICK */
 static int
 gluster_pmap_portbybrick_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-							proto_tree *tree)
+							proto_tree *tree, void* data _U_)
 {
-	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree);
+	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_brick_status, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_brick_port, offset);
 
@@ -78,7 +78,7 @@ gluster_pmap_portbybrick_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 gluster_pmap_portbybrick_call(tvbuff_t *tvb, int offset,
-				packet_info *pinfo _U_, proto_tree *tree)
+				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_brick, offset,
 								NULL);
@@ -91,7 +91,7 @@ gluster_pmap_portbybrick_call(tvbuff_t *tvb, int offset,
  */
 static int
 gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-							proto_tree *tree)
+							proto_tree *tree, void* data _U_)
 {
 	proto_item *detail_item;
 	proto_tree *detail_tree;
@@ -120,10 +120,10 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 gluster_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-							proto_tree *tree)
+							proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_uint64(tvb, tree, hf_gluster_gfsid, offset);
-	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree);
+	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 						gluster_dump_reply_detail);
@@ -134,7 +134,7 @@ gluster_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* DUMP request */
 static int
 gluster_dump_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-							proto_tree *tree)
+							proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_uint64(tvb, tree, hf_gluster_gfsid, offset);
 

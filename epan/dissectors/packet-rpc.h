@@ -133,7 +133,7 @@ typedef struct _rpc_call_info_value {
 } rpc_call_info_value;
 
 
-typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree);
+typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree, void* data);
 
 typedef struct _vsff {
 	guint32	value;

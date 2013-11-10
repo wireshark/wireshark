@@ -71,7 +71,7 @@ static dissector_handle_t rpc_handle;
 /* Dissect a getport call */
 static int
 dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	guint32 proto, version;
 	guint32 prog;
@@ -127,7 +127,7 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	guint32 portx;
 
@@ -167,7 +167,7 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* Dissect a 'set' call */
 static int
 dissect_set_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	guint32 proto;
 	guint32 prog;
@@ -195,7 +195,7 @@ dissect_set_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* Dissect a 'unset' call */
 static int
 dissect_unset_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	guint32 proto;
 	guint32 prog;
@@ -222,7 +222,7 @@ dissect_unset_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_set_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_bool(tvb, tree, hf_portmap_answer,
 	    offset);
@@ -231,7 +231,7 @@ dissect_set_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	int prog, version, proto, port;
 	proto_item *ti, *subtree;
@@ -264,7 +264,7 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 		dissect_dump_entry);
@@ -274,7 +274,7 @@ dissect_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Dissect a callit call */
 static int
 dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	guint32 prog, vers, proc;
 
@@ -316,7 +316,7 @@ dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Dissect a callit reply */
 static int
 dissect_callit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	if ( tree )
 	{
@@ -387,7 +387,7 @@ static const value_string portmap2_proc_vals[] = {
 
 /* RFC 1833, Page 3 */
 static int
-dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* rpcb_item = NULL;
 	proto_tree* rpcb_tree = NULL;
@@ -430,9 +430,9 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree
 /* RFC 1833, Page 7 */
 static int
 dissect_rpcb3_getaddr_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpcb(tvb, offset, pinfo, tree);
+	offset = dissect_rpcb(tvb, offset, pinfo, tree, data);
 
 	return offset;
 }
@@ -441,7 +441,7 @@ dissect_rpcb3_getaddr_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* RFC 1833, Page 7 */
 static int
 dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_string(tvb, tree,
 	    hf_portmap_uaddr, offset, NULL);
@@ -453,7 +453,7 @@ dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* RFC 1833, Page 7 */
 static int
 dissect_rpcb3_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_rpcb);
 	return offset;
@@ -462,7 +462,7 @@ dissect_rpcb3_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* RFC 1833, page 4 */
 static int
 dissect_rpcb_rmtcallres(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	/* Dissect the remote universal address. */
 	offset = dissect_rpc_string(tvb, tree,

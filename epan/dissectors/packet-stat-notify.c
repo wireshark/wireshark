@@ -39,7 +39,7 @@ static gint ett_statnotify = -1;
 
 
 static int
-dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 
 	offset = dissect_rpc_string(tvb,tree,hf_statnotify_name,offset,NULL);

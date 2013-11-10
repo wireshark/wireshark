@@ -48,7 +48,7 @@ static header_field_info hfi_rwall_message RWALL_HFI_INIT = {
 static gint ett_rwall = -1;
 
 static int
-dissect_rwall_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_rwall_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_string(tvb, tree, hfi_rwall_message.id, offset, NULL);
 

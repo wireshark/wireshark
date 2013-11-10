@@ -164,7 +164,7 @@ mon_id_len(tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	if (tree)
 	{
@@ -175,7 +175,7 @@ dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* sub_item = NULL;
 	proto_tree* sub_tree = NULL;
@@ -222,7 +222,7 @@ dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* sub_item = NULL;
 	proto_tree* sub_tree = NULL;
@@ -252,17 +252,17 @@ dissect_stat_priv(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-	offset = dissect_stat_mon_id(tvb,offset,pinfo,tree);
+	offset = dissect_stat_mon_id(tvb,offset,pinfo,tree,data);
 
 	offset = dissect_stat_priv(tvb,offset,tree);
 	return offset;
 }
 
 static int
-dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_uint32(tvb,tree,hfi_stat_state.id,offset);
 
@@ -270,7 +270,7 @@ dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* sub_item = NULL;
 	proto_tree* sub_tree = NULL;
@@ -294,7 +294,7 @@ dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_stat_my_id(tvb,offset,tree);
 

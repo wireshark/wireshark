@@ -42,7 +42,7 @@ static gint ett_spray_clock = -1;
 
 
 static int
-dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
@@ -65,7 +65,7 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_spray_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_spray_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_data(tvb, tree,
 			hf_spray_sprayarr, offset);
@@ -128,8 +128,7 @@ proto_register_spray(void)
 		&ett_spray_clock,
 	};
 
-	proto_spray = proto_register_protocol("SPRAY",
-	    "SPRAY", "spray");
+	proto_spray = proto_register_protocol("SPRAY", "SPRAY", "spray");
 	proto_register_field_array(proto_spray, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

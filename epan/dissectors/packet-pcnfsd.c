@@ -100,7 +100,7 @@ dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static int
 dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree)
+	packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_pcnfsd_mapreq(tvb, offset, tree);
 
@@ -113,7 +113,7 @@ dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 
 static int
 dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
@@ -137,7 +137,7 @@ static const value_string names_maprstat[] =
 
 static int
 dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree)
+	packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 maprstat;
 
@@ -160,7 +160,7 @@ dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 
 static int
 dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
@@ -189,7 +189,7 @@ pcnfsd_decode_obscure(const char* data, int len)
 /* "NFS Illustrated" 14.7.13 */
 static int
 dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	int	newoffset;
 	const char	*ident = NULL;
@@ -275,7 +275,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* "NFS Illustrated" 14.7.13 */
 static int
 dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree)
+	proto_tree *tree, void* data _U_)
 {
 	int	gids_count;
 	proto_item	*gitem = NULL;

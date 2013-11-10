@@ -636,7 +636,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
           opaque_tvb = tvb_new_subset(tvb, data_offset, string_length_copy,
                                       string_length);
 
-          return (*dissect_it)(opaque_tvb, offset, pinfo, tree);
+          return (*dissect_it)(opaque_tvb, offset, pinfo, tree, NULL);
 
         }
 
@@ -776,7 +776,7 @@ dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset, 4, value_follows);
 		offset += 4;
 		if (value_follows == 1) {
-			offset = rpc_list_dissector(tvb, offset, pinfo, tree);
+			offset = rpc_list_dissector(tvb, offset, pinfo, tree, NULL);
 		}
 		else {
 			break;
@@ -814,7 +814,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			hf_rpc_array_len, offset);
 
 	while (num--) {
-		offset = rpc_array_dissector(tvb, offset, pinfo, lock_tree);
+		offset = rpc_array_dissector(tvb, offset, pinfo, lock_tree, NULL);
 	}
 
 	proto_item_set_end(lock_item, tvb, offset);
@@ -1425,7 +1425,8 @@ dissect_auth_gssapi_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 static int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, dissect_function_t* dissect_function, const char *progname)
+	int offset, dissect_function_t* dissect_function, const char *progname,
+	rpc_call_info_value *rpc_call)
 {
 	const char *saved_proto;
 
@@ -1437,7 +1438,7 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			pinfo->current_proto = progname;
 
 		/* call the dissector for the next level */
-		offset = dissect_function(tvb, offset, pinfo, tree);
+		offset = dissect_function(tvb, offset, pinfo, tree, rpc_call);
 
 		/* restore the protocol name */
 		pinfo->current_proto = saved_proto;
@@ -1451,7 +1452,7 @@ static int
 dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
 	dissect_function_t* dissect_function,
-	const char *progname)
+	const char *progname, rpc_call_info_value *rpc_call)
 {
 	guint32 length, rounded_length, seq;
 
@@ -1474,7 +1475,7 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	if (dissect_function != NULL) {
 		/* offset = */
 		call_dissect_function(tvb, pinfo, gtree, offset,
-				      dissect_function, progname);
+				      dissect_function, progname, rpc_call);
 	}
 	offset += rounded_length - 4;
 	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_checksum);
@@ -1669,7 +1670,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect the arguments */
 	offset = call_dissect_function(tvb, pinfo, tree, offset,
-			dissect_function, NULL);
+			dissect_function, NULL, rpc_call);
 	return offset;
 }
 
@@ -1805,7 +1806,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect the return value */
 	offset = call_dissect_function(tvb, pinfo, tree, offset,
-			dissect_function, NULL);
+			dissect_function, NULL, rpc_call);
 	return offset;
 }
 
@@ -2752,7 +2753,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * payload.
 		 */
 		offset = call_dissect_function(tvb, pinfo, ptree, offset,
-				dissect_function, progname);
+				dissect_function, progname, rpc_call);
 		break;
 
 	case FLAVOR_GSSAPI_NO_INFO:
@@ -2790,13 +2791,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset = call_dissect_function(tvb,
 						pinfo, ptree, offset,
 						dissect_function,
-						progname);
+						progname, rpc_call);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_INTEGRITY) {
 				offset = dissect_rpc_authgss_integ_data(tvb,
 						pinfo, ptree, offset,
 						dissect_function,
-						progname);
+						progname, rpc_call);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
 				if (pinfo->gssapi_decrypted_tvb) {
@@ -2804,7 +2805,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						pinfo->gssapi_decrypted_tvb,
 						pinfo, ptree, 4,
 						dissect_function,
-						progname);
+						progname, rpc_call);
 					offset = tvb_length(pinfo->gssapi_decrypted_tvb);
 				}
 			}

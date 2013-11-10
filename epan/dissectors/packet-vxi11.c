@@ -319,7 +319,7 @@ static int
 dissect_create_link_parms(tvbuff_t *tvb,
                           int offset,
                           packet_info *pinfo,
-                          proto_tree *tree)
+                          proto_tree *tree, void* data _U_)
 {
     const char *str;
 
@@ -341,7 +341,7 @@ static int
 dissect_create_link_resp(tvbuff_t *tvb,
                          int offset,
                          packet_info *pinfo,
-                         proto_tree *tree)
+                         proto_tree *tree, void* data _U_)
 {
     guint32 error, lid;
 
@@ -369,7 +369,7 @@ static int
 dissect_device_SRQ_parms(tvbuff_t *tvb,
                          int offset,
                          packet_info *pinfo _U_,
-                         proto_tree *tree)
+                         proto_tree *tree, void* data _U_)
 {
     offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, hf_vxi11_intr_handle, FALSE, 0, FALSE, NULL, NULL);
 
@@ -385,7 +385,7 @@ static int
 dissect_device_docmd_parms(tvbuff_t *tvb,
                            int offset,
                            packet_info *pinfo,
-                           proto_tree *tree)
+                           proto_tree *tree, void* data _U_)
 {
     guint32 lid, cmd;
     const gchar *cmdstr;
@@ -418,7 +418,7 @@ static int
 dissect_device_docmd_resp(tvbuff_t *tvb,
                           int offset,
                           packet_info *pinfo,
-                          proto_tree *tree)
+                          proto_tree *tree, void* data _U_)
 {
     guint32 error;
 
@@ -432,7 +432,7 @@ static int
 dissect_device_enable_SRQ_parms(tvbuff_t *tvb,
                                 int offset,
                                 packet_info *pinfo,
-                                proto_tree *tree)
+                                proto_tree *tree, void* data _U_)
 {
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
@@ -453,7 +453,7 @@ static int
 dissect_device_error(tvbuff_t *tvb,
                      int offset,
                      packet_info *pinfo,
-                     proto_tree *tree)
+                     proto_tree *tree, void* data _U_)
 {
     guint32 error;
 
@@ -464,7 +464,7 @@ static int
 dissect_device_generic_parms(tvbuff_t *tvb,
                              int offset,
                              packet_info *pinfo,
-                             proto_tree *tree)
+                             proto_tree *tree, void* data _U_)
 {
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
@@ -486,7 +486,7 @@ static int
 dissect_device_link(tvbuff_t *tvb,
                     int offset,
                     packet_info *pinfo,
-                    proto_tree *tree)
+                    proto_tree *tree, void* data _U_)
 {
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
@@ -505,7 +505,7 @@ static int
 dissect_device_lock_parms(tvbuff_t *tvb,
                           int offset,
                           packet_info *pinfo,
-                          proto_tree *tree)
+                          proto_tree *tree, void* data _U_)
 {
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
@@ -526,7 +526,7 @@ static int
 dissect_device_read_parms(tvbuff_t *tvb,
                           int offset,
                           packet_info *pinfo,
-                          proto_tree *tree)
+                          proto_tree *tree, void* data _U_)
 {
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
@@ -550,7 +550,7 @@ static int
 dissect_device_read_resp(tvbuff_t *tvb,
                          int offset,
                          packet_info *pinfo,
-                         proto_tree *tree)
+                         proto_tree *tree, void* data _U_)
 {
     guint32 error;
 
@@ -565,7 +565,7 @@ static int
 dissect_device_readstb_resp(tvbuff_t *tvb,
                             int offset,
                             packet_info *pinfo,
-                            proto_tree *tree)
+                            proto_tree *tree, void* data _U_)
 {
     guint32 error, stb;
 
@@ -590,7 +590,7 @@ static int
 dissect_device_remote_func(tvbuff_t *tvb,
                            int offset,
                            packet_info *pinfo,
-                           proto_tree *tree)
+                           proto_tree *tree, void* data _U_)
 {
     guint32 addr, port;
     const gchar *addrstr;
@@ -619,7 +619,7 @@ static int
 dissect_device_write_parms(tvbuff_t *tvb,
                            int offset,
                            packet_info *pinfo,
-                           proto_tree *tree)
+                           proto_tree *tree, void* data _U_)
 {
     guint32 lid = tvb_get_ntohl(tvb, offset);
 
@@ -642,7 +642,7 @@ static int
 dissect_device_write_resp(tvbuff_t *tvb,
                           int offset,
                           packet_info *pinfo,
-                          proto_tree *tree)
+                          proto_tree *tree, void* data _U_)
 {
     guint32 error;
 

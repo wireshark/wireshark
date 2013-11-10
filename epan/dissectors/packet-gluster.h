@@ -434,9 +434,9 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 
 extern int
 gluster_dissect_common_reply(tvbuff_t *tvb, int offset,
-				packet_info *pinfo, proto_tree *tree);
+				packet_info *pinfo, proto_tree *tree, void* data _U_);
 extern int
 glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb, int offset,
-				packet_info *pinfo, proto_tree *tree);
+				packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 #endif /* __PACKET_GLUSTER_H__ */

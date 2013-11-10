@@ -156,7 +156,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree)
+		proto_tree *tree, void* data _U_)
 {
 	const char *mountpoint=NULL;
 
@@ -196,7 +196,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* RFC 1094, Page 25,26 */
 static int
-dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_fhstatus(tvb,offset,pinfo,tree);
 
@@ -208,7 +208,7 @@ dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
@@ -242,7 +242,7 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_mountlist);
 
@@ -254,7 +254,7 @@ dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int str_len;
 
@@ -282,7 +282,7 @@ dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 113 */
 static int
-dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item* exportlist_item = NULL;
 	proto_tree* exportlist_tree = NULL;
@@ -295,10 +295,8 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	group_name_list[0]=0;
 	group_names_len=0;
 	if (tree) {
-		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, tvb,
-					offset, -1, ENC_NA);
-		if (exportlist_item)
-			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
+		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, tvb, offset, -1, ENC_NA);
+		exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
 
 	offset = dissect_rpc_string(tvb, exportlist_tree,
@@ -337,7 +335,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 113 */
 static int
-dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_exportlist);
 
@@ -410,7 +408,7 @@ static const true_false_string tos_error_vdisable = {
 
 
 static int
-dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 pc_mask;
 	proto_item *lock_item;
@@ -539,7 +537,7 @@ dissect_mountstat3(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offs
 
 /* RFC 1831, Page 109 */
 static int
-dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 status;
 	guint32 auth_flavors;
@@ -572,7 +570,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item* exportlist_item = NULL;
 	proto_tree* exportlist_tree = NULL;
@@ -609,7 +607,7 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 }
 
 static int
-dissect_mount_exportlist_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount_exportlist_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_sgi_exportlist);
 
@@ -654,7 +652,7 @@ static const true_false_string tos_st_local = {
 };
 
 static int
-dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item *flag_item;
 	proto_tree *flag_tree;

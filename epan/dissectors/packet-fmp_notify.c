@@ -207,7 +207,7 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_FMP_NOTIFY_DownGrade_request(tvbuff_t *tvb, int offset,
-                                     packet_info *pinfo _U_, proto_tree *tree)
+                                     packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 
 
@@ -223,7 +223,7 @@ dissect_FMP_NOTIFY_DownGrade_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_DownGrade_reply(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo _U_, proto_tree *tree)
+                                   packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -233,7 +233,7 @@ dissect_FMP_NOTIFY_DownGrade_reply(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_RevokeList_request(tvbuff_t *tvb, int offset,
-                                      packet_info *pinfo _U_, proto_tree *tree)
+                                      packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 
 	offset = dissect_rpc_data(tvb,  tree, hf_fmp_sessionHandle,
@@ -248,7 +248,7 @@ dissect_FMP_NOTIFY_RevokeList_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_RevokeList_reply(tvbuff_t *tvb, int offset,
-                                    packet_info *pinfo _U_, proto_tree *tree)
+                                    packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -258,7 +258,7 @@ dissect_FMP_NOTIFY_RevokeList_reply(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_RevokeAll_request(tvbuff_t *tvb, int offset,
-                                     packet_info *pinfo _U_, proto_tree *tree)
+                                     packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
 	                          offset);
@@ -269,7 +269,7 @@ dissect_FMP_NOTIFY_RevokeAll_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_RevokeAll_reply(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo _U_, proto_tree *tree)
+                                   packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -279,7 +279,7 @@ dissect_FMP_NOTIFY_RevokeAll_reply(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_FileSetEof_request(tvbuff_t *tvb, int offset,
-                                      packet_info *pinfo _U_, proto_tree *tree)
+                                      packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
 	                          offset);
@@ -291,7 +291,7 @@ dissect_FMP_NOTIFY_FileSetEof_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_FileSetEof_reply(tvbuff_t *tvb, int offset,
-                                    packet_info *pinfo _U_, proto_tree *tree)
+                                    packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -301,7 +301,7 @@ dissect_FMP_NOTIFY_FileSetEof_reply(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_RequestDone_request(tvbuff_t *tvb, int offset,
-                                       packet_info *pinfo, proto_tree *tree)
+                                       packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -322,7 +322,7 @@ dissect_FMP_NOTIFY_RequestDone_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_RequestDone_reply(tvbuff_t *tvb, int offset,
-                                     packet_info *pinfo _U_, proto_tree *tree)
+                                     packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -332,7 +332,7 @@ dissect_FMP_NOTIFY_RequestDone_reply(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_volFreeze_request(tvbuff_t *tvb, int offset,
-                                     packet_info *pinfo _U_, proto_tree *tree)
+                                     packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
 	                          offset);
@@ -342,7 +342,7 @@ dissect_FMP_NOTIFY_volFreeze_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_volFreeze_reply(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo _U_, proto_tree *tree)
+                                   packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
@@ -353,7 +353,7 @@ dissect_FMP_NOTIFY_volFreeze_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_FMP_NOTIFY_revokeHandleList_request(tvbuff_t *tvb, int offset,
                                             packet_info *pinfo,
-                                            proto_tree *tree)
+                                            proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
 							                          offset);
@@ -364,7 +364,7 @@ dissect_FMP_NOTIFY_revokeHandleList_request(tvbuff_t *tvb, int offset,
 
 static int
 dissect_FMP_NOTIFY_revokeHandleList_reply(tvbuff_t *tvb, int offset,
-                                          packet_info *pinfo _U_, proto_tree *tree)
+                                          packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int rval;
 
