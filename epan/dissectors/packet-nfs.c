@@ -7453,7 +7453,7 @@ static const value_string names_claim_type4[] = {
 
 /* XXX - need a better place to populate name than here, maybe? */
 static int
-dissect_nfs4_open_claim(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_nfs4_open_claim(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree, const char **name, rpc_call_info_value *civ)
 {
 	guint open_claim_type4;
