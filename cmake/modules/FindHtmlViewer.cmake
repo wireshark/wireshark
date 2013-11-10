@@ -15,6 +15,8 @@ FIND_PROGRAM(HTML_VIEWER_EXECUTABLE
     htmlview
     open
     $ENV{HTML_VIEWER}
+    [HKEY_CURRENT_USER\\Software\\Classes\\http\\shell\\open\\command]
+    [HKEY_CLASSES_ROOT\\http\\shell\\open\\command]
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin
     /bin
