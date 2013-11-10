@@ -29,7 +29,7 @@
 #include "config.h"
 
 #include <epan/emem.h>
-#include <ftypes/ftypes-int.h>
+#include <epan/ftypes/ftypes-int.h>
 
 /* WSLUA_MODULE Field Obtaining dissection data */
 
