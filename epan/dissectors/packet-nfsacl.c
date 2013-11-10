@@ -224,9 +224,9 @@ static const value_string nfsacl1_proc_vals[] = {
 
 static int
 dissect_nfsacl2_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, void* data _U_)
+			    proto_tree *tree, void* data)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 	offset = dissect_nfsacl_mask(tvb, offset, tree);
 	return offset;
 }
@@ -254,9 +254,9 @@ dissect_nfsacl2_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl2_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, void* data _U_)
+			    proto_tree *tree, void* data)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 	offset = dissect_nfsacl_secattr(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -282,9 +282,9 @@ dissect_nfsacl2_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl2_getattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, void* data _U_)
+			     proto_tree *tree, void* data)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 
 	return offset;
 }
@@ -300,17 +300,16 @@ dissect_nfsacl2_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, void* data _U_)
+			    proto_tree *tree, void* data)
 {
 	guint32 *acc_request, amask;
-	rpc_call_info_value *civ;
+	rpc_call_info_value *civ = (rpc_call_info_value*)data;
 
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL, civ);
 
 	/* Get access mask to check and save it for comparison to the access reply. */
 	amask = tvb_get_ntohl(tvb, offset);
 	acc_request = (guint32 *)wmem_memdup(wmem_file_scope(), &amask, sizeof(guint32));
-	civ = (rpc_call_info_value *)pinfo->private_data;
 	civ->private_data = acc_request;
 
 	display_access_items(tvb, offset, pinfo, tree, amask, 'C', 3, NULL, "Check") ;
@@ -321,7 +320,7 @@ dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, void* data _U_)
+			     proto_tree *tree, void* data)
 {
 	guint32 status;
 
@@ -334,7 +333,7 @@ dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (status == ACL2_OK)
 	{
 		offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
-		offset = dissect_access_reply(tvb, offset, pinfo, tree, 3, NULL);
+		offset = dissect_access_reply(tvb, offset, pinfo, tree, 3, NULL, (rpc_call_info_value*)data);
 	}
 
 	return offset;
@@ -342,9 +341,9 @@ dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl2_getxattrdir_call(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				 packet_info *pinfo _U_, proto_tree *tree, void* data)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
 
 	return offset;
@@ -352,7 +351,7 @@ dissect_nfsacl2_getxattrdir_call(tvbuff_t *tvb, int offset,
 
 static int
 dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, int offset,
-				  packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				  packet_info *pinfo _U_, proto_tree *tree, void* data)
 {
 	guint32 status;
 
@@ -364,7 +363,7 @@ dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, int offset,
 
 	if (status == ACL2_OK)
 	{
-		offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+		offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 		offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
 	}
 
@@ -398,9 +397,9 @@ static const value_string nfsacl2_proc_vals[] = {
 
 static int
 dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, void* data _U_)
+			    proto_tree *tree, void* data)
 {
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 	offset = dissect_nfsacl_mask(tvb, offset, tree);
 
 	return offset;
@@ -444,13 +443,13 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl3_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, void* data _U_)
+			    proto_tree *tree, void* data)
 
 {
 	proto_item *acl_item = NULL;
 	proto_tree *acl_tree = NULL;
 
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 
 	if (tree)
 	{
@@ -486,10 +485,10 @@ dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_nfsacl3_getxattrdir_call(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				 packet_info *pinfo _U_, proto_tree *tree, void* data)
 
 {
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
 
 	return offset;
@@ -497,7 +496,7 @@ dissect_nfsacl3_getxattrdir_call(tvbuff_t *tvb, int offset,
 
 static int
 dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset,
-				  packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				  packet_info *pinfo _U_, proto_tree *tree, void* data)
 {
 	guint32 status;
 
@@ -511,7 +510,7 @@ dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset,
 
 	if (status == ACL3_OK)
 	{
-		offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
+		offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL, (rpc_call_info_value*)data);
 		offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, tree, "attr");
 	}
 

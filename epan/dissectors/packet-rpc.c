@@ -2085,7 +2085,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=FALSE;
-		pinfo->private_data=rpc_call;
 		break;
 
 	default:
@@ -2388,7 +2387,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset = dissect_rpc_cred(tvb, rpc_tree, offset, pinfo, rpc_conv_info);
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=TRUE;
-		pinfo->private_data=rpc_call;
 
 		if (gss_proc == RPCSEC_GSS_DESTROY) {
 			/* there is no verifier for GSS destroy packets */

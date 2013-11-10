@@ -115,11 +115,11 @@ dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_status, offset);
 
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "spool filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "spool filehandle", NULL, (rpc_call_info_value*)data);
 
 	return offset;
 }
@@ -390,7 +390,7 @@ dissect_hclnfsd_name_to_uid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo 
 
 
 static int
-dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint32 request_type;
 
@@ -404,7 +404,7 @@ dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL, (rpc_call_info_value*)data);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_unknown_data, offset);
 
@@ -452,7 +452,7 @@ dissect_hclnfsd_unshare_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static int
-dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_status, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_cookie, offset);
@@ -462,7 +462,7 @@ dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL, (rpc_call_info_value*)data);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_lockowner, offset);
 
@@ -506,7 +506,7 @@ dissect_hclnfsd_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
 
 static int
-dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	offset += 4;  /* skip unused */
 
@@ -514,7 +514,7 @@ dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL, (rpc_call_info_value*)data);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_unknown_data, offset);
 

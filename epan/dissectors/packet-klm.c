@@ -86,7 +86,7 @@ dissect_holder(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static int
-dissect_lock(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
+dissect_lock(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, rpc_call_info_value *civ)
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
@@ -99,7 +99,7 @@ dissect_lock(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_klm_servername, offset, NULL);
 
-	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree,"fh", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree,"fh", NULL, civ);
 
 	offset = dissect_rpc_uint32(tvb, lock_tree,
 			hf_klm_pid, offset);
@@ -114,9 +114,9 @@ dissect_lock(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 }
 
 static int
-dissect_klm_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_klm_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	offset = dissect_lock(tvb, pinfo, tree, offset);
+	offset = dissect_lock(tvb, pinfo, tree, offset, (rpc_call_info_value*)data);
 
 	return offset;
 }
@@ -132,7 +132,7 @@ dissect_klm_stat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 }
 
 static int
-dissect_klm_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_klm_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	offset = dissect_rpc_bool( tvb, tree,
 			hf_klm_block, offset);
@@ -140,7 +140,7 @@ dissect_klm_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	offset = dissect_rpc_bool( tvb, tree,
 			hf_klm_exclusive, offset);
 
-	offset = dissect_lock(tvb, pinfo, tree, offset);
+	offset = dissect_lock(tvb, pinfo, tree, offset, (rpc_call_info_value*)data);
 
 	return offset;
 }
@@ -163,12 +163,12 @@ dissect_klm_test_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 }
 
 static int
-dissect_klm_test_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_klm_test_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	offset = dissect_rpc_bool( tvb, tree,
 			hf_klm_exclusive, offset);
 
-	offset = dissect_lock(tvb, pinfo, tree, offset);
+	offset = dissect_lock(tvb, pinfo, tree, offset, (rpc_call_info_value*)data);
 
 	return offset;
 }

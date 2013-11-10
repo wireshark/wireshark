@@ -71,7 +71,7 @@ static dissector_handle_t rpc_handle;
 /* Dissect a getport call */
 static int
 dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree, void* data _U_)
+	proto_tree *tree, void* data)
 {
 	guint32 proto, version;
 	guint32 prog;
@@ -80,7 +80,7 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* make sure we remember protocol type until the reply packet */
 	if(!pinfo->fd->flags.visited){
-		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)data;
 		if(rpc_call){
 			proto = tvb_get_ntohl(tvb, offset+8);
 			if(proto==IP_PROTO_UDP){  /* only do this for UDP */
@@ -127,13 +127,13 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	proto_tree *tree, void* data _U_)
+	proto_tree *tree, void* data)
 {
 	guint32 portx;
 
 	/* we might have learnt a <ipaddr><protocol><port> mapping for ONC-RPC*/
 	if(!pinfo->fd->flags.visited){
-		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)data;
 		/* only do this for UDP, TCP does not need anything like this */
 		if(rpc_call && (GPOINTER_TO_UINT(rpc_call->private_data)==PT_UDP) ){
 			guint32 port;

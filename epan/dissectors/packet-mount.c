@@ -130,7 +130,7 @@ static const value_string mount3_mountstat3[] =
  * is consistant with most v1 and v2 implementations.
  */
 static int
-dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value* civ)
 {
 	gint32 status;
 
@@ -139,7 +139,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	switch (status) {
 		case 0:
-			offset = dissect_fhandle(tvb,offset,pinfo,tree,"fhandle", NULL);
+			offset = dissect_fhandle(tvb,offset,pinfo,tree,"fhandle", NULL, civ);
 		break;
 		default:
 			/* void */
@@ -156,12 +156,12 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, void* data _U_)
+		proto_tree *tree, void* data)
 {
 	const char *mountpoint=NULL;
 
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
-		rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
+		rpc_call_info_value *civ=(rpc_call_info_value *)data;
 
 		if(civ->request && (civ->proc==1)){
 			const gchar *host;
@@ -196,9 +196,9 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* RFC 1094, Page 25,26 */
 static int
-dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	offset = dissect_fhstatus(tvb,offset,pinfo,tree);
+	offset = dissect_fhstatus(tvb,offset,pinfo,tree,(rpc_call_info_value*)data);
 
 	return offset;
 }
@@ -537,7 +537,7 @@ dissect_mountstat3(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offs
 
 /* RFC 1831, Page 109 */
 static int
-dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint32 status;
 	guint32 auth_flavors;
@@ -548,7 +548,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	switch (status) {
 		case 0:
-			offset = dissect_nfs3_fh(tvb,offset,pinfo,tree,"fhandle",NULL);
+			offset = dissect_nfs3_fh(tvb,offset,pinfo,tree,"fhandle",NULL,(rpc_call_info_value*)data);
 
 			auth_flavors = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_uint(tree,hf_mount_flavors, tvb,
