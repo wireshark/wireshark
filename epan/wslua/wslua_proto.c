@@ -35,6 +35,7 @@
 
 #include "wslua.h"
 
+#include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
 WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
