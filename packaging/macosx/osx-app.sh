@@ -592,7 +592,7 @@ else
 fi
 
 codesign_file () {
-	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$1"
+	codesign --sign "Developer ID Application: $CODE_SIGN_IDENTITY" --verbose "$1"
 	codesign --verify --verbose "$1" || exit 1
 	spctl --assess --type execute "$1" || exit 1
 }

@@ -152,16 +152,17 @@ pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
 packagemaker --doc "Wireshark_package.pmdoc" \
     --title "$pkg_title" \
+    --id "org.wireshark.pkg.Wireshark"
     --version "$version" \
     --target 10.5 \
     --verbose || exit 1
 
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-	#pkg_file_unsigned="$pkg_title UNSIGNED.pkg"
+	pkg_file_unsigned="$pkg_title UNSIGNED.pkg"
 
 	echo -e "Signing $pkg_file"
-	#mv "$pkg_file" "$pkg_file_unsigned" || exit 1
-	#productsign --sign "$CODE_SIGN_IDENTITY" "$pkg_file_unsigned" "$pkg_file" || exit 1
+	mv "$pkg_file" "$pkg_file_unsigned" || exit 1
+	productsign --sign "Developer ID Installer: $CODE_SIGN_IDENTITY" "$pkg_file_unsigned" "$pkg_file" || exit 1
 	codesign --sign "$CODE_SIGN_IDENTITY" --verify "$pkg_file" || exit 1
 	spctl --assess --type install "$pkg_file" #|| exit 1
         shasum "$pkg_file"
