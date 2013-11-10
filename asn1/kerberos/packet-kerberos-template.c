@@ -162,10 +162,8 @@ static guint32 gbl_keytype;
 static gboolean gbl_do_col_info;
 
 static void
-call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag)
+call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
 {
-	kerberos_callbacks *cb=(kerberos_callbacks *)pinfo->private_data;
-
 	if(!cb){
 		return;
 	}
@@ -1715,15 +1713,12 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	volatile int offset = 0;
 	proto_tree *volatile kerberos_tree = NULL;
 	proto_item *volatile item = NULL;
-	void *saved_private_data;
 	asn1_ctx_t asn1_ctx;
 
 	/* TCP record mark and length */
 	guint32 krb_rm = 0;
 	gint krb_reclen = 0;
 
-	saved_private_data=pinfo->private_data;
-	pinfo->private_data=cb;
 	gbl_do_col_info=dci;
 
 	if (have_rm) {
@@ -1733,7 +1728,6 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * What is a reasonable size limit?
 		 */
 		if (krb_reclen > 10 * 1024 * 1024) {
-			pinfo->private_data=saved_private_data;
 			return (-1);
 		}
 
@@ -1761,7 +1755,6 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
 		if(tmp_class!=BER_CLASS_APP){
-			pinfo->private_data=saved_private_data;
 			return 0;
 		}
 		switch(tmp_tag){
@@ -1784,7 +1777,6 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			case KRB5_MSG_ERROR:
 				break;
 			default:
-				pinfo->private_data=saved_private_data;
 				return 0;
 		}
 	if (do_col_protocol) {
@@ -1799,16 +1791,15 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx.private_data = cb;
 
 	TRY {
 		offset=dissect_kerberos_Applications(FALSE, tvb, 0, &asn1_ctx , tree, /* hf_index */ -1);
 	} CATCH_BOUNDS_ERRORS {
-		pinfo->private_data=saved_private_data;
 		RETHROW;
 	} ENDTRY;
 
 	proto_item_set_len(item, offset);
-	pinfo->private_data=saved_private_data;
 	return offset;
 }
 
