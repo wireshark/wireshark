@@ -388,7 +388,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	top_tree=parent_tree;
 
 	/* do we have application context from the acse dissector?  */
-	if( !pinfo->private_data ){
+	if( !data){
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error:can't get application context from ACSE dissector.");
@@ -416,8 +416,6 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	  ros_info->next = ros_info_items;
 	  ros_info_items = ros_info;
 	}
-
-	/* pinfo->private_data = ros_info; */
 
 	item = proto_tree_add_item(parent_tree, proto_ros, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_ros);
