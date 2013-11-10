@@ -2238,8 +2238,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
-		    actx->pinfo->private_data = &wild_card;		    
-			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
+			call_dissector_with_data(h248_term_handle, new_tvb, actx->pinfo, tree, &wild_card);
 			wild_card = 0xFF;		
 		}
 	} else {
@@ -3235,7 +3234,7 @@ static const ber_sequence_t SigParameter_sequence[] = {
 
 static int
 dissect_h248_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 423 "../../asn1/h248/h248.cnf"
+#line 422 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if (h248_version > 1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -3471,7 +3470,7 @@ static const ber_sequence_t EventParameter_sequence[] = {
 
 static int
 dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 414 "../../asn1/h248/h248.cnf"
+#line 413 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if (h248_version > 1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -4370,7 +4369,7 @@ dissect_h248_ServiceChangeProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_h248_SCreasonValueOctetStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 373 "../../asn1/h248/h248.cnf"
+#line 372 "../../asn1/h248/h248.cnf"
  tvbuff_t	*parameter_tvb;
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4392,7 +4391,7 @@ static const ber_sequence_t SCreasonValue_sequence_of[1] = {
 
 static int
 dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 361 "../../asn1/h248/h248.cnf"
+#line 360 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if ( h248_version > 1 ) {	
 		/* Not V1, so call "standard" function */
@@ -5336,11 +5335,11 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 383 "../../asn1/h248/h248.cnf"
+#line 382 "../../asn1/h248/h248.cnf"
 	guint8 i;
 	guint32 len;
 
-#line 388 "../../asn1/h248/h248.cnf"
+#line 387 "../../asn1/h248/h248.cnf"
 /* check tvb to verify all values ascii or not.  If so, output string, else hex */
 	len=tvb_length_remaining(tvb, offset);
 	if ( curr_info.par && curr_info.par->dissector) {
