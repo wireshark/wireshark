@@ -992,6 +992,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-omapi.c
 	dissectors/packet-omron-fins.c
 	dissectors/packet-openflow.c
+	dissectors/packet-openflow_v1.c
 	dissectors/packet-openflow_v4.c
 	dissectors/packet-opensafety.c
 	dissectors/packet-openvpn.c
