@@ -25,9 +25,7 @@
 #ifndef __EXCEPTIONS_H__
 #define __EXCEPTIONS_H__
 
-#ifndef XCEPT_H
 #include "except.h"
-#endif
 
 /* Wireshark has only one exception group, to make these macros simple */
 #define XCEPT_GROUP_WIRESHARK 1

@@ -182,4 +182,4 @@ WS_DLL_PUBLIC void except_free(void *);
 	except_pop();						\
     }
 
-#endif
+#endif /* XCEPT_H */
