@@ -44,6 +44,7 @@
 
 #include "packet.h"
 #include "strutil.h"
+#include "to_str.h"
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
 #include "except.h"

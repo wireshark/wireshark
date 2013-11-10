@@ -55,7 +55,6 @@ struct     e_in6_addr;
 WS_DLL_PUBLIC gchar*	ep_address_to_str(const address *);
 extern gchar*	se_address_to_str(const address *);
 WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
-WS_DLL_PUBLIC const gchar*   bytestring_to_str(const guint8 *, const guint32, const char);
 WS_DLL_PUBLIC const gchar*	ether_to_str(const guint8 *);
 WS_DLL_PUBLIC const gchar*	tvb_ether_to_str(tvbuff_t *tvb, const gint offset);
 extern const gchar*   ax25_to_str(const guint8 *);
@@ -106,6 +105,30 @@ WS_DLL_PUBLIC const char *decode_numeric_bitfield(const guint32 val, const guint
   const char *fmt);
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
+
+/** Turn an array of bytes into a string showing the bytes in hex.
+ *
+ * @param bd A pointer to the byte array
+ * @param bd_len The length of the byte array
+ * @return A pointer to the formatted string
+ *
+ * @see bytes_to_str_punct()
+ */
+WS_DLL_PUBLIC gchar *bytes_to_str(const guint8 *bd, int bd_len);
+
+/** Turn an array of bytes into a string showing the bytes in hex,
+ *  separated by a punctuation character.
+ *
+ * @param bd A pointer to the byte array
+ * @param bd_len The length of the byte array
+ * @param punct The punctuation character
+ * @return A pointer to the formatted string
+ *
+ * @see bytes_to_str()
+ */
+WS_DLL_PUBLIC gchar *bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
+
+WS_DLL_PUBLIC const gchar *bytestring_to_str(const guint8 *, const guint32, const char punct);
 
 #ifdef __cplusplus
 }

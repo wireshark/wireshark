@@ -102,30 +102,6 @@ WS_DLL_PUBLIC
 gchar*     format_text_chr(const guchar *string, const size_t len, const guchar chr);
 
 
-/** Turn an array of bytes into a string showing the bytes in hex.
- *
- * @param bd A pointer to the byte array
- * @param bd_len The length of the byte array
- * @return A pointer to the formatted string
- *
- * @see bytes_to_str_punct()
- */
-WS_DLL_PUBLIC
-gchar*     bytes_to_str(const guint8 *bd, int bd_len);
-
-/** Turn an array of bytes into a string showing the bytes in hex,
- *  separated by a punctuation character.
- *
- * @param bd A pointer to the byte array
- * @param bd_len The length of the byte array
- * @param punct The punctuation character
- * @return A pointer to the formatted string
- *
- * @see bytes_to_str()
- */
-WS_DLL_PUBLIC
-gchar*     bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
-
 /** Turn a string of hex digits with optional separators (defined by
  *  is_byte_sep() into a byte array.
  *

@@ -41,7 +41,7 @@
 #include <string.h>
 #include <math.h>
 #include <glib.h>
-#include "strutil.h"
+#include "to_str.h"
 
 #include "packet.h"
 #include "sigcomp_state_hdlr.h"

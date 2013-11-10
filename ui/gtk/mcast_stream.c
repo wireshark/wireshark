@@ -46,7 +46,7 @@
 #include <epan/address.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
-#include <epan/strutil.h>
+#include <epan/to_str.h>
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"

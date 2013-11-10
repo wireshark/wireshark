@@ -47,6 +47,7 @@
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
+#include "to_str.h"
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
