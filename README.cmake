@@ -66,7 +66,7 @@ How to do out of tree build (Win32/64):
 2) Install cmake
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
-5) cmake -G "NMake Makefiles" -DENABLE_GTK3=OFF path\to\sources
+5) cmake -G "NMake Makefiles" path\to\sources
   (i.e. in case your sources are located at c:\wireshark\trunk, use "..\trunk")
 5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
 6) nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 )

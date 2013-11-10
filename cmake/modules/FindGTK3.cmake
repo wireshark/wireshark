@@ -21,7 +21,7 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-INCLUDE( FindWSWinLibs )
+include( FindWSWinLibs )
 FindWSWinLibs( "gtk3" "GTK3_HINTS" )
 if( DEFINED GTK3_HINTS )
     set( GTK3_PKG_CONFIG_PATH "${GTK3_HINTS}/lib/pkgconfig" )
@@ -36,20 +36,38 @@ endif()
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
-FIND_PACKAGE(PkgConfig)
-PKG_CHECK_MODULES(PC_GTK3 gtk+-3.0 QUIET)
+find_package( PkgConfig )
+pkg_check_modules( PC_GTK3 gtk+-3.0 QUIET )
 
-# MESSAGE(STATUS "PC_GTK3_INCLUDEDIR: ${PC_GTK3_INCLUDEDIR}")
-# MESSAGE(STATUS "PC_GTK3_INCLUDE_DIRS: ${PC_GTK3_INCLUDE_DIRS}")
-# MESSAGE(STATUS "PC_GTK3_LIBRARIES: ${PC_GTK3_LIBRARIES}")
-# MESSAGE(STATUS "PC_GTK3_LIBRARY_DIRS: ${PC_GTK3_LIBRARY_DIRS}")
-MESSAGE(STATUS "PC_GTK3_LDFLAGS: ${PC_GTK3_LDFLAGS}")
-# MESSAGE(STATUS "PC_GTK3_LDFLAGS_OTHER: ${PC_GTK3_LDFLAGS_OTHER}")
+# Hack around broken .pc files in Windows GTK bundle
+if( DEFINED GTK3_HINTS )
+    string( REGEX REPLACE "/.*/include" "${GTK3_HINTS}/include" PC_GTK3_INCLUDEDIR "${PC_GTK3_INCLUDEDIR}" )
+    string( REGEX REPLACE "/.*/include" "${GTK3_HINTS}/include" PC_GTK3_INCLUDE_DIRS "${PC_GTK3_INCLUDE_DIRS}" )
+    string( REGEX REPLACE "/.*/lib" "${GTK3_HINTS}/lib" PC_GTK3_LIBRARY_DIRS "${PC_GTK3_LIBRARY_DIRS}" )
+    set( PC_GTK3_CFLAGS )
+    set( PC_GTK3_CFLAGS_OTHER )
+    file( GLOB _SUBDIRS "${PC_GTK3_INCLUDEDIR}/*" )
+    foreach( _ENTRY ${_SUBDIRS} )
+        if( IS_DIRECTORY ${_ENTRY} )
+            file( TO_NATIVE_PATH ${_ENTRY} _N_ENTRY )
+            set( PC_GTK3_INCLUDE_DIRS ${PC_GTK3_INCLUDE_DIRS} ${_N_ENTRY} )
+        endif()
+    endforeach()
+endif()
 
-SET(GTK3_DEFINITIONS ${PC_GTK3_CFLAGS_OTHER})
+#message( STATUS "PC_GTK3_INCLUDEDIR: ${PC_GTK3_INCLUDEDIR}" )
+#message( STATUS "PC_GTK3_INCLUDE_DIRS: ${PC_GTK3_INCLUDE_DIRS}" )
+#message( STATUS "PC_GTK3_LIBRARIES: ${PC_GTK3_LIBRARIES}" )
+#message( STATUS "PC_GTK3_LIBRARY_DIRS: ${PC_GTK3_LIBRARY_DIRS}" )
+#message( STATUS "PC_GTK3_CFLAGS: ${PC_GTK3_CFLAGS}")
+#message( STATUS "PC_GTK3_CFLAGS_OTHER: ${PC_GTK3_CFLAGS_OTHER}" )
+#message( STATUS "PC_GTK3_LDFLAGS: ${PC_GTK3_LDFLAGS}" )
+#message( STATUS "PC_GTK3_LDFLAGS_OTHER: ${PC_GTK3_LDFLAGS_OTHER}" )
+
+set( GTK3_DEFINITIONS ${PC_GTK3_CFLAGS_OTHER} )
 
 if( NOT PC_GTK3_FOUND )
-    FIND_PATH(GTK3_INCLUDE_DIR
+    find_path( GTK3_INCLUDE_DIR
         NAMES
             "gtk/gtk.h"
         HINTS
@@ -59,22 +77,30 @@ if( NOT PC_GTK3_FOUND )
        PATH_SUFFIXES
             "gtk-3.0"
     )
-    FIND_LIBRARY(GTK3_LIBRARY
+else()
+    set( GTK3_INCLUDE_DIR ${PC_GTK3_INCLUDEDIR} ${PC_GTK3_INCLUDE_DIRS} )
+endif()
+
+set( _C 1 )
+foreach( _LIB_NAME gtk-3 gtk3 ${PC_GTK3_LIBRARIES} )
+    find_library( _LIBRARY_${_C}
         NAMES
-            gtk-3 gtk3
+           ${_LIB_NAME}
         HINTS
             ${GTK3_HINTS}/lib
             ${PC_GTK3_LIBDIR}
             ${PC_GTK3_LIBRARY_DIRS}
     )
-else()
-    set( GTK3_LIBRARY ${PC_GTK3_LIBRARIES} ${PC_GTK3_LIBRARY_DIRS} )
-    set( GTK3_INCLUDE_DIR ${PC_GTK3_INCLUDEDIR} ${PC_GTK3_INCLUDE_DIRS} )
-endif()
+    if( _LIBRARY_${_C} )
+        set( GTK3_LIBRARY ${GTK3_LIBRARY} ${_LIBRARY_${_C}} )
+    endif()
+    math( EXPR _C "${_C} + 1" )
+endforeach()
+
 # handle the QUIETLY and REQUIRED arguments and set GTK3_FOUND to TRUE if
 # all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(GTK3 DEFAULT_MSG GTK3_LIBRARY GTK3_INCLUDE_DIR)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GTK3 DEFAULT_MSG GTK3_LIBRARY GTK3_INCLUDE_DIR)
 
 if( GTK3_FOUND )
     set( GTK3_LIBRARIES ${GTK3_LIBRARY} )
@@ -84,5 +110,5 @@ else()
     set( GTK3_INCLUDE_DIRS )
 endif()
 
-MARK_AS_ADVANCED(GTK3_INCLUDE_DIRS GTK3_LIBRARIES)
+mark_as_advanced(GTK3_INCLUDE_DIRS GTK3_LIBRARIES)
 
