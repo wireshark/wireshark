@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include <epan/packet.h>
+#include <epan/value_string.h>
 #include <epan/afn.h>
 
 const value_string afn_vals[] = {

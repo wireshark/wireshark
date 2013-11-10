@@ -23,7 +23,8 @@
  */
 
 #include "config.h"
-#include <epan/packet.h>
+
+#include <epan/tvbuff.h>
 
 gint
 dissect_uleb128(tvbuff_t *tvb, gint offset, guint64 *value)
