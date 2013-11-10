@@ -55,7 +55,6 @@
 #include "ftypes/ftypes.h"
 #include "register.h"
 #include "ws_symbol_export.h"
-#include "exceptions.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,7 +105,7 @@ typedef struct _protocol protocol_t;
 	}								\
   }
 
-/** Macro used for reporting errors in dissectors; it throws a
+/** Function used for reporting errors in dissectors; it throws a
  * DissectorError exception, with the string passed as an argument
  * as the message for the exception, so that it can show up in
  * the Info column and the protocol tree.
@@ -119,10 +118,10 @@ typedef struct _protocol protocol_t;
  *
  * @param message string to use as the message
  */
+WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *message) G_GNUC_NORETURN;
+
 #define REPORT_DISSECTOR_BUG(message)  \
-  ((getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) ? \
-    abort() : \
-    THROW_MESSAGE(DissectorError, message))
+	proto_report_dissector_bug(message)
 
 /** Macro used to provide a hint to static analysis tools.
  * (Currently only Visual C++.)

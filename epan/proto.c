@@ -36,6 +36,7 @@
 #include <ftypes/ftypes-int.h>
 
 #include "packet.h"
+#include "exceptions.h"
 #include "ptvcursor.h"
 #include "strutil.h"
 #include "addr_resolv.h"
@@ -1048,6 +1049,14 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	printf("\n");
 
 	return pi;
+}
+
+void proto_report_dissector_bug(const char *message)
+{
+	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+		abort();
+	else
+		THROW_MESSAGE(DissectorError, message);
 }
 
 /* We could probably get away with changing is_error to a minimum length value. */
