@@ -31,6 +31,7 @@
 #include <epan/circuit.h>
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/stream.h>
 #include <epan/reassemble.h>
 #include <epan/golay.h>

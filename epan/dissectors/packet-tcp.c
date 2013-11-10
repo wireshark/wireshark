@@ -30,6 +30,7 @@
 #include <epan/in_cksum.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>

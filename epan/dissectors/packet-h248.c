@@ -36,6 +36,7 @@
 #include "config.h"
 
 #include "packet-h248.h"
+#include <epan/exceptions.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tpkt.h"
@@ -397,7 +398,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 74 "../../asn1/h248/packet-h248-template.c"
+#line 75 "../../asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -562,7 +563,7 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 91 "../../asn1/h248/packet-h248-template.c"
+#line 92 "../../asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -5369,7 +5370,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1412 "../../asn1/h248/packet-h248-template.c"
+#line 1413 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6791,7 +6792,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1577 "../../asn1/h248/packet-h248-template.c"
+#line 1578 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6957,7 +6958,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1595 "../../asn1/h248/packet-h248-template.c"
+#line 1596 "../../asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {

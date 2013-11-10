@@ -28,6 +28,8 @@
 
 #include <glib.h>
 
+#include <stdlib.h>
+
 #include <file.h>
 #include <frame_tvbuff.h>
 

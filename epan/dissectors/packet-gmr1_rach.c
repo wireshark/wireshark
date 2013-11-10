@@ -34,6 +34,9 @@
 #include "config.h"
 
 #include <glib.h>
+
+#include <stdlib.h>
+
 #include <epan/packet.h>
 
 #include "packet-csn1.h"

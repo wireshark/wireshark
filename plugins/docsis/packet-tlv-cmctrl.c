@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define CM_CTRL_MUTE 1
 #define CM_CTRL_MUTE_TIMEOUT 2

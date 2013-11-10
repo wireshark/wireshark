@@ -30,6 +30,8 @@
 #ifndef __UAT_H__
 #define __UAT_H__
 
+#include <stdlib.h>
+
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

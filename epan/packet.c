@@ -53,6 +53,7 @@
 #include "emem.h"
 #include "wmem/wmem.h"
 
+#include <epan/exceptions.h>
 #include <epan/reassemble.h>
 #include <epan/stream.h>
 #include <epan/expert.h>

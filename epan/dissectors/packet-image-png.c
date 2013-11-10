@@ -32,7 +32,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 static header_field_info *hfi_png = NULL;
 

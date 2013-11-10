@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include "ftypes-int.h"
 #include <epan/emem.h>

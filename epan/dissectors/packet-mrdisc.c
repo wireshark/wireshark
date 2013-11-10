@@ -41,6 +41,8 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
+
 #include "packet-igmp.h"
 #include "packet-mrdisc.h"
 

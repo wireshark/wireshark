@@ -43,6 +43,7 @@
 #include <wsutil/crc16.h>
 
 #include "packet.h"
+#include "exceptions.h"
 #include "strutil.h"
 #include "to_str.h"
 #include "sigcomp-udvm.h"

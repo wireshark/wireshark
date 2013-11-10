@@ -34,6 +34,7 @@
 #include "packet-nfs.h"
 #include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/wmem/wmem.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>

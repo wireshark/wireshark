@@ -50,6 +50,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/ptvcursor.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

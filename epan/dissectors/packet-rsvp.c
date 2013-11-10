@@ -103,6 +103,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <prefs.h>
 #include <epan/in_cksum.h>
 #include <epan/etypes.h>

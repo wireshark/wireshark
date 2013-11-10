@@ -58,6 +58,8 @@
 #endif
 
 #include <glib.h>
+
+#include <epan/exceptions.h>
 #include <epan/epan-int.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>

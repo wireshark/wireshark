@@ -28,9 +28,11 @@
 
 #include "config.h"
 
-
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/exceptions.h>
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 

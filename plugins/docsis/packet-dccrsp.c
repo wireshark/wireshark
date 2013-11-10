@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define DCCRSP_CM_JUMP_TIME 1
 #define DCCRSP_KEY_SEQ_NUM 31

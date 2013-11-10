@@ -64,6 +64,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>

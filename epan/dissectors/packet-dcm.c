@@ -217,6 +217,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/strutil.h>

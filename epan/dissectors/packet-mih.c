@@ -32,9 +32,10 @@
 
 
 
-# include "config.h"
+#include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/proto.h>

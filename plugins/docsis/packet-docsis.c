@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define FCTYPE_PACKET 0x00
 #define FCTYPE_ATMPDU 0x01

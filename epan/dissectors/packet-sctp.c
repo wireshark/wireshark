@@ -54,8 +54,10 @@
 #include "config.h"
 
 #include <string.h>
+
 #include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/tap.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>

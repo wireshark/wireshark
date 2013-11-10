@@ -59,6 +59,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/addr_and_mask.h>
 #include <epan/show_exception.h>
 #include <epan/afn.h>

@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define SEC_CH_MDD_TIMEOUT      1
 #define QAM_FEC_LOCK_FAILURE    2

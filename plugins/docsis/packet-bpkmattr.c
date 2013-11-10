@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 /* BPKM Attributes defined in:
  * http://www.cablemodem.com/downloads/specs/SP-BPI+_I10-030730.pdf

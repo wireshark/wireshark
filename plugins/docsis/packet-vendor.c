@@ -52,6 +52,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 /* Define Vendor ID's here */
 #define VENDOR_CISCO 0x00000C

@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/stats_tree.h>
 #include <epan/asn1.h>
 #include <wsutil/str_util.h>

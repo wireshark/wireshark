@@ -40,6 +40,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>

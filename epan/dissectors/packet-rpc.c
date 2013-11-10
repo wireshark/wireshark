@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <wsutil/pint.h>
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>

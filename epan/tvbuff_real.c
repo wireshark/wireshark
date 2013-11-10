@@ -30,6 +30,7 @@
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
+#include "exceptions.h"
 
 struct tvb_real {
 	struct tvbuff tvb;

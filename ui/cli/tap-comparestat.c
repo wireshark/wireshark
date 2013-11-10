@@ -35,9 +35,10 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
-#include <string.h>
 #include "epan/packet_info.h"
 #include <epan/in_cksum.h>
 #include <epan/packet.h>

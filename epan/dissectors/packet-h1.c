@@ -26,7 +26,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 static int proto_h1 = -1;
 static int hf_h1_header = -1;

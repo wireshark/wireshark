@@ -26,6 +26,8 @@
 #include <ftypes-int.h>
 #include <string.h>
 
+#include <epan/exceptions.h>
+
 #define CMP_MATCHES cmp_matches
 
 #define tvb_is_private	fvalue_gboolean1

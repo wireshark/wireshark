@@ -29,6 +29,7 @@
 #include <zlib.h>
 #endif
 
+#include <stdlib.h>
 #include <ctype.h>
 #include "packet-ssl-utils.h"
 #include "packet-ssl.h"

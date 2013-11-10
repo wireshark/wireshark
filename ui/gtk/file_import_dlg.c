@@ -28,6 +28,8 @@
 
 #include <gtk/gtk.h>
 
+#include <stdlib.h>
+
 #include "globals.h"
 #include "wtap.h"
 #include "pcap-encap.h"

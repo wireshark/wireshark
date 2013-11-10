@@ -40,6 +40,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/wmem/wmem.h>

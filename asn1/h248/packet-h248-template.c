@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include "packet-h248.h"
+#include <epan/exceptions.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tpkt.h"

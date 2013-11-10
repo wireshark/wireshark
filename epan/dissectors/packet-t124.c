@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/conversation.h>
 
 #include <epan/asn1.h>
@@ -287,7 +288,7 @@ static int hf_t124_Segmentation_begin = -1;
 static int hf_t124_Segmentation_end = -1;
 
 /*--- End of included file: packet-t124-hf.c ---*/
-#line 55 "../../asn1/t124/packet-t124-template.c"
+#line 56 "../../asn1/t124/packet-t124-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t124 = -1;
@@ -410,7 +411,7 @@ static gint ett_t124_TokenTestConfirm = -1;
 static gint ett_t124_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t124-ett.c ---*/
-#line 72 "../../asn1/t124/packet-t124-template.c"
+#line 73 "../../asn1/t124/packet-t124-template.c"
 
 
 /*--- Included file: packet-t124-fn.c ---*/
@@ -2880,7 +2881,7 @@ dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 /*--- End of included file: packet-t124-fn.c ---*/
-#line 74 "../../asn1/t124/packet-t124-template.c"
+#line 75 "../../asn1/t124/packet-t124-template.c"
 
 static const per_sequence_t t124Heur_sequence[] = {
   { &hf_t124_t124Identifier , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Key },
@@ -3902,7 +3903,7 @@ void proto_register_t124(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t124-hfarr.c ---*/
-#line 203 "../../asn1/t124/packet-t124-template.c"
+#line 204 "../../asn1/t124/packet-t124-template.c"
   };
 
   /* List of subtrees */
@@ -4015,7 +4016,7 @@ void proto_register_t124(void) {
     &ett_t124_DomainMCSPDU,
 
 /*--- End of included file: packet-t124-ettarr.c ---*/
-#line 210 "../../asn1/t124/packet-t124-template.c"
+#line 211 "../../asn1/t124/packet-t124-template.c"
   };
   
   /* Register protocol */

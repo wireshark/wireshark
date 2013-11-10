@@ -57,6 +57,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>

@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define UCD_SYMBOL_RATE 1
 #define UCD_FREQUENCY 2

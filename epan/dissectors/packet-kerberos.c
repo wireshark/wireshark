@@ -84,6 +84,7 @@
 #include <epan/strutil.h>
 
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
 #include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>

@@ -34,6 +34,7 @@
 #include <wsutil/md5.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/timestamp.h>
 #include <epan/prefs.h>

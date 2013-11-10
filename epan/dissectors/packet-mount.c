@@ -26,9 +26,9 @@
 
 #include "config.h"
 
-
 #include <string.h>
 
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include "packet-rpc.h"
 #include "packet-mount.h"

@@ -27,6 +27,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/exceptions.h>
+
 /* Structure containing itl nexus data :
  * The itlq nexus is a structure containing data specific
  * for a initiator target lun combination.

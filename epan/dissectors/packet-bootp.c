@@ -114,6 +114,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
 #include <epan/addr_resolv.h>

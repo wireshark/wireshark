@@ -36,6 +36,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <glib.h>
 #include <epan/addr_resolv.h>

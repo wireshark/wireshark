@@ -26,6 +26,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
+
 #include "packet-tlv.h"
 
 /* This module will dissect the Appendix C TLV's.  Please see:

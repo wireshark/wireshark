@@ -3,6 +3,8 @@
 %include {
 #include "config.h"
 
+#include <assert.h>
+
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "sttype-range.h"

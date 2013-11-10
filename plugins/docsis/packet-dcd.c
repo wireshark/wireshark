@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define DCD_DOWN_CLASSIFIER 23
 #define DCD_DSG_RULE 50

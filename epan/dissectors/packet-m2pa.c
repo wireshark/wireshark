@@ -35,6 +35,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 #include <epan/expert.h>

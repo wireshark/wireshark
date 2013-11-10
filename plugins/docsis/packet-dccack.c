@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define DCCACK_KEY_SEQ_NUM 31
 #define DCCACK_HMAC_DIGEST 27

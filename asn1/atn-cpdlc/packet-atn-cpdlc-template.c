@@ -53,6 +53,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-per.h>

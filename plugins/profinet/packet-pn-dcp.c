@@ -28,7 +28,9 @@
 #include <string.h>
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>

@@ -38,6 +38,7 @@
 
 #include <epan/circuit.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>

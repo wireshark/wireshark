@@ -44,6 +44,7 @@
 #include <wsutil/report_err.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>

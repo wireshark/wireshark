@@ -37,7 +37,9 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
+
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-smb.h>

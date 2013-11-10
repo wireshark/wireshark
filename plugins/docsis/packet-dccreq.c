@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define DCCREQ_UP_CHAN_ID 1
 #define DCCREQ_DS_PARAMS 2

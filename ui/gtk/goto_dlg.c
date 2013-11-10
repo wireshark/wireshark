@@ -27,6 +27,8 @@
 
 #include <gtk/gtk.h>
 
+#include <stdlib.h>
+
 #include <epan/proto.h>
 
 #include "../globals.h"

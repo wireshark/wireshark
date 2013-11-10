@@ -43,6 +43,7 @@
 
 #include "app_mem_usage.h"
 #include "proto.h"
+#include "exceptions.h"
 #include "emem.h"
 #include "wmem/wmem.h"
 
