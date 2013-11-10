@@ -467,7 +467,7 @@ static INT AirPDcapScanForGroupKey(
     const guint tot_len
 )
 {
-    const UCHAR *address;
+    const UCHAR *addr;
     AIRPDCAP_SEC_ASSOCIATION_ID id;
     guint bodyLength;
     PAIRPDCAP_SEC_ASSOCIATION sta_sa;
@@ -546,8 +546,8 @@ static INT AirPDcapScanForGroupKey(
         }
 
         /* get BSSID */
-        if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
-            memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
+        if ( (addr=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
+            memcpy(id.bssid, addr, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
             sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
 #endif
@@ -569,8 +569,8 @@ static INT AirPDcapScanForGroupKey(
         /* Get the SA for the STA, since we need its pairwise key to decrpyt the group key */
 
         /* get STA address */
-        if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
-            memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
+        if ( (addr=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
+            memcpy(id.sta, addr, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
             sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
 #endif
@@ -608,7 +608,7 @@ INT AirPDcapPacketProcess(
     gboolean mngHandshake,
     gboolean mngDecrypt)
 {
-    const UCHAR *address;
+    const UCHAR *addr;
     AIRPDCAP_SEC_ASSOCIATION_ID id;
     PAIRPDCAP_SEC_ASSOCIATION sa;
     int offset = 0;
@@ -659,8 +659,8 @@ INT AirPDcapPacketProcess(
     }
 
     /* get BSSID */
-    if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
-        memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
+    if ( (addr=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
+        memcpy(id.bssid, addr, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
         sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
 #endif
@@ -671,8 +671,8 @@ INT AirPDcapPacketProcess(
     }
 
     /* get STA address */
-    if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
-        memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
+    if ( (addr=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
+        memcpy(id.sta, addr, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
         sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
 #endif
