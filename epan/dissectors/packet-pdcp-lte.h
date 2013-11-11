@@ -49,10 +49,6 @@ typedef enum
     DLSCH_TRANSPORT=2
 } BCCHTransportType;
 
-
-#define CID_IN_PDCP_HEADER 0
-#define CID_IN_ROHC_PACKET 1
-
 #define PDCP_SN_LENGTH_5_BITS  5
 #define PDCP_SN_LENGTH_7_BITS  7
 #define PDCP_SN_LENGTH_12_BITS 12
@@ -86,14 +82,7 @@ typedef struct pdcp_lte_info
     guint8             seqnum_length;
 
     /* RoHC settings */
-    gboolean           rohc_compression;
-    unsigned short     rohc_ip_version;
-    gboolean           cid_inclusion_info;
-    gboolean           large_cid_present;
-    enum rohc_mode     mode;
-    gboolean           rnd;
-    gboolean           udp_checksum_present;
-    unsigned short     profile;
+    rohc_info          rohc;
 
     guint8             is_retx;
 } pdcp_lte_info;

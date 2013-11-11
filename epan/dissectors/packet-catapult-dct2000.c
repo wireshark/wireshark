@@ -1886,14 +1886,14 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     }
     p_pdcp_lte_info->seqnum_length = outhdr_values[i++];
 
-    p_pdcp_lte_info->rohc_compression = outhdr_values[i++];
-    p_pdcp_lte_info->rohc_ip_version = outhdr_values[i++];
-    p_pdcp_lte_info->cid_inclusion_info = outhdr_values[i++];
-    p_pdcp_lte_info->large_cid_present = outhdr_values[i++];
-    p_pdcp_lte_info->mode = (enum rohc_mode)outhdr_values[i++];
-    p_pdcp_lte_info->rnd = outhdr_values[i++];
-    p_pdcp_lte_info->udp_checksum_present = outhdr_values[i++];
-    p_pdcp_lte_info->profile = outhdr_values[i];
+    p_pdcp_lte_info->rohc.rohc_compression = outhdr_values[i++];
+    p_pdcp_lte_info->rohc.rohc_ip_version = outhdr_values[i++];
+    p_pdcp_lte_info->rohc.cid_inclusion_info = outhdr_values[i++];
+    p_pdcp_lte_info->rohc.large_cid_present = outhdr_values[i++];
+    p_pdcp_lte_info->rohc.mode = (enum rohc_mode)outhdr_values[i++];
+    p_pdcp_lte_info->rohc.rnd = outhdr_values[i++];
+    p_pdcp_lte_info->rohc.udp_checksum_present = outhdr_values[i++];
+    p_pdcp_lte_info->rohc.profile = outhdr_values[i];
 
     /* Remaining 2 (fixed) fields are ah_length and gre_checksum */
 

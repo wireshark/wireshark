@@ -778,40 +778,40 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 
     /* ROHC compression */
     ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_lte_rohc_compression, tvb, 0, 0,
-                                p_pdcp_info->rohc_compression);
+                                p_pdcp_info->rohc.rohc_compression);
     PROTO_ITEM_SET_GENERATED(ti);
 
     /* ROHC-specific settings */
-    if (p_pdcp_info->rohc_compression) {
+    if (p_pdcp_info->rohc.rohc_compression) {
 
         /* Show ROHC mode */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_mode, tvb, 0, 0,
-                                 p_pdcp_info->mode);
+                                 p_pdcp_info->rohc.mode);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* Show RND */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_rnd, tvb, 0, 0,
-                                 p_pdcp_info->rnd);
+                                 p_pdcp_info->rohc.rnd);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* UDP Checksum */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_udp_checksum_present, tvb, 0, 0,
-                                 p_pdcp_info->udp_checksum_present);
+                                 p_pdcp_info->rohc.udp_checksum_present);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* ROHC profile */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_profile, tvb, 0, 0,
-                                 p_pdcp_info->profile);
+                                 p_pdcp_info->rohc.profile);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* CID Inclusion Info */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_cid_inclusion_info, tvb, 0, 0,
-                                 p_pdcp_info->cid_inclusion_info);
+                                 p_pdcp_info->rohc.cid_inclusion_info);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* Large CID */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_large_cid_present, tvb, 0, 0,
-                                 p_pdcp_info->large_cid_present);
+                                 p_pdcp_info->rohc.large_cid_present);
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
@@ -820,11 +820,11 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                            val_to_str_const(p_pdcp_info->direction, direction_vals, "Unknown"),
                            val_to_str_const(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
 
-    if (p_pdcp_info->rohc_compression) {
-        const char *mode = val_to_str_const(p_pdcp_info->mode, rohc_mode_vals, "Error");
+    if (p_pdcp_info->rohc.rohc_compression) {
+        const char *mode = val_to_str_const(p_pdcp_info->rohc.mode, rohc_mode_vals, "Error");
         proto_item_append_text(configuration_ti, ", mode=%c, profile=%s",
                                mode[0],
-                               val_to_str_const(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
+                               val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
     }
     proto_item_append_text(configuration_ti, ")");
     PROTO_ITEM_SET_GENERATED(configuration_ti);
@@ -941,7 +941,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* Read fixed fields */
     p_pdcp_lte_info->no_header_pdu = (gboolean)tvb_get_guint8(tvb, offset++);
     p_pdcp_lte_info->plane = (enum pdcp_plane)tvb_get_guint8(tvb, offset++);
-    p_pdcp_lte_info->rohc_compression = (gboolean)tvb_get_guint8(tvb, offset++);
+    p_pdcp_lte_info->rohc.rohc_compression = (gboolean)tvb_get_guint8(tvb, offset++);
 
     /* Read optional fields */
     while (tag != PDCP_LTE_PAYLOAD_TAG) {
@@ -966,31 +966,31 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 break;
             case PDCP_LTE_ROHC_IP_VERSION_TAG:
-                p_pdcp_lte_info->rohc_ip_version = tvb_get_ntohs(tvb, offset);
+                p_pdcp_lte_info->rohc.rohc_ip_version = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
             case PDCP_LTE_ROHC_CID_INC_INFO_TAG:
-                p_pdcp_lte_info->cid_inclusion_info = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->rohc.cid_inclusion_info = tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_LARGE_CID_PRES_TAG:
-                p_pdcp_lte_info->large_cid_present = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->rohc.large_cid_present = tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_MODE_TAG:
-                p_pdcp_lte_info->mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->rohc.mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_RND_TAG:
-                p_pdcp_lte_info->rnd = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->rohc.rnd = tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_UDP_CHECKSUM_PRES_TAG:
-                p_pdcp_lte_info->udp_checksum_present = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->rohc.udp_checksum_present = tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_PROFILE_TAG:
-                p_pdcp_lte_info->profile = tvb_get_ntohs(tvb, offset);
+                p_pdcp_lte_info->rohc.profile = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
             case PDCP_LTE_CHANNEL_ID_TAG:
@@ -1088,7 +1088,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Set mode string */
-    mode = val_to_str_const(p_pdcp_info->mode, rohc_mode_vals, "Error");
+    mode = val_to_str_const(p_pdcp_info->rohc.mode, rohc_mode_vals, "Error");
 
     /*****************************************************/
     /* Show configuration (attached packet) info in tree */
@@ -1097,7 +1097,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Show ROHC mode */
-    if (p_pdcp_info->rohc_compression) {
+    if (p_pdcp_info->rohc.rohc_compression) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (mode=%c)", mode[0]);
     }
 
@@ -1434,7 +1434,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* If not compressed with ROHC, show as user-plane data */
-    if (!p_pdcp_info->rohc_compression) {
+    if (!p_pdcp_info->rohc.rohc_compression) {
         gint payload_length = tvb_length_remaining(tvb, offset);
         if (payload_length > 0) {
             if (p_pdcp_info->plane == USER_PLANE) {
@@ -1496,7 +1496,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Only attempt ROHC if configured to */
     if (!global_pdcp_dissect_rohc) {
         col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-                        val_to_str_const(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
+                        val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
         return;
     }
 
@@ -1506,15 +1506,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* RoHC settings */
     p_rohc_info = wmem_new(wmem_packet_scope(), rohc_info);
 
-    p_rohc_info->rohc_compression     = p_pdcp_info->rohc_compression;
-    p_rohc_info->rohc_ip_version      = p_pdcp_info->rohc_ip_version;
-    p_rohc_info->cid_inclusion_info   = p_pdcp_info->cid_inclusion_info;
-    p_rohc_info->large_cid_present    = p_pdcp_info->large_cid_present;
-    p_rohc_info->mode                 = p_pdcp_info->mode;
-    p_rohc_info->rnd                  = p_pdcp_info->rnd;
-    p_rohc_info->udp_checksum_present = p_pdcp_info->udp_checksum_present;
-    p_rohc_info->profile              = p_pdcp_info->profile;
-    p_rohc_info->last_created_item    = NULL;
+    /* Copy struct.  TODO: could just pass pdcp_info->rohc ?? */
+    *p_rohc_info = p_pdcp_info->rohc;
 
     /* Only enable writing to column if configured to show ROHC */
     if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {

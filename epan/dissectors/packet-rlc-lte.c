@@ -832,7 +832,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                 }
             }
 
-            p_pdcp_lte_info->rohc_compression = FALSE;
+            p_pdcp_lte_info->rohc.rohc_compression = FALSE;
 
             TRY {
                 call_dissector_only(pdcp_lte_handle, pdcp_tvb, pinfo, tree, NULL);
