@@ -59,6 +59,7 @@ ASTERIX
 BT 3DS
 CARP
 Cisco MetaData
+ELF file format
 EXPORTED PDU
 HTTP2
 IDRP
@@ -70,6 +71,7 @@ MP4 / ISOBMFF file format
 NXP PN532 HCI
 OpenFlow
 Picture Transfer Protocol Over IP
+QUIC (Quick UDP Internet Connections)
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
 Sippy RTPproxy
 STANAG 4607
