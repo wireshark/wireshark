@@ -86,7 +86,6 @@ static dissector_handle_t json_hdl;
 #define CH_GEOLOC_EVENTS        30
 
 /* OFFSET FOR HEADER */
-#define HPFEEDS_OPCODE_OFFSET   4
 #define HPFEEDS_HDR_LEN  5
 
 static const value_string opcode_vals[] = {
@@ -252,21 +251,28 @@ static int
 dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* We have already parsed msg length we need to skip to opcode offset */
-    guint offset = HPFEEDS_OPCODE_OFFSET;
+    guint offset = 0;
 
     guint8 opcode;
     proto_item *ti;
-    proto_tree *data_subtree;
+    proto_tree *hpfeeds_tree, *data_subtree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HPFEEDS");
+
+    ti = proto_tree_add_item(tree, proto_hpfeeds, tvb, 0, -1, ENC_NA);
+    hpfeeds_tree = proto_item_add_subtree(ti, ett_hpfeeds);
+    proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_msg_length, tvb, offset,
+        4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     /* Get opcode and write it */
     opcode = tvb_get_guint8(tvb, offset);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HPFEEDS");
     /* Clear out stuff in the info column */
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
         val_to_str(opcode, opcode_vals, "Unknown (0x%02x)"));
 
-    ti = proto_tree_add_item(tree, hf_hpfeeds_opcode, tvb, offset,
+    ti = proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_opcode, tvb, offset,
             1, ENC_BIG_ENDIAN);
     data_subtree = proto_item_add_subtree(ti, ett_hpfeeds);
     offset += 1;
@@ -304,34 +310,13 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static int
 dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    guint msglen = 0;
-    guint8 offset = 0;
-    proto_item *ti = NULL;
-    proto_tree *hpfeeds_tree = NULL;
-
     /* At lease header is needed */
     if (tvb_reported_length(tvb) < HPFEEDS_HDR_LEN)
         return 0;
 
-    /* get message length in order to decide if we need to reassemble packet */
-    msglen = tvb_get_ntohl(tvb, offset);
-
-    /* Retrieve header data */
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_hpfeeds, tvb, 0, -1, ENC_NA);
-        hpfeeds_tree = proto_item_add_subtree(ti, ett_hpfeeds);
-        proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_msg_length, tvb, offset,
-            4, ENC_BIG_ENDIAN);
-    }
-
-    if (tvb_reported_length(tvb) < msglen) {
-        /* we need to reassemble */
-        tcp_dissect_pdus(tvb, pinfo, hpfeeds_tree, hpfeeds_desegment, 5,
-            get_hpfeeds_pdu_len, dissect_hpfeeds_pdu, data);
-        return tvb_length(tvb);
-    }
-    
-    return dissect_hpfeeds_pdu(tvb, pinfo, hpfeeds_tree, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, hpfeeds_desegment, HPFEEDS_HDR_LEN,
+        get_hpfeeds_pdu_len, dissect_hpfeeds_pdu, data);
+    return tvb_length(tvb);
 }
 
 void
