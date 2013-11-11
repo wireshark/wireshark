@@ -78,6 +78,20 @@ typedef struct _rtpproxy_conv_info {
 	wmem_tree_t *trans;
 } rtpproxy_conv_info_t;
 
+
+static const string_string versiontypenames[] = {
+	{ "20040107", "Basic RTP proxy functionality" },
+	{ "20050322", "Support for multiple RTP streams and MOH" },
+	{ "20060704", "Support for extra parameter in the V command" },
+	{ "20071116", "Support for RTP re-packetization" },
+	{ "20071218", "Support for forking (copying) RTP stream" },
+	{ "20080403", "Support for RTP statistics querying" },
+	{ "20081102", "Support for setting codecs in the update/lookup command" },
+	{ "20081224", "Support for session timeout notifications" },
+	{ "20090810", "Support for automatic bridging" },
+	{ 0, NULL }
+};
+
 static const value_string commandtypenames[] = {
 	{ 'V', "Handshake/Ping" },
 	{ 'v', "Handshake/Ping" },
@@ -313,7 +327,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			if ((tmp == 'v') && (offset + (gint)strlen("VF YYYMMDD") + 1 == realsize)){
 				/* Skip whitespace */
 				new_offset = tvb_skip_wsp(tvb, offset + ((guint)strlen("VF") + 1), -1);
-				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
+				tmpstr = tvb_get_string(wmem_packet_scope(), tvb, new_offset, (gint)strlen("YYYYMMDD"));
+				proto_tree_add_string_format_value(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), tmpstr, "%s (%s)", tmpstr, str_to_str(tmpstr, versiontypenames, "Unknown"));
 				break;
 			}
 
