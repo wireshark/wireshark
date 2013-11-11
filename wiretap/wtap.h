@@ -1397,7 +1397,7 @@ void wtap_register_file_type_extension(const struct file_extension_info *ei);
 WS_DLL_PUBLIC
 void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);
 WS_DLL_PUBLIC
-int wtap_register_file_type(const struct file_type_subtype_info* fi);
+int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char* name, const char* short_name);
 
