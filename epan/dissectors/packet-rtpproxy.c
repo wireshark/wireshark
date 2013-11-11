@@ -110,10 +110,21 @@ static const value_string oktypenames[] = {
 	{ 0, NULL }
 };
 
-static const value_string errortypenames[] = {
-	{ '1', "Syntax" },	/* E1 */
-	{ '7', "Software" },	/* E7 */
-	{ '8', "Not Found" },	/* E8 */
+static const string_string errortypenames[] = {
+	{ "E0", "Syntax error" },
+	{ "E1", "Syntax error" },
+	{ "E2", "Syntax error" },
+	{ "E3", "Unknown command" },
+	{ "E4", "Syntax error" },
+	{ "E5", "Out of memory" },
+	{ "E6", "<no description>" },
+	{ "E7", "Software error (can't create listener)" },
+	{ "E8", "Not Found" },
+	{ "E10", "Software error (can't create listener)" },
+	{ "E11", "Out of memory" },
+	{ "E12", "Out of memory" },
+	{ "E13", "Out of memory" },
+	{ "E14", "Out of memory" },
 	{ 0, NULL }
 };
 
@@ -214,6 +225,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	guint tmp;
 	gint realsize = 0;
 	guint8* rawstr;
+	guint8* tmpstr;
 	proto_item *ti;
 	proto_tree *rtpproxy_tree;
 	conversation_t *conversation;
@@ -445,7 +457,9 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_reply);
 
 			if (tmp == 'e'){
-				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_error, tvb, offset+1, 1, ENC_ASCII | ENC_NA);
+				tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, FALSE);
+				tmpstr = tvb_get_string(wmem_packet_scope(), tvb, offset, tmp);
+				proto_tree_add_string_format_value(rtpproxy_tree, hf_rtpproxy_error, tvb, offset, (gint)strlen(tmpstr), tmpstr, "%s (%s)", tmpstr, str_to_str(tmpstr, errortypenames, "Unknown"));
 				break;
 			}
 
@@ -540,9 +554,9 @@ proto_register_rtpproxy(void)
 			{
 				"Error",
 				"rtpproxy.error",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(errortypenames),
+				FT_STRING,
+				BASE_NONE,
+				NULL,
 				0x0,
 				NULL,
 				HFILL
