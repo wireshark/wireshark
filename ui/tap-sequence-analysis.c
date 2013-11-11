@@ -60,36 +60,31 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
     if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1)){
         int i;
-        gchar *protocol;
-        gchar *colinfo;
-        seq_analysis_item_t *sai;
-
-        protocol = NULL;
-        colinfo = NULL;
+        gchar *protocol = NULL;
+        gchar *colinfo = NULL;
+        seq_analysis_item_t *sai = NULL;
 
         if (sainfo->any_addr) {
             if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
-                sai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+                sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
                 COPY_ADDRESS(&(sai->src_addr),&(pinfo->net_src));
                 COPY_ADDRESS(&(sai->dst_addr),&(pinfo->net_dst));
             }
-            else return FALSE;
 
         } else {
             if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
-                sai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+                sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
                 COPY_ADDRESS(&(sai->src_addr),&(pinfo->src));
                 COPY_ADDRESS(&(sai->dst_addr),&(pinfo->dst));
             }
-            else return FALSE;
         }
+
+	if (!sai) return FALSE;
 
         sai->fd = pinfo->fd;
 
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
-        sai->comment=NULL;
-        sai->frame_label=NULL;
 
         if(pinfo->cinfo) {
             if (pinfo->cinfo->col_first[COL_INFO]>=0){
@@ -159,7 +154,7 @@ seq_analysis_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt 
         gchar flags[64];
         seq_analysis_item_t *sai;
 
-        sai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+        sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
         sai->fd = pinfo->fd;
         if (sainfo->any_addr) {
             COPY_ADDRESS(&(sai->src_addr),&(pinfo->net_src));
@@ -259,6 +254,7 @@ void
 sequence_analysis_list_free(seq_analysis_info_t *sainfo)
 {
     GList *list;
+    int i;
 
     if (!sainfo) return;
 
@@ -274,8 +270,16 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
         list = g_list_next(list);
     }
     g_list_free(sainfo->list);
-    sainfo->nconv = 0;
     sainfo->list = NULL;
+    sainfo->nconv = 0;
+
+    for (i=0; i<MAX_NUM_NODES; i++) {
+	sainfo->nodes[i].type = AT_NONE;
+	sainfo->nodes[i].len = 0;
+	g_free((void *)sainfo->nodes[i].data);
+	sainfo->nodes[i].data = NULL;
+    }
+    sainfo->num_nodes = 0;
 }
 
 /****************************************************************************/

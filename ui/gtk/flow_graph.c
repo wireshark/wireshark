@@ -138,7 +138,7 @@ toggle_select_srcdst(GtkWidget *widget _U_, gpointer user_data _U_)
 {
 	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(src_dst_rb))) {
-		graph_analysis->any_addr = FALSE;
+		graph_analysis->any_addr = TRUE;
 	}
 }
 
@@ -300,7 +300,7 @@ flow_graph_dlg_create(void)
 		("Nodes in the diagram are identified with source and destination addresses"));
 	g_signal_connect(src_dst_rb, "toggled", G_CALLBACK(toggle_select_srcdst), NULL);
 	ws_gtk_grid_attach(GTK_GRID(node_addr_grid), src_dst_rb, 0, 0, 1, 1);
-	if (!graph_analysis->any_addr) {
+	if (graph_analysis->any_addr) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(src_dst_rb),TRUE);
 	}
  	gtk_widget_show(src_dst_rb);
@@ -312,7 +312,7 @@ flow_graph_dlg_create(void)
 		("Nodes in the diagram are identified with network source and destination addresses"));
 	g_signal_connect(net_src_dst_rb, "toggled", G_CALLBACK(toggle_select_netsrcdst), NULL);
 	ws_gtk_grid_attach(GTK_GRID(node_addr_grid), net_src_dst_rb, 0, 1, 1, 1);
-	if (graph_analysis->any_addr) {
+	if (!graph_analysis->any_addr) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(net_src_dst_rb),TRUE);
 	}
  	gtk_widget_show(net_src_dst_rb);

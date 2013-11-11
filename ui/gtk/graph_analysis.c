@@ -799,7 +799,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		}
 		pango_layout_set_text(layout, label_string, -1);
 #endif
-g_warning("= layout width: %d: %s", pango_layout_get_width(layout), pango_layout_get_text(layout));
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
 		if ((int)left_x_border > ((int)label_x-(int)label_width/2))

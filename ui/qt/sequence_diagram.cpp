@@ -56,6 +56,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     key_axis_(keyAxis),
     value_axis_(valueAxis),
     comment_axis_(commentAxis),
+    data_(NULL),
     sainfo_(NULL)
 {
     data_ = new WSCPSeqDataMap();

@@ -73,6 +73,12 @@ private slots:
     void on_resetButton_clicked();
     void on_actionGoToPacket_triggered();
 
+    void on_showComboBox_currentIndexChanged(int index);
+
+    void on_flowComboBox_currentIndexChanged(int index);
+
+    void on_addressComboBox_currentIndexChanged(int index);
+
 private:
     Ui::SequenceDialog *ui;
     SequenceDiagram *seq_diagram_;

@@ -53,7 +53,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="controlHorizontalLayout">
+    <layout class="QHBoxLayout" name="controlHorizontalLayout" stretch="0,0,0,0,0,0,0,0,1">
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
@@ -62,7 +62,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="packetComboBox">
+      <widget class="QComboBox" name="showComboBox">
        <item>
         <property name="text">
          <string>All packets</string>
@@ -89,25 +89,14 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="flowLabel">
        <property name="text">
         <string>Flow type:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="flowComboBox">
-       <item>
-        <property name="text">
-         <string>General</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>TCP</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="flowComboBox"/>
      </item>
      <item>
       <spacer name="horizontalSpacer_2">
@@ -142,6 +131,19 @@
         </property>
        </item>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -189,6 +191,28 @@
    </property>
    <property name="shortcut">
     <string>G</string>
+   </property>
+  </action>
+  <action name="actionFlowAny">
+   <property name="text">
+    <string>All Flows</string>
+   </property>
+   <property name="toolTip">
+    <string>Show flows for all packets</string>
+   </property>
+   <property name="shortcut">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="actionFlowTcp">
+   <property name="text">
+    <string>TCP Flows</string>
+   </property>
+   <property name="toolTip">
+    <string>Show only TCP flow information</string>
+   </property>
+   <property name="shortcut">
+    <string>1</string>
    </property>
   </action>
  </widget>

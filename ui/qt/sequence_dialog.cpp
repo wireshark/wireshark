@@ -34,11 +34,8 @@
 #include <QDebug>
 
 // To do:
-// - Implement controls
-//   - Make reset button "apply"?
 // - Save as
 //   - Add UTF8 to text dump
-// - Fix scroll bar ranges
 // - Context menu
 // - Selection highlighting
 // - Keyboard shortcuts
@@ -76,15 +73,27 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), sp->yAxis2, SLOT(setRange(QCPRange)));
 
     memset (&seq_analysis_, 0, sizeof(seq_analysis_));
+
+    ui->showComboBox->setCurrentIndex(0);
+    ui->addressComboBox->setCurrentIndex(0);
+
+    QComboBox *fcb = ui->flowComboBox;
+    fcb->addItem(ui->actionFlowAny->text(), SEQ_ANALYSIS_ANY);
+    fcb->addItem(ui->actionFlowTcp->text(), SEQ_ANALYSIS_TCP);
+
     switch (type) {
     case any:
         seq_analysis_.type = SEQ_ANALYSIS_ANY;
+        ui->flowComboBox->setCurrentIndex(SEQ_ANALYSIS_ANY);
         break;
     case tcp:
         seq_analysis_.type = SEQ_ANALYSIS_TCP;
+        ui->flowComboBox->setCurrentIndex(SEQ_ANALYSIS_TCP);
         break;
     case voip:
         seq_analysis_.type = SEQ_ANALYSIS_VOIP;
+        ui->flowComboBox->hide();
+        ui->flowLabel->hide();
         break;
     }
     seq_analysis_.all_packets = TRUE;
@@ -290,4 +299,34 @@ void SequenceDialog::on_actionGoToPacket_triggered()
     if (cap_file_ && packet_num_ > 0) {
         emit goToPacket(packet_num_);
     }
+}
+
+void SequenceDialog::on_showComboBox_currentIndexChanged(int index)
+{
+    if (index == 0) {
+        seq_analysis_.all_packets = TRUE;
+    } else {
+        seq_analysis_.all_packets = FALSE;
+    }
+
+    if (isVisible()) fillDiagram();
+}
+
+void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
+{
+    if (index < 0) return;
+    seq_analysis_.type = static_cast<seq_analysis_type>(ui->flowComboBox->itemData(index).toInt());
+
+    if (isVisible()) fillDiagram();
+}
+
+void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
+{
+    if (index == 0) {
+        seq_analysis_.any_addr = TRUE;
+    } else {
+        seq_analysis_.any_addr = FALSE;
+    }
+
+    if (isVisible()) fillDiagram();
 }
