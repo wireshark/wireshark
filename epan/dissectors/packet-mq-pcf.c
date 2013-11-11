@@ -183,6 +183,11 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 		while (tvb_length_remaining(tvb, xOfs) >= 16)
 		{
 			uLen = tvb_get_guint32_endian(tvb, xOfs + 4, bLittleEndian);
+			if (uLen == 0)
+			{
+				/* XXX - add expert info here? */
+				break;
+			}
 			uCnt++;
 			xOfs += uLen;
 		}
