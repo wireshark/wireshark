@@ -327,8 +327,9 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			if ((tmp == 'v') && (offset + (gint)strlen("VF YYYMMDD") + 1 == realsize)){
 				/* Skip whitespace */
 				new_offset = tvb_skip_wsp(tvb, offset + ((guint)strlen("VF") + 1), -1);
+				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
 				tmpstr = tvb_get_string(wmem_packet_scope(), tvb, new_offset, (gint)strlen("YYYYMMDD"));
-				proto_tree_add_string_format_value(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), tmpstr, "%s (%s)", tmpstr, str_to_str(tmpstr, versiontypenames, "Unknown"));
+				proto_item_append_text(ti, " (%s)", str_to_str(tmpstr, versiontypenames, "Unknown"));
 				break;
 			}
 
@@ -474,7 +475,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			if (tmp == 'e'){
 				tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, FALSE);
 				tmpstr = tvb_get_string(wmem_packet_scope(), tvb, offset, tmp);
-				proto_tree_add_string_format_value(rtpproxy_tree, hf_rtpproxy_error, tvb, offset, (gint)strlen(tmpstr), tmpstr, "%s (%s)", tmpstr, str_to_str(tmpstr, errortypenames, "Unknown"));
+				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_error, tvb, offset, (gint)strlen(tmpstr), ENC_ASCII | ENC_NA);
+				proto_item_append_text(ti, " (%s)", str_to_str(tmpstr, errortypenames, "Unknown"));
 				break;
 			}
 
