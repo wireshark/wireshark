@@ -90,17 +90,6 @@ static const string_string processor_type_mapping[] = {
 	{ 0, NULL },
 };
 
-
-/* add little endian number (incorrect byte-order) value to a tree */
-#define ADWIN_ADD_LE(tree, field, offset, length)                       \
-        proto_tree_add_item(tree, hf_adwin_config_##field, tvb, offset, \
-                            length, ENC_LITTLE_ENDIAN);
-
-/* add big endian number (correct byte-order) value to a tree */
-#define ADWIN_ADD_BE(tree, field, offset, length)                       \
-        proto_tree_add_item(tree, hf_adwin_config_##field, tvb, offset, \
-                            length, ENC_BIG_ENDIAN);
-
 /* Initialize the protocol and registered fields */
 static int proto_adwin_config                     = -1;
 
@@ -168,32 +157,32 @@ dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	debug_tree = proto_item_add_subtree(dt, ett_adwin_config_debug);
 	proto_item_set_text(dt, "ADwin Debug information");
 
-	ADWIN_ADD_BE(adwin_tree, pattern,             0,  4);
-	ADWIN_ADD_BE(adwin_tree, version,             4,  4);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_pattern, tvb, 0,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_version, tvb, 4,  4, ENC_BIG_ENDIAN);
 
-	st = ADWIN_ADD_BE(adwin_tree, status,         8,  4);
+	st = proto_tree_add_item(adwin_tree, hf_adwin_config_status, tvb, 8,  4, ENC_BIG_ENDIAN);
 	status_tree = proto_item_add_subtree(st, ett_adwin_config_status);
-	ADWIN_ADD_BE(status_tree, status_bootloader,               8,  4);
-	ADWIN_ADD_BE(status_tree, status_reprogrammable,           8,  4);
-	ADWIN_ADD_BE(status_tree, status_configurable,             8,  4);
-	ADWIN_ADD_BE(status_tree, status_bootloader_boots,         8,  4);
-	ADWIN_ADD_BE(status_tree, status_bootloader_reprogrammable,8,  4);
-	ADWIN_ADD_BE(status_tree, status_bootloader_receive,       8,  4);
-	ADWIN_ADD_BE(status_tree, status_bootloader_reprogramming_done, 8,  4);
-	ADWIN_ADD_BE(status_tree, status_eeprom_support,           8,  4);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_bootloader, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_reprogrammable, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_configurable, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_bootloader_boots, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_bootloader_reprogrammable,  tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_bootloader_receive, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_bootloader_reprogramming_done, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(status_tree, hf_adwin_config_status_eeprom_support, tvb, 8,  4, ENC_BIG_ENDIAN);
 
-	ADWIN_ADD_BE(adwin_tree, server_version_beta,12,  2);
-	ADWIN_ADD_BE(adwin_tree, server_version,     14,  2);
-	ADWIN_ADD_BE(adwin_tree, xilinx_version,     16,  4);
-	ADWIN_ADD_BE(adwin_tree, mac,                20,  6);
-	ADWIN_ADD_LE(debug_tree, unused,             26,  2);
-	ADWIN_ADD_BE(adwin_tree, port16,             28,  2);
-	ADWIN_ADD_LE(adwin_tree, dhcp,               30,  1);
-	ADWIN_ADD_LE(adwin_tree, netmask_count,      31,  1);
-	ADWIN_ADD_BE(adwin_tree, gateway,            32,  4);
-	ADWIN_ADD_LE(debug_tree, unused,             36, 11);
-	ADWIN_ADD_LE(adwin_tree, reply_broadcast,    47,  1);
-	ADWIN_ADD_LE(adwin_tree, scan_id,            48,  4);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_server_version_beta, tvb, 12,  2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_server_version, tvb, 14,  2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_xilinx_version, tvb, 16,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_mac, tvb, 20,  6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(debug_tree, hf_adwin_config_unused, tvb, 26, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_port16, tvb, 28,  2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_dhcp, tvb, 30, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_netmask_count, tvb, 31,  1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_gateway, tvb, 32,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(debug_tree, hf_adwin_config_unused, tvb, 36, 11, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_reply_broadcast, tvb, 47, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_scan_id, tvb, 48, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -204,32 +193,32 @@ dissect_UDPExtStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	if (! adwin_tree)
 		return;
 
-	ADWIN_ADD_BE(adwin_tree, mac,                 0,  6);
-	ADWIN_ADD_LE(adwin_tree, unused,              6,  2);
-	ADWIN_ADD_BE(adwin_tree, pattern,             8,  4);
-	ADWIN_ADD_BE(adwin_tree, version,            12,  4);
-	ADWIN_ADD_LE(adwin_tree, description,        16, 16);
-	ADWIN_ADD_BE(adwin_tree, timerresets,        32,  4);
-	ADWIN_ADD_BE(adwin_tree, socketshutdowns,    36,  4);
-	ADWIN_ADD_BE(adwin_tree, disk_free,          40,  4);
-	ADWIN_ADD_BE(adwin_tree, disk_size,          44,  4);
-	ADWIN_ADD_LE(adwin_tree, date,               48,  8);
-	ADWIN_ADD_LE(adwin_tree, revision,           56,  8);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_mac, tvb, 0,  6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 6,  2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_pattern, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_version, tvb, 12,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_description, tvb, 16, 16, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_timerresets, tvb, 32, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_socketshutdowns, tvb, 36, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_disk_free, tvb, 40, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_disk_size, tvb, 44, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_date, tvb, 48,  8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_revision, tvb, 56,  8, ENC_LITTLE_ENDIAN);
 
 	/* add the processor type raw values to the tree, to allow filtering */
-	ADWIN_ADD_LE(adwin_tree, processor_type,     64,  2);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_processor_type, tvb, 64, 2, ENC_LITTLE_ENDIAN);
 	/* add the processor type as a pretty printed string */
 	processor_type = tvb_get_string(wmem_packet_scope(), tvb, 64, 2);
 	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown (%s)");
 	proto_tree_add_text(adwin_tree, tvb, 64, 2, "Processor Type: %s", processor_type);
 
 	/* add system type as raw value and pretty printed string */
-	ADWIN_ADD_LE(adwin_tree, system_type,        66,  2);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_system_type, tvb, 66, 2, ENC_LITTLE_ENDIAN);
 	system_type = tvb_get_string(wmem_packet_scope(), tvb, 66, 2);
 	system_type = str_to_str(system_type, system_type_mapping, "Unknown (%s)");
 	proto_tree_add_text(adwin_tree, tvb, 66, 2, "System Type: %s", system_type);
 
-	ADWIN_ADD_LE(adwin_tree, unused,             68,364);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 68, 364, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -240,34 +229,34 @@ dissect_UDPMessage(tvbuff_t *tvb, proto_tree *adwin_tree)
 	if (! adwin_tree)
 		return;
 
-	ADWIN_ADD_LE(adwin_tree, command,             0,  4);
-	ADWIN_ADD_LE(adwin_tree, version,             4,  4);
-	ADWIN_ADD_LE(adwin_tree, mac,                 8,  6);
-	ADWIN_ADD_LE(adwin_tree, unused,             14,  2);
-	ADWIN_ADD_LE(adwin_tree, server_ip,          16,  4);
-	ADWIN_ADD_LE(adwin_tree, unused,             20,  4);
-	ADWIN_ADD_LE(adwin_tree, netmask,            24,  4);
-	ADWIN_ADD_LE(adwin_tree, unused,             28,  4);
-	ADWIN_ADD_LE(adwin_tree, gateway,            32,  4);
-	ADWIN_ADD_LE(adwin_tree, unused,             36,  4);
-	ADWIN_ADD_LE(adwin_tree, dhcp,               40,  4);
-	ADWIN_ADD_LE(adwin_tree, port32,             44,  4);
-	ADWIN_ADD_LE(adwin_tree, password,           48, 10);
-	ADWIN_ADD_LE(adwin_tree, bootloader,         58,  1);
-	ADWIN_ADD_LE(adwin_tree, unused,             59,  5);
-	ADWIN_ADD_LE(adwin_tree, description,        64, 16);
-	ADWIN_ADD_LE(adwin_tree, date,               80,  8);
-	ADWIN_ADD_LE(adwin_tree, revision,           88,  8);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_command, tvb, 0,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_version, tvb, 4,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_mac, tvb, 8,  6, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 14,  2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_server_ip, tvb, 16,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 20,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_netmask, tvb, 24,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 28,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_gateway, tvb, 32,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 36,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_dhcp, tvb, 40,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_port32, tvb, 44,  4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_password, tvb, 48, 10, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_bootloader, tvb, 58,  1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 59,  5, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_description, tvb, 64, 16, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_date, tvb, 80,  8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_revision, tvb, 88,  8, ENC_LITTLE_ENDIAN);
 
 	/* add the processor type raw values to the tree, to allow filtering */
-	ADWIN_ADD_LE(adwin_tree, processor_type,     96,  2);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_processor_type, tvb, 96,  2, ENC_LITTLE_ENDIAN);
 	/* add the processor type as a pretty printed string */
 	processor_type = tvb_get_string(wmem_packet_scope(), tvb, 96, 2);
 	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown");
 	proto_tree_add_text(adwin_tree, tvb, 96, 2, "Processor Type: %s", processor_type);
 
 	/* add system type as raw value and pretty printed string */
-	ADWIN_ADD_LE(adwin_tree, system_type,        98,  2);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_system_type, tvb, 98,  2, ENC_LITTLE_ENDIAN);
 	system_type = tvb_get_string(wmem_packet_scope(), tvb, 98, 2);
 	system_type = str_to_str(system_type, system_type_mapping, "Unknown");
 	proto_tree_add_text(adwin_tree, tvb, 98, 2, "System Type: %s", system_type);
@@ -280,11 +269,11 @@ dissect_UDPInitAck(tvbuff_t *tvb, proto_tree *adwin_tree)
 	if (! adwin_tree)
 		return;
 
-	ADWIN_ADD_BE(adwin_tree, pattern,             0,  4);
-	ADWIN_ADD_LE(adwin_tree, reboot,              4,  4);
-	ADWIN_ADD_BE(adwin_tree, mac,                 8,  6);
-	ADWIN_ADD_LE(adwin_tree, unused,             14,  2);
-	ADWIN_ADD_LE(adwin_tree, unused,             16, 80);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_pattern, tvb, 0,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_reboot, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_mac, tvb, 8,  6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 14, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 16, 80, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -294,14 +283,14 @@ dissect_UDPIXP425FlashUpdate(tvbuff_t *tvb, proto_tree *adwin_tree)
 	if (! adwin_tree)
 		return;
 
-	ADWIN_ADD_BE(adwin_tree, pattern,             0,  4);
-	ADWIN_ADD_BE(adwin_tree, version,             4,  4);
-	ADWIN_ADD_BE(adwin_tree, scan_id,             8,  4);
-	ADWIN_ADD_BE(adwin_tree, status,             12,  4);
-	ADWIN_ADD_BE(adwin_tree, timeout,            16,  4);
-	ADWIN_ADD_BE(adwin_tree, filename,           20, 24);
-	ADWIN_ADD_BE(adwin_tree, mac,                44,  6);
-	ADWIN_ADD_BE(adwin_tree, unused,             50, 42);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_pattern, tvb, 0,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_version, tvb, 4,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_scan_id, tvb, 8,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_status, tvb, 12,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_timeout, tvb, 16,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_filename, tvb, 20, 24, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_mac, tvb, 44,  6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 50, 42, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -311,12 +300,12 @@ dissect_UDPOut(tvbuff_t *tvb, proto_tree *adwin_tree)
 	if (! adwin_tree)
 		return;
 
-	ADWIN_ADD_LE(adwin_tree, status,              0,  4);
-	ADWIN_ADD_BE(adwin_tree, mac,                 4,  6);
-	ADWIN_ADD_LE(adwin_tree, netmask,            10,  4);
-	ADWIN_ADD_BE(adwin_tree, gateway,            14,  4);
-	ADWIN_ADD_LE(adwin_tree, dhcp,               18,  2);
-	ADWIN_ADD_BE(adwin_tree, port16,             20,  2);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_status, tvb, 0, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_mac, tvb, 4,  6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_netmask, tvb, 10, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_gateway, tvb, 14,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_dhcp, tvb, 18, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_port16, tvb, 20,  2, ENC_BIG_ENDIAN);
 }
 
 static guint
@@ -329,17 +318,23 @@ get_adwin_TCPUpdate_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin_tree, void* data _U_)
+dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	proto_tree *adwin_tree;
+	proto_item *ti;
 	gint length, offset;
 	guint8 *filename;
 	nstime_t tmp_time;
+
 	tmp_time.nsecs = 0;
 
-	if (! adwin_tree)
-		return 0;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
+	col_set_str(pinfo->cinfo, COL_INFO, "TCPFlashUpdate");
 
-	ADWIN_ADD_BE(adwin_tree, stream_length,        0,    4);
+	ti = proto_tree_add_item(tree, proto_adwin_config, tvb, 0, -1, ENC_NA);
+	adwin_tree = proto_item_add_subtree(ti, ett_adwin_config);
+
+	proto_tree_add_item(adwin_tree, hf_adwin_config_stream_length, tvb, 0, 4, ENC_BIG_ENDIAN);
 	offset = 4;
 	length = tvb_strnlen(tvb, offset, -1) + 1;
 	filename = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
@@ -353,12 +348,12 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin
 				    "Disable EEPROM Support");
 		return offset+length;
 	}
-	ADWIN_ADD_BE(adwin_tree, filename,       4,  length);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_filename, tvb, 4, length, ENC_BIG_ENDIAN);
 	offset += length;
 	length = tvb_strnlen(tvb, 4 + length, -1) + 1;
-	ADWIN_ADD_BE(adwin_tree, path,           offset,  length);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_path, tvb, offset, length, ENC_BIG_ENDIAN);
 	offset += length;
-	ADWIN_ADD_BE(adwin_tree, filesize,       offset,  4);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_filesize, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	tmp_time.secs = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(adwin_tree, tvb, offset, 4,
@@ -368,10 +363,10 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin
 	proto_tree_add_text(adwin_tree, tvb, offset, 4,
 			    "Update time: %s", abs_time_to_str(&tmp_time, ABSOLUTE_TIME_LOCAL, TRUE));
 	offset += 4;
-	ADWIN_ADD_BE(adwin_tree, unused,         offset, 128);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, offset, 128, ENC_BIG_ENDIAN);
 	offset += 128;
 	length = tvb_length(tvb) - offset;
-	ADWIN_ADD_BE(adwin_tree, data,             offset,  length);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_data, tvb, offset, length, ENC_BIG_ENDIAN);
 
     return tvb_length(tvb);
 }
@@ -431,9 +426,8 @@ static const value_string length_mapping[] = {
 	{ 0, NULL },
 };
 
-/*  Depending on the packet type, the appropriate dissector is called. */
 static int
-dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *adwin_config_tree;
@@ -441,8 +435,7 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 	length = tvb_reported_length(tvb);
 
-	if (pinfo->ipproto == IP_PROTO_UDP &&
-	    ! (length == UDPStatusLENGTH
+	if (!(length == UDPStatusLENGTH
 	       || length == UDPExtStatusLENGTH
 	       || length == UDPMessageLENGTH
 	       || length == UDPMessageLENGTH_wrong
@@ -451,65 +444,60 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	       || length == UDPOutLENGTH))
 		return 0;
 
-	if(pinfo->ipproto == IP_PROTO_TCP &&
-	   !(pinfo->srcport == ADWIN_CONFIGURATION_PORT
-	     || pinfo->destport == ADWIN_CONFIGURATION_PORT))
-		return 0;
-
-	if ((pinfo->ipproto != IP_PROTO_UDP) && (pinfo->ipproto != IP_PROTO_TCP))
-		return 0;
-
 	if (! (is_adwin_mac_or_broadcast(pinfo->dl_src) || is_adwin_mac_or_broadcast(pinfo->dl_dst)))
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_adwin_config, tvb, 0, -1, ENC_NA);
-		adwin_config_tree = proto_item_add_subtree(ti, ett_adwin_config);
-	} else {
-		adwin_config_tree = NULL;
-	}
+	ti = proto_tree_add_item(tree, proto_adwin_config, tvb, 0, -1, ENC_NA);
+	adwin_config_tree = proto_item_add_subtree(ti, ett_adwin_config);
 
-	switch (pinfo->ipproto) {
-	case IP_PROTO_TCP:
-		tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_adwin_TCPUpdate_len, dissect_TCPFlashUpdate, NULL);
-		col_set_str(pinfo->cinfo, COL_INFO, "TCPFlashUpdate");
+	switch (length) {
+	case UDPStatusLENGTH:
+		dissect_UDPStatus(tvb, adwin_config_tree);
 		break;
-	case IP_PROTO_UDP:
-		switch (length) {
-		case UDPStatusLENGTH:
-			dissect_UDPStatus(tvb, adwin_config_tree);
-			break;
-		case UDPExtStatusLENGTH:
-			dissect_UDPExtStatus(tvb, adwin_config_tree);
-			break;
-		case UDPMessageLENGTH:
-			dissect_UDPMessage(tvb, adwin_config_tree);
-			break;
-		case UDPMessageLENGTH_wrong: /* incorrect packet length */
-			/* formerly used by adconfig */
-			dissect_UDPMessage(tvb, adwin_config_tree);
-			break;
-		case UDPInitAckLENGTH:
-			dissect_UDPInitAck(tvb, adwin_config_tree);
-			break;
-		case UDPIXP425FlashUpdateLENGTH:
-			dissect_UDPIXP425FlashUpdate(tvb, adwin_config_tree);
-			break;
-		case UDPOutLENGTH:
-			dissect_UDPOut(tvb, adwin_config_tree);
-			break;
-		default:
-			/* Heuristics above should mean we never get here */
-			DISSECTOR_ASSERT_NOT_REACHED();
-		}
-
+	case UDPExtStatusLENGTH:
+		dissect_UDPExtStatus(tvb, adwin_config_tree);
+		break;
+	case UDPMessageLENGTH:
+		dissect_UDPMessage(tvb, adwin_config_tree);
+		break;
+	case UDPMessageLENGTH_wrong: /* incorrect packet length */
+		/* formerly used by adconfig */
+		dissect_UDPMessage(tvb, adwin_config_tree);
+		break;
+	case UDPInitAckLENGTH:
+		dissect_UDPInitAck(tvb, adwin_config_tree);
+		break;
+	case UDPIXP425FlashUpdateLENGTH:
+		dissect_UDPIXP425FlashUpdate(tvb, adwin_config_tree);
+		break;
+	case UDPOutLENGTH:
+		dissect_UDPOut(tvb, adwin_config_tree);
+		break;
+	default:
+		/* Heuristics above should mean we never get here */
 		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(length, length_mapping,
-				"Unknown ADwin Configuration packet, length: %d"));
+			val_to_str(length, length_mapping,
+			"Unknown ADwin Configuration packet, length: %d"));
 	}
+
+	return (tvb_reported_length(tvb));
+}
+
+static int
+dissect_adwin_config_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	if(!(pinfo->srcport == ADWIN_CONFIGURATION_PORT
+		|| pinfo->destport == ADWIN_CONFIGURATION_PORT))
+		return 0;
+
+	/* XXX - Is this possible for TCP? */
+	if (! (is_adwin_mac_or_broadcast(pinfo->dl_src) || is_adwin_mac_or_broadcast(pinfo->dl_dst)))
+		return 0;
+
+	tcp_dissect_pdus(tvb, pinfo, tree, 1, 4, get_adwin_TCPUpdate_len, dissect_TCPFlashUpdate, NULL);
 
 	return (tvb_reported_length(tvb));
 }
@@ -767,6 +755,6 @@ proto_register_adwin_config(void)
 void
 proto_reg_handoff_adwin_config(void)
 {
-	heur_dissector_add("udp", dissect_adwin_config, proto_adwin_config);
-	heur_dissector_add("tcp", dissect_adwin_config, proto_adwin_config);
+	heur_dissector_add("udp", dissect_adwin_config_udp, proto_adwin_config);
+	heur_dissector_add("tcp", dissect_adwin_config_tcp, proto_adwin_config);
 }
