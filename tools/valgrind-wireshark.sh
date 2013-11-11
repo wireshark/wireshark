@@ -36,7 +36,7 @@ VALID=0
 PCAP=""
 TOOL="memcheck"
 
-while getopts ":2b:C:lmnprtTYwcevW" OPTCHAR ; do
+while getopts ":2b:C:lmnpP:rtTYwcevW" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -46,6 +46,8 @@ while getopts ":2b:C:lmnprtTYwcevW" OPTCHAR ; do
         n) COMMAND_ARGS="-v"
            VALID=1 ;;
         p) TOOL="callgrind" ;;
+        P) TOOL="callgrind"
+           CALLGRIND_OUT_FILE="--callgrind-out-file=$OPTARG" ;;
         r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         T) COMMAND_ARGS="-Vx $COMMAND_ARGS" ;; # "build the Tree"
@@ -104,4 +106,4 @@ else
     LIBTOOL=""
 fi
 
-$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions --tool=$TOOL $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions --tool=$TOOL $CALLGRIND_OUT_FILE $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
