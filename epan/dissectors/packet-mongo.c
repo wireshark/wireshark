@@ -438,11 +438,8 @@ dissect_mongo_reply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree 
 static int
 dissect_mongo_msg(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-
-  proto_item *ti;
-
-  ti = proto_tree_add_item(tree, hf_mongo_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
-  offset += proto_item_get_len(ti);
+  proto_tree_add_item(tree, hf_mongo_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
+  offset += tvb_strsize(tvb, offset);
 
   return offset;
 }
