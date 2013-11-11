@@ -100,14 +100,14 @@ guint32 dissect_mqpcf_getDigits(guint uCnt)
 	return (guint) log10(uCnt) + 1;
 }
 
-guint8 *dissect_mqpcf_parm_getintval(guint uPrm,guint uVal)
+guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
 {
-	value_string *pVs=NULL;
-	pVs=(value_string *)try_val_to_str(uPrm,GET_VALSV(MQCFINT_Parse));
+	value_string *pVs;
+	pVs = (value_string *)try_val_to_str(uPrm, GET_VALSV(MQCFINT_Parse));
 
 	if (pVs)
 	{
-		return (guint8 *)try_val_to_str(uVal,pVs);
+		return (guint8 *)try_val_to_str(uVal, pVs);
 	}
 	return NULL;
 }
@@ -119,20 +119,20 @@ void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset, guint
 	guint8 *pVal = NULL;
 
 	if (bParse)
-		pVal=dissect_mqpcf_parm_getintval(uPrm,uVal);
+		pVal = dissect_mqpcf_parm_getintval(uPrm, uVal);
 
-	hfinfo=proto_registrar_get_nth(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 
-	if (iMaxCnt>1)
+	if (iMaxCnt > 1)
 	{
 		if (pVal)
 		{
-			proto_tree_add_int_format(tree, hfindex, tvb, offset , 4, uVal,
+			proto_tree_add_int_format(tree, hfindex, tvb, offset, 4, uVal,
 				"%s[%*d]: %8d-%s", hfinfo->name, iDigit, iCnt, uVal, pVal);
 		}
 		else
 		{
-			proto_tree_add_int_format(tree, hfindex, tvb, offset , 4, uVal,
+			proto_tree_add_int_format(tree, hfindex, tvb, offset, 4, uVal,
 				"%s[%*d]: %8x-%d", hfinfo->name, iDigit, iCnt, uVal, uVal);
 		}
 	}
@@ -140,12 +140,12 @@ void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset, guint
 	{
 		if (pVal)
 		{
-			proto_tree_add_int_format_value(tree, hfindex, tvb, offset , 4, uVal,
+			proto_tree_add_int_format_value(tree, hfindex, tvb, offset, 4, uVal,
 				"%8d-%s", uVal, pVal);
 		}
 		else
 		{
-			proto_tree_add_int_format_value(tree, hfindex, tvb, offset , 4, uVal,
+			proto_tree_add_int_format_value(tree, hfindex, tvb, offset, 4, uVal,
 				"%8x-%d", uVal, uVal);
 		}
 	}
@@ -154,10 +154,10 @@ void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset, guint
 static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
 							   guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse)
 {
-	guint32 u=0;
-	guint32 tOfs=0;
+	guint32 u	 = 0;
+	guint32 tOfs = 0;
 	guint32 uLenF;
-	char strPrm[256];
+	char	strPrm[256];
 	guint32 uTyp;
 	guint32 uLen = 0;
 	guint32 uPrm;
@@ -172,49 +172,49 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 	const char sPrmLn0[] = " MQPrm[%3u] has a zero length. DECODE Failed (MQPrm Count: %u)";
 	const char sMaxPrm[] = " Max # of Parm reached. DECODE interrupted   (actual %u of %u)";
 
-	proto_item *ti = NULL;
+	proto_item *ti	 = NULL;
 	proto_tree *tree = NULL;
 
 	if (uCount == (guint32)-1)
 	{
-		guint32 xOfs=offset;
+		guint32 xOfs = offset;
 
-		uCnt=0;
+		uCnt = 0;
 		while (tvb_length_remaining(tvb, xOfs) >= 16)
 		{
 			uLen = tvb_get_guint32_endian(tvb, xOfs + 4, bLittleEndian);
 			uCnt++;
-			xOfs+=uLen;
+			xOfs += uLen;
 		}
-		uCount=uCnt;
+		uCount = uCnt;
 	}
 
-	uDig=dissect_mqpcf_getDigits(uCount);
+	uDig = dissect_mqpcf_getDigits(uCount);
 
 	for (u = 0; u < uCount && u < mq_pcf_maxprm; u++)
 	{
 		tOfs = offset;
 		uTyp = tvb_get_guint32_endian(tvb, offset    , bLittleEndian);
 		uLen = tvb_get_guint32_endian(tvb, offset + 4, bLittleEndian);
-		if (uLen==0)
+		if (uLen == 0)
 		{
 			ti = proto_tree_add_text(mq_tree, tvb, offset, 12, sPrmLn0, u+1, uCount);
 			expert_add_info(pinfo, ti, &ei_mq_pcf_prmln0);
-			u=uCount;
+			u = uCount;
 			break;
 		}
-		uPrm=tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
-		uLenF=12;
+		uPrm = tvb_get_guint32_endian(tvb, offset + 8, bLittleEndian);
+		uLenF = 12;
 
 		if (bParse)
-			g_snprintf(strPrm,(gulong)sizeof(strPrm)-1," %-s[%*u] {%2d-%-15.15s} %8x/%5d-%-30.30s",
+			g_snprintf(strPrm, (gulong)sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-15.15s} %8x/%5d-%-30.30s",
 				"MQPrm", uDig, u+1,
-				uTyp,val_to_str_const(uTyp,GET_VALSV(PrmTyp),"      Unknown")+6,
-				uPrm,uPrm,val_to_str_const(uPrm,GET_VALSV(PrmId),"Unknown"));
+				uTyp, val_to_str_const(uTyp, GET_VALSV(PrmTyp), "      Unknown") + 6,
+				uPrm, uPrm, val_to_str_const(uPrm, GET_VALSV(PrmId), "Unknown"));
 		else
-			g_snprintf(strPrm,(gulong)sizeof(strPrm)-1," %-s[%*u] {%2d-%-15.15s} %8x/%5d",
+			g_snprintf(strPrm, (gulong)sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-15.15s} %8x/%5d",
 				"XtraD", uDig, u+1,
-				uTyp, val_to_str_const(uTyp,GET_VALSV(PrmTyp),"      Unknown")+6,
+				uTyp, val_to_str_const(uTyp, GET_VALSV(PrmTyp), "      Unknown") + 6,
 				uPrm, uPrm);
 
 		switch (uTyp)
@@ -234,17 +234,17 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				if (pVal)
 				{
 					ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %d-%s",
-						strPrm,uVal,pVal);
+						strPrm, uVal, pVal);
 				}
 				else
 				{
 					ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %8x-%d",
-						strPrm,uVal,uVal);
+						strPrm, uVal, uVal);
 				}
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset    , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset + 8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset + 8, 4, bLittleEndian);
 
 				dissect_mqpcf_parm_int(tvb, tree, offset+uLenF, uPrm, uVal, hf_mq_pcf_int, 0, 0, 0, bParse);
 			}
@@ -256,9 +256,9 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uCCS = tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
 				uSLn = tvb_get_guint32_endian(tvb, offset + uLenF + 4, bLittleEndian);
 				sStr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 8,
-					uSLn, (uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
+					uSLn, (uCCS != 500) ? ENC_ASCII : ENC_EBCDIC);
 				if (*sStr)
-					strip_trailing_blanks(sStr,uSLn);
+					strip_trailing_blanks(sStr, uSLn);
 				if (*sStr)
 					format_text_chr(sStr, strlen(sStr), '.');
 
@@ -267,11 +267,11 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmccsid , tvb, offset + 12, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmstrlen, tvb, offset + 16, 4, bLittleEndian);
 
-				proto_tree_add_item(tree, hf_mq_pcf_string, tvb, offset + uLenF + 8, uSLn, (uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
+				proto_tree_add_item(tree, hf_mq_pcf_string, tvb, offset + uLenF + 8, uSLn, (uCCS != 500) ? ENC_ASCII : ENC_EBCDIC);
 			}
 			break;
 		case MQ_MQCFT_INTEGER_LIST:
@@ -280,14 +280,14 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				guint32 uDigit = 0;
 
 				uCnt = tvb_get_guint32_endian(tvb, offset+uLenF, bLittleEndian);
-				uDigit=dissect_mqpcf_getDigits(uCnt);
+				uDigit = dissect_mqpcf_getDigits(uCnt);
 
-				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s Cnt(%d)",strPrm,uCnt);
+				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s Cnt(%d)", strPrm, uCnt);
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp  , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen  , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmcount, tvb, offset + 12, 4, bLittleEndian);
 
 				offset += uLenF+4;
@@ -306,9 +306,9 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 			break;
 		case MQ_MQCFT_STRING_LIST:
 			{
-				guint32 u2;
-				guint32 uDigit;
-				guint8 *sStr;
+				guint32	 u2;
+				guint32	 uDigit;
+				guint8	*sStr;
 				header_field_info *hfinfo;
 
 				hfinfo = proto_registrar_get_nth(hf_mq_pcf_stringlist);
@@ -317,30 +317,30 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uCnt = tvb_get_guint32_endian(tvb, offset + uLenF + 4, bLittleEndian);
 				uSLn = tvb_get_guint32_endian(tvb, offset + uLenF + 8, bLittleEndian);
 
-				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen,"%s Cnt(%d)",strPrm,uCnt);
+				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s Cnt(%d)", strPrm, uCnt);
 
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmccsid , tvb, offset + 12, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmcount , tvb, offset + 16, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmstrlen, tvb, offset + 20, 4, bLittleEndian);
 
-				uDigit=dissect_mqpcf_getDigits(uCnt);
+				uDigit = dissect_mqpcf_getDigits(uCnt);
 
 				offset += uLenF+12;
 				for (u2 = 0; u2 < uCnt && u2 < mq_pcf_maxlst; u2++)
 				{
 					sStr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
-						uSLn, (uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
+						uSLn, (uCCS != 500) ? ENC_ASCII : ENC_EBCDIC);
 					if (*sStr)
-						strip_trailing_blanks(sStr,uSLn);
+						strip_trailing_blanks(sStr, uSLn);
 					if (*sStr)
 						format_text_chr(sStr, strlen(sStr),  '.');
 
 					proto_tree_add_string_format(tree, hf_mq_pcf_stringlist, tvb, offset, uSLn, sStr,
-						"%s[%*d]: %s",hfinfo->name, uDigit, u2+1, sStr);
+						"%s[%*d]: %s", hfinfo->name, uDigit, u2+1, sStr);
 					offset += uSLn;
 				}
 				if (u2 != uCnt)
@@ -388,7 +388,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmstrlen, tvb, offset + 12, 4, bLittleEndian);
 
 				proto_tree_add_item(tree, hf_mq_pcf_bytestring, tvb, offset + uLenF + 4 , uSLn, bLittleEndian);
@@ -406,12 +406,12 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uVal = tvb_get_guint32_endian(tvb, offset + uLenF + 4, bLittleEndian);
 
 				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %s %d",
-					strPrm, val_to_str(uOpe, GET_VALSV(FilterOP),"       Unknown (0x%02x)")+7, uVal);
+					strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)")+7, uVal);
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_filterop , tvb, offset + 12, 4, bLittleEndian);
 
 				proto_tree_add_item(tree, hf_mq_pcf_int, tvb, offset + uLenF + 4, 4, bLittleEndian);
@@ -425,21 +425,21 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uOpe = tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
 				uCCS = tvb_get_guint32_endian(tvb, offset + uLenF + 4, bLittleEndian);
 				uSLn = tvb_get_guint32_endian(tvb, offset + uLenF + 8, bLittleEndian);
-				sStr = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 12, uSLn, (uCCS!=500)?ENC_ASCII:ENC_EBCDIC), uSLn, '.');
-				strip_trailing_blanks(sStr,uSLn);
+				sStr = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 12, uSLn, (uCCS != 500) ? ENC_ASCII : ENC_EBCDIC), uSLn, '.');
+				strip_trailing_blanks(sStr, uSLn);
 
 				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %s %s",
-					strPrm, val_to_str(uOpe, GET_VALSV(FilterOP),"       Unknown (0x%02x)")+7, sStr);
+					strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)")+7, sStr);
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_filterop , tvb, offset + 12, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmccsid , tvb, offset + 16, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmstrlen, tvb, offset + 20, 4, bLittleEndian);
 
-				proto_tree_add_item(tree, hf_mq_pcf_string, tvb, offset + uLenF + 12, uSLn, (uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
+				proto_tree_add_item(tree, hf_mq_pcf_string, tvb, offset + uLenF + 12, uSLn, (uCCS != 500) ? ENC_ASCII : ENC_EBCDIC);
 			}
 			break;
 		case MQ_MQCFT_BYTE_STRING_FILTER:
@@ -449,25 +449,25 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uSLn = tvb_get_guint32_endian(tvb, offset + uLenF + 4, bLittleEndian);
 				if (uSLn)
 				{
-					guint8 *sStrA = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 8,uSLn,ENC_ASCII) , uSLn, '.');
-					guint8 *sStrE = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 8,uSLn,ENC_EBCDIC), uSLn, '.');
+					guint8 *sStrA = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 8, uSLn, ENC_ASCII), uSLn, '.');
+					guint8 *sStrE = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 8, uSLn, ENC_EBCDIC), uSLn, '.');
 					ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %s A(%s) E(%s)",
-						strPrm, val_to_str(uOpe, GET_VALSV(FilterOP),"       Unknown (0x%02x)")+7, sStrA, sStrE);
+						strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)")+7, sStrA, sStrE);
 				}
 				else
 				{
 					ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %s <MISSING>",
-						strPrm, val_to_str(uOpe, GET_VALSV(FilterOP),"       Unknown (0x%02x)")+7);
+						strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)")+7);
 				}
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_filterop , tvb, offset + 12, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmstrlen, tvb, offset + 16, 4, bLittleEndian);
 
-				proto_tree_add_item(tree, hf_mq_pcf_bytestring, tvb, offset + uLenF + 8 , uSLn,bLittleEndian);
+				proto_tree_add_item(tree, hf_mq_pcf_bytestring, tvb, offset + uLenF + 8 , uSLn, bLittleEndian);
 			}
 			break;
 		case MQ_MQCFT_COMMAND_XR:
@@ -493,7 +493,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp   , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen   , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmunused, tvb, offset + 12, 4, bLittleEndian);
 
 				proto_tree_add_item(tree, hf_mq_pcf_int64, tvb, offset + uLenF + 4, 8, bLittleEndian);
@@ -510,11 +510,11 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uCnt = tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
 				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s Cnt(%d)", strPrm, uCnt);
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
-				uDigit=dissect_mqpcf_getDigits(uCnt);
+				uDigit = dissect_mqpcf_getDigits(uCnt);
 
 				proto_tree_add_item(tree, hf_mq_pcf_prmtyp  , tvb, offset     , 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmlen  , tvb, offset +  4, 4, bLittleEndian);
-				proto_tree_add_item(tree, (bParse)?hf_mq_pcf_prmid:hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
+				proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset +  8, 4, bLittleEndian);
 				proto_tree_add_item(tree, hf_mq_pcf_prmcount, tvb, offset + 12, 4, bLittleEndian);
 
 				offset += uLenF + 4;
@@ -522,7 +522,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				{
 					uVal64 = tvb_get_guint64_endian(tvb, offset, bLittleEndian);
 					proto_tree_add_int64_format(tree, hf_mq_pcf_int64list, tvb, offset, 8, uVal64,
-						"%s[%*d]: %" G_GINT64_MODIFIER "d",hfinfo->name, uDigit, u2+1, uVal64);
+						"%s[%*d]: %" G_GINT64_MODIFIER "d", hfinfo->name, uDigit, u2+1, uVal64);
 					offset += 8;
 				}
 				if (u2 != uCnt)
@@ -547,7 +547,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 	gint offset = 0;
 	gboolean bLittleEndian;
 
-	bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK)==MQ_MQENC_INTEGER_REVERSED)?ENC_LITTLE_ENDIAN:ENC_BIG_ENDIAN;
+	bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
 	if (tvb_length(tvb) >= 36)
 	{
@@ -556,9 +556,9 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 
 		if (tree)
 		{
-			proto_item  *ti;
-			proto_tree  *mq_tree;
-			proto_tree  *mqroot_tree;
+			proto_item *ti;
+			proto_tree *mq_tree;
+			proto_tree *mqroot_tree;
 			char        sTmp[256];
 			guint32     uCnt;
 			guint32     uTyp;
@@ -566,28 +566,28 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 			guint32     uCC;
 			guint32     uRC;
 
-			uTyp=tvb_get_guint32_endian(tvb, offset     , bLittleEndian);
-			uCmd=tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
-			uCC =tvb_get_guint32_endian(tvb, offset + 24, bLittleEndian);
-			uRC =tvb_get_guint32_endian(tvb, offset + 28, bLittleEndian);
-			uCnt=tvb_get_guint32_endian(tvb, offset + 32, bLittleEndian);
+			uTyp = tvb_get_guint32_endian(tvb, offset     , bLittleEndian);
+			uCmd = tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
+			uCC  = tvb_get_guint32_endian(tvb, offset + 24, bLittleEndian);
+			uRC  = tvb_get_guint32_endian(tvb, offset + 28, bLittleEndian);
+			uCnt = tvb_get_guint32_endian(tvb, offset + 32, bLittleEndian);
 
 			if (uCC || uRC)
 			{
-				g_snprintf(sTmp,(gulong)sizeof(sTmp)-1," %-s [%d-%s] {%d-%s} PrmCnt(%d) CC(%d-%s) RC(%d-%s)",
+				g_snprintf(sTmp, (gulong)sizeof(sTmp)-1, " %-s [%d-%s] {%d-%s} PrmCnt(%d) CC(%d-%s) RC(%d-%s)",
 					MQ_TEXT_CFH,
-					uTyp,val_to_str_const(uTyp,GET_VALSV(mqcft),"Unknown"),
-					uCmd,val_to_str_const(uCmd,GET_VALSV(mqcmd),"Unknown"),
+					uTyp, val_to_str_const(uTyp, GET_VALSV(mqcft), "Unknown"),
+					uCmd, val_to_str_const(uCmd, GET_VALSV(mqcmd), "Unknown"),
 					uCnt,
-					uCC,val_to_str_const(uCC,GET_VALSV(mqcc),"Unknown"),
-					uRC,val_to_str_const(uRC,GET_VALSV(mqrc),"Unknown"));
+					uCC, val_to_str_const(uCC, GET_VALSV(mqcc), "Unknown"),
+					uRC, val_to_str_const(uRC, GET_VALSV(mqrc), "Unknown"));
 			}
 			else
 			{
-				g_snprintf(sTmp,(gulong)sizeof(sTmp)-1," %-s [%d-%s] {%d-%s} PrmCnt(%d)",
+				g_snprintf(sTmp, (gulong)sizeof(sTmp)-1, " %-s [%d-%s] {%d-%s} PrmCnt(%d)",
 					MQ_TEXT_CFH,
-					uTyp,val_to_str_const(uTyp,GET_VALSV(mqcft),"Unknown"),
-					uCmd,val_to_str_const(uCmd,GET_VALSV(mqcmd),"Unknown"),
+					uTyp, val_to_str_const(uTyp, GET_VALSV(mqcft), "Unknown"),
+					uCmd, val_to_str_const(uCmd, GET_VALSV(mqcmd), "Unknown"),
 					uCnt);
 			}
 
@@ -596,7 +596,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 			proto_item_append_text(ti, " (%s)", val_to_str(iCommand, GET_VALSV(mqcmd), "Unknown (0x%02x)"));
 			mqroot_tree = proto_item_add_subtree(ti, ett_mqpcf);
 
-			ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMQCFH, "%s",sTmp);
+			ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMQCFH, "%s", sTmp);
 			mq_tree = proto_item_add_subtree(ti, ett_mqpcf_cfh);
 
 			proto_tree_add_item(mq_tree, hf_mqpcf_cfh_type     , tvb, offset +  0, 4, bLittleEndian);
@@ -617,7 +617,7 @@ static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	if (tvb_length(tvb) >= 36)
 	{
-		mq_parm_t* p_mq_parm = (mq_parm_t *)data;
+		mq_parm_t *p_mq_parm = (mq_parm_t *)data;
 		if (strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_ADMIN, 8) == 0
 			|| strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_EVENT, 8) == 0
 			|| strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_PCF, 8) == 0)
@@ -629,7 +629,7 @@ static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if (strncmp((const char *)p_mq_parm->mq_format, "LPOO", 4) == 0)
 		{
 			gboolean bLittleEndian;
-			bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK)==MQ_MQENC_INTEGER_REVERSED)?ENC_LITTLE_ENDIAN:ENC_BIG_ENDIAN;
+			bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN:ENC_BIG_ENDIAN;
 			dissect_mqpcf_parm(tvb, pinfo, tree, 0, (guint32)-1, bLittleEndian, FALSE);
 			return TRUE;
 		}
@@ -639,7 +639,7 @@ static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 void proto_register_mqpcf(void)
 {
-	expert_module_t* expert_mqpcf;
+	expert_module_t *expert_mqpcf;
 
 	static hf_register_info hf[] =
 	{
@@ -678,11 +678,11 @@ void proto_register_mqpcf(void)
 	};
 	static ei_register_info ei[] =
 	{
-		{ &ei_mq_pcf_prmln0, { "mqpcf.parm.len0", PI_MALFORMED, PI_ERROR, "MQPCF Parameter length is 0", EXPFILL }},
-		{ &ei_mq_pcf_MaxInt, { "mqpcf.parm.IntList", PI_UNDECODED, PI_WARN, "MQPCF Parameter Integer list exhausted", EXPFILL }},
-		{ &ei_mq_pcf_MaxStr, { "mqpcf.parm.StrList", PI_UNDECODED, PI_WARN, "MQPCF Parameter String list exhausted", EXPFILL }},
-		{ &ei_mq_pcf_MaxI64, { "mqpcf.parm.Int64List", PI_UNDECODED, PI_WARN, "MQPCF Parameter Int64 list exhausted", EXPFILL }},
-		{ &ei_mq_pcf_MaxPrm, { "mqpcf.parm.MaxPrm", PI_UNDECODED, PI_WARN, "MQPCF Max number of parameter exhausted", EXPFILL }},
+		{ &ei_mq_pcf_prmln0, { "mqpcf.parm.len0",      PI_MALFORMED, PI_ERROR, "MQPCF Parameter length is 0", EXPFILL }},
+		{ &ei_mq_pcf_MaxInt, { "mqpcf.parm.IntList",   PI_UNDECODED, PI_WARN,  "MQPCF Parameter Integer list exhausted", EXPFILL }},
+		{ &ei_mq_pcf_MaxStr, { "mqpcf.parm.StrList",   PI_UNDECODED, PI_WARN,  "MQPCF Parameter String list exhausted", EXPFILL }},
+		{ &ei_mq_pcf_MaxI64, { "mqpcf.parm.Int64List", PI_UNDECODED, PI_WARN,  "MQPCF Parameter Int64 list exhausted", EXPFILL }},
+		{ &ei_mq_pcf_MaxPrm, { "mqpcf.parm.MaxPrm",    PI_UNDECODED, PI_WARN,  "MQPCF Max number of parameter exhausted", EXPFILL }},
 	};
 
 	module_t *mq_pcf_module;
@@ -695,12 +695,12 @@ void proto_register_mqpcf(void)
 	expert_register_field_array(expert_mqpcf, ei, array_length(ei));
 
 	mq_pcf_module = prefs_register_protocol(proto_mqpcf, NULL);
-	prefs_register_uint_preference(mq_pcf_module,"maxprm",
+	prefs_register_uint_preference(mq_pcf_module, "maxprm",
 		"Set the maximun number of parameter in the PCF to decode",
 		"When dissecting PCF there can be a lot of parameters."
 		" You can limit the number of parameter decoded, before it continue with the next PCF.",
 		10, &mq_pcf_maxprm);
-	prefs_register_uint_preference(mq_pcf_module,"maxlst",
+	prefs_register_uint_preference(mq_pcf_module, "maxlst",
 		"Set the maximun number of Parameter List that are displayed",
 		"When dissecting a parameter of a PCFm, if it is a StringList, IntegerList or Integer64 List, "
 		" You can limit the number of element displayed, before it continue with the next Parameter.",
