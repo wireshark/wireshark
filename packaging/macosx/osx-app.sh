@@ -403,8 +403,8 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	for plugin in $pkgplugin/*.so ; do
 		codesign_file "$plugin"
 	done
-	echo "Signing $bundle"
-	codesign_file "$bundle"
+	echo "Signing $package"
+	codesign_file "$package"
 else
 	echo "Code signing not performed (no identity)"
 fi
