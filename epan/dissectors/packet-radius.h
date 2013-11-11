@@ -66,6 +66,11 @@
 #define RADIUS_PKT_TYPE_IP_ADDRESS_ALLOCATE			50
 #define RADIUS_PKT_TYPE_IP_ADDRESS_RELEASE			51
 
+/* ALU proprietary packet type codes */
+#define RADIUS_PKT_TYPE_ALU_STATE_REQUEST			129
+#define RADIUS_PKT_TYPE_ALU_STATE_ACCEPT			130
+#define RADIUS_PKT_TYPE_ALU_STATE_REJECT			131
+#define RADIUS_PKT_TYPE_ALU_STATE_ERROR 			132
 
 /* Radius Attribute Types*/
 /* 09/12/2011: Updated from IANA:

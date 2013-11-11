@@ -109,6 +109,7 @@ $INCLUDE dictionary.acme
 $INCLUDE dictionary.airespace
 $INCLUDE dictionary.alcatel
 $INCLUDE dictionary.alcatel.sr
+$INCLUDE dictionary.alcatel-lucent.aaa
 $INCLUDE dictionary.alcatel-lucent.xylan
 $INCLUDE dictionary.alteon
 $INCLUDE dictionary.alvarion

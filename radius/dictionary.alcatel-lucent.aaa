@@ -1,0 +1,84 @@
+# -*- text -*-
+##############################################################################
+#
+#	ALU-AAA AAA dictionary
+#
+#	$Id$
+#
+##############################################################################
+
+VENDOR		ALU-AAA 831
+
+BEGIN-VENDOR	ALU-AAA
+
+ATTRIBUTE	ALU-AAA-Access-Rule			1	string
+ATTRIBUTE	ALU-AAA-AV-Pair				2	string
+ATTRIBUTE	ALU-AAA-GSM-Triplets-Needed		3	integer
+ATTRIBUTE	ALU-AAA-GSM-Triplet			4	octets
+ATTRIBUTE	ALU-AAA-AKA-Quintets-Needed		5	integer
+ATTRIBUTE	ALU-AAA-AKA-Quintet			6	octets
+ATTRIBUTE	ALU-AAA-AKA-RAND			7	octets
+ATTRIBUTE	ALU-AAA-AKA-AUTS			8	octets
+ATTRIBUTE	ALU-AAA-Service-Profile			9	string
+ATTRIBUTE	ALU-AAA-Lawful-Intercept-Status		10	byte
+ATTRIBUTE	ALU-AAA-DF-CC-Address			11	ipaddr
+ATTRIBUTE	ALU-AAA-DF-CC-Port			12	short
+ATTRIBUTE	ALU-AAA-Client-Program			13	string
+ATTRIBUTE	ALU-AAA-Client-Error-Action		14	integer
+ATTRIBUTE	ALU-AAA-Client-OS			15	string
+ATTRIBUTE	ALU-AAA-Client-Version			16	string
+ATTRIBUTE	ALU-AAA-Nonce				17	octets
+ATTRIBUTE	ALU-AAA-Femto-Public-Key-Hash		18	octets
+ATTRIBUTE	ALU-AAA-Femto-Associated-User-Name	19	string
+ATTRIBUTE	ALU-AAA-String-0			100	string
+ATTRIBUTE	ALU-AAA-String-1			101	string
+ATTRIBUTE	ALU-AAA-String-2			102	string
+ATTRIBUTE	ALU-AAA-String-3			103	string
+ATTRIBUTE	ALU-AAA-Integer-0			104	integer
+ATTRIBUTE	ALU-AAA-Integer-1			105	integer
+ATTRIBUTE	ALU-AAA-Integer-2			106	integer
+ATTRIBUTE	ALU-AAA-Integer-3			107	integer
+ATTRIBUTE	ALU-AAA-Address-0			108	combo-ip
+ATTRIBUTE	ALU-AAA-Address-1			109	combo-ip
+ATTRIBUTE	ALU-AAA-Address-2			110	combo-ip
+ATTRIBUTE	ALU-AAA-Address-3			111	combo-ip
+ATTRIBUTE	ALU-AAA-Value-0				112	octets
+ATTRIBUTE	ALU-AAA-Value-1				113	octets
+ATTRIBUTE	ALU-AAA-Value-2				114	octets
+ATTRIBUTE	ALU-AAA-Value-3				115	octets
+ATTRIBUTE	ALU-AAA-Key-0				116	octets,encrypt=2
+ATTRIBUTE	ALU-AAA-Key-1				117	octets,encrypt=2
+ATTRIBUTE	ALU-AAA-Key-2				118	octets,encrypt=2
+ATTRIBUTE	ALU-AAA-Key-3				119	octets,encrypt=2
+ATTRIBUTE	ALU-AAA-Opaque-0			120	octets
+ATTRIBUTE	ALU-AAA-Opaque-1			121	octets
+ATTRIBUTE	ALU-AAA-Opaque-2			122	octets
+ATTRIBUTE	ALU-AAA-Opaque-3			123	octets
+ATTRIBUTE	ALU-AAA-Eval-0				124	string
+ATTRIBUTE	ALU-AAA-Eval-1				125	string
+ATTRIBUTE	ALU-AAA-Eval-2				126	string
+ATTRIBUTE	ALU-AAA-Eval-3				127	string
+ATTRIBUTE	ALU-AAA-Exec-0				128	string
+ATTRIBUTE	ALU-AAA-Exec-1				129	string
+ATTRIBUTE	ALU-AAA-Exec-2				130	string
+ATTRIBUTE	ALU-AAA-Exec-3				131	string
+ATTRIBUTE	ALU-AAA-Original-Receipt-Time		199	octets
+ATTRIBUTE	ALU-AAA-Reply-Message			201	string
+ATTRIBUTE	ALU-AAA-Called-Station-Id		202	string
+ATTRIBUTE	ALU-AAA-NAS-IP-Address			203	ipaddr
+ATTRIBUTE	ALU-AAA-NAS-Port			204	integer
+ATTRIBUTE	ALU-AAA-Old-State			205	string
+ATTRIBUTE	ALU-AAA-New-State			206	string
+ATTRIBUTE	ALU-AAA-Event				207	string
+ATTRIBUTE	ALU-AAA-Old-Timestamp			208	date
+ATTRIBUTE	ALU-AAA-New-Timestamp			209	date
+ATTRIBUTE	ALU-AAA-Delta-Session			210	integer
+ATTRIBUTE	ALU-AAA-Civic-Location			211	octets
+ATTRIBUTE	ALU-AAA-Geospatial-Location		212	octets
+
+VALUE	ALU-AAA-Client-Error-Action	Ignore		1
+VALUE	ALU-AAA-Client-Error-Action	Disconnect	2
+VALUE	ALU-AAA-Delta-Session		False		0
+VALUE	ALU-AAA-Delta-Session		True		1
+
+END-VENDOR	ALU-AAA

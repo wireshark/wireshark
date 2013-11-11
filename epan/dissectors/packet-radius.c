@@ -198,6 +198,11 @@ static const value_string radius_pkt_type_codes[] =
 
 	{RADIUS_PKT_TYPE_IP_ADDRESS_ALLOCATE,			"IP-Address-Allocate"},			/* 50 RFC3575 */
 	{RADIUS_PKT_TYPE_IP_ADDRESS_RELEASE,			"IP-Address-Release"},			/* 51 RFC3575 */
+
+	{RADIUS_PKT_TYPE_ALU_STATE_REQUEST,			"ALU-State-Request"},			/* 129 ALU AAA */
+	{RADIUS_PKT_TYPE_ALU_STATE_ACCEPT,			"ALU-State-Accept"},			/* 130 ALU AAA */
+	{RADIUS_PKT_TYPE_ALU_STATE_REJECT,			"ALU-State-Reject"},			/* 131 ALU AAA */
+	{RADIUS_PKT_TYPE_ALU_STATE_ERROR,			"ALU-State-Error"},				/* 132 ALU AAA */
 /*
 250-253  Experimental Use             [RFC3575]
 254-255  Reserved                     [RFC3575]
@@ -302,6 +307,12 @@ static gboolean radius_call_equal(gconstpointer k1, gconstpointer k2)
 
 		if ((key1->code == RADIUS_PKT_TYPE_COA_REQUEST) &&
 		    ((key2->code == RADIUS_PKT_TYPE_COA_ACK) || (key2->code == RADIUS_PKT_TYPE_COA_NAK)))
+			return TRUE;
+
+		if ((key1->code == RADIUS_PKT_TYPE_ALU_STATE_REQUEST) &&
+		    ((key2->code == RADIUS_PKT_TYPE_ALU_STATE_ACCEPT) ||
+		     (key2->code == RADIUS_PKT_TYPE_ALU_STATE_REJECT) ||
+		     (key2->code == RADIUS_PKT_TYPE_ALU_STATE_ERROR)))
 			return TRUE;
 	}
 	return FALSE;
@@ -1473,6 +1484,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		case RADIUS_PKT_TYPE_EVENT_REQUEST:
 		case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
 		case RADIUS_PKT_TYPE_COA_REQUEST:
+		case RADIUS_PKT_TYPE_ALU_STATE_REQUEST:
 			/* Don't bother creating conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
 			if (pinfo->flags.in_error_pkt)
@@ -1585,6 +1597,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		case RADIUS_PKT_TYPE_COA_ACK:
 		case RADIUS_PKT_TYPE_COA_NAK:
 		case RADIUS_PKT_TYPE_ACCESS_CHALLENGE:
+		case RADIUS_PKT_TYPE_ALU_STATE_ACCEPT:
+		case RADIUS_PKT_TYPE_ALU_STATE_REJECT:
+		case RADIUS_PKT_TYPE_ALU_STATE_ERROR:
 			/* Don't bother finding conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
 			if (pinfo->flags.in_error_pkt)

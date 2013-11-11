@@ -139,6 +139,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.alcatel  \
 	radius/dictionary.alcatel.esam \
 	radius/dictionary.alcatel.sr \
+	radius/dictionary.alcatel-lucent.aaa \
 	radius/dictionary.alcatel-lucent.xylan \
 	radius/dictionary.alteon  \
 	radius/dictionary.altiga  \
