@@ -1041,6 +1041,9 @@ static const value_string usb_hid_boot_protocol_vals[] = {
     {0, NULL}
 };
 
+void proto_register_usb(void);
+void proto_reg_handoff_usb(void);
+
 static usb_conv_info_t *
 get_usb_conv_info(conversation_t *conversation)
 {
