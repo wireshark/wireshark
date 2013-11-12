@@ -829,7 +829,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr,
 	 * we've already done this work, so we don't need to do it
 	 * again.
 	 */
-	if (pinfo->fd->flags.visited)
+	if ((pinfo->fd->flags.visited) || (rtp_handle == NULL))
 	{
 		return;
 	}
@@ -913,7 +913,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
 	 * we've already done this work, so we don't need to do it
 	 * again.
 	 */
-	if (pinfo->fd->flags.visited)
+	if ((pinfo->fd->flags.visited) || (rtp_handle == NULL))
 	{
 		return;
 	}

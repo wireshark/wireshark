@@ -60,7 +60,7 @@
 #define PSNAME "H.245"
 #define PFNAME "h245"
 
-static dissector_handle_t rtp_handle=NULL;
+
 static dissector_handle_t rtcp_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
@@ -370,7 +370,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel_lcl->media_addr.addr.type, upcoming_channel_lcl->media_addr.port );
 	*/
-	if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0 && rtp_handle) {
+	if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0) {
 		srtp_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
 						upcoming_channel_lcl->media_addr.port, 0,
 						"H245", pinfo->fd->num, upcoming_channel_lcl->is_video , rtp_dyn_payload, dummy_srtp_info);
@@ -576,7 +576,6 @@ void proto_register_h245(void) {
 void proto_reg_handoff_h245(void) {
 	dissector_handle_t h245_handle;
 
-	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");

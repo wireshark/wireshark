@@ -75,7 +75,6 @@
 #include "packet-h264.h"
 #include "packet-mp4ves.h"
 
-static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
@@ -1837,8 +1836,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       if ((transport_info->media_port[n] != 0) &&
           (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
           (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
-        if (rtp_handle) {
-          if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
+        if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
             srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
             if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
               srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
@@ -1850,15 +1848,15 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                             (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                              transport_info->media[n].rtp_dyn_payload, srtp_info);
-          } else {
+        } else {
             rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                             (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                             transport_info->media[n].rtp_dyn_payload);
-          }
-          transport_info->media[n].set_rtp = TRUE;
-          /* SPRT might use the same port... */
-          current_rtp_port = transport_info->media_port[n];
         }
+        transport_info->media[n].set_rtp = TRUE;
+        /* SPRT might use the same port... */
+        current_rtp_port = transport_info->media_port[n];
+
         if (rtcp_handle) {
           if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
             srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num, srtp_info);
@@ -2178,8 +2176,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (transport_info->media_port[n] != 0) &&
         (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
         (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
-      if (rtp_handle) {
-        if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
+      if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
           srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
           if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
             srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
@@ -2190,15 +2187,15 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                           (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                            transport_info->media[n].rtp_dyn_payload, srtp_info);
-        } else {
+      } else {
           rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                           (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                           transport_info->media[n].rtp_dyn_payload);
-        }
-        transport_info->media[n].set_rtp = TRUE;
-        /* SPRT might use the same port... */
-        current_rtp_port = transport_info->media_port[n];
       }
+      transport_info->media[n].set_rtp = TRUE;
+      /* SPRT might use the same port... */
+      current_rtp_port = transport_info->media_port[n];
+
       if (rtcp_handle) {
         if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
           srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num, srtp_info);
@@ -2734,7 +2731,6 @@ proto_reg_handoff_sdp(void)
 {
   dissector_handle_t sdp_handle;
 
-  rtp_handle    = find_dissector("rtp");
   rtcp_handle   = find_dissector("rtcp");
   msrp_handle   = find_dissector("msrp");
   sprt_handle   = find_dissector("sprt");

@@ -1374,8 +1374,6 @@ static gint ett_skinny_softKeyMap = -1;
 /* desegmentation of SCCP */
 static gboolean skinny_desegment = TRUE;
 
-static dissector_handle_t rtp_handle=NULL;
-
 /* tap register id */
 static int skinny_tap = -1;
 
@@ -1629,22 +1627,24 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     case 0x0022: /* OpenReceiveChannelAck */
       if (hdr_version == BASIC_MSG_TYPE) {
+        address src_addr;
+        guint32 ipv4_address;
         proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
-        if (rtp_handle) {
-          address src_addr;
-          guint32 ipv4_address;
 
-          src_addr.type = AT_IPv4;
-          src_addr.len = 4;
-          src_addr.data = (guint8 *)&ipv4_address;
-          ipv4_address = tvb_get_ipv4(tvb, offset+16);
-          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
-        }
+        src_addr.type = AT_IPv4;
+        src_addr.len = 4;
+        src_addr.data = (guint8 *)&ipv4_address;
+        ipv4_address = tvb_get_ipv4(tvb, offset+16);
+        rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+
         si->passThruId = tvb_get_letohl(tvb, offset+24);
       } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
+        address src_addr;
+        guint32 ipv4_address;
+
         proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         /*Assume the field of next 4 bytes is IP Version*/
         ipversion = tvb_get_ntohl(tvb, offset+16);
@@ -1657,16 +1657,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
         proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
-        if (rtp_handle) {
-          address src_addr;
-          guint32 ipv4_address;
 
-          src_addr.type = AT_IPv4;
-          src_addr.len = 4;
-          src_addr.data = (guint8 *)&ipv4_address;
-          ipv4_address = tvb_get_ipv4(tvb, offset+20);
-          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+36), 0, "Skinny", pinfo->fd->num, is_video, NULL);
-        }
+        src_addr.type = AT_IPv4;
+        src_addr.len = 4;
+        src_addr.data = (guint8 *)&ipv4_address;
+        ipv4_address = tvb_get_ipv4(tvb, offset+20);
+        rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+36), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+
         si->passThruId = tvb_get_letohl(tvb, offset+40);
       }
       break;
@@ -2298,6 +2295,9 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     case 0x008a: /* StartMediaTransmission */
       if (hdr_version == BASIC_MSG_TYPE) {
+        address src_addr;
+        guint32 ipv4_address;
+
         proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, ENC_BIG_ENDIAN);
@@ -2308,20 +2308,20 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+44, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
-        if (rtp_handle) {
-          address src_addr;
-          guint32 ipv4_address;
 
-          src_addr.type = AT_IPv4;
-          src_addr.len = 4;
-          src_addr.data = (char *)&ipv4_address;
-          ipv4_address = tvb_get_ipv4(tvb, offset+20);
-          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, is_video, NULL);
-        }
+        src_addr.type = AT_IPv4;
+        src_addr.len = 4;
+        src_addr.data = (char *)&ipv4_address;
+        ipv4_address = tvb_get_ipv4(tvb, offset+20);
+        rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+
         si->passThruId = tvb_get_letohl(tvb, offset+16);
       }
       else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D)
       {
+        address src_addr;
+        guint32 ipv4_address;
+
         proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
         /*Assume the field of next 4 bytes is IP Version*/
@@ -2344,16 +2344,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         /* proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,       tvb, offset+66, 4, ENC_LITTLE_ENDIAN); */
         /* proto_tree_add_item(skinny_tree, hf_skinny_rtpDTMFPayload,     tvb, offset+126, 4, ENC_LITTLE_ENDIAN); */
         /* proto_tree_add_item(skinny_tree, hf_skinny_rtptimeout,         tvb, offset+130, 4, ENC_LITTLE_ENDIAN); */
-        if (rtp_handle) {
-          address src_addr;
-          guint32 ipv4_address;
 
-          src_addr.type = AT_IPv4;
-          src_addr.len = 4;
-          src_addr.data = (char *)&ipv4_address;
-          ipv4_address = tvb_get_ipv4(tvb, offset+24);
-          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+40), 0, "Skinny", pinfo->fd->num, is_video, NULL);
-        }
+        src_addr.type = AT_IPv4;
+        src_addr.len = 4;
+        src_addr.data = (char *)&ipv4_address;
+        ipv4_address = tvb_get_ipv4(tvb, offset+24);
+        rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+40), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+
         si->passThruId = tvb_get_letohl(tvb, offset+16);
       }
       break;
@@ -5379,7 +5376,6 @@ proto_reg_handoff_skinny(void)
   dissector_handle_t skinny_handle;
 
   if (!skinny_prefs_initialized) {
-    rtp_handle = find_dissector("rtp");
     /* Skinny content type and internet media type used by other dissectors are the same */
     media_type_dissector_table = find_dissector_table("media_type");
     skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);

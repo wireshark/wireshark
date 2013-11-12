@@ -664,7 +664,6 @@ static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;
-static dissector_handle_t rtp_handle;
 
 static proto_tree *g_tree;
 static guint8 cell_discriminator = 0x0f;  /* tracks whether handover is to UMTS */
@@ -3871,7 +3870,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         break;
     }
 
-    if ((!pinfo->fd->flags.visited) && rtp_port != 0 && rtp_handle) {
+    if ((!pinfo->fd->flags.visited) && rtp_port != 0) {
         rtp_add_address(pinfo, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->fd->num, FALSE, 0);
 		rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->fd->num);
     }
@@ -8139,7 +8138,6 @@ proto_reg_handoff_gsm_a_bssmap(void)
     gsm_bsslap_handle = find_dissector("gsm_bsslap");
     bssgp_handle      = find_dissector ("bssgp");
     rrc_handle        = find_dissector ("rrc");
-    rtp_handle        = find_dissector("rtp");
 
 }
 

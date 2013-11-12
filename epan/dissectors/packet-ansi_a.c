@@ -720,7 +720,6 @@ static gint ett_vp_algs = -1;
 static expert_field ei_ansi_a_extraneous_data = EI_INIT;
 
 static char a_bigbuf[1024];
-static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
@@ -8419,8 +8418,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
         proto_item_set_len(item, curr_offset - orig_offset);
 
-        if (rtp_handle &&
-            format_assigned &&
+        if (format_assigned &&
             (first_assigned_found == FALSE))
         {
             key  = wmem_new(wmem_file_scope(), gint);
@@ -12413,7 +12411,6 @@ proto_reg_handoff_ansi_a(void)
         dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
         sip_dtap_bsmap_handle = create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
         data_handle = find_dissector("data");
-        rtp_handle = find_dissector("rtp");
 
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);

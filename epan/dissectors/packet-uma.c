@@ -78,7 +78,6 @@ static dissector_handle_t uma_tcp_handle;
 static dissector_handle_t uma_udp_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t  bssap_pdu_type_table;
-static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t llc_handle;
 
@@ -1528,8 +1527,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTP_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/* TODO find out exactly which element contains IP addr */
 		/* Debug
-		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u Handle %u",
-			rtp_ipv4_address,RTP_UDP_port,rtp_handle);
+		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u,
+			rtp_ipv4_address,RTP_UDP_port);
 			*/
 		if(unc_ipv4_address!=0){
 			SET_ADDRESS(&src_addr, AT_IPv4, 4, &unc_ipv4_address);
@@ -1537,7 +1536,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			/* Set Source IP = own IP */
 			src_addr = pinfo->src;
 		}
-		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0 && rtp_handle){
+		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0){
 
 			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->fd->num, FALSE, 0);
 			if ((RTP_UDP_port & 0x1) == 0){ /* Even number RTP port RTCP should follow on odd number */
@@ -1758,7 +1757,6 @@ proto_reg_handoff_uma(void)
 		uma_udp_handle = find_dissector("umaudp");
 		dissector_add_handle("udp.port", uma_udp_handle);  /* for "decode-as" */
 		data_handle = find_dissector("data");
-		rtp_handle = find_dissector("rtp");
 		rtcp_handle = find_dissector("rtcp");
 		llc_handle = find_dissector("llcgprs");
 		bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
