@@ -15,9 +15,8 @@ BINARIES="
 
 cd "$CLI_PATH"
 
-rm -f ./wireshark
-mv utility-launcher wireshark
 chmod 755 wireshark
+chown root:wheel wireshark
 
 for BIN in $BINARIES ; do
     rm -f ./"$BIN"
