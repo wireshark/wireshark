@@ -41,6 +41,7 @@ void proto_reg_handoff_exported_pdu(void);
 static int proto_exported_pdu = -1;
 static int hf_exported_pdu_tag = -1;
 static int hf_exported_pdu_tag_len = -1;
+static int hf_exported_pdu_unknown_tag = -1;
 static int hf_exported_pdu_prot_name = -1;
 static int hf_exported_pdu_ipv4_src = -1;
 static int hf_exported_pdu_ipv4_dst = -1;
@@ -198,6 +199,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dvbci_set_addrs(dvb_ci_dir, pinfo);
                 break;
             default:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_unknown_tag, tvb, offset, tag_len, ENC_NA);
+                /* Add an expert item too? */
                 break;
         }
 
@@ -238,6 +241,11 @@ proto_register_exported_pdu(void)
         { &hf_exported_pdu_tag_len,
             { "Length", "exported_pdu.tag_len",
                FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_unknown_tag,
+            { "Unkown tag", "exported_pdu.unknown_tag",
+               FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_prot_name,
