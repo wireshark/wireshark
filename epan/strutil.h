@@ -86,7 +86,7 @@ gchar*     format_text(const guchar *line, size_t len);
 WS_DLL_PUBLIC
 gchar*     format_text_wsp(const guchar *line, size_t len);
 
-/*
+/**
  * Given a string, generate a string from it that shows non-printable
  * characters as the chr parameter passed, except a whitespace character
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
