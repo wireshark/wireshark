@@ -29,8 +29,6 @@
 #include "mate_util.h"
 #include <wsutil/file_util.h>
 
-#include <epan/ftypes/ftypes-int.h>
-
 /***************************************************************************
 *  ADDRDIFF
 ***************************************************************************
@@ -313,13 +311,11 @@ extern void avp_init(void) {
 extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 	AVP*   new_avp_val = (AVP*)g_slice_new(any_avp_type);
 	gchar* value;
-	gchar* repr = NULL;
+	gchar* repr;
 
 	new_avp_val->n = scs_subscribe(avp_strings, name);
 
-	if (finfo->value.ftype->val_to_string_repr) {
-		repr = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL);
-	}
+	repr = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL);
 
 	if (repr) {
 		value = scs_subscribe(avp_strings, repr);
