@@ -183,7 +183,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
   word = tvb_get_ntohs(tvb,0);
   /* Check for 'AF or 'PF' */
   if(word != 0x4146 && word != 0x5046)
-	  return FALSE;
+    return FALSE;
 
   pinfo->current_proto = "DCP (ETSI)";
 
@@ -268,8 +268,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   tvbuff_t *new_tvb=NULL;
 
   if (fcount > MAX_FRAGMENTS) {
-    if (tree)
-      proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
+    proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
     return NULL;
   }
 
@@ -446,8 +445,8 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   gint offset = 0;
   guint16 seq, payload_len;
   guint32 findex, fcount;
-  proto_tree *pft_tree = NULL;
-  proto_item *ti = NULL, *li = NULL;
+  proto_tree *pft_tree;
+  proto_item *ti, *li;
   tvbuff_t *next_tvb = NULL;
   gboolean fec = FALSE;
   guint16 rsk=0, rsz=0;
@@ -455,52 +454,43 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   pinfo->current_proto = "DCP-PFT";
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
 
-  if (tree) {                   /* we are being asked for details */
-    ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_NA);
-    pft_tree = proto_item_add_subtree (ti, ett_pft);
-    proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
-  }
+  ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_NA);
+  pft_tree = proto_item_add_subtree (ti, ett_pft);
+  proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
+
   offset += 2;
   seq = tvb_get_ntohs (tvb, offset);
-  if (tree) {
-    proto_tree_add_item (pft_tree, hf_edcp_pseq, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item (pft_tree, hf_edcp_pseq, tvb, offset, 2, ENC_BIG_ENDIAN);
+
   offset += 2;
   findex = tvb_get_ntoh24 (tvb, offset);
-  if (tree) {
-    proto_tree_add_item (pft_tree, hf_edcp_findex, tvb, offset, 3, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item (pft_tree, hf_edcp_findex, tvb, offset, 3, ENC_BIG_ENDIAN);
+
   offset += 3;
   fcount = tvb_get_ntoh24 (tvb, offset);
-  if (tree) {
-    proto_tree_add_item (pft_tree, hf_edcp_fcount, tvb, offset, 3, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item (pft_tree, hf_edcp_fcount, tvb, offset, 3, ENC_BIG_ENDIAN);
+
   offset += 3;
   plen = tvb_get_ntohs (tvb, offset);
   payload_len = plen & 0x3fff;
-  if (tree) {
-    proto_tree_add_item (pft_tree, hf_edcp_fecflag, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item (pft_tree, hf_edcp_addrflag, tvb, offset, 2, ENC_BIG_ENDIAN);
-    li = proto_tree_add_item (pft_tree, hf_edcp_plen, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item (pft_tree, hf_edcp_fecflag, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item (pft_tree, hf_edcp_addrflag, tvb, offset, 2, ENC_BIG_ENDIAN);
+  li = proto_tree_add_item (pft_tree, hf_edcp_plen, tvb, offset, 2, ENC_BIG_ENDIAN);
+
   offset += 2;
   if (plen & 0x8000) {
     fec = TRUE;
     rsk = tvb_get_guint8 (tvb, offset);
-    if (tree)
-          proto_tree_add_item (pft_tree, hf_edcp_rsk, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (pft_tree, hf_edcp_rsk, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     rsz = tvb_get_guint8 (tvb, offset);
-    if (tree)
-          proto_tree_add_item (pft_tree, hf_edcp_rsz, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (pft_tree, hf_edcp_rsz, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
   }
   if (plen & 0x4000) {
-    if (tree)
-      proto_tree_add_item (pft_tree, hf_edcp_source, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (pft_tree, hf_edcp_source, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    if (tree)
-          proto_tree_add_item (pft_tree, hf_edcp_dest, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (pft_tree, hf_edcp_dest, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
   if (tree) {
@@ -518,8 +508,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     guint16 real_len = tvb_length(tvb)-offset;
     proto_tree_add_item (pft_tree, hf_edcp_pft_payload, tvb, offset, real_len, ENC_NA);
     if(real_len != payload_len || real_len == 0) {
-      if(li)
-        proto_item_append_text(li, " (length error (%d))", real_len);
+      proto_item_append_text(li, " (length error (%d))", real_len);
     }
     else {
       next_tvb = dissect_pft_fragmented(tvb, pinfo, pft_tree, findex, fcount,
@@ -546,10 +535,10 @@ static void
 dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   gint offset = 0;
-  proto_item *ti = NULL;
+  proto_item *ti;
   proto_item *li = NULL;
-  proto_item *ci = NULL;
-  proto_tree *af_tree = NULL;
+  proto_item *ci;
+  proto_tree *af_tree;
   guint8 ver, pt;
   guint32 payload_len;
   tvbuff_t *next_tvb = NULL;
@@ -557,11 +546,10 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   pinfo->current_proto = "DCP-AF";
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-AF");
 
-  if (tree) {                   /* we are being asked for details */
-    ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_NA);
-    af_tree = proto_item_add_subtree (ti, ett_af);
-    proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
-  }
+  ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_NA);
+  af_tree = proto_item_add_subtree (ti, ett_af);
+  proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
+
   offset += 2;
   payload_len = tvb_get_ntohl(tvb, offset);
   if (tree) {
@@ -578,32 +566,26 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
   }
   offset += 4;
-  if (tree)
-    proto_tree_add_item (af_tree, hf_edcp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item (af_tree, hf_edcp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   ver = tvb_get_guint8 (tvb, offset);
-  if (tree) {
-    proto_tree_add_item (af_tree, hf_edcp_crcflag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (af_tree, hf_edcp_maj, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (af_tree, hf_edcp_min, tvb, offset, 1, ENC_BIG_ENDIAN);
-  }
+  proto_tree_add_item (af_tree, hf_edcp_crcflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (af_tree, hf_edcp_maj, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (af_tree, hf_edcp_min, tvb, offset, 1, ENC_BIG_ENDIAN);
+
   offset += 1;
   pt = tvb_get_guint8 (tvb, offset);
-  if (tree)
-    proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset += 1;
   next_tvb = tvb_new_subset (tvb, offset, payload_len, -1);
   offset += payload_len;
-  if (tree)
-    ci = proto_tree_add_item (af_tree, hf_edcp_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+  ci = proto_tree_add_item (af_tree, hf_edcp_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
   if (ver & 0x80) { /* crc valid */
     guint len = offset+2;
     const char *crc_buf = (const char *) tvb_get_ptr(tvb, 0, len);
     unsigned long c = crc_drm(crc_buf, len, 16, 0x11021, 1);
-    if (tree) {
-          proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
-      proto_tree_add_boolean(af_tree, hf_edcp_crc_ok, tvb, offset, 2, c==0xe2f0);
-    }
+    proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
+    proto_tree_add_boolean(af_tree, hf_edcp_crc_ok, tvb, offset, 2, c==0xe2f0);
   }
   /*offset += 2;*/
 
