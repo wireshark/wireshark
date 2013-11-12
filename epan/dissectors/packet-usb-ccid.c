@@ -348,9 +348,9 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree *ccid_tree;
     guint8      cmd;
     tvbuff_t   *next_tvb;
-    usb_data_t      *usb_data = (usb_data_t *) data;
+    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
 
-    DISSECTOR_ASSERT(usb_data);
+    DISSECTOR_ASSERT(usb_conv_info);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCCID");
     col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");
@@ -445,7 +445,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (tvb_get_guint8(tvb, 15) == 0xD4) {
 
                         /* Skip the 5 byte ACS Pseudo-Header */
-                        call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree, usb_data);
+                        call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree, usb_conv_info);
                     }
 
                     else {
@@ -496,7 +496,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 /* Strip the ISO 7816 status word at the end, like we do in the PN532 dissector for FeliCa payloads... */
                 next_tvb= tvb_new_subset(tvb, 10, (tvb_get_guint8(tvb, 1) - 2), (tvb_get_guint8(tvb, 1) - 2));
-                call_dissector_with_data(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree, usb_data);
+                call_dissector_with_data(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree, usb_conv_info);
             }
 
             /* Try to dissect responses to GSM SIM packets */

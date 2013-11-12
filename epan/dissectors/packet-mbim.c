@@ -4609,16 +4609,15 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static gboolean
 dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
 
-    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
-    if (usb_conv_info &&
-        (usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) &&
-        (usb_conv_info->interfaceClass != IF_CLASS_UNKNOWN)) {
+    if ((usb_conv_info == NULL) ||
+        ((usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) &&
+        (usb_conv_info->interfaceClass != IF_CLASS_UNKNOWN))) {
         return FALSE;
     }
 
-    if (dissect_mbim_bulk(tvb, pinfo, tree, data)) {
+    if (dissect_mbim_bulk(tvb, pinfo, tree, usb_conv_info)) {
         return TRUE;
     }
     return FALSE;

@@ -275,15 +275,13 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 /* dissector for usb midi bulk data */
-static void
-dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    usb_conv_info_t *usb_conv_info;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
     proto_tree *tree = NULL;
     guint offset;
     guint length = tvb_length(tvb);
-
-    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBAUDIO");
 
@@ -311,6 +309,8 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
             offset = 0;
             proto_tree_add_expert(tree, pinfo, &ei_usb_audio_undecoded, tvb, offset, length - offset);
     }
+
+    return tvb_length(tvb);
 }
 
 static void
@@ -391,7 +391,7 @@ proto_register_usb_audio(void)
     expert_register_field_array(expert_usb_audio, ei, array_length(ei));
     register_init_routine(&midi_data_reassemble_init);
 
-    register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
+    new_register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
 }
 
 void

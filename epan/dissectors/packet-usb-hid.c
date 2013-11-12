@@ -766,19 +766,16 @@ static const value_string usb_hid_report_type_vals[] = {
  * and FALSE otherwise.
  */
 static gint
-dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gboolean is_request;
-    usb_conv_info_t *usb_conv_info;
-    usb_trans_info_t *usb_trans_info;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
     int offset = 0;
     usb_setup_dissector dissector;
     const usb_setup_dissector_table_t *tmp;
 
     is_request = (pinfo->srcport==NO_ENDPOINT);
-
-    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
-    usb_trans_info = usb_conv_info->usb_trans_info;
 
     /* See if we can find a class specific dissector for this request */
     dissector = NULL;

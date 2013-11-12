@@ -106,7 +106,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree     *titem = NULL;
     proto_item     *pitem = NULL;
     gint            offset = 0;
-    usb_data_t     *usb_data;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
     tvbuff_t       *next_tvb = NULL;
     hci_data_t     *hci_data;
     gint            p2p_dir_save;
@@ -121,12 +121,10 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_USB");
 
-
-    usb_data = (usb_data_t *)data;
-    DISSECTOR_ASSERT(usb_data);
+    DISSECTOR_ASSERT(usb_conv_info);
 
     p2p_dir_save = pinfo->p2p_dir;
-    pinfo->p2p_dir = usb_data->direction;
+    pinfo->p2p_dir = usb_conv_info->direction;
 
     switch (pinfo->p2p_dir) {
 
@@ -143,11 +141,11 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    session_id = usb_data->bus_id << 16 | usb_data->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | usb_data->endpoint;
+    session_id = usb_conv_info->bus_id << 16 | usb_conv_info->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | usb_conv_info->endpoint;
 
     hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
     hci_data->interface_id = HCI_INTERFACE_USB;
-    hci_data->adapter_id = usb_data->bus_id << 8 | usb_data->device_address;
+    hci_data->adapter_id = usb_conv_info->bus_id << 8 | usb_conv_info->device_address;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
     hci_data->localhost_bdaddr = localhost_bdaddr;
@@ -156,7 +154,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pinfo->ptype = PT_BLUETOOTH;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!pinfo->fd->flags.visited && usb_data->endpoint <= 0x02) {
+    if (!pinfo->fd->flags.visited && usb_conv_info->endpoint <= 0x02) {
         fragment_info_t  *fragment_info;
 
         fragment_info = (fragment_info_t *) wmem_tree_lookup32(fragment_info_table, session_id);
@@ -169,12 +167,17 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (fragment_info->fragment_id == 0) {
-            if (usb_data->endpoint == 0x00) {
+            switch(usb_conv_info->endpoint)
+            {
+            case 0:
                 fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 2) + 3;
-            } else if (usb_data->endpoint == 0x01) {
+                break;
+            case 1:
                 fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 1) + 2;
-            } else if (usb_data->endpoint == 0x02) {
+                break;
+            case 2:
                 fragment_info->remaining_length = tvb_get_letohs(tvb, offset + 2) + 4;
+                break;
             }
         }
 
@@ -206,21 +209,26 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     NULL, ttree);
         }
 
-        if (usb_data->endpoint == 0x00) {
+        switch(usb_conv_info->endpoint)
+        {
+        case 0:
             call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, hci_data);
-        } else if (usb_data->endpoint == 0x01) {
+            break;
+        case 1:
             call_dissector_with_data(bthci_evt_handle, next_tvb, pinfo, tree, hci_data);
-        } else if (usb_data->endpoint == 0x02) {
+            break;
+        case 2:
             call_dissector_with_data(bthci_acl_handle, next_tvb, pinfo, tree, hci_data);
+            break;
         }
     } else {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_unknown_fragment, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
-    if (usb_data->endpoint == 0x03) {
+    if (usb_conv_info->endpoint == 0x03) {
         call_dissector_with_data(bthci_sco_handle, next_tvb, pinfo, tree, hci_data);
-    } else if (usb_data->endpoint > 0x03) {
+    } else if (usb_conv_info->endpoint > 0x03) {
         proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_NA);
     }
 

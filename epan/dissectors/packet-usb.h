@@ -79,14 +79,21 @@ typedef struct _usb_trans_info_t {
 /* Conversation Structure
  * there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
+    guint16  bus_id;
+    guint8   device_address;
+    guint8   endpoint;
+    gint     direction;
+
     guint16 interfaceClass;     /* Interface Descriptor - class          */
     guint16 interfaceSubclass;  /* Interface Descriptor - subclass       */
     guint16 interfaceProtocol;  /* Interface Descriptor - protocol       */
     guint8  interfaceNum;       /* Most recent interface number          */
+
     guint16 deviceVendor;       /* Device    Descriptor - USB Vendor  ID */
     guint32 deviceProduct;      /* Device    Descriptor - USB Product ID - MSBs only for encoding unknown */
     wmem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
+
     void *class_data;	/* private class/id decode data */
 };
 
@@ -98,12 +105,6 @@ typedef struct _usb_tap_data_t {
     usb_trans_info_t *trans_info;
 } usb_tap_data_t;
 
-typedef struct _usb_data_t {
-    guint16  bus_id;
-    guint8   device_address;
-    guint8   endpoint;
-    gint     direction;
-} usb_data_t;
 
 /* This is the endpoint number used for "no endpoint" or the fake endpoint
  * for the host side since we need two endpoints to manage conversations

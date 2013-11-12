@@ -195,7 +195,6 @@ typedef struct _packet_info {
 								 * MTP2_ANNEX_A_USED_UNKNOWN  2
 								 */
   guint16 profinet_type; 		/**< the type of PROFINET packet (0: not a PROFINET packet) */
-  void *usb_conv_info;
 
   const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
 

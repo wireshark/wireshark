@@ -891,7 +891,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
  */
 static int
 dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
-                                               guint8 descriptor_len, packet_info *pinfo)
+                                               guint8 descriptor_len, packet_info *pinfo, usb_conv_info_t *usb_conv_info)
 {
     video_conv_info_t *video_conv_info = NULL;
     video_entity_t *entity = NULL;
@@ -1020,14 +1020,8 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     if (entity_id != 0)
         proto_item_append_text(item, " (Entity %d)", entity_id);
 
-    if (subtype != VC_HEADER && pinfo->usb_conv_info)
+    if (subtype != VC_HEADER && usb_conv_info)
     {
-        /* Remember the entity ID / type for GET/SET transactions */
-        usb_conv_info_t* usb_conv_info;
-
-        /* This is the usb_conv_info of the CONTROL endpoint */
-        usb_conv_info = (usb_conv_info_t*) pinfo->usb_conv_info;
-
         /* Switch to the usb_conv_info of the Video Control interface */
         usb_conv_info = get_usb_iface_conv_info(pinfo, usb_conv_info->interfaceNum);
         video_conv_info = (video_conv_info_t *)usb_conv_info->class_data;
@@ -1470,13 +1464,13 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
  * @return  >0   amount of data in the descriptor
  */
 static int
-dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                           void *data _U_)
+dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int    offset = 0;
     guint8 descriptor_len;
     guint8 descriptor_type;
     gint   bytes_available;
+    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
 
     tvbuff_t         *desc_tvb;
 
@@ -1493,14 +1487,11 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else if (descriptor_type == CS_INTERFACE)
     {
-        usb_conv_info_t  *usb_conv_info;
-
-        usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
         if (usb_conv_info->interfaceSubclass == SC_VIDEOCONTROL)
         {
             offset = dissect_usb_video_control_interface_descriptor(tree, desc_tvb,
                                                                     descriptor_len,
-                                                                    pinfo);
+                                                                    pinfo, usb_conv_info);
         }
         else if (usb_conv_info->interfaceSubclass == SC_VIDEOSTREAMING)
         {
@@ -1997,22 +1988,16 @@ static const value_string setup_request_names_vals[] = {
  * @return  >0   amount of data in the descriptor
  */
 static int
-dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gboolean is_request;
-    usb_conv_info_t  *usb_conv_info;
-    usb_trans_info_t *usb_trans_info;
+    gboolean is_request = (pinfo->srcport == NO_ENDPOINT);
+    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
     int offset = 0;
-    usb_setup_dissector dissector;
+    usb_setup_dissector dissector = NULL;
     const usb_setup_dissector_table_t *tmp;
 
-    is_request = (pinfo->srcport == NO_ENDPOINT);
-
-    usb_conv_info  = (usb_conv_info_t *)pinfo->usb_conv_info;
-    usb_trans_info = usb_conv_info->usb_trans_info;
-
     /* See if we can find a class specific dissector for this request */
-    dissector = NULL;
     for (tmp=setup_dissectors; tmp->dissector; tmp++)
     {
         if (tmp->request == usb_trans_info->setup.request)
@@ -2054,13 +2039,13 @@ dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  * @return  >0   amount of data in the descriptor
  */
 static int
-dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     usb_conv_info_t  *usb_conv_info;
     gint bytes_available;
     int offset = 0;
 
-    usb_conv_info   = (usb_conv_info_t *)pinfo->usb_conv_info;
+    usb_conv_info   = (usb_conv_info_t *)data;
     bytes_available = tvb_length_remaining(tvb, offset);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBVIDEO");

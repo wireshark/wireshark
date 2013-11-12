@@ -76,10 +76,9 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint16          packet_code;
     guint16          length;
     guint8           checksum;
-    usb_data_t      *usb_data;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
 
-    usb_data = (usb_data_t *) data;
-    DISSECTOR_ASSERT(usb_data);
+    DISSECTOR_ASSERT(usb_conv_info);
 
     length = tvb_length_remaining(tvb, offset);
     if (length < 6) return offset;
@@ -136,7 +135,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += 1;
 
         next_tvb = tvb_new_subset(tvb, offset, length, length);
-        call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_data);
+        call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
         offset += length;
 
         proto_tree_add_item(main_tree, hf_data_checksum, tvb, offset, 1, ENC_NA);
@@ -163,7 +162,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += 1;
 
         next_tvb = tvb_new_subset(tvb, offset, length, length);
-        call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_data);
+        call_dissector_with_data(pn532_handle, next_tvb, pinfo, tree, usb_conv_info);
         offset += length;
 
         proto_tree_add_item(main_tree, hf_data_checksum, tvb, offset, 1, ENC_NA);

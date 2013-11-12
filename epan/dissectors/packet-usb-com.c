@@ -198,7 +198,7 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     break;
                 case 0x1b:
                 case 0x1c:
-                    offset = call_dissector_only(mbim_descriptor_handle, tvb, pinfo, subtree, NULL);
+                    offset = call_dissector_only(mbim_descriptor_handle, tvb, pinfo, subtree, data);
                     break;
                 default:
                     break;
@@ -216,14 +216,12 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int
-dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    usb_conv_info_t *usb_conv_info;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
     proto_tree *subtree;
     proto_item *ti;
     gint offset = 0;
-
-    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCOM");
 
@@ -254,9 +252,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static int
 dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    usb_conv_info_t *usb_conv_info;
-
-    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
+    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
 
     if (usb_conv_info) {
         switch (usb_conv_info->interfaceProtocol)

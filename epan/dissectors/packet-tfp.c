@@ -226,14 +226,9 @@ dissect_tfp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 			byte_offset += byte_count_tfp_flags;
 
-			proto_tree_add_item(tfp_tree,
-				    	    hf_tfp_payload,
-				    	    tvb,
-				    	    byte_offset,
-				    	    -1,
-				    	    ENC_NA);
+			proto_tree_add_item(tfp_tree, hf_tfp_payload, tvb, byte_offset, -1, ENC_NA);
 		}
-  	}
+	}
 }
 
 /* dissector function for dissecting TCP payloads */
@@ -241,32 +236,27 @@ static void
 dissect_tfp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFP over TCP");
-  	col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	dissect_tfp_common(tvb, pinfo, tree);
 }
 
 /* dissector function for dissecting USB payloads */
-static void
-dissect_tfp_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean
+dissect_tfp_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	usb_conv_info_t *usb_conv_info;
-	usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
+	usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
 
-	if (usb_conv_info->deviceVendor == tfp_USB_VENDOR_ID) {
+	if ((usb_conv_info != NULL) &&
+		(usb_conv_info->deviceVendor == tfp_USB_VENDOR_ID) &&
+		(usb_conv_info->deviceProduct == tfp_USB_PRODUCT_ID)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFP over USB");
-		if (usb_conv_info->deviceProduct == tfp_USB_PRODUCT_ID) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			dissect_tfp_common(tvb, pinfo, tree);
-		}
-		else {
-			/* ToDo? Display "Unknown Product" ?? */
-		}
-		return;
+		col_clear(pinfo->cinfo, COL_INFO);
+		dissect_tfp_common(tvb, pinfo, tree);
+		return TRUE;
 	}
-	else {
-		return; /* Not tfp_USB_VENDOR_ID */
-	}
+
+	return FALSE;
 }
 
 /* protocol register function */
@@ -418,15 +408,12 @@ proto_register_tfp(void)
 void
 proto_reg_handoff_tfp(void) {
 
-	static dissector_handle_t
-		tfp_handle_tcp,
-		tfp_handle_usb;
+	dissector_handle_t tfp_handle_tcp;
 
 	tfp_handle_tcp = create_dissector_handle(dissect_tfp_tcp, proto_tfp);
-	tfp_handle_usb = create_dissector_handle(dissect_tfp_usb, proto_tfp);
 
 	dissector_add_uint("tcp.port", tfp_PORT, tfp_handle_tcp);
-	dissector_add_uint("usb.bulk", IF_CLASS_VENDOR_SPECIFIC, tfp_handle_usb);
+	heur_dissector_add("usb.bulk", dissect_tfp_bulk_heur, proto_tfp);
 }
 
 /*
