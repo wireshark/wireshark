@@ -88,6 +88,7 @@ static expert_field ei_mq_pcf_MaxInt = EI_INIT;
 static expert_field ei_mq_pcf_MaxStr = EI_INIT;
 static expert_field ei_mq_pcf_MaxI64 = EI_INIT;
 static expert_field ei_mq_pcf_MaxPrm = EI_INIT;
+static expert_field ei_mq_pcf_PrmCnt = EI_INIT;
 
 static gint ett_mqpcf_prm = -1;
 static gint ett_mqpcf = -1;
@@ -171,6 +172,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 	const char sMaxLst[] = " Max # of List reached. DECODE interrupted   (actual %u of %u)";
 	const char sPrmLn0[] = " MQPrm[%3u] has a zero length. DECODE Failed (MQPrm Count: %u)";
 	const char sMaxPrm[] = " Max # of Parm reached. DECODE interrupted   (actual %u of %u)";
+	const char sPrmCnt[] = " Cnt=-1 and Length(%u) < 16. DECODE interrupted for elem %u";
 
 	proto_item *ti	 = NULL;
 	proto_tree *tree = NULL;
@@ -183,9 +185,10 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 		while (tvb_length_remaining(tvb, xOfs) >= 16)
 		{
 			uLen = tvb_get_guint32_endian(tvb, xOfs + 4, bLittleEndian);
-			if (uLen == 0)
+			if (uLen < 16)
 			{
-				/* XXX - add expert info here? */
+				ti = proto_tree_add_text(mq_tree, tvb, xOfs, 16, sPrmCnt, uLen, uCnt);
+				expert_add_info(pinfo, ti, &ei_mq_pcf_PrmCnt);
 				break;
 			}
 			uCnt++;
@@ -687,6 +690,7 @@ void proto_register_mqpcf(void)
 		{ &ei_mq_pcf_MaxStr, { "mqpcf.parm.StrList",   PI_UNDECODED, PI_WARN,  "MQPCF Parameter String list exhausted", EXPFILL }},
 		{ &ei_mq_pcf_MaxI64, { "mqpcf.parm.Int64List", PI_UNDECODED, PI_WARN,  "MQPCF Parameter Int64 list exhausted", EXPFILL }},
 		{ &ei_mq_pcf_MaxPrm, { "mqpcf.parm.MaxPrm",    PI_UNDECODED, PI_WARN,  "MQPCF Max number of parameter exhausted", EXPFILL }},
+		{ &ei_mq_pcf_PrmCnt, { "mqpcf.parm.PrmCnt",    PI_UNDECODED, PI_WARN,  "MQPCF Unkn Parm Cnt Length invalid", EXPFILL }},
 	};
 
 	module_t *mq_pcf_module;
