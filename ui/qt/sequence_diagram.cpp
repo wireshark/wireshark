@@ -29,6 +29,7 @@
 
 #include <QFont>
 #include <QFontMetrics>
+#include <QPalette>
 #include <QPen>
 #include <QPointF>
 
@@ -57,7 +58,8 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     value_axis_(valueAxis),
     comment_axis_(commentAxis),
     data_(NULL),
-    sainfo_(NULL)
+    sainfo_(NULL),
+    selected_packet_(0)
 {
     data_ = new WSCPSeqDataMap();
     // xaxis (value): Address
@@ -75,7 +77,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
         axis->setBasePen(QPen(Qt::NoPen));
     }
 
-    value_axis_->grid()->setVisible(true);
+    value_axis_->grid()->setVisible(false);
 
     key_axis_->setRangeReversed(true);
     key_axis_->grid()->setVisible(false);
@@ -137,6 +139,16 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
     comment_axis_->setTickVectorLabels(com_labels);
 }
 
+void SequenceDiagram::setSelectedPacket(int selected_packet)
+{
+    if (selected_packet > 0) {
+        selected_packet_ = selected_packet;
+    } else {
+        selected_packet_ = 0;
+    }
+    mParentPlot->replot();
+}
+
 seq_analysis_item_t *SequenceDiagram::itemForPosY(int ypos)
 {
     double key_pos = qRound(key_axis_->pixelToCoord(ypos));
@@ -163,10 +175,55 @@ double SequenceDiagram::selectTest(const QPointF &pos, bool onlySelectable, QVar
 
 void SequenceDiagram::draw(QCPPainter *painter)
 {
+    QPen fg_pen;
+    qreal alpha = 0.50;
+
+    // Lifelines (node lines)
+    painter->save();
+    painter->setOpacity(alpha);
+    fg_pen = mainPen();
+    fg_pen.setStyle(Qt::DashLine);
+    painter->setPen(fg_pen);
+    for (int ll_x = value_axis_->range().lower; ll_x < value_axis_->range().upper; ll_x++) {
+        QPoint ll_start(coordsToPixels(key_axis_->range().upper, ll_x).toPoint());
+        QPoint ll_end(coordsToPixels(key_axis_->range().lower, ll_x).toPoint());
+        painter->drawLine(ll_start, ll_end);
+    }
+    painter->restore();
+    fg_pen = mainPen();
+
     WSCPSeqDataMap::const_iterator it;
     for (it = data_->constBegin(); it != data_->constEnd(); ++it) {
         double cur_key = it.key();
         seq_analysis_item_t *sai = (seq_analysis_item_t *) it.value().value;
+        QPen fg_pen(mainPen());
+
+        if (sai->fd->num == selected_packet_) {
+            // Highlighted background
+            painter->save();
+            QRect bg_rect(
+                        QPoint(coordsToPixels(cur_key - 0.5, value_axis_->range().lower).toPoint()),
+                        QPoint(coordsToPixels(cur_key + 0.5, value_axis_->range().upper).toPoint()));
+            QPalette sel_pal;
+            painter->fillRect(bg_rect, sel_pal.brush(QPalette::Highlight));
+            fg_pen.setColor(sel_pal.color(QPalette::HighlightedText));
+
+            // Highlighted lifelines
+            painter->save();
+            QPen hl_pen = fg_pen;
+            hl_pen.setStyle(Qt::DashLine);
+            painter->setPen(hl_pen);
+            painter->setOpacity(alpha);
+            for (int ll_x = value_axis_->range().lower; ll_x < value_axis_->range().upper; ll_x++) {
+                QPoint ll_start(coordsToPixels(cur_key - 0.5, ll_x).toPoint());
+                QPoint ll_end(coordsToPixels(cur_key + 0.5, ll_x).toPoint());
+                hl_pen.setDashOffset(bg_rect.top() - ll_start.x());
+                painter->drawLine(ll_start, ll_end);
+            }
+            painter->restore();
+
+            painter->restore();
+        }
 
         if (cur_key < key_axis_->range().lower || cur_key > key_axis_->range().upper) {
             continue;
@@ -178,6 +235,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
             continue;
         }
 
+        // Message
         if (mainPen().style() != Qt::NoPen && mainPen().color().alpha() != 0) {
             painter->save();
 
@@ -196,8 +254,8 @@ void SequenceDiagram::draw(QCPPainter *painter)
                     << arrow_end
                     << QPoint(arrow_end.x() - (ah_size*3), arrow_end.y() + ah_size);
 
-            painter->setBrush(mainPen().color());
-            painter->setPen(mainPen());
+            painter->setBrush(fg_pen.color());
+            painter->setPen(fg_pen);
             painter->drawLine(arrow_line);
             painter->drawPolygon(arrow_head);
 

@@ -39,7 +39,6 @@
 
 // To do:
 // - Add UTF8 to text dump
-// - Selection highlighting
 // - Save to XMI? http://www.umlgraph.org/
 // - Time: abs vs delta
 // - Hide nodes
@@ -132,6 +131,8 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(diagramClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(sp, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseReleased(QMouseEvent*)));
+    connect(this, SIGNAL(goToPacket(int)), seq_diagram_, SLOT(setSelectedPacket(int)));
+
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 
     fillDiagram();

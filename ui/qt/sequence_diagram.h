@@ -51,7 +51,6 @@ typedef QMap<double, WSCPSeqData> WSCPSeqDataMap;
 typedef QMapIterator<double, WSCPSeqData> WSCPSeqDataMapIterator;
 typedef QMutableMapIterator<double, WSCPSeqData> WSCPSeqDataMutableMapIterator;
 
-// XXX Should we dispense with this class and simply add items to a graph instead?
 class SequenceDiagram : public QCPAbstractPlottable
 {
     Q_OBJECT
@@ -59,24 +58,19 @@ public:
     explicit SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *commentAxis);
 
     // getters:
-//    double width() const { return mWidth; }
-//    WSCPSeqDataMap *data() const { return mData; }
 
     // setters:
-//    void setWidth(double width);
     void setData(seq_analysis_info_t *sainfo);
-//    void setData(const QVector<double> &key, const QVector<double> &value);
-    seq_analysis_item_t *itemForPosY(int ypos);
 
     // non-property methods:
-//    void addData(const WSCPSeqDataMap &dataMap);
-//    void addData(const WSCPSeqData &data);
-//    void addData(double key, double value);
-//    void addData(const QVector<double> &keys, const QVector<double> &values);
+    seq_analysis_item_t *itemForPosY(int ypos);
 
     // reimplemented virtual methods:
     virtual void clearData() {}
     virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+
+public slots:
+    void setSelectedPacket(int selected_packet);
 
 protected:
     virtual void draw(QCPPainter *painter);
@@ -90,6 +84,7 @@ private:
     QCPAxis *comment_axis_;
     WSCPSeqDataMap *data_;
     seq_analysis_info_t *sainfo_;
+    guint32 selected_packet_;
 };
 
 #endif // SEQUENCE_DIAGRAM_H
