@@ -45,6 +45,7 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-dvbci.h>
 #include <epan/dissectors/packet-mpeg-descriptor.h>
+#include <epan/dissectors/packet-mpeg-pmt.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/dissectors/packet-x509ce.h>
 
@@ -5133,8 +5134,9 @@ proto_register_dvbci(void)
             FT_UINT16, BASE_HEX, NULL, 0x0FFF, NULL, HFILL }
         },
         { &hf_dvbci_stream_type,
-          { "Stream type", "dvb-ci.ca.stream_type",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+          { "Stream type", "dvb-ci.ca.stream_type", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &mpeg_pmt_stream_type_vals_ext,
+              0, NULL, HFILL }
         },
         { &hf_dvbci_es_pid,
           { "Elementary stream PID", "dvb-ci.ca.elementary_pid",
