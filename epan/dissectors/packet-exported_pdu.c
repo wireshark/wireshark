@@ -78,7 +78,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_SRC_PORT,         "Source Port" },
    { EXP_PDU_TAG_DST_PORT,         "Destination Port" },
 
-   { EXP_PDU_TAG_SCTP_PPID,        "SCTP ppid" },
+   { EXP_PDU_TAG_SCTP_PPID,        "SCTP PPID" },
 
    { EXP_PDU_TAG_SS7_OPC,          "SS7 OPC" },
    { EXP_PDU_TAG_SS7_DPC,          "SS7 DPC" },
@@ -110,20 +110,20 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
-
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_exported_pdu, tvb, offset, -1, ENC_NA);
     exported_pdu_tree = proto_item_add_subtree(ti, ett_exported_pdu);
 
-    tag = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
-    tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
-    proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-    tag_len = tvb_get_ntohs(tvb, offset);
-    offset+=2;
-    while(tag != 0){
-        switch(tag){
+    do {
+        tag = tvb_get_ntohs(tvb, offset);
+        ti = proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
+        proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        tag_len = tvb_get_ntohs(tvb, offset);
+        offset+=2;
+
+        switch(tag) {
             case EXP_PDU_TAG_PROTO_NAME:
                 next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
                 proto_name = tvb_get_string(wmem_packet_scope(), tvb, offset, tag_len);
@@ -199,20 +199,15 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             default:
                 break;
-        };
+        }
+
         offset = offset + tag_len;
-        ti = proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
-        tag = tvb_get_ntohs(tvb, offset);
-        offset+=2;
-        tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
-        proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-        tag_len = tvb_get_ntohs(tvb, offset);
-        offset+=2;
-    }
+
+    } while(tag != 0);
 
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    switch(next_proto_type){
+    switch(next_proto_type) {
         case EXPORTED_PDU_NEXT_PROTO_STR:
             proto_handle = find_dissector(proto_name);
             if (proto_handle) {
@@ -344,7 +339,7 @@ proto_register_exported_pdu(void)
 #endif
     /* Register for tapping
      * The tap is registered here but it is to be used by dissectors that
-     * want to export their PDU:s, see packet-sip.c
+     * want to export their PDUs, see packet-sip.c
      */
     register_tap(EXPORT_PDU_TAP_NAME_LAYER_3);
     register_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
