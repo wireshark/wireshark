@@ -303,9 +303,8 @@ static void enlarge_string(GString *gstr, guint32 length, char pad) {
 
 static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 p2) {
 
-    gsize len;
+    glong len, ins_len;
     gsize pos;
-    gsize ins_len;
     gchar *ins_str = NULL;
 
     if (p1 == p2)
