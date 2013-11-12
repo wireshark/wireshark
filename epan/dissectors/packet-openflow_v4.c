@@ -3215,9 +3215,7 @@ dissect_openflow_group_stats_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
     /* uint8_t pad[4]; */
     proto_tree_add_item(tree, hf_openflow_v4_group_stats_request_pad, tvb, offset, 4, ENC_NA);
-    offset+=4;
-
-    /*return offset;*/
+    /*offset+=4;*/
 }
 
 
