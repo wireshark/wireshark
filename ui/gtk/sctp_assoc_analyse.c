@@ -321,7 +321,7 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 			   "Minimum Number of Outbound Streams: %u",
 			   ((u_data->assoc->outstream1 > u_data->assoc->instream2) ?
 			    u_data->assoc->instream2 : u_data->assoc->outstream1));
-		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_out), label_txt);
+		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->min_out), label_txt);
 	}
 	else
 	{
