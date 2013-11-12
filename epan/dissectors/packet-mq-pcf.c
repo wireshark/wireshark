@@ -359,7 +359,6 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 			break;
 		case MQ_MQCFT_USER:
 			{
-				uSLn = tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
 				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s", strPrm);
 				tree = proto_item_add_subtree(ti, ett_mqpcf_prm);
 
