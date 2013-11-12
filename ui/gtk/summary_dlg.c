@@ -82,6 +82,7 @@ add_string_to_grid_sensitive(GtkWidget *grid, guint *row, const gchar *title, co
     ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, *row, 1, 1);
 
     label = gtk_label_new(value);
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
     ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, *row, 1, 1);
@@ -198,11 +199,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   double        seconds;
   double        disp_seconds;
   double        marked_seconds;
-  guint         offset;
-  guint         snip;
   guint         row;
-  gchar        *str_dup;
-  gchar        *str_work;
 
   unsigned int  elapsed_time;
   iface_options iface;
@@ -446,23 +443,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if (summary.dfilter) {
     /* Display filter */
-    /* limit each row to some reasonable length */
-    str_dup = g_strdup_printf("%s", summary.dfilter);
-    str_work = g_strdup(str_dup);
-    offset = 0;
-    snip = 0;
-    while(strlen(str_work) > FILTER_SNIP_LEN) {
-        str_work[FILTER_SNIP_LEN] = '\0';
-        add_string_to_grid(grid, &row, (snip == 0) ? "Display filter:" : "", str_work);
-        g_free(str_work);
-        offset+=FILTER_SNIP_LEN;
-        str_work = g_strdup(&str_dup[offset]);
-        snip++;
-    }
-
-    add_string_to_grid(grid, &row, (snip == 0) ? "Display filter:" : "", str_work);
-    g_free(str_work);
-    g_free(str_dup);
+    add_string_to_grid(grid, &row, "Display filter:", summary.dfilter);
   } else {
     /* Display filter */
     add_string_to_grid(grid, &row, "Display filter:", "none");
