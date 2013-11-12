@@ -305,6 +305,8 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 
     gsize len;
     gsize pos;
+    gsize ins_len;
+    gchar *ins_str = NULL;
 
     if (p1 == p2)
         return;
@@ -318,20 +320,22 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
         len = p2 - p1;
     }
 
-    if (len > strlen(text_to_insert)) {
-        len = strlen(text_to_insert);
+    ins_len = g_utf8_strlen(text_to_insert, -1);
+    if (len > ins_len) {
+        len = ins_len;
+    } else if (len < ins_len) {
+	ins_str = g_utf8_substring(text_to_insert, 0, len);
     }
+
+    if (!ins_str) ins_str = g_strdup(text_to_insert);
 
     if (pos > gstr->len)
         pos = gstr->len;
 
-    /* ouch this is ugly but gtk1 needs it */
-    if ((pos + len) > gstr->len)
-        g_string_truncate(gstr, pos);
-    else
-        g_string_erase(gstr, pos, len);
+    g_string_erase(gstr, pos, len);
 
-    g_string_insert(gstr, pos, text_to_insert);
+    g_string_insert(gstr, pos, ins_str);
+    g_free(ins_str);
 }
 
 /* Return the index array if the node is in the array. Return -1 if there is room in the array
