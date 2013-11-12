@@ -318,8 +318,8 @@ typedef struct command_data_t {
     guint32  command_frame_number;
     guint32  response_frame_number;
     union {
-        guint8  test_number;
-        guint8  baudrate;
+        gint16  test_number;
+        gint16  baudrate;
     } data;
 } command_data_t;
 
@@ -624,8 +624,8 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree *next_tree;
     guint8      cmd;
     guint8      config;
-    guint8      baudrate;
-    guint8      test_number;
+    gint16      baudrate;
+    gint16      test_number;
     guint8      length;
     guint8      value;
     guint8      type;
