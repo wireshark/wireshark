@@ -119,7 +119,7 @@ private slots:
     void on_streamNumberSpinBox_valueChanged(int new_stream);
     void on_otherDirectionButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
-    void on_selectRadioButton_toggled(bool checked);
+    void on_zoomRadioButton_toggled(bool checked);
     void on_actionZoomIn_triggered();
     void on_actionZoomOut_triggered();
     void on_actionReset_triggered();

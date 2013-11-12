@@ -234,7 +234,6 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
 {
     int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
 
-
     // XXX - This differs from the main window but matches other applications (e.g. Mozilla and Safari)
     switch(event->key()) {
     case Qt::Key_Minus:
@@ -258,11 +257,11 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        panAxes(0, pan_pixels);
+        panAxes(0, -1 * pan_pixels);
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        panAxes(0, -1 * pan_pixels);
+        panAxes(0, pan_pixels);
         break;
 
     case Qt::Key_Space:
@@ -1054,7 +1053,7 @@ void TCPStreamDialog::on_dragRadioButton_toggled(bool checked)
                 );
 }
 
-void TCPStreamDialog::on_selectRadioButton_toggled(bool checked)
+void TCPStreamDialog::on_zoomRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = false;
     ui->streamPlot->setInteractions(0);
@@ -1087,12 +1086,12 @@ void TCPStreamDialog::on_actionMoveLeft10_triggered()
 
 void TCPStreamDialog::on_actionMoveUp10_triggered()
 {
-    panAxes(0, 10);
+    panAxes(0, -10);
 }
 
 void TCPStreamDialog::on_actionMoveDown10_triggered()
 {
-    panAxes(0, -10);
+    panAxes(0, 10);
 }
 
 void TCPStreamDialog::on_actionMoveRight1_triggered()
@@ -1107,12 +1106,12 @@ void TCPStreamDialog::on_actionMoveLeft1_triggered()
 
 void TCPStreamDialog::on_actionMoveUp1_triggered()
 {
-    panAxes(0, 1);
+    panAxes(0, -1);
 }
 
 void TCPStreamDialog::on_actionMoveDown1_triggered()
 {
-    panAxes(0, -1);
+    panAxes(0, 1);
 }
 
 void TCPStreamDialog::on_actionNextStream_triggered()
@@ -1154,7 +1153,7 @@ void TCPStreamDialog::on_actionGoToPacket_triggered()
 void TCPStreamDialog::on_actionDragZoom_triggered()
 {
     if (mouse_drags_) {
-        ui->selectRadioButton->toggle();
+        ui->zoomRadioButton->toggle();
     } else {
         ui->dragRadioButton->toggle();
     }

@@ -28,18 +28,25 @@
 
 #include "wsutil/nstime.h"
 
+#include "wireshark_application.h"
+
+#include <QDir>
+#include <QFileDialog>
 #include <QFontMetrics>
 #include <QPoint>
 
 #include <QDebug>
 
 // To do:
-// - Save as
-//   - Add UTF8 to text dump
-// - Context menu
+// - Add UTF8 to text dump
 // - Selection highlighting
-// - Keyboard shortcuts
-// - ...
+// - Save to XMI? http://www.umlgraph.org/
+// - Time: abs vs delta
+// - Hide nodes
+// - Clickable time + comments?
+// - Incorporate packet comments?
+// - Change line_style to seq_type (i.e. draw ACKs dashed)
+// - Create WSGraph subclasses with common behavior.
 
 SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType type) :
     QDialog(parent),
@@ -72,15 +79,33 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
     ui->gridLayout->setSpacing(0);
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), sp->yAxis2, SLOT(setRange(QCPRange)));
 
+    ctx_menu_.addAction(ui->actionReset);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionMoveRight10);
+    ctx_menu_.addAction(ui->actionMoveLeft10);
+    ctx_menu_.addAction(ui->actionMoveUp10);
+    ctx_menu_.addAction(ui->actionMoveDown10);
+    ctx_menu_.addAction(ui->actionMoveRight1);
+    ctx_menu_.addAction(ui->actionMoveLeft1);
+    ctx_menu_.addAction(ui->actionMoveUp1);
+    ctx_menu_.addAction(ui->actionMoveDown1);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionGoToPacket);
+
     memset (&seq_analysis_, 0, sizeof(seq_analysis_));
 
+    ui->showComboBox->blockSignals(true);
     ui->showComboBox->setCurrentIndex(0);
+    ui->showComboBox->blockSignals(false);
+    ui->addressComboBox->blockSignals(true);
     ui->addressComboBox->setCurrentIndex(0);
+    ui->addressComboBox->blockSignals(false);
 
     QComboBox *fcb = ui->flowComboBox;
     fcb->addItem(ui->actionFlowAny->text(), SEQ_ANALYSIS_ANY);
     fcb->addItem(ui->actionFlowTcp->text(), SEQ_ANALYSIS_TCP);
 
+    ui->flowComboBox->blockSignals(true);
     switch (type) {
     case any:
         seq_analysis_.type = SEQ_ANALYSIS_ANY;
@@ -96,7 +121,11 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
         ui->flowLabel->hide();
         break;
     }
+    ui->flowComboBox->blockSignals(false);
     seq_analysis_.all_packets = TRUE;
+
+    QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
+    save_bt->setText(tr("Save As..."));
 
     if (parent) {
         resize(parent->width(), parent->height() * 4 / 5);
@@ -109,6 +138,7 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(diagramClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(sp, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseReleased(QMouseEvent*)));
+    disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 
     fillDiagram();
 }
@@ -135,6 +165,44 @@ void SequenceDialog::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
     resetAxes(true);
+}
+
+void SequenceDialog::keyPressEvent(QKeyEvent *event)
+{
+    int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
+
+    // XXX - Copy some shortcuts from tcp_stream_dialog.cpp
+    switch(event->key()) {
+    case Qt::Key_Right:
+    case Qt::Key_L:
+        panAxes(pan_pixels, 0);
+        break;
+    case Qt::Key_Left:
+    case Qt::Key_H:
+        panAxes(-1 * pan_pixels, 0);
+        break;
+    case Qt::Key_Up:
+    case Qt::Key_K:
+        panAxes(0, -1 * pan_pixels);
+        break;
+    case Qt::Key_Down:
+    case Qt::Key_J:
+        panAxes(0, pan_pixels);
+        break;
+
+    case Qt::Key_0:
+    case Qt::Key_ParenRight:    // Shifted 0 on U.S. keyboards
+    case Qt::Key_R:
+    case Qt::Key_Home:
+        resetAxes();
+        break;
+
+    case Qt::Key_G:
+        on_actionGoToPacket_triggered();
+        break;
+    }
+
+    QDialog::keyPressEvent(event);
 }
 
 void SequenceDialog::mouseReleaseEvent(QMouseEvent *event)
@@ -174,23 +242,14 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
     QCustomPlot *sp = ui->sequencePlot;
 
-//    if (event->button() == Qt::RightButton) {
-//        // XXX We should find some way to get streamPlot to handle a
-//        // contextMenuEvent instead.
-//        ctx_menu_.exec(event->globalPos());
-//    } else  if (mouse_drags_) {
-        if (sp->axisRect()->rect().contains(event->pos())) {
-            sp->setCursor(QCursor(Qt::ClosedHandCursor));
-        }
-        on_actionGoToPacket_triggered();
-//    } else {
-//        if (!rubber_band_) {
-//            rubber_band_ = new QRubberBand(QRubberBand::Rectangle, ui->streamPlot);
-//        }
-//        rb_origin_ = event->pos();
-//        rubber_band_->setGeometry(QRect(rb_origin_, QSize()));
-//        rubber_band_->show();
-//    }
+    if (event->button() == Qt::RightButton) {
+        // XXX We should find some way to get sequenceDiagram to handle a
+        // contextMenuEvent instead.
+        ctx_menu_.exec(event->globalPos());
+    } else if (sp->axisRect()->rect().contains(event->pos())) {
+        sp->setCursor(QCursor(Qt::ClosedHandCursor));
+    }
+    on_actionGoToPacket_triggered();
 }
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)
@@ -235,6 +294,50 @@ void SequenceDialog::mouseReleased(QMouseEvent *event)
     }
 }
 
+void SequenceDialog::on_buttonBox_accepted()
+{
+    QString file_name, extension;
+    QDir path(wsApp->lastOpenDir());
+    QString pdf_filter = tr("Portable Document Format (*.pdf)");
+    QString png_filter = tr("Portable Network Graphics (*.png)");
+    QString bmp_filter = tr("Windows Bitmap (*.bmp)");
+    // Gaze upon my beautiful graph with lossy artifacts!
+    QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
+    QString ascii_filter = tr("ASCII (*.txt)");
+
+    QString filter = QString("%1;;%2;;%3;;%4")
+            .arg(pdf_filter)
+            .arg(png_filter)
+            .arg(bmp_filter)
+            .arg(jpeg_filter);
+    if (cap_file_) {
+        filter.append(QString(";;%5").arg(ascii_filter));
+    }
+
+    file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save Graph As..."),
+                                             path.canonicalPath(), filter, &extension);
+
+    if (file_name.length() > 0) {
+        bool save_ok = false;
+        if (extension.compare(pdf_filter) == 0) {
+            save_ok = ui->sequencePlot->savePdf(file_name);
+        } else if (extension.compare(png_filter) == 0) {
+            save_ok = ui->sequencePlot->savePng(file_name);
+        } else if (extension.compare(bmp_filter) == 0) {
+            save_ok = ui->sequencePlot->saveBmp(file_name);
+        } else if (extension.compare(jpeg_filter) == 0) {
+            save_ok = ui->sequencePlot->saveJpg(file_name);
+        } else if (extension.compare(ascii_filter) == 0 && cap_file_) {
+            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), &seq_analysis_, cap_file_, 0);
+        }
+        // else error dialog?
+        if (save_ok) {
+            path = QDir(file_name);
+            wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
+        }
+    }
+}
+
 void SequenceDialog::fillDiagram()
 {
     QCustomPlot *sp = ui->sequencePlot;
@@ -260,6 +363,25 @@ void SequenceDialog::fillDiagram()
 
     // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
     sp->setFocus();
+}
+
+void SequenceDialog::panAxes(int x_pixels, int y_pixels)
+{
+    QCustomPlot *sp = ui->sequencePlot;
+    double h_pan = 0.0;
+    double v_pan = 0.0;
+
+    h_pan = sp->xAxis2->range().size() * x_pixels / sp->xAxis2->axisRect()->width();
+    v_pan = sp->yAxis->range().size() * y_pixels / sp->yAxis->axisRect()->height();
+    // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
+    if (h_pan) {
+        sp->xAxis2->moveRange(h_pan);
+        sp->replot();
+    }
+    if (v_pan) {
+        sp->yAxis->moveRange(v_pan);
+        sp->replot();
+    }
 }
 
 void SequenceDialog::resetAxes(bool keep_lower)
@@ -309,7 +431,7 @@ void SequenceDialog::on_showComboBox_currentIndexChanged(int index)
         seq_analysis_.all_packets = FALSE;
     }
 
-    if (isVisible()) fillDiagram();
+//    if (isVisible()) fillDiagram();
 }
 
 void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
@@ -317,7 +439,7 @@ void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
     if (index < 0) return;
     seq_analysis_.type = static_cast<seq_analysis_type>(ui->flowComboBox->itemData(index).toInt());
 
-    if (isVisible()) fillDiagram();
+//    if (isVisible()) fillDiagram();
 }
 
 void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
@@ -328,5 +450,50 @@ void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
         seq_analysis_.any_addr = FALSE;
     }
 
-    if (isVisible()) fillDiagram();
+    //    if (isVisible()) fillDiagram();
+}
+
+void SequenceDialog::on_actionReset_triggered()
+{
+    on_resetButton_clicked();
+}
+
+void SequenceDialog::on_actionMoveRight10_triggered()
+{
+    panAxes(10, 0);
+}
+
+void SequenceDialog::on_actionMoveLeft10_triggered()
+{
+    panAxes(-10, 0);
+}
+
+void SequenceDialog::on_actionMoveUp10_triggered()
+{
+    panAxes(0, -10);
+}
+
+void SequenceDialog::on_actionMoveDown10_triggered()
+{
+    panAxes(0, 10);
+}
+
+void SequenceDialog::on_actionMoveRight1_triggered()
+{
+    panAxes(1, 0);
+}
+
+void SequenceDialog::on_actionMoveLeft1_triggered()
+{
+    panAxes(-1, 0);
+}
+
+void SequenceDialog::on_actionMoveUp1_triggered()
+{
+    panAxes(0, -1);
+}
+
+void SequenceDialog::on_actionMoveDown1_triggered()
+{
+    panAxes(0, 1);
 }

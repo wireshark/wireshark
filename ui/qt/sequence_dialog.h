@@ -35,6 +35,7 @@
 #include "sequence_diagram.h"
 
 #include <QDialog>
+#include <QMenu>
 
 namespace Ui {
 class SequenceDialog;
@@ -59,6 +60,7 @@ public slots:
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
@@ -70,14 +72,21 @@ private slots:
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);
 
+    void on_buttonBox_accepted();
     void on_resetButton_clicked();
     void on_actionGoToPacket_triggered();
-
     void on_showComboBox_currentIndexChanged(int index);
-
     void on_flowComboBox_currentIndexChanged(int index);
-
     void on_addressComboBox_currentIndexChanged(int index);
+    void on_actionReset_triggered();
+    void on_actionMoveRight10_triggered();
+    void on_actionMoveLeft10_triggered();
+    void on_actionMoveUp10_triggered();
+    void on_actionMoveDown10_triggered();
+    void on_actionMoveRight1_triggered();
+    void on_actionMoveLeft1_triggered();
+    void on_actionMoveUp1_triggered();
+    void on_actionMoveDown1_triggered();
 
 private:
     Ui::SequenceDialog *ui;
@@ -88,8 +97,10 @@ private:
     guint32 packet_num_;
     double one_em_;
     int node_label_w_;
+    QMenu ctx_menu_;
 
     void fillDiagram();
+    void panAxes(int x_pixels, int y_pixels);
     void resetAxes(bool keep_lower = false);
 
 };

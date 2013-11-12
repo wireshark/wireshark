@@ -391,7 +391,7 @@ sequence_analysis_get_nodes(seq_analysis_info_t *sainfo)
 
 /****************************************************************************/
 gboolean
-sequence_analysis_dump_to_file(char *pathname, seq_analysis_info_t *sainfo, capture_file *cf, unsigned int first_node)
+sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo, capture_file *cf, unsigned int first_node)
 {
     guint32  i, display_items, display_nodes;
     guint32  start_position, end_position, item_width, header_length;

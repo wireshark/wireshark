@@ -145,12 +145,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="selectRadioButton">
+      <widget class="QRadioButton" name="zoomRadioButton">
        <property name="toolTip">
         <string>Select using the mouse button.</string>
        </property>
        <property name="text">
-        <string>selects</string>
+        <string>zooms</string>
        </property>
        <property name="checkable">
         <bool>true</bool>

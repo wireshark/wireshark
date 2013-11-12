@@ -107,7 +107,7 @@ int sequence_analysis_get_nodes(seq_analysis_info_t *sainfo);
  * @param first_node Start drawing at this node.
  * @return TRUE on success, FALSE on failure.
  */
-gboolean sequence_analysis_dump_to_file(char *pathname, seq_analysis_info_t *sainfo, capture_file *cf, unsigned int first_node);
+gboolean sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo, capture_file *cf, unsigned int first_node);
 
 #ifdef __cplusplus
 }

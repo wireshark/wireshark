@@ -47,6 +47,28 @@
    </item>
    <item>
     <widget class="QLabel" name="hintLabel">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</string>
      </property>
@@ -182,6 +204,105 @@
     </widget>
    </item>
   </layout>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset Diagram</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset the diagram to its initial state.</string>
+   </property>
+   <property name="shortcut">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="actionMoveUp10">
+   <property name="text">
+    <string>Move Up 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move up 10 pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionMoveLeft10">
+   <property name="text">
+    <string>Move Left 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move left 10 pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionMoveRight10">
+   <property name="text">
+    <string>Move Right 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move right 10 pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionMoveDown10">
+   <property name="text">
+    <string>Move Down 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move down 10 pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Down</string>
+   </property>
+  </action>
+  <action name="actionMoveUp1">
+   <property name="text">
+    <string>Move Up 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move up 1 pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Up</string>
+   </property>
+  </action>
+  <action name="actionMoveLeft1">
+   <property name="text">
+    <string>Move Left 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move left 1 pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Left</string>
+   </property>
+  </action>
+  <action name="actionMoveRight1">
+   <property name="text">
+    <string>Move Right 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move right 1 pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Right</string>
+   </property>
+  </action>
+  <action name="actionMoveDown1">
+   <property name="text">
+    <string>Move Down 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move down 1 pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Down</string>
+   </property>
+  </action>
   <action name="actionGoToPacket">
    <property name="text">
     <string>Go To Packet Under Cursor</string>
