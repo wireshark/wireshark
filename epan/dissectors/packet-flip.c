@@ -55,8 +55,6 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 
-#include "packet-rtp.h"
-#include "packet-rtcp.h"
 #include <epan/rtp_pt.h>
 
 static int proto_flip = -1;
