@@ -686,14 +686,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     int obj_length;
     int mylen;
     int offset2;
-    int proto;
-
-    proto = pinfo->ipproto;
-
-    /* Only process UDP packets */
-    if (proto != IP_PROTO_UDP) {
-	    return 0;
-    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMP");
     col_clear(pinfo->cinfo, COL_INFO);
