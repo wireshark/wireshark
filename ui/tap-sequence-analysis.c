@@ -79,7 +79,7 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
             }
         }
 
-	if (!sai) return FALSE;
+        if (!sai) return FALSE;
 
         sai->fd = pinfo->fd;
 
@@ -274,10 +274,10 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     sainfo->nconv = 0;
 
     for (i=0; i<MAX_NUM_NODES; i++) {
-	sainfo->nodes[i].type = AT_NONE;
-	sainfo->nodes[i].len = 0;
-	g_free((void *)sainfo->nodes[i].data);
-	sainfo->nodes[i].data = NULL;
+        sainfo->nodes[i].type = AT_NONE;
+        sainfo->nodes[i].len = 0;
+        g_free((void *)sainfo->nodes[i].data);
+        sainfo->nodes[i].data = NULL;
     }
     sainfo->num_nodes = 0;
 }
@@ -324,10 +324,10 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
         len = ins_len;
     } else if (len < ins_len) {
 #if GLIB_CHECK_VERSION(2,30,0)
-	ins_str = g_utf8_substring(text_to_insert, 0, len);
+        ins_str = g_utf8_substring(text_to_insert, 0, len);
 #else
-	gchar *end = g_utf8_offset_to_pointer(text_to_insert, len);
-	ins_str = g_strndup(text_to_insert, end - text_to_insert);
+        gchar *end = g_utf8_offset_to_pointer(text_to_insert, len);
+        ins_str = g_strndup(text_to_insert, end - text_to_insert);
 #endif
     }
 
@@ -352,7 +352,7 @@ static gint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
     if (node->type == AT_NONE) return NODE_OVERFLOW;
 
     for (i=0; i<MAX_NUM_NODES && i < sainfo->num_nodes ; i++) {
-        if ( CMP_ADDRESS(&(sainfo->nodes[i]), node) == 0 ) return i;	/* it is in the array */
+        if ( CMP_ADDRESS(&(sainfo->nodes[i]), node) == 0 ) return i; /* it is in the array */
     }
 
     if (i == MAX_NUM_NODES) {
