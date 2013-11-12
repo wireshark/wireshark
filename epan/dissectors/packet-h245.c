@@ -70,7 +70,6 @@
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
-static dissector_handle_t t38_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t gef_name_dissector_table;
@@ -215,7 +214,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 88 "../../asn1/h245/packet-h245-template.c"
+#line 87 "../../asn1/h245/packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -477,7 +476,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* T.38 */
 	if (!strcmp(upcoming_channel_lcl->data_type_str, "t38fax")) {
-		if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0 && t38_handle) {
+		if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0) {
 			t38_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
 							upcoming_channel_lcl->media_addr.port, 0,
 							"H245", pinfo->fd->num);
@@ -1923,7 +1922,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 389 "../../asn1/h245/packet-h245-template.c"
+#line 388 "../../asn1/h245/packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2424,7 +2423,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 394 "../../asn1/h245/packet-h245-template.c"
+#line 393 "../../asn1/h245/packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14491,7 +14490,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 403 "../../asn1/h245/packet-h245-template.c"
+#line 402 "../../asn1/h245/packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -20185,7 +20184,7 @@ void proto_register_h245(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 484 "../../asn1/h245/packet-h245-template.c"
+#line 483 "../../asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20688,7 +20687,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 491 "../../asn1/h245/packet-h245-template.c"
+#line 490 "../../asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 
@@ -20780,7 +20779,6 @@ void proto_reg_handoff_h245(void) {
 
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
-	t38_handle = find_dissector("t38");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
 	amr_handle = find_dissector("amr_if2_nb");

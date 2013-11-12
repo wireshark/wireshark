@@ -62,7 +62,6 @@
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
-static dissector_handle_t t38_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t gef_name_dissector_table;
@@ -346,7 +345,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* T.38 */
 	if (!strcmp(upcoming_channel_lcl->data_type_str, "t38fax")) {
-		if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0 && t38_handle) {
+		if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0) {
 			t38_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
 							upcoming_channel_lcl->media_addr.port, 0,
 							"H245", pinfo->fd->num);
@@ -579,7 +578,6 @@ void proto_reg_handoff_h245(void) {
 
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
-	t38_handle = find_dissector("t38");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
 	amr_handle = find_dissector("amr_if2_nb");

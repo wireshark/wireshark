@@ -77,7 +77,6 @@
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
-static dissector_handle_t t38_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
 static dissector_handle_t h264_handle;
@@ -1886,8 +1885,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       if ((transport_info->media_port[n] != 0) &&
           !transport_info->media[n].set_rtp &&
           (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
-          (transport_info->proto_bitmask[n] & SDP_IPv4) &&
-          t38_handle) {
+          (transport_info->proto_bitmask[n] & SDP_IPv4)) {
         t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
       }
 
@@ -2231,8 +2229,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (transport_info->media_port[n] != 0) &&
         !transport_info->media[n].set_rtp &&
         (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
-        (transport_info->proto_bitmask[n] & SDP_IPv4) &&
-        t38_handle) {
+        (transport_info->proto_bitmask[n] & SDP_IPv4)) {
       t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
     }
 
@@ -2740,7 +2737,6 @@ proto_reg_handoff_sdp(void)
   rtp_handle    = find_dissector("rtp");
   rtcp_handle   = find_dissector("rtcp");
   msrp_handle   = find_dissector("msrp");
-  t38_handle    = find_dissector("t38");
   sprt_handle   = find_dissector("sprt");
   h264_handle   = find_dissector("h264");
   mp4ves_handle = find_dissector("mp4ves");
