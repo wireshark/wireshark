@@ -314,7 +314,7 @@ typedef struct command_data_t {
     guint32  device_address;
     guint32  endpoint;
 
-    gint16   command;
+    guint8   command;
     guint32  command_frame_number;
     guint32  response_frame_number;
     union {
@@ -622,7 +622,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree *sub_tree;
     proto_item *next_item;
     proto_tree *next_tree;
-    gint16      cmd = -1;
+    guint8      cmd;
     guint8      config;
     guint8      baudrate;
     guint8      test_number;
@@ -680,7 +680,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     key[4].length = 0;
     key[4].key = NULL;
 
-    if (!pinfo->fd->flags.visited && cmd > 0 && !(cmd & 0x01)) {
+    if (!pinfo->fd->flags.visited && !(cmd & 0x01)) {
         command_data = wmem_new(wmem_file_scope(), command_data_t);
         command_data->bus_id = bus_id;
         command_data->device_address = device_address;
@@ -709,7 +709,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[4].key = NULL;
     }
 
-    if (cmd > 0 && cmd & 0x01) {
+    if (cmd & 0x01) {
         wmem_tree_t  *wmem_tree;
 
         key[3].length = 0;
