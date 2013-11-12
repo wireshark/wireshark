@@ -327,7 +327,7 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 	ins_str = g_utf8_substring(text_to_insert, 0, len);
 #else
 	gchar *end = g_utf8_offset_to_pointer(text_to_insert, len);
-	ins_str = g_strndup(text_to_insert, end - tex_to_insert);
+	ins_str = g_strndup(text_to_insert, end - text_to_insert);
 #endif
     }
 
