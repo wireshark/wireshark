@@ -4050,7 +4050,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s \xe2\x86\x92 %s", /* UTF8_RIGHTWARDS_ARROW */
                     get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
     if (tree) {
         if (tcp_summary_in_tree) {
