@@ -276,7 +276,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
     case PT_TXTMOD_ENUM: {
         cur_combo_box_ = new QComboBox();
 //        const enum_val_t *ev;
-        const value_string *enum_vals = (const value_string *)field[column].fld_data;
+        const value_string *enum_vals = (const value_string *)field->fld_data;
         for (int i = 0; enum_vals[i].strptr != NULL; i++) {
             cur_combo_box_->addItem(enum_vals[i].strptr, QVariant(enum_vals[i].value));
             if (item->text(column).compare(enum_vals[i].strptr) == 0) {
