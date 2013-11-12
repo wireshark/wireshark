@@ -324,7 +324,12 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
     if (len > ins_len) {
         len = ins_len;
     } else if (len < ins_len) {
+#if GLIB_CHECK_VERSION(2,30,0)
 	ins_str = g_utf8_substring(text_to_insert, 0, len);
+#else
+	gchar *end = g_utf8_offset_to_pointer(text_to_insert, len);
+	ins_str = g_strndup(text_to_insert, end - tex_to_insert);
+#endif
     }
 
     if (!ins_str) ins_str = g_strdup(text_to_insert);
