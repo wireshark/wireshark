@@ -43,7 +43,6 @@
 #include <string.h>
 
 #include "epan/packet_info.h"
-#include <epan/ftypes/ftypes-int.h>
 #include <epan/tap.h>
 #include <epan/epan_dissect.h>
 #include <epan/stat_cmd_args.h>
@@ -103,19 +102,15 @@ diam_tree_to_csv(proto_node* node, gpointer data)
 		fprintf(stderr,"traverse end: hfi not found. node='%p'\n",(void *)node);
 		return FALSE;
 	}
-	ftype=fi->value.ftype->ftype;
+	ftype=fvalue_type_ftenum(&fi->value);
 	if (ftype!=FT_NONE&&ftype!=FT_PROTOCOL) {
 		/* convert value to string */
-		if(fi->value.ftype->val_to_string_repr)
+		val_tmp=fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+		if(val_tmp)
 		{
-			val_tmp=fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
-			if(val_tmp)
-			{
-				val_str=ep_strdup(val_tmp);
-				g_free(val_tmp);
-			}
-		}
-		if(!val_str)
+			val_str=ep_strdup(val_tmp);
+			g_free(val_tmp);
+		} else
 			val_str=ep_strdup_printf("unsupported type: %s",ftype_name(ftype));
 
 		/*printf("traverse: name='%s', abbrev='%s',desc='%s', val='%s'\n",hfi->name,hfi->abbrev,ftype_name(hfi->type),val_str);*/

@@ -235,8 +235,8 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
 WS_DLL_PUBLIC char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 
-ftype_t*
-fvalue_ftype(fvalue_t *fv);
+WS_DLL_PUBLIC ftenum_t
+fvalue_type_ftenum(fvalue_t *fv);
 
 const char*
 fvalue_type_name(fvalue_t *fv);

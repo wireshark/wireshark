@@ -63,7 +63,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
     arg1 = arg1list;
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data; 
-        switch (fvalue_ftype(arg_fvalue)->ftype) {
+        switch (fvalue_type_ftenum(arg_fvalue)) {
             case FT_STRING:
             case FT_STRINGZ:
             case FT_UINT_STRING:
@@ -114,7 +114,7 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
     arg1 = arg1list;
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data; 
-        switch (fvalue_ftype(arg_fvalue)->ftype) {
+        switch (fvalue_type_ftenum(arg_fvalue)) {
             case FT_STRING:
             case FT_STRINGZ:
             case FT_UINT_STRING:

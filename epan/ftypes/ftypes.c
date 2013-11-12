@@ -264,10 +264,10 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 	return NULL;
 }
 
-ftype_t*
-fvalue_ftype(fvalue_t *fv)
+ftenum_t
+fvalue_type_ftenum(fvalue_t *fv)
 {
-	return fv->ftype;
+	return fv->ftype->ftype;
 }
 
 const char*
@@ -296,7 +296,10 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
-	g_assert(fv->ftype->val_to_string_repr);
+	if (fv->ftype->val_to_string_repr == NULL) {
+		/* no value-to-string-representation function, so the value cannot be represented */
+		return NULL;
+	}
 	if (!buf) {
 		int len;
 		if ((len = fvalue_string_repr_len(fv, rtype)) >= 0) {
