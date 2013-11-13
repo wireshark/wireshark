@@ -1702,58 +1702,27 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
     matchSelectedFilter(MatchSelectedOrNot, false, false);
 }
 
+void MainWindow::openFollowStreamDialog(follow_type_t type) {
+    FollowStreamDialog *fsd = new FollowStreamDialog(this, type, cap_file_);
+    connect(fsd, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
+
+    fsd->follow(getFilter());
+    fsd->show();
+}
+
 void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()
 {
-    // XXX Keeping a window or dialog in memory is common in the GTK+
-    // code but not in the Qt code. Should we just create a new
-    // dialog and exec() it instead?
-    follow_stream_dialog_.Follow(getFilter(), FOLLOW_TCP);
-
-    if (follow_stream_dialog_.isMinimized() == true)
-    {
-        follow_stream_dialog_.showNormal();
-    }
-    else
-    {
-        follow_stream_dialog_.show();
-    }
-
-    follow_stream_dialog_.raise();
-    follow_stream_dialog_.activateWindow();
+    openFollowStreamDialog(FOLLOW_TCP);
 }
 
 void MainWindow::on_actionAnalyzeFollowUDPStream_triggered()
 {
-    follow_stream_dialog_.Follow(getFilter(), FOLLOW_UDP);
-
-    if (follow_stream_dialog_.isMinimized() == true)
-    {
-        follow_stream_dialog_.showNormal();
-    }
-    else
-    {
-        follow_stream_dialog_.show();
-    }
-
-    follow_stream_dialog_.raise();
-    follow_stream_dialog_.activateWindow();
+    openFollowStreamDialog(FOLLOW_UDP);
 }
 
 void MainWindow::on_actionAnalyzeFollowSSLStream_triggered()
 {
-    follow_stream_dialog_.Follow(getFilter(), FOLLOW_SSL);
-
-    if (follow_stream_dialog_.isMinimized() == true)
-    {
-        follow_stream_dialog_.showNormal();
-    }
-    else
-    {
-        follow_stream_dialog_.show();
-    }
-
-    follow_stream_dialog_.raise();
-    follow_stream_dialog_.activateWindow();
+    openFollowStreamDialog(FOLLOW_SSL);
 }
 
 // Next / previous / first / last slots in packet_list

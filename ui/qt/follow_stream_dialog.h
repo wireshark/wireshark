@@ -34,6 +34,8 @@
 #include <unistd.h>
 #endif
 
+#include "file.h"
+
 #include "ui/follow.h"
 
 #include <QDialog>
@@ -44,13 +46,11 @@ extern "C" {
 WS_DLL_PUBLIC FILE *data_out_file;
 }
 
+// Shouldn't these be member variables?
 typedef struct {
-    follow_type_t   follow_type;
     show_stream_t   show_stream;
     show_type_t     show_type;
-    char            *data_out_filename;
     gboolean        is_ipv6;
-    char            *filter_out_filter;
     GList           *payload;
     guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
     guint           client_port;
@@ -66,69 +66,70 @@ class FollowStreamDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FollowStreamDialog(QWidget *parent = 0);
+    explicit FollowStreamDialog(QWidget *parent = 0, follow_type_t type = FOLLOW_TCP, capture_file *cf = NULL);
     ~FollowStreamDialog();
 
-    bool Follow(QString previous_filter_, follow_type_t type);
+    bool follow(QString previous_filter = QString(), bool use_tcp_index = false);
 
-    frs_return_t
-    follow_show(char *buffer, size_t nchars, gboolean is_from_server,
-            guint32 *global_pos, guint32 *server_packet_count,
-            guint32 *client_packet_count);
-
-    frs_return_t
-    follow_read_stream();
-
-    frs_return_t
-    follow_read_tcp_stream();
-
-    frs_return_t
-    follow_read_udp_stream();
-
-    frs_return_t
-    follow_read_ssl_stream();
-
-    void
-    follow_stream();
-
-    void add_text(char *buffer, size_t nchars, gboolean is_from_server);
+public slots:
+    void setCaptureFile(capture_file *cf);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
-    void closeEvent (QCloseEvent *event);
 
 private slots:
     void on_cbCharset_currentIndexChanged(int index);
     void on_cbDirections_currentIndexChanged(int index);
     void on_bFind_clicked();
     void on_leFind_returnPressed();
-    void on_buttonBox_rejected();
 
-    void HelpButton();
-    void FilterOut();
-    void FindText(bool go_back = true);
-    void SaveAs();
-    void Print();
+    void helpButton();
+    void filterOut();
+    void findText(bool go_back = true);
+    void saveAs();
+    void printStream();
+
+    void on_streamNumberSpinBox_valueChanged(int stream_num);
+
+    void on_buttonBox_rejected();
 
 signals:
     void updateFilter(QString &filter, bool force);
 
 private:
+    void removeStreamControls();
+    void resetStream(void);
+    frs_return_t
+    follow_show(char *buffer, size_t nchars, gboolean is_from_server,
+            guint32 *global_pos, guint32 *server_packet_count,
+            guint32 *client_packet_count);
+
+    frs_return_t follow_read_stream();
+    frs_return_t follow_read_tcp_stream();
+    frs_return_t follow_read_udp_stream();
+    frs_return_t follow_read_ssl_stream();
+
+    void follow_stream();
+
+    void add_text(char *buffer, size_t nchars, gboolean is_from_server);
+
     Ui::FollowStreamDialog  *ui;
 
-    QPushButton             *bFilterOut;
-    QPushButton             *bFind;
-    QPushButton             *bPrint;
-    QPushButton             *bSave;
+    capture_file            *cap_file_;
+    QPushButton             *b_filter_out_;
+    QPushButton             *b_find_;
+    QPushButton             *b_print_;
+    QPushButton             *b_save_;
 
-    follow_info_t           *follow_info;
+    follow_type_t           follow_type_;
+    follow_info_t           follow_info_;
+    QString                 data_out_filename_;
+    QString                 filter_out_filter_;
 
-    bool                    save_as;
-    QFile                   file;
+    bool                    save_as_;
+    QFile                   file_;
 };
-
-
 
 #endif // FOLLOW_STREAM_DIALOG_H
 

@@ -46,6 +46,7 @@
 // - Incorporate packet comments?
 // - Change line_style to seq_type (i.e. draw ACKs dashed)
 // - Create WSGraph subclasses with common behavior.
+// - Help button and text
 
 SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType type) :
     QDialog(parent),
@@ -93,13 +94,18 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
 
     memset (&seq_analysis_, 0, sizeof(seq_analysis_));
 
+    ui->showComboBox->blockSignals(true);
     ui->showComboBox->setCurrentIndex(0);
+    ui->showComboBox->blockSignals(false);
+    ui->addressComboBox->blockSignals(true);
     ui->addressComboBox->setCurrentIndex(0);
+    ui->addressComboBox->blockSignals(false);
 
     QComboBox *fcb = ui->flowComboBox;
     fcb->addItem(ui->actionFlowAny->text(), SEQ_ANALYSIS_ANY);
     fcb->addItem(ui->actionFlowTcp->text(), SEQ_ANALYSIS_TCP);
 
+    ui->flowComboBox->blockSignals(true);
     switch (type) {
     case any:
         seq_analysis_.type = SEQ_ANALYSIS_ANY;
@@ -115,6 +121,7 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
         ui->flowLabel->hide();
         break;
     }
+    ui->flowComboBox->blockSignals(false);
     seq_analysis_.all_packets = TRUE;
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
@@ -425,14 +432,14 @@ void SequenceDialog::on_showComboBox_currentIndexChanged(int index)
     } else {
         seq_analysis_.all_packets = FALSE;
     }
-    if (isVisible()) fillDiagram();
+    fillDiagram();
 }
 
 void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
 {
     if (index < 0) return;
     seq_analysis_.type = static_cast<seq_analysis_type>(ui->flowComboBox->itemData(index).toInt());
-    if (isVisible()) fillDiagram();
+    fillDiagram();
 }
 
 void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
@@ -442,7 +449,7 @@ void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
     } else {
         seq_analysis_.any_addr = FALSE;
     }
-    if (isVisible()) fillDiagram();
+    fillDiagram();
 }
 
 void SequenceDialog::on_actionReset_triggered()

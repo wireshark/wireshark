@@ -119,7 +119,6 @@ MainWindow::MainWindow(QWidget *parent) :
     updateRecentFiles();
 
     connect(&summary_dialog_, SIGNAL(captureCommentChanged()), this, SLOT(updateForUnsavedChanges()));
-    connect(&follow_stream_dialog_, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
 
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));

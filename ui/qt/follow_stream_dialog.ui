@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>639</height>
+    <width>750</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,7 +31,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,0,0">
      <item>
       <widget class="QComboBox" name="cbDirections"/>
      </item>
@@ -87,6 +87,29 @@
        </item>
       </widget>
      </item>
+     <item>
+      <spacer name="streamNumberSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="streamNumberLabel">
+       <property name="text">
+        <string>Stream</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="streamNumberSpinBox"/>
+     </item>
     </layout>
    </item>
    <item>
@@ -113,7 +136,7 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
      </property>
     </widget>
    </item>

@@ -109,7 +109,7 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
 
     /* Create a new filter that matches all packets in the UDP stream,
        and set the display filter entry accordingly */
-    follow_filter = build_follow_filter(&cfile.edt->pi);
+    follow_filter = build_follow_conv_filter(&cfile.edt->pi);
     if (!follow_filter)
         {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

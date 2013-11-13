@@ -121,7 +121,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     /* Create a new filter that matches all packets in the TCP stream,
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
-    follow_filter = build_follow_filter(&cfile.edt->pi);
+    follow_filter = build_follow_conv_filter(&cfile.edt->pi);
     if (!follow_filter) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Error creating filter for this stream.\n"

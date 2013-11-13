@@ -58,7 +58,7 @@ FILE* data_out_file = NULL;
 gboolean empty_tcp_stream;
 gboolean incomplete_tcp_stream;
 
-static guint32 tcp_stream_to_follow;
+static guint32 tcp_stream_to_follow = 0;
 static guint8  ip_address[2][MAX_IPADDR_LEN];
 static guint   port[2];
 static guint   bytes_written[2];
@@ -80,12 +80,12 @@ follow_stats(follow_stats_t* stats)
 	}
 }
 
-/* this will build libpcap filter text that will only
+/* This will build a display filter text that will only
    pass the packets related to the stream. There is a
    chance that two streams could intersect, but not a
    very good one */
-char*
-build_follow_filter( packet_info *pi ) {
+gchar*
+build_follow_conv_filter( packet_info *pi ) {
   char* buf;
   int len;
   conversation_t *conv=NULL;
@@ -148,6 +148,15 @@ static gboolean         find_tcp_addr;
 static address          tcp_addr[2];
 static gboolean         find_tcp_index;
 
+gchar*
+build_follow_index_filter(void) {
+  gchar *buf;
+
+  find_tcp_addr = TRUE;
+  buf = g_strdup_printf("tcp.stream eq %d", tcp_stream_to_follow);
+  return buf;
+}
+
 /* select a tcp stream to follow via it's address/port pairs */
 gboolean
 follow_tcp_addr(const address *addr0, guint port0,
@@ -192,12 +201,21 @@ follow_tcp_index(guint32 indx)
     return FALSE;
   }
 
+  if (indx > get_tcp_stream_count()) {
+    return FALSE;
+  }
+
   find_tcp_addr = TRUE;
   tcp_stream_to_follow = indx;
   memset(ip_address, 0, sizeof ip_address);
   port[0] = port[1] = 0;
 
   return TRUE;
+}
+
+guint32
+get_follow_tcp_index(void) {
+  return tcp_stream_to_follow;
 }
 
 /* here we are going to try and reconstruct the data portion of a TCP

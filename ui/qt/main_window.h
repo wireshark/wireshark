@@ -113,7 +113,6 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
-    FollowStreamDialog follow_stream_dialog_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -277,6 +276,8 @@ private slots:
     void on_actionAnalyzePAFOrSelected_triggered();
     void on_actionAnalyzePAFAndNotSelected_triggered();
     void on_actionAnalyzePAFOrNotSelected_triggered();
+
+    void openFollowStreamDialog(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();
     void on_actionAnalyzeFollowSSLStream_triggered();

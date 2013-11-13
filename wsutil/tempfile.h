@@ -40,9 +40,9 @@ extern "C" {
  * Create a tempfile with the given prefix (e.g. "wireshark"). The path
  * is created using g_get_tmp_dir and mkstemp.
  *
- * @param namebuf If not NULL, receives the full path of the temp file.
+ * @param namebuf[in,out] If not NULL, receives the full path of the temp file.
  *                Must NOT be freed.
- * @param pfx A prefix for the temporary file.
+ * @param pfx[in] A prefix for the temporary file.
  * @return The file descriptor of the new tempfile, from mkstemp().
  */
 WS_DLL_PUBLIC int create_tempfile(char **namebuf, const char *pfx);
