@@ -1,15 +1,11 @@
 #!/bin/sh
 
-CLI_PATH="$2"
-
 # Create any missing directories with mode 755, owned by root:wheel.
 # Don't blindly clobber anything that's already there.
 function build_path()
 {
 	echo "Checking $1"
-	if [ -d "$1" ] ; then
-		return ""
-	else
+	if [ ! -d "$1" ] ; then
 		TRIMMED=`dirname "$1"`
 		if [ ! -d "$TRIMMED" ] ; then
 			build_path "$TRIMMED"
