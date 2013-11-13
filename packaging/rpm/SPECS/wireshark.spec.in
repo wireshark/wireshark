@@ -126,7 +126,7 @@ BuildRequires:	gtk3-devel >= @GTK3_MIN_VERSION@
 Requires:	gtk2 >= @GTK2_MIN_VERSION@
 BuildRequires:	gtk2-devel >= @GTK2_MIN_VERSION@
 %endif
-Requires:	wireshark = %{version}-%{release}
+Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
@@ -157,7 +157,7 @@ Summary:	Qt GUI for Wireshark
 Group:		Applications/Internet
 Requires:	qt >= @QT_MIN_VERSION@
 BuildRequires:	qt-devel >= @QT_MIN_VERSION@
-Requires:	wireshark = %{version}-%{release}
+Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
