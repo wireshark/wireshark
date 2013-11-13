@@ -82,8 +82,8 @@ static gint ett_coap_option		= -1;
 static gint ett_coap_payload		= -1;
 
 static expert_field ei_coap_invalid_option_number = EI_INIT;
-static expert_field ei_coap_invalid_option_range = EI_INIT;
-static expert_field ei_coap_option_length_bad = EI_INIT;
+static expert_field ei_coap_invalid_option_range  = EI_INIT;
+static expert_field ei_coap_option_length_bad	  = EI_INIT;
 
 /* CoAP's IANA-assigned port number */
 #define DEFAULT_COAP_PORT	5683
@@ -93,9 +93,9 @@ static expert_field ei_coap_option_length_bad = EI_INIT;
 #define DEFAULT_COAP_BLOCK_NUMBER	~0
 
 static const gchar *coap_ctype_str   = NULL;
-static gint coap_ctype_value = DEFAULT_COAP_CTYPE_VALUE;
+static gint  coap_ctype_value	     = DEFAULT_COAP_CTYPE_VALUE;
 static guint global_coap_port_number = DEFAULT_COAP_PORT;
-static gint coap_block_number = DEFAULT_COAP_BLOCK_NUMBER;
+static gint  coap_block_number	     = DEFAULT_COAP_BLOCK_NUMBER;
 static guint coap_block_mflag = 0;
 static gchar coap_uri_str[1024];	/* the maximum is 1024 > 510 = Uri-Host:255 + Uri-Path:255 x 2 */
 static gchar coap_uri_query[1024];	/* the maximum is 1024 > 765 = Uri-Query:255 x 3 */
@@ -208,28 +208,28 @@ struct coap_option_range_t {
 	gint min;
 	gint max;
 } coi[] = {
-    { COAP_OPT_IF_MATCH,       0,   8 },
-    { COAP_OPT_URI_HOST,       1, 255 },
-    { COAP_OPT_ETAG,           1,   8 },
-    { COAP_OPT_IF_NONE_MATCH,  0,   0 },
-    { COAP_OPT_URI_PORT,       0,   2 },
-    { COAP_OPT_LOCATION_PATH,  0, 255 },
-    { COAP_OPT_URI_PATH,       0, 255 },
-    { COAP_OPT_CONTENT_TYPE,   0,   2 },
-    { COAP_OPT_MAX_AGE,        0,   4 },
-    { COAP_OPT_URI_QUERY,      1, 255 },
-    { COAP_OPT_ACCEPT,         0,   2 },
-    { COAP_OPT_LOCATION_QUERY, 0, 255 },
-    { COAP_OPT_PROXY_URI,      1,1034 },
-    { COAP_OPT_OBSERVE,        0,   2 },
-    { COAP_OPT_BLOCK2,         0,   3 },
-    { COAP_OPT_BLOCK1,         0,   3 },
-    { COAP_OPT_BLOCK_SIZE,     0,   4 },
-    { 0, 0, 0 },
+	{ COAP_OPT_IF_MATCH,       0,   8 },
+	{ COAP_OPT_URI_HOST,       1, 255 },
+	{ COAP_OPT_ETAG,           1,   8 },
+	{ COAP_OPT_IF_NONE_MATCH,  0,   0 },
+	{ COAP_OPT_URI_PORT,       0,   2 },
+	{ COAP_OPT_LOCATION_PATH,  0, 255 },
+	{ COAP_OPT_URI_PATH,       0, 255 },
+	{ COAP_OPT_CONTENT_TYPE,   0,   2 },
+	{ COAP_OPT_MAX_AGE,        0,   4 },
+	{ COAP_OPT_URI_QUERY,      1, 255 },
+	{ COAP_OPT_ACCEPT,         0,   2 },
+	{ COAP_OPT_LOCATION_QUERY, 0, 255 },
+	{ COAP_OPT_PROXY_URI,      1,1034 },
+	{ COAP_OPT_OBSERVE,        0,   2 },
+	{ COAP_OPT_BLOCK2,         0,   3 },
+	{ COAP_OPT_BLOCK1,         0,   3 },
+	{ COAP_OPT_BLOCK_SIZE,     0,   4 },
+	{ 0, 0, 0 },
 };
 
 static const value_string vals_ctype[] = {
-	{ 0, "text/plain; charset=utf-8" },
+	{  0, "text/plain; charset=utf-8" },
 	{ 40, "application/link-format" },
 	{ 41, "application/xml" },
 	{ 42, "application/octet-stream" },
@@ -331,7 +331,7 @@ dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree,
 static void
 dissect_coap_opt_uri_host(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
-	guint8 *str = NULL;
+	guint8 *str;
 
 	str = tvb_get_string(wmem_packet_scope(), tvb, offset, opt_length);
 
@@ -469,7 +469,7 @@ static void
 dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	guint8      val                = 0;
-	guint       encoded_block_size = 0;
+	guint       encoded_block_size;
 	guint       block_esize;
 
 	if (opt_length == 0) {
@@ -532,20 +532,20 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	gint        opt_length, opt_length_ext, opt_delta, opt_delta_ext;
 	gint        opt_length_ext_off = 0;
 	gint8       opt_length_ext_len = 0;
-	gint        opt_delta_ext_off = 0;
-	gint8       opt_delta_ext_len = 0;
-	gint        orig_offset = offset;
-	proto_tree *subtree    = NULL;
-	proto_item *item       = NULL;
-	char strbuf[56];
+	gint        opt_delta_ext_off  = 0;
+	gint8       opt_delta_ext_len  = 0;
+	gint        orig_offset	       = offset;
+	proto_tree *subtree;
+	proto_item *item;
+	char	    strbuf[56];
 
 	opt_jump = tvb_get_guint8(tvb, offset);
 	if (0xff == opt_jump)
 		return offset;
-	offset++;
+	offset += 1;
 
 	/*
-	 * seciton 3.1 in coap-17:
+	 * section 3.1 in coap-17:
 	 * Option Delta:  4-bit unsigned integer.  A value between 0 and 12
 	 * indicates the Option Delta.  Three values are reserved for special
 	 * constructs:
@@ -565,7 +565,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_delta_ext = tvb_get_guint8(tvb, offset);
 		opt_delta_ext_off = offset;
 		opt_delta_ext_len = 1;
-		offset++;
+		offset += 1;
 
 		opt_delta = 13;
 		opt_delta += opt_delta_ext;
@@ -590,7 +590,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	*opt_num += opt_delta;
 
 	/*
-	 * seciton 3.1 in coap-17:
+	 * section 3.1 in coap-17:
 	 * Option Length:  4-bit unsigned integer.  A value between 0 and 12
 	 * indicates the length of the Option Value, in bytes.  Three values
 	 * are reserved for special constructs:
@@ -609,9 +609,9 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_length_ext = tvb_get_guint8(tvb, offset);
 		opt_length_ext_off = offset;
 		opt_length_ext_len = 1;
-		offset++;
+		offset += 1;
 
-		opt_length = 13;
+		opt_length  = 13;
 		opt_length += opt_length_ext;
 		break;
 	case 0x0e:
@@ -620,7 +620,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_length_ext_len = 2;
 		offset += 2;
 
-		opt_length = 269;
+		opt_length  = 269;
 		opt_length += opt_length_ext;
 		break;
 	case 0x0f:
@@ -654,7 +654,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	proto_tree_add_string(subtree, hf_coap_opt_desc,
 	    tvb, orig_offset, offset - orig_offset + opt_length, strbuf);
 
-	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, orig_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_coap_opt_delta,  tvb, orig_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(subtree, hf_coap_opt_length, tvb, orig_offset, 1, ENC_BIG_ENDIAN);
 
 	if (opt_delta_ext_off && opt_delta_ext_len)
@@ -748,9 +748,9 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 static int
 dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint coap_length)
 {
-	guint      opt_num = 0;
-	int         i;
-	guint8     endmarker;
+	guint  opt_num = 0;
+	int    i;
+	guint8 endmarker;
 
 	/* loop for dissecting options */
 	for (i = 1; offset < coap_length; i++) {
@@ -763,7 +763,7 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 		endmarker = tvb_get_guint8(tvb, offset);
 		if (endmarker == 0xff) {
 			proto_tree_add_item(coap_tree, hf_coap_opt_end_marker, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
+			offset += 1;
 			break;
 		}
 	}
@@ -774,14 +774,14 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 static void
 dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	gint        offset      = 0;
-	proto_item *coap_root   = NULL;
-	proto_tree *coap_tree   = NULL;
-	guint8      ttype       = 0;
-	guint8      token_len   = 0;
-	guint8      code        = 0;
-	guint16     mid         = 0;
-	gint        coap_length = 0;
+	gint        offset = 0;
+	proto_item *coap_root;
+	proto_tree *coap_tree;
+	guint8      ttype;
+	guint8      token_len;
+	guint8      code;
+	guint16     mid;
+	gint        coap_length;
 
 	/* initialize the CoAP length and the content-Format */
 	/*
@@ -844,7 +844,8 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (coap_token_str[0] != '\0')
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
 	if (coap_block_number != DEFAULT_COAP_BLOCK_NUMBER)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%d", coap_block_mflag ? "" : "End of ", coap_block_number);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%d",
+				coap_block_mflag ? "" : "End of ", coap_block_number);
 	if (coap_uri_str[0] != '\0')
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", coap_uri_str);
 	if (coap_uri_query[0] != '\0')
@@ -852,12 +853,12 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* dissect the payload */
 	if (coap_length > offset) {
-		proto_tree *payload_tree = NULL;
-		proto_item *payload_item = NULL;
-		tvbuff_t *payload_tvb;
-		guint payload_length = coap_length - offset;
+		proto_tree *payload_tree;
+		proto_item *payload_item;
+		tvbuff_t   *payload_tvb;
+		guint	    payload_length = coap_length - offset;
 		const char *coap_ctype_str_dis;
-		char str_payload[80];
+		char	    str_payload[80];
 
 		/*
 		 * 5.5.2.  Diagnostic Payload
@@ -903,165 +904,165 @@ proto_register_coap(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_coap_version,
-                  { "Version", "coap.version",
-                    FT_UINT8, BASE_DEC, NULL, 0xc0,
-                    NULL, HFILL }
-                },
+		  { "Version", "coap.version",
+		    FT_UINT8, BASE_DEC, NULL, 0xc0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_ttype,
-                  { "Type", "coap.type",
-                    FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30,
-                    NULL, HFILL }
-                },
+		  { "Type", "coap.type",
+		    FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_token_len,
-                  { "Token Length", "coap.token_len",
-                    FT_UINT8, BASE_DEC, NULL, 0x0f,
-                    NULL, HFILL }
-                },
+		  { "Token Length", "coap.token_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0f,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_token,
-                  { "Token", "coap.token",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Token", "coap.token",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_code,
-                  { "Code", "coap.code",
-                    FT_UINT8, BASE_DEC, VALS(vals_code), 0x0,
-                    NULL, HFILL }
-                },
+		  { "Code", "coap.code",
+		    FT_UINT8, BASE_DEC, VALS(vals_code), 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_mid,
-                  { "Message ID", "coap.mid",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Message ID", "coap.mid",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_payload,
-                  { "Payload", "coap.payload",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Payload", "coap.payload",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_payload_desc,
-                  { "Payload Desc", "coap.opt.payload_desc",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Payload Desc", "coap.opt.payload_desc",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_name,
-                  { "Opt Name", "coap.opt.name",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Opt Name", "coap.opt.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_desc,
-                  { "Opt Desc", "coap.opt.desc",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Opt Desc", "coap.opt.desc",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_delta,
-                  { "Opt Delta", "coap.opt.delta",
-                    FT_UINT8, BASE_DEC, NULL, 0xf0,
-                    NULL, HFILL }
-                },
+		  { "Opt Delta", "coap.opt.delta",
+		    FT_UINT8, BASE_DEC, NULL, 0xf0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_delta_ext,
-                  { "Opt Delta extended", "coap.opt.delta_ext",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Opt Delta extended", "coap.opt.delta_ext",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_length,
-                  { "Opt Length", "coap.opt.length",
-                    FT_UINT8, BASE_DEC, NULL, 0x0f,
-                    "CoAP Option Length", HFILL }
-                },
+		  { "Opt Length", "coap.opt.length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0f,
+		    "CoAP Option Length", HFILL }
+		},
 		{ &hf_coap_opt_length_ext,
-                  { "Opt Length extended", "coap.opt.length_ext",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Opt Length extended", "coap.opt.length_ext",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_end_marker,
-                  { "End of options marker", "coap.opt.end_marker",
-                    FT_UINT8, BASE_DEC, NULL, 0x00,
-                    NULL, HFILL }
-                },
+		  { "End of options marker", "coap.opt.end_marker",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_ctype,
-                  { "Content-type", "coap.opt.ctype",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Content-type", "coap.opt.ctype",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_max_age,
-                  { "Max-age", "coap.opt.max_age",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Max-age", "coap.opt.max_age",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_proxy_uri,
-                  { "Proxy-Uri", "coap.opt.proxy_uri",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Proxy-Uri", "coap.opt.proxy_uri",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_etag,
-                  { "Etag", "coap.opt.etag",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Etag", HFILL }
-                },
+		  { "Etag", "coap.opt.etag",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "CoAP Option Etag", HFILL }
+		},
 		{ &hf_coap_opt_uri_host,
-                  { "Uri-Host", "coap.opt.uri_host",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Uri-Host", "coap.opt.uri_host",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_location_path,
-                  { "Location-Path", "coap.opt.location_path",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Location-Path", "coap.opt.location_path",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_uri_port,
-                  { "Uri-Port", "coap.opt.uri_port",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Uri-Port", "coap.opt.uri_port",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_location_query,
-                  { "Location-Query", "coap.opt.location_query",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Location-Query", "coap.opt.location_query",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_uri_path,
-                  { "Uri-Path", "coap.opt.uri_path",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Uri-Path", "coap.opt.uri_path",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_observe,
-                  { "Lifetime", "coap.opt.subscr_lifetime",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Lifetime", "coap.opt.subscr_lifetime",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_accept,
-                  { "Accept", "coap.opt.accept",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Accept", "coap.opt.accept",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_if_match,
-                  { "If-Match", "coap.opt.if_match",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "If-Match", "coap.opt.if_match",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_block_number,
-                  { "Block Number", "coap.opt.block_number",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Block Number", "coap.opt.block_number",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_block_mflag,
-                  { "More Flag", "coap.opt.block_mflag",
-                    FT_UINT8, BASE_DEC, NULL, 0x08,
-                    NULL, HFILL }
-                },
+		  { "More Flag", "coap.opt.block_mflag",
+		    FT_UINT8, BASE_DEC, NULL, 0x08,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_block_size,
-                  { "Encoded Block Size", "coap.opt.block_size",
-                    FT_UINT8, BASE_DEC, NULL, 0x07,
-                    NULL, HFILL }
-                },
+		  { "Encoded Block Size", "coap.opt.block_size",
+		    FT_UINT8, BASE_DEC, NULL, 0x07,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_uri_query,
-                  { "Uri-Query", "coap.opt.uri_query",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Uri-Query", "coap.opt.uri_query",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_unknown,
-                  { "Unknown", "coap.opt.unknown",
-                    FT_BYTES, BASE_NONE, NULL, 0x0,
-                    NULL, HFILL }
-                },
+		  { "Unknown", "coap.opt.unknown",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
@@ -1071,13 +1072,16 @@ proto_register_coap(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_coap_invalid_option_number, { "coap.invalid_option_number", PI_MALFORMED, PI_WARN, "Invalid Option Number", EXPFILL }},
-		{ &ei_coap_invalid_option_range, { "coap.invalid_option_range", PI_MALFORMED, PI_WARN, "Invalid Option Range", EXPFILL }},
-		{ &ei_coap_option_length_bad, { "coap.option_length_bad", PI_MALFORMED, PI_WARN, "Option length bad", EXPFILL }},
+		{ &ei_coap_invalid_option_number,
+		  { "coap.invalid_option_number", PI_MALFORMED, PI_WARN, "Invalid Option Number", EXPFILL }},
+		{ &ei_coap_invalid_option_range,
+		  { "coap.invalid_option_range", PI_MALFORMED, PI_WARN, "Invalid Option Range", EXPFILL }},
+		{ &ei_coap_option_length_bad,
+		  { "coap.option_length_bad", PI_MALFORMED, PI_WARN, "Option length bad", EXPFILL }},
 	};
 
-	module_t *coap_module;
-	expert_module_t* expert_coap;
+	module_t	*coap_module;
+	expert_module_t *expert_coap;
 
 	proto_coap = proto_register_protocol("Constrained Application Protocol", "CoAP", "coap");
 	proto_register_field_array(proto_coap, hf, array_length(hf));
@@ -1116,3 +1120,16 @@ proto_reg_handoff_coap(void)
 	dissector_add_uint("udp.port", coap_port_number, coap_handle);
 	dissector_add_uint("tcp.port", coap_port_number, coap_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
