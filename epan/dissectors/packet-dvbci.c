@@ -821,6 +821,7 @@ static gint ett_dvbci_sac_msg_body = -1;
 static gint ett_dvbci_ami_req_types = -1;
 static gint ett_dvbci_lsc_conn_desc = -1;
 static gint ett_dvbci_opp_cap_loop = -1;
+static gint ett_dvbci_dlv_sys_hint = -1;
 
 
 static int hf_dvbci_event = -1;
@@ -1013,6 +1014,9 @@ static int hf_dvbci_ent_val_flag = -1;
 static int hf_dvbci_ref_req_flag = -1;
 static int hf_dvbci_err_flag = -1;
 static int hf_dvbci_dlv_sys_hint = -1;
+static int hf_dvbci_dlv_sys_hint_t = -1;
+static int hf_dvbci_dlv_sys_hint_s = -1;
+static int hf_dvbci_dlv_sys_hint_c = -1;
 static int hf_dvbci_refr_req_date = -1;
 static int hf_dvbci_refr_req_time = -1;
 static int hf_dvbci_nit_loop_len = -1;
@@ -1045,6 +1049,14 @@ static int hf_dvbci_sas_app_id = -1;
 static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
 static int hf_dvbci_sas_msg_len = -1;
+
+static const int *dvbci_opp_dlv_sys_hint_fields[] = {
+    &hf_dvbci_dlv_sys_hint_t,
+    &hf_dvbci_dlv_sys_hint_s,
+    &hf_dvbci_dlv_sys_hint_c,
+    NULL
+};
+
 
 static expert_field ei_dvbci_spdu_tag = EI_INIT;
 static expert_field ei_dvbci_sac_payload_enc = EI_INIT;
@@ -1659,8 +1671,9 @@ dissect_opp_status_body(tvbuff_t *tvb, gint offset,
     offset++;
     proto_tree_add_item(tree, hf_dvbci_err_flag,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_dvbci_dlv_sys_hint,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset,
+            hf_dvbci_dlv_sys_hint, ett_dvbci_dlv_sys_hint,
+            dvbci_opp_dlv_sys_hint_fields, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tree, hf_dvbci_refr_req_date,
             tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4809,7 +4822,8 @@ proto_register_dvbci(void)
         &ett_dvbci_sac_msg_body,
         &ett_dvbci_ami_req_types,
         &ett_dvbci_lsc_conn_desc,
-        &ett_dvbci_opp_cap_loop
+        &ett_dvbci_opp_cap_loop,
+        &ett_dvbci_dlv_sys_hint
     };
 
     static hf_register_info hf[] = {
@@ -5587,6 +5601,18 @@ proto_register_dvbci(void)
         { &hf_dvbci_dlv_sys_hint,
           { "Delivery system hint", "dvb-ci.opp.dlv_sys_hint",
             FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+        },
+        { &hf_dvbci_dlv_sys_hint_t,
+          { "terrestrial network (DVB-T/T2)", "dvb-ci.opp.dlv_sys_hint.t",
+             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+        },
+        { &hf_dvbci_dlv_sys_hint_s,
+          { "satellite network (DVB-S/S2)", "dvb-ci.opp.dlv_sys_hint.s",
+             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+        },
+        { &hf_dvbci_dlv_sys_hint_c,
+          { "cable network (DVB-C/C2)", "dvb-ci.opp.dlv_sys_hint.c",
+             FT_BOOLEAN, 4, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
         },
         { &hf_dvbci_refr_req_date,
           { "Refresh request date", "dvb-ci.opp.refresh_req_date",
