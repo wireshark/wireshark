@@ -1111,6 +1111,8 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* FIXME: properly follow BER coding rules */
 		tag = tvb_get_guint8(tvb, pos++);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(tag, ber_tlv_cat_tag_vals, "%02x "));
 		len = tvb_get_guint8(tvb, pos++);
 		switch (len) {
 		case 0x81:

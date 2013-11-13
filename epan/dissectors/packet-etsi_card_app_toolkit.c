@@ -1058,6 +1058,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					ims_event = TRUE;
 				}
 				proto_tree_add_uint(elem_tree, hf_ctlv_event, tvb, pos+i, 1, event);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+						val_to_str(event, event_list_vals, "%02x "));
 			}
 			break;
 		case 0x1b:	/* location status */
