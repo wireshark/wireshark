@@ -995,7 +995,8 @@ static const value_string mpeg_descr_service_type_vals[] = {
 
     { 0x00, NULL }
 };
-static value_string_ext mpeg_descr_service_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_service_type_vals);
+/* global variable that's shared e.g. with DVB-CI */
+value_string_ext mpeg_descr_service_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_service_type_vals);
 
 static void
 proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *tree)

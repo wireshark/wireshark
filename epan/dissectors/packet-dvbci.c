@@ -5707,8 +5707,9 @@ proto_register_dvbci(void)
             FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }
         },
         { &hf_dvbci_opp_srv_type,
-          { "Service type", "dvb-ci.opp.service_type",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+          { "Service type", "dvb-ci.opp.service_type", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &mpeg_descr_service_type_vals_ext,
+              0, NULL, HFILL }
         },
         { &hf_dvbci_dlv_cap_byte,
           { "Delivery capability byte", "dvb-ci.opp.dlv_cap_byte",
