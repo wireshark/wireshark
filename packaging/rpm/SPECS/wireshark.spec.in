@@ -10,6 +10,8 @@
 
 # Set to 1 if you want GTK3 instead of GTK2:
 %global with_gtk3 0
+# Set to 1 if you want the Qt GUI too
+%global with_qt 1
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -91,7 +93,6 @@ Requires(pre):	pwdutils
 Requires(pre):	shadow-utils
 %endif
 %endif
-Requires(post):	desktop-file-utils
 
 %if %{setcap_dumpcap}
 # Actually we require rpmbuild (the program) >= 4.7.0 but the package name
@@ -104,9 +105,19 @@ Requires(post):	desktop-file-utils
 BuildRequires:	rpm >= 4.7.0
 %endif
 
+%description
+Wireshark is a free network protocol analyzer for Unix and Windows. It
+allows you to examine data from a live network or from a capture file
+on disk. You can interactively browse the capture data, viewing summary
+and detail information for each packet. Wireshark has several powerful
+features, including a rich display filter language and the ability to
+view the reconstructed stream of a TCP session.
+
+This package contains command-line utilities, plugins, and documentation for
+Wireshark. A GTK+ and a Qt graphical user interface are packaged separately.
 
 %package	gnome
-Summary:	Gnome desktop integration for wireshark
+Summary:	Gnome desktop integration for Wireshark
 Group:		Applications/Internet
 %if %{with_gtk3}
 Requires:	gtk3 >= @GTK3_MIN_VERSION@
@@ -119,6 +130,9 @@ Requires:	wireshark = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
+Requires(post):	desktop-file-utils
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
 %if 0%{?suse_version}
 # Need this for SuSE's suse_update_desktop_file macro
 BuildRequires:	update-desktop-files
@@ -134,20 +148,32 @@ Requires:	portaudio
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
 
-
-%description
-Wireshark is a free network protocol analyzer for Unix and Windows. It
-allows you to examine data from a live network or from a capture file
-on disk. You can interactively browse the capture data, viewing summary
-and detail information for each packet. Wireshark has several powerful
-features, including a rich display filter language and the ability to
-view the reconstructed stream of a TCP session.
-
-This package contains command-line utilities, plugins, and documentation for
-Wireshark. A GTK+ graphical user interface is packaged separately.
-
 %description gnome
 Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
+
+%if %{with_qt}
+%package	qt
+Summary:	Qt GUI for Wireshark
+Group:		Applications/Internet
+Requires:	qt >= @QT_MIN_VERSION@
+BuildRequires:	qt-devel >= @QT_MIN_VERSION@
+Requires:	wireshark = %{version}-%{release}
+Requires:	xdg-utils
+Requires:	hicolor-icon-theme
+BuildRequires:	desktop-file-utils
+Requires(post):	desktop-file-utils
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
+BuildRequires:	gcc-c++
+%if 0%{?suse_version}
+# Need this for SuSE's suse_update_desktop_file macro
+BuildRequires:	update-desktop-files
+%endif
+
+%description qt
+Contains the Qt Wireshark GUI and desktop integration files.
+%endif
+
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -175,6 +201,9 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %else
   --with-gtk2 \
 %endif
+%if %{with_qt}
+  --with-qt \
+%endif
   --disable-warnings-as-errors
 
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
@@ -184,6 +213,10 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+# Change the program name for 'alternatives'
+mv %{buildroot}%{_bindir}/wireshark %{buildroot}%{_bindir}/wireshark-gtk
+# Create the 'alternative' file
+touch %{buildroot}%{_bindir}/wireshark
 make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 %if 0%{?suse_version}
 # SuSE's packaging conventions
@@ -212,6 +245,8 @@ getent group wireshark >/dev/null || groupadd -r wireshark
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
 touch --no-create /usr/share/icons/hicolor &>/dev/null || :
+%{_sbindir}/update-alternatives --install %{_bindir}/wireshark \
+  %{name} %{_bindir}/wireshark-gtk 50
 
 %postun gnome
 update-desktop-database &> /dev/null ||:
@@ -219,7 +254,26 @@ update-mime-database /usr/share/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
 	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
 	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
+	%{_sbindir}/update-alternatives --remove %{name} %{_bindir}/wireshark-gtk
 fi
+
+%if %{with_qt}
+%post qt
+update-desktop-database &> /dev/null ||:
+update-mime-database /usr/share/mime &> /dev/null || :
+touch --no-create /usr/share/icons/hicolor &>/dev/null || :
+%{_sbindir}/update-alternatives --install %{_bindir}/wireshark \
+  %{name} %{_bindir}/wireshark-qt 10
+
+%postun qt
+update-desktop-database &> /dev/null ||:
+update-mime-database /usr/share/mime &> /dev/null || :
+if [ $1 -eq 0 ] ; then
+	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
+	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
+	%{_sbindir}/update-alternatives --remove %{name} %{_bindir}/wireshark-qt
+fi
+%endif
 
 # Is this really needed?
 %posttrans
@@ -231,6 +285,8 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %doc AUTHORS COPYING ChangeLog INSTALL INSTALL.configure NEWS README*
 # Don't pick up the wireshark (GUI) binary here
 %exclude %{_bindir}/wireshark
+%exclude %{_bindir}/wireshark-gtk
+%exclude %{_bindir}/wireshark-qt
 %{_bindir}/*
 
 # This generates a warning because dumpcap is listed twice. That's
@@ -276,10 +332,27 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 /usr/share/icons/hicolor/*/apps/*
 /usr/share/icons/hicolor/*/mimetypes/*
 /usr/share/mime/packages/wireshark.xml
-%{_bindir}/wireshark
+%{_bindir}/wireshark-gtk
 %{_mandir}/man1/wireshark.*
+%ghost %{_bindir}/wireshark
+
+%if %{with_qt}
+%files qt
+%defattr(-,root,root)
+/usr/share/applications/wireshark.desktop
+/usr/share/icons/hicolor/*/apps/*
+/usr/share/icons/hicolor/*/mimetypes/*
+/usr/share/mime/packages/wireshark.xml
+%{_bindir}/wireshark-qt
+%{_mandir}/man1/wireshark.*
+%ghost %{_bindir}/wireshark
+%endif
 
 %changelog
+* Tue Nov 12 2013 Jeff Morriss
+- Add q qt package using 'alternatives' to allow the administrator to choose
+  which one they actually use.
+
 * Fri Sep 20 2013 Jeff Morriss
 - If we're not using gtk3 add --with-gtk2 (since Wireshark now defaults to gtk3)
 
