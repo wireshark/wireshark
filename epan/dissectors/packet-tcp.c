@@ -3852,7 +3852,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
        number of 0 to disable the port. */
 
     if (tcpd && tcpd->server_port != 0 &&
-        dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, FALSE, tcpinfo)) {
+        dissector_try_uint_new(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree, TRUE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
@@ -3866,12 +3866,12 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (low_port != 0 &&
-        dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, FALSE, tcpinfo)) {
+        dissector_try_uint_new(subdissector_table, low_port, next_tvb, pinfo, tree, TRUE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
     if (high_port != 0 &&
-        dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, FALSE, tcpinfo)) {
+        dissector_try_uint_new(subdissector_table, high_port, next_tvb, pinfo, tree, TRUE, tcpinfo)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
