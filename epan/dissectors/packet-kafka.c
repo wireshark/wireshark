@@ -1058,7 +1058,7 @@ proto_register_kafka(void)
         },
         { &hf_kafka_message_codec,
             { "Compression Codec", "kafka.message_codec",
-               FT_INT8, BASE_DEC, VALS(kafka_codecs), 0x07,
+               FT_INT8, BASE_DEC, VALS(kafka_codecs), 0x03,
                NULL, HFILL }
         },
         { &hf_kafka_message_key,
