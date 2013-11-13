@@ -675,7 +675,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         }
         current_tpncp_data_field_info->tpncp_data_field_descr = -1;
         hf_entr.p_id = &current_tpncp_data_field_info->tpncp_data_field_descr;
-	current_tpncp_data_field_info->tpncp_data_field_name = g_strdup_printf("tpncp.%s", tpncp_data_field_name);
+        current_tpncp_data_field_info->tpncp_data_field_name = g_strdup_printf("tpncp.%s", tpncp_data_field_name);
         hf_entr.hfinfo.name = current_tpncp_data_field_info->tpncp_data_field_name;
         hf_entr.hfinfo.abbrev = current_tpncp_data_field_info->tpncp_data_field_name;
         switch (tpncp_data_field_size) {
@@ -735,25 +735,30 @@ static gint init_tpncp_db(void) {
         return (-1);
     }
 
+    g_free(tpncp_dat_file_path);
+
     ret = fill_tpncp_id_vals(tpncp_events_id_vals, file);
-    if (ret != 0) return ret;
+    if (ret != 0)
+        goto done;
 
     ret = fill_tpncp_id_vals(tpncp_commands_id_vals, file);
-    if (ret != 0) return ret;
+    if (ret != 0)
+        goto done;
 
     ret = fill_enums_id_vals(file);
-    if (ret != 0) return ret;
+    if (ret != 0)
+        goto done;
 
     ret = init_tpncp_data_fields_info(tpncp_events_info_db, file);
-    if (ret != 0) return ret;
+    if (ret != 0)
+        goto done;
 
     ret = init_tpncp_data_fields_info(tpncp_commands_info_db, file);
-    if (ret != 0) return ret;
 
-    g_free(tpncp_dat_file_path);
+done:
     fclose(file);
 
-    return 0;
+    return ret;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -768,7 +773,7 @@ void proto_reg_handoff_tpncp(void) {
      *  hf_ entry).
      */
     if (proto_tpncp == -1)
-	return;
+        return;
 
     if (!tpncp_prefs_initialized) {
         tpncp_tcp_handle = new_create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
