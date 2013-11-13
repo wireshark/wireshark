@@ -125,7 +125,7 @@ my %struct =  # Not reset; contains structures already defined.
 
     # structures defined by xv, but never used (bug in xcb?)
     Image => 1,
-    
+
     # structures defined by xkb, but never used (bug in xcb?)
     CountedString8 => 1,
 );
@@ -494,7 +494,7 @@ sub register_element($$$;$)
     my $ft = $info->{'type'} // 'FT_NONE';
     my $base = $info->{'base'} // 'BASE_NONE';
     my $vals = 'NULL';
-    
+
     my $enum = $e->att('enum') // $e->att('altenum');
     if (defined $enum) {
 	my $enumname = dump_enum_values($enum_name{$enum});
@@ -1383,6 +1383,7 @@ if (-e "$mesadir/gl_API.xml") {
 	    or die ("Cannot open x11-glx-render-enum.h for writing\n");
     add_generated_header($enum, 'mesa');
     print $enum "static const value_string mesa_enum[] = {\n";
+    print $impl '#pragma GCC diagnostic ignored "-Wunused-but-set-variable"'."\n\n";
     print $impl '#include "x11-glx-render-enum.h"'."\n\n";
 
     print("Mesa glRender:\n");

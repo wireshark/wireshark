@@ -25,6 +25,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 #include "x11-glx-render-enum.h"
 
 static void mesa_CallList(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
