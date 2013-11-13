@@ -1383,7 +1383,9 @@ if (-e "$mesadir/gl_API.xml") {
 	    or die ("Cannot open x11-glx-render-enum.h for writing\n");
     add_generated_header($enum, 'mesa');
     print $enum "static const value_string mesa_enum[] = {\n";
-    print $impl '#pragma GCC diagnostic ignored "-Wunused-but-set-variable"'."\n\n";
+    print $impl "#if defined(__GNUC__)\n";
+    print $impl '#pragma GCC diagnostic ignored "-Wunused-but-set-variable"'."\n";
+    print $impl "#endif\n\n";
     print $impl '#include "x11-glx-render-enum.h"'."\n\n";
 
     print("Mesa glRender:\n");

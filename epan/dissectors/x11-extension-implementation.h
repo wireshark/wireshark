@@ -25,7 +25,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 
 #include "x11-glx-render-enum.h"
 
