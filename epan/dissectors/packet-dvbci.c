@@ -401,6 +401,11 @@
 /* operator profile resource */
 #define TABLE_ID_CICAM_NIT 0x40  /* CICAM NIT must be a NIT actual */
 
+#define OPP_REF_REG_FLG_NONE  0
+#define OPP_REF_REG_FLG_ADV   1
+#define OPP_REF_REG_FLG_URG   2
+#define OPP_REF_REG_FLG_SCHED 3
+
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
 #define SAS_SESS_STATE_NOT_FOUND 1
@@ -1537,6 +1542,13 @@ static const value_string dvbci_lsc_ret_val_connect[] = {
 static const value_string dvbci_lsc_ret_val_params[] = {
     { LSC_RET_OK, "ok" },
     { LSC_RET_TOO_BIG, "buffer size too big" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_ref_req_flag[] = {
+    { OPP_REF_REG_FLG_NONE,  "none" },
+    { OPP_REF_REG_FLG_ADV,   "advance warning" },
+    { OPP_REF_REG_FLG_URG,   "urgent" },
+    { OPP_REF_REG_FLG_SCHED, "scheduled" },
     { 0, NULL }
 };
 static const value_string dvbci_sas_sess_state[] = {
@@ -5592,7 +5604,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_ref_req_flag,
           { "Refresh request flag", "dvb-ci.opp.refresh_req_flag",
-            FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_ref_req_flag), 0x03, NULL, HFILL }
         },
         { &hf_dvbci_err_flag,
           { "Error flag", "dvb-ci.opp.err_flag",
