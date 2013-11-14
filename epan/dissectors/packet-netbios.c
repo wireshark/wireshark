@@ -1021,7 +1021,7 @@ dissect_netb_session_alive( tvbuff_t *tvb, int offset, proto_tree *tree)
 /*									*/
 /************************************************************************/
 
-static const guint32 (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
+static guint32 (*const dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
 
 	dissect_netb_add_group_name,	  /* Add Group Name	 0x00 */
 	dissect_netb_add_name,		  /* Add Name		 0x01 */
