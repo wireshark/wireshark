@@ -1724,7 +1724,7 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
 
     if (!title)
         return -1;
-    if (item_len==0 || cap_loop_len%item_len != 0)
+    if (item_len==0)
         return -1;
 
     if (tree && cap_loop_len>0) {
@@ -3796,6 +3796,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           cap_loop_len = tvb_get_guint8(tvb, offset);
           proto_tree_add_text(tree, tvb, offset, 1,
                   "Application capabilities loop length: %d", cap_loop_len);
+          offset++;
           dissect_opp_cap_loop(cap_loop_len,
                   "Application capabilities loop",
                   hf_dvbci_app_cap_bytes, 2,
