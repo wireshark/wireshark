@@ -89,6 +89,8 @@ void u3_runtime_info(GString *str)
     g_string_append(str, " from a ");
   }
 
+  g_string_append(str, " U3 device");
+
   if((u3devicepath_lcl =
 #ifdef _WIN32
       getenv_utf8
