@@ -107,12 +107,12 @@ static int st_ucp_results        = -1;
 static int st_ucp_results_pos    = -1;
 static int st_ucp_results_neg    = -1;
 
-static gchar st_str_ucp[]         = "UCP Messages";
-static gchar st_str_ops[]         = "Operations";
-static gchar st_str_res[]         = "Results";
-static gchar st_str_ucp_res[]     = "UCP Results Acks/Nacks";
-static gchar st_str_pos[]         = "Positive";
-static gchar st_str_neg[]         = "Negative";
+static const gchar st_str_ucp[]     = "UCP Messages";
+static const gchar st_str_ops[]     = "Operations";
+static const gchar st_str_res[]     = "Results";
+static const gchar st_str_ucp_res[] = "UCP Results Acks/Nacks";
+static const gchar st_str_pos[]     = "Positive";
+static const gchar st_str_neg[]     = "Negative";
 
 /*
  * Data (variable) section
@@ -293,6 +293,7 @@ static const value_string vals_hdr_OT[] = {     /* Operation type       */
     { 99, "(proprietary)" },
     {  0, NULL }
 };
+static value_string_ext vals_hdr_OT_ext = VALUE_STRING_EXT_INIT(vals_hdr_OT);
 
 static const value_string vals_parm_EC[] = {    /* Error code   */
     {  1, "Checksum error" },
@@ -360,6 +361,7 @@ static const value_string vals_parm_EC[] = {    /* Error code   */
     { 99, "(proprietary error code)" },
     {  0, NULL },
 };
+static value_string_ext vals_parm_EC_ext = VALUE_STRING_EXT_INIT(vals_parm_EC);
 
 static const value_string vals_parm_NRq[] = {
     {  '0', "NAdC not used" },
@@ -461,6 +463,7 @@ static const value_string vals_parm_Rsn[] = {
     {  208, "Invalid message type indicator" },
     {  0, NULL },
 };
+static value_string_ext vals_parm_Rsn_ext = VALUE_STRING_EXT_INIT(vals_parm_Rsn);
 
 static const value_string vals_parm_MT[] = {
     {  '2', "Numeric message" },
@@ -644,15 +647,16 @@ static const value_string vals_xser_service[] = {
     { 13, "Single shot indicator" },
     {  0, NULL },
 };
+static value_string_ext vals_xser_service_ext = VALUE_STRING_EXT_INIT(vals_xser_service);
 
 /* For statistics */
 static void
 ucp_stats_tree_init(stats_tree* st)
 {
-    st_ucp_messages = stats_tree_create_node(st, st_str_ucp, 0, TRUE);
-    st_ucp_ops = stats_tree_create_node(st, st_str_ops, st_ucp_messages, TRUE);
-    st_ucp_res = stats_tree_create_node(st, st_str_res, st_ucp_messages, TRUE);
-    st_ucp_results = stats_tree_create_node(st, st_str_ucp_res, 0, TRUE);
+    st_ucp_messages    = stats_tree_create_node(st, st_str_ucp, 0, TRUE);
+    st_ucp_ops         = stats_tree_create_node(st, st_str_ops, st_ucp_messages, TRUE);
+    st_ucp_res         = stats_tree_create_node(st, st_str_res, st_ucp_messages, TRUE);
+    st_ucp_results     = stats_tree_create_node(st, st_str_ucp_res, 0, TRUE);
     st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, TRUE);
     st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, TRUE);
 }
@@ -663,20 +667,20 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                                       epan_dissect_t *edt _U_,
                                       const void *p) /* Used for getting UCP stats */
 {
-    ucp_tap_rec_t* tap_rec = (ucp_tap_rec_t*)p;
+    ucp_tap_rec_t *tap_rec = (ucp_tap_rec_t*)p;
 
     tick_stat_node(st, st_str_ucp, 0, TRUE);
 
     if (tap_rec->message_type == 0) /* Operation */
     {
         tick_stat_node(st, st_str_ops, st_ucp_messages, TRUE);
-        tick_stat_node(st, val_to_str(tap_rec->operation, vals_hdr_OT,
+        tick_stat_node(st, val_to_str_ext(tap_rec->operation, &vals_hdr_OT_ext,
                        "Unknown OT: %d"), st_ucp_ops, FALSE);
     }
     else /* Result */
     {
         tick_stat_node(st, st_str_res, st_ucp_messages, TRUE);
-        tick_stat_node(st, val_to_str(tap_rec->operation, vals_hdr_OT,
+        tick_stat_node(st, val_to_str_ext(tap_rec->operation, &vals_hdr_OT_ext,
                        "Unknown OT: %d"), st_ucp_res, FALSE);
 
         tick_stat_node(st, st_str_ucp_res, 0, TRUE);
@@ -688,7 +692,7 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
         else /* Negative Result */
         {
             tick_stat_node(st, st_str_neg, st_ucp_results, TRUE);
-            tick_stat_node(st, val_to_str(tap_rec->result, vals_parm_EC,
+            tick_stat_node(st, val_to_str_ext(tap_rec->result, &vals_parm_EC_ext,
                            "Unknown EC: %d"), st_ucp_results_neg, FALSE);
         }
     }
@@ -860,9 +864,9 @@ ucp_handle_byte(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 static guint
 ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    gint         idx, len;
+    gint          idx, len;
     const char   *strval;
-    guint        intval = 0;
+    guint         intval = 0;
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
@@ -885,10 +889,10 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 static void
 ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    gint         idx, len;
-    const char   *strval;
-    time_t       tval;
-    nstime_t     tmptime;
+    gint        idx, len;
+    const char *strval;
+    time_t      tval;
+    nstime_t    tmptime;
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
@@ -1734,14 +1738,14 @@ get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int          offset = 0;    /* Offset in packet within tvbuff       */
-    guint8       O_R;           /* Request or response                  */
-    guint8       OT;            /* Operation type                       */
-    guint        intval;
-    int          i;
-    int          result;
-    int          endpkt;
-    ucp_tap_rec_t* tap_rec;     /* Tap record                           */
+    int            offset = 0;  /* Offset in packet within tvbuff       */
+    guint8         O_R;         /* Request or response                  */
+    guint8         OT;          /* Operation type                       */
+    guint          intval;
+    int            i;
+    int            result;
+    int            endpkt;
+    ucp_tap_rec_t *tap_rec;     /* Tap record                           */
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item  *ti;
@@ -1776,7 +1780,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
      /* Make entries in  Info column on summary display */
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-                    val_to_str_const(OT,  vals_hdr_OT,  "unknown operation"),
+                    val_to_str_ext_const(OT,  &vals_hdr_OT_ext,  "unknown operation"),
                     val_to_str(O_R, vals_hdr_O_R, "Unknown (%d)"));
     if (result == UCP_INV_CHK)
         col_append_str(pinfo->cinfo, COL_INFO, " [checksum invalid]");
@@ -1983,746 +1987,746 @@ proto_register_ucp(void)
     /* Setup list of fields     */
     static hf_register_info hf[] = {
         { &hf_ucp_hdr_TRN,
-            { "Transaction Reference Number", "ucp.hdr.TRN",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Transaction number for this command, used in windowing.",
-              HFILL
-            }
+          { "Transaction Reference Number", "ucp.hdr.TRN",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Transaction number for this command, used in windowing.",
+            HFILL
+          }
         },
         { &hf_ucp_hdr_LEN,
-            { "Length", "ucp.hdr.LEN",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
-              "Total number of characters between <stx>...<etx>.",
-              HFILL
-            }
+          { "Length", "ucp.hdr.LEN",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "Total number of characters between <stx>...<etx>.",
+            HFILL
+          }
         },
         { &hf_ucp_hdr_O_R,
-            { "Type", "ucp.hdr.O_R",
-              FT_UINT8, BASE_DEC, VALS(vals_hdr_O_R), 0x00,
-              "Your basic 'is a request or response'.",
-              HFILL
-            }
+          { "Type", "ucp.hdr.O_R",
+            FT_UINT8, BASE_DEC, VALS(vals_hdr_O_R), 0x00,
+            "Your basic 'is a request or response'.",
+            HFILL
+          }
         },
         { &hf_ucp_hdr_OT,
-            { "Operation", "ucp.hdr.OT",
-              FT_UINT8, BASE_DEC, VALS(vals_hdr_OT), 0x00,
-              "The operation that is requested with this message.",
-              HFILL
-            }
+          { "Operation", "ucp.hdr.OT",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &vals_hdr_OT_ext, 0x00,
+            "The operation that is requested with this message.",
+            HFILL
+          }
         },
         { &hf_ucp_oper_section,
-            { "Data", "ucp.parm",
-              FT_NONE, BASE_NONE, NULL, 0x00,
-              "The actual content of the operation.",
-              HFILL
-            }
+          { "Data", "ucp.parm",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            "The actual content of the operation.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_AdC,
-            { "AdC", "ucp.parm.AdC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Address code recipient.",
-              HFILL
-            }
+          { "AdC", "ucp.parm.AdC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Address code recipient.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_OAdC,
-            { "OAdC", "ucp.parm.OAdC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Address code originator.",
-              HFILL
-            }
+          { "OAdC", "ucp.parm.OAdC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Address code originator.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_DAdC,
-            { "DAdC", "ucp.parm.DAdC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Diverted address code.",
-              HFILL
-            }
+          { "DAdC", "ucp.parm.DAdC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Diverted address code.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_AC,
-            { "AC", "ucp.parm.AC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Authentication code.",
-              HFILL
-            }
+          { "AC", "ucp.parm.AC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Authentication code.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_OAC,
-            { "OAC", "ucp.parm.OAC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Authentication code, originator.",
-              HFILL
-            }
+          { "OAC", "ucp.parm.OAC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Authentication code, originator.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NAC,
-            { "NAC", "ucp.parm.NAC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "New authentication code.",
-              HFILL
-            }
+          { "NAC", "ucp.parm.NAC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "New authentication code.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_BAS,
-            { "BAS", "ucp.parm.BAS",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_BAS), 0x00,
-              "Barring status flag.",
-              HFILL
-            }
+          { "BAS", "ucp.parm.BAS",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_BAS), 0x00,
+            "Barring status flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LAR,
-            { "LAR", "ucp.parm.LAR",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_LAR), 0x00,
-              "Leg. code for all calls flag.",
-              HFILL
-            }
+          { "LAR", "ucp.parm.LAR",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_LAR), 0x00,
+            "Leg. code for all calls flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LAC,
-            { "LAC", "ucp.parm.LAC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "New leg. code for all calls.",
-              HFILL
-            }
+          { "LAC", "ucp.parm.LAC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "New leg. code for all calls.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_L1R,
-            { "L1R", "ucp.parm.L1R",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_L1R), 0x00,
-              "Leg. code for priority 1 flag.",
-              HFILL
-            }
+          { "L1R", "ucp.parm.L1R",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_L1R), 0x00,
+            "Leg. code for priority 1 flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_L1P,
-            { "L1P", "ucp.parm.L1P",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "New leg. code for level 1 priority.",
-              HFILL
-            }
+          { "L1P", "ucp.parm.L1P",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "New leg. code for level 1 priority.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_L3R,
-            { "L3R", "ucp.parm.L3R",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_L3R), 0x00,
-              "Leg. code for priority 3 flag.",
-              HFILL
-            }
+          { "L3R", "ucp.parm.L3R",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_L3R), 0x00,
+            "Leg. code for priority 3 flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_L3P,
-            { "L3P", "ucp.parm.L3P",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "New leg. code for level 3 priority.",
-              HFILL
-            }
+          { "L3P", "ucp.parm.L3P",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "New leg. code for level 3 priority.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LCR,
-            { "LCR", "ucp.parm.LCR",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_LCR), 0x00,
-              "Leg. code for reverse charging flag.",
-              HFILL
-            }
+          { "LCR", "ucp.parm.LCR",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_LCR), 0x00,
+            "Leg. code for reverse charging flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LUR,
-            { "LUR", "ucp.parm.LUR",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_LUR), 0x00,
-              "Leg. code for urgent message flag.",
-              HFILL
-            }
+          { "LUR", "ucp.parm.LUR",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_LUR), 0x00,
+            "Leg. code for urgent message flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LRR,
-            { "LRR", "ucp.parm.LRR",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_LRR), 0x00,
-              "Leg. code for repetition flag.",
-              HFILL
-            }
+          { "LRR", "ucp.parm.LRR",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_LRR), 0x00,
+            "Leg. code for repetition flag.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RT,
-            { "RT", "ucp.parm.RT",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_RT), 0x00,
-              "Receiver type.",
-              HFILL
-            }
+          { "RT", "ucp.parm.RT",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_RT), 0x00,
+            "Receiver type.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NoN,
-            { "NoN", "ucp.parm.NoN",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
-              "Maximum number of numerical characters accepted.",
-              HFILL
-            }
+          { "NoN", "ucp.parm.NoN",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "Maximum number of numerical characters accepted.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NoA,
-            { "NoA", "ucp.parm.NoA",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
-              "Maximum number of alphanumerical characters accepted.",
-              HFILL
-            }
+          { "NoA", "ucp.parm.NoA",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "Maximum number of alphanumerical characters accepted.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NoB,
-            { "NoB", "ucp.parm.NoB",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
-              "Maximum number of data bits accepted.",
-              HFILL
-            }
+          { "NoB", "ucp.parm.NoB",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "Maximum number of data bits accepted.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_PNC,
-            { "PNC", "ucp.parm.PNC",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_PNC), 0x00,
-              "Paging network controller.",
-              HFILL
-            }
+          { "PNC", "ucp.parm.PNC",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_PNC), 0x00,
+            "Paging network controller.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_AMsg,
-            { "AMsg", "ucp.parm.AMsg",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "The alphanumeric message that is being sent.",
-              HFILL
-            }
+          { "AMsg", "ucp.parm.AMsg",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "The alphanumeric message that is being sent.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LNo,
-            { "LNo", "ucp.parm.LNo",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Standard text list number requested by calling party.",
-              HFILL
-            }
+          { "LNo", "ucp.parm.LNo",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Standard text list number requested by calling party.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LST,
-            { "LST", "ucp.parm.LST",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Legitimisation code for standard text.",
-              HFILL
-            }
+          { "LST", "ucp.parm.LST",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Legitimisation code for standard text.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_TNo,
-            { "TNo", "ucp.parm.TNo",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Standard text number requested by calling party.",
-              HFILL
-            }
+          { "TNo", "ucp.parm.TNo",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Standard text number requested by calling party.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_CS,
-            { "CS", "ucp.parm.CS",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Additional character set number.",
-              HFILL
-            }
+          { "CS", "ucp.parm.CS",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Additional character set number.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_PID,
-            { "PID", "ucp.parm.PID",
-              FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
-              "SMT PID value.",
-              HFILL
-            }
+          { "PID", "ucp.parm.PID",
+            FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
+            "SMT PID value.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NPL,
-            { "NPL", "ucp.parm.NPL",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
-              "Number of parameters in the following list.",
-              HFILL
-            }
+          { "NPL", "ucp.parm.NPL",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "Number of parameters in the following list.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_GA,
-            { "GA", "ucp.parm.GA",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "GA?? haven't got a clue.",
-              HFILL
-            }
+          { "GA", "ucp.parm.GA",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "GA?? haven't got a clue.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RP,
-            { "RP", "ucp.parm.RP",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_RP), 0x00,
-              "Repetition requested.",
-              HFILL
-            }
+          { "RP", "ucp.parm.RP",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_RP), 0x00,
+            "Repetition requested.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LRP,
-            { "LRP", "ucp.parm.LRP",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Legitimisation code for repetition.",
-              HFILL
-            }
+          { "LRP", "ucp.parm.LRP",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Legitimisation code for repetition.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_PR,
-            { "PR", "ucp.parm.PR",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Priority requested.",
-              HFILL
-            }
+          { "PR", "ucp.parm.PR",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Priority requested.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LPR,
-            { "LPR", "ucp.parm.LPR",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Legitimisation code for priority requested.",
-              HFILL
-            }
+          { "LPR", "ucp.parm.LPR",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Legitimisation code for priority requested.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_UM,
-            { "UM", "ucp.parm.UM",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_UM), 0x00,
-              "Urgent message indicator.",
-              HFILL
-            }
+          { "UM", "ucp.parm.UM",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_UM), 0x00,
+            "Urgent message indicator.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LUM,
-            { "LUM", "ucp.parm.LUM",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Legitimisation code for urgent message.",
-              HFILL
-            }
+          { "LUM", "ucp.parm.LUM",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Legitimisation code for urgent message.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RC,
-            { "RC", "ucp.parm.RC",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_RC), 0x00,
-              "Reverse charging request.",
-              HFILL
-            }
+          { "RC", "ucp.parm.RC",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_RC), 0x00,
+            "Reverse charging request.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LRC,
-            { "LRC", "ucp.parm.LRC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Legitimisation code for reverse charging.",
-              HFILL
-            }
+          { "LRC", "ucp.parm.LRC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Legitimisation code for reverse charging.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NRq,
-            { "NRq", "ucp.parm.NRq",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_NRq), 0x00,
-              "Notification request.",
-              HFILL
-            }
+          { "NRq", "ucp.parm.NRq",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_NRq), 0x00,
+            "Notification request.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_GAdC,
-            { "GAdC", "ucp.parm.GAdC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Group address code.",
-              HFILL
-            }
+          { "GAdC", "ucp.parm.GAdC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Group address code.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_A_D,
-            { "A_D", "ucp.parm.A_D",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_A_D), 0x00,
-              "Add to/delete from fixed subscriber address list record.",
-              HFILL
-            }
+          { "A_D", "ucp.parm.A_D",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_A_D), 0x00,
+            "Add to/delete from fixed subscriber address list record.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_CT,
-            { "CT", "ucp.parm.CT",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Accumulated charges timestamp.",
-              HFILL
-            }
+          { "CT", "ucp.parm.CT",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Accumulated charges timestamp.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_AAC,
-            { "AAC", "ucp.parm.AAC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Accumulated charges.",
-              HFILL
-            }
+          { "AAC", "ucp.parm.AAC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Accumulated charges.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_MNo,
-            { "MNo", "ucp.parm.MNo",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Message number.",
-              HFILL
-            }
+          { "MNo", "ucp.parm.MNo",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Message number.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_R_T,
-            { "R_T", "ucp.parm.R_T",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_R_T), 0x00,
-              "Message number.",
-              HFILL
-            }
+          { "R_T", "ucp.parm.R_T",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_R_T), 0x00,
+            "Message number.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NAdC,
-            { "NAdC", "ucp.parm.NAdC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Notification address.",
-              HFILL
-            }
+          { "NAdC", "ucp.parm.NAdC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Notification address.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NT,
-            { "NT", "ucp.parm.NT",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_NT), 0x00,
-              "Notification type.",
-              HFILL
-            }
+          { "NT", "ucp.parm.NT",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_NT), 0x00,
+            "Notification type.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_IVR5x,
-            { "IVR5x", "ucp.parm.IVR5x",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "UCP release number supported/accepted.",
-              HFILL
-            }
+          { "IVR5x", "ucp.parm.IVR5x",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "UCP release number supported/accepted.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_REQ_OT,
-            { "REQ_OT", "ucp.parm.REQ_OT",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_REQ_OT), 0x00,
-              "UCP release number supported/accepted.",
-              HFILL
-            }
+          { "REQ_OT", "ucp.parm.REQ_OT",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_REQ_OT), 0x00,
+            "UCP release number supported/accepted.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_SSTAT,
-            { "SSTAT", "ucp.parm.SSTAT",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_SSTAT), 0x00,
-              "Supplementary services for which status is requested.",
-              HFILL
-            }
+          { "SSTAT", "ucp.parm.SSTAT",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_SSTAT), 0x00,
+            "Supplementary services for which status is requested.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LMN,
-            { "LMN", "ucp.parm.LMN",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Last message number.",
-              HFILL
-            }
+          { "LMN", "ucp.parm.LMN",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Last message number.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NMESS,
-            { "NMESS", "ucp.parm.NMESS",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Number of stored messages.",
-              HFILL
-            }
+          { "NMESS", "ucp.parm.NMESS",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Number of stored messages.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NMESS_str,
-            { "NMESS_str", "ucp.parm.NMESS_str",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Number of stored messages.",
-              HFILL
-            }
+          { "NMESS_str", "ucp.parm.NMESS_str",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Number of stored messages.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NPID,
-            { "NPID", "ucp.parm.NPID",
-              FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
-              "Notification PID value.",
-              HFILL
-            }
+          { "NPID", "ucp.parm.NPID",
+            FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
+            "Notification PID value.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LRq,
-            { "LRq", "ucp.parm.LRq",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_LRq), 0x00,
-              "Last resort address request.",
-              HFILL
-            }
+          { "LRq", "ucp.parm.LRq",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_LRq), 0x00,
+            "Last resort address request.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LRAd,
-            { "LRAd", "ucp.parm.LRAd",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Last resort address.",
-              HFILL
-            }
+          { "LRAd", "ucp.parm.LRAd",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Last resort address.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LPID,
-            { "LPID", "ucp.parm.LPID",
-              FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
-              "Last resort PID value.",
-              HFILL
-            }
+          { "LPID", "ucp.parm.LPID",
+            FT_UINT16, BASE_DEC, VALS(vals_parm_PID), 0x00,
+            "Last resort PID value.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_DD,
-            { "DD", "ucp.parm.DD",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_DD), 0x00,
-              "Deferred delivery requested.",
-              HFILL
-            }
+          { "DD", "ucp.parm.DD",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_DD), 0x00,
+            "Deferred delivery requested.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_DDT,
-            { "DDT", "ucp.parm.DDT",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Deferred delivery time.",
-              HFILL
-            }
+          { "DDT", "ucp.parm.DDT",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Deferred delivery time.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_STx,
-            { "STx", "ucp.parm.STx",
-              FT_NONE, BASE_NONE, NULL, 0x00,
-              "Standard text.",
-              HFILL
-            }
+          { "STx", "ucp.parm.STx",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            "Standard text.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_ST,
-            { "ST", "ucp.parm.ST",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Start time.",
-              HFILL
-            }
+          { "ST", "ucp.parm.ST",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Start time.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_SP,
-            { "SP", "ucp.parm.SP",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Stop time.",
-              HFILL
-            }
+          { "SP", "ucp.parm.SP",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Stop time.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_VP,
-            { "VP", "ucp.parm.VP",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Validity period.",
-              HFILL
-            }
+          { "VP", "ucp.parm.VP",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Validity period.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RPID,
-            { "RPID", "ucp.parm.RPID",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Replace PID",
-              HFILL
-            }
+          { "RPID", "ucp.parm.RPID",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Replace PID",
+            HFILL
+          }
         },
         { &hf_ucp_parm_SCTS,
-            { "SCTS", "ucp.parm.SCTS",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Service Centre timestamp.",
-              HFILL
-            }
+          { "SCTS", "ucp.parm.SCTS",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Service Centre timestamp.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_Dst,
-            { "Dst", "ucp.parm.Dst",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_Dst), 0x00,
-              "Delivery status.",
-              HFILL
-            }
+          { "Dst", "ucp.parm.Dst",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_Dst), 0x00,
+            "Delivery status.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_Rsn,
-            { "Rsn", "ucp.parm.Rsn",
-              FT_UINT16, BASE_DEC, VALS(vals_parm_Rsn), 0x00,
-              "Reason code.",
-              HFILL
-            }
+          { "Rsn", "ucp.parm.Rsn",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &vals_parm_Rsn_ext, 0x00,
+            "Reason code.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_DSCTS,
-            { "DSCTS", "ucp.parm.DSCTS",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Delivery timestamp.",
-              HFILL
-            }
+          { "DSCTS", "ucp.parm.DSCTS",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Delivery timestamp.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_MT,
-            { "MT", "ucp.parm.MT",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_MT), 0x00,
-              "Message type.",
-              HFILL
-            }
+          { "MT", "ucp.parm.MT",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_MT), 0x00,
+            "Message type.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NB,
-            { "NB", "ucp.parm.NB",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "No. of bits in Transparent Data (TD) message.",
-              HFILL
-            }
+          { "NB", "ucp.parm.NB",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "No. of bits in Transparent Data (TD) message.",
+            HFILL
+          }
         },
         { &hf_ucp_data_section,
-            { "Data", "ucp.message",
-              FT_NONE, BASE_NONE, NULL, 0x00,
-              "The actual message or data.",
-              HFILL
-            }
+          { "Data", "ucp.message",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            "The actual message or data.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_MMS,
-            { "MMS", "ucp.parm.MMS",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "More messages to send.",
-              HFILL
-            }
+          { "MMS", "ucp.parm.MMS",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "More messages to send.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_DCs,
-            { "DCs", "ucp.parm.DCs",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_DCs), 0x00,
-              "Data coding scheme (deprecated).",
-              HFILL
-            }
+          { "DCs", "ucp.parm.DCs",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_DCs), 0x00,
+            "Data coding scheme (deprecated).",
+            HFILL
+          }
         },
         { &hf_ucp_parm_MCLs,
-            { "MCLs", "ucp.parm.MCLs",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_MCLs), 0x00,
-              "Message class.",
-              HFILL
-            }
+          { "MCLs", "ucp.parm.MCLs",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_MCLs), 0x00,
+            "Message class.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RPI,
-            { "RPI", "ucp.parm.RPI",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_RPI), 0x00,
-              "Reply path.",
-              HFILL
-            }
+          { "RPI", "ucp.parm.RPI",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_RPI), 0x00,
+            "Reply path.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_CPg,
-            { "CPg", "ucp.parm.CPg",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Reserved for Code Page.",
-              HFILL
-            }
+          { "CPg", "ucp.parm.CPg",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Reserved for Code Page.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RPLy,
-            { "RPLy", "ucp.parm.RPLy",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Reserved for Reply type.",
-              HFILL
-            }
+          { "RPLy", "ucp.parm.RPLy",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Reserved for Reply type.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_OTOA,
-            { "OTOA", "ucp.parm.OTOA",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Originator Type Of Address.",
-              HFILL
-            }
+          { "OTOA", "ucp.parm.OTOA",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Originator Type Of Address.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_HPLMN,
-            { "HPLMN", "ucp.parm.HPLMN",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Home PLMN address.",
-              HFILL
-            }
+          { "HPLMN", "ucp.parm.HPLMN",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Home PLMN address.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_XSer,
-            { "Extra services:", "ucp.parm.XSer",
-              FT_NONE, BASE_NONE, NULL, 0x00,
-              "Extra services.",
-              HFILL
-            }
+          { "Extra services:", "ucp.parm.XSer",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            "Extra services.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RES4,
-            { "RES4", "ucp.parm.RES4",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Reserved for future use.",
-              HFILL
-            }
+          { "RES4", "ucp.parm.RES4",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Reserved for future use.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RES5,
-            { "RES5", "ucp.parm.RES5",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Reserved for future use.",
-              HFILL
-            }
+          { "RES5", "ucp.parm.RES5",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Reserved for future use.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_OTON,
-            { "OTON", "ucp.parm.OTON",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_OTON), 0x00,
-              "Originator type of number.",
-              HFILL
-            }
+          { "OTON", "ucp.parm.OTON",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_OTON), 0x00,
+            "Originator type of number.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_ONPI,
-            { "ONPI", "ucp.parm.ONPI",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_ONPI), 0x00,
-              "Originator numbering plan id.",
-              HFILL
-            }
+          { "ONPI", "ucp.parm.ONPI",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_ONPI), 0x00,
+            "Originator numbering plan id.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_STYP0,
-            { "STYP0", "ucp.parm.STYP0",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_STYP0), 0x00,
-              "Subtype of operation.",
-              HFILL
-            }
+          { "STYP0", "ucp.parm.STYP0",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_STYP0), 0x00,
+            "Subtype of operation.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_STYP1,
-            { "STYP1", "ucp.parm.STYP1",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_STYP1), 0x00,
-              "Subtype of operation.",
-              HFILL
-            }
+          { "STYP1", "ucp.parm.STYP1",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_STYP1), 0x00,
+            "Subtype of operation.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_PWD,
-            { "PWD", "ucp.parm.PWD",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Current password.",
-              HFILL
-            }
+          { "PWD", "ucp.parm.PWD",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Current password.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_NPWD,
-            { "NPWD", "ucp.parm.NPWD",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "New password.",
-              HFILL
-            }
+          { "NPWD", "ucp.parm.NPWD",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "New password.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_VERS,
-            { "VERS", "ucp.parm.VERS",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Version number.",
-              HFILL
-            }
+          { "VERS", "ucp.parm.VERS",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Version number.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LAdC,
-            { "LAdC", "ucp.parm.LAdC",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Address for VSMSC list operation.",
-              HFILL
-            }
+          { "LAdC", "ucp.parm.LAdC",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Address for VSMSC list operation.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LTON,
-            { "LTON", "ucp.parm.LTON",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Type of number list address.",
-              HFILL
-            }
+          { "LTON", "ucp.parm.LTON",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Type of number list address.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_LNPI,
-            { "LNPI", "ucp.parm.LNPI",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
-              "Numbering plan id. list address.",
-              HFILL
-            }
+          { "LNPI", "ucp.parm.LNPI",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "Numbering plan id. list address.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_OPID,
-            { "OPID", "ucp.parm.OPID",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_OPID), 0x00,
-              "Originator protocol identifier.",
-              HFILL
-            }
+          { "OPID", "ucp.parm.OPID",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_OPID), 0x00,
+            "Originator protocol identifier.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RES1,
-            { "RES1", "ucp.parm.RES1",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Reserved for future use.",
-              HFILL
-            }
+          { "RES1", "ucp.parm.RES1",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Reserved for future use.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_RES2,
-            { "RES2", "ucp.parm.RES2",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "Reserved for future use.",
-              HFILL
-            }
+          { "RES2", "ucp.parm.RES2",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "Reserved for future use.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_ACK,
-            { "(N)Ack", "ucp.parm.ACK",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_ACK), 0x00,
-              "Positive or negative acknowledge of the operation.",
-              HFILL
-            }
+          { "(N)Ack", "ucp.parm.ACK",
+            FT_UINT8, BASE_DEC, VALS(vals_parm_ACK), 0x00,
+            "Positive or negative acknowledge of the operation.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_MVP,
-            { "MVP", "ucp.parm.MVP",
-              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-              "Modified validity period.",
-              HFILL
-            }
+          { "MVP", "ucp.parm.MVP",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+            "Modified validity period.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_EC,
-            { "Error code", "ucp.parm.EC",
-              FT_UINT8, BASE_DEC, VALS(vals_parm_EC), 0x00,
-              "The result of the requested operation.",
-              HFILL
-            }
+          { "Error code", "ucp.parm.EC",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &vals_parm_EC_ext, 0x00,
+            "The result of the requested operation.",
+            HFILL
+          }
         },
         { &hf_ucp_parm_SM,
-            { "SM", "ucp.parm.SM",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              "System message.",
-              HFILL
-            }
+          { "SM", "ucp.parm.SM",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "System message.",
+            HFILL
+          }
         },
         { &hf_xser_service,
-            { "Type of service", "ucp.xser.service",
-              FT_UINT8, BASE_HEX, VALS(vals_xser_service), 0x00,
-              "The type of service specified.",
-              HFILL
-            }
+          { "Type of service", "ucp.xser.service",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &vals_xser_service_ext, 0x00,
+            "The type of service specified.",
+            HFILL
+          }
         },
         { &hf_xser_length,
-            { "Length", "ucp.xser.length",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
-              NULL,
-              HFILL
-            }
+          { "Length", "ucp.xser.length",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL,
+            HFILL
+          }
         },
         { &hf_xser_data,
-            { "Data", "ucp.xser.data",
-              FT_STRING, BASE_NONE, NULL, 0x00,
-              NULL,
-              HFILL
-            }
+          { "Data", "ucp.xser.data",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL,
+            HFILL
+          }
         },
     };
     /* Setup protocol subtree array */
@@ -2731,9 +2735,9 @@ proto_register_ucp(void)
         &ett_sub,
         &ett_XSer
     };
-   module_t *ucp_module;
+    module_t *ucp_module;
 
-   /* Register the protocol name and description */
+    /* Register the protocol name and description */
     proto_ucp = proto_register_protocol("Universal Computer Protocol",
                                         "UCP", "ucp");
 
@@ -2744,16 +2748,16 @@ proto_register_ucp(void)
     /* Register for tapping */
     ucp_tap = register_tap("ucp");
 
-  /* register preferences */
+    /* register preferences */
     ucp_module = prefs_register_protocol(proto_ucp, NULL);
     prefs_register_bool_preference(ucp_module, "desegment_ucp_messages",
-                           "Reassemble UCP messages spanning multiple TCP segments",
-                           "Whether the UCP dissector should reassemble messages spanning"
-                           " multiple TCP segments."
-                           " To use this option, you must also enable "
-                           "\"Allow subdissectors to reassemble TCP streams\" in the "
-                           "TCP protocol settings.",
-                           &ucp_desegment);
+                                   "Reassemble UCP messages spanning multiple TCP segments",
+                                   "Whether the UCP dissector should reassemble messages spanning"
+                                   " multiple TCP segments."
+                                   " To use this option, you must also enable "
+                                   "\"Allow subdissectors to reassemble TCP streams\" in the "
+                                   "TCP protocol settings.",
+                                   &ucp_desegment);
 
 }
 
@@ -2777,3 +2781,16 @@ proto_reg_handoff_ucp(void)
                         ucp_stats_tree_per_packet, ucp_stats_tree_init,
                         NULL, REGISTER_STAT_GROUP_TELEPHONY);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
