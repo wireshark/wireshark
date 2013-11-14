@@ -1976,6 +1976,8 @@ static const value_string mpeg_descr_data_bcast_id_vals[] = {
     { 0x000B, "IP/MAC Notification service" },
     { 0x00F0, "MHP Object Carousel" },
     { 0x00F1, "MHP Multiprotocol Encapsulation" },
+    { 0x0122, "CI+ Data Carousel" },
+    { 0x0123, "HbbTV Carousel" },
     /* See dvbservices.com for complete and current list */
 
     { 0, NULL }
