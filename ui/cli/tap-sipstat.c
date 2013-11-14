@@ -35,6 +35,8 @@
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-sip.h>
 
+void register_tap_listener_sipstat(void);
+
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _sip_stats_t {
 	char		*filter;

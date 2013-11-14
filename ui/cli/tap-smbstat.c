@@ -38,6 +38,8 @@
 #define MICROSECS_PER_SEC   1000000
 #define NANOSECS_PER_SEC    1000000000
 
+void register_tap_listener_smbstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
 	char *filter;

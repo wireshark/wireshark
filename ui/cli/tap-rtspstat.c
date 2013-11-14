@@ -38,7 +38,8 @@
 #include "register.h"
 #include <epan/dissectors/packet-rtsp.h>
 
-	
+void register_tap_listener_gtkrtspstat(void);
+
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _rtsp_stats_t {
 	char 		*filter;

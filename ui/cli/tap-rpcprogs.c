@@ -40,6 +40,8 @@
 #define MICROSECS_PER_SEC   1000000
 #define NANOSECS_PER_SEC    1000000000
 
+void register_tap_listener_rpcprogs(void);
+
 /* used to keep track of statistics for a specific program/version */
 typedef struct _rpc_program_t {
 	struct _rpc_program_t *next;

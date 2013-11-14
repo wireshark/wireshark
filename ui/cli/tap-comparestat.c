@@ -57,6 +57,8 @@
 
 #define TTL_SEARCH 5
 
+void register_tap_listener_comparestat(void);
+
 /* information which will be printed */
 typedef struct _for_print {
 	guint count;

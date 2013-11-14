@@ -51,6 +51,7 @@
 #include "epan/to_str.h"
 #include "epan/dissectors/packet-diameter.h"
 
+void register_tap_listener_diameteravp(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _diameteravp_t {

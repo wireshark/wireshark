@@ -40,6 +40,8 @@
 #include <epan/dissectors/packet-icmp.h>
 #include <math.h>
 
+void register_tap_listener_icmpstat(void);
+
 /* used to keep track of the ICMP statistics */
 typedef struct _icmpstat_t {
     char *filter;

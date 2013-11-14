@@ -38,6 +38,8 @@
 #include <epan/dissectors/packet-scsi-smc.h>
 #include <epan/dissectors/packet-scsi-osd.h>
 
+void register_tap_listener_scsistat(void);
+
 static guint8 scsi_program=0;
 
 /* used to keep track of statistics for a specific procedure */

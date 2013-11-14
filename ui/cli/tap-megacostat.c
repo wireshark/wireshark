@@ -39,7 +39,7 @@
 
 #include "ui/tap-megaco-common.h"
 
-
+void register_tap_listener_megacostat(void);
 
 static void
 megacostat_draw(void *pms)

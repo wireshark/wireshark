@@ -34,6 +34,8 @@
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_cmd_args.h>
 
+void register_tap_listener_stats_tree_stat(void);
+
 /* actually unused */
 struct _st_node_pres {
 	void *dummy;
@@ -118,7 +120,7 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 
 }
 
-void
+static void
 register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 {
 	stats_tree_cfg *cfg = (stats_tree_cfg *)v;

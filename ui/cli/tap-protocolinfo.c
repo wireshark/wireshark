@@ -37,6 +37,8 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/strutil.h>
 
+void register_tap_listener_protocolinfo(void);
+
 typedef struct _pci_t {
 	char *filter;
 	int hf_index;

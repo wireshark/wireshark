@@ -54,6 +54,7 @@
 #define REL_CMP_REASONS 26
 #define FACILITY_REASONS 11
 
+void register_tap_listener_h225counter(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _h225counter_t {

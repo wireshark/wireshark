@@ -35,6 +35,8 @@
 #include <epan/dissectors/packet-radius.h>
 #include "epan/timestats.h"
 
+void register_tap_listener_radiusstat(void);
+
 typedef enum _radius_category {
 	RADIUS_CAT_OVERALL = 0,
 	RADIUS_CAT_ACCESS,

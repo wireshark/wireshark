@@ -36,6 +36,8 @@
 #include <epan/dissectors/packet-afp.h>
 #include "epan/timestats.h"
 
+void register_tap_listener_afpstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _afpstat_t {
 	char *filter;

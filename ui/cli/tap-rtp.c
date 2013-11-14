@@ -49,6 +49,8 @@
 #include "ui/rtp_stream.h"
 #include "ui/tap-rtp-common.h"
 
+void register_tap_listener_rtp_streams(void);
+
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =

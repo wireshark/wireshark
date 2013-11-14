@@ -36,6 +36,8 @@
 #define MICROSECS_PER_SEC   1000000
 #define NANOSECS_PER_SEC    1000000000
 
+void register_tap_listener_dcerpcstat(void);
+
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
 	const char *proc;

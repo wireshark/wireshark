@@ -35,6 +35,8 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/expert.h>
 
+void register_tap_listener_expert_info(void);
+
 /* Tap data */
 typedef enum severity_level_t {
     chat_level=0,

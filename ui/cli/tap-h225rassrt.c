@@ -40,6 +40,8 @@
 /* following values represent the size of their valuestring arrays */
 #define NUM_RAS_STATS 7
 
+void register_tap_listener_h225rassrt(void);
+
 static const value_string ras_message_category[] = {
   {  0,	"Gatekeeper    "},
   {  1,	"Registration  "},

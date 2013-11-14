@@ -34,6 +34,8 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-sv.h>
 
+void register_tap_listener_sv(void);
+
 static int
 sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {

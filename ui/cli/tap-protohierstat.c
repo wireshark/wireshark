@@ -36,6 +36,8 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 
+void register_tap_listener_protohierstat(void);
+
 typedef struct _phs_t {
 	struct _phs_t *sibling;
 	struct _phs_t *child;

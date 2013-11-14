@@ -47,6 +47,8 @@
 #include <epan/dissectors/packet-fc.h>
 #include <epan/dissectors/packet-fddi.h>
 
+void register_tap_listener_iousers(void);
+
 typedef struct _io_users_t {
 	const char *type;
 	char *filter;

@@ -35,6 +35,7 @@
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-smb.h>
 
+void register_tap_listener_smbsids(void);
 
 static int
 smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *psi _U_)

@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <epan/stat_cmd_args.h>
 
+void register_tap_listener_gtkfunnel(void);
 
 struct _funnel_text_window_t {
     gchar* title;

@@ -41,6 +41,7 @@
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-ansi_a.h>
 
+void register_tap_listener_ansi_astat(void);
 
 typedef struct _ansi_a_stat_t {
     int		bsmap_message_type[0xff];

@@ -41,6 +41,8 @@
 #include <epan/dissectors/packet-icmp.h>
 #include <math.h>
 
+void register_tap_listener_icmpv6stat(void);
+
 /* used to keep track of the ICMPv6 statistics */
 typedef struct _icmpv6stat_t {
     char *filter;

@@ -46,6 +46,8 @@
 #define CALC_TYPE_AVG    7
 #define CALC_TYPE_LOAD   8
 
+void register_tap_listener_iostat(void);
+
 typedef struct {
     const char *func_name;
     int calc_type;

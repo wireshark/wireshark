@@ -37,6 +37,8 @@
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/to_str.h>
 
+void register_tap_listener_sctpstat(void);
+
 typedef struct sctp_ep {
 	struct sctp_ep* next;
 	address src;

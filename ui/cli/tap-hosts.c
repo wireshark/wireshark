@@ -38,7 +38,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/addr_resolv.h>
 
-
+void register_tap_listener_hosts(void);
 
 gboolean dump_v4 = FALSE;
 gboolean dump_v6 = FALSE;

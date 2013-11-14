@@ -35,6 +35,8 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-mac-lte.h>
 
+void register_tap_listener_mac_lte_stat(void);
+
 /**********************************************/
 /* Table column identifiers and title strings */
 

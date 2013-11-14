@@ -35,6 +35,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-rlc-lte.h>
 
+void register_tap_listener_rlc_lte_stat(void);
 
 enum {
     UEID_COLUMN,

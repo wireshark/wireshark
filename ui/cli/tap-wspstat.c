@@ -39,6 +39,8 @@
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-wsp.h>
 
+void register_tap_listener_wspstat(void);
+
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {
 	const gchar 	*type;

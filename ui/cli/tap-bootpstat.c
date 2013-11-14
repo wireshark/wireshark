@@ -32,6 +32,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 
+void register_tap_listener_gtkdhcpstat(void);
 
 typedef const char* bootp_info_value_t;
 

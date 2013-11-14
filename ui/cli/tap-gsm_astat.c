@@ -41,6 +41,7 @@
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-gsm_a_common.h>
 
+void register_tap_listener_gsm_astat(void);
 
 typedef struct _gsm_a_stat_t {
     int		bssmap_message_type[0xff];

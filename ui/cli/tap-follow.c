@@ -55,6 +55,8 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
+void register_tap_listener_follow(void);
+
 WS_DLL_PUBLIC FILE *data_out_file;
 
 typedef enum

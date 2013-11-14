@@ -37,6 +37,8 @@
 
 #define NUM_TIMESTATS 11
 
+void register_tap_listener_mgcpstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _mgcpstat_t {
 	char *filter;
