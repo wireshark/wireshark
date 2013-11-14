@@ -247,9 +247,9 @@ struct _protocol {
 	const char *name;         /* long description */
 	const char *short_name;   /* short description */
 	const char *filter_name;  /* name of this protocol in filters */
-	int         proto_id;     /* field ID for this protocol */
 	GSList     *fields;       /* fields for this protocol */
 	GSList     *last_field;   /* pointer to end of list of fields */
+	int         proto_id;     /* field ID for this protocol */
 	gboolean    is_enabled;   /* TRUE if protocol is enabled */
 	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
 	gboolean    is_private;   /* TRUE is protocol is private */
