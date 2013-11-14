@@ -4723,7 +4723,7 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     volatile int      offset      = 0;
     int               pdu_len     = 0;
-    volatile gboolean dcerpc_pdus = 0;
+    volatile int      dcerpc_pdus = 0;
     volatile gboolean ret         = FALSE;
 
     /*
@@ -4756,11 +4756,33 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dcerpc_pdus++;
         } ENDTRY;
 
-        if (!dcerpc_pdus) {
-            /*
-             * Not a DCERPC PDU.
-             */
-            break;
+        if (dcerpc_pdus == 0) {
+            gboolean try_desegment = FALSE;
+            if (dcerpc_cn_desegment && pinfo->can_desegment &&
+                    !tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t))) {
+                /* look for a previous occurence of the DCE-RPC protocol */
+                wmem_list_frame_t *cur;
+                cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+                while (cur != NULL) {
+                    if (proto_dcerpc == (gint)GPOINTER_TO_UINT(wmem_list_frame_data(cur))) {
+                        try_desegment = TRUE;
+                        break;
+                    }
+                    cur = wmem_list_frame_prev(cur);
+                }
+            }
+
+            if (try_desegment) {
+                /* It didn't look like DCE-RPC but we already had one DCE-RPC
+                 * layer in this packet and what we have is short. Assume that
+                 * it was just too short to tell and ask the TCP layer for more
+                 * data. */
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = sizeof(e_dce_cn_common_hdr_t) - tvb_length_remaining(tvb, offset);
+            } else {
+                /* Really not DCE-RPC */
+                break;
+            }
         }
 
         /*
