@@ -4778,7 +4778,7 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * it was just too short to tell and ask the TCP layer for more
                  * data. */
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = sizeof(e_dce_cn_common_hdr_t) - tvb_length_remaining(tvb, offset);
+                pinfo->desegment_len = (guint32)(sizeof(e_dce_cn_common_hdr_t) - tvb_length_remaining(tvb, offset));
             } else {
                 /* Really not DCE-RPC */
                 break;
