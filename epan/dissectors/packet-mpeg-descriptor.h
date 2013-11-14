@@ -32,6 +32,7 @@
 #include <epan/value_string.h>
 
 extern value_string_ext mpeg_descr_service_type_vals_ext;
+extern value_string_ext mpeg_descr_data_bcast_id_vals_ext;
 
 guint proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree);
 guint proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, guint offset, guint loop_len, proto_tree *tree);

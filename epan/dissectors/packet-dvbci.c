@@ -5735,7 +5735,8 @@ proto_register_dvbci(void)
          * application id in the capability loop must always be 2 bytes */
         { &hf_dvbci_app_cap_bytes,
           { "Application capability bytes", "dvb-ci.opp.app_cap_bytes",
-            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+            &mpeg_descr_data_bcast_id_vals_ext, 0, NULL, HFILL }
         },
         { &hf_dvbci_desc_num,
           { "Next unprocessed descriptor number", "dvb-ci.opp.desc_num",
