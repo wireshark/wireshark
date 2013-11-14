@@ -113,9 +113,9 @@ static int proto_gsm_sms = -1;
 
 static gint hf_gsm_sms_coding_group_bits2 = -1;
 static gint hf_gsm_sms_coding_group_bits4 = -1;
-static gint  hf_gsm_sms_ud_multiple_messages_msg_id = -1;
-static gint  hf_gsm_sms_ud_multiple_messages_msg_parts = -1;
-static gint  hf_gsm_sms_ud_multiple_messages_msg_part = -1;
+static gint hf_gsm_sms_ud_multiple_messages_msg_id = -1;
+static gint hf_gsm_sms_ud_multiple_messages_msg_parts = -1;
+static gint hf_gsm_sms_ud_multiple_messages_msg_part = -1;
 
 /* TPDU Parameters */
 static gint hf_gsm_sms_tp_mti_up = -1;
@@ -163,16 +163,16 @@ static proto_tree *g_tree;
 
 /* Coding Group Bits */
 static const value_string gsm_sms_coding_group_bits_vals[] = {
-    { 0,  "General Data Coding indication" },                    /* 00xx */
-    { 1,  "General Data Coding indication" },                    /* 00xx */
-    { 2,  "General Data Coding indication" },                    /* 00xx */
-    { 3,  "General Data Coding indication" },                    /* 00xx */
-    { 4,  "Message Marked for Automatic Deletion Group" },       /* 01xx */
-    { 5,  "Message Marked for Automatic Deletion Group" },       /* 01xx */
-    { 6,  "Message Marked for Automatic Deletion Group" },       /* 01xx */
-    { 7,  "Message Marked for Automatic Deletion Group" },       /* 01xx */
-    { 8,  "Reserved coding groups" },                            /* 1000..1011  */
-    { 9,  "Reserved coding groups" },                            /* 1000..1011  */
+    {  0, "General Data Coding indication" },                    /* 00xx */
+    {  1, "General Data Coding indication" },                    /* 00xx */
+    {  2, "General Data Coding indication" },                    /* 00xx */
+    {  3, "General Data Coding indication" },                    /* 00xx */
+    {  4, "Message Marked for Automatic Deletion Group" },       /* 01xx */
+    {  5, "Message Marked for Automatic Deletion Group" },       /* 01xx */
+    {  6, "Message Marked for Automatic Deletion Group" },       /* 01xx */
+    {  7, "Message Marked for Automatic Deletion Group" },       /* 01xx */
+    {  8, "Reserved coding groups" },                            /* 1000..1011  */
+    {  9, "Reserved coding groups" },                            /* 1000..1011  */
     { 10, "Reserved coding groups" },                            /* 1000..1011  */
     { 11, "Reserved coding groups" },                            /* 1000..1011  */
     { 12, "Message Waiting Indication Group: Discard Message" }, /* 1100  */
@@ -181,6 +181,7 @@ static const value_string gsm_sms_coding_group_bits_vals[] = {
     { 15, "Data coding/message class" },                         /* 1111  */
     { 0, NULL },
 };
+static value_string_ext gsm_sms_coding_group_bits_vals_ext = VALUE_STRING_EXT_INIT(gsm_sms_coding_group_bits_vals);
 
 static guint16   g_sm_id;
 static guint16   g_frags;
@@ -235,8 +236,8 @@ static const fragment_items sm_frag_items = {
 
 typedef struct {
     guint32 length;
-    guint8 udl;
-    guint8 fill_bits;
+    guint8  udl;
+    guint8  fill_bits;
 } sm_fragment_params;
 
 static void
@@ -334,16 +335,16 @@ static void
 dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *title)
 {
     static gchar digit_table[] = {"0123456789*#abc\0"};
-    proto_item   *item;
-    proto_tree   *subtree = NULL;
-    const gchar  *str = NULL;
+    proto_item  *item;
+    proto_tree  *subtree;
+    const gchar *str = NULL;
     guint8       oct;
     guint32      offset;
     guint32      numdigocts;
     guint32      length, addrlength;
     guint32      i, j;
     char         addrbuf[MAX_ADDR_SIZE+1];
-    gchar        *addrstr;
+    gchar       *addrstr;
 
     offset = *offset_p;
 
@@ -394,7 +395,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     case 0x05: str = "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)"; break;
     case 0x06: str = "Abbreviated number"; break;
     case 0x07: str = "Reserved for extension"; break;
-    default: str = "Unknown, reserved (?)"; break;
+    default:  str = "Unknown, reserved (?)"; break;
     }
 
     other_decode_bitfield_value(bigbuf, oct, 0x70, 8);
@@ -417,7 +418,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     case 0x09: str = "Private numbering plan"; break;
     case 0x0a: str = "ERMES numbering plan (ETSI DE/PS 3 01-3)"; break;
     case 0x0f: str = "Reserved for extension"; break;
-    default: str = "Unknown, reserved (?)"; break;
+    default:  str = "Unknown, reserved (?)"; break;
     }
 
     other_decode_bitfield_value(bigbuf, oct, 0x0f, 8);
@@ -482,11 +483,11 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
 static void
 dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
-    proto_item    *item;
-    proto_tree    *subtree = NULL;
-    guint8        form;
-    guint8        telematic;
-    const gchar   *str = NULL;
+    proto_item  *item;
+    proto_tree  *subtree;
+    guint8       form;
+    guint8       telematic;
+    const gchar *str     = NULL;
 
 
     item = proto_tree_add_item(tree, hf_gsm_sms_tp_pid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -640,18 +641,18 @@ static void
 dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     gboolean *seven_bit, gboolean *eight_bit, gboolean *ucs2, gboolean *compressed)
 {
-    proto_item    *item;
-    proto_tree    *subtree = NULL;
-    guint8        form;
-    const gchar   *str = NULL;
-    gboolean      default_5_bits;
-    gboolean      default_3_bits;
-    gboolean      default_data;
+    proto_item  *item;
+    proto_tree  *subtree;
+    guint8       form;
+    const gchar *str     = NULL;
+    gboolean     default_5_bits;
+    gboolean     default_3_bits;
+    gboolean     default_data;
 
 
-    *seven_bit = FALSE;
-    *eight_bit = FALSE;
-    *ucs2 = FALSE;
+    *seven_bit  = FALSE;
+    *eight_bit  = FALSE;
+    *ucs2       = FALSE;
     *compressed = FALSE;
 
     item = proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -675,8 +676,8 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 
     default_5_bits = FALSE;
     default_3_bits = FALSE;
-    default_data = FALSE;
-    form = (oct & 0xc0) >> 6;
+    default_data   = FALSE;
+    form           = (oct & 0xc0) >> 6;
 
     switch (form)
     {
@@ -912,10 +913,10 @@ dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static void
 dis_field_scts(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 {
-    proto_item     *item;
-    proto_tree     *subtree = NULL;
-    guint32        offset;
-    guint32        length;
+    proto_item *item;
+    proto_tree *subtree;
+    guint32     offset;
+    guint32     length;
 
 
     offset = *offset_p;
@@ -948,19 +949,19 @@ dis_field_scts(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 static void
 dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 {
-    proto_item    *item;
-    proto_tree    *subtree = NULL;
-    guint32       offset;
-    guint32       length;
-    guint8        oct, oct2, oct3;
-    guint8        loc_form;
-    guint32       mins, hours;
-    gboolean      done;
+    proto_item *item;
+    proto_tree *subtree;
+    guint32     offset;
+    guint32     length;
+    guint8      oct, oct2, oct3;
+    guint8      loc_form;
+    guint32     mins, hours;
+    gboolean    done;
 
 
     if (vp_form == 0x00) return;
 
-    offset = *offset_p;
+    offset  = *offset_p;
     subtree = tree;
 
     done = FALSE;
@@ -1200,10 +1201,10 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 static void
 dis_field_dt(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 {
-    proto_item     *item;
-    proto_tree     *subtree = NULL;
-    guint32        offset;
-    guint32        length;
+    proto_item *item;
+    proto_tree *subtree;
+    guint32     offset;
+    guint32     length;
 
 
     offset = *offset_p;
@@ -1244,7 +1245,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     static const gchar *sc_perm = "Permanent error, SC is not making any more transfer attempts";
     static const gchar *sc_tempfin = "Temporary error, SC is not making any more transfer attempts";
     proto_item         *item;
-    proto_tree         *subtree = NULL;
+    proto_tree         *subtree;
     guint8             value;
     const gchar        *str = NULL;
     const gchar        *str2 = NULL;
@@ -1622,9 +1623,9 @@ gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned i
                          const guint8 *input, unsigned char *output)
 {
     unsigned char *out_num = output; /* Current pointer to the output buffer */
-    const guint8 *in_num = input;    /* Current pointer to the input buffer */
-    unsigned char rest = 0x00;
-    int bits;
+    const guint8  *in_num  = input; /* Current pointer to the input buffer */
+    unsigned char  rest    = 0x00;
+    int            bits;
 
     bits = offset ? offset : 7;
 
@@ -1663,7 +1664,7 @@ gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned i
 
 #define GN_CHAR_ESCAPE 0x1b
 
-static gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+static const gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
     /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
     /* Fixed to use unicode */
@@ -1730,9 +1731,9 @@ char_def_alphabet_decode(unsigned char value)
 gchar *
 gsm_sms_chars_to_utf8(const unsigned char* src, int len)
 {
-    gint outlen, i, j;
-    gunichar c;
-    gchar *outbuf;
+    gint      outlen, i, j;
+    gunichar  c;
+    gchar    *outbuf;
 
     /* Scan the input string to see how long the output string will be */
     for (outlen = 0, j = 0; j < len;  j++)
@@ -1807,7 +1808,7 @@ static void
 dis_iei_apa_8bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
     const gchar   *str = NULL;
-    guint8        oct;
+    guint8         oct;
 
 
     EXACT_DATA_CHECK(length, 2);
@@ -1853,7 +1854,7 @@ static void
 dis_iei_apa_16bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
     const gchar    *str = NULL;
-    guint32        value;
+    guint32         value;
 
 
     EXACT_DATA_CHECK(length, 4);
@@ -2036,7 +2037,7 @@ static void
 dis_iei_csm16(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
     guint8        oct;
-    guint16        oct_ref;
+    guint16       oct_ref;
 
     EXACT_DATA_CHECK(length, 4);
     oct_ref = tvb_get_ntohs(tvb, offset);
@@ -2078,17 +2079,18 @@ static const value_string text_color_values[] = {
   { 0x0F,        "Bright Magenta" },
   { 0,           NULL }
 };
+static value_string_ext text_color_values_ext = VALUE_STRING_EXT_INIT(text_color_values);
 
 /* 9.2.3.24.10.1.1 */
 static void
 dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
     const gchar *str = NULL;
-    guint8      oct;
+    guint8       oct;
     proto_item  *item;
     proto_item  *item_colour;
-    proto_tree  *subtree = NULL;
-    proto_tree  *subtree_colour = NULL;
+    proto_tree  *subtree;
+    proto_tree  *subtree_colour;
 
 
     EXACT_DATA_CHECK(length, 4);
@@ -2182,12 +2184,12 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     subtree_colour = proto_item_add_subtree(item_colour, ett_udh_tfc);
 
 
-    str = val_to_str_const(oct & 0x0f, text_color_values, "Unknown");
+    str = val_to_str_ext_const(oct & 0x0f, &text_color_values_ext, "Unknown");
     proto_tree_add_text(subtree_colour, tvb, offset, 1,
                         "Foreground Colour : 0x%x %s",
                         oct & 0x0f , str);
 
-    str = val_to_str_const((oct >> 4) & 0x0f, text_color_values, "Unknown");
+    str = val_to_str_ext_const((oct >> 4) & 0x0f, &text_color_values_ext, "Unknown");
     proto_tree_add_text(subtree_colour,
                         tvb, offset, 1,
                         "Background Colour : 0x%x %s",
@@ -2446,17 +2448,18 @@ static const value_string gsm_sms_tp_ud_ie_id_vals[] = {
     /*E0-FF Reserved for future use */
     { 0, NULL },
 };
-
+static value_string_ext gsm_sms_tp_ud_ie_id_vals_ext = VALUE_STRING_EXT_INIT(gsm_sms_tp_ud_ie_id_vals);
 #endif
+
 static void
 dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
     void (*iei_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length);
-    guint8        oct;
+    guint8         oct;
     proto_item    *item;
-    proto_tree    *subtree = NULL;
+    proto_tree    *subtree;
     const gchar   *str = NULL;
-    guint8        iei_len;
+    guint8         iei_len;
 
 
     while (length >= 2)
@@ -2581,10 +2584,10 @@ void
 dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
               guint8 *udl, gboolean uncomp_7bits, guint8 *fill_bits)
 {
-    guint8 oct;
+    guint8      oct;
     proto_item *udh_item;
-    proto_tree *udh_subtree = NULL;
-    static guint8 fill_bits_mask[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
+    proto_tree *udh_subtree;
+    static const guint8 fill_bits_mask[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
 
     /* step over header */
 
@@ -2642,21 +2645,21 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)
 {
     proto_item        *item;
-    proto_tree        *subtree = NULL;
+    proto_tree        *subtree;
     tvbuff_t          *sm_tvb = NULL;
     fragment_head     *fd_sm = NULL;
-    guint8            fill_bits;
-    guint32           out_len, total_sms_len, len_sms, length_ucs2, i;
+    guint8             fill_bits;
+    guint32            out_len, total_sms_len, len_sms, length_ucs2, i;
     char              *ustr;
     proto_item        *ucs2_item;
     gchar             *utf8_text = NULL;
-    gchar             save_byte = 0, save_byte2 = 0;
-    GIConv            cd;
+    gchar              save_byte = 0, save_byte2 = 0;
+    GIConv             cd;
     GError            *l_conv_error = NULL;
 
-    gboolean    reassembled = FALSE;
-    guint32     reassembled_in = 0;
-    gboolean    is_fragmented = FALSE;
+    gboolean    reassembled     = FALSE;
+    guint32     reassembled_in  = 0;
+    gboolean    is_fragmented   = FALSE;
     gboolean    save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
     guint32     num_labels;
 
@@ -2796,7 +2799,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             {
                 guint8 rep_len = tvb_reported_length(sm_tvb);
 
-                if(!(reassembled && pinfo->fd->num == reassembled_in))
+                if (!(reassembled && pinfo->fd->num == reassembled_in))
                 {
                     /* Show unreassembled SMS */
                     utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
@@ -2868,7 +2871,7 @@ static void
 dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
     proto_item        *item;
-    proto_tree        *subtree = NULL;
+    proto_tree        *subtree;
 
 
     item =
@@ -3397,10 +3400,10 @@ dis_msg_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 {
     guint8        oct;
     guint8        cdl;
-    const gchar   *str = NULL;
+    const gchar  *str = NULL;
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srr,    tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
@@ -3464,14 +3467,12 @@ static void
 dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     void (*msg_fcn)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset) = NULL;
-    proto_item *gsm_sms_item;
-    proto_tree *gsm_sms_tree = NULL;
-    guint32    offset;
-    guint8      msg_type;
-    guint8      oct;
-    gint        idx;
-    const gchar *str = NULL;
-    /*gint      ett_msg_idx;*/
+    guint32      offset;
+    guint8       msg_type;
+    guint8       oct;
+    gint         idx;
+    const gchar *str          = NULL;
+    /*gint         ett_msg_idx;*/
 
     g_is_wsp = 0;
     g_sm_id = 0;
@@ -3487,6 +3488,9 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (tree || reassemble_sms)
     {
+        proto_item  *gsm_sms_item;
+        proto_tree  *gsm_sms_tree;
+
         g_tree = tree;
 
         offset = 0;
@@ -3547,19 +3551,19 @@ proto_register_gsm_sms(void)
 {
     guint     i;
     guint     last_offset;
-    module_t  *gsm_sms_module; /* Preferences for GSM SMS UD */
+    module_t *gsm_sms_module;   /* Preferences for GSM SMS UD */
 
     /* Setup list of header fields */
     static hf_register_info hf[] =
         {
             { &hf_gsm_sms_coding_group_bits2,
               { "Coding Group Bits", "gsm_sms.coding_group_bits2",
-                FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xc0,
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &gsm_sms_coding_group_bits_vals_ext, 0xc0,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_coding_group_bits4,
               { "Coding Group Bits", "gsm_sms.coding_group_bits4",
-                FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xf0,
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &gsm_sms_coding_group_bits_vals_ext, 0xf0,
                 NULL, HFILL }
             },
 
@@ -3793,3 +3797,16 @@ void
 proto_reg_handoff_gsm_sms(void)
 {
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
