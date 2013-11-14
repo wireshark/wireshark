@@ -42,7 +42,7 @@
 void proto_register_ansi_637(void);
 void proto_reg_handoff_ansi_637(void);
 
-static const char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";
+static const char *ansi_proto_name_tele  = "ANSI IS-637-A (SMS) Teleservice Layer";
 static const char *ansi_proto_name_trans = "ANSI IS-637-A (SMS) Transport Layer";
 static const char *ansi_proto_name_short = "IS-637-A";
 
@@ -81,6 +81,7 @@ static const value_string ansi_srvc_cat_strings[] = {
     { 0x001F,   "Multi-category" },
     { 0, NULL },
 };
+static value_string_ext ansi_srvc_cat_strings_ext = VALUE_STRING_EXT_INIT(ansi_srvc_cat_strings);
 
 static const value_string ansi_tele_msg_type_strings[] = {
     { 1,        "Deliver (mobile-terminated only)" },
@@ -110,6 +111,7 @@ static const value_string ansi_tele_msg_status_strings[] = {
     {0xdf,      "Unknown error"},
     { 0, NULL }
 };
+static value_string_ext ansi_tele_msg_status_strings_ext = VALUE_STRING_EXT_INIT(ansi_tele_msg_status_strings);
 
 static const value_string ansi_tele_id_strings[] = {
     { 1,        "Reserved for maintenance" },
@@ -145,6 +147,7 @@ static const value_string ansi_tele_param_strings[] = {
     { 0x14,     "Message Status" },
     { 0, NULL },
 };
+static value_string_ext ansi_tele_param_strings_ext = VALUE_STRING_EXT_INIT(ansi_tele_param_strings);
 
 #define ANSI_TRANS_MSG_TYPE_BROADCAST   1
 
@@ -172,7 +175,7 @@ static const value_string ansi_trans_param_strings[] = {
  * from Table 2.7.1.3.2.4-4. Representation of DTMF Digits
  * 3GPP2 C.S0005-C (IS-2000 aka cdma2000)
  */
-static unsigned char air_digits[] = {
+static const unsigned char air_digits[] = {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
      '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?'
 };
@@ -1377,13 +1380,13 @@ static void
 trans_param_srvc_cat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
 {
     guint32      value;
-    const gchar *str = NULL;
+    const gchar *str;
 
     EXACT_DATA_CHECK(len, 2);
 
     value = tvb_get_ntohs(tvb, offset);
 
-    str = val_to_str_const(value, ansi_srvc_cat_strings, "Reserved");
+    str = val_to_str_ext_const(value, &ansi_srvc_cat_strings_ext, "Reserved");
 
     proto_tree_add_text(tree, tvb, offset, 2,
         "%s", str);
@@ -1918,7 +1921,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = try_val_to_str_idx((guint32) oct, ansi_tele_param_strings, &idx);
+    str = try_val_to_str_idx_ext((guint32) oct, &ansi_tele_param_strings_ext, &idx);
 
     if (NULL == str)
     {
@@ -2299,7 +2302,7 @@ proto_register_ansi_637(void)
         { &hf_ansi_637_tele_msg_status,
           { "Message Status",
             "ansi_637_tele.msg_status",
-            FT_UINT8, BASE_DEC, VALS(ansi_tele_msg_status_strings), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ansi_tele_msg_status_strings_ext, 0,
             NULL, HFILL }},
         { &hf_ansi_637_tele_msg_ind,
           { "Header Indicator",
@@ -2317,7 +2320,7 @@ proto_register_ansi_637(void)
             NULL, HFILL }},
         { &hf_ansi_637_tele_subparam_id,
             { "Teleservice Subparam ID", "ansi_637_tele.subparam_id",
-            FT_UINT8, BASE_DEC, VALS(ansi_tele_param_strings), 0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ansi_tele_param_strings_ext, 0,
             NULL, HFILL }},
         { &hf_ansi_637_tele_user_data_text,
             { "Encoded user data", "ansi_637_tele.user_data.text",
@@ -2408,3 +2411,16 @@ proto_reg_handoff_ansi_637(void)
      */
     dissector_add_uint("ansi_a.sms", 0, ansi_637_trans_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
