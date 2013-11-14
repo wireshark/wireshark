@@ -406,6 +406,12 @@
 #define OPP_REF_REG_FLG_URG   2
 #define OPP_REF_REG_FLG_SCHED 3
 
+ /* these values match the delivery system descriptor tags */
+#define OPP_DLV_CAP_S  0x43
+#define OPP_DLV_CAP_C  0x44
+#define OPP_DLV_CAP_T  0x5A
+#define OPP_DLV_CAP_S2 0x79
+
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
 #define SAS_SESS_STATE_NOT_FOUND 1
@@ -1549,6 +1555,13 @@ static const value_string dvbci_opp_ref_req_flag[] = {
     { OPP_REF_REG_FLG_ADV,   "advance warning" },
     { OPP_REF_REG_FLG_URG,   "urgent" },
     { OPP_REF_REG_FLG_SCHED, "scheduled" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_dlv_cap[] = {
+    { OPP_DLV_CAP_S,  "DVB-S" },
+    { OPP_DLV_CAP_C,  "DVB-C" },
+    { OPP_DLV_CAP_T,  "DVB-T" },
+    { OPP_DLV_CAP_S2, "DVB-S2" },
     { 0, NULL }
 };
 static const value_string dvbci_sas_sess_state[] = {
@@ -3773,6 +3786,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   "Delivery system capabilities loop length: %d",
                   cap_loop_len);
           offset++;
+          /* XXX - handle multi-byte delivery capabilities */
           dissect_opp_cap_loop(cap_loop_len,
                   "Delivery system capabilities loop",
                   hf_dvbci_dlv_cap_byte, 1,
@@ -5713,7 +5727,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_dlv_cap_byte,
           { "Delivery capability byte", "dvb-ci.opp.dlv_cap_byte",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_dlv_cap), 0, NULL, HFILL }
         },
 
         /* the CI+ spec is not particularly clear about this but an
