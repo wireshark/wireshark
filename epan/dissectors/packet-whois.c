@@ -73,7 +73,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     conversation = find_or_create_conversation(pinfo);
-    whois_trans = conversation_get_proto_data(conversation, proto_whois);
+    whois_trans = (whois_transaction_t *)conversation_get_proto_data(conversation, proto_whois);
     if (whois_trans == NULL) {
         whois_trans = wmem_new0(wmem_file_scope(), whois_transaction_t);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
