@@ -61,15 +61,15 @@
 #define NB_KEEP_ALIVE		0x1f
 
 /* Offsets of fields in the NetBIOS header. */
-#define NB_LENGTH		0
-#define	NB_DELIMITER		2
-#define	NB_COMMAND		4
-#define	NB_FLAGS		5
-#define	NB_DATA1		5
-#define	NB_RESYNC		6
-#define	NB_DATA2		6
-#define	NB_CALL_NAME_TYPE	7
-#define	NB_XMIT_CORL		8
+#define NB_LENGTH		 0
+#define	NB_DELIMITER		 2
+#define	NB_COMMAND		 4
+#define	NB_FLAGS		 5
+#define	NB_DATA1		 5
+#define	NB_RESYNC		 6
+#define	NB_DATA2		 6
+#define	NB_CALL_NAME_TYPE	 7
+#define	NB_XMIT_CORL		 8
 #define	NB_RESP_CORL		10
 #define	NB_RMT_SES		12
 #define	NB_LOCAL_SES		13
@@ -187,6 +187,7 @@ static const value_string nb_name_type_vals[] = {
 	{0xbf,	"Network Monitor Analyzer"},
 	{0x00,	NULL}
 };
+static value_string_ext nb_name_type_vals_ext = VALUE_STRING_EXT_INIT(nb_name_type_vals);
 
 /* Table for reassembly of fragments. */
 static reassembly_table netbios_reassembly_table;
@@ -232,6 +233,7 @@ static const value_string cmd_vals[] = {
 	{ NB_KEEP_ALIVE,		"Session Alive" },
 	{ 0,				NULL }
 };
+static value_string_ext cmd_vals_ext = VALUE_STRING_EXT_INIT(cmd_vals);
 
 static const value_string name_types[] = {
 	{ 0, "Unique name" },
@@ -274,7 +276,8 @@ static const value_string max_frame_size_vals[] = {
 };
 
 
-void capture_netbios(packet_counts *ld)
+void
+capture_netbios(packet_counts *ld)
 {
 	ld->netbios++;
 }
@@ -283,8 +286,8 @@ void capture_netbios(packet_counts *ld)
 int
 process_netbios_name(const guchar *name_ptr, char *name_ret, int name_ret_len)
 {
-	int i;
-	int name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
+	int    i;
+	int    name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
 	guchar name_char;
 	static const char hex_digits[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
@@ -324,7 +327,8 @@ process_netbios_name(const guchar *name_ptr, char *name_ret, int name_ret_len)
 }
 
 
-int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret, int name_ret_len)
+int
+get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret, int name_ret_len)
 
 {/*  Extract the name string and name type.  Return the name string in  */
  /* name_ret and return the name_type. */
@@ -338,20 +342,21 @@ int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret, int name_ret_le
  */
 const char *
 netbios_name_type_descr(int name_type)
+
 {
-	return val_to_str_const(name_type, nb_name_type_vals, "Unknown");
+	return val_to_str_ext_const(name_type, &nb_name_type_vals_ext, "Unknown");
 }
 
-void netbios_add_name(const char* label, tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+void
+netbios_add_name(const char* label, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add a name field display tree. Display the name and station type in sub-tree */
 
 	proto_tree *field_tree;
 	proto_item *tf;
-	char  name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int   name_type;
-	const char  *name_type_str;
+	char        name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int         name_type;
+	const char *name_type_str;
 
 					/* decode the name field */
 	name_type = get_netbios_name( tvb, offset, name_str, (NETBIOS_NAME_LEN - 1)*4 + 1);
@@ -363,11 +368,12 @@ void netbios_add_name(const char* label, tvbuff_t *tvb, int offset,
 	proto_tree_add_string_format( field_tree, hf_netb_nb_name, tvb, offset,
 		15, name_str, "%s", name_str);
 	proto_tree_add_uint_format( field_tree, hf_netb_nb_name_type, tvb, offset + 15, 1, name_type,
-	    "0x%02x (%s)", name_type, name_type_str);
+		"0x%02x (%s)", name_type, name_type_str);
 }
 
 
-static void netbios_data_first_middle_flags( tvbuff_t *tvb, proto_tree *tree, int offset)
+static void
+netbios_data_first_middle_flags( tvbuff_t *tvb, proto_tree *tree, int offset)
 
 {
 	proto_tree *field_tree;
@@ -385,14 +391,14 @@ static void netbios_data_first_middle_flags( tvbuff_t *tvb, proto_tree *tree, in
 	proto_tree_add_item( field_tree, hf_netb_flags_recv_cont_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
-static void netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree,
-   int offset)
+static void
+netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree, int offset)
+
 {
 	proto_tree *field_tree;
 	proto_item *tf;
 
-		/* decode the flag field for Data Only Last packet*/
-
+	/* decode the flag field for Data Only Last packet*/
 	tf = proto_tree_add_item(tree, hf_netb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
@@ -405,8 +411,9 @@ static void netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree,
 
 
 
-static void netbios_add_ses_confirm_flags( tvbuff_t *tvb, proto_tree *tree,
-	int offset)
+static void
+netbios_add_ses_confirm_flags( tvbuff_t *tvb, proto_tree *tree, int offset)
+
 {
 	proto_tree *field_tree;
 	proto_item *tf;
@@ -421,13 +428,14 @@ static void netbios_add_ses_confirm_flags( tvbuff_t *tvb, proto_tree *tree,
 }
 
 
-static void netbios_add_session_init_flags( tvbuff_t *tvb, proto_tree *tree,
-	int offset)
+static void
+netbios_add_session_init_flags( tvbuff_t *tvb, proto_tree *tree, int offset)
+
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-		/* decode the flag field for Session Init packet */
 
+	/* decode the flag field for Session Init packet */
 	tf = proto_tree_add_item(tree, hf_netb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
@@ -439,14 +447,14 @@ static void netbios_add_session_init_flags( tvbuff_t *tvb, proto_tree *tree,
 }
 
 
-static void netbios_no_receive_flags( tvbuff_t *tvb, proto_tree *tree,
-    int offset)
+static void
+netbios_no_receive_flags( tvbuff_t *tvb, proto_tree *tree, int offset)
 
 {
 	proto_tree *field_tree;
 	proto_item *tf;
 
-		/* decode the flag field for No Receive packet*/
+	/* decode the flag field for No Receive packet*/
 	tf = proto_tree_add_item(tree, hf_netbios_no_receive_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 	proto_tree_add_item(field_tree, hf_netbios_no_receive_flags_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -460,7 +468,8 @@ static void netbios_no_receive_flags( tvbuff_t *tvb, proto_tree *tree,
 /************************************************************************/
 
 
-static void nb_xmit_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+nb_xmit_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the transmit correlator */
 
@@ -469,7 +478,8 @@ static void nb_xmit_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_resp_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+nb_resp_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the response correlator */
 
@@ -478,7 +488,8 @@ static void nb_resp_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_call_name_type( tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+nb_call_name_type( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the call name type */
 
@@ -488,7 +499,8 @@ static void nb_call_name_type( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static guint8 nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint8
+nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the local session to tree, and return its value */
 
@@ -501,7 +513,8 @@ static guint8 nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static guint8 nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
+static guint8
+nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the remote session to tree, and return its value */
 
@@ -514,7 +527,8 @@ static guint8 nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_data1(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+nb_data1(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the DATA1 to tree with specified hf_ value */
 
@@ -523,7 +537,8 @@ static void nb_data1(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_data2(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+nb_data2(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the DATA2 to tree with specified hf_ value */
 
@@ -532,7 +547,9 @@ static void nb_data2(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_resync_indicator( tvbuff_t *tvb, int offset, proto_tree *tree, const char *cmd_str)
+static void
+nb_resync_indicator( tvbuff_t *tvb, int offset, proto_tree *tree, const char *cmd_str)
+
 {
 	guint16 resync_indicator = tvb_get_letohs( tvb, offset + NB_DATA2);
 
@@ -618,7 +635,6 @@ static guint32
 dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the STATUS QUERY command */
-
 	guint8 status_request = tvb_get_guint8( tvb, offset + NB_DATA1);
 
 	switch (status_request) {
@@ -662,7 +678,7 @@ dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_, proto_tree *tre
 }
 
 
-static guchar zeroes[10];
+static const guchar zeroes[10];
 
 static guint32
 dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -786,7 +802,7 @@ static guint32
 dissect_netb_status_resp( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle the STATUS RESPONSE command */
-	guint8 status_response = tvb_get_guint8( tvb, offset + NB_DATA1);
+	guint8	    status_response = tvb_get_guint8( tvb, offset + NB_DATA1);
 	proto_item *td2;
 	proto_tree *data2_tree;
 
@@ -1005,42 +1021,41 @@ dissect_netb_session_alive( tvbuff_t *tvb, int offset, proto_tree *tree)
 /*									*/
 /************************************************************************/
 
+static const guint32 (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
 
-static guint32 (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
-
-  dissect_netb_add_group_name,	/* Add Group Name	0x00 */
-  dissect_netb_add_name,      	/* Add Name		0x01 */
-  dissect_netb_name_in_conflict,/* Name In Conflict 	0x02 */
-  dissect_netb_status_query,	/* Status Query	 	0x03 */
-  dissect_netb_unknown,		/* unknown 		0x04 */
-  dissect_netb_unknown,		/* unknown	 	0x05 */
-  dissect_netb_unknown,		/* unknown 		0x06 */
-  dissect_netb_terminate_trace,	/* Terminate Trace 	0x07 */
-  dissect_netb_datagram,	/* Datagram		0x08 */
-  dissect_netb_datagram_bcast,	/* Datagram Broadcast 	0x09 */
-  dissect_netb_name_query,	/* Name Query   	0x0A */
-  dissect_netb_unknown,		/* unknown	 	0x0B */
-  dissect_netb_unknown,		/* unknown 		0x0C */
-  dissect_netb_add_name_resp,	/* Add Name Response 	0x0D */
-  dissect_netb_name_resp,	/* Name Recognized    	0x0E */
-  dissect_netb_status_resp,	/* Status Response	0x0F */
-  dissect_netb_unknown,		/* unknown	 	0x10 */
-  dissect_netb_unknown,		/* unknown 		0x11 */
-  dissect_netb_unknown,		/* unknown		0x12 */
-  dissect_netb_terminate_trace,	/* Terminate Trace	0x13 */
-  dissect_netb_data_ack,	/* Data Ack 		0x14 */
-  dissect_netb_data_first_middle,/* Data First Middle	0x15 */
-  dissect_netb_data_only_last,	/* Data Only Last	0x16 */
-  dissect_netb_session_confirm,	/* Session Confirm 	0x17 */
-  dissect_netb_session_end,	/* Session End 		0x18 */
-  dissect_netb_session_init,	/* Session Initialize	0x19 */
-  dissect_netb_no_receive,	/* No Receive 		0x1A */
-  dissect_netb_receive_outstanding,/* Receive Outstanding 0x1B */
-  dissect_netb_receive_continue,/* Receive Continue	0x1C */
-  dissect_netb_unknown,		/* unknown 		0x1D */
-  dissect_netb_unknown,		/* unknown 		0x1E */
-  dissect_netb_session_alive,	/* Session Alive	0x1f */
-  dissect_netb_unknown,
+	dissect_netb_add_group_name,	  /* Add Group Name	 0x00 */
+	dissect_netb_add_name,		  /* Add Name		 0x01 */
+	dissect_netb_name_in_conflict,	  /* Name In Conflict	 0x02 */
+	dissect_netb_status_query,	  /* Status Query	 0x03 */
+	dissect_netb_unknown,		  /* unknown		 0x04 */
+	dissect_netb_unknown,		  /* unknown		 0x05 */
+	dissect_netb_unknown,		  /* unknown		 0x06 */
+	dissect_netb_terminate_trace,	  /* Terminate Trace	 0x07 */
+	dissect_netb_datagram,		  /* Datagram		 0x08 */
+	dissect_netb_datagram_bcast,	  /* Datagram Broadcast	 0x09 */
+	dissect_netb_name_query,	  /* Name Query		 0x0A */
+	dissect_netb_unknown,		  /* unknown		 0x0B */
+	dissect_netb_unknown,		  /* unknown		 0x0C */
+	dissect_netb_add_name_resp,	  /* Add Name Response	 0x0D */
+	dissect_netb_name_resp,		  /* Name Recognized	 0x0E */
+	dissect_netb_status_resp,	  /* Status Response	 0x0F */
+	dissect_netb_unknown,		  /* unknown		 0x10 */
+	dissect_netb_unknown,		  /* unknown		 0x11 */
+	dissect_netb_unknown,		  /* unknown		 0x12 */
+	dissect_netb_terminate_trace,	  /* Terminate Trace	 0x13 */
+	dissect_netb_data_ack,		  /* Data Ack		 0x14 */
+	dissect_netb_data_first_middle,	  /* Data First Middle	 0x15 */
+	dissect_netb_data_only_last,	  /* Data Only Last	 0x16 */
+	dissect_netb_session_confirm,	  /* Session Confirm	 0x17 */
+	dissect_netb_session_end,	  /* Session End	 0x18 */
+	dissect_netb_session_init,	  /* Session Initialize	 0x19 */
+	dissect_netb_no_receive,	  /* No Receive		 0x1A */
+	dissect_netb_receive_outstanding, /* Receive Outstanding 0x1B */
+	dissect_netb_receive_continue,	  /* Receive Continue	 0x1C */
+	dissect_netb_unknown,		  /* unknown		 0x1D */
+	dissect_netb_unknown,		  /* unknown		 0x1E */
+	dissect_netb_session_alive,	  /* Session Alive	 0x1f */
+	dissect_netb_unknown,
 };
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
@@ -1059,19 +1074,18 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-
 {
-	proto_tree		*netb_tree = NULL;
-	proto_item		*ti;
-	guint16			hdr_len, command;
-	const char		*command_name;
-	char 			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int			name_type;
-	guint16			session_id;
-	gboolean		save_fragmented;
-	int			len;
-	fragment_head		*fd_head;
-	tvbuff_t		*next_tvb;
+	proto_tree    *netb_tree = NULL;
+	proto_item    *ti;
+	guint16	       hdr_len, command;
+	const char    *command_name;
+	char 	       name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	int	       name_type;
+	guint16	       session_id;
+	gboolean       save_fragmented;
+	int	       len;
+	fragment_head *fd_head;
+	tvbuff_t      *next_tvb;
 
 	int offset = 0;
 
@@ -1100,7 +1114,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	command = MIN( command, sizeof( dissect_netb)/ sizeof(void *));
 
 		/* print command name */
-	command_name = val_to_str(command, cmd_vals, "Unknown (0x%02x)");
+	command_name = val_to_str_ext(command, &cmd_vals_ext, "Unknown (0x%02x)");
 	switch ( command ) {
 		case NB_NAME_QUERY:
 			name_type = get_netbios_name( tvb, offset + 12, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
@@ -1217,7 +1231,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		}
-                pinfo->fragmented = save_fragmented;
+		pinfo->fragmented = save_fragmented;
 	}
 }
 
@@ -1231,7 +1245,8 @@ netbios_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
-void proto_register_netbios(void)
+void
+proto_register_netbios(void)
 {
 	static gint *ett[] = {
 		&ett_netb,
@@ -1244,166 +1259,166 @@ void proto_register_netbios(void)
 
 	static hf_register_info hf_netb[] = {
 		{ &hf_netb_cmd,
-		{ "Command", "netbios.command", FT_UINT8, BASE_HEX,
-			VALS(cmd_vals), 0x0, NULL, HFILL }},
+		  { "Command", "netbios.command", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+		    &cmd_vals_ext, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_hdr_len,
-		{ "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_xmit_corrl,
-		{ "Transmit Correlator", "netbios.xmit_corrl", FT_UINT16, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Transmit Correlator", "netbios.xmit_corrl", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_resp_corrl,
-		{ "Response Correlator", "netbios.resp_corrl", FT_UINT16, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Response Correlator", "netbios.resp_corrl", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_call_name_type,
-		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX,
-			VALS(name_types), 0x0, NULL, HFILL }},
+		  { "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX,
+		    VALS(name_types), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_nb_name_type,
-		{ "NetBIOS Name Type", "netbios.nb_name_type", FT_UINT8, BASE_HEX,
-			VALS(nb_name_type_vals), 0x0, NULL, HFILL }},
+		  { "NetBIOS Name Type", "netbios.nb_name_type", FT_UINT8, BASE_HEX |BASE_EXT_STRING,
+		    &nb_name_type_vals_ext, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_nb_name,
-		{ "NetBIOS Name", "netbios.nb_name", FT_STRING, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
+		  { "NetBIOS Name", "netbios.nb_name", FT_STRING, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_version,
-		{ "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,
-			TFS( &netb_version_str), 0x01, NULL, HFILL }},
+		  { "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,
+		    TFS( &netb_version_str), 0x01, NULL, HFILL }},
 
 		{ &hf_netbios_no_receive_flags,
-		{ "Flags", "netbios.no_receive_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Flags", "netbios.no_receive_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_netbios_no_receive_flags_send_no_ack,
-		{ "SEND.NO.ACK data received", "netbios.no_receive_flags.send_no_ack", FT_BOOLEAN,  8,
-			TFS( &tfs_no_yes), 0x02, NULL, HFILL }},
+		  { "SEND.NO.ACK data received", "netbios.no_receive_flags.send_no_ack", FT_BOOLEAN,  8,
+		    TFS( &tfs_no_yes), 0x02, NULL, HFILL }},
 
 		{ &hf_netb_largest_frame,
-		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC,
-			VALS(max_frame_size_vals), 0x0E, NULL, HFILL }},
+		  { "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC,
+		    VALS(max_frame_size_vals), 0x0E, NULL, HFILL }},
 
 		{ &hf_netb_status_buffer_len,
-		{ "Length of status buffer", "netbios.status_buffer_len", FT_UINT16, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Length of status buffer", "netbios.status_buffer_len", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_status,
-		{ "Status", "netbios.status", FT_UINT8, BASE_DEC,
-			VALS(status_vals), 0x0, NULL, HFILL }},
+		  { "Status", "netbios.status", FT_UINT8, BASE_DEC,
+		    VALS(status_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_name_type,
-		{ "Name type", "netbios.name_type", FT_UINT16, BASE_DEC,
-			VALS(name_types), 0x0, NULL, HFILL }},
+		  { "Name type", "netbios.name_type", FT_UINT16, BASE_DEC,
+		    VALS(name_types), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_max_data_recv_size,
-		{ "Maximum data receive size", "netbios.max_data_recv_size", FT_UINT16, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Maximum data receive size", "netbios.max_data_recv_size", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_termination_indicator,
-		{ "Termination indicator", "netbios.termination_indicator", FT_UINT16, BASE_HEX,
-			VALS(termination_indicator_vals), 0x0, NULL, HFILL }},
+		  { "Termination indicator", "netbios.termination_indicator", FT_UINT16, BASE_HEX,
+		    VALS(termination_indicator_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_num_data_bytes_accepted,
-		{ "Number of data bytes accepted", "netbios.num_data_bytes_accepted", FT_UINT16, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Number of data bytes accepted", "netbios.num_data_bytes_accepted", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_local_ses_no,
-		{ "Local Session No.", "netbios.local_session", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Local Session No.", "netbios.local_session", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_remote_ses_no,
-		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_flags,
-		{ "Flags", "netbios.flags", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Flags", "netbios.flags", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_flags_send_no_ack,
-		{ "Handle SEND.NO.ACK", "netbios.flags.send_no_ack", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x80, NULL, HFILL }},
+		  { "Handle SEND.NO.ACK", "netbios.flags.send_no_ack", FT_BOOLEAN,  8,
+		    TFS( &tfs_yes_no), 0x80, NULL, HFILL }},
 
 		{ &hf_netb_flags_ack,
-		{ "Acknowledge", "netbios.flags.ack", FT_BOOLEAN, 8,
-			TFS( &tfs_set_notset), 0x08, NULL, HFILL }},
+		  { "Acknowledge", "netbios.flags.ack", FT_BOOLEAN, 8,
+		    TFS( &tfs_set_notset), 0x08, NULL, HFILL }},
 
 		{ &hf_netb_flags_ack_with_data,
-		{ "Acknowledge with data", "netbios.flags.ack_with_data", FT_BOOLEAN, 8,
-			TFS( &flags_allowed), 0x04, NULL, HFILL }},
+		  { "Acknowledge with data", "netbios.flags.ack_with_data", FT_BOOLEAN, 8,
+		    TFS( &flags_allowed), 0x04, NULL, HFILL }},
 
 		{ &hf_netb_flags_ack_expected,
-		{ "Acknowledge expected", "netbios.flags.ack_expected", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x02, NULL, HFILL }},
+		  { "Acknowledge expected", "netbios.flags.ack_expected", FT_BOOLEAN,  8,
+		    TFS( &tfs_yes_no), 0x02, NULL, HFILL }},
 
 		{ &hf_netb_flags_recv_cont_req,
-		{ "RECEIVE_CONTINUE requested", "netbios.flags.recv_cont_req", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x01, NULL, HFILL }},
+		  { "RECEIVE_CONTINUE requested", "netbios.flags.recv_cont_req", FT_BOOLEAN,  8,
+		    TFS( &tfs_yes_no), 0x01, NULL, HFILL }},
 
 		{ &hf_netb_data2,
-		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
+		  { "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_data2_frame,
-		{ "Data length exceeds maximum frame size", "netbios.data2.frame", FT_BOOLEAN, 16,
-			TFS(&tfs_yes_no), 0x8000, NULL, HFILL }},
+		  { "Data length exceeds maximum frame size", "netbios.data2.frame", FT_BOOLEAN, 16,
+		    TFS(&tfs_yes_no), 0x8000, NULL, HFILL }},
 
 		{ &hf_netb_data2_user,
-		{ "Data length exceeds user's buffer", "netbios.data2.user", FT_BOOLEAN, 16,
-			TFS(&tfs_yes_no), 0x4000, NULL, HFILL }},
+		  { "Data length exceeds user's buffer", "netbios.data2.user", FT_BOOLEAN, 16,
+		    TFS(&tfs_yes_no), 0x4000, NULL, HFILL }},
 
 		{ &hf_netb_data2_status,
-		{ "Status data length", "netbios.data2.status", FT_UINT16, BASE_DEC,
-			NULL, 0x3FFF, NULL, HFILL }},
+		  { "Status data length", "netbios.data2.status", FT_UINT16, BASE_DEC,
+		    NULL, 0x3FFF, NULL, HFILL }},
 
 		{ &hf_netb_datagram_mac,
-		{ "Sender's MAC Address", "netbios.datagram_mac", FT_ETHER, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Sender's MAC Address", "netbios.datagram_mac", FT_ETHER, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_datagram_bcast_mac,
-		{ "Sender's Node Address",	"netbios.datagram_bcast_mac", FT_ETHER, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Sender's Node Address",	"netbios.datagram_bcast_mac", FT_ETHER, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragment_overlap,
-		{ "Fragment overlap",	"netbios.fragment.overlap", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+		  { "Fragment overlap",	"netbios.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
 
 		{ &hf_netb_fragment_overlap_conflict,
-		{ "Conflicting data in fragment overlap", "netbios.fragment.overlap.conflict",
-			FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
+		  { "Conflicting data in fragment overlap", "netbios.fragment.overlap.conflict",
+		    FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
 
 		{ &hf_netb_fragment_multiple_tails,
-		{ "Multiple tail fragments found", "netbios.fragment.multipletails",
-			FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
+		  { "Multiple tail fragments found", "netbios.fragment.multipletails",
+		    FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
 
 		{ &hf_netb_fragment_too_long_fragment,
-		{ "Fragment too long",	"netbios.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
+		  { "Fragment too long",	"netbios.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_netb_fragment_error,
-		{ "Defragmentation error",	"netbios.fragment.error", FT_FRAMENUM, BASE_NONE,
-			NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+		  { "Defragmentation error",	"netbios.fragment.error", FT_FRAMENUM, BASE_NONE,
+		    NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_netb_fragment_count,
-		{ "Fragment count",	"netbios.fragment.count", FT_UINT32, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }},
+		  { "Fragment count",	"netbios.fragment.count", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragment,
-		{ "NetBIOS Fragment",		"netbios.fragment", FT_FRAMENUM, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
+		  { "NetBIOS Fragment",		"netbios.fragment", FT_FRAMENUM, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragments,
-		{ "NetBIOS Fragments",	"netbios.fragments", FT_NONE, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
+		  { "NetBIOS Fragments",	"netbios.fragments", FT_NONE, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_reassembled_length,
-		{"Reassembled NetBIOS length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
-			NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+		  {"Reassembled NetBIOS length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
+		   NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 	module_t *netbios_module;
 
@@ -1432,3 +1447,17 @@ proto_reg_handoff_netbios(void)
 	dissector_add_uint("llc.dsap", SAP_NETBIOS, netbios_handle);
 	data_handle = find_dissector("data");
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
