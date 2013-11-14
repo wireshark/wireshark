@@ -79,6 +79,7 @@ STANAG 5066 SIS
 Tinkerforge
 UDT
 URL Encoded Form Data
+WHOIS
 Wi-Fi Display
 
 --sort-and-group--

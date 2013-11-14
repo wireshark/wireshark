@@ -1282,6 +1282,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-websocket.c
 	dissectors/packet-wfleet-hdlc.c
 	dissectors/packet-who.c
+	dissectors/packet-whois.c
 	dissectors/packet-wifi-display.c
 	dissectors/packet-wifi-p2p.c
 	dissectors/packet-windows-common.c
