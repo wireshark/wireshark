@@ -281,7 +281,8 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
     }
 
     if (hint.isEmpty()) {
-        hint += QString("%1 nodes, %2 items").arg(seq_analysis_.num_nodes).arg(num_items_);
+        hint += tr("%Ln node(s)", "", seq_analysis_.num_nodes) + QString(", ")
+                + tr("%Ln item(s)", "", num_items_);
     }
 
     hint.prepend("<small><i>");

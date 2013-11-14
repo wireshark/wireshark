@@ -213,16 +213,16 @@ Section "Main"
 	EnvironmentVariables:
 		; set the U3 environment variables
 		StrCpy $PDRIVE $EXEDIR 2
-		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_SERIAL", "0000060414068917").r0'
+		;System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_SERIAL", "0000060414068917").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_PATH", "$PDRIVE").r0'
-		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DOCUMENT_PATH", "$PDRIVE\Documents").r0'	
-		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_VENDOR", "Wireshark Developers").r0'
+		;System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DOCUMENT_PATH", "$PDRIVE\Documents").r0'	
+		;System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_VENDOR", "Wireshark Developers").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_PRODUCT", "PortableApps").r0'
-		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_VENDOR_ID", "0000").r0'
+		;System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_VENDOR_ID", "0000").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_APP_DATA_PATH", "$EXEDIR\Data").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_HOST_EXEC_PATH", "$EXEDIR\App\Wireshark").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_EXEC_PATH", "$EXEDIR\App\Wireshark").r0'
-		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_ENV_VERSION", "1.0").r0'
+		;System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_ENV_VERSION", "1.0").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_ENV_LANGUAGE", "1033").r0'
 		StrCmp $SECONDARYLAUNCH "true" LaunchAndExit
 

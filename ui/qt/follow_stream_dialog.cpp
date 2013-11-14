@@ -136,8 +136,9 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
         hint = QString("Packet %1. ").arg(pkt);
     }
 
-    hint.append(QString("%1 client pkts, %2 server pkts, %3 turns.")
-                .arg(client_packet_count_).arg(server_packet_count_).arg(turns_));
+    hint += tr("%Ln client pkt(s), ", "", client_packet_count_)
+            + tr("%Ln server pkt(s), ", "", server_packet_count_)
+            + tr("%Ln turn(s).", "", turns_);
 
     if (pkt > 0) {
         hint.append(QString(" Click to select."));

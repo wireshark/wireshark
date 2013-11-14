@@ -203,20 +203,23 @@ QRC_FILES = \
 
 #
 # .ts files.
+# qtshark_en should be pluralonly.
 #
 TS_FILES = \
+	qtshark_de.ts \
+	qtshark_en.ts \
 	qtshark_fr.ts \
-	qtshark_zh_CN.ts \
-	qtshark_de.ts
+	qtshark_zh_CN.ts
 
 #
 # .qm files.
 #
 # Should be auto-generated ?
 QM_FILES = \
+	qtshark_de.qm \
+	qtshark_en.qm \
 	qtshark_fr.qm \
-	qtshark_zh_CN.qm \
-	qtshark_de.qm
+	qtshark_zh_CN.qm
 
 #
 # The .rcc.cpp files generated from them.

@@ -227,7 +227,7 @@ Function .onInit
 
   MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
     "$OLD_DISPLAYNAME is already installed.\
-    $\n$\nWould you like to uninstall it first?" \
+     $\n$\nWould you like to uninstall it first?" \
       /SD IDYES \
       IDYES prep_uninstaller \
       IDNO done

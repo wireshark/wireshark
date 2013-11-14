@@ -194,6 +194,7 @@ set(QTSHARK_QRC
 
 set(QTSHARK_TS
 	qtshark_de.ts
+	qtshark_en.ts # lupdate -pluralonly
 	qtshark_fr.ts
 	qtshark_zh_CN.ts
 )

@@ -438,10 +438,12 @@ RESOURCES += \
     welcome.qrc \
 
 
+# qtshark_en should be pluralonly.
 TRANSLATIONS = \
         qtshark_de.ts \
-        qtshark_zh_CN.ts \
-        qtshark_fr.ts
+        qtshark_en.ts \
+        qtshark_fr.ts \
+        qtshark_zh_CN.ts
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 
