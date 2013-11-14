@@ -323,9 +323,8 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session _U_)
                                         .arg(computed_elapsed%1000));
         }
     } else {
-#else
-        packets_str = tr("No Packets");
 #endif // HAVE_LIBPCAP
+        packets_str = tr("No Packets");
 #ifdef HAVE_LIBPCAP
     }
 #endif // HAVE_LIBPCAP
