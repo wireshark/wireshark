@@ -40,6 +40,7 @@
 
 #include <QDialog>
 #include <QFile>
+#include <QMap>
 #include <QPushButton>
 
 extern "C" {
@@ -89,6 +90,8 @@ private slots:
     void findText(bool go_back = true);
     void saveAs();
     void printStream();
+    void fillHintLabel(int text_pos);
+    void goToPacketForTextPos(int text_pos);
 
     void on_streamNumberSpinBox_valueChanged(int stream_num);
 
@@ -96,14 +99,14 @@ private slots:
 
 signals:
     void updateFilter(QString &filter, bool force);
+    void goToPacket(int packet_num);
 
 private:
     void removeStreamControls();
     void resetStream(void);
     frs_return_t
     follow_show(char *buffer, size_t nchars, gboolean is_from_server,
-            guint32 *global_pos, guint32 *server_packet_count,
-            guint32 *client_packet_count);
+                guint32 packet_num, guint32 *global_pos);
 
     frs_return_t follow_read_stream();
     frs_return_t follow_read_tcp_stream();
@@ -112,7 +115,7 @@ private:
 
     void follow_stream();
 
-    void add_text(char *buffer, size_t nchars, gboolean is_from_server);
+    void add_text(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num);
 
     Ui::FollowStreamDialog  *ui;
 
@@ -126,6 +129,14 @@ private:
     follow_info_t           follow_info_;
     QString                 data_out_filename_;
     QString                 filter_out_filter_;
+    int                     client_buffer_count_;
+    int                     server_buffer_count_;
+    int                     client_packet_count_;
+    int                     server_packet_count_;
+    guint32                 last_packet_;
+    bool                    last_from_server_;
+    int                     turns_;
+    QMap<int,guint32>       text_pos_to_packet_;
 
     bool                    save_as_;
     QFile                   file_;

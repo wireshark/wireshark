@@ -231,7 +231,7 @@ void
 reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
                 guint32 length, const char* data, guint32 data_length, 
                 int synflag, address *net_src, address *net_dst, 
-                guint srcport, guint dstport) {
+                guint srcport, guint dstport, guint32 packet_num) {
   guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
   int src_index, j, first = 0, len;
   guint32 newseq;
@@ -325,8 +325,9 @@ reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
 
   /* Initialize our stream chunk.  This data gets written to disk. */
   memcpy(sc.src_addr, srcx, len);
-  sc.src_port = srcport;
-  sc.dlen     = data_length;
+  sc.src_port   = srcport;
+  sc.dlen       = data_length;
+  sc.packet_num = packet_num;
 
   /* now that we have filed away the srcs, lets get the sequence number stuff
      figured out */

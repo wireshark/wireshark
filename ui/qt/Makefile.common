@@ -247,6 +247,7 @@ WIRESHARK_QT_SRC = \
 	file_set_dialog.cpp \
 	filter_expressions_preferences_frame.cpp \
 	follow_stream_dialog.cpp \
+	follow_stream_text.cpp \
 	font_color_preferences_frame.cpp \
 	import_text_dialog.cpp \
 	interface_tree.cpp \

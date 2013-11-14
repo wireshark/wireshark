@@ -238,6 +238,7 @@ HEADERS += $$HEADERS_WS_C \
     export_object_dialog.h \
     filter_expressions_preferences_frame.h \
     follow_stream_dialog.h \
+    follow_stream_text.h \
     font_color_preferences_frame.h \
     layout_preferences_frame.h \
     main_window_preferences_frame.h \
@@ -532,6 +533,7 @@ SOURCES += \
     file_set_dialog.cpp \
     filter_expressions_preferences_frame.cpp \
     follow_stream_dialog.cpp \
+    follow_stream_text.cpp \
     font_color_preferences_frame.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \

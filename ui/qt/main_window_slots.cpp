@@ -1705,6 +1705,7 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 void MainWindow::openFollowStreamDialog(follow_type_t type) {
     FollowStreamDialog *fsd = new FollowStreamDialog(this, type, cap_file_);
     connect(fsd, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
+    connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
 
     fsd->follow(getFilter());
     fsd->show();

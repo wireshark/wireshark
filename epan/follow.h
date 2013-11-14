@@ -44,6 +44,7 @@ typedef struct _tcp_stream_chunk {
   guint8      src_addr[MAX_IPADDR_LEN];
   guint16     src_port;
   guint32     dlen;
+  guint32     packet_num;
 } tcp_stream_chunk;
 
 /** Build a follow filter based on the current packet's conversation.
@@ -84,7 +85,7 @@ WS_DLL_PUBLIC
 guint32 get_follow_tcp_index(void);
 
 void reassemble_tcp( guint32, guint32, guint32, guint32, const char*, guint32,
-                     int, address *, address *, guint, guint );
+                     int, address *, address *, guint, guint, guint32 );
 WS_DLL_PUBLIC
 void  reset_tcp_reassembly( void );
 

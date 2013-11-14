@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
+    <width>594</width>
     <height>620</height>
    </rect>
   </property>
@@ -24,9 +24,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTextEdit" name="teStreamContent">
+    <widget class="FollowStreamText" name="teStreamContent">
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>Hint.</string>
      </property>
     </widget>
    </item>
@@ -142,6 +149,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FollowStreamText</class>
+   <extends>QTextEdit</extends>
+   <header>follow_stream_text.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

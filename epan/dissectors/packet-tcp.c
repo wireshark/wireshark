@@ -4632,7 +4632,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             &pinfo->net_src,
                             &pinfo->net_dst,
                             pinfo->srcport,
-                            pinfo->destport);
+                            pinfo->destport,
+                            pinfo->fd->num);
         }
     }
 

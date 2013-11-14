@@ -38,6 +38,7 @@ extern "C" {
 
 typedef struct {
     gboolean   is_from_server;
+    guint32 packet_num;
     StringInfo data;
 } SslDecryptedRecord;
 
@@ -73,6 +74,7 @@ typedef enum {
 
 typedef struct {
     gboolean is_server;
+    guint32 packet_num;
     GByteArray *data;
 } follow_record_t;
 

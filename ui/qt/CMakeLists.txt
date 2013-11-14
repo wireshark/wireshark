@@ -45,6 +45,7 @@ set(QTSHARK_H_SRC
 	file_set_dialog.h
 	filter_expressions_preferences_frame.h
 	follow_stream_dialog.h
+	follow_stream_text.h
 	font_color_preferences_frame.h
 	import_text_dialog.h
 	interface_tree.h
@@ -108,6 +109,7 @@ set(CLEAN_FILES
 	file_set_dialog.cpp
 	filter_expressions_preferences_frame.cpp
 	follow_stream_dialog.cpp
+	follow_stream_text.cpp
 	font_color_preferences_frame.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp

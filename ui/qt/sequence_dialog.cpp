@@ -127,6 +127,7 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, SequenceType t
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As..."));
 
+    // XXX Use recent settings instead
     if (parent) {
         resize(parent->width(), parent->height() * 4 / 5);
     }
@@ -496,3 +497,16 @@ void SequenceDialog::on_actionMoveDown1_triggered()
 {
     panAxes(0, 1);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

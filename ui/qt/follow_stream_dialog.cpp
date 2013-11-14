@@ -81,7 +81,10 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
 
     ui->teStreamContent->installEventFilter(this);
 
-    connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
+    // XXX Use recent settings instead
+    if (parent) {
+        resize(parent->width() * 2 / 3, parent->height());
+    }
 
     b_filter_out_ = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
     connect(b_filter_out_, SIGNAL(clicked()), this, SLOT(filterOut()));
@@ -92,6 +95,13 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
     b_save_ = ui->buttonBox->addButton(tr("Save as..."), QDialogButtonBox::ActionRole);
     connect(b_save_, SIGNAL(clicked()), this, SLOT(saveAs()));
 
+    connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
+    connect(ui->teStreamContent, SIGNAL(mouseMovedToTextCursorPosition(int)),
+            this, SLOT(fillHintLabel(int)));
+    connect(ui->teStreamContent, SIGNAL(mouseClickedOnTextCursorPosition(int)),
+            this, SLOT(goToPacketForTextPos(int)));
+
+    fillHintLabel(-1);
 }
 
 FollowStreamDialog::~FollowStreamDialog()
@@ -108,6 +118,50 @@ void FollowStreamDialog::printStream()
     if ( dialog.exec() == QDialog::Accepted)
         ui->teStreamContent->print(&printer);
 #endif
+}
+
+void FollowStreamDialog::fillHintLabel(int text_pos)
+{
+    QString hint;
+    int pkt = -1;
+
+    if (text_pos >= 0) {
+        QMap<int, guint32>::iterator it = text_pos_to_packet_.upperBound(text_pos);
+        if (it != text_pos_to_packet_.end()) {
+            pkt = it.value();
+        }
+    }
+
+    if (pkt > 0) {
+        hint = QString("Packet %1. ").arg(pkt);
+    }
+
+    hint.append(QString("%1 client pkts, %2 server pkts, %3 turns.")
+                .arg(client_packet_count_).arg(server_packet_count_).arg(turns_));
+
+    if (pkt > 0) {
+        hint.append(QString(" Click to select."));
+    }
+
+    hint.prepend("<small><i>");
+    hint.append("</i></small>");
+    ui->hintLabel->setText(hint);
+}
+
+void FollowStreamDialog::goToPacketForTextPos(int text_pos)
+{
+    int pkt = -1;
+
+    if (text_pos >= 0) {
+        QMap<int, guint32>::iterator it = text_pos_to_packet_.upperBound(text_pos);
+        if (it != text_pos_to_packet_.end()) {
+            pkt = it.value();
+        }
+    }
+
+    if (pkt > 0) {
+        emit goToPacket(pkt);
+    }
 }
 
 void FollowStreamDialog::findText(bool go_back)
@@ -245,6 +299,7 @@ void FollowStreamDialog::resetStream()
     GList *cur;
 
     filter_out_filter_.clear();
+    text_pos_to_packet_.clear();
     if (!data_out_filename_.isEmpty()) ws_unlink(data_out_filename_.toUtf8().constData());
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
         g_free(cur->data);
@@ -253,10 +308,18 @@ void FollowStreamDialog::resetStream()
     follow_info_.payload = NULL;
 }
 
+// XXX We end up calling this twice when we open the dialog.
 frs_return_t
 FollowStreamDialog::follow_read_stream()
 {
     ui->teStreamContent->clear();
+
+    client_buffer_count_ = 0;
+    server_buffer_count_ = 0;
+    client_packet_count_ = 0;
+    server_packet_count_ = 0;
+    last_packet_ = 0;
+    turns_ = 0;
 
     switch(follow_type_) {
 
@@ -292,6 +355,7 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
     follow_record->data = g_byte_array_append(follow_record->data,
                                               tvb_get_ptr(next_tvb, 0, -1),
                                               tvb_length(next_tvb));
+    follow_record->packet_num = pinfo->fd->num;
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
@@ -360,6 +424,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, co
            view does by starting a new array declaration. */
         rec = (SslDecryptedRecord*) g_malloc(sizeof(SslDecryptedRecord) + appl_data->plain_data.data_len);
         rec->is_from_server = from == FROM_SERVER;
+        rec->packet_num = pinfo->fd->num;
         rec->data.data = (guchar*) (rec + 1);
         rec->data.data_len = appl_data->plain_data.data_len;
         memcpy(rec->data.data, appl_data->plain_data.data, appl_data->plain_data.data_len);
@@ -371,7 +436,6 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, co
 
     return 0;
 }
-
 
 /*
  * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
@@ -394,8 +458,6 @@ frs_return_t
 FollowStreamDialog::follow_read_ssl_stream()
 {
     guint32      global_client_pos = 0, global_server_pos = 0;
-    guint32      server_packet_count = 0;
-    guint32      client_packet_count = 0;
     guint32 *    global_pos;
     GList *      cur;
     frs_return_t frs_return;
@@ -419,8 +481,7 @@ FollowStreamDialog::follow_read_ssl_stream()
             gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
 
             frs_return = follow_show(buffer, nchars,
-                                     rec->is_from_server, global_pos,
-                                     &server_packet_count, &client_packet_count);
+                                     rec->is_from_server, rec->packet_num, global_pos);
             g_free(buffer);
             if (frs_return == FRS_PRINT_ERROR)
                 return frs_return;
@@ -450,7 +511,7 @@ FollowStreamDialog::follow_stream()
 
 
 
-void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_server)
+void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num)
 {
     size_t i;
     QString buf;
@@ -504,6 +565,8 @@ void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_
         ui->teStreamContent->setTextBackgroundColor(tagclient_bg);
         ui->teStreamContent->insertPlainText(buf);
     }
+    ui->teStreamContent->moveCursor(QTextCursor::End);
+    text_pos_to_packet_[ui->teStreamContent->textCursor().anchor()] = packet_num;
 }
 
 void FollowStreamDialog::setCaptureFile(capture_file *cf)
@@ -560,9 +623,8 @@ void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
 }
 
 frs_return_t
-FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_server,
-                                guint32 *global_pos, guint32 *server_packet_count,
-                                guint32 *client_packet_count)
+FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
+                                guint32 *global_pos)
 {
     gchar initbuf[256];
     guint32 current_pos;
@@ -573,21 +635,21 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
     case SHOW_EBCDIC:
         /* If our native arch is ASCII, call: */
         EBCDIC_to_ASCII((guint8*)buffer, (guint) nchars);
-        add_text(buffer, nchars, is_from_server);
+        add_text(buffer, nchars, is_from_server, packet_num);
         break;
 
     case SHOW_ASCII:
         /* If our native arch is EBCDIC, call:
          * ASCII_TO_EBCDIC(buffer, nchars);
          */
-        add_text(buffer, nchars, is_from_server);
+        add_text(buffer, nchars, is_from_server, packet_num);
         break;
 
     case SHOW_RAW:
         /* Don't translate, no matter what the native arch
          * is.
          */
-        add_text(buffer, nchars, is_from_server);
+        add_text(buffer, nchars, is_from_server, packet_num);
         break;
 
     case SHOW_HEXDUMP:
@@ -634,16 +696,18 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             *cur++ = '\n';
             *cur = 0;
 
-            add_text(hexbuf, strlen(hexbuf), is_from_server);
+            add_text(hexbuf, strlen(hexbuf), is_from_server, packet_num);
         }
         break;
 
+    // We might want to add Python-compatible output (e.g. YAML) for the Scapy folks.
     case SHOW_CARRAY:
         current_pos = 0;
-        g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n",
+        g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = { /* Packet %u */\n",
                    is_from_server ? 1 : 0,
-                   is_from_server ? (*server_packet_count)++ : (*client_packet_count)++);
-        add_text(initbuf, strlen(initbuf), is_from_server);
+                   is_from_server ? server_buffer_count_++ : client_buffer_count_++,
+                   packet_num);
+        add_text(initbuf, strlen(initbuf), is_from_server, packet_num);
 
         while (current_pos < nchars) {
             gchar hexbuf[256];
@@ -676,9 +740,26 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             (*global_pos) += i;
             hexbuf[cur++] = '\n';
             hexbuf[cur] = 0;
-            add_text(hexbuf, strlen(hexbuf), is_from_server);
+            add_text(hexbuf, strlen(hexbuf), is_from_server, packet_num);
         }
         break;
+    }
+
+    if (last_packet_ == 0) {
+        last_from_server_ = is_from_server;
+    }
+
+    if (packet_num != last_packet_) {
+        last_packet_ = packet_num;
+        if (is_from_server) {
+            server_packet_count_++;
+        } else {
+            client_packet_count_++;
+        }
+        if (last_from_server_ != is_from_server) {
+            last_from_server_ = is_from_server;
+            turns_++;
+        }
     }
 
     return FRS_OK;
@@ -1048,6 +1129,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
 
 
     follow_stream();
+    fillHintLabel(-1);
 
     data_out_file = NULL;
 
@@ -1086,8 +1168,6 @@ FollowStreamDialog::follow_read_tcp_stream()
     guint16             client_port = 0;
     gboolean            is_server;
     guint32             global_client_pos = 0, global_server_pos = 0;
-    guint32             server_packet_count = 0;
-    guint32             client_packet_count = 0;
     guint32             *global_pos;
     gboolean            skip;
     char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
@@ -1099,7 +1179,6 @@ FollowStreamDialog::follow_read_tcp_stream()
     gboolean            gunzip = FALSE;
     int                 ret;
 #endif
-
 
     iplen = (follow_info_.is_ipv6) ? 16 : 4;
 
@@ -1134,8 +1213,7 @@ FollowStreamDialog::follow_read_tcp_stream()
             if (follow_info_.show_stream == FROM_SERVER) {
                 skip = TRUE;
             }
-        }
-        else {
+        } else {
             is_server = TRUE;
             global_pos = &global_server_pos;
             if (follow_info_.show_stream == FROM_CLIENT) {
@@ -1162,8 +1240,7 @@ FollowStreamDialog::follow_read_tcp_stream()
                 if (gunzip) {
                     /* show header (which is not gzipped)*/
                     frs_return = follow_show(buffer,
-                                             header_len, is_server, global_pos,
-                                             &server_packet_count, &client_packet_count);
+                                             header_len, is_server, sc.packet_num, global_pos);
                     if (frs_return == FRS_PRINT_ERROR) {
                         fclose(data_out_fp);
                         data_out_fp = NULL;
@@ -1210,9 +1287,8 @@ FollowStreamDialog::follow_read_tcp_stream()
 
                     frs_return = follow_show(outbuffer,
                                              FLT_BUF_SIZE-strm.avail_out, is_server,
-                                             global_pos,
-                                             &server_packet_count,
-                                             &client_packet_count);
+                                             sc.packet_num,
+                                             global_pos);
                     if(frs_return == FRS_PRINT_ERROR) {
                         inflateEnd(&strm);
                         fclose(data_out_fp);
@@ -1226,9 +1302,7 @@ FollowStreamDialog::follow_read_tcp_stream()
             if (!skip)
             {
                 frs_return = follow_show(buffer,
-                                         nchars, is_server, global_pos,
-                                         &server_packet_count,
-                                         &client_packet_count);
+                                         nchars, is_server, sc.packet_num, global_pos);
                 if(frs_return == FRS_PRINT_ERROR) {
                     fclose(data_out_fp);
                     data_out_fp = NULL;
@@ -1252,9 +1326,6 @@ FollowStreamDialog::follow_read_tcp_stream()
     return FRS_OK;
 }
 
-
-
-
 /*
  * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
  * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
@@ -1276,15 +1347,12 @@ frs_return_t
 FollowStreamDialog::follow_read_udp_stream()
 {
     guint32 global_client_pos = 0, global_server_pos = 0;
-    guint32 server_packet_count = 0;
-    guint32 client_packet_count = 0;
     guint32 *global_pos;
     gboolean skip;
     GList* cur;
     frs_return_t frs_return;
     follow_record_t *follow_record;
     char *buffer;
-
 
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
         follow_record = (follow_record_t *)cur->data;
@@ -1309,9 +1377,8 @@ FollowStreamDialog::follow_read_udp_stream()
                         buffer,
                         follow_record->data->len,
                         follow_record->is_server,
-                        global_pos,
-                        &server_packet_count,
-                        &client_packet_count);
+                        follow_record->packet_num,
+                        global_pos);
             g_free(buffer);
             if(frs_return == FRS_PRINT_ERROR)
                 return frs_return;
