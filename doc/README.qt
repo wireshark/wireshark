@@ -151,9 +151,19 @@ http://www.kdab.com/kdab-products/gammaray/
 
 2. Going forward
 
-DO NOT simply port things over. Every feature, window, and element should be
-re-thought. For example, should the user have to navigate two dialogs to get
-HTTP request statistics?
+DO NOT simply port things over. Much of the GTK+ interface reflects historical
+UI conventions and API restrictions which are either no longer relevant or have
+been superseded. Every feature, window, and element should be re-thought. When
+porting a feature, consider the following:
+
+- Workflow. Excessive navigation and gratuitous dialogs should be avoided or
+  reduced. For example, the two GTK+ flow graph dialogs have been combined into
+  one in Qt. Many alert dialogs have been replaced with status bar messages.
+
+- Feedback. Most of the Qt dialogs provide a "hint" area near the bottom which
+  shows useful information. For example, the "Follow Stream" dialog shows the
+  packet corresponding to the text under the mouse. The profile management
+  dialog shows a clickable path to the current profile.
 
 2.1 Coding guidelines
 
