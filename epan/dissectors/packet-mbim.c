@@ -4411,7 +4411,7 @@ dissect_mbim_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     } else {
         proto_tree_add_item(tree, hf_mbim_descriptor_extended_version, tvb, 3, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_mbim_descriptor_max_outstanding_command_messages, tvb, 5, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_mbim_descriptor_mtu, tvb, 3, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_mbim_descriptor_mtu, tvb, 6, 2, ENC_LITTLE_ENDIAN);
     }
 
     return length;
