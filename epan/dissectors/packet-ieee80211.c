@@ -13281,7 +13281,11 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   ieee80211_tvb_invalid = FALSE;
 
-  CHECK_DISPLAY_AS_X(data_handle,proto_wlan_mgt, tvb, pinfo, tree);
+  /* check protocol activation */
+  if (!proto_is_protocol_enabled(find_protocol_by_id(proto_wlan_mgt))) {
+    call_dissector(data_handle,tvb, pinfo, tree);
+    return;			
+  }
 
   ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, -1, ENC_NA);
   mgt_tree = proto_item_add_subtree (ti, ett_80211_mgt);

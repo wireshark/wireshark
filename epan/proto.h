@@ -96,15 +96,6 @@ struct _protocol;
 /** Structure for information about a protocol */
 typedef struct _protocol protocol_t;
 
-/** check protocol activation
- * @todo this macro looks like a hack */
-#define CHECK_DISPLAY_AS_X(x_handle,index, tvb, pinfo, tree) {	\
-	if (!proto_is_protocol_enabled(find_protocol_by_id(index))) {	\
-		call_dissector(x_handle,tvb, pinfo, tree);		\
-		return;							\
-	}								\
-  }
-
 /** Function used for reporting errors in dissectors; it throws a
  * DissectorError exception, with the string passed as an argument
  * as the message for the exception, so that it can show up in
