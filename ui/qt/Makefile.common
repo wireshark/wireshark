@@ -112,6 +112,7 @@ MOC_HDRS = \
 	file_set_dialog.h \
 	filter_expressions_preferences_frame.h \
 	follow_stream_dialog.h \
+	follow_stream_text.h \
 	font_color_preferences_frame.h \
 	import_text_dialog.h \
 	interface_tree.h \
