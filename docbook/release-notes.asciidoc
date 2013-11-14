@@ -24,6 +24,16 @@ The following bugs have been fixed:
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.11.0:
+
+* Qt port:
+
+** The Follow Stream dialog now supports packet and TCP stream selection.
+** A Flow Graph (sequence diagram) dialog has been added.
+** The main window now respects geometry preferences.
+
+
+The following features are new (or have been significantly updated)
 since version 1.10:
 
 * Wireshark now uses the Qt application framework. The new UI should provide
