@@ -301,7 +301,13 @@ void FollowStreamDialog::resetStream()
 
     filter_out_filter_.clear();
     text_pos_to_packet_.clear();
-    if (!data_out_filename_.isEmpty()) ws_unlink(data_out_filename_.toUtf8().constData());
+    if (!data_out_filename_.isEmpty()) {
+        ws_unlink(data_out_filename_.toUtf8().constData());
+    }
+    if (data_out_file) {
+        fclose(data_out_file);
+        data_out_file = NULL;
+    }
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
         g_free(cur->data);
     }
@@ -309,7 +315,6 @@ void FollowStreamDialog::resetStream()
     follow_info_.payload = NULL;
 }
 
-// XXX We end up calling this twice when we open the dialog.
 frs_return_t
 FollowStreamDialog::follow_read_stream()
 {
@@ -873,9 +878,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         }
     }
 
-
-    /* Allocate our new filter. */
-
     /* append the negation */
     if(!previous_filter.isEmpty()) {
         filter_out_filter_ = QString("%1 and !(%2)")
@@ -949,6 +951,16 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
             data_out_filename_.clear();
             return false;
         }
+
+        /* Go back to the top of the file and read the first tcp_stream_chunk
+         * to ensure that the IP addresses and port numbers in the drop-down
+         * list are tied to the correct lines displayed by follow_read_stream()
+         * later on (which also reads from this file).  Close the file when
+         * we're done.
+         *
+         * We read the data now, before we pop up a window, in case the
+         * read fails.  We use the data later.
+         */
 
         rewind(data_out_file);
         nchars=fread(&sc, 1, sizeof(sc), data_out_file);
@@ -1122,12 +1134,10 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         break;
     }
 
-
     ui->cbDirections->clear();
     this->ui->cbDirections->addItem(both_directions_string);
     this->ui->cbDirections->addItem(client_to_server_string);
     this->ui->cbDirections->addItem(server_to_client_string);
-
 
     follow_stream();
     fillHintLabel(-1);
@@ -1136,7 +1146,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
 
     return true;
 }
-
 
 #define FLT_BUF_SIZE 1024
 

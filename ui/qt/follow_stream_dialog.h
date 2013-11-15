@@ -134,7 +134,7 @@ private:
     int                     client_packet_count_;
     int                     server_packet_count_;
     guint32                 last_packet_;
-    bool                    last_from_server_;
+    gboolean                last_from_server_;
     int                     turns_;
     QMap<int,guint32>       text_pos_to_packet_;
 
