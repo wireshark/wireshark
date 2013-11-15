@@ -54,19 +54,6 @@ typedef enum {
   SD_BACKWARD
 } search_direction;
 
-/*
- * We store the frame_data structures in a radix tree, with 1024
- * elements per level.  The leaf nodes are arrays of 1024 frame_data
- * structures; the nodes above them are arrays of 1024 pointers to
- * the nodes below them.  The capture_file structure has a pointer
- * to the root node.
- *
- * As frame numbers are 32 bits, and as 1024 is 2^10, that gives us
- * up to 4 levels of tree.
- */
-#define LOG2_NODES_PER_LEVEL	10
-#define NODES_PER_LEVEL		(1<<LOG2_NODES_PER_LEVEL)
-
 typedef struct _capture_file {
   epan_t      *epan;
   file_state   state;           /* Current state of capture file */
