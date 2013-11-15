@@ -37,6 +37,8 @@
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 
+void proto_register_opcua(void);
+
 extern const value_string g_requesttypes[];
 extern const int g_NumServices;
 

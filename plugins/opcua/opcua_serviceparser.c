@@ -29,6 +29,7 @@
 #include "opcua_enumparser.h"
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
+#include "opcua_serviceparser.h"
 
 gint ett_opcua_FindServersRequest = -1;
 void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)

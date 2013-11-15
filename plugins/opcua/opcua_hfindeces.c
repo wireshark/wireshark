@@ -26,6 +26,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include "opcua_hfindeces.h"
+
 int hf_opcua_AccessLevel = -1;
 int hf_opcua_ActualSessionTimeout = -1;
 int hf_opcua_AddResults = -1;

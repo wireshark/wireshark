@@ -28,6 +28,7 @@
 #include "opcua_security_layer.h"
 #include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
+#include "opcua_transport_layer.h"
 
 void dispatchService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int ServiceId);
 
