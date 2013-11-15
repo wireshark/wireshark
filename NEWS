@@ -23,6 +23,14 @@ What's New
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 1.11.0:
+     * Qt port:
+          + The Follow Stream dialog now supports packet and TCP stream
+            selection.
+          + A Flow Graph (sequence diagram) dialog has been added.
+          + The main window now respects geometry preferences.
+
+   The following features are new (or have been significantly updated)
    since version 1.10:
      * Wireshark now uses the Qt application framework. The new UI should
        provide a significantly better user experience, particularly on Mac
@@ -52,12 +60,13 @@ What's New
 
   New Protocol Support
 
-   802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData,
-   EXPORTED PDU, HTTP2, IDRP, ILP, Kafka, MBIM, MiNT, MP4 / ISOBMFF file
-   format, NXP PN532 HCI, OpenFlow, Picture Transfer Protocol Over IP, SEL
-   RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection,
-   Sippy RTPproxy, STANAG 4607, STANAG 5066 SIS, Tinkerforge, UDT, URL
-   Encoded Form Data, and Wi-Fi Display
+   802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData, ELF
+   file format, EXPORTED PDU, HTTP2, IDRP, ILP, Kafka, MBIM, MiNT, MP4 /
+   ISOBMFF file format, NXP PN532 HCI, OpenFlow, Picture Transfer Protocol
+   Over IP, QUIC (Quick UDP Internet Connections), SEL RTAC (Real Time
+   Automation Controller) EIA-232 Serial-Line Dissection, Sippy RTPproxy,
+   STANAG 4607, STANAG 5066 SIS, Tinkerforge, UDT, URL Encoded Form Data,
+   WHOIS, and Wi-Fi Display
 
   Updated Protocol Support
 
@@ -137,7 +146,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [21]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-11-07 03:11:51 CET
+   Last updated 2013-11-15 00:54:41 CET
 
 References
 
