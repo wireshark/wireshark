@@ -178,7 +178,7 @@ static nstime_t previous_time = {0, 0}; /* previous time */
 
 static int find_dct2000_real_data(guint8 *buf);
 static void handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
-                            const struct wtap_pkthdr *in_phdr, guint8 *buf,
+                            const struct wtap_pkthdr *in_phdr, guint8 **buf,
                             gboolean adjlen);
 
 static gchar *
@@ -1327,7 +1327,7 @@ main(int argc, char *argv[])
 
                 /* CHOP */
                 snap_phdr = *phdr;
-                handle_chopping(chop, &snap_phdr, phdr, buf, adjlen);
+                handle_chopping(chop, &snap_phdr, phdr, &buf, adjlen);
                 phdr = &snap_phdr;
 
                 /* Do we adjust timestamps to ensure strict chronological
@@ -1642,7 +1642,7 @@ find_dct2000_real_data(guint8 *buf)
  */
 static void
 handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
-                const struct wtap_pkthdr *in_phdr, guint8 *buf,
+                const struct wtap_pkthdr *in_phdr, guint8 **buf,
                 gboolean adjlen)
 {
     /* If we're not chopping anything from one side, then the offset for that
@@ -1694,11 +1694,11 @@ handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
         *out_phdr = *in_phdr;
 
         if (chop.off_begin_pos > 0) {
-            memmove(&buf[chop.off_begin_pos],
-                    &buf[chop.off_begin_pos + chop.len_begin],
+            memmove(*buf + chop.off_begin_pos,
+                    *buf + chop.off_begin_pos + chop.len_begin,
                     out_phdr->caplen - chop.len_begin);
         } else {
-            buf += chop.len_begin;
+            *buf += chop.len_begin;
         }
         out_phdr->caplen -= chop.len_begin;
 
@@ -1717,8 +1717,8 @@ handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
         *out_phdr = *in_phdr;
 
         if (chop.off_end_neg < 0) {
-            memmove(&buf[(gint)out_phdr->caplen + (chop.len_end + chop.off_end_neg)],
-                    &buf[(gint)out_phdr->caplen + chop.off_end_neg],
+            memmove(*buf + (gint)out_phdr->caplen + (chop.len_end + chop.off_end_neg),
+                    *buf + (gint)out_phdr->caplen + chop.off_end_neg,
                     -chop.off_end_neg);
         }
         out_phdr->caplen += chop.len_end;
