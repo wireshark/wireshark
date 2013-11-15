@@ -678,7 +678,7 @@ dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_, proto_tree *tre
 }
 
 
-static const guchar zeroes[10];
+static const guchar zeroes[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static guint32
 dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
