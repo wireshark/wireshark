@@ -77,7 +77,7 @@ typedef struct _md4_pass {
   guint8 md4[NTLMSSP_KEY_LEN];
 } md4_pass;
 
-static unsigned char gbl_zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+static const unsigned char gbl_zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 static GHashTable* hash_packet = NULL;
 
 /*
@@ -1196,6 +1196,7 @@ static const value_string ntlm_name_types[] = {
   { NTLM_TARGET_INFO_CHANNEL_BINDINGS,  "Channel Bindings"},
   { 0, NULL }
 };
+static value_string_ext ntlm_name_types_ext = VALUE_STRING_EXT_INIT(ntlm_name_types);
 
 /* The following *must* match the order of the list of attribute types   */
 /*  Assumption: values in the list are a sequence starting with 0 and    */
@@ -1286,7 +1287,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     item_length    = content_length + 4;
 
     target_info_tf = proto_tree_add_text(tree, tvb, item_offset, item_length, "Attribute: %s",
-                                  val_to_str(item_type, ntlm_name_types, "Unknown (%d)"));
+                                  val_to_str_ext(item_type, &ntlm_name_types_ext, "Unknown (%d)"));
 
     target_info_tree = proto_item_add_subtree (target_info_tf, *tif_p->ett);
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_type,    tvb, type_offset, 2, ENC_LITTLE_ENDIAN);
@@ -3077,7 +3078,7 @@ proto_register_ntlmssp(void)
 
     { &hf_ntlmssp_challenge_target_info_item_type,
       { "Target Info Item Type", "ntlmssp.challenge.target_info.item.type",
-        FT_UINT16, BASE_HEX, VALS(ntlm_name_types), 0x0,
+        FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ntlm_name_types_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_ntlmssp_challenge_target_info_item_len,
@@ -3144,7 +3145,7 @@ proto_register_ntlmssp(void)
 
     { &hf_ntlmssp_ntlmv2_response_item_type,
       { "NTLMV2 Response Item Type", "ntlmssp.ntlmv2_response.item.type",
-        FT_UINT16, BASE_HEX, VALS(ntlm_name_types), 0x0,
+        FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ntlm_name_types_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_ntlmssp_ntlmv2_response_item_len,
