@@ -67,6 +67,10 @@
 #include <QTextEdit>
 #include <QTextStream>
 
+// To do:
+// - Instead of calling QMessageBox, display the error message in the text
+//   box and disable the appropriate controls.
+
 FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capture_file *cf) :
     QDialog(parent),
     ui(new Ui::FollowStreamDialog),
