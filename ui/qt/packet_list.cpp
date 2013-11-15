@@ -165,7 +165,7 @@ void
 packet_list_freeze(void)
 {
     if (gbl_cur_packet_list) {
-        gbl_cur_packet_list->setUpdatesEnabled(false);
+        gbl_cur_packet_list->freeze();
     }
 }
 
@@ -173,7 +173,7 @@ void
 packet_list_thaw(void)
 {
     if (gbl_cur_packet_list) {
-        gbl_cur_packet_list->setUpdatesEnabled(true);
+        gbl_cur_packet_list->thaw();
     }
 
     packets_bar_update();
@@ -570,6 +570,18 @@ void PacketList::updateAll() {
     }
 
     packet_list_model_->resetColumns();
+}
+
+void PacketList::freeze()
+{
+    setUpdatesEnabled(false);
+    setModel(NULL);
+}
+
+void PacketList::thaw()
+{
+    setUpdatesEnabled(true);
+    setModel(packet_list_model_);
 }
 
 void PacketList::clear() {

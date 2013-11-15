@@ -43,6 +43,8 @@ public:
     void setProtoTree(ProtoTree *proto_tree);
     void setByteViewTab(ByteViewTab *byteViewTab);
     void updateAll();
+    void freeze();
+    void thaw();
     void clear();
     void writeRecent(FILE *rf);
     bool contextMenuActive();
