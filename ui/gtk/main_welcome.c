@@ -987,7 +987,7 @@ fill_capture_box(void)
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     int               error = 0;
-    gchar             *label_text, *err_str;
+    gchar             *label_text = NULL, *err_str = NULL;
 #ifdef _WIN32
     DWORD reg_ret;
     DWORD chimney_enabled = 0;
