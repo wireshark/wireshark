@@ -3417,10 +3417,6 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     struct mbim_conv_info *mbim_conv;
     struct mbim_info *mbim_info;
 
-    if (tvb_length(tvb) < 12) {
-        return 0;
-    }
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MBIM");
     col_clear(pinfo->cinfo, COL_INFO);
 
