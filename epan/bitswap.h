@@ -31,7 +31,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC guint8 swaptab[256];
+WS_DLL_PUBLIC const guint8 swaptab[256];
 
 #define BIT_SWAP(b)	(swaptab[b])
 
