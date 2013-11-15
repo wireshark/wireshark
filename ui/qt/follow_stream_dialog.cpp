@@ -56,10 +56,6 @@
 
 #include "ui/follow.h"
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
-
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QPrintDialog>
@@ -1178,12 +1174,6 @@ FollowStreamDialog::follow_read_tcp_stream()
     char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
     size_t              nchars;
     frs_return_t        frs_return;
-#ifdef HAVE_LIBZ
-    char                outbuffer[FLT_BUF_SIZE+1];
-    z_stream            strm;
-    gboolean            gunzip = FALSE;
-    int                 ret;
-#endif
 
     iplen = (follow_info_.is_ipv6) ? 16 : 4;
 
@@ -1235,75 +1225,6 @@ FollowStreamDialog::follow_read_tcp_stream()
             /* XXX - if we don't get "bcount" bytes, is that an error? */
             bytes_read += nchars;
 
-#ifdef HAVE_LIBZ
-            /* If we are on the first packet of an HTTP response, check if data is gzip
-            * compressed.
-            */
-            if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
-                size_t header_len;
-                gunzip = parse_http_header(buffer, nchars, &header_len);
-                if (gunzip) {
-                    /* show header (which is not gzipped)*/
-                    frs_return = follow_show(buffer,
-                                             header_len, is_server, sc.packet_num, global_pos);
-                    if (frs_return == FRS_PRINT_ERROR) {
-                        fclose(data_out_fp);
-                        data_out_fp = NULL;
-                        return frs_return;
-                    }
-
-                    /* init gz_stream*/
-                    strm.next_in = Z_NULL;
-                    strm.avail_in = 0;
-                    strm.next_out = Z_NULL;
-                    strm.avail_out = 0;
-                    strm.zalloc = Z_NULL;
-                    strm.zfree = Z_NULL;
-                    strm.opaque = Z_NULL;
-                    ret = inflateInit2(&strm, MAX_WBITS+16);
-                    if (ret != Z_OK) {
-                        fclose(data_out_fp);
-                        data_out_fp = NULL;
-                        return FRS_READ_ERROR;
-                    }
-
-                    /* prepare remainder of buffer to be inflated below */
-                    memmove(buffer, buffer+header_len, nchars-header_len);
-                    nchars -= header_len;
-                }
-            }
-
-            if (gunzip) {
-                strm.next_in = (Bytef*)buffer;
-                strm.avail_in = (int)nchars;
-                do {
-                    strm.next_out = (Bytef*)outbuffer;
-                    strm.avail_out = FLT_BUF_SIZE;
-
-                    ret = inflate(&strm, Z_NO_FLUSH);
-                    if (ret < 0 || ret == Z_NEED_DICT) {
-                        inflateEnd(&strm);
-                        fclose(data_out_fp);
-                        data_out_fp = NULL;
-                        return FRS_READ_ERROR;
-                    } else if (ret == Z_STREAM_END) {
-                        inflateEnd(&strm);
-                    }
-
-                    frs_return = follow_show(outbuffer,
-                                             FLT_BUF_SIZE-strm.avail_out, is_server,
-                                             sc.packet_num,
-                                             global_pos);
-                    if(frs_return == FRS_PRINT_ERROR) {
-                        inflateEnd(&strm);
-                        fclose(data_out_fp);
-                        data_out_fp = NULL;
-                        return frs_return;
-                    }
-                } while (strm.avail_out == 0);
-                skip = TRUE;
-            }
-#endif
             if (!skip)
             {
                 frs_return = follow_show(buffer,
