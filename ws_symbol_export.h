@@ -141,6 +141,10 @@
  *
  * Either can be used for exported *function* declarations and definitions.
  */
+#if defined _WIN32 || defined __CYGWIN__
+#define WS_DLL_PUBLIC	extern WS_DLL_PUBLIC_DEF
+#else
 #define WS_DLL_PUBLIC	WS_DLL_PUBLIC_DEF extern
+#endif
 
 #endif /* SYMBOL_EXPORT_H */
