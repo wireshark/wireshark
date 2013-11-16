@@ -412,6 +412,13 @@
 #define OPP_DLV_CAP_T  0x5A
 #define OPP_DLV_CAP_S2 0x79
 
+/* EIT p/f, EIT schedule usage */
+#define OPP_EIT_ABSENT 0
+#define OPP_EIT_NOT_X  1
+#define OPP_EIT_FULL_X 2
+#define OPP_EIT_BARKER 3
+#define OPP_EPG_APP    4
+
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
 #define SAS_SESS_STATE_NOT_FOUND 1
@@ -1555,6 +1562,20 @@ static const value_string dvbci_opp_ref_req_flag[] = {
     { OPP_REF_REG_FLG_ADV,   "advance warning" },
     { OPP_REF_REG_FLG_URG,   "urgent" },
     { OPP_REF_REG_FLG_SCHED, "scheduled" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_eit_pf_usage[] = {
+    { OPP_EIT_ABSENT, "no EIT present" },
+    { OPP_EIT_NOT_X,  "EIT is not fully ross-carried" },
+    { OPP_EIT_FULL_X, "EIT is fully cross-carried" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_eit_sch_usage[] = {
+    { OPP_EIT_ABSENT, "no EIT present" },
+    { OPP_EIT_NOT_X,  "EIT is not fully ross-carried" },
+    { OPP_EIT_FULL_X, "EIT is fully cross-carried" },
+    { OPP_EIT_BARKER, "EIT is available from a barker channel" },
+    { OPP_EPG_APP,    "EPG is delivered using an application" },
     { 0, NULL }
 };
 static const value_string dvbci_opp_dlv_cap[] = {
@@ -5691,11 +5712,11 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_eit_pf_usage,
           { "EIT present/following usage", "dvb-ci.opp.eit_pf_usage",
-            FT_UINT8, BASE_HEX, NULL, 0x30, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_eit_pf_usage), 0x30, NULL, HFILL }
         },
         { &hf_dvbci_eit_sch_usage,
           { "EIT schedule usage", "dvb-ci.opp.eit_sch_usage",
-            FT_UINT8, BASE_HEX, NULL, 0x0E, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_eit_sch_usage), 0x0E, NULL, HFILL }
         },
         { &hf_dvbci_ext_evt_usage,
           { "Extended event usage", "dvb-ci.opp.ext_evt_usage",
