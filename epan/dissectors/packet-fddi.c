@@ -138,7 +138,7 @@ static void
 swap_mac_addr(guint8 *swapped_addr, tvbuff_t *tvb, gint offset)
 {
   tvb_memcpy(tvb, swapped_addr, offset, 6);
-  bit_swap_buf_inplace(swapped_addr, 6);
+  bitswap_buf_inplace(swapped_addr, 6);
 }
 
 

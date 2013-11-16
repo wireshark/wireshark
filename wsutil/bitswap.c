@@ -66,7 +66,7 @@ static const guint8 swaptab[256] =
   0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
 
-void bit_swap_buf_inplace(guint8 *buf, size_t len)
+void bitswap_buf_inplace(guint8 *buf, size_t len)
 {
 	size_t i;
 

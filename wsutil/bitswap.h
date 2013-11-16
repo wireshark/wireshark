@@ -31,7 +31,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC void bit_swap_buf_inplace(guint8 *buf, size_t len);
+WS_DLL_PUBLIC void bitswap_buf_inplace(guint8 *buf, size_t len);
 
 #ifdef __cplusplus
 }

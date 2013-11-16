@@ -90,7 +90,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint8      message_type;
     guint8     *reversing_buffer;
     gint        offset = 0;
-    gint        i, len;
+    gint        len;
     proto_item *ti;
     proto_tree *bmc_tree;
     tvbuff_t   *bit_reversed_tvb;
@@ -104,7 +104,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* Needs bit-reversing. Create a new buffer, copy the message to it and bit-reverse */
     len = tvb_length(tvb);
     reversing_buffer = (guint8 *)tvb_memdup(NULL, tvb, offset, len);
-    bit_swap_buf_inplace(reversing_buffer, len);
+    bitswap_buf_inplace(reversing_buffer, len);
 
     /* Make this new buffer part of the display and provide a way to dispose of it */
     bit_reversed_tvb = tvb_new_child_real_data(tvb, reversing_buffer, len, len);
