@@ -810,7 +810,7 @@ xml_escape(const gchar *unescaped)
 /* Return the first occurrence of needle in haystack.
  * If not found, return NULL.
  * If either haystack or needle has 0 length, return NULL.
- * Algorithm copied from GNU's glibc 2.3.2 memcmp() */
+ * Algorithm copied from GNU's glibc 2.3.2 memmem() under LGPL 2.1+ */
 const guint8 *
 epan_memmem(const guint8 *haystack, guint haystack_len,
         const guint8 *needle, guint needle_len)
