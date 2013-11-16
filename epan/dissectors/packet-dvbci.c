@@ -406,12 +406,6 @@
 #define OPP_REF_REG_FLG_URG   2
 #define OPP_REF_REG_FLG_SCHED 3
 
- /* these values match the delivery system descriptor tags */
-#define OPP_DLV_CAP_S  0x43
-#define OPP_DLV_CAP_C  0x44
-#define OPP_DLV_CAP_T  0x5A
-#define OPP_DLV_CAP_S2 0x79
-
 /* EIT p/f, EIT schedule usage */
 #define OPP_EIT_ABSENT 0
 #define OPP_EIT_NOT_X  1
@@ -421,6 +415,17 @@
 
 #define OPP_EXT_EVT_DIFF 0
 #define OPP_EXT_EVT_ADD  1
+
+/* these values match the delivery system descriptor tags */
+#define OPP_DLV_CAP_S  0x43
+#define OPP_DLV_CAP_C  0x44
+#define OPP_DLV_CAP_T  0x5A
+#define OPP_DLV_CAP_S2 0x79
+
+#define OPP_TUNE_OK          0
+#define OPP_TUNE_UNSUPPORTED 1
+#define OPP_TUNE_INVALID     2
+#define OPP_TUNE_ERR         3
 
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
@@ -1591,6 +1596,13 @@ static const value_string dvbci_opp_dlv_cap[] = {
     { OPP_DLV_CAP_C,  "DVB-C" },
     { OPP_DLV_CAP_T,  "DVB-T" },
     { OPP_DLV_CAP_S2, "DVB-S2" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_tune_stat[] = {
+    { OPP_TUNE_OK,          "success" },
+    { OPP_TUNE_UNSUPPORTED, "unsupported delivery system descriptor" },
+    { OPP_TUNE_INVALID,     "invalid delivery system descriptor" },
+    { OPP_TUNE_ERR,         "failed" },
     { 0, NULL }
 };
 static const value_string dvbci_sas_sess_state[] = {
@@ -5781,7 +5793,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_opp_tune_status,
           { "Tuning status", "dvb-ci.opp.tune_status",
-            FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_tune_stat), 0xF0, NULL, HFILL }
         },
         { &hf_dvbci_opp_desc_loop_len,
           { "Descriptor loop length", "dvb-ci.opp.desc_loop_len",
