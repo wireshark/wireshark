@@ -106,6 +106,8 @@ typedef struct sdh_g707_format_s
          * i = 0 --> ITU-T letter #A - index of AU3*/
 } sdh_g707_format_t;
 
+static dissector_handle_t erf_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_erf = -1;
 
@@ -1934,7 +1936,7 @@ proto_register_erf(void)
   expert_module_t* expert_erf;
 
   proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
-  register_dissector("erf", dissect_erf, proto_erf);
+  erf_handle = register_dissector("erf", dissect_erf, proto_erf);
 
   proto_register_field_array(proto_erf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -1967,9 +1969,6 @@ proto_register_erf(void)
 void
 proto_reg_handoff_erf(void)
 {
-  dissector_handle_t erf_handle;
-
-  erf_handle = find_dissector("erf");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ERF, erf_handle);
 
   /* Dissector called to dump raw data, or unknown protocol */

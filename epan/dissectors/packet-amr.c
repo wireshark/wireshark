@@ -45,6 +45,9 @@
 #define AMR_NB 0
 #define AMR_WB 1
 
+static dissector_handle_t amr_handle;
+static dissector_handle_t amr_wb_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_amr = -1;
 static int hf_amr_nb_cmr = -1;
@@ -786,8 +789,8 @@ proto_register_amr(void)
                        "The AMR mode",
                        &pref_amr_mode, modes, AMR_NB);
 
-    register_dissector("amr", dissect_amr, proto_amr);
-    register_dissector("amr-wb", dissect_amr_wb, proto_amr);
+    amr_handle = register_dissector("amr", dissect_amr, proto_amr);
+    amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr);
     register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
     register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
     register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
@@ -800,17 +803,13 @@ proto_register_amr(void)
 void
 proto_reg_handoff_amr(void)
 {
-    static dissector_handle_t amr_handle;
     static guint              dynamic_payload_type;
     static gboolean           amr_prefs_initialized = FALSE;
 
     if (!amr_prefs_initialized) {
         dissector_handle_t  amr_name_handle;
-        dissector_handle_t  amr_wb_handle;
         amr_capability_t   *ftr;
 
-        amr_handle    = find_dissector("amr");
-        amr_wb_handle = find_dissector("amr-wb");
         dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
         dissector_add_string("rtp_dyn_payload_type","AMR-WB", amr_wb_handle);
 

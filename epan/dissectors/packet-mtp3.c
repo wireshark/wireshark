@@ -55,6 +55,8 @@ static int proto_mtp3  = -1;
 
 static int mtp3_tap = -1;
 
+static dissector_handle_t mtp3_handle;
+
 static module_t *mtp3_module;
 
 static int hf_mtp3_service_indicator = -1;
@@ -857,7 +859,7 @@ proto_register_mtp3(void)
  /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
 				       "MTP3", "mtp3");
-  register_dissector("mtp3", dissect_mtp3, proto_mtp3);
+  mtp3_handle = register_dissector("mtp3", dissect_mtp3, proto_mtp3);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mtp3, hf, array_length(hf));
@@ -912,9 +914,6 @@ proto_register_mtp3(void)
 void
 proto_reg_handoff_mtp3(void)
 {
-  dissector_handle_t mtp3_handle;
-
-  mtp3_handle = find_dissector("mtp3");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);
   dissector_add_string("tali.opcode", "mtp3", mtp3_handle);
 

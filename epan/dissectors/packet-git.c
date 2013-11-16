@@ -36,6 +36,8 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+static dissector_handle_t git_handle;
+
 static int proto_git = -1;
 
 static gint ett_git = -1;
@@ -139,10 +141,12 @@ proto_register_git(void)
   };
 
   module_t *git_module;
+
   proto_git = proto_register_protocol("Git Smart Protocol", "GIT", "git");
-  new_register_dissector("git", dissect_git, proto_git);
   proto_register_field_array(proto_git, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  git_handle = new_register_dissector("git", dissect_git, proto_git);
 
   git_module = prefs_register_protocol(proto_git, NULL);
 
@@ -156,8 +160,5 @@ proto_register_git(void)
 void
 proto_reg_handoff_git(void)
 {
-  dissector_handle_t git_handle;
-
-  git_handle = find_dissector("git");
   dissector_add_uint("tcp.port", TCP_PORT_GIT, git_handle);
 }

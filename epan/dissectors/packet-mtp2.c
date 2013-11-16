@@ -36,6 +36,8 @@
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 
+static dissector_handle_t mtp2_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_mtp2        = -1;
 static int hf_mtp2_bsn       = -1;
@@ -397,7 +399,7 @@ proto_register_mtp2(void)
   expert_module_t* expert_mtp2;
 
   proto_mtp2 = proto_register_protocol("Message Transfer Part Level 2", "MTP2", "mtp2");
-  register_dissector("mtp2", dissect_mtp2, proto_mtp2);
+  mtp2_handle = register_dissector("mtp2", dissect_mtp2, proto_mtp2);
 
   proto_register_field_array(proto_mtp2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -417,9 +419,6 @@ proto_register_mtp2(void)
 void
 proto_reg_handoff_mtp2(void)
 {
-  dissector_handle_t mtp2_handle;
-
-  mtp2_handle = find_dissector("mtp2");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR, mtp2_handle);
 

@@ -45,6 +45,8 @@ static int uaudp_tap                = -1;
 
 static tap_struct_uaudp ua_tap_info;
 
+static dissector_handle_t uaudp_handle;
+
 static int proto_uaudp              = -1;
 
 static int hf_uaudp_opcode          = -1;
@@ -589,7 +591,7 @@ void proto_register_uaudp(void)
                           "UAUDP",
                           "uaudp");
 
-    register_dissector("uaudp",              dissect_uaudp, proto_uaudp);
+    uaudp_handle = register_dissector("uaudp", dissect_uaudp, proto_uaudp);
 #if 0 /* XXX: Not used ?? */
     register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
     register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);
@@ -632,12 +634,10 @@ void proto_register_uaudp(void)
 void proto_reg_handoff_uaudp(void)
 {
     static gboolean           prefs_initialized = FALSE;
-    static dissector_handle_t uaudp_handle;
     int i;
 
     if (!prefs_initialized)
     {
-        uaudp_handle          = find_dissector("uaudp");
         ua_sys_to_term_handle = find_dissector("ua_sys_to_term");
         ua_term_to_sys_handle = find_dissector("ua_term_to_sys");
 #if 0

@@ -60,6 +60,9 @@ static gboolean have_valid_q931_pi=FALSE;
 static q931_packet_info *q931_pi=NULL;
 static int q931_tap = -1;
 
+static dissector_handle_t q931_handle;
+static dissector_handle_t q931_over_ip_handle;
+
 static int proto_q931 					= -1;
 static int hf_q931_discriminator			= -1;
 static int hf_q931_coding_standard			= -1;
@@ -3563,12 +3566,11 @@ proto_register_q931(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(q931_init);
 
-	register_dissector("q931", dissect_q931, proto_q931);
-	register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
-	q931_tpkt_handle = find_dissector("q931.tpkt");
+	q931_handle = register_dissector("q931", dissect_q931, proto_q931);
+	q931_tpkt_handle = register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
 	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
 	    proto_q931);
-	register_dissector("q931.over_ip", dissect_q931_over_ip, proto_q931);
+	q931_over_ip_handle = register_dissector("q931.over_ip", dissect_q931_over_ip, proto_q931);
 	register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
 	register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
 
@@ -3594,13 +3596,7 @@ proto_register_q931(void)
 void
 proto_reg_handoff_q931(void)
 {
-	dissector_handle_t q931_handle;
-	dissector_handle_t q931_over_ip_handle;
-
-	q931_handle = find_dissector("q931");
 	dissector_add_uint("lapd.sapi", LAPD_SAPI_Q931, q931_handle);
-
-	q931_over_ip_handle = find_dissector("q931.over_ip");
 	dissector_add_uint("sctp.ppi", H323_PAYLOAD_PROTOCOL_ID, q931_over_ip_handle);
 
 	/*

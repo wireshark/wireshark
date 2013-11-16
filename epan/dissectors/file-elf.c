@@ -40,6 +40,8 @@
 
 #include "dwarf.h"
 
+static dissector_handle_t elf_handle;
+
 static int proto_elf = -1;
 
 static int hf_elf_magic_bytes = -1;
@@ -2409,7 +2411,8 @@ proto_register_elf(void)
     proto_elf = proto_register_protocol("Executable and Linkable Format", "ELF", "elf");
     proto_register_field_array(proto_elf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("elf", dissect_elf, proto_elf);
+
+    elf_handle = new_register_dissector("elf", dissect_elf, proto_elf);
 
     module = prefs_register_protocol(proto_elf, NULL);
     prefs_register_static_text_preference(module, "version",
@@ -2423,10 +2426,6 @@ proto_register_elf(void)
 void
 proto_reg_handoff_elf(void)
 {
-    dissector_handle_t elf_handle;
-
-    elf_handle = find_dissector("elf");
-
     dissector_add_string("media_type", "application/x-executable", elf_handle);
     dissector_add_string("media_type", "application/x-coredump", elf_handle);
     dissector_add_string("media_type", "application/x-object", elf_handle);

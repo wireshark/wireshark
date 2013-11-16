@@ -31,6 +31,8 @@
 void proto_register_aoe(void);
 void proto_reg_handoff_aoe(void);
 
+static dissector_handle_t aoe_handle;
+
 static int proto_aoe;
 static int hf_aoe_version=-1;
 static int hf_aoe_flags_response=-1;
@@ -483,16 +485,13 @@ proto_register_aoe(void)
   proto_register_field_array(proto_aoe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("aoe", dissect_aoe, proto_aoe);
+  aoe_handle = register_dissector("aoe", dissect_aoe, proto_aoe);
+
   register_init_routine(ata_init);
 }
 
 void
 proto_reg_handoff_aoe(void)
 {
-  dissector_handle_t aoe_handle;
-
-  aoe_handle = find_dissector("aoe");
   dissector_add_uint("ethertype", ETHERTYPE_AOE, aoe_handle);
-
 }

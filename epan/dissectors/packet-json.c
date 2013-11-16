@@ -37,6 +37,8 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 
+static dissector_handle_t json_handle;
+
 static gint ett_json = -1;
 static gint ett_json_array = -1;
 static gint ett_json_object = -1;
@@ -588,7 +590,7 @@ proto_register_json(void) {
 	proto_register_fields(proto_json, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("json", dissect_json, proto_json);
+	json_handle = new_register_dissector("json", dissect_json, proto_json);
 
 	init_json_parser();
 }
@@ -596,10 +598,6 @@ proto_register_json(void) {
 void
 proto_reg_handoff_json(void)
 {
-	dissector_handle_t json_handle;
-
-	json_handle = find_dissector("json");
-
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */
 	dissector_add_string("media_type", "application/json-rpc", json_handle); /* JSON-RPC over HTTP */
 	dissector_add_string("media_type", "application/jsonrequest", json_handle); /* JSON-RPC over HTTP */

@@ -63,6 +63,8 @@
 
 static reassembly_table wai_reassembly_table;
 
+static dissector_handle_t wai_handle;
+
 static int proto_wai = -1;
 
 static gint hf_wai_version = -1;
@@ -1318,15 +1320,13 @@ proto_register_wai(void)
     register_init_routine(&wai_reassemble_init);
     proto_register_field_array(proto_wai, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("wai", dissect_wai, proto_wai);
+
+    wai_handle = register_dissector("wai", dissect_wai, proto_wai);
 }
 
 void
 proto_reg_handoff_wai(void)
 {
-    dissector_handle_t wai_handle;
-
     data_handle = find_dissector("data");
-    wai_handle  = find_dissector("wai");
     dissector_add_uint("ethertype", ETHERTYPE_WAI, wai_handle);
 }
