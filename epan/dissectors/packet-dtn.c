@@ -52,7 +52,7 @@ static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_
 /* For Reassembling TCP Convergence Layer segments */
 static reassembly_table msg_reassembly_table;
 
-static char magic[] = {'d', 't', 'n', '!'};
+static const char magic[] = {'d', 't', 'n', '!'};
 
 static int proto_bundle = -1;
 static int proto_tcp_conv = -1;
@@ -306,11 +306,11 @@ typedef struct dictionary_data {
 
 
 static const value_string packet_type_vals[] = {
-    {((TCP_CONVERGENCE_DATA_SEGMENT>>4) & 0x0F), "Data"},
-    {((TCP_CONVERGENCE_ACK_SEGMENT>>4) & 0x0F), "Ack"},
+    {((TCP_CONVERGENCE_DATA_SEGMENT>>4)  & 0x0F), "Data"},
+    {((TCP_CONVERGENCE_ACK_SEGMENT>>4)   & 0x0F), "Ack"},
     {((TCP_CONVERGENCE_REFUSE_BUNDLE>>4) & 0x0F), "Refuse Bundle"},
-    {((TCP_CONVERGENCE_KEEP_ALIVE>>4) & 0x0F), "Keep Alive"},
-    {((TCP_CONVERGENCE_SHUTDOWN>>4) & 0x0F), "Shutdown"},
+    {((TCP_CONVERGENCE_KEEP_ALIVE>>4)    & 0x0F), "Keep Alive"},
+    {((TCP_CONVERGENCE_SHUTDOWN>>4)      & 0x0F), "Shutdown"},
     {0, NULL}
 };
 
@@ -420,11 +420,11 @@ static int
 add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_time)
 {
     nstime_t dtn_time;
-    int sdnv_length, sdnv2_length;
-    int sdnv_value;
+    int      sdnv_length, sdnv2_length;
+    int      sdnv_value;
 
     sdnv_value = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(sdnv_value < 0) {
+    if (sdnv_value < 0) {
         return 0;
     }
 
@@ -432,7 +432,7 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_tim
     offset += sdnv_length;
 
     dtn_time.nsecs = evaluate_sdnv(tvb, offset, &sdnv2_length);
-    if(dtn_time.nsecs < 0) {
+    if (dtn_time.nsecs < 0) {
         return 0;
     }
 
@@ -449,11 +449,11 @@ static int
 add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time)
 {
     nstime_t dtn_time;
-    int sdnv_length;
-    int sdnv_value;
+    int      sdnv_length;
+    int      sdnv_value;
 
     sdnv_value = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(sdnv_value < 0) {
+    if (sdnv_value < 0) {
         return 0;
     }
 
@@ -467,13 +467,13 @@ add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_t
 static int
 add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv)
 {
-    proto_item* ti;
-    int sdnv_length;
-    int sdnv_value;
+    proto_item *ti;
+    int         sdnv_length;
+    int         sdnv_value;
 
     sdnv_value = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(tree, hf_sdnv, tvb, offset, sdnv_length, sdnv_value);
-    if(sdnv_value < 0) {
+    if (sdnv_value < 0) {
         expert_add_info(pinfo, ti, &ei_bundle_sdnv_length);
         return 0;
     }
@@ -487,9 +487,9 @@ static int
 dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, dictionary_data_t* dict_data,
                     guint8 pri_hdr_procflags, gchar **bundle_custodian)
 {
-    proto_item *ti;
-    proto_tree *dict_tree;
-    int sdnv_length;
+    proto_item  *ti;
+    proto_tree  *dict_tree;
+    int          sdnv_length;
     const gchar *src_node, *dst_node;
 
     ti = proto_tree_add_text(tree, tvb, offset, dict_data->bundle_header_dict_length, "Dictionary");
@@ -501,14 +501,14 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
      * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
      * ipn:2.1
      */
-    if(dict_data->bundle_header_dict_length == 0)
+    if (dict_data->bundle_header_dict_length == 0)
     {
         /*
          * Destination info
          */
         proto_tree_add_text(dict_tree, tvb, 0,
                                 0, "Destination Scheme: %s",IPN_SCHEME_STR);
-        if(dict_data->dest_scheme_offset == 0 && dict_data->dest_ssp_offset == 0)
+        if (dict_data->dest_scheme_offset == 0 && dict_data->dest_ssp_offset == 0)
         {
             proto_tree_add_text(dict_tree, tvb, dict_data->dst_scheme_pos,
                             dict_data->dst_scheme_len + dict_data->dst_ssp_len, "Destination: Null");
@@ -524,7 +524,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          * Source info
          */
         proto_tree_add_text(dict_tree, tvb, 0, 0, "Source Scheme: %s",IPN_SCHEME_STR);
-        if(dict_data->source_scheme_offset == 0 && dict_data->source_ssp_offset == 0)
+        if (dict_data->source_scheme_offset == 0 && dict_data->source_ssp_offset == 0)
         {
             proto_tree_add_text(dict_tree, tvb, dict_data->src_scheme_pos,
                             dict_data->src_scheme_len + dict_data->src_ssp_len, "Source: Null");
@@ -604,22 +604,28 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          * Destination info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dict_data->dest_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dict_data->dest_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_dest_scheme,
+                            tvb, offset + dict_data->dest_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_dest_ssp,
+                            tvb, offset + dict_data->dest_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Source info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + dict_data->source_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + dict_data->source_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_source_scheme,
+                            tvb, offset + dict_data->source_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_source_ssp,
+                            tvb, offset + dict_data->source_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Report to info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + dict_data->report_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + dict_data->report_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_report_scheme,
+                            tvb, offset + dict_data->report_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_report_ssp,
+                            tvb, offset + dict_data->report_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Custodian info
@@ -639,9 +645,14 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
                      tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->dest_ssp_offset, NULL));
 
         /* remember custodian, for use in checking cteb validity */
-        *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(), "%s:%s",
-                                               tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->cust_scheme_offset, NULL),
-                                               tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->cust_ssp_offset, NULL));
+        *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(),
+                                               "%s:%s",
+                                               tvb_get_stringz(wmem_packet_scope(),
+                                                               tvb, offset + dict_data->cust_scheme_offset,
+                                                               NULL),
+                                               tvb_get_stringz(wmem_packet_scope(),
+                                                               tvb, offset + dict_data->cust_ssp_offset,
+                                                               NULL));
     }
     offset += dict_data->bundle_header_dict_length;        /*Skip over dictionary*/
 
@@ -649,7 +660,7 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
      * Do this only if Fragment Flag is set
      */
 
-    if(pri_hdr_procflags & BUNDLE_PROCFLAGS_FRAG_MASK) {
+    if (pri_hdr_procflags & BUNDLE_PROCFLAGS_FRAG_MASK) {
         sdnv_length = add_sdnv_to_tree(tree, tvb, pinfo, offset, hf_bundle_primary_fragment_offset);
         if (sdnv_length < 0) {
             return 0;
@@ -671,15 +682,16 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
  * header, starting right after version number.
  */
 static int
-dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb, guint8* pri_hdr_procflags, gchar **bundle_custodian)
+dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb,
+                                 guint8* pri_hdr_procflags, gchar **bundle_custodian)
 {
-    int           bundle_header_length;
-    int           offset = 1;     /* Version Number already displayed */
-    int           sdnv_length;
+    int bundle_header_length;
+    int offset = 1;             /* Version Number already displayed */
+    int sdnv_length;
     dictionary_data_t dict_data;
 
-    proto_item   *ti;
-    proto_tree   *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
+    proto_item *ti;
+    proto_tree *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
 
     /* Primary Header Processing Flags */
     *pri_hdr_procflags = tvb_get_guint8(tvb, offset);
@@ -725,8 +737,9 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     ++offset;
 
     bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length, bundle_header_length);
-    if(bundle_header_length < 0) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length,
+                            bundle_header_length);
+    if (bundle_header_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
         return 0;
     }
@@ -800,8 +813,9 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     offset += 4;
 
     dict_data.bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length, dict_data.bundle_header_dict_length);
-    if(dict_data.bundle_header_dict_length < 0) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length,
+                            dict_data.bundle_header_dict_length);
+    if (dict_data.bundle_header_dict_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
         return 0;
     }
@@ -819,18 +833,19 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
 
 static int
 dissect_version_5_and_6_primary_header(packet_info *pinfo,
-                                        proto_tree *primary_tree, tvbuff_t *tvb, guint8* pri_hdr_procflags, gchar **bundle_custodian)
+                                       proto_tree *primary_tree, tvbuff_t *tvb,
+                                       guint8* pri_hdr_procflags, gchar **bundle_custodian)
 {
-    guint64 bundle_processing_control_flags;
-    guint8 cosflags;
-    int bundle_header_length;
-    int offset = 1;         /* Version Number already displayed */
-    int sdnv_length;
-    dictionary_data_t dict_data;
-    int timestamp_sequence;
-    guint8 srrflags;
-    proto_item *ti;
-    proto_tree *gen_flag_tree, *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
+    guint64            bundle_processing_control_flags;
+    guint8             cosflags;
+    int                bundle_header_length;
+    int                offset = 1; /* Version Number already displayed */
+    int                sdnv_length;
+    dictionary_data_t  dict_data;
+    int                timestamp_sequence;
+    guint8             srrflags;
+    proto_item        *ti;
+    proto_tree        *gen_flag_tree, *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
 
     bundle_processing_control_flags = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
@@ -891,8 +906,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     /* -- hdr_length -- */
     bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length, bundle_header_length);
-    if(bundle_header_length < 0) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length,
+                            bundle_header_length);
+    if (bundle_header_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
         return 0;
     }
@@ -912,8 +928,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.dst_scheme_pos = offset;
     dict_data.dst_scheme_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_dest_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.dest_scheme_offset);
-    if((dict_data.dest_scheme_offset < 0) || (dict_data.dest_scheme_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_dest_scheme_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.dest_scheme_offset);
+    if ((dict_data.dest_scheme_offset < 0) || (dict_data.dest_scheme_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Destination Scheme Offset Error");
     }
     offset += sdnv_length;
@@ -922,8 +939,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.dst_ssp_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_dest_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.dest_ssp_offset);
-    if((dict_data.dest_ssp_offset < 0) || (dict_data.dest_ssp_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_dest_ssp_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.dest_ssp_offset);
+    if ((dict_data.dest_ssp_offset < 0) || (dict_data.dest_ssp_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Destination SSP Offset Error");
     }
     offset += sdnv_length;
@@ -933,8 +951,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.src_scheme_pos = offset;
     dict_data.src_scheme_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_source_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.source_scheme_offset);
-    if((dict_data.source_scheme_offset < 0) || (dict_data.source_scheme_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_source_scheme_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.source_scheme_offset);
+    if ((dict_data.source_scheme_offset < 0) || (dict_data.source_scheme_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Source Scheme Offset Error");
     }
     offset += sdnv_length;
@@ -943,8 +962,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.src_ssp_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_source_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.source_ssp_offset);
-    if((dict_data.source_ssp_offset < 0) || (dict_data.source_ssp_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_source_ssp_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.source_ssp_offset);
+    if ((dict_data.source_ssp_offset < 0) || (dict_data.source_ssp_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Source SSP Offset Error");
     }
     offset += sdnv_length;
@@ -954,8 +974,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.rpt_scheme_pos = offset;
     dict_data.rpt_scheme_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_report_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.report_scheme_offset);
-    if((dict_data.report_scheme_offset < 0) || (dict_data.report_scheme_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_report_scheme_offset_i32, tvb, offset,
+                            sdnv_length, dict_data.report_scheme_offset);
+    if ((dict_data.report_scheme_offset < 0) || (dict_data.report_scheme_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Report Scheme Offset Error");
     }
     offset += sdnv_length;
@@ -964,8 +985,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.report_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.rpt_ssp_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_report_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.report_ssp_offset);
-    if((dict_data.report_ssp_offset < 0) || (dict_data.report_ssp_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_report_ssp_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.report_ssp_offset);
+    if ((dict_data.report_ssp_offset < 0) || (dict_data.report_ssp_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Report SSP Offset Error");
     }
     offset += sdnv_length;
@@ -976,8 +998,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.cust_scheme_pos = offset;
     dict_data.cust_scheme_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_cust_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.cust_scheme_offset);
-    if((dict_data.cust_scheme_offset < 0) || (dict_data.cust_scheme_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_cust_scheme_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.cust_scheme_offset);
+    if ((dict_data.cust_scheme_offset < 0) || (dict_data.cust_scheme_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Custodian Scheme Offset Error");
     }
     offset += sdnv_length;
@@ -986,8 +1009,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.cust_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.cust_ssp_len = sdnv_length;
 
-    ti = proto_tree_add_int(primary_tree, hf_bundle_cust_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.cust_ssp_offset);
-    if((dict_data.cust_ssp_offset < 0) || (dict_data.cust_ssp_offset > bundle_header_length)) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_cust_ssp_offset_i32, tvb, offset, sdnv_length,
+                            dict_data.cust_ssp_offset);
+    if ((dict_data.cust_ssp_offset < 0) || (dict_data.cust_ssp_offset > bundle_header_length)) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Custodian SSP Offset Error");
     }
     offset += sdnv_length;
@@ -1001,12 +1025,12 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     /* -- timestamp_sequence -- */
     timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(timestamp_sequence < 0) {
+    if (timestamp_sequence < 0) {
         gint64 ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
         ti = proto_tree_add_int64(primary_tree, hf_bundle_primary_timestamp_seq_num64,
                                                         tvb, offset, sdnv_length, ts_seq);
-        if(ts_seq < 0) {
+        if (ts_seq < 0) {
             expert_add_info(pinfo, ti, &ei_bundle_timestamp_seq_num);
         }
     }
@@ -1022,8 +1046,9 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     /* -- dict_length -- */
     dict_data.bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length, dict_data.bundle_header_dict_length);
-    if(dict_data.bundle_header_dict_length < 0) {
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length,
+                            dict_data.bundle_header_dict_length);
+    if (dict_data.bundle_header_dict_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
         return 0;
     }
@@ -1054,13 +1079,13 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     /* Add tree for processing flags */
     /* This is really a SDNV but there are only 7 bits defined so leave it this way*/
 
-    if(version == 4) {
+    if (version == 4) {
         proto_item *proc_flag_item;
         proto_tree *proc_flag_tree;
         guint8      procflags;
 
         procflags = tvb_get_guint8(tvb, offset);
-        if(procflags & HEADER_PROCFLAGS_LAST_HEADER) {
+        if (procflags & HEADER_PROCFLAGS_LAST_HEADER) {
             *lastheader = TRUE;
         }
         else {
@@ -1085,7 +1110,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
         proto_tree *block_flag_tree;
 
         control_flags = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(control_flags & BLOCK_CONTROL_LAST_BLOCK) {
+        if (control_flags & BLOCK_CONTROL_LAST_BLOCK) {
             *lastheader = TRUE;
         }
         else {
@@ -1114,7 +1139,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
     payload_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(payload_tree, hf_bundle_payload_length, tvb, offset, sdnv_length, payload_length);
-    if(payload_length < 0) {
+    if (payload_length < 0) {
         expert_add_info(pinfo, ti, &ei_bundle_payload_length);
         /* Force quiting */
         *lastheader = TRUE;
@@ -1124,7 +1149,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     proto_item_set_len(payload_item, 2 + sdnv_length);
 
     offset += sdnv_length;
-    if(pri_hdr_procflags & BUNDLE_PROCFLAGS_ADMIN_MASK) {
+    if (pri_hdr_procflags & BUNDLE_PROCFLAGS_ADMIN_MASK) {
         gboolean success = FALSE;
 
         /*
@@ -1152,12 +1177,12 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     proto_item *admin_record_item, *ti;
     proto_tree *admin_record_tree;
     proto_item *timestamp_sequence_item;
-    guint8 record_type;
-    guint8 status;
-    int start_offset = offset;
-    int sdnv_length;
-    int timestamp_sequence;
-    int endpoint_length;
+    guint8      record_type;
+    guint8      status;
+    int         start_offset = offset;
+    int         sdnv_length;
+    int         timestamp_sequence;
+    int         endpoint_length;
 
     *success = FALSE;
     admin_record_item = proto_tree_add_text(primary_tree, tvb, offset, -1, "Administrative Record");
@@ -1166,7 +1191,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 
     proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_NA);
 
-    switch((record_type >> 4) & 0xf)
+    switch ((record_type >> 4) & 0xf)
     {
     case ADMIN_REC_TYPE_STATUS_REPORT:
     {
@@ -1199,56 +1224,56 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         proto_tree_add_item(admin_record_tree, hf_bundle_status_report_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+        if (record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, pinfo, offset, hf_bundle_admin_fragment_offset);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, pinfo, offset, hf_bundle_admin_fragment_length);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
         }
-        if(status & ADMIN_STATUS_FLAGS_RECEIVED) {
+        if (status & ADMIN_STATUS_FLAGS_RECEIVED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_receipt_time);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
         }
-        if(status & ADMIN_STATUS_FLAGS_ACCEPTED) {
+        if (status & ADMIN_STATUS_FLAGS_ACCEPTED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_accept_time);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
         }
-        if(status & ADMIN_STATUS_FLAGS_FORWARDED) {
+        if (status & ADMIN_STATUS_FLAGS_FORWARDED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_forward_time);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
         }
-        if(status & ADMIN_STATUS_FLAGS_DELIVERED) {
+        if (status & ADMIN_STATUS_FLAGS_DELIVERED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_delivery_time);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
         }
-        if(status & ADMIN_STATUS_FLAGS_DELETED) {
+        if (status & ADMIN_STATUS_FLAGS_DELETED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_delete_time);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
         }
-        if(status & ADMIN_STATUS_FLAGS_ACKNOWLEDGED) {
+        if (status & ADMIN_STATUS_FLAGS_ACKNOWLEDGED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_ack_time);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
@@ -1256,18 +1281,18 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 
         /* Get 2 SDNVs for Creation Timestamp */
         sdnv_length = add_sdnv_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_timestamp_copy);
-        if(sdnv_length <= 0) {
+        if (sdnv_length <= 0) {
             return offset;
         }
         offset += sdnv_length;
 
         timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(timestamp_sequence < 0) {
+        if (timestamp_sequence < 0) {
             gint64 ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
             timestamp_sequence_item = proto_tree_add_int64(admin_record_tree, hf_bundle_admin_timestamp_seq_num64,
                                                             tvb, offset, sdnv_length, ts_seq);
-            if(ts_seq < 0) {
+            if (ts_seq < 0) {
                 expert_add_info(pinfo, timestamp_sequence_item, &ei_bundle_timestamp_seq_num);
                return offset;
             }
@@ -1279,7 +1304,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         offset += sdnv_length;
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(endpoint_length < 0) {
+        if (endpoint_length < 0) {
             return offset;
         }
         proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
@@ -1303,14 +1328,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+        if (record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, pinfo, offset, hf_bundle_admin_fragment_offset);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, pinfo, offset, hf_bundle_admin_fragment_length);
-            if(sdnv_length <= 0) {
+            if (sdnv_length <= 0) {
                 return offset;
             }
             offset += sdnv_length;
@@ -1318,25 +1343,25 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 
         /* Signal Time */
         sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_signal_time);
-        if(sdnv_length <= 0) {
+        if (sdnv_length <= 0) {
             return offset;
         }
         offset += sdnv_length;
 
         /* Timestamp copy */
         sdnv_length = add_sdnv_time_to_tree(admin_record_tree, tvb, offset, hf_bundle_admin_timestamp_copy);
-        if(sdnv_length <= 0) {
+        if (sdnv_length <= 0) {
             return offset;
         }
         offset += sdnv_length;
 
         timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(timestamp_sequence < 0) {
+        if (timestamp_sequence < 0) {
             gint64 ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
             timestamp_sequence_item = proto_tree_add_int64(admin_record_tree, hf_bundle_admin_timestamp_seq_num64,
                                                             tvb, offset, sdnv_length, ts_seq);
-            if(ts_seq < 0) {
+            if (ts_seq < 0) {
                 expert_add_info(pinfo, timestamp_sequence_item, &ei_bundle_timestamp_seq_num);
                return offset;
             }
@@ -1348,7 +1373,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         offset += sdnv_length;
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(endpoint_length < 0) {
+        if (endpoint_length < 0) {
             return 0;
         }
         proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
@@ -1439,16 +1464,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 static int
 display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gchar *bundle_custodian, gboolean *lastheader)
 {
-    proto_item *block_item, *ti, *block_flag_replicate_item, *block_flag_eid_reference_item;
-    proto_tree *block_tree;
-    int sdnv_length;
-    int block_length;
-    guint8 type;
-    unsigned int control_flags;
-    proto_tree *block_flag_tree = NULL;
-    proto_item *block_flag_item = NULL;
-    int num_eid_ref = 0;
-    int i = 0;
+    proto_item   *block_item, *ti, *block_flag_replicate_item, *block_flag_eid_reference_item;
+    proto_tree   *block_tree;
+    int           sdnv_length;
+    int           block_length;
+    guint8        type;
+    unsigned int  control_flags;
+    proto_tree   *block_flag_tree;
+    proto_item   *block_flag_item;
 
     type = tvb_get_guint8(tvb, offset);
     block_item = proto_tree_add_text(tree, tvb, offset, -1, "Metadata Block");
@@ -1458,7 +1481,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     ++offset;
 
     control_flags = (unsigned int)evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(control_flags & BLOCK_CONTROL_LAST_BLOCK) {
+    if (control_flags & BLOCK_CONTROL_LAST_BLOCK) {
         *lastheader = TRUE;
     } else {
         *lastheader = FALSE;
@@ -1484,6 +1507,9 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
     /* TODO: if this block has EID references, add them to display tree */
     if (control_flags & BLOCK_CONTROL_EID_REFERENCE) {
+        int i;
+        int num_eid_ref;
+
         num_eid_ref = evaluate_sdnv(tvb, offset, &sdnv_length);
         offset += sdnv_length;
 
@@ -1499,7 +1525,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
     block_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(block_tree, hf_block_control_block_length, tvb, offset, sdnv_length, block_length);
-    if(block_length < 0) {
+    if (block_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
         /* Force quitting */
         *lastheader = TRUE;
@@ -1600,7 +1626,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
         if ((flags & ECOS_FLAGS_ORDINAL) != 0) {
             flow_label = evaluate_sdnv(tvb, offset, &sdnv_length);
             ti = proto_tree_add_int(block_tree, hf_ecos_flow_label, tvb, offset, sdnv_length, flow_label);
-            if(flow_label < 0) {
+            if (flow_label < 0) {
                 expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ECOS Flow Label Error");
                 /* Force quitting */
                 *lastheader = TRUE;
@@ -1626,7 +1652,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 int
 evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount)
 {
-    int value = 0;
+    int    value = 0;
     guint8 curbyte;
 
     *bytecount = 0;
@@ -1635,8 +1661,8 @@ evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount)
      * Get 1st byte and continue to get them while high-order bit is 1
      */
 
-    while((curbyte = tvb_get_guint8(tvb, offset)) & ~SDNV_MASK) {
-        if(*bytecount >= (int) sizeof(int)) {
+    while ((curbyte = tvb_get_guint8(tvb, offset)) & ~SDNV_MASK) {
+        if (*bytecount >= (int) sizeof(int)) {
             *bytecount = 0;
             return -1;
         }
@@ -1669,8 +1695,8 @@ evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount)
      * Get 1st byte and continue to get them while high-order bit is 1
      */
 
-    while((curbyte = tvb_get_guint8(tvb, offset)) & ~SDNV_MASK) {
-        if(*bytecount >= (int) sizeof(gint64)) {
+    while ((curbyte = tvb_get_guint8(tvb, offset)) & ~SDNV_MASK) {
+        if (*bytecount >= (int) sizeof(gint64)) {
             *bytecount = 0;
             return -1;
         }
@@ -1708,8 +1734,8 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_item *ti;
     proto_tree *conv_proto_tree, *conv_tree, *conv_flag_tree;
-    int eid_length, sdnv_length;
-    int offset = 0;
+    int         eid_length, sdnv_length;
+    int         offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCPCL");
     col_clear(pinfo->cinfo,COL_INFO); /* Clear out stuff in the info column */
@@ -1741,7 +1767,7 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
      */
     eid_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(tree, hf_contact_hdr_local_eid_length, tvb, offset, sdnv_length, eid_length);
-    if(eid_length < 0) {
+    if (eid_length < 0) {
         expert_add_info(pinfo, ti, &ei_bundle_sdnv_length);
         return offset;
     }
@@ -1753,10 +1779,10 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static guint
 get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-    int len, bytecount;
+    int    len, bytecount;
     guint8 conv_hdr = tvb_get_guint8(tvb, offset);
 
-    switch(conv_hdr & TCP_CONVERGENCE_TYPE_MASK)
+    switch (conv_hdr & TCP_CONVERGENCE_TYPE_MASK)
     {
     case TCP_CONVERGENCE_DATA_SEGMENT:
     case TCP_CONVERGENCE_ACK_SEGMENT:
@@ -1774,10 +1800,10 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     case TCP_CONVERGENCE_SHUTDOWN:
         len = 1;
 
-        if(conv_hdr & TCP_CONVERGENCE_SHUTDOWN_REASON) {
+        if (conv_hdr & TCP_CONVERGENCE_SHUTDOWN_REASON) {
             len += 1;
         }
-        if(conv_hdr & TCP_CONVERGENCE_SHUTDOWN_DELAY) {
+        if (conv_hdr & TCP_CONVERGENCE_SHUTDOWN_DELAY) {
             len += 2;
         }
 
@@ -1790,11 +1816,11 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8      conv_hdr;
-    int         offset = 0;
-    int         sdnv_length, segment_length, convergence_hdr_size;
-    proto_item *ci, *conv_item, *sub_item;
-    proto_tree *conv_proto_tree, *conv_tree, *sub_tree;
+    guint8         conv_hdr;
+    int            offset = 0;
+    int            sdnv_length, segment_length, convergence_hdr_size;
+    proto_item    *ci, *conv_item, *sub_item;
+    proto_tree    *conv_proto_tree, *conv_tree, *sub_tree;
     fragment_head *frag_msg;
     tvbuff_t      *new_tvb;
     gboolean       more_frags;
@@ -1824,13 +1850,13 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                                                     tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Only Start and End flags (bits 0 & 1) are valid in Data Segment */
-        if((conv_hdr & ~(TCP_CONVERGENCE_TYPE_MASK | TCP_CONVERGENCE_DATA_FLAGS)) != 0) {
+        if ((conv_hdr & ~(TCP_CONVERGENCE_TYPE_MASK | TCP_CONVERGENCE_DATA_FLAGS)) != 0) {
             expert_add_info(pinfo, sub_item, &ei_tcp_convergence_data_flags);
         }
 
         segment_length = evaluate_sdnv(tvb, 1, &sdnv_length);
         sub_item = proto_tree_add_int(conv_tree, hf_tcp_convergence_data_segment_length, tvb, 1, sdnv_length, segment_length);
-        if(segment_length < 0) {
+        if (segment_length < 0) {
             expert_add_info(pinfo, sub_item, &ei_tcp_convergence_segment_length);
             return 1;
         }
@@ -1846,7 +1872,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
         new_tvb  = NULL;
         sub_tree = NULL;
-        if((conv_hdr & TCP_CONVERGENCE_DATA_END_FLAG) == TCP_CONVERGENCE_DATA_END_FLAG) {
+        if ((conv_hdr & TCP_CONVERGENCE_DATA_END_FLAG) == TCP_CONVERGENCE_DATA_END_FLAG) {
             more_frags = FALSE;
         }
         else {
@@ -1861,7 +1887,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                                             tvb, offset + convergence_hdr_size,
                                             pinfo, 0, NULL,
                                             segment_length, more_frags);
-        if(frag_msg && !more_frags) {
+        if (frag_msg && !more_frags) {
 
             sub_item = proto_tree_add_item(tree, proto_bundle, tvb, offset, -1, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_bundle);
@@ -1871,10 +1897,10 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                                                 &msg_frag_items, NULL, sub_tree);
         }
 
-        if(new_tvb) {
+        if (new_tvb) {
             int bundle_size = call_dissector(bundle_handle, new_tvb, pinfo, sub_tree);
 
-            if(bundle_size == 0) {
+            if (bundle_size == 0) {
                 /*Couldn't parse bundle, treat as raw data */
                 call_dissector(data_handle, new_tvb, pinfo, sub_tree);
                 return tvb_length(tvb);
@@ -1897,7 +1923,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     case TCP_CONVERGENCE_ACK_SEGMENT:
         segment_length = evaluate_sdnv(tvb, offset+1, &sdnv_length);
         sub_item = proto_tree_add_int(conv_tree, hf_tcp_convergence_ack_length, tvb, offset+1, sdnv_length, segment_length);
-        if(segment_length < 0) {
+        if (segment_length < 0) {
             expert_add_info(pinfo, sub_item, &ei_tcp_convergence_ack_length);
         }
         break;
@@ -1917,13 +1943,13 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
 
         offset += 1;
-        if(conv_hdr & TCP_CONVERGENCE_SHUTDOWN_REASON) {
+        if (conv_hdr & TCP_CONVERGENCE_SHUTDOWN_REASON) {
             proto_tree_add_item(conv_tree,
                                         hf_tcp_convergence_shutdown_reason, tvb,
                                         offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
         }
-        if(conv_hdr & TCP_CONVERGENCE_SHUTDOWN_DELAY) {
+        if (conv_hdr & TCP_CONVERGENCE_SHUTDOWN_DELAY) {
             proto_tree_add_item(conv_tree,
                                         hf_tcp_convergence_shutdown_delay, tvb,
                                         offset, 2, ENC_BIG_ENDIAN);
@@ -1948,7 +1974,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
 
     conv_hdr = tvb_get_guint8(tvb, 0);
-    switch(conv_hdr & TCP_CONVERGENCE_TYPE_MASK)
+    switch (conv_hdr & TCP_CONVERGENCE_TYPE_MASK)
     {
     case TCP_CONVERGENCE_DATA_SEGMENT:
     case TCP_CONVERGENCE_ACK_SEGMENT:
@@ -1959,7 +1985,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (!tvb_bytes_exist(tvb, offset, 1))
             return 0;
 
-        while(tvb_get_guint8(tvb, offset) & ~SDNV_MASK) {
+        while (tvb_get_guint8(tvb, offset) & ~SDNV_MASK) {
             if (bytecount > (int)sizeof(int)) {
                 /* invalid length field */
                 return 0;
@@ -1977,7 +2003,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* always 1 byte */
         break;
     case TCP_CONVERGENCE_SHUTDOWN:
-        if((conv_hdr &
+        if ((conv_hdr &
                 ~(TCP_CONVERGENCE_TYPE_MASK | TCP_CONVERGENCE_SHUTDOWN_FLAGS)) != 0) {
             /* Not for us */
             return 0;
@@ -2012,10 +2038,10 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     int         offset = 0;
     guint8      version, pri_hdr_procflags;
     /* Custodian from Primary Block, used to validate CTEB */
-    gchar       *bundle_custodian = NULL;
+    gchar      *bundle_custodian = NULL;
 
     version = tvb_get_guint8(tvb, offset);  /* Primary Header Version */
-    if((version != 4) && (version != 5) && (version != 6)) {
+    if ((version != 4) && (version != 5) && (version != 6)) {
         return 0;
     }
 
@@ -2039,7 +2065,7 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                 &pri_hdr_procflags, &bundle_custodian);
     }
 
-    if(primary_header_size == 0) {      /*Couldn't parse primary header*/
+    if (primary_header_size == 0) {      /*Couldn't parse primary header*/
         col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
         return(0);      /*Give up*/
     }
@@ -2051,11 +2077,11 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      * Done with primary header; decode the remaining headers
      */
 
-    while(lastheader == FALSE) {
+    while (lastheader == FALSE) {
         guint8 next_header_type;
 
         next_header_type = tvb_get_guint8(tvb, offset);
-        if(next_header_type == BUNDLE_BLOCK_TYPE_PAYLOAD) {
+        if (next_header_type == BUNDLE_BLOCK_TYPE_PAYLOAD) {
 
             /*
              * Returns payload size or 0 if can't parse payload
@@ -2077,29 +2103,8 @@ bundle_defragment_init(void) {
 }
 
 
-void
-proto_reg_handoff_bundle(void)
-{
-    static dissector_handle_t tcpcl_handle;
-    static guint tcp_port;
-    static guint udp_port;
-
-    static int Initialized = FALSE;
-
-    if (!Initialized) {
-        tcpcl_handle = new_create_dissector_handle(dissect_tcpcl, proto_bundle);
-        data_handle = find_dissector("data");
-        Initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint("tcp.port", tcp_port, tcpcl_handle);
-        dissector_delete_uint("udp.port", udp_port, bundle_handle);
-    }
-    tcp_port = bundle_tcp_port;
-    udp_port = bundle_udp_port;
-    dissector_add_uint("tcp.port", tcp_port, tcpcl_handle);
-    dissector_add_uint("udp.port", udp_port, bundle_handle);
-}
+void proto_reg_handoff_bundle(void);
+void proto_register_bundle(void);
 
 void
 proto_register_bundle(void)
@@ -2692,26 +2697,48 @@ proto_register_bundle(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_bundle_control_flags_length, { "bundle.block.control.flags.length", PI_UNDECODED, PI_WARN, "Wrong bundle control flag length", EXPFILL }},
-        { &ei_bundle_payload_length, { "bundle.payload.length.invalid", PI_PROTOCOL, PI_ERROR, "Payload length error", EXPFILL }},
-        { &ei_bundle_sdnv_length, { "bundle.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
-        { &ei_bundle_timestamp_seq_num, { "bundle.timestamp_seq_num_invalid", PI_PROTOCOL, PI_ERROR, "Timestamp Sequence Number error", EXPFILL }},
-        { &ei_bundle_offset_error, { "bundle.offset_error", PI_PROTOCOL, PI_WARN, "Offset field error", EXPFILL }},
-        { &ei_bundle_block_control_flags, { "bundle.block.control.flags.error", PI_PROTOCOL, PI_WARN, "Control flag error", EXPFILL }},
-        { &ei_block_control_block_cteb_invalid, { "bundle.block.control.cteb_invalid", PI_PROTOCOL, PI_WARN, "CTEB Is Invalid", EXPFILL }},
-        { &ei_block_control_block_cteb_valid, { "bundle.block.control.cteb_valid", PI_PROTOCOL, PI_NOTE, "CTEB Is Valid", EXPFILL }},
+        { &ei_bundle_control_flags_length,
+          { "bundle.block.control.flags.length", PI_UNDECODED, PI_WARN, "Wrong bundle control flag length", EXPFILL }
+        },
+        { &ei_bundle_payload_length,
+          { "bundle.payload.length.invalid", PI_PROTOCOL, PI_ERROR, "Payload length error", EXPFILL }
+        },
+        { &ei_bundle_sdnv_length,
+          { "bundle.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }
+        },
+        { &ei_bundle_timestamp_seq_num,
+          { "bundle.timestamp_seq_num_invalid", PI_PROTOCOL, PI_ERROR, "Timestamp Sequence Number error", EXPFILL }
+        },
+        { &ei_bundle_offset_error,
+          { "bundle.offset_error", PI_PROTOCOL, PI_WARN, "Offset field error", EXPFILL }
+        },
+        { &ei_bundle_block_control_flags,
+          { "bundle.block.control.flags.error", PI_PROTOCOL, PI_WARN, "Control flag error", EXPFILL }
+        },
+        { &ei_block_control_block_cteb_invalid,
+          { "bundle.block.control.cteb_invalid", PI_PROTOCOL, PI_WARN, "CTEB Is Invalid", EXPFILL }
+        },
+        { &ei_block_control_block_cteb_valid,
+          { "bundle.block.control.cteb_valid", PI_PROTOCOL, PI_NOTE, "CTEB Is Valid", EXPFILL }
+        },
     };
 
     static ei_register_info ei_tcpcl[] = {
-        { &ei_tcp_convergence_data_flags, { "tcpcl.data.flags.invalid", PI_PROTOCOL, PI_WARN, "Invalid TCP CL Data Segment Flags", EXPFILL }},
-        { &ei_tcp_convergence_segment_length, { "tcpcl.data.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Data Length", EXPFILL }},
-        { &ei_tcp_convergence_ack_length, { "tcpcl.ack.length.error", PI_PROTOCOL, PI_WARN, "Ack Length: Error", EXPFILL }},
+        { &ei_tcp_convergence_data_flags,
+          { "tcpcl.data.flags.invalid", PI_PROTOCOL, PI_WARN, "Invalid TCP CL Data Segment Flags", EXPFILL }
+        },
+        { &ei_tcp_convergence_segment_length,
+          { "tcpcl.data.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Data Length", EXPFILL }
+        },
+        { &ei_tcp_convergence_ack_length,
+          { "tcpcl.ack.length.error", PI_PROTOCOL, PI_WARN, "Ack Length: Error", EXPFILL }
+        },
     };
 
     module_t *bundle_module;
     expert_module_t *expert_bundle, *expert_tcpcl;
 
-    proto_bundle = proto_register_protocol("Bundle Protocol", "Bundle", "bundle");
+    proto_bundle  = proto_register_protocol("Bundle Protocol", "Bundle", "bundle");
     bundle_handle = new_register_dissector("bundle", dissect_bundle, proto_bundle);
     bundle_module = prefs_register_protocol(proto_bundle, proto_reg_handoff_bundle);
 
@@ -2741,3 +2768,40 @@ proto_register_bundle(void)
 
     register_init_routine(bundle_defragment_init);
 }
+
+void
+proto_reg_handoff_bundle(void)
+{
+    static dissector_handle_t tcpcl_handle;
+    static guint tcp_port;
+    static guint udp_port;
+
+    static int Initialized = FALSE;
+
+    if (!Initialized) {
+        tcpcl_handle = new_create_dissector_handle(dissect_tcpcl, proto_bundle);
+        data_handle  = find_dissector("data");
+        Initialized  = TRUE;
+    }
+    else {
+        dissector_delete_uint("tcp.port", tcp_port, tcpcl_handle);
+        dissector_delete_uint("udp.port", udp_port, bundle_handle);
+    }
+    tcp_port = bundle_tcp_port;
+    udp_port = bundle_udp_port;
+    dissector_add_uint("tcp.port", tcp_port, tcpcl_handle);
+    dissector_add_uint("udp.port", udp_port, bundle_handle);
+}
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
