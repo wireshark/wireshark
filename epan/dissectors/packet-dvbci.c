@@ -419,6 +419,9 @@
 #define OPP_EIT_BARKER 3
 #define OPP_EPG_APP    4
 
+#define OPP_EXT_EVT_DIFF 0
+#define OPP_EXT_EVT_ADD  1
+
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
 #define SAS_SESS_STATE_NOT_FOUND 1
@@ -1576,6 +1579,11 @@ static const value_string dvbci_opp_eit_sch_usage[] = {
     { OPP_EIT_FULL_X, "EIT is fully cross-carried" },
     { OPP_EIT_BARKER, "EIT is available from a barker channel" },
     { OPP_EPG_APP,    "EPG is delivered using an application" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_ext_evt[] = {
+    { OPP_EXT_EVT_DIFF, "extended event info is different from short event" },
+    { OPP_EXT_EVT_ADD,  "extended event info includes short event" },
     { 0, NULL }
 };
 static const value_string dvbci_opp_dlv_cap[] = {
@@ -5720,7 +5728,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_ext_evt_usage,
           { "Extended event usage", "dvb-ci.opp.ext_evt_usage",
-            FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_ext_evt), 0x01, NULL, HFILL }
         },
         { &hf_dvbci_sdt_oth_trusted,
           { "SDT_other trusted", "dvb-ci.opp.sdt_oth_trusted",
