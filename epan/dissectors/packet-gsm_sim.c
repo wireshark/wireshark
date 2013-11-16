@@ -1439,18 +1439,21 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 static void
 dissect_gsm_sim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, TRUE);
 }
 
 static void
 dissect_gsm_sim_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, FALSE);
 }
 
 static void
 dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_rsp_apdu_tvb(tvb, 0, pinfo, tree, NULL);
 }
 
