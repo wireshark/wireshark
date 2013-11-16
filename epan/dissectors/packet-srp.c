@@ -27,7 +27,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/bitswap.h>
 #include <epan/circuit.h>
 #include <epan/stream.h>
 #include <epan/crc16-tvb.h>

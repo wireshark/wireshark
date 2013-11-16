@@ -84,7 +84,6 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
-#include <epan/bitswap.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
