@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <pkgref spec="1.12" uuid="0B0ABFF7-3A3D-4F37-B998-DC99734E0EFC">
   <config>
     <identifier>org.wireshark.Wireshark.app.pkg</identifier>
