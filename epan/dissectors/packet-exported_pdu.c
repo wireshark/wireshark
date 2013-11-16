@@ -214,7 +214,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case EXPORTED_PDU_NEXT_PROTO_STR:
             proto_handle = find_dissector(proto_name);
             if (proto_handle) {
-                call_dissector(find_dissector(proto_name), payload_tvb, pinfo, tree);
+                col_clear(pinfo->cinfo, COL_PROTOCOL);
+                call_dissector(proto_handle, payload_tvb, pinfo, tree);
             }
             break;
         default:
