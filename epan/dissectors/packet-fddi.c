@@ -33,7 +33,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/bitswap.h>
+#include <wsutil/bitswap.h>
 #include <epan/prefs.h>
 #include "packet-fddi.h"
 #include "packet-llc.h"

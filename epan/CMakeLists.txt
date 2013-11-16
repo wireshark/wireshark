@@ -1461,7 +1461,6 @@ set(LIBWIRESHARK_FILES
 	asn1.c
 	atalk-utils.c
 	base64.c
-	bitswap.c
 	camel-persistentdata.c
 	charsets.c
 	circuit.c

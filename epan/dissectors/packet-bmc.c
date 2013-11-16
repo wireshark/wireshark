@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/bitswap.h>
+#include <wsutil/bitswap.h>
 #include <epan/asn1.h> /* needed for packet-gsm_map.h */
 
 #include "packet-cell_broadcast.h"

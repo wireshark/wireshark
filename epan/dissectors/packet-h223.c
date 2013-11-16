@@ -27,7 +27,7 @@
 
 #include <glib.h>
 #include <epan/wmem/wmem.h>
-#include <epan/bitswap.h>
+#include <wsutil/bitswap.h>
 #include <epan/circuit.h>
 #include <epan/conversation.h>
 #include <epan/packet.h>

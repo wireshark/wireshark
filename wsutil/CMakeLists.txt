@@ -39,6 +39,7 @@ set(WSUTIL_FILES
   adler32.c
   aes.c
   airpdcap_wep.c
+  bitswap.c
   crash_info.c
   crc10.c
   crc16.c
