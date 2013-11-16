@@ -137,11 +137,8 @@ static dissector_handle_t data_handle;
 static void
 swap_mac_addr(guint8 *swapped_addr, tvbuff_t *tvb, gint offset)
 {
-  int i;
-
-  for (i = 0; i < 6; i++) {
-    swapped_addr[i] = BIT_SWAP(tvb_get_guint8(tvb, offset+i));
-  }
+  tvb_memcpy(tvb, swapped_addr, offset, 6);
+  bit_swap_buf_inplace(swapped_addr, 6);
 }
 
 

@@ -1370,9 +1370,8 @@ dissect_h223_bitswapped (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint i;
 
     len = tvb_length(tvb);
-    datax = (guint8 *)wmem_alloc(pinfo->pool, len);
-    for( i=0; i<len; i++)
-        datax[i]=BIT_SWAP(tvb_get_guint8(tvb,i));
+    datax = tvb_memdup(pinfo->pool, tvb, 0, len);
+    bit_swap_buf_inplace(datax, len);
 
     /*
      * Add the reversed tvbuff to the list of tvbuffs to which
