@@ -642,6 +642,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-fddi.c
 	dissectors/packet-fefd.c
 	dissectors/packet-ff.c
+	dissectors/packet-finger.c
 	dissectors/packet-fip.c
 	dissectors/packet-fix.c
 	dissectors/packet-flexnet.c

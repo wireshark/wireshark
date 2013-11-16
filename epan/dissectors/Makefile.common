@@ -564,6 +564,7 @@ DISSECTOR_SRC = \
 	packet-fddi.c		\
 	packet-fefd.c		\
 	packet-ff.c		\
+	packet-finger.c		\
 	packet-fip.c		\
 	packet-fix.c		\
 	packet-flexnet.c	\

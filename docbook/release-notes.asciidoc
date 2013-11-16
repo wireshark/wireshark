@@ -76,6 +76,7 @@ CARP
 Cisco MetaData
 ELF file format
 EXPORTED PDU
+FINGER
 HTTP2
 IDRP
 ILP

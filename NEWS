@@ -61,8 +61,8 @@ What's New
   New Protocol Support
 
    802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData, ELF
-   file format, EXPORTED PDU, HTTP2, IDRP, ILP, Kafka, MBIM, MiNT, MP4 /
-   ISOBMFF file format, NXP PN532 HCI, OpenFlow, Picture Transfer Protocol
+   file format, EXPORTED PDU, FINGER, HTTP2, IDRP, ILP, Kafka, MBIM, MiNT,
+   MP4/ISOBMFF file format, NXP PN532 HCI, OpenFlow, Picture Transfer Protocol
    Over IP, QUIC (Quick UDP Internet Connections), SEL RTAC (Real Time
    Automation Controller) EIA-232 Serial-Line Dissection, Sippy RTPproxy,
    STANAG 4607, STANAG 5066 SIS, Tinkerforge, UDT, URL Encoded Form Data,
