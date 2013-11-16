@@ -92,14 +92,11 @@ static int hf_cpfi_t_port = -1;
 static int hf_cpfi_t_src_port = -1;
 static int hf_cpfi_t_dst_port = -1;
 
-static guint32 word1;
-static guint32 word2;
-static guint8 frame_type;
 static char src_str[20];
 static char dst_str[20];
-static char l_to_r_arrow[] = "-->";
-static char r_to_l_arrow[] = "<--";
-static const char *left = src_str;
+static const char l_to_r_arrow[] = "-->";
+static const char r_to_l_arrow[] = "<--";
+static const char *left  = src_str;
 static const char *right = dst_str;
 static const char *arrow = l_to_r_arrow;
 static const char direction_and_port_string[] = "[%s %s %s] ";
@@ -152,29 +149,34 @@ static const value_string eof_type_vals[] = {
 static void
 dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 tda;
-  guint32 src;
-  guint8 src_instance = 0;
-  guint8 src_board = 0;
-  guint8 src_port = 0;
-  guint32 dst;
-  guint8 dst_instance = 0;
-  guint8 dst_board = 0;
-  guint8 dst_port = 0;
-  proto_item *extra_item = NULL;
-  proto_tree *extra_tree = NULL;
-  proto_item *hidden_item;
+  guint32     word1;
+#if 0
+  guint32     word2;
+#endif
+  guint32     tda;
+  guint32     src;
+  guint8      src_instance = 0;
+  guint8      src_board    = 0;
+  guint8      src_port     = 0;
+  guint32     dst;
+  guint8      dst_instance = 0;
+  guint8      dst_board    = 0;
+  guint8      dst_port     = 0;
+  proto_tree *extra_tree   = NULL;
 
   /* add a tree for the header */
   if ( tree != NULL)
   {
+    proto_item *extra_item;
     extra_item = proto_tree_add_protocol_format(tree, proto_cpfi, tvb, 0, -1, "Header");
     extra_tree = proto_item_add_subtree(extra_item, ett_cpfi_header);
   }
 
   /* Extract the common header, and get the bits we need */
   word1 = tvb_get_ntohl (tvb, 0);
+#if 0
   word2 = tvb_get_ntohl (tvb, sizeof(word1));
+#endif
 
   /* Figure out where the frame came from. dstTDA is source of frame! */
   tda = (word1 & CPFI_DEST_MASK) >> CPFI_DEST_SHIFT;
@@ -235,6 +237,7 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (extra_tree) {
+    proto_item *hidden_item;
     /* For "real" TDAs (i.e. not for microTDAs), add hidden addresses to allow filtering */
     if ( src != 0 )
     {
@@ -287,12 +290,12 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_cpfi_footer(tvbuff_t *tvb, proto_tree *tree)
 {
-  proto_item *extra_item = NULL;
   proto_tree *extra_tree = NULL;
 
   /* add a tree for the footer */
   if ( tree != NULL)
   {
+    proto_item *extra_item;
     extra_item = proto_tree_add_protocol_format(tree, proto_cpfi, tvb, 0, -1, "Footer");
     extra_tree = proto_item_add_subtree(extra_item, ett_cpfi_footer);
   }
@@ -307,10 +310,11 @@ dissect_cpfi_footer(tvbuff_t *tvb, proto_tree *tree)
 static int
 dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  tvbuff_t *header_tvb, *body_tvb, *footer_tvb;
+  tvbuff_t   *header_tvb, *body_tvb, *footer_tvb;
   proto_item *cpfi_item = NULL;
   proto_tree *cpfi_tree = NULL;
-  gint length, reported_length, body_length, reported_body_length;
+  gint        length, reported_length, body_length, reported_body_length;
+  guint8      frame_type;
 
   frame_type = (tvb_get_ntohl (message_tvb, 0) & CPFI_FRAME_TYPE_MASK) >> CPFI_FRAME_TYPE_SHIFT;
 
@@ -550,3 +554,16 @@ proto_reg_handoff_cpfi(void)
   dissector_add_uint("udp.port", cpfi_udp_port, cpfi_handle);
   dissector_add_uint("udp.port", cpfi_ttot_udp_port, ttot_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
