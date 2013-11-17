@@ -562,7 +562,7 @@ init_progfile_dir(const char *arg0
     long path_max;
     char *pathstr;
     char *path_start, *path_end;
-    size_t path_component_len;
+    size_t path_component_len, path_len;
     char *retstr;
     char *path;
     char *dir_end;
@@ -661,12 +661,13 @@ init_progfile_dir(const char *arg0
                 if (path_end == NULL)
                     path_end = path_start + strlen(path_start);
                 path_component_len = path_end - path_start;
-                path = (char *)g_malloc(path_component_len + 1
-                    + strlen(execname) + 1);
+                path_len = path_component_len + 1
+                    + strlen(execname) + 1;
+                path = (char *)g_malloc(path_len);
                 memcpy(path, path_start, path_component_len);
                 path[path_component_len] = '\0';
-                strncat(path, "/", 2);
-                strncat(path, execname, strlen(execname) + 1);
+                g_strlcat(path, "/", path_len);
+                g_strlcat(path, execname, path_len);
                 if (access(path, X_OK) == 0) {
                     /*
                      * Found it!
