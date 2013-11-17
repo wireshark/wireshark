@@ -81,6 +81,7 @@ HTTP2
 IDRP
 ILP
 Kafka
+Kyoto Tycoon binary protocol
 MBIM
 MiNT
 MP4 / ISOBMFF file format
