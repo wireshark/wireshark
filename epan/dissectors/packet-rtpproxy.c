@@ -55,6 +55,7 @@ static int hf_rtpproxy_playback_filename = -1;
 static int hf_rtpproxy_playback_codec = -1;
 static int hf_rtpproxy_notify = -1;
 static int hf_rtpproxy_notify_ipv4 = -1;
+static int hf_rtpproxy_notify_ipv6 = -1;
 static int hf_rtpproxy_notify_port = -1;
 static int hf_rtpproxy_notify_tag = -1;
 static int hf_rtpproxy_tag = -1;
@@ -235,22 +236,31 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 void
 rtpptoxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint end)
 {
-	gint new_offset = 0;
+	gint offset = 0;
+	gint tmp = 0;
+	gboolean ipv6 = FALSE;
 	proto_item *ti;
 
-	/* FIXME only IPv4 is supported */
-	new_offset = tvb_find_guint8(tvb, begin, -1, ':');
-
-	if(new_offset == -1){
+	/* Check for at least one colon */
+	offset = tvb_find_guint8(tvb, begin, end, ':');
+	if(offset != -1){
+		/* Find if it's the latest colon (not in case of a IPv6) */
+		while((tmp = tvb_find_guint8(tvb, offset+1, end, ':')) != -1){
+			ipv6 = TRUE;
+			offset = tmp;
+		}
+		/* We have ip:port */
+		if(ipv6)
+			proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, offset - begin, ENC_ASCII | ENC_NA);
+		else
+			proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, offset - begin, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, offset+1, end - (offset+1), ENC_ASCII | ENC_NA);
+	}
+	else{
 		/* Only port is supplied */
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, ENC_ASCII | ENC_NA);
 		proto_item_append_text(ti, "<skipped>");
 		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin, ENC_ASCII | ENC_NA);
-	}
-	else{
-		/* We have ip:port */
-		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, new_offset - begin, ENC_ASCII | ENC_NA);
-		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, new_offset+1, end - (new_offset+1), ENC_ASCII | ENC_NA);
 	}
 }
 
@@ -796,6 +806,19 @@ proto_register_rtpproxy(void)
 			{
 				"Notification IPv4",
 				"rtpproxy.notify_ipv4",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				NULL,
+				HFILL
+			}
+		},
+		{
+			&hf_rtpproxy_notify_ipv6,
+			{
+				"Notification IPv6",
+				"rtpproxy.notify_ipv6",
 				FT_STRING,
 				BASE_NONE,
 				NULL,
