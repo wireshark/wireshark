@@ -146,11 +146,24 @@ about_plugins_page_new(void)
 
     /* connect a callback so we can spot a double-click */
     g_signal_connect(plugins_list, "button_press_event",
-		     G_CALLBACK(about_plugins_callback), NULL);
-    
+                     G_CALLBACK(about_plugins_callback), NULL);
+
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
 
     return scrolledwindow;
 }
 
 #endif /* HAVE_PLUGINS || HAVE_LUA */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
