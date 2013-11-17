@@ -230,6 +230,28 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	}
 }
 
+void
+rtpptoxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint end)
+{
+	gint new_offset = 0;
+	proto_item *ti;
+
+	/* FIXME only IPv4 is supported */
+	new_offset = tvb_find_guint8(tvb, begin, -1, ':');
+
+	if(new_offset == -1){
+		/* Only port is supplied */
+		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, ENC_ASCII | ENC_NA);
+		proto_item_set_text(ti, "Notification IPv4: <skipped>");
+		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin, ENC_ASCII | ENC_NA);
+	}
+	else{
+		/* We have ip:port */
+		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, new_offset - begin, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, new_offset+1, end - (new_offset+1), ENC_ASCII | ENC_NA);
+	}
+}
+
 static int
 dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -424,27 +446,20 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 			/* Extract Notification address */
 			if (tmp == 'u'){
-				new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
 				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify, tvb, offset, realsize - offset, ENC_ASCII | ENC_NA);
 				proto_item_set_text(ti, "Notify");
 				rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_notify);
+
+				/* Check for NotifyTag parameter (separated by space) */
+				new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
 				if(new_offset == -1){
-					/* FIXME only IPv4 is supported */
-					new_offset = tvb_find_guint8(tvb, offset, -1, ':');
-					proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
-					proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, new_offset+1, realsize - (new_offset+1), ENC_ASCII | ENC_NA);
+					/* NotifyTag wasn't found (we should re-use Call-ID instead) */
+					rtpptoxy_add_notify_addr(rtpproxy_tree, tvb, offset, realsize);
 					break; /* No more parameters */
 				}
-				if(new_offset - offset < 6){
-					/* Only port is supplied */
-					ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, offset, 0, ENC_ASCII | ENC_NA);
-					proto_item_set_text(ti, "Notification IPv4: <skipped>");
-					proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
-				}
-				else{
-					proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
-					proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, new_offset+1, realsize - (new_offset+1), ENC_ASCII | ENC_NA);
-				}
+
+				/* NotifyTag was found */
+				rtpptoxy_add_notify_addr(rtpproxy_tree, tvb, offset, new_offset);
 				/* Skip whitespace */
 				offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
