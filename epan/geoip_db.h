@@ -27,6 +27,10 @@
 #ifndef __GEOIP_DB_H__
 #define __GEOIP_DB_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/ipv6-utils.h>
 #include <epan/prefs.h>
 #include "ws_symbol_export.h"
@@ -92,4 +96,21 @@ WS_DLL_PUBLIC const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr ad
  */
 WS_DLL_PUBLIC gchar *geoip_db_get_paths(void);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif /* __GEOIP_DB_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

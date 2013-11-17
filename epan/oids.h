@@ -27,6 +27,10 @@
 #ifndef __OIDS_H__
 #define __OIDS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
@@ -38,75 +42,75 @@
 #define BER_TAG_ANY -1
 
 struct _oid_bit_t {
-	guint offset;
-	int hfid;
+    guint offset;
+    int hfid;
 };
 
 typedef struct _oid_bits_info_t {
-	guint num;
-	gint ett;
-	struct _oid_bit_t* data;
+    guint num;
+    gint ett;
+    struct _oid_bit_t* data;
 } oid_bits_info_t;
 
 typedef enum _oid_key_type_t {
-	OID_KEY_TYPE_WRONG,
-	OID_KEY_TYPE_INTEGER,
-	OID_KEY_TYPE_OID,
-	OID_KEY_TYPE_STRING,
-	OID_KEY_TYPE_BYTES,
-	OID_KEY_TYPE_NSAP,
-	OID_KEY_TYPE_IPADDR,
-	OID_KEY_TYPE_IMPLIED_OID,
-	OID_KEY_TYPE_IMPLIED_STRING,
-	OID_KEY_TYPE_IMPLIED_BYTES,
-	OID_KEY_TYPE_ETHER,
-	OID_KEY_TYPE_DATE_AND_TIME
+    OID_KEY_TYPE_WRONG,
+    OID_KEY_TYPE_INTEGER,
+    OID_KEY_TYPE_OID,
+    OID_KEY_TYPE_STRING,
+    OID_KEY_TYPE_BYTES,
+    OID_KEY_TYPE_NSAP,
+    OID_KEY_TYPE_IPADDR,
+    OID_KEY_TYPE_IMPLIED_OID,
+    OID_KEY_TYPE_IMPLIED_STRING,
+    OID_KEY_TYPE_IMPLIED_BYTES,
+    OID_KEY_TYPE_ETHER,
+    OID_KEY_TYPE_DATE_AND_TIME
 } oid_key_type_t;
 
 typedef struct _oid_value_type_t {
-	enum ftenum ft_type;
-	int display;
-	gint8 ber_class;
-	gint32 ber_tag;
-	int min_len;
-	int max_len;
-	oid_key_type_t keytype;
-	int keysize;
+    enum ftenum ft_type;
+    int display;
+    gint8 ber_class;
+    gint32 ber_tag;
+    int min_len;
+    int max_len;
+    oid_key_type_t keytype;
+    int keysize;
 } oid_value_type_t;
 
 typedef enum _oid_kind_t {
-	OID_KIND_UNKNOWN = 0,
-	OID_KIND_NODE,
-	OID_KIND_SCALAR,
-	OID_KIND_TABLE,
-	OID_KIND_ROW,
-	OID_KIND_COLUMN,
-	OID_KIND_NOTIFICATION,
-	OID_KIND_GROUP,
-	OID_KIND_COMPLIANCE,
-	OID_KIND_CAPABILITIES
+    OID_KIND_UNKNOWN = 0,
+    OID_KIND_NODE,
+    OID_KIND_SCALAR,
+    OID_KIND_TABLE,
+    OID_KIND_ROW,
+    OID_KIND_COLUMN,
+    OID_KIND_NOTIFICATION,
+    OID_KIND_GROUP,
+    OID_KIND_COMPLIANCE,
+    OID_KIND_CAPABILITIES
 } oid_kind_t;
 
 typedef struct _oid_key_t {
-	char* name;
-	guint32 num_subids;
-	oid_key_type_t key_type;
-	int hfid;
-	enum ftenum ft_type;
-	int display;
-	struct _oid_key_t* next;
+    char* name;
+    guint32 num_subids;
+    oid_key_type_t key_type;
+    int hfid;
+    enum ftenum ft_type;
+    int display;
+    struct _oid_key_t* next;
 } oid_key_t;
 
 typedef struct _oid_info_t {
-	guint32 subid;
-	char* name;
-	oid_kind_t kind;
-	wmem_tree_t* children;
-	const oid_value_type_t* value_type;
-	int value_hfid;
-	oid_key_t* key;
-	oid_bits_info_t* bits;
-	struct _oid_info_t* parent;
+    guint32 subid;
+    char* name;
+    oid_kind_t kind;
+    wmem_tree_t* children;
+    const oid_value_type_t* value_type;
+    int value_hfid;
+    oid_key_t* key;
+    oid_bits_info_t* bits;
+    struct _oid_info_t* parent;
 } oid_info_t;
 
 /** init function called from prefs.c */
@@ -197,4 +201,21 @@ extern void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree);
 #define add_oid_debug_subtree(a,b) ((void)0)
 #endif
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif  /* __OIDS_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
