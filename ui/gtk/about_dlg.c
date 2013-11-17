@@ -417,10 +417,8 @@ about_folders_page_new(void)
       "capture files");
 
   /* temp */
-  path = get_tempfile_path("");
-  about_folders_row(table, "Temp", path,
+  about_folders_row(table, "Temp", g_get_tmp_dir(),
       "untitled capture files");
-  g_free(path);
 
   /* pers conf */
   path = get_persconffile_path("", FALSE);
