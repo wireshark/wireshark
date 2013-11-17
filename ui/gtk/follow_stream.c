@@ -35,7 +35,7 @@
 
 #include <epan/addr_resolv.h>
 #include <epan/follow.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/charsets.h>
 

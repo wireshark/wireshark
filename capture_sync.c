@@ -84,7 +84,6 @@
 
 #include "globals.h"
 #include "file.h"
-#include <epan/filesystem.h>
 
 #include "capture.h"
 #include "capture_sync.h"
@@ -97,6 +96,7 @@
 
 #include "ui/ui_util.h"
 
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_err.h>
 #include "log.h"

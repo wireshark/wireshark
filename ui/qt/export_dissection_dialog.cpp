@@ -34,7 +34,7 @@
 #include "ui/util.h"
 
 #include <epan/print.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "qt_ui_utils.h"
 

@@ -31,7 +31,7 @@
 
 #include <epan/epan.h>
 #include <epan/packet.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>

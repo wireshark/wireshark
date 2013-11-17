@@ -76,6 +76,7 @@
 #endif
 
 #include <wsutil/privileges.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/md5.h>
@@ -89,7 +90,6 @@
 #define WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT /* wsutil/wsgetopt.h set export behavior above. */
 #include "epan/plugins.h"
-#include "epan/filesystem.h"
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
 

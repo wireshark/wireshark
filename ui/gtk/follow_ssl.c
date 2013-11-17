@@ -41,7 +41,7 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/tap.h>
 
 #include <ui/alert_box.h>

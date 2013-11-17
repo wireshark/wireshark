@@ -31,7 +31,7 @@
 #include <errno.h>
 
 #include <epan/epan.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>

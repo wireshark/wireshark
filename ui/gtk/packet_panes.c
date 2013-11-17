@@ -50,7 +50,7 @@
 #include <epan/packet.h>
 #include <epan/charsets.h>
 #include <epan/prefs.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "../isprint.h"
 

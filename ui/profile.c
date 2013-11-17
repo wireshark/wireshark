@@ -31,7 +31,7 @@
 #include <glib.h>
 
 #include <epan/emem.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 
 #include "profile.h"

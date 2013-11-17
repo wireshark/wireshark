@@ -45,6 +45,7 @@ LIBWSUTIL_SRC = 	\
 	crcdrm.c	\
 	des.c		\
 	eax.c		\
+	filesystem.c	\
 	g711.c		\
 	md4.c		\
 	md5.c		\
@@ -79,6 +80,7 @@ LIBWSUTIL_INCLUDES = 	\
 	crcdrm.h	\
 	des.h		\
 	eax.h		\
+	filesystem.h	\
 	g711.h		\
 	md4.h		\
 	md5.h		\

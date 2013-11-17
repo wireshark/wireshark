@@ -56,7 +56,7 @@
 #include <epan/packet.h>
 #include <epan/uat-int.h>
 #include <epan/value_string.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "../stat_menu.h"
 

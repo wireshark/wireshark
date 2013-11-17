@@ -39,7 +39,7 @@
 #include "prefs.h"
 #include "proto.h"
 #include "packet.h"
-#include "filesystem.h"
+#include "wsutil/filesystem.h"
 #include "dissectors/packet-ber.h"
 
 #ifdef HAVE_LIBSMI

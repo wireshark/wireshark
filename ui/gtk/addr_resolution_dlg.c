@@ -31,7 +31,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/epan.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/addr_resolv.h>
 
 #include "../cfile.h"

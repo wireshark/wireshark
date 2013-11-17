@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/proto.h>
 
 #include "disabled_protos.h"

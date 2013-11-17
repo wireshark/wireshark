@@ -27,7 +27,7 @@
 
 #include <glib.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/dfilter/dfilter.h>
 
 #include "ui/follow.h"

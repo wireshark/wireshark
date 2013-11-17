@@ -65,7 +65,8 @@ lib_LTLIBRARIES = libwsutil.la
 libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 AM_CPPFLAGS = -I$(srcdir)/.. \
-	$(LIBGCRYPT_CFLAGS)
+	$(LIBGCRYPT_CFLAGS) \
+	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"
 
 libwsutil_la_SOURCES =		\
 	$(LIBWSUTIL_SRC)	\

@@ -30,7 +30,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/epan.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "ui/main_statusbar.h"
 

@@ -42,7 +42,7 @@
 #include <GeoIP.h>
 #include <epan/geoip_db.h>
 #include <wsutil/pint.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #endif
 
 #include <wsutil/file_util.h>

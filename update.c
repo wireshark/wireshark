@@ -30,7 +30,6 @@
 
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include <epan/filesystem.h>
 
 #include "simple_dialog.h"
 #include "version_info.h"
@@ -40,6 +39,7 @@
 #endif
 
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 
 #include <wininet.h>
 #include "nio-ie5.h"

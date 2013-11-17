@@ -32,7 +32,6 @@
 /* XXX - try to remove this later */
 #include <epan/prefs.h>
 /* XXX - try to remove this later */
-#include <epan/filesystem.h>
 
 #include "capture_info.h"
 
@@ -58,6 +57,8 @@
 #include <epan/dissectors/packet-enc.h>
 #include <epan/dissectors/packet-i2c.h>
 #include <epan/dissectors/packet-ax25-kiss.h>
+
+#include <wsutil/filesystem.h>
 
 static void capture_info_packet(
 packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);

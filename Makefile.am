@@ -312,8 +312,7 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/wimaxmacphy/wimaxmacphy.la
 
 WTAP_PLUGIN_SOURCES = \
-       epan/plugins.c \
-       epan/filesystem.c
+       epan/plugins.c
 
 else		# HAVE_PLUGINS
 

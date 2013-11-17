@@ -35,7 +35,7 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 
 #include "../globals.h"
 #include "../stat_menu.h"

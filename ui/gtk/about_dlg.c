@@ -29,7 +29,7 @@
 
 #include <string.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/plugins.h>
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>

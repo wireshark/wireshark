@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include "help_url.h"
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 
 #ifdef HHC_DIR
 #include <windows.h>

@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "../capture.h"
 #include "../capture_ifinfo.h"

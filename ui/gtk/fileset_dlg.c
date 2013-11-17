@@ -33,7 +33,7 @@
 #include <gtk/gtk.h>
 
 #include "file.h"
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "../fileset.h"
 

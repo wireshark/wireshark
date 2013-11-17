@@ -36,7 +36,7 @@
 
 #include "globals.h"
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 
 #ifdef _WIN32

@@ -50,7 +50,7 @@
 #include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"

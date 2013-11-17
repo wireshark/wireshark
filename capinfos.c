@@ -76,16 +76,16 @@
 #include <glib.h>
 
 #include <wsutil/privileges.h>
+#include <wsutil/filesystem.h>
 
 /*
  * The symbols declared in the below are exported from libwireshark,
- * but we don't want to link whole libwireshark to editcap.
+ * but we don't want to link whole libwireshark to capinfos.
  * We link the object directly instead and this needs a little trick
  * with the WS_BUILD_DLL #define.
  */
 #define WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
-#include <epan/filesystem.h>
 #include <epan/plugins.h>
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT

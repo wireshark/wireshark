@@ -33,7 +33,7 @@
 #endif
 
 #include <epan/prefs.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/disabled_protos.h>
 
 #include "ui/util.h"

@@ -43,6 +43,7 @@
 
 #include <wsutil/tempfile.h>
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 
 #include <wiretap/merge.h>
 
@@ -53,7 +54,6 @@
 #include <epan/packet.h>
 #include <epan/column-utils.h>
 #include <epan/expert.h>
-#include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>

@@ -43,7 +43,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/eap.h>
 
 #include "wimaxasncp_dict.h"

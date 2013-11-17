@@ -35,7 +35,7 @@
 
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <epan/prefs.h>
 #include "ui/util.h"

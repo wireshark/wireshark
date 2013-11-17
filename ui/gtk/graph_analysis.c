@@ -48,7 +48,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/addr_resolv.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "ui/util.h"
 

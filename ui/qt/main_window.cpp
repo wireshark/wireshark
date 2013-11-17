@@ -27,7 +27,7 @@
 #include "globals.h"
 
 #include <epan/epan_dissect.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 

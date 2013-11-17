@@ -24,7 +24,7 @@
 #include "config.h"
 #include <glib.h>
 
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 #include "epan/prefs.h"
 
 #include "ui/profile.h"

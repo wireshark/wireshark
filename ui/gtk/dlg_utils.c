@@ -34,7 +34,7 @@
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/old-gtk-compat.h"
 
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 
 
 static void

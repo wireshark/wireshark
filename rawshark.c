@@ -66,10 +66,10 @@
 #include <glib.h>
 #include <epan/epan-int.h>
 #include <epan/epan.h>
-#include <epan/filesystem.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 
 #include "globals.h"
 #include <epan/packet.h>

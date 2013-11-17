@@ -747,7 +747,6 @@ endif()
 
 set(WTAP_PLUGIN_SOURCES
 	epan/plugins.c
-	epan/filesystem.c
 )
 
 set(SHARK_COMMON_CAPTURE_SRC

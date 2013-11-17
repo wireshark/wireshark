@@ -51,9 +51,9 @@
 #include <glib.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
 #include "globals.h"
 
-#include <epan/filesystem.h>
 #include <epan/strutil.h>
 
 #include "fileset.h"

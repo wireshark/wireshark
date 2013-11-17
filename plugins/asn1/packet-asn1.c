@@ -76,7 +76,7 @@
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/oids.h>
 #include <epan/emem.h>

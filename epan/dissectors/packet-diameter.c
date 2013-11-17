@@ -52,7 +52,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/wmem/wmem.h>

@@ -31,7 +31,7 @@
 
 #include <gtk/gtk.h>
 
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 
 #include "ui/simple_dialog.h"
 #include <wsutil/file_util.h>

@@ -52,6 +52,7 @@ set(WSUTIL_FILES
   crcdrm.c
   des.c
   eax.c
+  filesystem.c
   g711.c
   md4.c
   md5.c
@@ -121,3 +122,17 @@ if(NOT ${ENABLE_STATIC})
 	)
 endif()
 
+add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

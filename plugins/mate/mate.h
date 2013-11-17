@@ -50,7 +50,7 @@
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "mate_util.h"
 

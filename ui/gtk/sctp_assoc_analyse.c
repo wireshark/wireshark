@@ -27,7 +27,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/epan_dissect.h>
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 

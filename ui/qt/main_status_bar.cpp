@@ -26,7 +26,7 @@
 #include <glib.h>
 
 #include "epan/expert.h"
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 
 #include "ui/main_statusbar.h"
 #include "ui/profile.h"

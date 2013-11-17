@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/frequency-utils.h>

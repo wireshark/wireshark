@@ -40,7 +40,7 @@
 #include "../file.h"
 
 #include <epan/prefs.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/strutil.h>
 #include <epan/proto.h>
 

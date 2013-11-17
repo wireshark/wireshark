@@ -1480,7 +1480,6 @@ set(LIBWIRESHARK_FILES
 	except.c
 	expert.c
 	exported_pdu.c
-	filesystem.c
 	filter_expressions.c
 	follow.c
 	frame_data.c
@@ -1681,8 +1680,6 @@ if(NOT ${ENABLE_STATIC})
 		ARCHIVE DESTINATION lib
 	)
 endif()
-
-add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

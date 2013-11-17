@@ -47,7 +47,7 @@
 
 #include <wsutil/file_util.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include "ui/last_open_dir.h"
 #include "ui/util.h"

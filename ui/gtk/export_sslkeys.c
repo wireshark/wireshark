@@ -45,7 +45,7 @@
 # include <gdk/gdkkeysyms-compat.h>
 #endif
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <epan/charsets.h>

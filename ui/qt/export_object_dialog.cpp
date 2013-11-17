@@ -32,7 +32,7 @@
 
 #include <ui/alert_box.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 
 #include <wsutil/str_util.h>
 

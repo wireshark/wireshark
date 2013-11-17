@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 
 #include <epan/packet.h>

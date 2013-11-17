@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/strutil.h>
 #include <epan/frequency-utils.h>
 #include <epan/crypt/airpdcap_ws.h>

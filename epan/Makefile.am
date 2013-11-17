@@ -62,8 +62,7 @@ include Makefile.common
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) -I$(builddir)/wslua \
 	@LUA_INCLUDES@ $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) \
-	$(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) $(PY_CFLAGS) \
-	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"
+	$(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) $(PY_CFLAGS)
 
 AM_NON_GENERATED_CFLAGS =-DWS_BUILD_DLL
 

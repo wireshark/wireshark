@@ -26,7 +26,7 @@
 
 #include <gtk/gtk.h>
 
-#include "epan/filesystem.h"
+#include "wsutil/filesystem.h"
 
 #include "../globals.h"
 #include "ui/simple_dialog.h"

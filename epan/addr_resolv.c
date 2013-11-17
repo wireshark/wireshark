@@ -122,7 +122,7 @@
 #include "addr_and_mask.h"
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
-#include "filesystem.h"
+#include "wsutil/filesystem.h"
 
 #include <wsutil/report_err.h>
 #include <wsutil/file_util.h>

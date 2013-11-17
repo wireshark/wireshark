@@ -50,7 +50,7 @@ wslua_plugin *wslua_plugin_list = NULL;
 #include <unistd.h>
 #endif
 
-#include "filesystem.h"
+#include "wsutil/filesystem.h"
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_err.h>

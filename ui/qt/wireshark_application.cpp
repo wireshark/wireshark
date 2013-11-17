@@ -23,7 +23,7 @@
 
 #include "wireshark_application.h"
 
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/timestamp.h>
 #include <epan/disabled_protos.h>
 

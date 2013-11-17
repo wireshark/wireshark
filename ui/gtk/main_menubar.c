@@ -44,7 +44,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
-#include <epan/filesystem.h>
+#include <wsutil/filesystem.h>
 #include <epan/print.h>
 
 #include "cfile.h"
