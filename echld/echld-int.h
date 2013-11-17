@@ -70,7 +70,6 @@
 #include "cfile.h"
 #include "wsutil/crash_info.h"
 #include "wsutil/privileges.h"
-#include "epan/filesystem.h"
 #include "epan/epan.h"
 #include "epan/prefs.h"
 #include "epan/ex-opt.h"
