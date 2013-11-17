@@ -205,14 +205,6 @@ WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, gboolean from_pr
 WS_DLL_PUBLIC const char *get_persdatafile_dir(void);
 
 /*
- * Construct the path name of a file in $TMP/%TEMP% directory.
- * Or "/tmp/<filename>" (C:\<filename>) if that fails.
- *
- * Return value is g_malloced so the caller should g_free it.
- */
-WS_DLL_PUBLIC char *get_tempfile_path(const char *filename);
-
-/*
  * process command line option belonging to the filesystem settings
  */
 WS_DLL_PUBLIC int filesystem_opt(int opt, const char *optstr);

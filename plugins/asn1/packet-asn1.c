@@ -71,12 +71,13 @@
 
 #include <wsutil/report_err.h>
 #include <wsutil/file_util.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/tempfile.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <wsutil/filesystem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/oids.h>
 #include <epan/emem.h>

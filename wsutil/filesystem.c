@@ -1896,15 +1896,6 @@ deletefile(const char *path)
 }
 
 /*
- * Construct and return the path name of a file in the
- * appropriate temporary file directory.
- */
-char *get_tempfile_path(const char *filename)
-{
-    return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
-}
-
-/*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */

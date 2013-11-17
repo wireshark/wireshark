@@ -146,6 +146,15 @@ mkdtemp (char *template)
 
 #endif /* HAVE_MKDTEMP */
 
+/*
+ * Construct and return the path name of a file in the
+ * appropriate temporary file directory.
+ */
+char *get_tempfile_path(const char *filename)
+{
+    return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
+}
+
 #define MAX_TEMPFILES   3
 
 /**
@@ -200,9 +209,6 @@ create_tempfile(char **namebuf, const char *pfx)
 		tf[idx].path = (char *)g_malloc(tf[idx].len);
 	}
 
-	/*
-	 * We can't use get_tempfile_path here because we're called from dumpcap.c.
-	 */
 	tmp_dir = g_get_tmp_dir();
 
 #ifdef _WIN32
