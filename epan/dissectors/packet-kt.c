@@ -165,8 +165,8 @@ dissect_kt_replication_wait(tvbuff_t *tvb, proto_tree *tree)
     offset = 1;
 
     ts = tvb_get_ntoh64(tvb, offset);
-    ns_ts.secs = ts / 1000000000;
-    ns_ts.nsecs = ts % 1000000000;
+    ns_ts.secs = (time_t)(ts/1000000000);
+    ns_ts.nsecs = (int)(ts%1000000000);
     proto_tree_add_time(tree, hf_kt_ts, tvb, offset, 8, &ns_ts);
     offset += 8;
 
@@ -198,8 +198,8 @@ dissect_kt_replication(tvbuff_t *tvb, proto_tree *tree)
             offset += 2;
         } else { /* This is a response. The 32 bits are the first half of the ts */
             ts = tvb_get_ntoh64(tvb, offset);
-            ns_ts.secs = ts / 1000000000;
-            ns_ts.nsecs = ts % 1000000000;
+            ns_ts.secs = (time_t)(ts/1000000000);
+            ns_ts.nsecs = (int)(ts%1000000000);
             proto_tree_add_time(tree, hf_kt_ts, tvb, offset, 8, &ns_ts);
             offset += 8;
 
@@ -492,7 +492,7 @@ dissect_kt_get_bulk(tvbuff_t *tvb, proto_tree *tree)
             offset += 4;
 
             xt = tvb_get_ntoh64(tvb, offset);
-            ts.secs = xt&0xFFFFFFFF;
+            ts.secs = (time_t)(xt&0xFFFFFFFF);
             ts.nsecs = 0;
             proto_tree_add_time(rec_tree, hf_kt_xt_resp, tvb, offset, 8, &ts);
             offset += 8;
