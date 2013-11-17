@@ -842,6 +842,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-klm.c
 	dissectors/packet-knet.c
 	dissectors/packet-kpasswd.c
+	dissectors/packet-kt.c
 	dissectors/packet-l1-events.c
 	dissectors/packet-l2tp.c
 	dissectors/packet-lanforge.c

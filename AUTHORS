@@ -2712,6 +2712,7 @@ Abhik Sarkar 		<sarkar.abhik[AT]gmail.com> {
 	SMPP update to v5.0
 	Diameter conversations and statistics
 	UAT for unknown HTTP headers
+	Kyoto Tycoon (binary protocol) dissector
 }
 
 Robin Seggelmann	<seggelmann[AT]fh-muenster.de> {

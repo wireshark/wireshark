@@ -764,6 +764,7 @@ DISSECTOR_SRC = \
 	packet-klm.c		\
 	packet-knet.c		\
 	packet-kpasswd.c	\
+	packet-kt.c		\
 	packet-l1-events.c	\
 	packet-l2tp.c		\
 	packet-lanforge.c	\
