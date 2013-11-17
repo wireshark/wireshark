@@ -188,7 +188,7 @@ rtpptoxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint re
 	}
 	else{
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_tag, tvb, begin, new_offset - begin, ENC_ASCII | ENC_NA);
-		if (new_offset == begin)
+		if ((guint)new_offset == begin)
 			proto_item_append_text(ti, "<skipped>"); /* A very first Offer/Update command */
 		another_tree = proto_item_add_subtree(ti, ett_rtpproxy_tag);
 		proto_tree_add_item(another_tree, hf_rtpproxy_mediaid, tvb, new_offset+1, end - (new_offset+1), ENC_ASCII | ENC_NA);
