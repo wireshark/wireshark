@@ -1606,6 +1606,7 @@ icp              1112/tcp # Intelligent Communication Protocol [Mark_H_David] [M
 icp              1112/udp # Intelligent Communication Protocol [Mark_H_David] [Mark_H_David]
 ltp-deepspace    1113/tcp # Licklider Transmission Protocol [RFC5326]
 ltp-deepspace    1113/udp # Licklider Transmission Protocol [RFC5326]
+ltp-deepspace    1113/dccp # Licklider Transmission Protocol [Hans_Kruse] [Hans_Kruse] 2013-11-12 [draft-irtf-dtnrg-dgram-clayer] 7107696
 mini-sql         1114/tcp # Mini SQL [David_Hughes] [David_Hughes]
 mini-sql         1114/udp # Mini SQL [David_Hughes] [David_Hughes]
 ardus-trns       1115/tcp # ARDUS Transfer
@@ -8010,6 +8011,7 @@ rsip             4555/tcp # RSIP Port [RFC3103]
 rsip             4555/udp # RSIP Port [RFC3103]
 dtn-bundle-tcp   4556/tcp # DTN Bundle TCP CL Protocol
 dtn-bundle-udp   4556/udp # DTN Bundle UDP CL Protocol [Michael_Demmer] [Michael_Demmer] 2006-11
+dtn-bundle-dccp  4556/dccp # DTN Bundle DCCP CL Protocol [Hans_Kruse] [Hans_Kruse] 2013-11-12 [draft-irtf-dtnrg-dgram-clayer] 1685351985
 mtcevrunqss      4557/udp # Marathon everRun Quorum Service Server [David_Schwartz_2] [David_Schwartz_2] 2009-06-18
 mtcevrunqman     4558/udp # Marathon everRun Quorum Service Manager [David_Schwartz_2] [David_Schwartz_2] 2009-06-18
 hylafax          4559/tcp # HylaFAX [Lee_Howard] [Lee_Howard] 2002-03
