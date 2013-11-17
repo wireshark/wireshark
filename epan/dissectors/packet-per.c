@@ -1271,7 +1271,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			i = i-1;
 
 		num_bits = i;
-		length=1;
+		length=(num_bits+7)>>3;
 		if(range<=2){
 			num_bits=1;
 		}
