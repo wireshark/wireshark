@@ -5487,6 +5487,7 @@ class BitStringType (Type):
 
     def eth_type_default_pars(self, ectx, tname):
         pars = Type.eth_type_default_pars(self, ectx, tname)
+        pars['LEN_PTR'] = 'NULL'
         (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
         if 'ETT_INDEX' not in pars:
             pars['ETT_INDEX'] = '-1'
@@ -5539,7 +5540,7 @@ class BitStringType (Type):
             else:
                 body = ectx.eth_fn_call('dissect_%(ER)s_bit_string', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s'),))
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s', '%(LEN_PTR)s'),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body

@@ -85,7 +85,7 @@ static gint ett_mpeg_audio_ID3v1 = -1;
 static int
 dissect_mpeg_audio_BIT_STRING_SIZE_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     11, 11, FALSE, NULL);
+                                     11, 11, FALSE, NULL, NULL);
 
   return offset;
 }

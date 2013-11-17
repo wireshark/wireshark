@@ -268,7 +268,7 @@ dissect_h235_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_h235_KeyMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 2048, FALSE, NULL);
+                                     1, 2048, FALSE, NULL, NULL);
 
   return offset;
 }
@@ -312,7 +312,7 @@ dissect_h235_NonStandardParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h235_BIT_STRING_SIZE_0_2048(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     0, 2048, FALSE, NULL);
+                                     0, 2048, FALSE, NULL, NULL);
 
   return offset;
 }
@@ -338,7 +338,7 @@ dissect_h235_DHset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_h235_BIT_STRING_SIZE_0_511(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     0, 511, FALSE, NULL);
+                                     0, 511, FALSE, NULL, NULL);
 
   return offset;
 }
@@ -571,7 +571,7 @@ dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h235_BIT_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
 
   return offset;
 }

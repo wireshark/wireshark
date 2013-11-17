@@ -2080,7 +2080,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	return out_tvb;
 }
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb, int *len)
 {
 	/*gint val_start, val_length;*/
 	guint32 length;
@@ -2094,6 +2094,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	if(max_len==0) {
 		if (value_tvb)
 			*value_tvb = out_tvb;
+		if (len)
+			*len = 0;
 		return offset;
 	}
 
@@ -2124,6 +2126,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 			if (value_tvb)
 				*value_tvb = out_tvb;
+			if (len)
+				*len = length;
 
 			return offset;
 		 }
@@ -2135,6 +2139,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		offset+=min_len;
 		if (value_tvb)
 			*value_tvb = out_tvb;
+		if (len)
+			*len = min_len;
 		return offset;
 	}
 
@@ -2151,6 +2157,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		offset+=min_len;
 		if (value_tvb)
 			*value_tvb = out_tvb;
+		if (len)
+			*len = min_len;
 		return offset;
 	}
 
@@ -2177,6 +2185,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	if (value_tvb)
 		*value_tvb = out_tvb;
+	if (len)
+		*len = length;
 
 	return offset;
 }
@@ -2186,7 +2196,7 @@ guint32 dissect_per_bit_string_containing_pdu(tvbuff_t *tvb, guint32 offset, asn
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
 
-	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb);
+	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb, NULL);
 
 	if (type_cb && val_tvb) {
 		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
@@ -2201,7 +2211,7 @@ guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset,
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
 
-	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb);
+	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb, NULL);
 
 	if (type_cb && val_tvb) {
 		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
@@ -2466,7 +2476,7 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_t
 static int
 dissect_per_T_arbitrary(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary);
+                                     NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary, NULL);
 
   if (actx->external.arbitrary) {
     if (actx->external.u.per.type_cb) {
