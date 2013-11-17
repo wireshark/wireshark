@@ -183,12 +183,12 @@ rtpptoxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint re
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_tag, tvb, begin, end - begin, ENC_ASCII | ENC_NA);
 		another_tree = proto_item_add_subtree(ti, ett_rtpproxy_tag);
 		ti = proto_tree_add_item(another_tree, hf_rtpproxy_mediaid, tvb, new_offset+1, 0, ENC_ASCII | ENC_NA);
-		proto_item_set_text(ti, "Media-ID: <skipped>");
+		proto_item_append_text(ti, "<skipped>");
 	}
 	else{
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_tag, tvb, begin, new_offset - begin, ENC_ASCII | ENC_NA);
 		if (new_offset == begin)
-			proto_item_set_text(ti, "Tag: <skipped>"); /* A very first Offer/Update command */
+			proto_item_append_text(ti, "<skipped>"); /* A very first Offer/Update command */
 		another_tree = proto_item_add_subtree(ti, ett_rtpproxy_tag);
 		proto_tree_add_item(another_tree, hf_rtpproxy_mediaid, tvb, new_offset+1, end - (new_offset+1), ENC_ASCII | ENC_NA);
 	}
@@ -244,7 +244,7 @@ rtpptoxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, 
 	if(new_offset == -1){
 		/* Only port is supplied */
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, ENC_ASCII | ENC_NA);
-		proto_item_set_text(ti, "Notification IPv4: <skipped>");
+		proto_item_append_text(ti, "<skipped>");
 		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin, ENC_ASCII | ENC_NA);
 	}
 	else{
