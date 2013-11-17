@@ -1120,7 +1120,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     proto_item       *fmdata_item, *fmdata_ai_item=NULL, *fmdata_dig_item=NULL, *fmdata_ai_ch_item=NULL, *fmdata_dig_ch_item=NULL;
     proto_tree       *fmdata_tree, *fmdata_ai_tree=NULL, *fmdata_dig_tree=NULL, *fmdata_ai_ch_tree=NULL, *fmdata_dig_ch_tree=NULL;
     guint8           len, i=0, j=0, ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec;
-    guint16          config_cmd, ts_msec, ai_int16val;
+    guint16          config_cmd, ts_msec;
+    gint16           ai_int16val;
     gfloat           ai_fpval, ai_sf_fp;
     gdouble          ai_fpd_val;
     gboolean         config_found = FALSE;
