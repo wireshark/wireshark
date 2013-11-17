@@ -985,8 +985,8 @@ init_wspython_dir(void)
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-        wspython_dir = g_strdup_printf("%s\\python\\%s", get_datafile_dir(),
-                                        VERSION);
+    wspython_dir = g_strdup_printf("%s\\python\\%s", get_datafile_dir(),
+                                   VERSION);
 
     /*
      * Make sure that pathname refers to a directory.
