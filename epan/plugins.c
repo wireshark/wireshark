@@ -71,7 +71,7 @@ static void register_all_codecs(void);
 static int
 add_plugin(void *handle, gchar *name, gchar *version,
            void (*register_protoinfo)(void),
-	   void (*reg_handoff)(void),
+           void (*reg_handoff)(void),
            void (*register_tap_listener)(void),
            void (*register_wtap_module)(void),
            void (*register_codec_module)(void))
@@ -83,7 +83,7 @@ add_plugin(void *handle, gchar *name, gchar *version,
     {
         new_plug = (plugin *)g_malloc(sizeof(plugin));
         if (new_plug == NULL)
-	    return ENOMEM;
+            return ENOMEM;
         plugin_list = new_plug;
     }
     else
@@ -99,13 +99,13 @@ add_plugin(void *handle, gchar *name, gchar *version,
 
             /* we found the last plugin in the list */
             if (pt_plug->next == NULL)
-	        break;
+                break;
 
             pt_plug = pt_plug->next;
         }
         new_plug = (plugin *)g_malloc(sizeof(plugin));
         if (new_plug == NULL)
-	    return ENOMEM;
+            return ENOMEM;
         pt_plug->next = new_plug;
     }
 
@@ -508,7 +508,7 @@ register_all_codecs(void)
     }
 }
 
-#endif	/* big HAVE_PLUGINS */
+#endif /* big HAVE_PLUGINS */
 
 /*
  * Dump plugin info to stdout. Copied from ui/gtk/plugins_dlg.c:plugins_scan.
@@ -529,7 +529,7 @@ plugins_dump_all(void)
     {
         sep = "";
 
-	printf("%s\t%s\t", pt_plug->name, pt_plug->version);
+        printf("%s\t%s\t", pt_plug->name, pt_plug->version);
         if (pt_plug->register_protoinfo)
         {
             printf("dissector");
@@ -549,7 +549,7 @@ plugins_dump_all(void)
         {
             printf("%scodec", sep);
         }
-	printf("\t%s\n", g_module_name(pt_plug->handle));
+        printf("\t%s\n", g_module_name(pt_plug->handle));
     }
 #endif
 
@@ -561,3 +561,15 @@ plugins_dump_all(void)
 #endif
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
