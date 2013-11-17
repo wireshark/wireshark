@@ -35,18 +35,17 @@ cmake_policy(SET CMP0011 OLD)
 # Policy since 2.8.1
 #cmake_policy(SET CMP0015 NEW)
 # Policy since 2.8.11
-if( ${CMAKE_MAJOR_VERSION} GREATER 2 OR
-    ${CMAKE_MINOR_VERSION} GREATER 8 OR
-    (${CMAKE_MINOR_VERSION} EQUAL 8 AND ${CMAKE_PATCH_VERSION} GREATER 10) )
+if( ${CMAKE_MAJOR_VERSION} GREATER 2 OR ${CMAKE_MINOR_VERSION} GREATER 8 OR
+	(${CMAKE_MINOR_VERSION} EQUAL 8 AND ${CMAKE_PATCH_VERSION} GREATER 10) )
 	# Don't: Automatically link Qt executable to qtmain target on Windows
 	cmake_policy(SET CMP0020 OLD)
 endif()
 
 # This cannot be implemented via option(...)
 if( NOT CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
+	set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+		FORCE)
 endif()
 message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
 message(STATUS "${CMAKE_BUILD_TYPE}: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
@@ -133,117 +132,117 @@ endif()
 include(CMakeOptions.txt)
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    set(LOCAL_CFLAGS
-        /Zi
-        /W3
-        /MDd
-        /DWIN32_LEAN_AND_MEAN
-        "/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
-        /D_CRT_SECURE_NO_DEPRECATE
-        /D_CRT_NONSTDC_NO_DEPRECATE
-        /MP
-	# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
-	# This avoids conflicts with the C++ standard library.
-	/DNOMINMAX
-    )
+	set(LOCAL_CFLAGS
+		/Zi
+		/W3
+		/MDd
+		/DWIN32_LEAN_AND_MEAN
+		"/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
+		/D_CRT_SECURE_NO_DEPRECATE
+		/D_CRT_NONSTDC_NO_DEPRECATE
+		/MP
+		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
+		# This avoids conflicts with the C++ standard library.
+		/DNOMINMAX
+	)
 
-    if(NOT WIN64)
-        set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
-    endif()
+	if(NOT WIN64)
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
+	endif()
 
-    # Additional compiler warnings to be treated as "Level 3"
-    #  when compiling Wireshark sources. (Selected from "level 4" warnings).
-    ## 4295: array is too small to include a terminating null character
-    set(WARNINGS_CFLAGS "/w34295")
+	# Additional compiler warnings to be treated as "Level 3"
+	#  when compiling Wireshark sources. (Selected from "level 4" warnings).
+	## 4295: array is too small to include a terminating null character
+	set(WARNINGS_CFLAGS "/w34295")
 
-    set(WIRESHARK_C_FLAGS
-	# FIXME: This doen't work as PCAP_VERSION will be determined later
-        "/DPCAP_VERSION=${PCAP_VERSION}"
-        ${LOCAL_CFLAGS}
-        ${WARNINGS_CFLAGS}
-    )
+	set(WIRESHARK_C_FLAGS
+		# FIXME: This doen't work as PCAP_VERSION will be determined later
+		"/DPCAP_VERSION=${PCAP_VERSION}"
+		${LOCAL_CFLAGS}
+		${WARNINGS_CFLAGS}
+	)
 else()
-    set(WIRESHARK_C_FLAGS
-	# -O<X> and -g get set by the CMAKE_BUILD_TYPE
-        -Wall
-        -W
-        -Wextra
-        -Wendif-labels
-        -Wpointer-arith
-        -Warray-bounds
-        -Wformat-security
-        -Wshorten-64-to-32
-        -Wvla
-        -Waddress
-        -Warray-bounds
-        -Wattributes
-        -Wdiv-by-zero
-        -Wignored-qualifiers
-        -Wno-overlength-strings
-        -Wwrite-strings
-        -Wno-long-long
-        -Wpragmas
-    )
+	set(WIRESHARK_C_FLAGS
+		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
+		-Wall
+		-W
+		-Wextra
+		-Wendif-labels
+		-Wpointer-arith
+		-Warray-bounds
+		-Wformat-security
+		-Wshorten-64-to-32
+		-Wvla
+		-Waddress
+		-Warray-bounds
+		-Wattributes
+		-Wdiv-by-zero
+		-Wignored-qualifiers
+		-Wno-overlength-strings
+		-Wwrite-strings
+		-Wno-long-long
+		-Wpragmas
+	)
 
-    set(WIRESHARK_C_ONLY_FLAGS
-        # The following are C only, not C++
-        -Wc++-compat
-        -Wdeclaration-after-statement
-        -Wshadow
-        -Wno-pointer-sign
-        -Wold-style-definition
-        -Wstrict-prototypes
-        -Wlogical-op
-        -Wjump-misses-init
-    )
+	set(WIRESHARK_C_ONLY_FLAGS
+		# The following are C only, not C++
+		-Wc++-compat
+		-Wdeclaration-after-statement
+		-Wshadow
+		-Wno-pointer-sign
+		-Wold-style-definition
+		-Wstrict-prototypes
+		-Wlogical-op
+		-Wjump-misses-init
+	)
 
-    set(WIRESHARK_EXTRA_C_FLAGS
-        -pedantic
-        -Woverflow
-        -fstrict-overflow -Wstrict-overflow=4
-        -Wunreachable-code
-        -Wunsafe-loop-optimizations
-        -Wcast-align
-        -Wcast-qual
-        -Wformat-security
-        -Wredundant-decls
-        # All the registration functions block these for now.
-        -Wmissing-declarations
-    )
+	set(WIRESHARK_EXTRA_C_FLAGS
+		-pedantic
+		-Woverflow
+		-fstrict-overflow -Wstrict-overflow=4
+		-Wunreachable-code
+		-Wunsafe-loop-optimizations
+		-Wcast-align
+		-Wcast-qual
+		-Wformat-security
+		-Wredundant-decls
+		# All the registration functions block these for now.
+		-Wmissing-declarations
+	)
 
-    set(WIRESHARK_EXTRA_C_ONLY_FLAGS
-        # The following are C only, not C++
-        -Wbad-function-cast
-        # All the registration functions block these for now.
-        -Wmissing-prototypes
-    )
+	set(WIRESHARK_EXTRA_C_ONLY_FLAGS
+		# The following are C only, not C++
+		-Wbad-function-cast
+		# All the registration functions block these for now.
+		-Wmissing-prototypes
+	)
 
-    # With clang some tests don't fail properly during testing but only
-    # during real compiles
+	# With clang some tests don't fail properly during testing but only
+	# during real compiles
 
-    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
-            -Qunused-arguments
-            #-fcolor-diagnostics
-        )
-    else()
-        set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
-            -fexcess-precision=fast
-        )
+	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
+			-Qunused-arguments
+			#-fcolor-diagnostics
+	)
+	else()
+		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
+			-fexcess-precision=fast
+		)
 
-        set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
-        )
-    endif()
+		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
+		)
+	endif()
 
-    if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
-        set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
-        set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
-    endif()
+	if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
+		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
+		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
+	endif()
 
-    add_definitions(
-        -DG_DISABLE_DEPRECATED
-        -DG_DISABLE_SINGLE_INCLUDES
-    )
+	add_definitions(
+		-DG_DISABLE_DEPRECATED
+		-DG_DISABLE_SINGLE_INCLUDES
+	)
 endif()
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
@@ -435,9 +434,9 @@ endif()
 
 
 # Prefer c-ares over adns
-if(ENABLE_CARES)        # C Asynchronouse resolver
+if(ENABLE_CARES) # C Asynchronouse resolver
 	set(PACKAGELIST ${PACKAGELIST} CARES)
-elseif(ENABLE_ADNS)     # Gnu asynchronous DNS
+elseif(ENABLE_ADNS) # Gnu asynchronous DNS
 	set(PACKAGELIST ${PACKAGELIST} ADNS)
 endif()
 
@@ -938,7 +937,7 @@ if(BUILD_qtshark AND QT_FOUND)
 endif()
 
 register_tap_files(tshark-tap-register.c
-        tshark-taps
+		tshark-taps
 	${TSHARK_TAP_SRC}
 )
 
@@ -956,7 +955,7 @@ if(BUILD_tshark)
 		tshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
-	        ${WIRESHARK_COMMON_SRC}
+		${WIRESHARK_COMMON_SRC}
 	)
 	add_executable(tshark ${tshark_FILES})
 	add_dependencies(tshark svnversion)
@@ -973,7 +972,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(rawshark_FILES
-	        ${WIRESHARK_COMMON_SRC}
+		${WIRESHARK_COMMON_SRC}
 		rawshark.c
 		ui/util.c
 	)
