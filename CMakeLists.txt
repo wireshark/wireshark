@@ -1304,6 +1304,11 @@ install(
 	PATTERN "faq.py" EXCLUDE
 )
 
+include( UseCheckAPI )
+CHECKAPI(
+                  ${TSHARK_TAP_SRC}
+                  ${wireshark_FILES}
+)
 
 if(DOC_DIR)
 	message(STATUS "Docdir install: ${DOC_DIR}")
