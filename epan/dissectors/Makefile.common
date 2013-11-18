@@ -267,6 +267,7 @@ DISSECTOR_SRC = \
 	packet-aim.c		\
 	packet-ajp13.c		\
 	packet-alcap.c		\
+	packet-alljoyn.c	\
 	packet-amqp.c		\
 	packet-amr.c		\
 	packet-ancp.c		\

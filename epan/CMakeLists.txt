@@ -347,6 +347,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-aim.c
 	dissectors/packet-ajp13.c
 	dissectors/packet-alcap.c
+	dissectors/packet-alljoyn.c
 	dissectors/packet-amqp.c
 	dissectors/packet-amr.c
 	dissectors/packet-ancp.c
