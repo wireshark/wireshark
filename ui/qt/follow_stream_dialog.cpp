@@ -28,7 +28,6 @@
 #include "wireshark_application.h"
 
 #include "epan/follow.h"
-#include "epan/dissectors/packet-ipv6.h"
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/prefs.h"
 #include "epan/charsets.h"
@@ -47,8 +46,6 @@
 #include "ws_symbol_export.h"
 
 #include "color_utils.h"
-#include "qt_ui_utils.h"
-#include "wireshark_application.h"
 
 #include "file.h"
 
