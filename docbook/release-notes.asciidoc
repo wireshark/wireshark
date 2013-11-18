@@ -26,7 +26,7 @@ The following bugs have been fixed:
 The following features are new (or have been significantly updated)
 since version 1.11.1:
 
-* All sorts of amazing things.
+* Mac OS X packaging has been improved.
 
 The following features are new (or have been significantly updated)
 since version 1.11.0:
