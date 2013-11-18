@@ -223,6 +223,10 @@ static gint hf_ssl_handshake_sig_hash_sig     = -1;
 static gint hf_ssl_handshake_cert_status      = -1;
 static gint hf_ssl_handshake_cert_status_type = -1;
 static gint hf_ssl_handshake_cert_status_len  = -1;
+static gint hf_ssl_handshake_npn_selected_protocol_len = -1;
+static gint hf_ssl_handshake_npn_selected_protocol = -1;
+static gint hf_ssl_handshake_npn_padding_len = -1;
+static gint hf_ssl_handshake_npn_padding = -1;
 static gint hf_ssl_handshake_finished         = -1;
 static gint hf_ssl_handshake_md5_hash         = -1;
 static gint hf_ssl_handshake_sha_hash         = -1;
@@ -643,6 +647,10 @@ static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
                                          proto_tree *tree,
                                          guint32 offset,
                                          packet_info *pinfo);
+
+static void dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb,
+                                        proto_tree *tree,
+                                        const guint32 offset);
 
 /*
  * SSL version 2 dissectors
@@ -1941,6 +1949,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
      *             case certificate_verify:  CertificateVerify;
      *             case client_key_exchange: ClientKeyExchange;
      *             case finished:            Finished;
+     *             case encrypted_extensions:NextProtocolNegotiationEncryptedExtension;
      *         } body;
      *     } Handshake;
      */
@@ -2259,6 +2268,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_CERT_STATUS:
                 dissect_ssl3_hnd_cert_status(tvb, ssl_hand_tree, offset, pinfo);
+                break;
+
+            case SSL_HND_ENCRYPTED_EXTS:
+                dissect_ssl3_hnd_encrypted_exts(tvb, ssl_hand_tree, offset);
                 break;
             }
 
@@ -3753,6 +3766,30 @@ dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
             }
         }
     }
+}
+
+/* based on https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-04 */
+static void
+dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb, proto_tree *tree,
+                             guint32 offset)
+{
+    guint8       selected_protocol_len;
+    guint8       padding_len;
+
+    selected_protocol_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_handshake_npn_selected_protocol_len,
+        tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(tree, hf_ssl_handshake_npn_selected_protocol,
+        tvb, offset, selected_protocol_len, ENC_ASCII|ENC_NA);
+    offset += selected_protocol_len;
+
+    padding_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_handshake_npn_padding_len,
+        tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(tree, hf_ssl_handshake_npn_padding,
+        tvb, offset, padding_len, ENC_NA);
 }
 
 /*********************************************************************
@@ -5747,6 +5784,26 @@ proto_register_ssl(void)
           { "Certificate Status Length", "ssl.handshake.cert_status_len",
             FT_UINT24, BASE_DEC, NULL, 0x0,
             "Length of certificate status", HFILL }
+        },
+        { &hf_ssl_handshake_npn_selected_protocol_len,
+          { "Selected Protocol Length", "ssl.handshake.npn_selected_protocol_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_handshake_npn_selected_protocol,
+          { "Selected Protocol", "ssl.handshake.npn_selected_protocol",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Protocol to be used for connection", HFILL }
+        },
+        { &hf_ssl_handshake_npn_padding_len,
+          { "Padding Length", "ssl.handshake.npn_padding_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_handshake_npn_padding,
+          { "Padding", "ssl.handshake.npn_padding",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_finished,
           { "Verify Data", "ssl.handshake.verify_data",

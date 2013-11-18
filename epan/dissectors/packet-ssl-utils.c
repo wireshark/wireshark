@@ -485,6 +485,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CLIENT_KEY_EXCHG,  "Client Key Exchange" },
     { SSL_HND_FINISHED,          "Finished" },
     { SSL_HND_CERT_STATUS,       "Certificate Status" },
+    { SSL_HND_ENCRYPTED_EXTS,    "Encrypted Extensions" },
     { 0x00, NULL }
 };
 
