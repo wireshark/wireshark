@@ -730,7 +730,7 @@ static expert_field ei_openflow_v4_queue_prop_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_message_undecoded = EI_INIT;
 
 static const value_string openflow_v4_version_values[] = {
-    { 0x04, "1.4" },
+    { 0x04, "1.3" },
     { 0, NULL }
 };
 
@@ -7870,7 +7870,7 @@ proto_register_openflow_v4(void)
     expert_module_t *expert_openflow_v4;
 
     /* Register the protocol name and description */
-    proto_openflow_v4 = proto_register_protocol("OpenFlow 1.4",
+    proto_openflow_v4 = proto_register_protocol("OpenFlow 1.3",
             "openflow_v4", "openflow_v4");
 
     new_register_dissector("openflow_v4", dissect_openflow_v4, proto_openflow_v4);
