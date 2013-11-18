@@ -179,6 +179,9 @@ static gint hf_ssl_handshake_extension_server_name_len = -1;
 static gint hf_ssl_handshake_extension_server_name_list_len = -1;
 static gint hf_ssl_handshake_extension_server_name_type = -1;
 static gint hf_ssl_handshake_extension_server_name = -1;
+static gint hf_ssl_hs_ext_cert_status_type                      = -1;
+static gint hf_ssl_hs_ext_cert_status_responder_id_list_len     = -1;
+static gint hf_ssl_hs_ext_cert_status_request_extensions_len    = -1;
 static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_ssl_handshake_session_ticket_len = -1;
 static gint hf_ssl_handshake_session_ticket = -1;
@@ -316,6 +319,7 @@ static gint ett_ssl_segment           = -1;
 static expert_field ei_ssl_handshake_cipher_suites_mult2 = EI_INIT;
 static expert_field ei_ssl_handshake_sig_hash_algs_mult2 = EI_INIT;
 static expert_field ei_ssl2_handshake_session_id_len_error = EI_INIT;
+static expert_field ei_ssl_hs_ext_cert_status_undecoded = EI_INIT;
 
 
 /* not all of the hf_fields below make sense for SSL but we have to provide
@@ -555,6 +559,9 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    guint *conv_version, guint32 record_length);
 
 /* hello extension dissector */
+static gint dissect_ssl3_hnd_hello_ext_status_request(tvbuff_t *tvb, proto_tree *tree,
+                                                      guint32 offset);
+
 static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
                                                        proto_tree *tree, guint32 offset);
 
@@ -1949,6 +1956,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
      *             case certificate_verify:  CertificateVerify;
      *             case client_key_exchange: ClientKeyExchange;
      *             case finished:            Finished;
+     *             case certificate_status:  CertificateStatus;
      *             case encrypted_extensions:NextProtocolNegotiationEncryptedExtension;
      *         } body;
      *     } Handshake;
@@ -2451,8 +2459,8 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static gint
-dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset, guint32 left)
+dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
+                           guint32 left, gboolean is_client)
 {
     guint16     extension_length;
     guint16     ext_type;
@@ -2492,6 +2500,12 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         offset += 2;
 
         switch (ext_type) {
+        case SSL_HND_HELLO_EXT_STATUS_REQUEST:
+            if (is_client)
+                offset = dissect_ssl3_hnd_hello_ext_status_request(tvb, ext_tree, offset);
+            else
+                offset += ext_len; /* server must return empty extension_data */
+            break;
         case SSL_HND_HELLO_EXT_ELLIPTIC_CURVES:
             offset = dissect_ssl3_hnd_hello_ext_elliptic_curves(tvb, ext_tree, offset);
             break;
@@ -2701,6 +2715,58 @@ dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
 }
 
 static gint
+dissect_ssl3_hnd_hello_ext_status_request(tvbuff_t *tvb, proto_tree *tree,
+                                          guint32 offset)
+{
+    guint    cert_status_type;
+
+    cert_status_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_hs_ext_cert_status_type,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+
+    switch (cert_status_type) {
+    case SSL_HND_CERT_STATUS_TYPE_OCSP:
+        {
+            guint16      responder_id_list_len;
+            guint16      request_extensions_len;
+            proto_item  *responder_id;
+            proto_item  *request_extensions;
+
+            responder_id_list_len = tvb_get_ntohs(tvb, offset);
+            responder_id =
+                proto_tree_add_item(tree,
+                                    hf_ssl_hs_ext_cert_status_responder_id_list_len,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            if (responder_id_list_len != 0) {
+                expert_add_info_format(NULL, responder_id,
+                        &ei_ssl_hs_ext_cert_status_undecoded,
+                        "Responder ID list is not implemented, contact Wireshark"
+                        " developers if you want this to be supported");
+                /* Non-empty responder ID list would mess with extensions. */
+                break;
+            }
+
+            request_extensions_len = tvb_get_ntohs(tvb, offset);
+            request_extensions =
+                proto_tree_add_item(tree,
+                                    hf_ssl_hs_ext_cert_status_request_extensions_len, tvb, offset,
+                                    2, ENC_BIG_ENDIAN);
+            offset += 2;
+            if (request_extensions_len != 0)
+                expert_add_info_format(NULL, request_extensions,
+                        &ei_ssl_hs_ext_cert_status_undecoded,
+                        "Request Extensions are not implemented, contact"
+                        " Wireshark developers if you want this to be supported");
+            break;
+        }
+    }
+
+    return offset;
+}
+
+static gint
 dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
                                            proto_tree *tree, guint32 offset)
 {
@@ -2897,7 +2963,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
         if (length > offset - start_offset)
         {
             dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
-                                       length - (offset - start_offset));
+                                       length - (offset - start_offset), TRUE);
         }
     }
 }
@@ -2972,7 +3038,7 @@ no_cipher:
         if (length > offset - start_offset)
         {
             dissect_ssl3_hnd_hello_ext(tvb, tree, offset,
-                                       length - (offset - start_offset));
+                                       length - (offset - start_offset), FALSE);
         }
     }
 }
@@ -5565,6 +5631,21 @@ proto_register_ssl(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_ssl_hs_ext_cert_status_type,
+          { "Certificate Status Type", "ssl.handshake.extensions_status_request_type",
+            FT_UINT8, BASE_DEC, VALS(tls_cert_status_type), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_status_responder_id_list_len,
+          { "Responder ID list Length", "ssl.handshake.extensions_status_request_responder_ids_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_status_request_extensions_len,
+          { "Request Extensions Length", "ssl.handshake.extensions_status_request_exts_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_ssl_handshake_session_ticket_lifetime_hint,
           { "Session Ticket Lifetime Hint", "ssl.handshake.session_ticket_lifetime_hint",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6096,6 +6177,8 @@ proto_register_ssl(void)
         { &ei_ssl_handshake_cipher_suites_mult2, { "ssl.handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, "Cipher suite length must be a multiple of 2", EXPFILL }},
         { &ei_ssl_handshake_sig_hash_algs_mult2, { "ssl.handshake.sig_hash_alg_len.mult2", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
         { &ei_ssl2_handshake_session_id_len_error, { "ssl.handshake.session_id_length.error", PI_MALFORMED, PI_ERROR, "Session ID length error", EXPFILL }},
+        { &ei_ssl_hs_ext_cert_status_undecoded, { "ssl.handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE,
+          "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL }}
     };
 
     expert_module_t* expert_ssl;

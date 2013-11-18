@@ -1024,7 +1024,7 @@ const value_string tls_hello_extension_types[] = {
     { 2, "client_certificate_url" },
     { 3, "trusted_ca_keys" },
     { 4, "truncated_hmac" },
-    { 5, "status_request" },
+    { SSL_HND_HELLO_EXT_STATUS_REQUEST, "status_request" }, /* RFC 6066 */
     { 6, "user_mapping" },  /* RFC 4681 */
     { 7, "client_authz" },
     { 8, "server_authz" },
