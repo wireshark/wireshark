@@ -1375,7 +1375,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       offset += 2;
       len = tvb_reported_length_remaining(tvb,offset);
       new_tvb = tvb_new_subset(tvb, offset,-1,len);
-      call_dissector(afp_handle, new_tvb, pinfo, tree);
+      call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, aspinfo);
       break;
     case ASPFUNC_WRTCONT:
       proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1427,7 +1427,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       offset += 4;
       len = tvb_reported_length_remaining(tvb,offset);
       new_tvb = tvb_new_subset(tvb, offset,-1,len);
-      call_dissector(afp_handle, new_tvb, pinfo, tree);
+      call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, aspinfo);
       break;
     case ASPFUNC_TICKLE:
     case ASPFUNC_WRTCONT:
