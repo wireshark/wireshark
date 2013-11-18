@@ -181,6 +181,13 @@ static gint hf_ssl_handshake_extension_server_name_type = -1;
 static gint hf_ssl_handshake_extension_server_name = -1;
 static gint hf_ssl_hs_ext_cert_status_type                      = -1;
 static gint hf_ssl_hs_ext_cert_status_request_len               = -1;
+static gint hf_ssl_hs_ext_cert_url_type              = -1;
+static gint hf_ssl_hs_ext_cert_url_url_hash_list_len = -1;
+static gint hf_ssl_hs_ext_cert_url_item              = -1;
+static gint hf_ssl_hs_ext_cert_url_url_len           = -1;
+static gint hf_ssl_hs_ext_cert_url_url               = -1;
+static gint hf_ssl_hs_ext_cert_url_padding           = -1;
+static gint hf_ssl_hs_ext_cert_url_sha1              = -1;
 static gint hf_ssl_hs_ext_cert_status_responder_id_list_len     = -1;
 static gint hf_ssl_hs_ext_cert_status_request_extensions_len    = -1;
 static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
@@ -300,6 +307,7 @@ static gint ett_ssl_extension_alpn    = -1;
 static gint ett_ssl_extension_npn     = -1;
 static gint ett_ssl_extension_reneg_info = -1;
 static gint ett_ssl_extension_server_name = -1;
+static gint ett_ssl_urlhash           = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_sig_hash_algs     = -1;
@@ -653,6 +661,9 @@ static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
                                       const guint32 offset,
                                       const guint *conv_version);
+
+static void dissect_ssl3_hnd_cert_url(tvbuff_t *tvb, proto_tree *tree,
+                                      guint32 offset);
 
 static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
                                          proto_tree *tree,
@@ -1960,6 +1971,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
      *             case certificate_verify:  CertificateVerify;
      *             case client_key_exchange: ClientKeyExchange;
      *             case finished:            Finished;
+     *             case certificate_url:     CertificateURL;
      *             case certificate_status:  CertificateStatus;
      *             case encrypted_extensions:NextProtocolNegotiationEncryptedExtension;
      *         } body;
@@ -2276,6 +2288,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_FINISHED:
                 dissect_ssl3_hnd_finished(tvb, ssl_hand_tree,
                                           offset, conv_version);
+                break;
+
+            case SSL_HND_CERT_URL:
+                dissect_ssl3_hnd_cert_url(tvb, ssl_hand_tree, offset);
                 break;
 
             case SSL_HND_CERT_STATUS:
@@ -2722,6 +2738,64 @@ dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
        }
    }
    return offset;
+}
+
+static void
+dissect_ssl3_hnd_cert_url(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    guint16  url_hash_len;
+
+    /* enum {
+     *     individual_certs(0), pkipath(1), (255)
+     * } CertChainType;
+     *
+     * struct {
+     *     CertChainType type;
+     *     URLAndHash url_and_hash_list<1..2^16-1>;
+     * } CertificateURL;
+     *
+     * struct {
+     *     opaque url<1..2^16-1>;
+     *     unint8 padding;
+     *     opaque SHA1Hash[20];
+     * } URLAndHash;
+     */
+
+    proto_tree_add_item(tree, hf_ssl_hs_ext_cert_url_type,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+
+    url_hash_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_hs_ext_cert_url_url_hash_list_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    while (url_hash_len-- > 0) {
+        proto_item  *urlhash_item;
+        proto_tree  *urlhash_tree;
+        guint16      url_len;
+
+        urlhash_item = proto_tree_add_item(tree, hf_ssl_hs_ext_cert_url_item,
+                                           tvb, offset, -1, ENC_NA);
+        urlhash_tree = proto_item_add_subtree(urlhash_item, ett_ssl_urlhash);
+
+        url_len = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(urlhash_tree, hf_ssl_hs_ext_cert_url_url_len,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(urlhash_tree, hf_ssl_hs_ext_cert_url_url,
+                            tvb, offset, url_len, ENC_ASCII);
+        offset += url_len;
+
+        proto_tree_add_item(urlhash_tree, hf_ssl_hs_ext_cert_url_padding,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+        /* Note: RFC 6066 says that padding must be 0x01 */
+
+        proto_tree_add_item(urlhash_tree, hf_ssl_hs_ext_cert_url_sha1,
+                            tvb, offset, 20, ENC_NA);
+        offset += 20;
+    }
 }
 
 static gint
@@ -5678,6 +5752,41 @@ proto_register_ssl(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_ssl_hs_ext_cert_url_type,
+          { "Certificate Chain Type", "ssl.handshake.cert_url_type",
+            FT_UINT8, BASE_DEC, VALS(tls_cert_chain_type), 0x0,
+            "Certificate Chain Type for Client Certificate URL", HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_url_url_hash_list_len,
+          { "URL and Hash list Length", "ssl.handshake.cert_url.url_hash_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_url_item,
+          { "URL and Hash", "ssl.handshake.cert_url.url_hash",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_url_url_len,
+          { "URL Length", "ssl.handshake.cert_url.url_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_url_url,
+          { "URL", "ssl.handshake.cert_url.url_hash_len",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "URL used to fetch the certificate(s)", HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_url_padding,
+          { "Padding", "ssl.handshake.cert_url.padding",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Padding that MUST be 0x01 for backwards compatibility", HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_url_sha1,
+          { "SHA1 Hash", "ssl.handshake.cert_url.sha1",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SHA1 Hash of the certificate", HFILL }
+        },
         { &hf_ssl_hs_ext_cert_status_type,
           { "Certificate Status Type", "ssl.handshake.extensions_status_request_type",
             FT_UINT8, BASE_DEC, VALS(tls_cert_status_type), 0x0,
@@ -6207,6 +6316,7 @@ proto_register_ssl(void)
         &ett_ssl_extension_npn,
         &ett_ssl_extension_reneg_info,
         &ett_ssl_extension_server_name,
+        &ett_ssl_urlhash,
         &ett_ssl_certs,
         &ett_ssl_cert_types,
         &ett_ssl_sig_hash_algs,

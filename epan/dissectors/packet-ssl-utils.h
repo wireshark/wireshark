@@ -87,6 +87,7 @@
 #define SSL_HND_CERT_VERIFY            15
 #define SSL_HND_CLIENT_KEY_EXCHG       16
 #define SSL_HND_FINISHED               20
+#define SSL_HND_CERT_URL               21
 #define SSL_HND_CERT_STATUS            22
 /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03 and
  * changed in draft 04 */
@@ -161,6 +162,8 @@
 #define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2  0x0011
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
 #define SSL_HND_HELLO_EXT_NPN                0x3374
+#define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
+#define SSL_HND_CERT_URL_TYPE_PKIPATH               2
 #define SSL_HND_CERT_STATUS_TYPE_OCSP        1
 #define SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI  2
 
@@ -196,6 +199,7 @@ extern const value_string tls_hello_extension_types[];
 extern const value_string tls_hash_algorithm[];
 extern const value_string tls_signature_algorithm[];
 extern const value_string tls_certificate_type[];
+extern const value_string tls_cert_chain_type[];
 extern const value_string tls_cert_status_type[];
 extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];

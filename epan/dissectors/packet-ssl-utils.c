@@ -484,6 +484,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CERT_VERIFY,       "Certificate Verify" },
     { SSL_HND_CLIENT_KEY_EXCHG,  "Client Key Exchange" },
     { SSL_HND_FINISHED,          "Finished" },
+    { SSL_HND_CERT_URL,          "Client Certificate URL" },
     { SSL_HND_CERT_STATUS,       "Certificate Status" },
     { SSL_HND_ENCRYPTED_EXTS,    "Encrypted Extensions" },
     { 0x00, NULL }
@@ -1073,6 +1074,11 @@ const value_string tls_certificate_type[] = {
     { 0, "X.509" },
     { 1, "OpenPGP" },
     { 0, NULL }
+};
+
+const value_string tls_cert_chain_type[] = {
+    { SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT,    "Individual Certificates" },
+    { SSL_HND_CERT_URL_TYPE_PKIPATH,            "PKI Path" },
 };
 
 const value_string tls_cert_status_type[] = {
