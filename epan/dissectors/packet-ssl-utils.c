@@ -1079,6 +1079,7 @@ const value_string tls_certificate_type[] = {
 const value_string tls_cert_chain_type[] = {
     { SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT,    "Individual Certificates" },
     { SSL_HND_CERT_URL_TYPE_PKIPATH,            "PKI Path" },
+    { 0, NULL }
 };
 
 const value_string tls_cert_status_type[] = {
