@@ -1036,6 +1036,7 @@ const value_string tls_hello_extension_types[] = {
     { 14, "use_srtp" },
     { SSL_HND_HELLO_EXT_HEARTBEAT, "Heartbeat" },  /* RFC 6520 */
     { SSL_HND_HELLO_EXT_ALPN, "Application Layer Protocol Negotiation" }, /* draft-ietf-tls-applayerprotoneg-01 */
+    { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
     { 35, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
@@ -1075,7 +1076,8 @@ const value_string tls_certificate_type[] = {
 };
 
 const value_string tls_cert_status_type[] = {
-    { SSL_HND_CERT_STATUS_TYPE_OCSP, "OCSP" },
+    { SSL_HND_CERT_STATUS_TYPE_OCSP,            "OCSP" },
+    { SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI,      "OCSP Multi" },
     { 0, NULL }
 };
 

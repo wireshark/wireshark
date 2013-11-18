@@ -180,6 +180,7 @@ static gint hf_ssl_handshake_extension_server_name_list_len = -1;
 static gint hf_ssl_handshake_extension_server_name_type = -1;
 static gint hf_ssl_handshake_extension_server_name = -1;
 static gint hf_ssl_hs_ext_cert_status_type                      = -1;
+static gint hf_ssl_hs_ext_cert_status_request_len               = -1;
 static gint hf_ssl_hs_ext_cert_status_responder_id_list_len     = -1;
 static gint hf_ssl_hs_ext_cert_status_request_extensions_len    = -1;
 static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
@@ -560,7 +561,10 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
 /* hello extension dissector */
 static gint dissect_ssl3_hnd_hello_ext_status_request(tvbuff_t *tvb, proto_tree *tree,
-                                                      guint32 offset);
+                                                      guint32 offset, gboolean has_length);
+
+static gint dissect_ssl3_hnd_hello_ext_status_request_v2(tvbuff_t *tvb,
+                                                         proto_tree *tree, guint32 offset);
 
 static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
                                                        proto_tree *tree, guint32 offset);
@@ -2502,7 +2506,13 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
         switch (ext_type) {
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
             if (is_client)
-                offset = dissect_ssl3_hnd_hello_ext_status_request(tvb, ext_tree, offset);
+                offset = dissect_ssl3_hnd_hello_ext_status_request(tvb, ext_tree, offset, FALSE);
+            else
+                offset += ext_len; /* server must return empty extension_data */
+            break;
+        case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
+            if (is_client)
+                offset = dissect_ssl3_hnd_hello_ext_status_request_v2(tvb, ext_tree, offset);
             else
                 offset += ext_len; /* server must return empty extension_data */
             break;
@@ -2716,7 +2726,7 @@ dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
 
 static gint
 dissect_ssl3_hnd_hello_ext_status_request(tvbuff_t *tvb, proto_tree *tree,
-                                          guint32 offset)
+                                          guint32 offset, gboolean has_length)
 {
     guint    cert_status_type;
 
@@ -2725,8 +2735,15 @@ dissect_ssl3_hnd_hello_ext_status_request(tvbuff_t *tvb, proto_tree *tree,
                         tvb, offset, 1, ENC_NA);
     offset++;
 
+    if (has_length) {
+        proto_tree_add_item(tree, hf_ssl_hs_ext_cert_status_request_len,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
     switch (cert_status_type) {
     case SSL_HND_CERT_STATUS_TYPE_OCSP:
+    case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
         {
             guint16      responder_id_list_len;
             guint16      request_extensions_len;
@@ -2762,6 +2779,21 @@ dissect_ssl3_hnd_hello_ext_status_request(tvbuff_t *tvb, proto_tree *tree,
             break;
         }
     }
+
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_status_request_v2(tvbuff_t *tvb, proto_tree *tree,
+                                             guint32 offset)
+{
+    guint   list_len;
+
+    list_len = tvb_get_ntoh24(tvb, offset);
+    offset += 3;
+
+    while (list_len-- > 0)
+        offset += dissect_ssl3_hnd_hello_ext_status_request(tvb, tree, offset, TRUE);
 
     return offset;
 }
@@ -3781,55 +3813,70 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb,
     }
 }
 
+static guint
+dissect_ssl3_ocsp_response(tvbuff_t *tvb, proto_tree *tree,
+                           guint32 offset, packet_info *pinfo)
+{
+    guint       cert_status_len;
+    proto_item *ti;
+    proto_tree *cert_status_tree;
+
+    cert_status_len  = tvb_get_ntoh24(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_ssl_handshake_cert_status,
+                                    tvb, offset, cert_status_len + 3,
+                                    ENC_NA);
+    cert_status_tree = proto_item_add_subtree(ti, ett_ssl_cert_status);
+
+    proto_tree_add_item(cert_status_tree, hf_ssl_handshake_cert_status_len,
+                        tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    if (cert_status_len > 0) {
+        proto_item *ocsp_resp;
+        proto_tree *ocsp_resp_tree;
+        asn1_ctx_t asn1_ctx;
+
+        ocsp_resp = proto_tree_add_item(cert_status_tree,
+                                        proto_ocsp, tvb, offset,
+                                        cert_status_len, ENC_BIG_ENDIAN);
+        proto_item_set_text(ocsp_resp, "OCSP Response");
+        ocsp_resp_tree = proto_item_add_subtree(ocsp_resp,
+                                                ett_ssl_ocsp_resp);
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx,
+                                  ocsp_resp_tree, -1);
+        offset += cert_status_len;
+    }
+
+    return offset;
+}
+
 static void
 dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
                              guint32 offset, packet_info *pinfo)
 {
     guint8      cert_status_type;
-    guint       cert_status_len;
-    proto_item *ti;
-    proto_tree *cert_status_tree;
 
-    if (tree)
-    {
-        cert_status_type = tvb_get_guint8(tvb, offset);
-        cert_status_len  = tvb_get_ntoh24(tvb, offset+1);
-        tvb_ensure_bytes_exist(tvb, offset, cert_status_len+4);
-        ti = proto_tree_add_none_format(tree, hf_ssl_handshake_cert_status,
-                                        tvb, offset, cert_status_len+4,
-                                        "Certificate Status (%u byte%s)",
-                                        cert_status_len+4,
-                                        plurality(cert_status_len+4, "", "s"));
-        cert_status_tree = proto_item_add_subtree(ti, ett_ssl_cert_status);
-        proto_tree_add_item(cert_status_tree, hf_ssl_handshake_cert_status_type,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_uint(cert_status_tree, hf_ssl_handshake_cert_status_len,
-                            tvb, offset, 3, cert_status_len);
-        offset += 3;
-        if (cert_status_len > 0)
+    cert_status_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl_handshake_cert_status_type,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    switch (cert_status_type) {
+    case SSL_HND_CERT_STATUS_TYPE_OCSP:
+        dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
+        break;
+    case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
         {
-            switch (cert_status_type) {
-            case SSL_HND_CERT_STATUS_TYPE_OCSP:
-                {
-                    proto_item *ocsp_resp;
-                    proto_tree *ocsp_resp_tree;
-                    asn1_ctx_t asn1_ctx;
+            guint   list_len;
 
-                    ocsp_resp = proto_tree_add_item(cert_status_tree,
-                                                    proto_ocsp, tvb, offset,
-                                                    cert_status_len, ENC_BIG_ENDIAN);
-                    proto_item_set_text(ocsp_resp, "OCSP Response");
-                    ocsp_resp_tree = proto_item_add_subtree(ocsp_resp,
-                                                            ett_ssl_ocsp_resp);
-                    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-                    dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx,
-                                              ocsp_resp_tree, -1);
-                    break;
-                }
-            default:
-                break;
-            }
+            list_len = tvb_get_ntoh24(tvb, offset);
+            offset += 3;
+
+            while (list_len-- > 0)
+                offset += dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
+
+            break;
         }
     }
 }
@@ -5634,6 +5681,11 @@ proto_register_ssl(void)
         { &hf_ssl_hs_ext_cert_status_type,
           { "Certificate Status Type", "ssl.handshake.extensions_status_request_type",
             FT_UINT8, BASE_DEC, VALS(tls_cert_status_type), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_hs_ext_cert_status_request_len,
+          { "Certificate Status Length", "ssl.handshake.extensions_status_request_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ssl_hs_ext_cert_status_responder_id_list_len,
