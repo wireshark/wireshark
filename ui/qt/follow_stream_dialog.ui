@@ -58,40 +58,15 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Charset</string>
+        <string>Show data as</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QComboBox" name="cbCharset">
        <property name="currentIndex">
-        <number>4</number>
+        <number>-1</number>
        </property>
-       <item>
-        <property name="text">
-         <string>ASCII</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>EBCDIC</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>C Arrays</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Hex dump</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Raw</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
@@ -134,7 +109,7 @@
      <item>
       <widget class="QPushButton" name="bFind">
        <property name="text">
-        <string>&amp;Next</string>
+        <string>Find &amp;Next</string>
        </property>
       </widget>
      </item>

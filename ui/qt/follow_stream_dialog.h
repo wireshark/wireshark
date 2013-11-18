@@ -115,7 +115,7 @@ private:
 
     void follow_stream();
 
-    void add_text(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num);
+    void add_text(QString text, gboolean is_from_server, guint32 packet_num);
 
     Ui::FollowStreamDialog  *ui;
 

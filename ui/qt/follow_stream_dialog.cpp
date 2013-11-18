@@ -83,6 +83,16 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
         resize(parent->width() * 2 / 3, parent->height());
     }
 
+    QComboBox *cbcs = ui->cbCharset;
+    cbcs->blockSignals(true);
+    cbcs->addItem("ASCII", SHOW_ASCII);
+    cbcs->addItem("C Arrays", SHOW_CARRAY);
+    cbcs->addItem("EBCDIC", SHOW_EBCDIC);
+    cbcs->addItem("Hex Dump", SHOW_HEXDUMP);
+    cbcs->addItem("UTF-8", SHOW_RAW);
+    cbcs->addItem("YAML", SHOW_YAML);
+    cbcs->blockSignals(false);
+
     b_filter_out_ = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
     connect(b_filter_out_, SIGNAL(clicked()), this, SLOT(filterOut()));
 
@@ -232,32 +242,8 @@ void FollowStreamDialog::on_cbDirections_currentIndexChanged(int index)
 
 void FollowStreamDialog::on_cbCharset_currentIndexChanged(int index)
 {
-    switch (index)
-    {
-    case 0:
-        follow_info_.show_type = SHOW_ASCII;
-        break;
-
-    case 1:
-        follow_info_.show_type = SHOW_EBCDIC;
-        break;
-
-    case 2:
-        follow_info_.show_type = SHOW_CARRAY;
-        break;
-
-    case 3:
-        follow_info_.show_type = SHOW_HEXDUMP;
-        break;
-
-    case 4:
-        follow_info_.show_type = SHOW_RAW;
-        break;
-
-    default:
-        return;
-    }
-
+    if (index < 0) return;
+    follow_info_.show_type = static_cast<show_type_t>(ui->cbCharset->itemData(index).toInt());
     follow_read_stream();
 }
 
@@ -316,6 +302,7 @@ frs_return_t
 FollowStreamDialog::follow_read_stream()
 {
     ui->teStreamContent->clear();
+    frs_return_t ret;
 
     client_buffer_count_ = 0;
     server_buffer_count_ = 0;
@@ -327,18 +314,24 @@ FollowStreamDialog::follow_read_stream()
     switch(follow_type_) {
 
     case FOLLOW_TCP :
-        return follow_read_tcp_stream();
+        ret = follow_read_tcp_stream();
+        break;
 
     case FOLLOW_UDP :
-        return follow_read_udp_stream();
+        ret = follow_read_udp_stream();
+        break;
 
     case FOLLOW_SSL :
-        return follow_read_ssl_stream();
+        ret = follow_read_ssl_stream();
+        break;
 
     default :
         g_assert_not_reached();
-        return (frs_return_t)0;
+        ret = (frs_return_t)0;
+        break;
     }
+    ui->teStreamContent->moveCursor(QTextCursor::Start);
+    return ret;
 }
 
 //Copy from ui/gtk/follow_udp.c
@@ -499,7 +492,7 @@ FollowStreamDialog::follow_stream()
 {
     follow_stats_t stats;
 
-    follow_info_.show_type = SHOW_RAW;
+    follow_info_.show_type = SHOW_ASCII;
     follow_info_.show_stream = BOTH_HOSTS;
 
     /* Stream to show */
@@ -508,28 +501,23 @@ FollowStreamDialog::follow_stream()
     follow_info_.is_ipv6 = stats.is_ipv6;
 
     follow_read_stream();
-    ui->teStreamContent->moveCursor(QTextCursor::Start);
 }
 
 
 
 
-void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num)
+void FollowStreamDialog::add_text(QString text, gboolean is_from_server, guint32 packet_num)
 {
-    size_t i;
-    QString buf;
-    gchar *str;
-
     if (save_as_ == true)
     {
         //FILE *fh = (FILE *)arg;
         size_t nwritten;
         int FileDescriptor = file_.handle();
         FILE* fh = fdopen(dup(FileDescriptor), "wb");
-        nwritten = fwrite(buffer, 1, nchars, fh);
+        nwritten = fwrite(text.toUtf8().constData(), text.length(), 1, fh);
         fclose(fh);
         return;
-        if (nwritten != nchars)
+        if (nwritten != text.length())
             return;
     }
 
@@ -539,35 +527,19 @@ void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_
     QColor tagclient_fg = ColorUtils::fromColorT(prefs.st_client_fg);
     QColor tagclient_bg = ColorUtils::fromColorT(prefs.st_client_bg);
 
-    for (i = 0; i < nchars; i++) {
-        if (buffer[i] == '\n' || buffer[i] == '\r')
-            continue;
-        if (! isprint((guchar)buffer[i])) {
-            buffer[i] = '.';
-        }
-    }
-
-    /* convert unterminated char array to a zero terminated string */
-    str = (char *)g_malloc(nchars + 1);
-    memcpy(str, buffer, nchars);
-    str[nchars] = 0;
-    buf = QString(str);
-    g_free(str);
-
     ui->teStreamContent->moveCursor(QTextCursor::End);
     ui->teStreamContent->setCurrentFont(wsApp->monospaceFont());
     if (is_from_server)
     {
         ui->teStreamContent->setTextColor(tagserver_fg);
         ui->teStreamContent->setTextBackgroundColor(tagserver_bg);
-        ui->teStreamContent->insertPlainText(buf);
     }
     else
     {
         ui->teStreamContent->setTextColor(tagclient_fg);
         ui->teStreamContent->setTextBackgroundColor(tagclient_bg);
-        ui->teStreamContent->insertPlainText(buf);
     }
+    ui->teStreamContent->insertPlainText(text);
     ui->teStreamContent->moveCursor(QTextCursor::End);
     text_pos_to_packet_[ui->teStreamContent->textCursor().anchor()] = packet_num;
 }
@@ -585,12 +557,17 @@ void FollowStreamDialog::setCaptureFile(capture_file *cf)
 // / (slash), Ctrl-F - Focus and highlight the search box
 // Ctrl-G, Ctrl-N, F3 - Find next
 // Should we make it so that typing any text starts searching?
+#include <QDebug>
 bool FollowStreamDialog::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
     if (ui->teStreamContent->hasFocus() && event->type() == QEvent::KeyPress) {
-        ui->leFind->setFocus();
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->matches(QKeySequence::SelectAll) || keyEvent->matches(QKeySequence::Copy)
+                || keyEvent->text().isEmpty()) {
+            return false;
+        }
+        ui->leFind->setFocus();
         if (keyEvent->matches(QKeySequence::Find)) {
             return true;
         } else if (keyEvent->matches(QKeySequence::FindNext)) {
@@ -625,6 +602,16 @@ void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
+static inline void sanitize_buffer(char *buffer, size_t nchars) {
+    for (int i = 0; i < nchars; i++) {
+        if (buffer[i] == '\n' || buffer[i] == '\r' || buffer[i] == '\t')
+            continue;
+        if (! isprint((guchar)buffer[i])) {
+            buffer[i] = '.';
+        }
+    }
+}
+
 frs_return_t
 FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
                                 guint32 *global_pos)
@@ -636,24 +623,36 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
     switch (follow_info_.show_type) {
 
     case SHOW_EBCDIC:
+    {
         /* If our native arch is ASCII, call: */
         EBCDIC_to_ASCII((guint8*)buffer, (guint) nchars);
-        add_text(buffer, nchars, is_from_server, packet_num);
+        sanitize_buffer(buffer, nchars);
+        QByteArray ba = QByteArray(buffer, (int)nchars);
+        add_text(ba, is_from_server, packet_num);
         break;
+    }
 
     case SHOW_ASCII:
+    {
         /* If our native arch is EBCDIC, call:
          * ASCII_TO_EBCDIC(buffer, nchars);
          */
-        add_text(buffer, nchars, is_from_server, packet_num);
+        sanitize_buffer(buffer, nchars);
+        sanitize_buffer(buffer, nchars);
+        QByteArray ba = QByteArray(buffer, (int)nchars);
+        add_text(ba, is_from_server, packet_num);
         break;
+    }
 
-    case SHOW_RAW:
-        /* Don't translate, no matter what the native arch
-         * is.
-         */
-        add_text(buffer, nchars, is_from_server, packet_num);
+    case SHOW_RAW: // UTF-8
+    {
+        // The QString docs say that invalid characters will be replaced with
+        // replacement characters or removed. It would be nice if we could
+        // explicitly choose one or the other.
+        QString utf8 = QString::fromUtf8(buffer, (int)nchars);
+        add_text(utf8, is_from_server, packet_num);
         break;
+    }
 
     case SHOW_HEXDUMP:
         current_pos = 0;
@@ -699,18 +698,17 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             *cur++ = '\n';
             *cur = 0;
 
-            add_text(hexbuf, strlen(hexbuf), is_from_server, packet_num);
+            add_text(hexbuf, is_from_server, packet_num);
         }
         break;
 
-    // We might want to add Python-compatible output (e.g. YAML) for the Scapy folks.
     case SHOW_CARRAY:
         current_pos = 0;
         g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = { /* Packet %u */\n",
                    is_from_server ? 1 : 0,
                    is_from_server ? server_buffer_count_++ : client_buffer_count_++,
                    packet_num);
-        add_text(initbuf, strlen(initbuf), is_from_server, packet_num);
+        add_text(initbuf, is_from_server, packet_num);
 
         while (current_pos < nchars) {
             gchar hexbuf[256];
@@ -743,9 +741,32 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             (*global_pos) += i;
             hexbuf[cur++] = '\n';
             hexbuf[cur] = 0;
-            add_text(hexbuf, strlen(hexbuf), is_from_server, packet_num);
+            add_text(hexbuf, is_from_server, packet_num);
         }
         break;
+
+    case SHOW_YAML:
+    {
+        QString yaml_text = QString("# Packet %1\npeer%2_%3: !!binary |\n")
+                .arg(packet_num)
+                .arg(is_from_server ? 1 : 0)
+                .arg(is_from_server ? server_buffer_count_++ : client_buffer_count_++);
+
+        const int base64_raw_len = 57; // Encodes to 76 bytes, common in RFCs
+        current_pos = 0;
+
+        while (current_pos < nchars) {
+            int len = current_pos + base64_raw_len < nchars ? base64_raw_len : (int) nchars - current_pos;
+            QByteArray base64_data(&buffer[current_pos], len);
+
+            yaml_text += "  " + base64_data.toBase64() + "\n";
+
+            current_pos += len;
+            (*global_pos) += len;
+        }
+        add_text(yaml_text, is_from_server, packet_num);
+        break;
+    }
     }
 
     if (last_packet_ == 0) {
