@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_regack(void);
+void proto_reg_handoff_docsis_regack(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regack = -1;
 static int hf_docsis_regack_sid = -1;

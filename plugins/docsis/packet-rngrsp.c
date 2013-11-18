@@ -36,6 +36,9 @@
 #define RNGRSP_DOWN_FREQ_OVER 6
 #define RNGRSP_UP_CHID_OVER 7
 
+void proto_register_docsis_rngrsp(void);
+void proto_reg_handoff_docsis_rngrsp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_rngrsp = -1;
 static int hf_docsis_rngrsp_upstream_chid = -1;

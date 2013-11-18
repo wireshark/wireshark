@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_docsis_dcd(void);
+void proto_reg_handoff_docsis_dcd(void);
+
 #define DCD_DOWN_CLASSIFIER 23
 #define DCD_DSG_RULE 50
 #define DCD_DSG_CONFIG 51

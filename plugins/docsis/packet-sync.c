@@ -27,6 +27,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_sync(void);
+void proto_reg_handoff_docsis_sync(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_sync = -1;

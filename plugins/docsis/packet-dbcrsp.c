@@ -29,6 +29,9 @@
 
 extern value_string docsis_conf_code[];
 
+void proto_register_docsis_dbcrsp(void);
+void proto_reg_handoff_docsis_dbcrsp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dbcrsp = -1;
 static int hf_docsis_dbcrsp_tranid = -1;

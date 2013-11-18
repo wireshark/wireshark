@@ -66,7 +66,7 @@
 #include <plugins/asn1/asn1.h>
 #include <epan/emem.h>
 
-
+void proto_register_asn1(void);
 /*
  * NAME:        asn1_open                                   [API]
  * SYNOPSIS:    void asn1_open

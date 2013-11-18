@@ -34,6 +34,8 @@ static int hf_docsis_intrngreq_down_chid = -1;
 static int hf_docsis_intrngreq_sid = -1;
 static int hf_docsis_intrngreq_up_chid = -1;
 
+void proto_register_docsis_intrngreq(void);
+void proto_reg_handoff_docsis_intrngreq(void);
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_intrngreq = -1;

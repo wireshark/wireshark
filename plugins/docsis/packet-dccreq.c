@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_docsis_dccreq(void);
+void proto_reg_handoff_docsis_dccreq(void);
+
 #define DCCREQ_UP_CHAN_ID 1
 #define DCCREQ_DS_PARAMS 2
 #define DCCREQ_INIT_TECH 3

@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_dsaack(void);
+void proto_reg_handoff_docsis_dsaack(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dsaack = -1;
 static int hf_docsis_dsaack_tranid = -1;

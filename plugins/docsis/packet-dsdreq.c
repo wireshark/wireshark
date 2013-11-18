@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_dsdreq(void);
+void proto_reg_handoff_docsis_dsdreq(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dsdreq = -1;
 static int hf_docsis_dsdreq_tranid = -1;

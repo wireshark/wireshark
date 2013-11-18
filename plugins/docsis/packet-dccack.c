@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_docsis_dccack(void);
+void proto_reg_handoff_docsis_dccack(void);
+
 #define DCCACK_KEY_SEQ_NUM 31
 #define DCCACK_HMAC_DIGEST 27
 

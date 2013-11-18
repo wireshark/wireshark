@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_dpvrsp(void);
+void proto_reg_handoff_docsis_dpvrsp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dpvrsp = -1;
 static int hf_docsis_dpvrsp_tranid = -1;

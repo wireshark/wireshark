@@ -80,6 +80,9 @@
 #define IUC_RESERVED14 14
 #define IUC_EXPANSION 15
 
+void proto_register_docsis_type29ucd(void);
+void proto_reg_handoff_docsis_type29ucd(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_type29ucd = -1;
 

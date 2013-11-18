@@ -42,6 +42,9 @@
 #define US_EVENT_CH_ID 1
 #define US_EVENT_MASK 2
 
+void proto_register_tlv_cmctrl(void);
+void proto_reg_handoff_tlv_cmctrl(void);
+
 static int proto_cmctrl_tlv = -1;
 static int hf_cmctrl_tlv_mute = -1;
 static int hf_cmctrl_tlv_mute_timeout = -1;

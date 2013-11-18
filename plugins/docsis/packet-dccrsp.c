@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_docsis_dccrsp(void);
+void proto_reg_handoff_docsis_dccrsp(void);
+
 #define DCCRSP_CM_JUMP_TIME 1
 #define DCCRSP_KEY_SEQ_NUM 31
 #define DCCRSP_HMAC_DIGEST 27

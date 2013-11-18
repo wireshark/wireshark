@@ -62,6 +62,9 @@
 #define BPKM_DNLD_PARAMS 28
 #define BPKM_VENDOR_DEFINED 127
 
+void proto_register_docsis_bpkmattr(void);
+void proto_reg_handoff_docsis_bpkmattr(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bpkmattr = -1;
 static int hf_docsis_bpkmattr_serial_num = -1;

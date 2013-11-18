@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_bpkmreq(void);
+void proto_reg_handoff_docsis_bpkmreq(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bpkmreq = -1;
 static int hf_docsis_bpkmreq_code = -1;

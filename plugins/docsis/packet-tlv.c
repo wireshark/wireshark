@@ -37,6 +37,9 @@
  * top level TLV's and call sub-dissectors for the sub-TLV's.
  */
 
+void proto_register_docsis_tlv(void);
+void proto_reg_handoff_docsis_tlv(void);
+
 /* Initialize the protocol and registered fields */
 static dissector_handle_t docsis_vsif_handle;
 static dissector_handle_t docsis_ucd_handle;

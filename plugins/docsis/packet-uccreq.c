@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_uccreq(void);
+void proto_reg_handoff_docsis_uccreq(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_uccreq = -1;
 static int hf_docsis_uccreq_upchid = -1;

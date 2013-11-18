@@ -50,6 +50,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_docsis(void);
+void proto_reg_handoff_docsis(void);
+
 #define FCTYPE_PACKET 0x00
 #define FCTYPE_ATMPDU 0x01
 #define FCTYPE_RESRVD 0x02

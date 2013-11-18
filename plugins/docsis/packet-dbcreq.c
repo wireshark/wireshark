@@ -27,6 +27,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_docsis_dbcreq(void);
+void proto_reg_handoff_docsis_dbcreq(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dbcreq = -1;
 static int hf_docsis_dbcreq_tranid = -1;
