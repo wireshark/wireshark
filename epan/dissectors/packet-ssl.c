@@ -671,8 +671,8 @@ static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
                                          packet_info *pinfo);
 
 static void dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb,
-                                        proto_tree *tree,
-                                        const guint32 offset);
+                                            proto_tree *tree,
+                                            guint32 offset);
 
 /*
  * SSL version 2 dissectors
@@ -3958,7 +3958,7 @@ dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
 /* based on https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-04 */
 static void
 dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb, proto_tree *tree,
-                             guint32 offset)
+                                guint32 offset)
 {
     guint8       selected_protocol_len;
     guint8       padding_len;
