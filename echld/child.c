@@ -223,7 +223,7 @@ static echld_bool_t param_set_cwd(char* val , char** err ) {
 static unsigned packet_count = 0;
 static char* param_get_packet_count(char** err) {
 
-	if (child.state != CAPTURING || child.state != READING) {
+	if (child.state != CAPTURING && child.state != READING) {
 		*err = g_strdup("Must be reading or in-capture for packet_count");
 		return NULL;
 	}
@@ -306,7 +306,7 @@ static int out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 #endif
 
 static echld_bool_t param_set_out_file_type(char* val, char** err) {
-      int oft = wtap_short_string_to_file_type(val);
+      int oft = wtap_short_string_to_file_type_subtype(val);
 
       if (oft < 0) {
         *err = g_strdup_printf("\"%s\" isn't a valid capture file type", val);
@@ -319,8 +319,8 @@ static echld_bool_t param_set_out_file_type(char* val, char** err) {
 
 static char* param_get_out_file_type(char** err _U_) {
 	return g_strdup_printf("%s(%d): %s",
-		wtap_file_type_short_string(out_file_type),
-		out_file_type, wtap_file_type_string(out_file_type));
+		wtap_file_type_subtype_short_string(out_file_type),
+		out_file_type, wtap_file_type_subtype_string(out_file_type));
 }
 
 
@@ -538,7 +538,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		case ECHLD_GET_SUM: {
 			char* range;
 
-			if (child.state != CAPTURING || child.state != READING || child.state != DONE) goto wrong_state;
+			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
 
 			if ( child.dec->get_sum(b,len,&range) ) {
 				child_get_summary(range);

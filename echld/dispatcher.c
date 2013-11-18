@@ -202,7 +202,6 @@ static void dispatcher_err(int errnum, const char* fmt, ...) {
 static char* intflist2json(GList* if_list, char** if_cap_err) {
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
 
-    int         i;
     GList       *if_entry;
     if_info_t   *if_info;
     GSList      *addr;
@@ -212,7 +211,6 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
     GString     *str = g_string_new("{ what='interfaces', interfaces={ \n");
     char* s;
 
-    i = 1;  /* Interface id number */
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;
@@ -392,7 +390,7 @@ static char* param_get_capture_types(char** err _U_) {
   for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
     if (wtap_dump_can_open(i)) {
       g_string_append_printf(str,"%s: %s\n",
-	wtap_file_type_short_string(i), wtap_file_type_string(i));
+	wtap_file_type_subtype_short_string(i), wtap_file_type_subtype_string(i));
     }
   }
 
@@ -1025,14 +1023,8 @@ void dispatcher_alrm(int sig _U_) {
 void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, int (*main)(int, char **)) {
 	static struct dispatcher d;
 	int i;
-#ifdef DEBUG_DISPATCHER
-	int dbg_fd;
-#endif
 
 	DISP_DBG_INIT();
-#ifdef DEBUG_DISPATCHER
-	dbg_fd = fileno(debug_fp);
-#endif
 	DISP_DBG((2,"Dispatcher Starting"));
 
 
