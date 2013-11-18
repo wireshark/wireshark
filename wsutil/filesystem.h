@@ -266,9 +266,6 @@ WS_DLL_PUBLIC int test_for_directory(const char *);
  */
 WS_DLL_PUBLIC int test_for_fifo(const char *);
 
-/* Delete a file */
-WS_DLL_PUBLIC gboolean deletefile (const char *path);
-
 /*
  * Check, if file is existing.
  */

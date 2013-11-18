@@ -1889,13 +1889,6 @@ get_plugins_pers_dir(void)
     return get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 }
 
-/* Delete a file */
-gboolean
-deletefile(const char *path)
-{
-    return ws_unlink(path) == 0;
-}
-
 /*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
