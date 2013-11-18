@@ -181,8 +181,8 @@ void proto_reg_handoff_bgp(void);
 #define BGPTYPE_MP_REACH_NLRI      14 /* RFC2858           */
 #define BGPTYPE_MP_UNREACH_NLRI    15 /* RFC2858           */
 #define BGPTYPE_EXTENDED_COMMUNITY 16 /* Draft Ramachandra */
-#define BGPTYPE_NEW_AS_PATH        17 /* draft-ietf-idr-as4bytes */
-#define BGPTYPE_NEW_AGGREGATOR     18 /* draft-ietf-idr-as4bytes */
+#define BGPTYPE_AS4_PATH           17 /* RFC 6793          */
+#define BGPTYPE_AS4_AGGREGATOR     18 /* RFC 6793          */
 #define BGPTYPE_SAFI_SPECIFIC_ATTR 19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR 23 /* RFC5512 */
 
@@ -471,8 +471,8 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_MP_REACH_NLRI,      "MP_REACH_NLRI" },
     { BGPTYPE_MP_UNREACH_NLRI,    "MP_UNREACH_NLRI" },
     { BGPTYPE_EXTENDED_COMMUNITY, "EXTENDED_COMMUNITIES" },
-    { BGPTYPE_NEW_AS_PATH,        "NEW_AS_PATH" },
-    { BGPTYPE_NEW_AGGREGATOR,     "NEW_AGGREGATOR" },
+    { BGPTYPE_AS4_PATH,           "AS4_PATH" },
+    { BGPTYPE_AS4_AGGREGATOR,     "AS4_AGGREGATOR" },
     { BGPTYPE_SAFI_SPECIFIC_ATTR, "SAFI_SPECIFIC_ATTRIBUTE" },
     { BGPTYPE_TUNNEL_ENCAPS_ATTR, "TUNNEL_ENCAPSULATION_ATTRIBUTE" },
     { 0, NULL }
@@ -816,7 +816,11 @@ static int hf_bgp_update_path_attribute_flags_extended_length = -1;
 static int hf_bgp_update_path_attribute_type_code = -1;
 static int hf_bgp_update_path_attribute_length = -1;
 static int hf_bgp_update_path_attribute_next_hop = -1;
-static int hf_bgp_update_path_attribute_as_path = -1;
+static int hf_bgp_update_path_attribute_as_path_segment = -1;
+static int hf_bgp_update_path_attribute_as_path_segment_type = -1;
+static int hf_bgp_update_path_attribute_as_path_segment_length = -1;
+static int hf_bgp_update_path_attribute_as_path_segment_as2 = -1;
+static int hf_bgp_update_path_attribute_as_path_segment_as4 = -1;
 static int hf_bgp_update_path_attribute_community_value = -1;
 static int hf_bgp_update_path_attribute_origin = -1;
 static int hf_bgp_update_path_attribute_cluster_list = -1;
@@ -977,8 +981,8 @@ static gint ett_bgp_update = -1;
 static gint ett_bgp_notification = -1;
 static gint ett_bgp_route_refresh = -1; /* ROUTE-REFRESH message tree */
 static gint ett_bgp_capability = -1;
-static gint ett_bgp_as_paths = -1;
-static gint ett_bgp_as_path_segments = -1;
+static gint ett_bgp_as_path_segment = -1;
+static gint ett_bgp_as_path_segment_asn = -1;
 static gint ett_bgp_communities = -1;
 static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
@@ -3044,6 +3048,123 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 }
 
 /*
+ * Heursitic for auto-detecton os ASN length 2 or 4 bytes
+ */
+
+static guint8
+heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_attr_offset, guint8 bgpa_type, gint *number_as_segment)
+{
+    gint counter_as_segment=0;
+    gint offset_check=0;
+    guint8 assumed_as_len=0;
+    gint asn_is_null=0;
+    gint j=0;
+    gint k=0;
+    gint k_save=0;
+    guint8 next_type=0;
+    guint8 length=0;
+    /* Heuristic is done in two phases
+     * First we try to identify the as length (2 or 4 bytes)
+     * then we do check that our assumption is ok
+     * recalculing the offset and checking we end up with the right result
+    * k is used to navigate into the AS_PATH */
+    k = as_path_offset;
+    /* case of AS_PATH type being explicitly 4 bytes ASN */
+    if (bgpa_type == BGPTYPE_AS4_PATH) {
+        /* We calculate numbers of segments and return the as length */
+        while (k < end_attr_offset)
+        {
+            length = tvb_get_guint8(tvb, k);
+            /* we move to the next segment */
+            k = k + (length*assumed_as_len);
+            /* if I am not facing the last segment k need to point to next length */
+            if(k < end_attr_offset)
+                k++;
+            counter_as_segment++;
+        }
+        *number_as_segment = counter_as_segment;
+        bgp_asn_len = 4;
+        return(4);
+    }
+    /* case of user specified ASN length */
+    if (bgp_asn_len != 0) {
+        /* We calculate numbers of segments and return the as length */
+        while (k < end_attr_offset)
+        {
+            length = tvb_get_guint8(tvb, k);
+            /* we move to the next segment */
+            k = k + (length*assumed_as_len);
+            /* if I am not facing the last segment k need to point to next length */
+            if(k < end_attr_offset)
+                k++;
+            counter_as_segment++;
+        }
+        *number_as_segment = counter_as_segment;
+        return(bgp_asn_len);
+    }
+    /* case of a empty path attribut */
+    if (as_path_offset == end_attr_offset)
+    {
+        *number_as_segment = 0;
+        return(bgp_asn_len);
+    }
+    /* case of we run the heuristic to find the as length */
+    k_save = k;
+    /* we do run the heuristic on first segment and look at next segment if it exists */
+    k++;
+    length = tvb_get_guint8(tvb, k++);
+    /* let's do some cheking with an as length 2 bytes */
+    offset_check = k + 2*length;
+    next_type = tvb_get_guint8(tvb, offset_check);
+    /* we do have one segment made of 2 bytes ASN we do reach the end of the attribute taking
+     * 2 bytes ASN for our calculation */
+    if (offset_check == end_attr_offset)
+        assumed_as_len = 2;
+    /* else we do check if we see a valid AS segment type after (length * AS 2 bytes) */
+    else if (next_type == AS_SET ||
+            next_type == AS_SEQUENCE ||
+            next_type == AS_CONFED_SEQUENCE ||
+            next_type == AS_CONFED_SEQUENCE) {
+        /* that's a good sign to assume ASN 2 bytes let's check that 2 first bytes of each ASN doesn't eq 0 to confirm */
+            for (j=0; j < length && !asn_is_null; j++) {
+                if(tvb_get_ntohs(tvb, k+(2*j)) == 0) {
+                    asn_is_null = 1;
+                }
+            }
+            if (asn_is_null == 0)
+                assumed_as_len = 2;
+            else
+                assumed_as_len = 4;
+
+        }
+    else
+    /* we didn't find a valid AS segment type in the next coming segment assuming 2 bytes ASN */
+        assumed_as_len = 4;
+    /* now that we have our assumed as length let's check we can calculate the attribute length properly */
+    k = k_save;
+    k++;
+    while (k < end_attr_offset)
+    {
+        length = tvb_get_guint8(tvb, k);
+        /* we move to the next segment */
+        k = k + (length*assumed_as_len);
+        /* if I am not facing the last segment k need to point to next length */
+        if(k < end_attr_offset)
+            k++;
+        counter_as_segment++;
+    }
+    if (k == end_attr_offset) {
+    /* success */
+        *number_as_segment = counter_as_segment;
+        return(assumed_as_len);
+    } else
+    /* we are in trouble */
+    return(-1);
+}
+
+
+
+/*
  * Dissect a BGP UPDATE message.
  */
 static void
@@ -3053,8 +3174,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint8          bgpa_type;
     guint16         hlen;                       /* message length           */
     gint            o;                          /* packet offset            */
-    gint            q;                          /* tmp                      */
-    gint            end;                        /* message end              */
+    gint            q=0;                        /* tmp                      */
+    gint            end=0;                      /* message end              */
     guint16         ext_com;                    /* EXTENDED COMMUNITY extended length type  */
     guint8          ext_com8;                   /* EXTENDED COMMUNITY regular type  */
     gboolean        is_regular_type;            /* flag for regular types   */
@@ -3069,17 +3190,14 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     proto_tree      *subtree4;                  /* subtree for attributes   */
     proto_tree      *subtree5;                  /* subtree for attributes   */
     proto_tree      *subtree6;                  /* subtree for attributes   */
-    proto_tree      *as_paths_tree;             /* subtree for AS_PATHs     */
-    proto_tree      *as_path_tree;              /* subtree for AS_PATH      */
     proto_tree      *as_path_segment_tree;      /* subtree for AS_PATH segments */
+    gint            number_as_segment=0;        /* Number As segment        */
     proto_tree      *communities_tree;          /* subtree for COMMUNITIES  */
     proto_tree      *community_tree;            /* subtree for a community  */
     proto_tree      *cluster_list_tree;         /* subtree for CLUSTER_LIST */
-    int             i, j;                       /* tmp                      */
-    guint8          length;                     /* AS_PATH length           */
-    guint8          type;                       /* AS_PATH type             */
-    guint32         as_path_item;               /* item in AS_PATH segment  */
-    wmem_strbuf_t   *as_path_emstr = NULL;      /* AS_PATH                  */
+    int             i, j, k;                    /* tmp                      */
+    guint8          type=0;                     /* AS_PATH segment type     */
+    guint8          length=0;                   /* AS_PATH segment length   */
     wmem_strbuf_t   *communities_emstr = NULL;  /* COMMUNITIES              */
     wmem_strbuf_t   *cluster_list_emstr = NULL; /* CLUSTER_LIST             */
     wmem_strbuf_t   *junk_emstr;                /* tmp                      */
@@ -3133,7 +3251,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                 o += i;
             }
         }
-   }
+    }
 
     /* check for advertisements */
     len = tvb_get_ntohs(tvb, o);
@@ -3149,7 +3267,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             proto_item *ti_pa, *ti_flags;
             proto_tree *flags_tree;
             int     off;
-            gint    k;
             guint16 alen, tlen, aoff, aoff_save;
             guint16 af;
             guint8  saf, snpa;
@@ -3168,7 +3285,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                 aoff = BGP_SIZE_OF_PATH_ATTRIBUTE+1;
             }
             tlen = alen;
-
 
             ti_pa = proto_tree_add_item(subtree, hf_bgp_update_path_attribute, tvb, o + i, tlen + aoff, ENC_NA);
             proto_item_append_text(ti_pa, " - %s", val_to_str_const(bgpa_type, bgpattr_type, "Unknown %d"));
@@ -3207,192 +3323,96 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     }
                     break;
                 case BGPTYPE_AS_PATH:
-                case BGPTYPE_NEW_AS_PATH:
-                    /* (o + i + aoff) =
-                       (o + current attribute + aoff bytes to first tuple) */
+                case BGPTYPE_AS4_PATH:
+                    /* Apply heuristic to guess if we are facing 2 or 4 bytes ASN
+                    (o + i + aoff) =
+                    (o + current attribute + aoff bytes to first tuple)
+                    heuristic also tell us how many AS segments we have */
+                    asn_len = heuristic_as2_or_4_from_as_path(tvb, o+i+aoff, o+i+aoff+tlen,
+                                                            bgpa_type, &number_as_segment);
+                    proto_item_append_text(ti_pa,": ");
+                    if(tlen == 0) {
+                        proto_item_append_text(ti_pa,"empty");
+                    }
+
                     q = o + i + aoff;
-                    end = q + tlen;
-                    /* must be freed by second switch!                         */
-                    /* "tlen * 11" (10 digits + space) should be a good estimate
-                       of how long the AS path string could be                 */
-                    if (as_path_emstr == NULL)
-                        as_path_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 11, 0);
-                    wmem_strbuf_truncate(as_path_emstr, 0);
+                    for (k=0; k < number_as_segment; k++)
+                    {
+                        type = tvb_get_guint8(tvb, q);
+                        length = tvb_get_guint8(tvb, q+1);
+                        ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_as_path_segment, tvb,
+                                            q, length * asn_len + 2, ENC_NA);
+                        proto_item_append_text(ti,": ");
+                        as_path_segment_tree = proto_item_add_subtree(ti, ett_bgp_as_path_segment);
+                        proto_tree_add_item(as_path_segment_tree, hf_bgp_update_path_attribute_as_path_segment_type, tvb,
+                                            q, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(as_path_segment_tree, hf_bgp_update_path_attribute_as_path_segment_length, tvb,
+                                            q+1, 1, ENC_BIG_ENDIAN);
+                        switch(type)
+                        {
+                            case AS_SET:
+                                proto_item_append_text(ti_pa, "{");
+                                proto_item_append_text(ti, "{");
+                                break;
+                            case AS_CONFED_SET:
+                                proto_item_append_text(ti_pa, "[");
+                                proto_item_append_text(ti, "[");
+                                break;
+                            case AS_CONFED_SEQUENCE:
+                                proto_item_append_text(ti_pa, "(");
+                                proto_item_append_text(ti, "(");
+                                break;
+                        }
 
-                    /* estimate the length of the AS number */
-                    if (bgpa_type == BGPTYPE_NEW_AS_PATH)
-                        asn_len = 4;
-                    else {
-                        if (bgp_asn_len == 0) {
-                            guint unknown_segment_type = 0;
-                            guint asn_is_null = 0;
-                            guint d;
-                            asn_len = 2;
-                            k = q;
-                            while ((k < end) && !unknown_segment_type && !asn_is_null)
-                            {
-                                type = tvb_get_guint8(tvb, k++);
-
-                                /* type of segment is unknown */
-                                if (type != AS_SET &&
-                                    type != AS_SEQUENCE &&
-                                    type != AS_CONFED_SEQUENCE &&
-                                    type != AS_CONFED_SEQUENCE)
-                                    unknown_segment_type = 1;
-
-                                length = tvb_get_guint8(tvb, k++);
-
-                                /* Check for invalid ASN */
-                                for (d = 0; d < length && !unknown_segment_type && !asn_is_null; d++)
-                                {
-                                    if(tvb_get_ntohs(tvb, k) == 0)
-                                        asn_is_null = 1;
-                                    k += 2;
-                                }
+                        q = q + 2;
+                        for (j = 0; j < length; j++)
+                        {
+                            if(asn_len == 2) {
+                                proto_tree_add_item(as_path_segment_tree,
+                                                    hf_bgp_update_path_attribute_as_path_segment_as2,
+                                                    tvb, q, 2, ENC_BIG_ENDIAN);
+                                proto_item_append_text(ti_pa, "%u",
+                                                     tvb_get_ntohs(tvb, q));
+                                proto_item_append_text(ti, "%u",
+                                                     tvb_get_ntohs(tvb, q));
                             }
-                            if(k != end || unknown_segment_type || asn_is_null)
-                                asn_len = 4;
-                        }
-                        else {
-                            asn_len = bgp_asn_len;
-                        }
-                    }
-
-                    /* snarf each AS path */
-                    while (q < end) {
-                        const gchar *str = wmem_strbuf_get_str(as_path_emstr);
-                        type = tvb_get_guint8(tvb, q++);
-                        if (wmem_strbuf_get_len(as_path_emstr) > 1 &&
-                            str[wmem_strbuf_get_len(as_path_emstr) - 1] != ' ')
-                            wmem_strbuf_append_c(as_path_emstr, ' ');
-                        if (type == AS_SET) {
-                            wmem_strbuf_append_c(as_path_emstr, '{');
-                        }
-                        else if (type == AS_CONFED_SET) {
-                            wmem_strbuf_append_c(as_path_emstr, '[');
-                        }
-                        else if (type == AS_CONFED_SEQUENCE) {
-                            wmem_strbuf_append_c(as_path_emstr, '(');
-                        }
-                        length = tvb_get_guint8(tvb, q++);
-
-                        /* snarf each value in path */
-                        for (j = 0; j < length; j++) {
-                            wmem_strbuf_append_printf(as_path_emstr, "%u%s",
-                                                      (asn_len == 2) ?
-                                                      tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
-                                                      (type == AS_SET || type == AS_CONFED_SET) ?
-                                                      ", " : " ");
+                            else if (asn_len == 4) {
+                                proto_tree_add_item(as_path_segment_tree,
+                                                hf_bgp_update_path_attribute_as_path_segment_as4,
+                                                tvb, q, 4, ENC_BIG_ENDIAN);
+                                proto_item_append_text(ti_pa, "%u",
+                                                     tvb_get_ntohl(tvb, q));
+                                proto_item_append_text(ti, "%u",
+                                                     tvb_get_ntohl(tvb, q));
+                            }
+                            if (j != length-1)
+                            {
+                                proto_item_append_text(ti_pa, "%s",
+                                                    (type == AS_SET || type == AS_CONFED_SET) ?
+                                                    ", " : " ");
+                                proto_item_append_text(ti, "%s",
+                                                    (type == AS_SET || type == AS_CONFED_SET) ?
+                                                    ", " : " ");
+                            }
                             q += asn_len;
                         }
-
-                        /* cleanup end of string */
-                        if (type == AS_SET) {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
-                            wmem_strbuf_append_c(as_path_emstr, '}');
-                        }
-                        else if (type == AS_CONFED_SET) {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
-                            wmem_strbuf_append_c(as_path_emstr, ']');
-                        }
-                        else if (type == AS_CONFED_SEQUENCE) {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
-                            wmem_strbuf_append_c(as_path_emstr, ')');
-                        }
-                        else {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
-                        }
-                    }
-
-                    /* check for empty AS_PATH */
-                    if (tlen == 0) {
-                        wmem_strbuf_truncate(as_path_emstr, 0);
-                        wmem_strbuf_append_printf(as_path_emstr, "empty");
-                    }
-
-                    proto_item_append_text(ti_pa, ": %s", wmem_strbuf_get_str(as_path_emstr));
-
-                    ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "AS path: %s", wmem_strbuf_get_str(as_path_emstr));
-                    as_paths_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
-
-                    /* (o + i + aoff) =
-                       (o + current attribute + aoff bytes to first tuple) */
-                    q = o + i + aoff;
-                    end = q + tlen;
-
-                    /* snarf each AS path tuple, we have to step through each one
-                       again to make a separate subtree so we can't just reuse
-                       as_path_gstr from above */
-                    /* XXX - Can we use some g_string*() trickery instead, e.g.
-                       g_string_erase()? */
-                    while (q < end) {
-                        wmem_strbuf_truncate(as_path_emstr, 0);
-                        type = tvb_get_guint8(tvb, q++);
-                        if (type == AS_SET) {
-                            wmem_strbuf_append_c(as_path_emstr, '{');
-                        }
-                        else if (type == AS_CONFED_SET) {
-                            wmem_strbuf_append_c(as_path_emstr, '[');
-                        }
-                        else if (type == AS_CONFED_SEQUENCE) {
-                            wmem_strbuf_append_c(as_path_emstr, '(');
-                        }
-                        length = tvb_get_guint8(tvb, q++);
-
-                        /* snarf each value in path */
-                        for (j = 0; j < length; j++) {
-                            wmem_strbuf_append_printf(as_path_emstr, "%u%s",
-                                                      (asn_len == 2) ?
-                                                      tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
-                                                      (type == AS_SET || type == AS_CONFED_SET) ? ", " : " ");
-                            q += asn_len;
-                        }
-
-                        /* cleanup end of string */
-                        if (type == AS_SET) {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
-                            wmem_strbuf_append_c(as_path_emstr, '}');
-                        }
-                        else if (type == AS_CONFED_SET) {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
-                            wmem_strbuf_append_c(as_path_emstr, ']');
-                        }
-                        else if (type == AS_CONFED_SEQUENCE) {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
-                            wmem_strbuf_append_c(as_path_emstr, ')');
-                        }
-                        else {
-                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
-                        }
-
-                        /* length here means number of ASs, ie length * 2 bytes */
-                        ti = proto_tree_add_text(as_paths_tree, tvb,
-                                                 q - length * asn_len - 2,
-                                                 length * asn_len + 2, "AS path segment: %s",
-                                                 wmem_strbuf_get_str(as_path_emstr));
-                        as_path_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
-                        proto_tree_add_text(as_path_tree, tvb, q - length * asn_len - 2,
-                                            1, "Path segment type: %s (%u)",
-                                            val_to_str_const(type, as_segment_type, "Unknown"), type);
-                        proto_tree_add_text(as_path_tree, tvb, q - length * asn_len - 1,
-                                            1, "Path segment length: %u AS%s", length,
-                                            plurality(length, "", "s"));
-
-                        /* backup and reprint path segment value(s) only */
-                        q -= asn_len * length;
-                        ti = proto_tree_add_text(as_path_tree, tvb, q,
-                                                 length * asn_len, "Path segment value:");
-                        as_path_segment_tree = proto_item_add_subtree(ti,
-                                                                      ett_bgp_as_path_segments);
-                        for (j = 0; j < length; j++) {
-                            as_path_item = (asn_len == 2) ?
-                                tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q);
-                            proto_item_append_text(ti, " %u", as_path_item);
-                            hidden_item = proto_tree_add_uint(as_path_segment_tree, hf_bgp_update_path_attribute_as_path, tvb,
-                                                              q, asn_len, as_path_item);
-                            PROTO_ITEM_SET_HIDDEN(hidden_item);
-                            q += asn_len;
+                        switch(type)
+                        {
+                            case AS_SET:
+                                proto_item_append_text(ti_pa, "} ");
+                                proto_item_append_text(ti, "}");
+                                break;
+                            case AS_CONFED_SET:
+                                proto_item_append_text(ti_pa, "] ");
+                                proto_item_append_text(ti, "]");
+                                break;
+                            case AS_CONFED_SEQUENCE:
+                                proto_item_append_text(ti_pa, ") ");
+                                proto_item_append_text(ti, ")");
+                                break;
+                            default:
+                                proto_item_append_text(ti_pa, " ");
+                                break;
                         }
                     }
 
@@ -3444,13 +3464,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                             plurality(tlen, "", "s"));
                         break;
                     }
-                case BGPTYPE_NEW_AGGREGATOR:
-                    if (bgpa_type == BGPTYPE_NEW_AGGREGATOR && tlen != 8)
+                case BGPTYPE_AS4_AGGREGATOR:
+                    if (bgpa_type == BGPTYPE_AS4_AGGREGATOR && tlen != 8)
                         proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
                                             "Aggregator (invalid): %u byte%s", tlen,
                                             plurality(tlen, "", "s"));
                     else {
-
                         asn_len = tlen - 4;
                         aggregator_as = (asn_len == 2) ?
                             tvb_get_ntohs(tvb, o + i + aoff) :
@@ -3478,8 +3497,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     end = q + tlen;
                     /* must be freed by second switch!                          */
                     /* "tlen * 12" (5 digits, a :, 5 digits + space ) should be
-                       a good estimate of how long the communities string could
-                       be                                                       */
+                       a good estimate of how long the communities string could be  */
                     if (communities_emstr == NULL)
                         communities_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 12, 0);
                     wmem_strbuf_truncate(communities_emstr, 0);
@@ -4796,8 +4814,20 @@ proto_register_bgp(void)
       { &hf_bgp_update_path_attribute_aggregator_origin,
         { "Aggregator origin", "bgp.update.path_attribute.aggregator_origin", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_update_path_attribute_as_path,
-        { "AS Path", "bgp.update.path_attribute.as_path", FT_UINT16, BASE_DEC,
+      { &hf_bgp_update_path_attribute_as_path_segment,
+        { "AS Path segment", "bgp.update.path_attribute.as_path_segment", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_as_path_segment_type,
+        { "Segment type", "bgp.update.path_attribute.as_path_segment.type", FT_UINT8, BASE_DEC,
+          VALS(as_segment_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_as_path_segment_length,
+        { "Segment length (number of ASN)", "bgp.update.path_attribute.as_path_segment.length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_as_path_segment_as2,
+        { "AS2", "bgp.update.path_attribute.as_path_segment.as2", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_as_path_segment_as4,
+        { "AS4", "bgp.update.path_attribute.as_path_segment.as4", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_community_as,
         { "Community AS", "bgp.update.path_attribute.community_as", FT_UINT16, BASE_DEC,
@@ -5197,8 +5227,8 @@ proto_register_bgp(void)
       &ett_bgp_notification,
       &ett_bgp_route_refresh,
       &ett_bgp_capability,
-      &ett_bgp_as_paths,
-      &ett_bgp_as_path_segments,
+      &ett_bgp_as_path_segment,
+      &ett_bgp_as_path_segment_asn,
       &ett_bgp_communities,
       &ett_bgp_cluster_list,
       &ett_bgp_options,
