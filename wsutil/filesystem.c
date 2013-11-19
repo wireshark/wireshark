@@ -1697,7 +1697,7 @@ get_persdatafile_dir(void)
            exist) by u3util.exe when the U3 Wireshark is first run */
 
         persdatafile_dir = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
-        return persdatafile_dir
+        return persdatafile_dir;
     } else {
         /*
          * Hint: SHGetFolderPath is not available on MSVC 6 - without
