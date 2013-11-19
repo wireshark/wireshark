@@ -278,6 +278,11 @@ reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
     port[0] = srcport;
     memcpy(ip_address[1], net_dst->data, net_dst->len);
     port[1] = dstport;
+    if (net_src->type == AT_IPv6 && net_dst->type == AT_IPv6) {
+      is_ipv6 = TRUE;
+    } else {
+      is_ipv6 = FALSE;
+    }
   }
 
   /* Check to see if we have seen this source IP and port before.
