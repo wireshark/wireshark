@@ -4799,7 +4799,7 @@ proto_register_mbim(void)
               NULL, HFILL }
         },
         { &hf_mbim_data_class_umts,
-            { "EDGE", "mbim.control.data_class.umts",
+            { "UMTS", "mbim.control.data_class.umts",
                FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000004,
               NULL, HFILL }
         },
