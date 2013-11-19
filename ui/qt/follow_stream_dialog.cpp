@@ -516,9 +516,11 @@ void FollowStreamDialog::add_text(QString text, gboolean is_from_server, guint32
         FILE* fh = fdopen(dup(FileDescriptor), "wb");
         nwritten = fwrite(text.toUtf8().constData(), text.length(), 1, fh);
         fclose(fh);
-        return;
+#if 0
         if (nwritten != text.length())
-            return;
+            report_an_error_maybe();
+#endif
+        return;
     }
 
     QColor tagserver_fg = ColorUtils::fromColorT(prefs.st_server_fg);
@@ -603,7 +605,7 @@ void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
 }
 
 static inline void sanitize_buffer(char *buffer, size_t nchars) {
-    for (int i = 0; i < nchars; i++) {
+    for (size_t i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r' || buffer[i] == '\t')
             continue;
         if (! isprint((guchar)buffer[i])) {
