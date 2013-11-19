@@ -750,14 +750,17 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
 
     case SHOW_YAML:
     {
-        QString yaml_text = QString("# Packet %1\npeer%2_%3: !!binary |\n")
-                .arg(packet_num)
-                .arg(is_from_server ? 1 : 0)
-                .arg(is_from_server ? server_buffer_count_++ : client_buffer_count_++);
+        QString yaml_text;
 
         const int base64_raw_len = 57; // Encodes to 76 bytes, common in RFCs
         current_pos = 0;
 
+        if (packet_num != last_packet_) {
+            yaml_text.append(QString("# Packet %1\npeer%2_%3: !!binary |\n")
+                    .arg(packet_num)
+                    .arg(is_from_server ? 1 : 0)
+                    .arg(is_from_server ? server_buffer_count_++ : client_buffer_count_++));
+        }
         while (current_pos < nchars) {
             int len = current_pos + base64_raw_len < nchars ? base64_raw_len : (int) nchars - current_pos;
             QByteArray base64_data(&buffer[current_pos], len);
