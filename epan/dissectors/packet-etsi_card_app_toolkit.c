@@ -87,6 +87,14 @@ static int hf_ctlv_at_rsp = -1;
 static int hf_ctlv_language = -1;
 static int hf_ctlv_me_status = -1;
 static int hf_ctlv_timing_adv = -1;
+static int hf_ctlv_aid_rid = -1;
+static int hf_ctlv_aid_pix_app_code_etsi = -1;
+static int hf_ctlv_aid_pix_app_code_3gpp = -1;
+static int hf_ctlv_aid_pix_app_code_3gpp2 = -1;
+static int hf_ctlv_aid_pix_app_code = -1;
+static int hf_ctlv_aid_pix_country_code = -1;
+static int hf_ctlv_aid_pix_app_prov_code = -1;
+static int hf_ctlv_aid_pix_app_prov_field = -1;
 static int hf_ctlv_bearer = -1;
 static int hf_ctlv_bearer_descr = -1;
 static int hf_ctlv_bearer_csd_data_rate = -1;
@@ -846,6 +854,50 @@ static const string_string ims_status_code[] = {
 	{ 0, NULL }
 };
 
+#define AID_RFID_ETSI  0xA000000009
+#define AID_RFID_3GPP  0xA000000087
+#define AID_RFID_3GPP2 0xA000000343
+#define AID_RFID_OMA   0xA000000412
+#define AID_RFID_WIMAX 0xA000000424
+
+static const val64_string aid_rid_vals[] = {
+	{ AID_RFID_ETSI, "ETSI"},
+	{ AID_RFID_3GPP, "3GPP"},
+	{ AID_RFID_3GPP2, "3GPP2"},
+	{ AID_RFID_OMA, "OMA"},
+	{ AID_RFID_WIMAX, "WiMAX Forum"},
+	{ 0, NULL}
+};
+
+static const value_string aid_pix_app_code_etsi_vals[] = {
+	{ 0x0001, "GSM"},
+	{ 0x0002, "GSM SIM toolkit"},
+	{ 0x0003, "GSM SIM API for Java Card"},
+	{ 0x0004, "TETRA"},
+	{ 0x0005, "UICC API for Java Card"},
+	{ 0x0101, "DVB CBMS KMS"},
+	{ 0x0201, "M2MSM"},
+	{ 0, NULL}
+};
+
+static const value_string aid_pix_app_code_3gpp_vals[] = {
+	{ 0x1001, "3GPP UICC"},
+	{ 0x1002, "3GPP USIM"},
+	{ 0x1003, "3GPP USIM toolkit"},
+	{ 0x1004, "3GPP ISIM"},
+	{ 0x1005, "3GPP (U)SIM API for Java Card"},
+	{ 0x1006, "3GPP ISIM API for Java Card"},
+	{ 0x1007, "3GPP Contact Manager API for Java Card"},
+	{ 0x1008, "3GPP USIM-INI"},
+	{ 0x1009, "3GPP USIM-RN"},
+	{ 0, NULL}
+};
+
+static const value_string aid_pix_app_code_3gpp2_vals[] = {
+	{ 0x1002, "3GPP2 CSIM"},
+	{ 0, NULL}
+};
+
 static void
 dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1114,6 +1166,27 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x2e:	/* Timing Advance */
 			proto_tree_add_item(elem_tree, hf_ctlv_me_status, tvb, pos, 1, ENC_NA);
 			proto_tree_add_item(elem_tree, hf_ctlv_timing_adv, tvb, pos+1, 1, ENC_NA);
+			break;
+		case 0x2f:	/* AID */
+			{
+				guint64 rid = tvb_get_ntoh40(tvb, pos);
+
+				proto_tree_add_uint64(elem_tree, hf_ctlv_aid_rid, tvb, pos, 5, rid);
+				if (rid == AID_RFID_ETSI) {
+					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code_etsi, tvb, pos+5, 2, ENC_BIG_ENDIAN);
+				} else if (rid == AID_RFID_3GPP) {
+					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code_3gpp, tvb, pos+5, 2, ENC_BIG_ENDIAN);
+				} else if (rid == AID_RFID_3GPP2) {
+					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code_3gpp2, tvb, pos+5, 2, ENC_BIG_ENDIAN);
+				} else {
+					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code, tvb, pos+5, 2, ENC_BIG_ENDIAN);
+				}
+				proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_country_code, tvb, pos+7, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_prov_code, tvb, pos+9, 3, ENC_BIG_ENDIAN);
+				if (len > 12) {
+					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_prov_field, tvb, pos+12, len-12, ENC_NA);
+				}
+			}
 			break;
 		case 0x32:	/* bearer */
 			for (i = 0; i < len; i++)
@@ -1452,6 +1525,46 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_timing_adv,
 			{ "Timing Advance", "etsi_cat.comp_tlv.timing_adv",
 			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_rid,
+			{ "RID", "etsi_cat.comp_tlv.aid.rid",
+			  FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS(aid_rid_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_app_code_etsi,
+			{ "PIX Application Code", "etsi_cat.comp_tlv.aid.pix.app_code",
+			  FT_UINT16, BASE_HEX, VALS(aid_pix_app_code_etsi_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_app_code_3gpp,
+			{ "PIX Application Code", "etsi_cat.comp_tlv.aid.pix.app_code",
+			  FT_UINT16, BASE_HEX, VALS(aid_pix_app_code_3gpp_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_app_code_3gpp2,
+			{ "PIX Application Code", "etsi_cat.comp_tlv.aid.pix.app_code",
+			  FT_UINT16, BASE_HEX, VALS(aid_pix_app_code_3gpp2_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_app_code,
+			{ "PIX Application Code", "etsi_cat.comp_tlv.aid.pix.app_code",
+			  FT_UINT16, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_country_code,
+			{ "PIX Country Code", "etsi_cat.comp_tlv.aid.pix.country_code",
+			  FT_UINT16, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_app_prov_code,
+			{ "PIX Application Provider Code", "etsi_cat.comp_tlv.aid.pix.app_prov_code",
+			  FT_UINT24, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_aid_pix_app_prov_field,
+			{ "PIX Application Provider Field", "etsi_cat.comp_tlv.aid.pix.app_prov_field",
+			  FT_BYTES, BASE_NONE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer,
