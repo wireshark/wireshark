@@ -41,10 +41,10 @@
 /*
  * See
  *
- *  http://www2.tek.com/cmswpt/madownload.lotr?ct=MA&cs=mpm&ci=11284&lc=EN
+ *  http://www.tek.com/manual/record-file-api-programmer-manual
  *
  * for some information about the file format.  You may have to fill in
- * a form to download the document ("Recored File API Programmer Manual").
+ * a form to download the document ("Record File API Programmer Manual").
  *
  * Unfortunately, it describes an API that delivers records from an rf5
  * file, not the raw format of an rf5 file, so, while it gives the formats
@@ -79,7 +79,7 @@ void k12_fprintf(const char* fmt, ...) {
 	fprintf(dbg_out,"\n"); \
 } } while(0)
 
-void k12_hexdump(guint level, gint64 offset, const char* label, const unsigned char* b, unsigned int len) {
+void k12_hex_ascii_dump(guint level, gint64 offset, const char* label, const unsigned char* b, unsigned int len) {
     static const char* c2t[] = {
         "00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f",
         "10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f",
@@ -98,30 +98,35 @@ void k12_hexdump(guint level, gint64 offset, const char* label, const unsigned c
         "e0","e1","e2","e3","e4","e5","e6","e7","e8","e9","ea","eb","ec","ed","ee","ef",
         "f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"
     };
-    unsigned int i;
+    unsigned int i, j;
 
     if (debug_level < level) return;
 
-    fprintf(dbg_out,"%s(%.8" G_GINT64_MODIFIER "x,%.4x): ",label,offset,len);
+    fprintf(dbg_out,"%s(%.8" G_GINT64_MODIFIER "x,%.4x):\n",label,offset,len);
 
-    for (i=0 ; i<len ; i++) {
-
-        if (!(i%32))
-            fprintf(dbg_out,"\n");
-        else if (!(i%4))
-            fprintf(dbg_out," ");
-
-        fprintf(dbg_out, "%s", c2t[b[i]]);
+    for (i=0 ; i<len ; i += 16) {
+        for (j=0; j<16; j++) {
+            if ((j%4)==0)
+                fprintf(dbg_out," ");
+            if ((i+j)<len)
+                fprintf(dbg_out, "%s", c2t[b[i+j]]);
+            else
+                fprintf(dbg_out, "  ");
+        }
+        fprintf(dbg_out, "    ");
+        for (j=0; j<16; j++) {
+            if ((i+j)<len)
+                fprintf(dbg_out, "%c", isascii(b[i+j]) && isprint(b[i+j]) ? b[i+j] : '.');
+        }
+        fprintf(dbg_out,"\n");
     }
-
-    fprintf(dbg_out,"\n");
 }
 
-#define K12_HEXDMP(x,a,b,c,d) k12_hexdump(x,a,b,c,d)
+#define K12_HEX_ASCII_DUMP(x,a,b,c,d) k12_hex_ascii_dump(x,a,b,c,d)
 
 #else
 #define K12_DBG(level,args) (void)0
-#define K12_HEXDMP(x,a,b,c,d)
+#define K12_HEX_ASCII_DUMP(x,a,b,c,d)
 #endif
 
 
@@ -192,13 +197,14 @@ typedef struct _k12_src_desc_t {
  */
 /* so far we've seen these types of records */
 #define K12_REC_PACKET        0x00010020 /* an actual packet */
-#define K12_REC_SRCDSC        0x00070041 /* port-stack mapping + more, the key of the whole thing */
 #define K12_REC_SCENARIO      0x00070040 /* what appears as the window's title */
+#define K12_REC_SRCDSC        0x00070041 /* port-stack mapping + more, the key of the whole thing */
 #define K12_REC_STK_FILE      0x00070042 /* a dump of an stk file */
 #define K12_REC_SRCDSC2       0x00070043 /* another port-stack mapping */
 #define K12_REC_TEXT          0x00070044 /* a string containing something with a grammar (conditions/responses?) */
 #define K12_REC_START         0x00020030 /* a string containing human readable start time  */
 #define K12_REC_STOP          0x00020031 /* a string containing human readable stop time */
+#define K12_REC_D0020         0x000d0020 /* unknown, seen in a k18 file */
 
 /*
  * According to the Tektronix documentation, packets, i.e. "data events",
@@ -359,7 +365,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
                 }
                 return -1;
             } else {
-                K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
+                K12_HEX_ASCII_DUMP(5,file_offset, "GOT record", buffer, actual_len);
                 return bytes_read;
             }
         } else {
@@ -393,7 +399,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
 
     } while(left);
 
-    K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
+    K12_HEX_ASCII_DUMP(5,file_offset, "GOT record", buffer, actual_len);
     return bytes_read;
 }
 
@@ -750,6 +756,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             offset += len;
             continue;
         } else {
+            K12_DBG(1,("k12_open: RECORD TYPE 0x%08x",type));
             offset += len;
             continue;
         }
