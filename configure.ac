@@ -927,7 +927,7 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # in the address space to make attacks more difficult.
 #
 CFLAGS_before_pie=$CFLAGS
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE)
 if test "x$CLFAGS" != "x$CFLAGS_before_pie"
 then
 	# Restore CFLAGS
