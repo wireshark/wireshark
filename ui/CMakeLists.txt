@@ -32,6 +32,7 @@ set(COMMON_UI_SRC
 	help_url.c
 	packet_list_utils.c
 	iface_lists.c
+	persfilepath_opt.c
 	preference_utils.c
 	profile.c
 	recent.c

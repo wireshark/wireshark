@@ -197,6 +197,11 @@ WS_DLL_PUBLIC int create_persconffile_dir(char **pf_dir_path_return);
 WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, gboolean from_profile);
 
 /*
+ * Set the path of the personal configuration file directory.
+ */
+WS_DLL_PUBLIC void set_persconffile_dir(const char *p);
+
+/*
  * Get the (default) directory in which personal data is stored.
  *
  * On Win32, this is the "My Documents" folder in the personal profile.
@@ -205,9 +210,9 @@ WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, gboolean from_pr
 WS_DLL_PUBLIC const char *get_persdatafile_dir(void);
 
 /*
- * process command line option belonging to the filesystem settings
+ * Set the path of the directory in which personal data is stored.
  */
-WS_DLL_PUBLIC int filesystem_opt(int opt, const char *optstr);
+WS_DLL_PUBLIC void set_persdatafile_dir(const char *p);
 
 /*
  * Return an error message for UNIX-style errno indications on open or

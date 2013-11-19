@@ -37,14 +37,14 @@
 #endif
 
 #include <wsutil/crash_info.h>
-#include <wsutil/u3.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/privileges.h>
+#include <wsutil/u3.h>
 
 #include <wiretap/merge.h>
 
 #include <epan/epan.h>
-#include <wsutil/filesystem.h>
-#include <wsutil/privileges.h>
 #include <epan/epan_dissect.h>
 #include <epan/timestamp.h>
 #include <epan/packet.h>
@@ -83,6 +83,7 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
+#include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
@@ -469,7 +470,6 @@ int main(int argc, char *argv[])
 #endif
     e_prefs             *prefs_p;
     GLogLevelFlags       log_flags;
-    int                  status;
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -676,11 +676,10 @@ int main(int argc, char *argv[])
                 set_stdin_capture(TRUE);
             break;
 #endif
-        case 'P':        /* Path settings - change these before the Preferences and alike are processed */
-            status = filesystem_opt(opt, optarg);
-            if(status != 0) {
+        case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
+            if (!persfilepath_opt(opt, optarg)) {
                 cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
-                exit(status);
+                exit(2);
             }
             break;
         case 'v':        /* Show version and exit */

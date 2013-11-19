@@ -64,14 +64,14 @@
 #endif /* HAVE_LIBPORTAUDIO */
 
 #include <wsutil/crash_info.h>
-#include <wsutil/u3.h>
-#include <wsutil/privileges.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/privileges.h>
+#include <wsutil/u3.h>
 
 #include <wiretap/merge.h>
 
 #include <epan/epan.h>
-#include <wsutil/filesystem.h>
 #include <epan/epan_dissect.h>
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
@@ -111,6 +111,7 @@
 
 #include "ui/alert_box.h"
 #include "ui/main_statusbar.h"
+#include "ui/persfilepath_opt.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
@@ -2352,11 +2353,10 @@ main(int argc, char *argv[])
           set_stdin_capture(TRUE);
         break;
 #endif
-      case 'P':        /* Path settings - change these before the Preferences and alike are processed */
-        status = filesystem_opt(opt, optarg);
-        if(status != 0) {
+      case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
+        if (!persfilepath_opt(opt, optarg)) {
             cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
-            exit(status);
+            exit(2);
         }
         break;
       case 'v':        /* Show version and exit */

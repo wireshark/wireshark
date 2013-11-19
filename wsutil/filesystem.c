@@ -1383,6 +1383,13 @@ get_persconffile_dir_no_profile(void)
     return persconffile_dir;
 }
 
+void
+set_persconffile_dir(const char *p)
+{
+    g_free(persconffile_dir);
+    persconffile_dir = g_strdup(p);
+}
+
 const char *
 get_profiles_dir(void)
 {
@@ -1689,21 +1696,16 @@ get_persdatafile_dir(void)
         /* the "My Captures" sub-directory is created (if it doesn't
            exist) by u3util.exe when the U3 Wireshark is first run */
 
-        szPath = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
-
-        persdatafile_dir = szPath;
-        return szPath;
+        persdatafile_dir = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
+        return persdatafile_dir
     } else {
         /*
          * Hint: SHGetFolderPath is not available on MSVC 6 - without
          * Platform SDK
          */
-        bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL,
-            FALSE);
-        if(bRet == TRUE) {
-            szPath = utf_16to8(tszPath);
-            persdatafile_dir = szPath;
-            return szPath;
+        if (SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE)) {
+            persdatafile_dir = g_utf16_to_utf8(tszPath, -1, NULL, NULL, NULL);
+            return persdatafile_dir;
         } else {
             return "";
         }
@@ -1711,6 +1713,13 @@ get_persdatafile_dir(void)
 #else
     return "";
 #endif
+}
+
+void
+set_persdatafile_dir(const char *p)
+{
+    g_free(persdatafile_dir);
+    persdatafile_dir = g_strdup(p);
 }
 
 #ifdef _WIN32
@@ -1800,64 +1809,6 @@ get_persconffile_path(const char *filename, gboolean from_profile)
     }
 
     return path;
-}
-
-/*
- * process command line option belonging to the filesystem settings
- * (move this e.g. to main.c and have set_persconffile_dir() instead in this file?)
- */
-int
-filesystem_opt(int opt _U_, const char *optstr)
-{
-    gchar *p, *colonp;
-
-    colonp = strchr(optstr, ':');
-    if (colonp == NULL) {
-        return 1;
-    }
-
-    p = colonp;
-    *p++ = '\0';
-
-    /*
-    * Skip over any white space (there probably won't be any, but
-    * as we allow it in the preferences file, we might as well
-    * allow it here).
-    */
-    while (isspace((guchar)*p))
-        p++;
-    if (*p == '\0') {
-        /*
-         * Put the colon back, so if our caller uses, in an
-         * error message, the string they passed us, the message
-         * looks correct.
-         */
-        *colonp = ':';
-        return 1;
-    }
-
-    /* directory should be existing */
-    /* XXX - is this a requirement? */
-    if(test_for_directory(p) != EISDIR) {
-        /*
-         * Put the colon back, so if our caller uses, in an
-         * error message, the string they passed us, the message
-         * looks correct.
-         */
-        *colonp = ':';
-        return 1;
-    }
-
-    if (strcmp(optstr,"persconf") == 0) {
-        persconffile_dir = p;
-    } else if (strcmp(optstr,"persdata") == 0) {
-        persdatafile_dir = p;
-        /* XXX - might need to add the temp file path */
-    } else {
-        return 1;
-    }
-    *colonp = ':'; /* put the colon back */
-    return 0;
 }
 
 /*
