@@ -516,10 +516,11 @@ void FollowStreamDialog::add_text(QString text, gboolean is_from_server, guint32
         FILE* fh = fdopen(dup(FileDescriptor), "wb");
         nwritten = fwrite(text.toUtf8().constData(), text.length(), 1, fh);
         fclose(fh);
+        if ((int)nwritten != text.length()) {
 #if 0
-        if (nwritten != text.length())
             report_an_error_maybe();
 #endif
+        }
         return;
     }
 
