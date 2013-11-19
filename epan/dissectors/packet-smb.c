@@ -703,6 +703,15 @@ static int hf_smb_unix_minor_version = -1;
 static int hf_smb_unix_capability = -1;
 static int hf_smb_unix_capability_fcntl = -1;
 static int hf_smb_unix_capability_posix_acl = -1;
+static int hf_smb_unix_capability_xattr = -1;
+static int hf_smb_unix_capability_attr = -1;
+static int hf_smb_unix_capability_posix_paths = -1;
+static int hf_smb_unix_capability_posix_path_ops = -1;
+static int hf_smb_unix_capability_large_read = -1;
+static int hf_smb_unix_capability_large_write = -1;
+static int hf_smb_unix_capability_encrpytion = -1;
+static int hf_smb_unix_capability_mandatory_crypto = -1;
+static int hf_smb_unix_capability_proxy = -1;
 static int hf_smb_unix_file_link_dest = -1;
 static int hf_smb_unix_file_size = -1;
 static int hf_smb_unix_file_num_bytes = -1;
@@ -15791,11 +15800,47 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		}
 
 		proto_tree_add_item(
-			subtree, hf_smb_unix_capability_fcntl, tvb, offset, 8,
+			subtree, hf_smb_unix_capability_fcntl, tvb, offset, 4,
 			ENC_LITTLE_ENDIAN);
 
 		proto_tree_add_item(
-			subtree, hf_smb_unix_capability_posix_acl, tvb, offset, 8,
+			subtree, hf_smb_unix_capability_posix_acl, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_xattr, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_attr, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_posix_paths, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_posix_path_ops, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_large_read, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_large_write, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_encrpytion, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_mandatory_crypto, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(
+			subtree, hf_smb_unix_capability_proxy, tvb, offset, 4,
 			ENC_LITTLE_ENDIAN);
 
 		COUNT_BYTES_TRANS_SUBR(8);
@@ -20383,6 +20428,42 @@ proto_register_smb(void)
 	{ &hf_smb_unix_capability_posix_acl,
 	  { "POSIX ACL Capability", "smb.unix.capability.posix_acl", FT_BOOLEAN, 32,
 		TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_xattr,
+	  { "EA Capability", "smb.unix.capability.ea", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_attr,
+	  { "Additional Attributes Capability", "smb.unix.capability.attr", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_posix_paths,
+	  { "POSIX Pathnames Capability", "smb.unix.capability.posix_paths", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_posix_path_ops,
+	  { "POSIX Path Operations Capability", "smb.unix.capability.posix_path_ops", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_large_read,
+	  { "Large Read Capability", "smb.unix.capability.large_read", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_large_write,
+	  { "Large Write Capability", "smb.unix.capability.large_write", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000080, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_encrpytion,
+	  { "Encryption Capability", "smb.unix.capability.encrpytion", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000100, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_mandatory_crypto,
+	  { "Mandatory Encryption Capability", "smb.unix.capability.mandatory_crypto", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000200, NULL, HFILL }},
+
+	{ &hf_smb_unix_capability_proxy,
+	  { "Proxy Capability", "smb.unix.capability.proxy", FT_BOOLEAN, 32,
+		TFS(&tfs_set_notset), 0x00000400, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_data,
 	  { "Read Data", "smb.file.accessmask.read_data", FT_BOOLEAN, 32,
