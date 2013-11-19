@@ -2049,12 +2049,10 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 {
   guint32 low_port, high_port;
 
-  pinfo->ppid = ppi;
-
   if (enable_ulp_dissection) {
     if (try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
-      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, NULL))
+      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, GUINT_TO_POINTER(ppi)))
          return TRUE;
     }
 
@@ -2075,7 +2073,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 
        XXX - we ignore port numbers of 0, as some dissectors use a port
        number of 0 to disable the port. */
-    if (dissector_try_uint(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
+    if (dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
       return TRUE;
     if (pinfo->srcport > pinfo->destport) {
       low_port = pinfo->destport;
@@ -2085,15 +2083,15 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
       high_port = pinfo->destport;
     }
     if (low_port != 0 &&
-        dissector_try_uint(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree))
+        dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
       return TRUE;
     if (high_port != 0 &&
-        dissector_try_uint(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
+        dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
       return TRUE;
 
     if (!try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
-      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, NULL))
+      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, GUINT_TO_POINTER(ppi)))
          return TRUE;
     }
   }

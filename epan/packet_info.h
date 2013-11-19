@@ -176,7 +176,6 @@ typedef struct _packet_info {
   tvbuff_t *gssapi_decrypted_tvb;
   gboolean gssapi_data_encrypted;
 
-  guint32 ppid;					/**< SCTP PPI of current DATA chunk */
 /** This is a valid PPID, but we use it to mark the end of the list */
 #define LAST_PPID 0xffffffff
   guint32 ppids[MAX_NUMBER_OF_PPIDS]; /**< The first NUMBER_OF_PPIDS PPIDS which are present
