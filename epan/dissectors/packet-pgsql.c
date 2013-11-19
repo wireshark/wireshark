@@ -70,7 +70,14 @@ static int hf_message = -1;
 static int hf_detail = -1;
 static int hf_hint = -1;
 static int hf_position = -1;
+static int hf_internal_position = -1;
+static int hf_internal_query = -1;
 static int hf_where = -1;
+static int hf_schema_name = -1;
+static int hf_table_name = -1;
+static int hf_column_name = -1;
+static int hf_type_name = -1;
+static int hf_constraint_name = -1;
 static int hf_file = -1;
 static int hf_line = -1;
 static int hf_routine = -1;
@@ -473,16 +480,23 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             s = tvb_get_stringz(wmem_packet_scope(), tvb, n+1, &siz);
             i = hf_text;
             switch (c) {
-            case 'S': i = hf_severity; break;
-            case 'C': i = hf_code;     break;
-            case 'M': i = hf_message;  break;
-            case 'D': i = hf_detail;   break;
-            case 'H': i = hf_hint;     break;
-            case 'P': i = hf_position; break;
-            case 'W': i = hf_where;    break;
-            case 'F': i = hf_file;     break;
-            case 'L': i = hf_line;     break;
-            case 'R': i = hf_routine;  break;
+            case 'S': i = hf_severity;          break;
+            case 'C': i = hf_code;              break;
+            case 'M': i = hf_message;           break;
+            case 'D': i = hf_detail;            break;
+            case 'H': i = hf_hint;              break;
+            case 'P': i = hf_position;          break;
+            case 'p': i = hf_internal_position; break;
+            case 'q': i = hf_internal_query;    break;
+            case 'W': i = hf_where;             break;
+            case 's': i = hf_schema_name;       break;
+            case 't': i = hf_table_name;        break;
+            case 'c': i = hf_column_name;       break;
+            case 'd': i = hf_type_name;         break;
+            case 'n': i = hf_constraint_name;   break;
+            case 'F': i = hf_file;              break;
+            case 'L': i = hf_line;              break;
+            case 'R': i = hf_routine;           break;
             }
             proto_tree_add_string(tree, i, tvb, n, siz+1, s);
             length -= siz+1;
@@ -804,9 +818,37 @@ proto_register_pgsql(void)
           { "Position", "pgsql.position", FT_STRINGZ, BASE_NONE, NULL, 0,
             "The index of the error within the query string.", HFILL }
         },
+        { &hf_internal_position,
+          { "Position (Internal)", "pgsql.internal_position", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The index of the error within the internally-generated query string.", HFILL }
+        },
+        { &hf_internal_query,
+          { "Query (Internal)", "pgsql.internal_query", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The internally-generated query string", HFILL }
+        },
         { &hf_where,
           { "Context", "pgsql.where", FT_STRINGZ, BASE_NONE, NULL, 0,
             "The context in which an error occurred.", HFILL }
+        },
+        { &hf_schema_name,
+          { "Schema", "pgsql.schema_name", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The schema with which an error is associated.", HFILL }
+        },
+        { &hf_table_name,
+          { "Table", "pgsql.table_name", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The table with which an error is associated.", HFILL }
+        },
+        { &hf_column_name,
+          { "Column", "pgsql.column_name", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The column with which an error is associated.", HFILL }
+        },
+        { &hf_type_name,
+          { "Type", "pgsql.type_name", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The date type with which an error is associated.", HFILL }
+        },
+        { &hf_constraint_name,
+          { "Constraint", "pgsql.constraint_name", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The constraint with which an error is associated.", HFILL }
         },
         { &hf_file,
           { "File", "pgsql.file", FT_STRINGZ, BASE_NONE, NULL, 0,
