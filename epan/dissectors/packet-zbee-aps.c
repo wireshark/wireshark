@@ -47,7 +47,7 @@
  *************************
  */
 /* Dissector Routines */
-static void    dissect_zbee_aps_cmd        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version);
+static void    dissect_zbee_aps_cmd        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version, void *data);
 
 /* Command Dissector Helpers */
 static guint   dissect_zbee_aps_skke_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
@@ -59,7 +59,7 @@ static guint   dissect_zbee_aps_request_key    (tvbuff_t *tvb, packet_info *pinf
 static guint   dissect_zbee_aps_switch_key     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint   dissect_zbee_aps_auth_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint   dissect_zbee_aps_auth_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-static guint   dissect_zbee_aps_tunnel         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_tunnel         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, void *data);
 
 /* Helper routine. */
 static guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
@@ -952,7 +952,7 @@ dissect_zbee_aps_no_endpt:
                 THROW(BoundsError);
                 return tvb_length(tvb);
             }
-            dissect_zbee_aps_cmd(payload_tvb, pinfo, aps_tree, nwk->version);
+            dissect_zbee_aps_cmd(payload_tvb, pinfo, aps_tree, nwk->version, data);
             return tvb_length(tvb);
 
         case ZBEE_APS_FCF_ACK:
@@ -984,11 +984,12 @@ dissect_zbee_aps_no_endpt:
  *      packet_into *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      proto_item *proto_root - pointer to the root of the APS tree
+ *      data                - raw packet private data.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version, void *data)
 {
     proto_item  *cmd_root = NULL;
     proto_tree  *cmd_tree = NULL;
@@ -1060,7 +1061,7 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         case ZBEE_APS_CMD_TUNNEL:
             /* Tunnel Command. */
-            offset = dissect_zbee_aps_tunnel(tvb, pinfo, cmd_tree, offset);
+            offset = dissect_zbee_aps_tunnel(tvb, pinfo, cmd_tree, offset, data);
             break;
 
         default:
@@ -1556,7 +1557,7 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      dissect_zbee_aps_auth_data
+ *      dissect_zbee_aps_tunnel
  *  DESCRIPTION
  *      Helper dissector for the Tunnel command.
  *  PARAMETERS
@@ -1564,12 +1565,13 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  *      packet_into *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to the command subtree.
  *      offset              - offset into the tvb to begin dissection.
+ *      data                - raw packet private data.
  *  RETURNS
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
 static guint
-dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, void *data)
 {
     proto_tree  *root = NULL;
     tvbuff_t    *tunnel_tvb;
@@ -1583,7 +1585,7 @@ dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     /* The remainder is a tunneled APS frame. */
     tunnel_tvb = tvb_new_subset_remaining(tvb, offset);
     if (tree) root = proto_tree_get_root(tree);
-    call_dissector(zbee_aps_handle, tunnel_tvb, pinfo, root);
+    call_dissector_with_data(zbee_aps_handle, tunnel_tvb, pinfo, root, data);
     offset = tvb_length(tvb);
 
     /* Done */
