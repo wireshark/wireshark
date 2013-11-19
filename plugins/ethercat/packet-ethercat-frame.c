@@ -35,6 +35,9 @@
 
 #include "packet-ethercat-frame.h"
 
+void proto_register_ethercat_frame(void);
+void proto_reg_handoff_ethercat_frame(void);
+
 /* Define the Ethercat frame proto */
 static int proto_ethercat_frame = -1;
 

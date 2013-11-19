@@ -29,8 +29,8 @@
 
 #include <epan/packet.h>
 
-void proto_register_docsis_regrsp(void);
-void proto_reg_handoff_docsis_regrsp(void);
+void proto_register_docsis_regrspmp(void);
+void proto_reg_handoff_docsis_regrspmp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regrspmp = -1;

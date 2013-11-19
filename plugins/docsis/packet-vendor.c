@@ -57,8 +57,8 @@
 /* Define Vendor ID's here */
 #define VENDOR_CISCO 0x00000C
 
-void proto_register_docsis_vendor(void);
-void proto_reg_handoff_docsis_vendor(void);
+void proto_register_docsis_vsif(void);
+void proto_reg_handoff_docsis_vsif(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_vsif = -1;

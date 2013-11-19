@@ -131,8 +131,8 @@
 #define DSG_DA_TO_DSID_ASSOCIATION_DA 1
 #define DSG_DA_TO_DSID_ASSOCIATION_DSID 2
 
-
-
+void proto_register_docsis_mdd(void);
+void proto_reg_handoff_docsis_mdd(void);
 
 static const value_string J83_annex_vals[] = {
 	{J83_ANNEX_A, "J.83 Annex A"},

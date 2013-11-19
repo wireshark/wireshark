@@ -35,6 +35,9 @@
 #include "packet-ethercat-datagram.h"
 #include "packet-ecatmb.h"
 
+void proto_register_ecat(void);
+void proto_reg_handoff_ecat(void);
+
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t ecat_mailbox_handle;
 

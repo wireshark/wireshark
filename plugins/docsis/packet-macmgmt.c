@@ -73,8 +73,8 @@
 #define MGT_REG_REQ_MP 44
 #define MGT_REG_RSP_MP 45
 
-void proto_register_docsis_macmgmt(void);
-void proto_reg_handoff_docsis_macmgmt(void);
+void proto_register_docsis_mgmt(void);
+void proto_reg_handoff_docsis_mgmt(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_mgmt = -1;

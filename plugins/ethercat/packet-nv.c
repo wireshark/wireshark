@@ -34,6 +34,9 @@
 
 #include "packet-nv.h"
 
+void proto_register_nv(void);
+void proto_reg_handoff_nv(void);
+
 /* Define the nv proto */
 int proto_nv  = -1;
 

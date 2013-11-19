@@ -34,6 +34,9 @@
 
 #include "packet-ams.h"
 
+void proto_register_ams(void);
+void proto_reg_handoff_ams(void);
+
 /* Define the ams proto */
 int proto_ams = -1;
 
