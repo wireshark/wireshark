@@ -1030,6 +1030,10 @@ follow_show(follow_info_t *follow_info,
                 return FRS_PRINT_ERROR;
         }
         break;
+
+    case SHOW_YAML:
+        g_assert_not_reached();
+        break;
     }
 
     return FRS_OK;
