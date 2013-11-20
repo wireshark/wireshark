@@ -1473,6 +1473,7 @@ set(LIBWIRESHARK_FILES
 	crc16-tvb.c
 	crc32-tvb.c
 	crc8-tvb.c
+	decode_as.c
 	disabled_protos.c
 	dissector_filters.c
 	dwarf.c

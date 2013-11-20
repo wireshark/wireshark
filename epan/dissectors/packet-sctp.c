@@ -65,6 +65,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
+#include <epan/decode_as.h>
 #include <wsutil/crc32.h>
 #include <wsutil/adler32.h>
 
@@ -458,6 +459,61 @@ static gboolean show_chunk_types           = TRUE;
 static gboolean show_always_control_chunks = TRUE;
 
 static struct _sctp_info sctp_info;
+
+static void sctp_src_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Source (%u)", pinfo->srcport);
+}
+
+static gpointer sctp_src_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->srcport);
+}
+
+static void sctp_dst_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Destination (%u)", pinfo->destport);
+}
+
+static gpointer sctp_dst_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->destport);
+}
+
+static void sctp_both_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both");
+}
+
+static void sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
+{
+    if (pinfo->ppids[0] == LAST_PPID) {
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
+    } else {
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", pinfo->ppids[0]);
+    }
+}
+
+static void sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
+{
+    if (pinfo->ppids[1] == LAST_PPID) {
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
+    } else {
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", pinfo->ppids[1]);
+    }
+}
+
+static gpointer sctp_ppi_value1(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->ppids[0]);
+}
+
+static gpointer sctp_ppi_value2(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->ppids[1]);
+}
+
+
 
 static unsigned int
 sctp_adler32(const unsigned char *buf, unsigned int len)
@@ -4304,6 +4360,21 @@ proto_register_sctp(void)
     { NULL, NULL, 0 }
   };
 
+  /* Decode As handling */
+  static build_valid_func sctp_da_src_values[1] = {sctp_src_value};
+  static build_valid_func sctp_da_dst_values[1] = {sctp_dst_value};
+  static build_valid_func sctp_da_both_values[2] = {sctp_src_value, sctp_dst_value};
+  static decode_as_value_t sctp_da_port_values[3] = {{sctp_src_prompt, 1, sctp_da_src_values}, {sctp_dst_prompt, 1, sctp_da_dst_values}, {sctp_both_prompt, 2, sctp_da_both_values}};
+  static decode_as_t sctp_da_port = {"sctp", "Transport", "sctp.port", 3, 2, sctp_da_port_values, "SCTP Port as", NULL,
+                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+  static build_valid_func sctp_da_ppi_build_value1[1] = {sctp_ppi_value1};
+  static build_valid_func sctp_da_ppi_build_value2[1] = {sctp_ppi_value2};
+  static decode_as_value_t sctp_da_ppi_values[2] = {{sctp_ppi_prompt1, 1, sctp_da_ppi_build_value1}, {sctp_ppi_prompt2, 1, sctp_da_ppi_build_value2}};
+  static decode_as_t sctp_da_ppi = {"sctp", "Transport", "sctp.ppi", 2, 0, sctp_da_ppi_values, "SCTP", NULL,
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+
   module_t *sctp_module;
   expert_module_t* expert_sctp;
 
@@ -4362,6 +4433,9 @@ proto_register_sctp(void)
 
   dirs_by_ptvtag = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
   dirs_by_ptaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+  register_decode_as(&sctp_da_port);
+  register_decode_as(&sctp_da_ppi);
 }
 
 void

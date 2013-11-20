@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include <epan/decode_as.h>
 
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
@@ -97,8 +98,21 @@ static const value_string ipid_vals[] = {
     { 0, NULL }
 };
 
+#define BTAVCTP_PID_CONV 0
+
 void proto_register_btavctp(void);
 void proto_reg_handoff_btavctp(void);
+
+static void btavctp_pid_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "AVCTP SERVICE 0x%04x as",
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV )));
+}
+
+static gpointer btavctp_pid_value(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV );
+}
 
 static gint
 dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -162,6 +176,10 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (packet_type == PACKET_TYPE_SINGLE || packet_type == PACKET_TYPE_START) {
         proto_tree_add_item(btavctp_tree, hf_btavctp_pid,  tvb, offset, 2, ENC_BIG_ENDIAN);
         pid = tvb_get_ntohs(tvb, offset);
+
+        if (p_get_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV ) == NULL) {
+            p_add_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV, GUINT_TO_POINTER(pid));
+        }
         offset +=2;
     }
 
@@ -438,6 +456,12 @@ proto_register_btavctp(void)
         { &ei_btavctp_unexpected_frame, { "btavctp.unexpected_frame", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
     };
 
+    /* Decode As handling */
+    static build_valid_func btavctp_pid_da_build_value[1] = {btavctp_pid_value};
+    static decode_as_value_t btavctp_pid_da_values = {btavctp_pid_prompt, 1, btavctp_pid_da_build_value};
+    static decode_as_t btavctp_pid_da = {"btavctp", "AVCTP SERVICE", "btavctp.service", 1, 0, &btavctp_pid_da_values, NULL, NULL,
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     avctp_service_dissector_table = register_dissector_table("btavctp.service", "BT AVCTP Service", FT_UINT16, BASE_HEX);
@@ -454,6 +478,8 @@ proto_register_btavctp(void)
     prefs_register_static_text_preference(module, "avctp.version",
             "Bluetooth Protocol AVCTP version: 1.4",
             "Version of protocol supported by this dissector.");
+
+    register_decode_as(&btavctp_pid_da);
 }
 
 

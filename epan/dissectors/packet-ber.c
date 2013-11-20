@@ -74,6 +74,7 @@
 #include <epan/uat.h>
 #include <epan/asn1.h>
 #include <epan/wmem/wmem.h>
+#include <epan/decode_as.h>
 
 #include "packet-ber.h"
 
@@ -361,6 +362,53 @@ static uat_field_t users_flds[] = {
     UAT_FLD_VS(oid_users, syntax, "Syntax", syntax_names, "Syntax of values associated with the OID"),
     UAT_END_FIELDS
 };
+
+
+static void ber_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode ASN.1 file as");
+}
+
+static gpointer ber_value(packet_info *pinfo _U_)
+{
+    /* Not used */
+    return NULL;
+}
+
+struct ber_decode_as_populate
+{
+    decode_as_add_to_list_func add_to_list;
+    gpointer ui_element;
+};
+
+static void
+decode_ber_add_to_list(gpointer key, gpointer value, gpointer user_data)
+{
+    struct ber_decode_as_populate* populate = (struct ber_decode_as_populate*)user_data;
+    populate->add_to_list("ASN.1", (gchar *)key, value, populate->ui_element);
+}
+
+static void ber_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+{
+    struct ber_decode_as_populate populate;
+
+    populate.add_to_list = add_to_list;
+    populate.ui_element = ui_element;
+
+    ber_decode_as_foreach(decode_ber_add_to_list, &populate);
+}
+
+static gboolean ber_decode_as_reset(const char *name _U_, const gpointer pattern _U_)
+{
+    ber_decode_as(NULL);
+    return FALSE;
+}
+
+static gboolean ber_decode_as_change(const char *name _U_, const gpointer pattern _U_, gpointer handle _U_, gchar* list_name)
+{
+    ber_decode_as(list_name);
+    return FALSE;
+}
 
 void
 dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
@@ -5350,6 +5398,12 @@ proto_register_ber(void)
         { &ei_ber_invalid_format_utctime, { "ber.error.invalid_format.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
     };
 
+    /* Decode As handling */
+    static build_valid_func ber_da_build_value[1] = {ber_value};
+    static decode_as_value_t ber_da_values = {ber_prompt, 1, ber_da_build_value};
+    static decode_as_t ber_da = {"ber", "ASN.1", "ber.syntax", 1, 0, &ber_da_values, NULL, NULL,
+                                ber_populate_list, ber_decode_as_reset, ber_decode_as_change, NULL};
+
     module_t *ber_module;
     expert_module_t* expert_ber;
     uat_t* users_uat = uat_new("OID Tables",
@@ -5415,6 +5469,8 @@ proto_register_ber(void)
     register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
     register_init_routine(ber_defragment_init);
+
+    register_decode_as(&ber_da);
 }
 
 void

@@ -42,6 +42,7 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/decode_as.h>
 
 #include "packet-tcp.h"
 #include "packet-ip.h"
@@ -452,6 +453,36 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 static dissector_handle_t sport_handle;
 static guint32 tcp_stream_count;
+
+/* XXX - redefined here to not create UI dependencies */
+#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
+#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
+#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
+
+static void tcp_src_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
+}
+
+static gpointer tcp_src_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->srcport);
+}
+
+static void tcp_dst_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
+}
+
+static gpointer tcp_dst_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->destport);
+}
+
+static void tcp_both_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", pinfo->srcport,UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+}
 
 /* TCP structs and definitions */
 
@@ -5583,11 +5614,17 @@ proto_register_tcp(void)
         { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }}
     };
 
+    static build_valid_func tcp_da_src_values[1] = {tcp_src_value};
+    static build_valid_func tcp_da_dst_values[1] = {tcp_dst_value};
+    static build_valid_func tcp_da_both_values[2] = {tcp_src_value, tcp_dst_value};
+    static decode_as_value_t tcp_da_values[3] = {{tcp_src_prompt, 1, tcp_da_src_values}, {tcp_dst_prompt, 1, tcp_da_dst_values}, {tcp_both_prompt, 2, tcp_da_both_values}};
+    static decode_as_t tcp_da = {"tcp", "Transport", "tcp.port", 3, 2, tcp_da_values, "TCP", "port(s) as",
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     module_t *tcp_module;
     expert_module_t* expert_tcp;
 
-    proto_tcp = proto_register_protocol("Transmission Control Protocol",
-        "TCP", "tcp");
+    proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
     register_dissector("tcp", dissect_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -5662,6 +5699,8 @@ proto_register_tcp(void)
         &tcp_exp_options_with_magic);
 
     register_init_routine(tcp_init);
+
+    register_decode_as(&tcp_da);
 }
 
 void

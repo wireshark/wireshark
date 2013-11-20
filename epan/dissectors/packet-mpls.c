@@ -59,6 +59,7 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
+#include <epan/decode_as.h>
 
 #include "packet-ppp.h"
 #include "packet-mpls.h"
@@ -315,6 +316,16 @@ static const value_string mpls_pwac_types[] = {
 static value_string_ext mpls_pwac_types_ext = VALUE_STRING_EXT_INIT(mpls_pwac_types);
 
 static dissector_table_t mpls_subdissector_table;
+
+static void mpls_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Data after label %u as", pinfo->mpls_label);
+}
+
+static gpointer mpls_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->mpls_label);
+}
 
 /*
  * Given a 4-byte MPLS label starting at offset "offset", in tvbuff "tvb",
@@ -759,6 +770,13 @@ proto_register_mpls(void)
         &ett_mpls_pw_ach,
         &ett_mpls_pw_mcw,
     };
+
+    /* Decode As handling */
+    static build_valid_func mpls_da_build_value[1] = {mpls_value};
+    static decode_as_value_t mpls_da_values = {mpls_prompt, 1, mpls_da_build_value};
+    static decode_as_t mpls_da = {"mpls", "MPLS", "mpls.label", 1, 0, &mpls_da_values, NULL, NULL,
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     module_t * module_mpls;
 
     /* FF: mpls subdissector table is indexed by label */
@@ -793,7 +811,9 @@ proto_register_mpls(void)
                                     "Assume bottom of stack label as Flow label",
                                     "Lowest label is used to segregate flows inside a pseudowire",
                                     &mpls_bos_flowlabel);
-    }
+
+    register_decode_as(&mpls_da);
+}
 
 void
 proto_reg_handoff_mpls(void)

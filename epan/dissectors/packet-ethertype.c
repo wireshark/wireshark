@@ -34,6 +34,7 @@
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 #include <epan/show_exception.h>
+#include <epan/decode_as.h>
 #include "packet-bpq.h"
 #include "packet-eth.h"
 #include "packet-ip.h"
@@ -187,6 +188,16 @@ const value_string etype_vals[] = {
 	{ 0, NULL }
 };
 
+static void eth_prompt(packet_info *pinfo, gchar* result)
+{
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as", pinfo->ethertype);
+}
+
+static gpointer eth_value(packet_info *pinfo)
+{
+	return GUINT_TO_POINTER(pinfo->ethertype);
+}
+
 static void add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 			    int trailer_id, tvbuff_t *tvb, tvbuff_t *next_tvb, int offset_after_etype,
 			    guint length_before, gint fcs_len);
@@ -244,7 +255,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	volatile gboolean	dissector_found = FALSE;
 	const char		*volatile saved_proto;
 	void			*pd_save;
-    ethertype_data_t* ethertype_data = (ethertype_data_t*)data;
+	ethertype_data_t* ethertype_data = (ethertype_data_t*)data;
 
 	/* Add the Ethernet type to the protocol tree */
 	proto_tree_add_uint(ethertype_data->fh_tree, ethertype_data->etype_id, tvb,
@@ -370,13 +381,22 @@ add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int t
 void
 proto_register_ethertype(void)
 {
-    proto_ethertype = proto_register_protocol("Ethertype", "Ethertype", "ethertype");
+	/* Decode As handling */
+	static build_valid_func eth_da_build_value[1] = {eth_value};
+	static decode_as_value_t eth_da_values = {eth_prompt, 1, eth_da_build_value};
+	static decode_as_t ethertype_da = {"ethertype", "Link", "ethertype", 1, 0, &eth_da_values, NULL, NULL,
+										decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    new_register_dissector("ethertype", dissect_ethertype, proto_ethertype);
+
+	proto_ethertype = proto_register_protocol("Ethertype", "Ethertype", "ethertype");
+
+	new_register_dissector("ethertype", dissect_ethertype, proto_ethertype);
 
 	/* subdissector code */
 	ethertype_dissector_table = register_dissector_table("ethertype",
-							     "Ethertype", FT_UINT16, BASE_HEX);
+								"Ethertype", FT_UINT16, BASE_HEX);
+
+	register_decode_as(&ethertype_da);
 }
 
 void

@@ -42,9 +42,10 @@ LIBWIRESHARK_SRC =		\
 	crc16-tvb.c		\
 	crc32-tvb.c		\
 	crc8-tvb.c		\
+	decode_as.c		\
 	disabled_protos.c	\
-	dwarf.c			\
 	dissector_filters.c	\
+	dwarf.c			\
 	emem.c			\
 	epan.c			\
 	ex-opt.c		\
@@ -170,6 +171,7 @@ LIBWIRESHARK_INCLUDES =		\
 	crc16-tvb.h		\
 	crc32-tvb.h		\
 	crc8-tvb.h		\
+	decode_as.h		\
 	diam_dict.h		\
 	disabled_protos.h	\
 	dissector_filters.h	\

@@ -37,8 +37,6 @@ set(WIRESHARK_GTK_SRC
 	color_utils.c
 	conversation_hastables_dlg.c
 	conversations_table.c
-	decode_as_ber.c
-	decode_as_dcerpc.c
 	decode_as_dlg.c
 	dfilter_expr_dlg.c
 	dissector_tables_dlg.c

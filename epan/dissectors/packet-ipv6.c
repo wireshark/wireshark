@@ -46,6 +46,7 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include <epan/decode_as.h>
 #include <epan/tap.h>
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
@@ -316,6 +317,16 @@ static expert_field ei_ipv6_mipv6_home_address_invalid_len = EI_INIT;
 static expert_field ei_ipv6_shim6_opt_elemlen_invalid = EI_INIT;
 static expert_field ei_ipv6_shim6_checksum_bad = EI_INIT;
 static expert_field ei_ipv6_routing_hdr_rpl_segments_ge0 = EI_INIT;
+
+static void ipv6_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", pinfo->ipproto);
+}
+
+static gpointer ipv6_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->ipproto);
+}
 
 static const fragment_items ipv6_frag_items = {
         &ett_ipv6_fragment,
@@ -2873,6 +2884,12 @@ proto_register_ipv6(void)
      { &ei_ipv6_routing_hdr_rpl_segments_ge0, { "ipv6.routing_hdr.rpl.segments.ge0", PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was X", EXPFILL }},
   };
 
+  /* Decode As handling */
+  static build_valid_func ipv6_da_build_value[1] = {ipv6_value};
+  static decode_as_value_t ipv6_da_values = {ipv6_prompt, 1, ipv6_da_build_value};
+  static decode_as_t ipv6_da = {"ipv6", "Network", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
+                              decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
   module_t *ipv6_module;
   expert_module_t* expert_ipv6;
 
@@ -2908,6 +2925,8 @@ proto_register_ipv6(void)
   register_dissector("ipv6", dissect_ipv6, proto_ipv6);
   register_init_routine(ipv6_reassemble_init);
   ipv6_tap = register_tap("ipv6");
+
+  register_decode_as(&ipv6_da);
 }
 
 void

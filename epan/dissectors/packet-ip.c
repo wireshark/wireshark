@@ -50,6 +50,7 @@
 #include <epan/ax25_pids.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
+#include <epan/decode_as.h>
 
 #include "packet-ip.h"
 #include "packet-ipsec.h"
@@ -461,6 +462,17 @@ static dissector_handle_t data_handle;
 /* Return true if the address is in the 224.0.0.0/4 network block */
 #define is_a_multicast_addr(addr) \
   ((addr & 0xf0000000) == 0xe0000000)
+
+static void ip_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", pinfo->ipproto);
+}
+
+static gpointer ip_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->ipproto);
+}
+
 
 /*
  * defragmentation of IPv4
@@ -2972,6 +2984,12 @@ proto_register_ip(void)
      { &ei_ip_ttl_too_small, { "ip.ttl.too_small", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
   };
 
+  /* Decode As handling */
+  static build_valid_func ip_da_build_value[1] = {ip_value};
+  static decode_as_value_t ip_da_values = {ip_prompt, 1, ip_da_build_value};
+  static decode_as_t ip_da = {"ip", "Network", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
+                              decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
   module_t *ip_module;
   expert_module_t* expert_ip;
 
@@ -3024,6 +3042,8 @@ proto_register_ip(void)
   register_dissector("ip", dissect_ip, proto_ip);
   register_init_routine(ip_defragment_init);
   ip_tap = register_tap("ip");
+
+  register_decode_as(&ip_da);
 }
 
 void

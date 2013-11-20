@@ -46,6 +46,7 @@
 #include "packet-ip.h"
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/decode_as.h>
 
 void proto_register_udp(void);
 void proto_reg_handoff_udp(void);
@@ -174,6 +175,35 @@ typedef struct
 
 } udp_p_info_t;
 
+/* XXX - redefined here to not create UI dependencies */
+#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
+#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
+#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
+
+static void udp_src_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
+}
+
+static gpointer udp_src_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->srcport);
+}
+
+static void udp_dst_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
+}
+
+static gpointer udp_dst_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->destport);
+}
+
+static void udp_both_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", pinfo->srcport,UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+}
 
 /* Conversation and process code originally copied from packet-tcp.c */
 static struct udp_analysis *
@@ -755,6 +785,13 @@ proto_register_udp(void)
     { &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
   };
 
+  static build_valid_func udp_da_src_values[1] = {udp_src_value};
+  static build_valid_func udp_da_dst_values[1] = {udp_dst_value};
+  static build_valid_func udp_da_both_values[2] = {udp_src_value, udp_dst_value};
+  static decode_as_value_t udp_da_values[3] = {{udp_src_prompt, 1, udp_da_src_values}, {udp_dst_prompt, 1, udp_da_dst_values}, {udp_both_prompt, 2, udp_da_both_values}};
+  static decode_as_t udp_da = {"udp", "Transport", "udp.port", 3, 2, udp_da_values, "UDP", "port(s) as",
+                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
   int proto_udp, proto_udplite;
 
   proto_udp = proto_register_protocol("User Datagram Protocol",
@@ -808,6 +845,8 @@ proto_register_udp(void)
                                  "Validate the UDPlite checksum if possible",
                                  "Whether to validate the UDPlite checksum",
                                  &udplite_check_checksum);
+
+  register_decode_as(&udp_da);
 }
 
 void
