@@ -195,7 +195,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             sched_subtree = proto_item_add_subtree(item, ett_schedule_new_msg);
             for (i=0; i<k; i++)
             {
-                DISSECTOR_ASSERT(new_slots[i] < 48);
+                DISSECTOR_ASSERT(new_slots[i] <= 48);
                 octet1 = tvb_get_guint8(tvb, offset);
                 if ((octet1 & 0x80) == 0x80)
                 {
