@@ -3045,7 +3045,6 @@ main(int argc, char *argv[])
   dnd_init(top_level);
 
   color_filters_init();
-  decode_as_init();
 #ifdef HAVE_LIBPCAP
   capture_filter_init();
 #endif

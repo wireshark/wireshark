@@ -381,11 +381,12 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 
 value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
+/* Decode As... functionality */
+/* remove all bindings */
+WS_DLL_PUBLIC void decode_dcerpc_reset_all(void);
+typedef void (*decode_add_show_list_func)(gpointer data, gpointer user_data);
+WS_DLL_PUBLIC void decode_dcerpc_add_show_list(decode_add_show_list_func func, gpointer user_data);
 
-/* the init_protocol hooks. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-WS_DLL_PUBLIC GHookList dcerpc_hooks_init_protos;
 
 /* the registered subdissectors. With MSVC and a
  * libwireshark.dll, we need a special declaration.
@@ -450,11 +451,6 @@ typedef struct decode_dcerpc_bind_values_s {
     e_uuid_t uuid;
     guint16 ver;
 } decode_dcerpc_bind_values_t;
-
-/* Helper for "decode as" dialog to set up a UUID/conversation binding. */
-WS_DLL_PUBLIC
-struct _dcerpc_bind_value *
-dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding);
 
 WS_DLL_PUBLIC
 guint16

@@ -46,6 +46,7 @@
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/show_exception.h>
+#include <epan/decode_as.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 
@@ -610,6 +611,299 @@ static expert_field ei_dcerpc_context_change = EI_INIT;
 static expert_field ei_dcerpc_cn_ctx_id_no_bind = EI_INIT;
 static expert_field ei_dcerpc_bind_not_acknowledged = EI_INIT;
 
+
+static GSList *decode_dcerpc_bindings = NULL;
+/*
+ * To keep track of ctx_id mappings.
+ *
+ * Every time we see a bind call we update this table.
+ * Note that we always specify a SMB FID. For non-SMB transports this
+ * value is 0.
+ */
+static GHashTable *dcerpc_binds = NULL;
+
+typedef struct _dcerpc_bind_key {
+    conversation_t *conv;
+    guint16         ctx_id;
+    guint16         smb_fid;
+} dcerpc_bind_key;
+
+typedef struct _dcerpc_bind_value {
+    e_uuid_t uuid;
+    guint16  ver;
+    e_uuid_t transport;
+} dcerpc_bind_value;
+
+/**
+ *  Registers a conversation/UUID binding association, so that
+ *  we can invoke the proper sub-dissector for a given DCERPC
+ *  conversation.
+ *
+ *  @param binding all values needed to create and bind a new conversation
+ *
+ *  @return Pointer to newly-added UUID/conversation binding.
+ */
+static struct _dcerpc_bind_value *
+dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
+{
+    dcerpc_bind_value *bind_value;
+    dcerpc_bind_key   *key;
+    conversation_t    *conv;
+
+    conv = find_conversation(
+        0,
+        &binding->addr_a,
+        &binding->addr_b,
+        binding->ptype,
+        binding->port_a,
+        binding->port_b,
+        0);
+
+    if (!conv) {
+        conv = conversation_new(
+            0,
+            &binding->addr_a,
+            &binding->addr_b,
+            binding->ptype,
+            binding->port_a,
+            binding->port_b,
+            0);
+    }
+
+    bind_value = (dcerpc_bind_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_value));
+    bind_value->uuid = binding->uuid;
+    bind_value->ver = binding->ver;
+    /* For now, assume all DCE/RPC we pick from "decode as" is using
+       standard ndr and not ndr64.
+       We should make this selectable from the dialog in the future
+    */
+    bind_value->transport = uuid_data_repr_proto;
+
+    key = (dcerpc_bind_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_key));
+    key->conv = conv;
+    key->ctx_id = binding->ctx_id;
+    key->smb_fid = binding->smb_fid;
+
+    /* add this entry to the bind table */
+    g_hash_table_insert(dcerpc_binds, key, bind_value);
+
+    return bind_value;
+
+}
+
+/* inject one of our bindings into the dcerpc binding table */
+static void
+decode_dcerpc_inject_binding(gpointer data, gpointer user_data _U_)
+{
+    dcerpc_add_conv_to_bind_table((decode_dcerpc_bind_values_t *) data);
+}
+
+/* inject all of our bindings into the dcerpc binding table */
+static void
+decode_dcerpc_inject_bindings(void) {
+    g_slist_foreach(decode_dcerpc_bindings, decode_dcerpc_inject_binding, NULL /* user_data */);
+}
+
+/* free a binding */
+static void
+decode_dcerpc_binding_free(void *binding_in)
+{
+    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)binding_in;
+
+    g_free((void *) binding->addr_a.data);
+    g_free((void *) binding->addr_b.data);
+    if(binding->ifname)
+        g_string_free(binding->ifname, TRUE);
+    g_free(binding);
+}
+
+static void
+dcerpc_decode_as_free(gpointer value)
+{
+    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)value;
+    if (binding != NULL)
+        decode_dcerpc_binding_free(binding);
+}
+
+/* removes all bindings */
+void
+decode_dcerpc_reset_all(void)
+{
+    decode_dcerpc_bind_values_t *binding;
+
+    while(decode_dcerpc_bindings) {
+        binding = (decode_dcerpc_bind_values_t *)decode_dcerpc_bindings->data;
+
+        decode_dcerpc_binding_free(binding);
+        decode_dcerpc_bindings = g_slist_remove(
+            decode_dcerpc_bindings,
+            decode_dcerpc_bindings->data);
+    }
+}
+
+
+void
+decode_dcerpc_add_show_list(decode_add_show_list_func func, gpointer user_data)
+{
+    g_slist_foreach(decode_dcerpc_bindings, func, user_data);
+}
+
+static void
+dcerpc_prompt(packet_info *pinfo, gchar* result)
+{
+    GString *str = g_string_new("Replace binding between:\r\n"),
+            *address_str = g_string_new("");
+
+    switch(pinfo->ptype) {
+    case(PT_TCP):
+        g_string_append(address_str, "Address: ToBeDone TCP port");
+        break;
+    case(PT_UDP):
+        g_string_append(address_str, "Address: ToBeDone UDP port");
+        break;
+    default:
+        g_string_append(address_str, "Address: ToBeDone Unknown port type");
+    }
+
+    g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->srcport);
+    g_string_append(str, "&\r\n");
+    g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->destport);
+    g_string_append_printf(str, "&\r\nContext ID: %u\r\n", pinfo->dcectxid);
+    g_string_append_printf(str, "&\r\nSMB FID: %u\r\n", dcerpc_get_transport_salt(pinfo));
+    g_string_append(str, "with:\r\n");
+
+    strncpy(result, str->str, MAX_DECODE_AS_PROMPT_LEN);
+}
+
+static gpointer
+dcerpc_value(packet_info *pinfo)
+{
+    decode_dcerpc_bind_values_t *binding;
+
+    /* clone binding */
+    binding = g_new(decode_dcerpc_bind_values_t,1);
+    COPY_ADDRESS(&binding->addr_a, &pinfo->src);
+    COPY_ADDRESS(&binding->addr_b, &pinfo->dst);
+    binding->ptype = pinfo->ptype;
+    binding->port_a = pinfo->srcport;
+    binding->port_b = pinfo->destport;
+    binding->ctx_id = pinfo->dcectxid;
+    binding->smb_fid = dcerpc_get_transport_salt(pinfo);
+    binding->ifname = NULL;
+    /*binding->uuid = NULL;*/
+    binding->ver = 0;
+
+    return binding;
+}
+
+struct dcerpc_decode_as_populate
+{
+    decode_as_add_to_list_func add_to_list;
+    gpointer ui_element;
+};
+
+static void
+decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
+{
+    struct dcerpc_decode_as_populate* populate = (struct dcerpc_decode_as_populate*)user_data;
+
+    /*dcerpc_uuid_key *k = key;*/
+    dcerpc_uuid_value *v = (dcerpc_uuid_value *)value;
+
+    if(strcmp(v->name, "(none)"))
+        populate->add_to_list("DCE-RPC", v->name, key, populate->ui_element);
+}
+
+static void
+dcerpc_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+{
+    struct dcerpc_decode_as_populate populate;
+
+    populate.add_to_list = add_to_list;
+    populate.ui_element = ui_element;
+
+    g_hash_table_foreach(dcerpc_uuids, decode_dcerpc_add_to_list, &populate);
+}
+
+/* compare two bindings (except the interface related things, e.g. uuid) */
+static gint
+decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
+{
+    const decode_dcerpc_bind_values_t *binding_a = (const decode_dcerpc_bind_values_t *)a;
+    const decode_dcerpc_bind_values_t *binding_b = (const decode_dcerpc_bind_values_t *)b;
+
+
+    /* don't compare uuid and ver! */
+    if(
+        ADDRESSES_EQUAL(&binding_a->addr_a, &binding_b->addr_a) &&
+        ADDRESSES_EQUAL(&binding_a->addr_b, &binding_b->addr_b) &&
+        binding_a->ptype == binding_b->ptype &&
+        binding_a->port_a == binding_b->port_a &&
+        binding_a->port_b == binding_b->port_b &&
+        binding_a->ctx_id == binding_b->ctx_id &&
+        binding_a->smb_fid == binding_b->smb_fid)
+    {
+        /* equal */
+        return 0;
+    }
+
+    /* unequal */
+    return 1;
+}
+
+/* remove a binding (looking the same way as the given one) */
+static gboolean
+decode_dcerpc_binding_reset(const char *name _U_, const gpointer pattern)
+{
+    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t*)pattern;
+    GSList *le;
+    decode_dcerpc_bind_values_t *old_binding;
+
+    /* find the old binding (if it exists) */
+    le = g_slist_find_custom(decode_dcerpc_bindings,
+                                             binding,
+                                             decode_dcerpc_binding_cmp);
+    if(le == NULL)
+        return FALSE;
+
+    old_binding = (decode_dcerpc_bind_values_t *)le->data;
+
+    decode_dcerpc_bindings = g_slist_remove(decode_dcerpc_bindings, le->data);
+
+    g_free((void *) old_binding->addr_a.data);
+    g_free((void *) old_binding->addr_b.data);
+    g_string_free(old_binding->ifname, TRUE);
+    g_free(old_binding);
+    return FALSE;
+}
+
+static gboolean
+dcerpc_decode_as_change(const char *name, const gpointer pattern, gpointer handle, gchar* list_name)
+{
+    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t*)pattern;
+    decode_dcerpc_bind_values_t *stored_binding;
+    dcerpc_uuid_key     *key = *((dcerpc_uuid_key**)handle);
+
+
+	binding->ifname = g_string_new(list_name);
+	binding->uuid = key->uuid;
+	binding->ver = key->ver;
+
+    /* remove a probably existing old binding */
+    decode_dcerpc_binding_reset(name, binding);
+
+    /* clone the new binding and append it to the list */
+    stored_binding = g_new(decode_dcerpc_bind_values_t,1);
+    *stored_binding = *binding;
+    COPY_ADDRESS(&stored_binding->addr_a, &binding->addr_a);
+    COPY_ADDRESS(&stored_binding->addr_b, &binding->addr_b);
+    stored_binding->ifname = g_string_new(binding->ifname->str);
+
+    decode_dcerpc_bindings = g_slist_append (decode_dcerpc_bindings, stored_binding);
+
+    return FALSE;
+}
+
 static const fragment_items dcerpc_frag_items = {
     &ett_dcerpc_fragments,
     &ett_dcerpc_fragment,
@@ -1050,26 +1344,6 @@ dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver)
 }
 
 
-/*
- * To keep track of ctx_id mappings.
- *
- * Every time we see a bind call we update this table.
- * Note that we always specify a SMB FID. For non-SMB transports this
- * value is 0.
- */
-static GHashTable *dcerpc_binds = NULL;
-
-typedef struct _dcerpc_bind_key {
-    conversation_t *conv;
-    guint16         ctx_id;
-    guint16         smb_fid;
-} dcerpc_bind_key;
-
-typedef struct _dcerpc_bind_value {
-    e_uuid_t uuid;
-    guint16  ver;
-    e_uuid_t transport;
-} dcerpc_bind_value;
 
 static gint
 dcerpc_bind_equal(gconstpointer k1, gconstpointer k2)
@@ -3507,63 +3781,6 @@ end_cn_stub:
     pinfo->fragmented = save_fragmented;
 }
 
-/**
- *  Registers a conversation/UUID binding association, so that
- *  we can invoke the proper sub-dissector for a given DCERPC
- *  conversation.
- *
- *  @param binding all values needed to create and bind a new conversation
- *
- *  @return Pointer to newly-added UUID/conversation binding.
- */
-struct _dcerpc_bind_value *
-dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
-{
-    dcerpc_bind_value *bind_value;
-    dcerpc_bind_key   *key;
-    conversation_t    *conv;
-
-    conv = find_conversation(
-        0,
-        &binding->addr_a,
-        &binding->addr_b,
-        binding->ptype,
-        binding->port_a,
-        binding->port_b,
-        0);
-
-    if (!conv) {
-        conv = conversation_new(
-            0,
-            &binding->addr_a,
-            &binding->addr_b,
-            binding->ptype,
-            binding->port_a,
-            binding->port_b,
-            0);
-    }
-
-    bind_value = (dcerpc_bind_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_value));
-    bind_value->uuid = binding->uuid;
-    bind_value->ver = binding->ver;
-    /* For now, assume all DCE/RPC we pick from "decode as" is using
-       standard ndr and not ndr64.
-       We should make this selectable from the dialog in the future
-    */
-    bind_value->transport = uuid_data_repr_proto;
-
-    key = (dcerpc_bind_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_key));
-    key->conv = conv;
-    key->ctx_id = binding->ctx_id;
-    key->smb_fid = binding->smb_fid;
-
-    /* add this entry to the bind table */
-    g_hash_table_insert(dcerpc_binds, key, bind_value);
-
-    return bind_value;
-
-}
-
 static void
 dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *dcerpc_tree, proto_tree *tree,
@@ -5673,8 +5890,7 @@ dcerpc_init_protocol(void)
     }
     dcerpc_matched = g_hash_table_new(dcerpc_matched_hash, dcerpc_matched_equal);
 
-    /* call the registered hooks */
-    g_hook_list_invoke(&dcerpc_hooks_init_protos, FALSE /* not may_recurse */);
+    decode_dcerpc_inject_bindings();
 }
 
 void
@@ -6050,6 +6266,16 @@ proto_register_dcerpc(void)
         { &ei_dcerpc_bind_not_acknowledged, { "dcerpc.bind_not_acknowledged", PI_SEQUENCE, PI_WARN, "Bind not acknowledged", EXPFILL }},
     };
 
+    /* Decode As handling */
+    static build_valid_func dcerpc_da_build_value[1] = {dcerpc_value};
+    static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
+    static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC", 
+                                    /* XXX - DCE/RPC doesn't have a true (sub)dissector table, so 
+                                     provide a "fake" one to fit the Decode As algorithm */
+                                    "ethertype", 
+                                    1, 0, &dcerpc_da_values, NULL, NULL,
+                                    dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free};
+
     module_t *dcerpc_module;
     expert_module_t* expert_dcerpc;
 
@@ -6078,7 +6304,7 @@ proto_register_dcerpc(void)
     dcerpc_uuids = g_hash_table_new(dcerpc_uuid_hash, dcerpc_uuid_equal);
     dcerpc_tap = register_tap("dcerpc");
 
-    g_hook_list_init(&dcerpc_hooks_init_protos, sizeof(GHook));
+    register_decode_as(&dcerpc_da);
 }
 
 void

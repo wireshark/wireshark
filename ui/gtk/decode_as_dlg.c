@@ -21,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 #include "config.h"
 #include <string.h>
 
@@ -36,7 +35,8 @@
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-
+#include <epan/decode_as.h>
+#include <epan/dissectors/packet-dcerpc.h>
 #include <wsutil/file_util.h>
 
 #include "ui/simple_dialog.h"
@@ -46,8 +46,6 @@
 #include "ui/gtk/decode_as_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/decode_as_dcerpc.h"
-#include "ui/gtk/decode_as_ber.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/packet_win.h"
@@ -58,32 +56,12 @@
 /*                Typedefs & Enums                */
 /**************************************************/
 
-/*
- * Enum used to track which transport layer port combo_box item is
- * currently selected in the dialog.  These items are labeled "source",
- * "destination", and "source/destination".
- */
-enum srcdst_type {
-    /* The "source port" combo_box item is currently selected. */
-    E_DECODE_SPORT,
-    /* The "destination port" combo_box item is currently selected. */
-    E_DECODE_DPORT,
-    /* The "source/destination port" combo_box item is currently selected. */
-    E_DECODE_BPORT,
-    /* For SCTP only. This MUST be the last entry! */
-    E_DECODE_PPID
-};
-
 #define E_DECODE_MIN_HEIGHT 300
 #define E_NOTEBOOK "notebook"
 
-#define E_COMBO_BOX_SRCDST "combo_box_src_dst"
+#define E_COMBO_BOX_MULTIVALUE "combo_box_multivalue"
 
-#define E_PAGE_DPORT "dport"
-#define E_PAGE_SPORT "sport"
-#define E_PAGE_PPID  "ppid"
-#define E_PAGE_ASN1  "asn1"
-
+#define E_PAGE_DECODE_AS_DATA  "decode_as_data"
 
 /*
  * Columns for a "Display" list
@@ -94,6 +72,31 @@ enum srcdst_type {
 #define E_LIST_D_CURRENT    3
 #define E_LIST_D_MAX        E_LIST_D_CURRENT
 #define E_LIST_D_COLUMNS   (E_LIST_D_MAX + 1)
+
+/*
+ * Columns for a "Select" list.
+ * Note that most of these columns aren't displayed; they're attached
+ * to the row of the table as additional information.
+ */
+#define E_LIST_S_PROTO_NAME 0
+#define E_LIST_S_TABLE	    1
+/* The following is for debugging in decode_add_to_list */
+#define E_LIST_S_MAX	    E_LIST_S_TABLE
+#define E_LIST_S_COLUMNS   (E_LIST_S_MAX + 1)
+
+#define E_PAGE_LIST   "notebook_page_list"
+#define E_PAGE_TABLE  "notebook_page_table_name"
+#define E_PAGE_TITLE  "notebook_page_title"
+#define E_PAGE_VALUE  "notebook_page_value"
+
+#define E_PAGE_ACTION "notebook_page_action"
+
+/*
+ * Filename of the "decode as" entry preferences
+ */
+#define DECODE_AS_ENTRIES_FILE_NAME "decode_as_entries"
+
+#define DECODE_AS_ENTRY "decode_as_entry"
 
 /**************************************************/
 /*             File Global Variables              */
@@ -135,12 +138,6 @@ enum action_type  requested_action = (enum action_type)-1;
 /**************************************************/
 /*            Global Functions                    */
 /**************************************************/
-
-/* init this module */
-void decode_as_init(void) {
-
-    decode_dcerpc_init();
-}
 
 /**************************************************/
 /*            Reset Changed Dissectors            */
@@ -270,9 +267,6 @@ struct dissector_table {
   ftenum_t   type;
   int        base;
 };
-
-
-GHashTable *value_entry_table = NULL;
 
 /*
  * A callback function to changed a dissector_handle if matched
@@ -406,7 +400,7 @@ sort_iter_compare_func (GtkTreeModel *model,
 }
 
 
-void
+static void
 decode_add_to_show_list (gpointer list_data,
                          const gchar *table_name,
                          gchar *selector_name,
@@ -714,6 +708,24 @@ decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
   fclose(daf);
 }
 
+/* add a single binding to the Show list */
+static void
+decode_dcerpc_add_show_list_single(gpointer data, gpointer user_data)
+{
+    gchar      string1[20];
+
+
+    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)data;
+
+    g_snprintf(string1, sizeof(string1), "ctx_id: %u", binding->ctx_id);
+
+    decode_add_to_show_list (
+        user_data,
+        "DCE-RPC",
+        string1,
+        "-",
+        binding->ifname->str);
+}
 
 /*
  * This routine creates the "Decode As:Show" dialog box. This dialog box
@@ -774,7 +786,7 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
     /* Add data */
     dissector_all_tables_foreach_changed(decode_build_show_list, store);
     g_object_unref(G_OBJECT(store));
-    decode_dcerpc_add_show_list(store);
+    decode_dcerpc_add_show_list(decode_dcerpc_add_show_list_single, store);
 
     /* Put list into a scrolled window */
     scrolled_window = scrolled_window_new(NULL, NULL);
@@ -821,61 +833,6 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
 /**************************************************/
 /*         Modify the dissector routines          */
 /**************************************************/
-
-/*
- * Modify a single dissector.  This routine first takes care of
- * updating the internal table of original protocol/port/dissector
- * combinations by adding a new entry (or removing an existing entry
- * if the value is being set back to its default).  This routine then
- * performs the actual modification to the packet dissector tables.
- *
- * @param s Pointer to a string buffer.  This buffer is used to build
- * up a message indicating which ports have had their dissector
- * changed. This output will be displayed all at once after all
- * dissectors have been modified.
- *
- * @param table_name The table name in which the dissector should be
- * modified.
- *
- * @param selector An enum value indication which selector value
- * (i.e. IP protocol number, TCP port number, etc.)is to be changed.
- *
- * @param list The List in which all the selection information can
- * be found.
- *
- * @return gchar * Pointer to the next free location in the string
- * buffer.
- */
-static void
-decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
-{
-    dissector_handle_t handle;
-    gchar              *abbrev;
-    GtkTreeSelection  *selection;
-    GtkTreeModel      *model;
-    GtkTreeIter        iter;
-    guint             *selector_type;
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
-    {
-        abbrev = NULL;
-        handle = NULL;
-    } else {
-        gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
-                           E_LIST_S_TABLE+1, &handle, -1);
-    }
-
-    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
-        dissector_reset_uint(table_name, selector);
-    } else {
-        dissector_change_uint(table_name, selector, handle);
-    }
-    selector_type = g_new(guint,1);
-    *selector_type = selector;
-    decode_build_reset_list(g_strdup(table_name), FT_UINT32, selector_type, NULL, NULL);
-    g_free(abbrev);
-}
 
 
 /**************************************************/
@@ -938,89 +895,62 @@ decode_debug (GtkTreeView *tree_view, gchar *leadin)
 static void
 decode_simple (GtkWidget *notebook_pg)
 {
-    GtkWidget *list;
-#ifdef DEBUG
-    gchar *string;
-#endif
-    gchar *table_name;
-    guint value;
+    GtkWidget *list, *combo_box;
+    GtkTreeSelection  *selection;
+    GtkTreeModel      *model;
+    GtkTreeIter        iter;
+    decode_as_t *entry;
+    gchar *table_name, *abbrev;
+    dissector_handle_t handle;
+    guint value_loop, *selector_type;
+    gpointer ptr, value_ptr;
+    gint requested_index = 0;
+    gboolean add_reset_list = FALSE;
 
     list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
         gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
-#ifdef DEBUG
-    string = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(GTK_TREE_VIEW(list), string);
-#endif
-
+    entry = (decode_as_t *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_DECODE_AS_DATA);
     table_name = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
-    value = GPOINTER_TO_UINT((gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_VALUE));
-    decode_change_one_dissector(table_name, value, list);
-}
 
-
-/*
- * This routine is called when the user clicks the "OK" button in the
- * "Decode As..." dialog window and the transport page is foremost.
- * This routine takes care of making any changes requested to the TCP
- * or UDP dissector tables.
- *
- * @param notebook_pg A pointer to the "transport" notebook page.
- */
-static void
-decode_transport(GtkWidget *notebook_pg)
-{
-    GtkWidget *combo_box;
-    GtkWidget *list;
-    gchar *table_name;
-    gint requested_srcdst, requested_port, ppid;
-    gpointer portp;
-    gpointer ptr;
-#ifdef DEBUG
-    gchar *string;
-#endif
-
-    list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
-    if (requested_action == E_DECODE_NO)
-        gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
-
-    combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_COMBO_BOX_SRCDST);
-    if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(combo_box), &ptr))
-        g_assert_not_reached();  /* Programming error if no active item in combo_box */
-    requested_srcdst = GPOINTER_TO_INT(ptr);
-
-#ifdef DEBUG
-    string = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(GTK_TREE_VIEW(list), string);
-#endif
-
-    table_name = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
-    if (requested_srcdst >= E_DECODE_PPID) {
-        if (requested_srcdst == E_DECODE_PPID)
-            ppid = 0;
-        else
-           if (requested_srcdst - E_DECODE_PPID - 1 < MAX_NUMBER_OF_PPIDS)
-             ppid = cfile.edt->pi.ppids[requested_srcdst - E_DECODE_PPID - 1];
-           else
-             return;
-        decode_change_one_dissector(table_name, ppid, list);
-        return;
+    /* (sub)dissector selection */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
+    {
+        abbrev = NULL;
+        handle = NULL;
+    } else {
+        gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
+                           E_LIST_S_TABLE+1, &handle, -1);
     }
-    if (requested_srcdst != E_DECODE_DPORT) {
-        portp = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_SPORT);
-        if (portp != NULL) {
-            requested_port = GPOINTER_TO_INT(portp);
-            decode_change_one_dissector(table_name, requested_port, list);
+
+    if (entry->num_items > 1)
+    {
+        combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_COMBO_BOX_MULTIVALUE);
+        if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(combo_box), &ptr))
+            g_assert_not_reached();  /* Programming error if no active item in combo_box */
+        requested_index = GPOINTER_TO_INT(ptr);
+    }
+
+    /* Apply values to dissector table (stored in entry) */
+    for (value_loop = 0; value_loop < entry->values[requested_index].num_values; value_loop++)
+    {
+        value_ptr = entry->values[requested_index].build_values[value_loop](&cfile.edt->pi);
+        if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
+            add_reset_list = entry->reset_value(table_name, value_ptr);
+        } else {
+            add_reset_list = entry->change_value(table_name, value_ptr, &handle, abbrev);
+        }
+
+        if (add_reset_list) {
+            selector_type = g_new(guint,1);
+            *selector_type = GPOINTER_TO_UINT(value_ptr);
+            decode_build_reset_list(g_strdup(table_name), FT_UINT32, selector_type, NULL, NULL);
         }
     }
-    if (requested_srcdst != E_DECODE_SPORT) {
-        portp = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_DPORT);
-        if (portp != NULL) {
-            requested_port = GPOINTER_TO_INT(portp);
-            decode_change_one_dissector(table_name, requested_port, list);
-        }
-    }
+
+    g_free(abbrev);
 }
 
 
@@ -1047,7 +977,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     GtkWidget *notebook, *notebook_pg;
     void (* func)(GtkWidget *);
     gint page_num;
-    void *binding = NULL;
+    decode_as_t *entry;
 
     /* Call the right routine for the page that was currently in front. */
     notebook =  (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
@@ -1057,14 +987,11 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     func = (void (*)(GtkWidget *))g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
     func(notebook_pg);
 
-    /* Now destroy the "Decode As" dialog. */
-    notebook_pg = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
-    if(notebook_pg) {
-        binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
-    }
-    if(binding) {
-        decode_dcerpc_binding_free(binding);
-    }
+    /* Free any values that used dynamic memory */
+    entry = (decode_as_t *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_DECODE_AS_DATA);
+    if ((entry->num_items == 1) && (entry->free_func != NULL))
+        entry->free_func(g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_VALUE));
+
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
@@ -1115,17 +1042,20 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
 static void
 decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
 {
-    GtkWidget *notebook_pg;
-    void *binding = NULL;
+    GtkWidget *notebook, *notebook_pg;
+    gint page_num;
+    decode_as_t *entry;
 
+    /* Call the right routine for the page that was currently in front. */
+    notebook =  (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
+    page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+    notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
-    notebook_pg = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
-    if(notebook_pg) {
-        binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
-    }
-    if(binding) {
-        decode_dcerpc_binding_free(binding);
-    }
+    /* Free any values that used dynamic memory */
+    entry = (decode_as_t *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_DECODE_AS_DATA);
+    if ((entry->num_items == 1) && (entry->free_func != NULL))
+        entry->free_func(g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_VALUE));
+
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
@@ -1272,66 +1202,37 @@ decode_add_pack_combo_box (GtkWidget *combo_box)
 
 
 /*
- * This routine is called to add the transport port selection combo_box to
- * the dialog box.  This is a three choice combo_box: source, destination
- * and both.  The default choice for the combo_box is set to the source
- * port number of the currently selected packet.
+ * This routine is called to add a selection combo_box to
+ * the dialog box.  The combo_box choices are determined by the dissector.
+ * The default choice for the combo_box is also determined by the dissector.
  *
  * @param page A pointer notebook page that will contain all
  * widgets created by this routine.
+ * @param entry Decode As structure used to setup combo_box
  *
  * @return GtkWidget * A pointer to the newly created alignment into
  * which we've packed the newly created combo_box.
  */
 static GtkWidget *
-decode_add_srcdst_combo_box (GtkWidget *page)
+decode_add_multivalue_combo_box (GtkWidget *page, decode_as_t *entry)
 {
     GtkWidget *combo_box, *alignment;
-    gchar      tmp[100];
+    guint value;
+    gchar prompt[MAX_DECODE_AS_PROMPT_LEN];
 
     combo_box = ws_combo_box_new_text_and_pointer();
+    
+    for (value = 0; value < entry->num_items; value++)
+    {
+        entry->values[value].label_func(&cfile.edt->pi, prompt);
+        ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), prompt, GINT_TO_POINTER(value));
+    }
 
-    g_snprintf(tmp, sizeof(tmp), "Source (%u%s)", cfile.edt->pi.srcport, UTF8_RIGHTWARDS_ARROW);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_SPORT));
-
-    g_snprintf(tmp, sizeof(tmp), "Destination (%s%u)", UTF8_RIGHTWARDS_ARROW, cfile.edt->pi.destport);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_DPORT));
-
-    g_snprintf(tmp, sizeof(tmp), "Both (%u%s%u)", cfile.edt->pi.srcport,UTF8_LEFT_RIGHT_ARROW, cfile.edt->pi.destport);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_BPORT));
-    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 2); /* default "both" */
-    g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
-
-    g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
-    g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
+    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), entry->default_index_value);
+    g_object_set_data(G_OBJECT(page), E_COMBO_BOX_MULTIVALUE, combo_box);
 
     alignment = decode_add_pack_combo_box(combo_box);
     return(alignment);
-}
-
-static GtkWidget *
-decode_add_ppid_combo_box (GtkWidget *page)
-{
-    GtkWidget *combo_box;
-    gchar      tmp[100];
-    guint      number_of_ppid;
-
-    combo_box = ws_combo_box_new_text_and_pointer();
-
-    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
-        if (cfile.edt->pi.ppids[number_of_ppid] != LAST_PPID) {
-            g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-            ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
-                                                 tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-        } else
-            break;
-    }
-
-    if (number_of_ppid)
-        ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);  /* default */
-
-    g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
-    return(combo_box);
 }
 
 /*************************************************/
@@ -1380,7 +1281,7 @@ lookup_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
  * routine, specifying information about the dissector table and where
  * to store any information generated by this routine.
  */
-void
+static void
 decode_add_to_list (const gchar *table_name, const gchar *proto_name, gpointer value, gpointer user_data)
 {
     const gchar     *text[E_LIST_S_COLUMNS];
@@ -1410,25 +1311,6 @@ decode_add_to_list (const gchar *table_name, const gchar *proto_name, gpointer v
                        E_LIST_S_TABLE, text[E_LIST_S_TABLE],
                        E_LIST_S_TABLE+1, value, -1);
 }
-
-static void
-decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user_data)
-{
-    const gchar     *proto_name;
-    gint       i;
-    dissector_handle_t handle;
-
-
-    handle = (dissector_handle_t)value;
-    proto_name = dissector_handle_get_short_name(handle);
-
-    i = dissector_handle_get_protocol_index(handle);
-    if (i >= 0 && !proto_is_protocol_enabled(find_protocol_by_id(i)))
-        return;
-
-    decode_add_to_list (table_name, proto_name, value, user_data);
-}
-
 
 static gboolean
 decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer user_data _U_)
@@ -1467,7 +1349,7 @@ decode_list_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer user_da
  * @param scrolled_win_p Will be filled in with the address of a newly
  * created GtkScrolledWindow.
  */
-void
+static void
 decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
                        GtkWidget **scrolled_win_p)
 {
@@ -1515,7 +1397,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
  *
  * @param list A pointer the the List to finish.
  */
-void
+static void
 decode_list_menu_finish(GtkWidget *list)
 {
     const gchar *text[E_LIST_S_COLUMNS];
@@ -1546,20 +1428,19 @@ decode_list_menu_finish(GtkWidget *list)
  *
  * @param page A pointer to the notebook page currently being created.
  *
- * @param table_name The name of the dissector table to use to build
- * this (list) menu.
+ * @param entry Decode As structure used to build this (list) menu.
  *
  * @return GtkWidget * A pointer to the newly created list within a
  * scrolled window.
  */
 static GtkWidget *
-decode_add_simple_menu (GtkWidget *page, const gchar *table_name)
+decode_add_simple_menu (GtkWidget *page, decode_as_t *entry)
 {
     GtkWidget *scrolled_window;
     GtkWidget *list;
 
     decode_list_menu_start(page, &list, &scrolled_window);
-    dissector_table_foreach_handle(table_name, decode_proto_add_to_list, list);
+    entry->populate_list(entry->table_name, decode_add_to_list, list);
     decode_list_menu_finish(list);
     return(scrolled_window);
 }
@@ -1577,344 +1458,51 @@ decode_add_simple_menu (GtkWidget *page, const gchar *table_name)
  * is conditionally enabled, based upon the setting of the
  * "decode"/"do not decode" radio buttons.
  *
- * @param prompt The prompt for this notebook page
- *
- * @param title A title for this page to use when debugging.
- *
- * @param table_name The name of the dissector table to use to
- * build this page.
- *
- * @param value The protocol/port value that is to be changed.
+ * @param entry Decode As structure used to build this page
  *
  * @return GtkWidget * A pointer to the notebook page created by this
  * routine.
  */
-static GtkWidget *
-decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *table_name,
-                        guint value)
+static GtkWidget *    
+decode_add_simple_page (decode_as_t *entry)
 {
-    GtkWidget  *page, *label, *scrolled_window;
+    GtkWidget  *page, *label, *scrolled_window, *combo_box;
+    gchar prompt[MAX_DECODE_AS_PROMPT_LEN];
 
     page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gchar *) title);
-    g_object_set_data(G_OBJECT(page), E_PAGE_VALUE, GUINT_TO_POINTER(value));
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) entry->table_name);
+    g_object_set_data(G_OBJECT(page), E_PAGE_DECODE_AS_DATA, (gchar *)entry);
 
-    /* Always enabled */
-    label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-
-    /* Conditionally enabled - only when decoding packets */
-    label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    scrolled_window = decode_add_simple_menu(page, table_name);
-    gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
-
-    return(page);
-}
-
-
-/*
- * This routine creates the TCP or UDP notebook page in the dialog box.
- * All items created by this routine are packed into a single
- * horizontal box.  First is a label indicating whether the port(s) for
- * which the user can set the dissection is a TCP port or a UDP port.
- * Second is a combo_box allowing the user to select whether the source port,
- * destination port, or both ports will have dissectors added for them.
- * Last is a (conditionally enabled) popup menu listing all possible
- * dissectors that can be used to decode the packets, and the choice
- * or returning to the default dissector for these ports.
- *
- * The defaults for these items are the transport layer protocol of
- * the currently selected packet, the source port of the currently
- * selected packet, and the "default dissector".
- *
- * @param prompt The prompt for this notebook page
- *
- * @param table_name The name of the dissector table to use to
- * build this page.
- *
- * @return GtkWidget * A pointer to the notebook page created by
- * this routine.
- */
-static GtkWidget *
-decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
-{
-    GtkWidget  *page, *label, *scrolled_window, *combo_box;
-
-    page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
-    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gpointer)"Transport");
-
-    /* Always enabled */
-    label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-    combo_box = decode_add_srcdst_combo_box(page);
-    gtk_box_pack_start(GTK_BOX(page), combo_box, FALSE, FALSE, 0);
-    label = gtk_label_new("port(s)");
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-
-    /* Conditionally enabled - only when decoding packets */
-    label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    scrolled_window = decode_add_simple_menu(page, table_name);
-    gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
-
-    return(page);
-}
-
-static void
-decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
-{
-    GtkTreeView       *list;
-    GtkListStore      *sctp_store;
-    GtkCellRenderer   *renderer;
-    GtkTreeViewColumn *tc;
-    GtkTreeSortable   *sortable;
-
-    sctp_store = (GtkListStore *)g_object_get_data(G_OBJECT(decode_w), "sctp_data");
-    list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(sctp_store)));
-    g_object_unref(G_OBJECT(sctp_store));
-    sortable = GTK_TREE_SORTABLE(sctp_store);
-    gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
-    gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
-    gtk_tree_view_set_headers_clickable(list, FALSE);
-#ifndef DEBUG
-    gtk_tree_view_set_headers_visible(list, FALSE);
-#endif
-    renderer = gtk_cell_renderer_text_new();
-    tc = gtk_tree_view_column_new_with_attributes("Short Name", renderer,
-                                                  "text", E_LIST_S_PROTO_NAME,
-                                                  NULL);
-    gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_append_column(list, tc);
-
-    *scrolled_win_p = scrolled_window_new(NULL, NULL);
-    /* this will result to set the width of the dialog to the required size */
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_SHADOW_IN);
-    gtk_container_add(GTK_CONTAINER(*scrolled_win_p), GTK_WIDGET(list));
-    *list_p = GTK_WIDGET(list);
-}
-
-static void
-decode_sctp_update_ppid_combo_box(GtkWidget *w _U_, GtkWidget *page)
-{
-    GtkWidget *list, *scrolled_window;
-    GtkWidget *sctp_combo_box;
-    gchar      tmp[100];
-    guint      number_of_ppid;
-    GtkListStore *sctp_store;
-
-    sctp_combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
-    ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
-
-    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
-        if (cfile.edt->pi.ppids[number_of_ppid] != LAST_PPID) {
-            g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-            ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box),
-                                                 tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-        } else
-            break;
-    }
-
-    if (number_of_ppid)
-        ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0); /* default */
-
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gpointer)"sctp.ppi");
-
-    sctp_store = (GtkListStore *)g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
-    gtk_list_store_clear(sctp_store);
-    decode_sctp_list_menu_start(&list, &scrolled_window);
-    dissector_table_foreach_handle("sctp.ppi", decode_proto_add_to_list, list);
-    decode_list_menu_finish(list);
-}
-
-
-static void
-decode_sctp_update_srcdst_combo_box(GtkWidget *w _U_, GtkWidget *page)
-{
-    GtkWidget *scrolled_window, *list;
-    GtkWidget *sctp_combo_box;
-    gchar      tmp[100];
-    GtkListStore *sctp_store;
-
-    sctp_combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
-    ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
-
-    g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), tmp, GINT_TO_POINTER(E_DECODE_SPORT));
-    g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), tmp, GINT_TO_POINTER(E_DECODE_DPORT));
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), "both", GINT_TO_POINTER(E_DECODE_BPORT));
-    ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0);
-
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gpointer)"sctp.port");
-    g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
-    g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
-    sctp_store = (GtkListStore *)g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
-    gtk_list_store_clear(sctp_store);
-    decode_sctp_list_menu_start(&list, &scrolled_window);
-    dissector_table_foreach_handle("sctp.port", decode_proto_add_to_list, list);
-    decode_list_menu_finish(list);
-}
-
-
-
-static GtkWidget *
-decode_sctp_add_port_ppid (GtkWidget *page)
-{
-    GtkWidget *format_vb, *radio_button;
-    GSList *format_grp;
-
-    format_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
-
-    radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
-    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
-    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_ppid_combo_box), page);
-
-    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, FALSE, FALSE, 0);
-
-    radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
-    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_combo_box), page);
-
-    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, FALSE, FALSE, 0);
-
-    return(format_vb);
-}
-
-
-static GtkWidget *
-decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
-{
-    GtkWidget  *page, *label, *scrolled_window,  *radio, *vbox, *alignment, *sctpbox, *sctp_combo_box;
-
-    page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
-    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gpointer)"Transport");
-
-    vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
-    radio = decode_sctp_add_port_ppid(page);
-    gtk_box_pack_start(GTK_BOX(vbox), radio, FALSE, FALSE, 0);
-
-    /* Always enabled */
-    sctpbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
-    label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(sctpbox), label, FALSE, FALSE, 0);
-    sctp_combo_box = decode_add_ppid_combo_box(page);
-    alignment = decode_add_pack_combo_box(sctp_combo_box);
-
-    gtk_box_pack_start(GTK_BOX(sctpbox), alignment, FALSE, FALSE, 0);
-
-    /* Conditionally enabled - only when decoding packets */
-    label = gtk_label_new("as");
-    gtk_box_pack_end(GTK_BOX(sctpbox), label, FALSE, FALSE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    gtk_box_pack_end(GTK_BOX(vbox), sctpbox, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(page), vbox, FALSE, FALSE, 0);
-
-    scrolled_window = decode_add_simple_menu(page, table_name);
-    gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
-
-    return(page);
-}
-
-static void
-decode_bluetooth(GtkWidget *notebook_pg)
-{
-#ifdef DEBUG
-    gchar               *string;
-#endif
-    GtkWidget           *list;
-    GtkTreeSelection    *selection;
-    GtkTreeModel        *model;
-    GtkTreeIter         iter;
-    gchar               *table_name;
-    guint               value;
-    dissector_handle_t  handle;
-    gchar               *abbrev;
-    guint               *value_type;
-
-    list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
-    if (requested_action == E_DECODE_NO)
-        gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
-
-#ifdef DEBUG
-    string = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(GTK_TREE_VIEW(list), string);
-#endif
-
-    table_name = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
+    if (entry->num_items == 1)
     {
-        abbrev = NULL;
-        handle = NULL;
-    } else {
-        gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
-                E_LIST_S_TABLE+1, &handle, -1);
+        g_object_set_data(G_OBJECT(page), E_PAGE_VALUE, entry->values[0].build_values[0](&cfile.edt->pi));
+
+        /* Always enabled */
+        entry->values->label_func(&cfile.edt->pi, prompt);
+        label = gtk_label_new(prompt);
+        gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
+    }
+    else
+    {
+        /* Always enabled */
+        if (entry->pre_value_str)
+        {
+            label = gtk_label_new(entry->pre_value_str);
+            gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
+        }
+        combo_box = decode_add_multivalue_combo_box(page, entry);
+        gtk_box_pack_start(GTK_BOX(page), combo_box, FALSE, FALSE, 0);
+
+        if (entry->post_value_str)
+        {
+            label = gtk_label_new(entry->post_value_str);
+            gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
+        }
     }
 
-    value = (guint)strtol(gtk_entry_get_text((GtkEntry *) g_hash_table_lookup(value_entry_table, table_name)), NULL, 0);
-
-    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
-        dissector_reset_uint(table_name, value);
-    } else {
-        dissector_change_uint(table_name, value, handle);
-    }
-
-    value_type = g_new(guint,1);
-    *value_type = value;
-
-    decode_build_reset_list(g_strdup(table_name), FT_UINT32, value_type, NULL, NULL);
-
-    g_free(abbrev);
-}
-
-static GtkWidget *
-decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const char *value)
-{
-    GtkWidget  *page;
-    GtkWidget  *label;
-    GtkWidget  *scrolled_window;
-    GtkWidget  *value_entry = NULL;
-    const char *empty = "";
-
-    if (value == NULL)
-        value = empty;
-
-	page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
-
-    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_bluetooth);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE,  (gchar *) table_name);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE,  (gchar *) prompt);
-
-    label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-
-    value_entry = (GtkWidget *)g_hash_table_lookup(value_entry_table, table_name);
-    if (!value_entry) {
-        value_entry = gtk_entry_new();
-        g_hash_table_insert(value_entry_table, (gchar *) table_name, value_entry);
-    }
-
-    gtk_entry_set_text((GtkEntry *) value_entry, value);
-    gtk_box_pack_start(GTK_BOX(page), value_entry, FALSE, FALSE, 0);
-
-    label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    scrolled_window = decode_add_simple_menu(page, table_name);
+    /* Conditionally enabled - only when decoding packets */
+    scrolled_window = decode_add_simple_menu(page, entry);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
 
@@ -1929,13 +1517,35 @@ decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const ch
 gboolean
 decode_as_ok(void)
 {
-    return (cfile.edt->pi.ethertype != G_MAXINT) || cfile.edt->pi.ipproto ||
-        cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP ||
-        cfile.edt->pi.mpls_label ||
-        cfile.edt->pi.ptype == PT_BLUETOOTH ||
-        wtap_file_encap(cfile.wth) == WTAP_ENCAP_BER ||
-        wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
-        wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
+    wmem_list_frame_t * protos = wmem_list_head(cfile.edt->pi.layers);
+    int proto_id;
+    const char* proto_name;
+    GList *list_entry;
+    decode_as_t *entry;
+    dissector_table_t sub_dissectors;
+
+    while (protos != NULL)
+    {
+        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+        proto_name = proto_get_protocol_filter_name(proto_id);
+
+        list_entry = decode_as_list;
+        while (list_entry != NULL) {
+            entry = (decode_as_t *)list_entry->data;
+            if (!strcmp(proto_name, entry->name))
+            {
+                sub_dissectors = find_dissector_table(entry->table_name);
+                if (sub_dissectors != NULL)
+                    return TRUE;
+            }
+
+            list_entry = g_list_next(list_entry);
+        }
+
+        protos = wmem_list_frame_next(protos);
+    }
+
+    return FALSE;
 }
 
 
@@ -1951,181 +1561,47 @@ static void
 decode_add_notebook (GtkWidget *format_hb)
 {
     GtkWidget *notebook, *page, *label;
-    gchar buffer[40];
+    wmem_list_frame_t * protos = wmem_list_head(cfile.edt->pi.layers);
+    int proto_id;
+    const char* proto_name;
+    GList *list_entry;
+    decode_as_t *entry;
+    dissector_table_t sub_dissectors;
 
     /* Start a nootbook for flipping between sets of changes */
     notebook = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX(format_hb), notebook, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(decode_w), E_NOTEBOOK, notebook);
 
-    /* Add link level selection page */
-    if (cfile.edt->pi.ethertype != G_MAXINT) {
-        g_snprintf(buffer, sizeof(buffer), "Ethertype 0x%04x", cfile.edt->pi.ethertype);
-        page = decode_add_simple_page(buffer, "Link", "ethertype", cfile.edt->pi.ethertype);
-        label = gtk_label_new("Link");
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-    }
+    while (protos != NULL)
+    {
+        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+        proto_name = proto_get_protocol_filter_name(proto_id);
 
-    /* Add mpls selection page */
-    if (cfile.edt->pi.mpls_label) {
-        g_snprintf(buffer, sizeof(buffer), "Data after label %u", cfile.edt->pi.mpls_label);
-        page = decode_add_simple_page(buffer, "MPLS", "mpls.label", cfile.edt->pi.mpls_label);
-        label = gtk_label_new("MPLS");
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-    }
-
-    /* Add network selection page */
-    if (cfile.edt->pi.ipproto) {
-        /*
-         * The network-layer protocol is IP.
-         */
-        g_snprintf(buffer, sizeof(buffer), "IP protocol %u", cfile.edt->pi.ipproto);
-        page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
-        g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
-        label = gtk_label_new("Network");
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-    }
-
-    /* Add transport selection page */
-    switch (cfile.edt->pi.ptype) {
-
-    case PT_TCP:
-        page = decode_add_tcpudp_page("TCP", "tcp.port");
-        break;
-
-    case PT_UDP:
-        page = decode_add_tcpudp_page("UDP", "udp.port");
-        break;
-
-    case PT_SCTP:
-        page = decode_add_sctp_page("SCTP", "sctp.ppi");
-        break;
-
-    default:
-        page = NULL;
-        break;
-    }
-
-    if (page != NULL) {
-        label = gtk_label_new("Transport");
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-    }
-
-    if(cfile.edt->pi.dcetransporttype != -1) {
-        page = decode_dcerpc_add_page(&cfile.edt->pi);
-        label = gtk_label_new("DCE-RPC");
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        g_object_set_data(G_OBJECT(decode_w), E_PAGE_DCERPC, page);
-    }
-
-    if (wtap_file_encap(cfile.wth) == WTAP_ENCAP_BER) {
-        page = decode_ber_add_page(&cfile.edt->pi);
-        label = gtk_label_new("ASN.1");
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        g_object_set_data(G_OBJECT(decode_w), E_PAGE_ASN1, page);
-    }
-
-    if (wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
-            wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR ||
-            cfile.edt->pi.ptype == PT_BLUETOOTH) {
-        gint               page_l2cap_service = -1;
-        gint               page_l2cap_cid = -1;
-        gint               page_l2cap_psm = -1;
-        gint               page_rfcomm_channel = -1;
-        gint               page_rfcomm_service = -1;
-        gint               page_avctp_service  = -1;
-        header_field_info  *hfinfo;
-        GPtrArray          *ga;
-        guint              i;
-        field_info         *v;
-        const gchar        *cid = NULL;
-        const gchar        *psm = NULL;
-        const gchar        *channel = NULL;
-        const gchar        *pid = NULL;
-        gboolean           have_rfcomm = FALSE;
-
-        ga = proto_all_finfos(cfile.edt->tree);
-
-        for (i = 0; i < ga->len; i += 1) {
-            v = (field_info *)g_ptr_array_index (ga, i);
-            hfinfo =  v->hfinfo;
-
-            if (g_strcmp0(hfinfo->abbrev, "btl2cap.cid") == 0) {
-                cid = get_node_field_value(v, cfile.edt);
-            } else if (g_strcmp0(hfinfo->abbrev, "btl2cap.psm") == 0) {
-                 psm = get_node_field_value(v, cfile.edt);
-            } else if (g_strcmp0(hfinfo->abbrev, "btrfcomm.channel") == 0) {
-                channel = get_node_field_value(v, cfile.edt);
-            } else if (g_strcmp0(hfinfo->abbrev, "btavctp.pid") == 0) {
-                pid = get_node_field_value(v, cfile.edt);
+        list_entry = decode_as_list;
+        while (list_entry != NULL) {
+            entry = (decode_as_t *)list_entry->data;
+            if (!strcmp(proto_name, entry->name))
+            {
+                sub_dissectors = find_dissector_table(entry->table_name);
+                if (sub_dissectors != NULL)
+                {
+                    page = decode_add_simple_page(entry);
+                    label = gtk_label_new(entry->title);
+                    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+                }
             }
 
-            if (have_rfcomm == FALSE && g_str_has_prefix(hfinfo->abbrev, "btrfcommm")) {
-                have_rfcomm = TRUE;
-            }
+            list_entry = g_list_next(list_entry);
         }
 
-        value_entry_table = g_hash_table_new(g_str_hash, g_str_equal);
+        protos = wmem_list_frame_next(protos);
+    }
 
-        page = decode_add_bluetooth_page("L2CAP SERVICE", "btl2cap.service", NULL);
-        if (page != NULL) {
-            label = gtk_label_new("L2CAP SERVICE");
-            page_l2cap_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        }
-
-        page = decode_add_bluetooth_page("L2CAP CID", "btl2cap.cid", cid);
-        if (page != NULL) {
-            label = gtk_label_new("L2CAP CID");
-            page_l2cap_cid = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        }
-
-        page = decode_add_bluetooth_page("L2CAP PSM", "btl2cap.psm", psm);
-        if (page != NULL) {
-            label = gtk_label_new("L2CAP PSM");
-            page_l2cap_psm = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        }
-
-        page = decode_add_bluetooth_page("RFCOMM Channel", "btrfcomm.channel", channel);
-        if (page != NULL) {
-            label = gtk_label_new("RFCOMM Channel");
-            page_rfcomm_channel = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        }
-
-        page = decode_add_bluetooth_page("RFCOMM SERVICE", "btrfcomm.service", NULL);
-        if (page != NULL) {
-            label = gtk_label_new("RFCOMM SERVICE");
-            page_rfcomm_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        }
-
-        page = decode_add_bluetooth_page("AVCTP SERVICE", "btavctp.service", pid);
-        if (page != NULL) {
-            label = gtk_label_new("AVCTP SERVICE");
-            page_avctp_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        }
-
-        page = NULL;
-
-        /* Notebook must be visible for set_page to work. */
-        gtk_widget_show_all(notebook);
-
-        if (pid)
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_avctp_service);
-        else if (channel)
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_rfcomm_channel);
-        else if (psm)
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_psm);
-        else if (cid)
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_cid);
-        else if (have_rfcomm)
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_rfcomm_service);
-        else
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_service);
-   } else {
-        /* Select the last added page (selects first by default) */
-        /* Notebook must be visible for set_page to work. */
-        gtk_widget_show_all(notebook);
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), -1);
-   }
+    /* Select the last added page (selects first by default) */
+    /* Notebook must be visible for set_page to work. */
+    gtk_widget_show_all(notebook);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), -1);
 }
 
 

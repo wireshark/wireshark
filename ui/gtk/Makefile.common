@@ -56,8 +56,6 @@ WIRESHARK_GTK_SRC = \
 	color_utils.c	\
 	conversation_hastables_dlg.c	\
 	conversations_table.c	\
-	decode_as_ber.c	\
-	decode_as_dcerpc.c	\
 	decode_as_dlg.c	\
 	dfilter_expr_dlg.c	\
 	dissector_tables_dlg.c	\
@@ -249,9 +247,7 @@ noinst_HEADERS = \
 	color_utils.h	\
 	conversation_hastables_dlg.h	\
 	conversations_table.h \
-	decode_as_ber.h	\
 	decode_as_dlg.h	\
-	decode_as_dcerpc.h \
 	dfilter_expr_dlg.h \
 	dissector_tables_dlg.h	\
 	dlg_utils.h	\
