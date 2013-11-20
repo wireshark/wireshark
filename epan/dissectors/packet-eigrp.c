@@ -2512,7 +2512,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             size =  tvb_get_ntohs(tvb, offset + 2);
             if (size == 0) {
-                proto_tree_add_expert(ti, pinfo, &ei_eigrp_tlv_len, tvb, offset, -1);
+                proto_tree_add_expert(eigrp_tree, pinfo, &ei_eigrp_tlv_len, tvb, offset, -1);
                 return(tvb_length(tvb));
             }
 
