@@ -2132,6 +2132,7 @@ main(int argc, char *argv[])
   gboolean             list_link_layer_types = FALSE;
   GList               *if_list;
   gchar               *err_str;
+  int                  status;
 #else
   gboolean             capture_option_specified = FALSE;
 #ifdef _WIN32
@@ -2152,7 +2153,6 @@ main(int argc, char *argv[])
   search_direction     jump_backwards = SD_FORWARD;
   dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
-  int                  status;
 #ifdef HAVE_GTKOSXAPPLICATION
   GtkosxApplication   *theApp;
 #endif
