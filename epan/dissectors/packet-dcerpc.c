@@ -815,7 +815,7 @@ decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
-dcerpc_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+dcerpc_populate_list(const gchar *table_name _U_, decode_as_add_to_list_func add_to_list, gpointer ui_element)
 {
     struct dcerpc_decode_as_populate populate;
 
