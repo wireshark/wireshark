@@ -1680,8 +1680,6 @@ get_persdatafile_dir(void)
 #ifdef _WIN32
     char *u3devicedocumentpath;
     TCHAR tszPath[MAX_PATH];
-    char *szPath;
-    BOOL bRet;
 
     /* Return the cached value, if available */
     if (persdatafile_dir != NULL)
