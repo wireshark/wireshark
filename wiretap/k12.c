@@ -218,6 +218,7 @@ typedef struct _k12_src_desc_t {
  */
 /* so far we've seen these types of records */
 #define K12_REC_PACKET        0x00010020 /* an actual packet */
+#define K12_REC_D0020         0x000d0020 /* an actual packet, seen in a k18 file */
 #define K12_REC_SCENARIO      0x00070040 /* what appears as the window's title */
 #define K12_REC_SRCDSC        0x00070041 /* port-stack mapping + more, the key of the whole thing */
 #define K12_REC_STK_FILE      0x00070042 /* a dump of an stk file */
@@ -225,7 +226,6 @@ typedef struct _k12_src_desc_t {
 #define K12_REC_TEXT          0x00070044 /* a string containing something with a grammar (conditions/responses?) */
 #define K12_REC_START         0x00020030 /* a string containing human readable start time  */
 #define K12_REC_STOP          0x00020031 /* a string containing human readable stop time */
-#define K12_REC_D0020         0x000d0020 /* unknown, seen in a k18 file */
 
 /*
  * According to the Tektronix documentation, packets, i.e. "data events",
@@ -255,6 +255,7 @@ typedef struct _k12_src_desc_t {
 #define K12_PACKET_TIMESTAMP  0x18 /* int64 (8b) representing 1/2us since 01-01-1990 Z00:00:00 */
 
 #define K12_PACKET_FRAME      0x20 /* start of the actual frame in the record */
+#define K12_PACKET_FRAME_D0020 0x34 /* start of the actual frame in the record */
 
 #define K12_PACKET_OFFSET_VP  0x08 /* 2 bytes, big endian */
 #define K12_PACKET_OFFSET_VC  0x0a /* 2 bytes, big endian */
@@ -422,6 +423,23 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
         if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
+	} else if (bytes_read == 4 && buffer[0] == 0xff && buffer[1] == 0xff
+	           && buffer[2] == 0x00 && buffer[3] == 0x00) {
+            /*
+             * In at least one k18 RF5 file, there appears to be a "record"
+             * with a length value of 0xffff0000, followed by a bunch of
+             * data that doesn't appear to be records, including a long
+             * list of numbers.
+             *
+             * We treat a length value of 0xffff0000 as an end-of-file
+             * indication.
+             *
+             * XXX - is this a length indication, or will it appear
+             * at the beginning of an 8KB block, so that we should
+             * check for it above?
+             */
+            K12_DBG(1,("get_record: EOF"));
+            return 0;
         } else if ( bytes_read != 0x4 ) {
             K12_DBG(1,("get_record: SHORT READ OR ERROR"));
             *err = file_error(fh, err_info);
@@ -529,6 +547,8 @@ static void
 process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
                     gint len, k12_t *k12)
 {
+    guint32 type;
+    guint   buffer_offset;
     guint64 ts;
     guint32 length;
     guint32 extra_len;
@@ -545,14 +565,17 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     length = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
     phdr->len = phdr->caplen = length;
 
+    type = pntohl(buffer + K12_RECORD_TYPE);
+    buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
+
     buffer_assure_space(target, length);
-    memcpy(buffer_start_ptr(target), buffer + K12_PACKET_FRAME, length);
+    memcpy(buffer_start_ptr(target), buffer + buffer_offset, length);
 
     /* extra information need by some protocols */
-    extra_len = len - K12_PACKET_FRAME - length;
+    extra_len = len - buffer_offset - length;
     buffer_assure_space(&(k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(k12->extra_info)),
-           buffer + K12_PACKET_FRAME + length, extra_len);
+           buffer + buffer_offset + length, extra_len);
     phdr->pseudo_header.k12.extra_info = (guint8*)buffer_start_ptr(&(k12->extra_info));
     phdr->pseudo_header.k12.extra_length = extra_len;
 
@@ -579,10 +602,10 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
 
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
-                if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
-                    phdr->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
-                    phdr->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
-                    phdr->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+                if ((long)(buffer_offset + length + K12_PACKET_OFFSET_CID) < len) {
+                    phdr->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
+                    phdr->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
+                    phdr->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + buffer_offset + length + K12_PACKET_OFFSET_CID));
                     break;
                 }
                 /* Fall through */
@@ -656,7 +679,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
         offset += len;
 
-    } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET) || !src_id || !src_desc );
+    } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET && (type & K12_MASK_PACKET) != K12_REC_D0020) || !src_id || !src_desc );
 
     process_packet_data(&wth->phdr, wth->frame_buffer, buffer, len, k12);
 
@@ -837,7 +860,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
         }
         type = pntohl( read_buffer + K12_RECORD_TYPE );
 
-        if ( (type & K12_MASK_PACKET) == K12_REC_PACKET) {
+        if ( (type & K12_MASK_PACKET) == K12_REC_PACKET ||
+             (type & K12_MASK_PACKET) == K12_REC_D0020) {
             /*
              * we are at the first packet record, rewind and leave.
              */
