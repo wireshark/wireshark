@@ -540,7 +540,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
     psm = tvb_get_letohs(tvb, offset);
 
     if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-        p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER(psm));
+        p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
     }
 
     if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1364,13 +1364,13 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint16            uuid;
 
         if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-            p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER(psm));
+            p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
         }
 
         uuid = get_service_uuid(pinfo, l2cap_data, psm, is_local_psm);
 
         if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-            p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER(uuid));
+            p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER((guint)uuid));
         }
 
         if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1530,13 +1530,13 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             guint16            uuid;
 
             if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-                p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER(psm));
+                p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
             }
 
             uuid = get_service_uuid(pinfo, l2cap_data, psm, psm_data->local_service);
 
             if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-                p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER(uuid));
+                p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER((guint)uuid));
             }
 
             if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1652,7 +1652,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     cid = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_CID_CONV ) == NULL) {
-        p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_CID_CONV, GUINT_TO_POINTER(cid));
+        p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_CID_CONV, GUINT_TO_POINTER((guint)cid));
     }
     offset += 2;
 
@@ -1789,7 +1789,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         l2cap_data->psm = psm;
 
         if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-            p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER(psm));
+            p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
         }
 
         proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1805,7 +1805,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE );
 
             if (p_get_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-                p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER(uuid));
+                p_add_proto_data(pinfo->fd, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER((guint)uuid));
             }
 
             if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
