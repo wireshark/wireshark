@@ -388,7 +388,7 @@ decode_ber_add_to_list(gpointer key, gpointer value, gpointer user_data)
     populate->add_to_list("ASN.1", (gchar *)key, value, populate->ui_element);
 }
 
-static void ber_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element)
+static void ber_populate_list(const gchar *table_name _U_, decode_as_add_to_list_func add_to_list, gpointer ui_element)
 {
     struct ber_decode_as_populate populate;
 
