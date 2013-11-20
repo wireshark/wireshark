@@ -2784,7 +2784,7 @@ dissect_ssl3_hnd_cert_url(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
         offset += 2;
 
         proto_tree_add_item(urlhash_tree, hf_ssl_hs_ext_cert_url_url,
-                            tvb, offset, url_len, ENC_ASCII);
+                            tvb, offset, url_len, ENC_ASCII|ENC_NA);
         offset += url_len;
 
         proto_tree_add_item(urlhash_tree, hf_ssl_hs_ext_cert_url_padding,
@@ -2867,7 +2867,7 @@ dissect_ssl3_hnd_hello_ext_status_request_v2(tvbuff_t *tvb, proto_tree *tree,
     offset += 3;
 
     while (list_len-- > 0)
-        offset += dissect_ssl3_hnd_hello_ext_status_request(tvb, tree, offset, TRUE);
+        offset = dissect_ssl3_hnd_hello_ext_status_request(tvb, tree, offset, TRUE);
 
     return offset;
 }
@@ -3948,7 +3948,7 @@ dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
             offset += 3;
 
             while (list_len-- > 0)
-                offset += dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
+                offset = dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
 
             break;
         }
