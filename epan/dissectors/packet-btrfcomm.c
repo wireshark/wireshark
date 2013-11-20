@@ -459,7 +459,7 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
     proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", dlci & 0x01, channel);
 
     if (p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV ) == NULL) {
-        p_add_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV, GUINT_TO_POINTER(channel));
+        p_add_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV, GUINT_TO_POINTER((guint)channel));
     }
 
     dlci_tree = proto_item_add_subtree(dlci_item, ett_dlci);
@@ -785,7 +785,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;
 
         if (p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV ) == NULL) {
-            p_add_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV, GUINT_TO_POINTER(service_info->uuid.bt_uuid));
+            p_add_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV, GUINT_TO_POINTER((guint)service_info->uuid.bt_uuid));
         }
 
         if (!dissector_try_uint_new(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
