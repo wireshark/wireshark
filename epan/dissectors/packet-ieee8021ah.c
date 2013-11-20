@@ -36,6 +36,8 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 
+static dissector_handle_t ethertype_handle;
+
 void proto_reg_handoff_ieee8021ah(void);
 void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 			       proto_tree *tree, proto_tree *parent, int tree_index);
@@ -113,6 +115,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *volatile ieee8021ad_tag_tree;
     int proto_tree_index;
     tvbuff_t *volatile next_tvb = NULL;
+    ethertype_data_t ethertype_data;
 
     /* set tree index */
     proto_tree_index = proto_ieee8021ad;
@@ -136,6 +139,10 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     encap_proto = tvb_get_ntohs(tvb, IEEE8021AD_LEN - 2);
+    ethertype_data.fh_tree = ieee8021ad_tree;
+    ethertype_data.etype_id = hf_ieee8021ah_etype;
+    ethertype_data.trailer_id = hf_ieee8021ah_trailer;
+    ethertype_data.fcs_len = 0;
 
     /* If it's a 1ah frame, create subtree for B-Tag, rename overall
        tree to 802.1ah, pass to 1ah dissector */
@@ -188,11 +195,12 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item_set_text(ptree, "IEEE 802.1ad, S-VID: %d, C-VID: %d", tci & 0x0FFF,
 			    ctci & 0x0FFF);
 
+	ethertype_data.etype = tvb_get_ntohs(tvb, IEEE8021AD_LEN * 2 - 2);
+	ethertype_data.offset_after_ethertype = IEEE8021AD_LEN * 2;
+
 	/* 802.1ad tags are always followed by an ethertype; call next
 	   dissector based on ethertype */
-	encap_proto = tvb_get_ntohs(tvb, IEEE8021AD_LEN * 2 - 2);
-	ethertype(encap_proto, tvb, IEEE8021AD_LEN * 2, pinfo, tree, ieee8021ad_tree,
-		  hf_ieee8021ah_etype, hf_ieee8021ah_trailer, 0);
+	call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     } else {
 	/* Something else (shouldn't really happen, but we'll support it anyways) */
 	if (tree) {
@@ -206,10 +214,12 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 	/* label should be 802.1ad not .1ah */
 	proto_item_set_text(ptree, "IEEE 802.1ad, ID: %d", tci & 0x0FFF);
 
+	ethertype_data.etype = encap_proto;
+	ethertype_data.offset_after_ethertype = IEEE8021AD_LEN;
+
 	/* 802.1ad tags are always followed by an ethertype; call next
 	   dissector based on ethertype */
-	ethertype(encap_proto, tvb, IEEE8021AD_LEN, pinfo, tree, ieee8021ad_tree,
-		  hf_ieee8021ah_etype, hf_ieee8021ah_trailer, 0);
+	call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     }
 }
 
@@ -220,6 +230,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
     guint16 encap_proto;
     proto_tree *ptree;
     proto_tree *volatile ieee8021ah_tag_tree;
+    ethertype_data_t ethertype_data;
 
     /* for parsing out ethernet addrs */
     const guint8 *src_addr, *dst_addr;
@@ -281,13 +292,18 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
     /* If this was preceded by a 802.1ad tag, must pass original tree
        to next dissector, not 802.1ad tree */
+    ethertype_data.etype = encap_proto;
+    ethertype_data.fh_tree = tree;
+    ethertype_data.offset_after_ethertype = IEEE8021AH_LEN;
+    ethertype_data.etype_id = hf_ieee8021ah_etype;
+    ethertype_data.trailer_id = hf_ieee8021ah_trailer;
+    ethertype_data.fcs_len = 0;
+
     if (parent) {
-	ethertype(encap_proto, tvb, IEEE8021AH_LEN, pinfo, parent, tree,
-		  hf_ieee8021ah_etype, hf_ieee8021ah_trailer, 0);
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, parent, &ethertype_data);
     }
     else {
-	ethertype(encap_proto, tvb, IEEE8021AH_LEN, pinfo, tree, tree,
-		  hf_ieee8021ah_etype, hf_ieee8021ah_trailer, 0);
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     }
 }
 
@@ -431,6 +447,8 @@ proto_reg_handoff_ieee8021ah(void)
 	ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
 						    proto_ieee8021ad);
 	dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
+	ethertype_handle = find_dissector("ethertype");
+
 	prefs_initialized = TRUE;
     }
     else {

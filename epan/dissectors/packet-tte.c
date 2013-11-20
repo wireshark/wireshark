@@ -39,6 +39,8 @@
 
 #include "packet-tte.h"
 
+static dissector_handle_t ethertype_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_tte = -1;
 
@@ -62,6 +64,7 @@ static int
 dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int is_frame_pcf;
+    ethertype_data_t ethertype_data;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *tte_root_item, *tte_macdest_item;
@@ -120,9 +123,14 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 
     /* call std Ethernet dissector */
-    ethertype (tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2), tvb
-        , 14, pinfo, tree, NULL, hf_eth_type, 0, 0 );
+    ethertype_data.etype = tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2);
+    ethertype_data.offset_after_ethertype = 14;
+    ethertype_data.fh_tree = NULL;
+    ethertype_data.etype_id = hf_eth_type;
+    ethertype_data.trailer_id = 0;
+    ethertype_data.fcs_len = 0;
 
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     return tvb_length(tvb);
 }
 
@@ -182,4 +190,6 @@ proto_reg_handoff_tte(void)
     hf_eth_dst  = proto_registrar_get_id_byname ("eth.dst");
     hf_eth_src  = proto_registrar_get_id_byname ("eth.src");
     hf_eth_type = proto_registrar_get_id_byname ("eth.type");
+
+    ethertype_handle = find_dissector("ethertype");
 }

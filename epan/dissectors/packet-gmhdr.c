@@ -88,6 +88,8 @@ static const value_string gmhdr_plfm_str[] = {
   { 0, NULL }
 };
 
+static dissector_handle_t ethertype_handle;
+
 static gboolean gmhdr_summary_in_tree = TRUE;
 static gboolean gmtrailer_summary_in_tree = TRUE;
 static gboolean gmhdr_decode_timestamp_trailer = TRUE;
@@ -260,8 +262,16 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_802_3(encap_proto, is_802_2, tvb, offset, pinfo, tree, gmhdr_tree,
                   hf_gmhdr_len, hf_gmhdr_trailer, &ei_gmhdr_len, 0);
   } else {
-    ethertype(encap_proto, tvb, offset, pinfo, tree, gmhdr_tree,
-              hf_gmhdr_etype, hf_gmhdr_trailer, 0);
+    ethertype_data_t ethertype_data;
+
+    ethertype_data.etype = encap_proto;
+    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.fh_tree = gmhdr_tree;
+    ethertype_data.etype_id = hf_gmhdr_etype;
+    ethertype_data.trailer_id = hf_gmhdr_trailer;
+    ethertype_data.fcs_len = 0;
+
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
   }
 }
 
@@ -501,6 +511,8 @@ void
 proto_reg_handoff_gmhdr(void)
 {
   dissector_handle_t gmhdr_handle;
+
+  ethertype_handle = find_dissector("ethertype");
 
   gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);

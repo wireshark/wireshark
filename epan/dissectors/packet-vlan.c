@@ -45,6 +45,7 @@ static gboolean vlan_summary_in_tree = TRUE;
 
 
 static dissector_handle_t vlan_handle;
+static dissector_handle_t ethertype_handle;
 
 static header_field_info *hfi_vlan = NULL;
 
@@ -173,8 +174,16 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
                   hfi_vlan_len.id, hfi_vlan_trailer.id, &ei_vlan_len, 0);
   } else {
-    ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree,
-              hfi_vlan_etype.id, hfi_vlan_trailer.id, 0);
+    ethertype_data_t ethertype_data;
+
+    ethertype_data.etype = encap_proto;
+    ethertype_data.offset_after_ethertype = 4;
+    ethertype_data.fh_tree = vlan_tree;
+    ethertype_data.etype_id = hfi_vlan_etype.id;
+    ethertype_data.trailer_id = hfi_vlan_trailer.id;
+    ethertype_data.fcs_len = 0;
+
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
   }
 }
 
@@ -242,6 +251,7 @@ proto_reg_handoff_vlan(void)
   }
 
   old_q_in_q_ethertype = q_in_q_ethertype;
+  ethertype_handle = find_dissector("ethertype");
 
   dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
 }

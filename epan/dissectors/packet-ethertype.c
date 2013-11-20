@@ -51,6 +51,8 @@ static dissector_table_t ethertype_dissector_table;
 
 static dissector_handle_t data_handle;
 
+static int proto_ethertype = -1;
+
 const value_string etype_vals[] = {
 	{ ETHERTYPE_IP,                   "IP" },
 	{ ETHERTYPE_IPv6,                 "IPv6" },
@@ -226,10 +228,14 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 	}
 }
 
+/*
 void
 ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	  packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 	  int etype_id, int trailer_id, int fcs_len)
+*/
+static int
+dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const char		*description;
 	tvbuff_t		*volatile next_tvb;
@@ -238,18 +244,17 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	volatile gboolean	dissector_found = FALSE;
 	const char		*volatile saved_proto;
 	void			*pd_save;
+    ethertype_data_t* ethertype_data = (ethertype_data_t*)data;
 
 	/* Add the Ethernet type to the protocol tree */
-	if (tree) {
-		proto_tree_add_uint(fh_tree, etype_id, tvb,
-				    offset_after_etype - 2, 2, etype);
-	}
+	proto_tree_add_uint(ethertype_data->fh_tree, ethertype_data->etype_id, tvb,
+				    ethertype_data->offset_after_ethertype - 2, 2, ethertype_data->etype);
 
 	/* Get the captured length and reported length of the data
 	   after the Ethernet type. */
-	captured_length = tvb_length_remaining(tvb, offset_after_etype);
+	captured_length = tvb_length_remaining(tvb, ethertype_data->offset_after_ethertype);
 	reported_length = tvb_reported_length_remaining(tvb,
-							offset_after_etype);
+							ethertype_data->offset_after_ethertype);
 
 	/* Remember how much data there is after the Ethernet type,
 	   including any trailer and FCS. */
@@ -260,18 +265,18 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	   (If it's zero, there's no FCS; if it's negative,
 	   we don't know whether there's an FCS, so we'll
 	   guess based on the length of the trailer.) */
-	if (fcs_len > 0) {
+	if (ethertype_data->fcs_len > 0) {
 		if (captured_length >= 0 && reported_length >= 0) {
-			if (reported_length >= fcs_len)
-				reported_length -= fcs_len;
+			if (reported_length >= ethertype_data->fcs_len)
+				reported_length -= ethertype_data->fcs_len;
 			if (captured_length > reported_length)
 				captured_length = reported_length;
 		}
 	}
-	next_tvb = tvb_new_subset(tvb, offset_after_etype, captured_length,
+	next_tvb = tvb_new_subset(tvb, ethertype_data->offset_after_ethertype, captured_length,
 				  reported_length);
 
-	pinfo->ethertype = etype;
+	pinfo->ethertype = ethertype_data->etype;
 
 	/* Look for sub-dissector, and call it if found.
 	   Catch exceptions, so that if the reported length of "next_tvb"
@@ -281,7 +286,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	pd_save = pinfo->private_data;
 	TRY {
 		dissector_found = dissector_try_uint(ethertype_dissector_table,
-						     etype, next_tvb, pinfo, tree);
+						     ethertype_data->etype, next_tvb, pinfo, tree);
 	}
 	CATCH_NONFATAL_ERRORS {
 		/* Somebody threw an exception that means that there
@@ -312,16 +317,18 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 
 		/* Label protocol */
-		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", etype);
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", ethertype_data->etype);
 
-		description = try_val_to_str(etype, etype_vals);
+		description = try_val_to_str(ethertype_data->etype, etype_vals);
 		if (description) {
 			col_add_str(pinfo->cinfo, COL_INFO, description);
 		}
 	}
 
-	add_dix_trailer(pinfo, tree, fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
-			length_before, fcs_len);
+	add_dix_trailer(pinfo, tree, ethertype_data->fh_tree, ethertype_data->trailer_id, tvb, next_tvb, ethertype_data->offset_after_ethertype,
+			length_before, ethertype_data->fcs_len);
+
+	return tvb_length(tvb);
 }
 
 static void
@@ -363,6 +370,10 @@ add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int t
 void
 proto_register_ethertype(void)
 {
+    proto_ethertype = proto_register_protocol("Ethertype", "Ethertype", "ethertype");
+
+    new_register_dissector("ethertype", dissect_ethertype, proto_ethertype);
+
 	/* subdissector code */
 	ethertype_dissector_table = register_dissector_table("ethertype",
 							     "Ethertype", FT_UINT16, BASE_HEX);

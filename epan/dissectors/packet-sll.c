@@ -77,6 +77,7 @@ static const value_string ltype_vals[] = {
 
 
 static dissector_handle_t sll_handle;
+static dissector_handle_t ethertype_handle;
 
 static header_field_info *hfi_sll = NULL;
 
@@ -200,6 +201,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	tvbuff_t *next_tvb;
 	proto_tree *fh_tree = NULL;
+	ethertype_data_t ethertype_data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLL");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -298,8 +300,14 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   protocol, next_tvb, pinfo, tree);
 			break;
 		default:
-			ethertype(protocol, tvb, SLL_HEADER_SIZE, pinfo, tree,
-				  fh_tree, hfi_sll_etype.id, hfi_sll_trailer.id, 0);
+			ethertype_data.etype = protocol;
+			ethertype_data.offset_after_ethertype = SLL_HEADER_SIZE;
+			ethertype_data.fh_tree = fh_tree;
+			ethertype_data.etype_id = hfi_sll_etype.id;
+			ethertype_data.trailer_id = hfi_sll_trailer.id;
+			ethertype_data.fcs_len = 0;
+
+			call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
 			break;
 		}
 	}
@@ -356,6 +364,7 @@ proto_reg_handoff_sll(void)
 	 */
 	gre_dissector_table = find_dissector_table("gre.proto");
 	data_handle = find_dissector("data");
+	ethertype_handle = find_dissector("ethertype");
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
 }

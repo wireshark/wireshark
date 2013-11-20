@@ -90,6 +90,7 @@ static expert_field ei_eth_fcs_bad = EI_INIT;
 static expert_field ei_eth_len = EI_INIT;
 
 static dissector_handle_t fw1_handle;
+static dissector_handle_t ethertype_handle;
 static dissector_handle_t data_handle;
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
@@ -229,6 +230,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   proto_tree        *tree;
   proto_item        *addr_item;
   proto_tree        *addr_tree=NULL;
+  ethertype_data_t  ethertype_data;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -460,8 +462,14 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
-    ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
-          hf_eth_trailer, fcs_len);
+    ethertype_data.etype = ehdr->type;
+    ethertype_data.offset_after_ethertype = ETH_HEADER_SIZE;
+    ethertype_data.fh_tree = fh_tree;
+    ethertype_data.etype_id = hf_eth_type;
+    ethertype_data.trailer_id = hf_eth_trailer;
+    ethertype_data.fcs_len = fcs_len;
+
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, parent_tree, &ethertype_data);
   }
   return fh_tree;
 }
@@ -938,6 +946,9 @@ proto_reg_handoff_eth(void)
 
     /* Get a handle for the Firewall-1 dissector. */
     fw1_handle = find_dissector("fw1");
+
+    /* Get a handle for the ethertype dissector. */
+    ethertype_handle = find_dissector("ethertype");
 
     /* Get a handle for the generic data dissector. */
     data_handle = find_dissector("data");

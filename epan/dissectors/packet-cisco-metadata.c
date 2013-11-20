@@ -32,6 +32,8 @@
 #include "packet-ieee8023.h"
 #endif
 
+static dissector_handle_t ethertype_handle;
+
 static int proto_cmd = -1;
 
 static int hf_cmd_version = -1;
@@ -48,6 +50,7 @@ static void
 dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint16 encap_proto;
+    ethertype_data_t ethertype_data;
 
     proto_tree *cmd_tree = NULL;
     gint offset = 0;
@@ -88,8 +91,14 @@ dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
 #endif
 
-    ethertype(encap_proto, tvb, 8, pinfo, tree, cmd_tree,
-          hf_eth_type, hf_cmd_trailer, 0);
+    ethertype_data.etype = encap_proto;
+    ethertype_data.offset_after_ethertype = 8;
+    ethertype_data.fh_tree = cmd_tree;
+    ethertype_data.etype_id = hf_eth_type;
+    ethertype_data.trailer_id = hf_cmd_trailer;
+    ethertype_data.fcs_len = 0;
+
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
 }
 
 void
@@ -129,6 +138,8 @@ void
 proto_reg_handoff_cmd(void)
 {
     dissector_handle_t cmd_handle;
+
+    ethertype_handle = find_dissector("ethertype");
 
     cmd_handle = create_dissector_handle(dissect_cmd, proto_cmd);
     dissector_add_uint("ethertype", ETHERTYPE_CMD, cmd_handle);

@@ -96,6 +96,8 @@ static gboolean fw1_summary_in_tree = TRUE;
 static gboolean fw1_with_uuid = FALSE;
 static gboolean fw1_iflist_with_chain = FALSE;
 
+static dissector_handle_t ethertype_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_fw1 = -1;
 static int hf_fw1_direction = -1;
@@ -130,11 +132,11 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char  chain;
   char          *interface_name;
   guint32       iface_len = 10;
-  guint16       etype;
   wmem_strbuf_t *header;
   int           i;
   gboolean      found;
   static const char     fw1_header[] = "FW1 Monitor";
+  ethertype_data_t ethertype_data;
 
   header = wmem_strbuf_new_label(wmem_epan_scope());
   wmem_strbuf_append(header, fw1_header);
@@ -211,8 +213,14 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, ENC_BIG_ENDIAN);
   }
 
-  etype = tvb_get_ntohs(tvb, 12);
-  ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type, hf_fw1_trailer, 0);
+  ethertype_data.etype = tvb_get_ntohs(tvb, 12);
+  ethertype_data.offset_after_ethertype = ETH_HEADER_SIZE;
+  ethertype_data.fh_tree = fh_tree;
+  ethertype_data.etype_id = hf_fw1_type;
+  ethertype_data.trailer_id = hf_fw1_trailer;
+  ethertype_data.fcs_len = 0;
+
+  call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
 }
 
 void
@@ -279,4 +287,10 @@ proto_register_fw1(void)
     p_interfaces[i] = NULL;
   }
   register_init_routine(fw1_init);
+}
+
+void
+proto_reg_handoff_fw1(void)
+{
+    ethertype_handle = find_dissector("ethertype");
 }

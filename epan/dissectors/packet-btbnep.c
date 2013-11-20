@@ -75,6 +75,7 @@ static gboolean top_dissect                                              = TRUE;
 
 static dissector_handle_t eth_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t ethertype_handle;
 
 static const true_false_string ig_tfs = {
     "Group address (multicast/broadcast)",
@@ -366,8 +367,16 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (bnep_type != BNEP_TYPE_CONTROL) {
         /* dissect normal network */
        if (top_dissect) {
-            ethertype(type, tvb, offset, pinfo, tree, btbnep_tree,
-                    hf_btbnep_type, 0, 0);
+           ethertype_data_t ethertype_data;
+
+           ethertype_data.etype = type;
+           ethertype_data.offset_after_ethertype = offset;
+           ethertype_data.fh_tree = btbnep_tree;
+           ethertype_data.etype_id = hf_btbnep_type;
+           ethertype_data.trailer_id = 0;
+           ethertype_data.fcs_len = 0;
+
+           call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
        } else {
             tvbuff_t  *next_tvb;
 
@@ -539,6 +548,7 @@ proto_reg_handoff_btbnep(void)
     btbnep_handle = find_dissector("btbnep");
     eth_handle    = find_dissector("eth");
     data_handle   = find_dissector("data");
+    ethertype_handle = find_dissector("ethertype");
 
     dissector_add_uint("btl2cap.service", BTSDP_PAN_GN_SERVICE_UUID, btbnep_handle);
     dissector_add_uint("btl2cap.service", BTSDP_PAN_NAP_SERVICE_UUID, btbnep_handle);

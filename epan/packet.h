@@ -459,9 +459,16 @@ extern void dissect_packet(epan_dissect_t *edt,
 /* These functions are in packet-ethertype.c */
 extern void capture_ethertype(guint16 etype, const guchar *pd, int offset,
 		int len, packet_counts *ld);
-WS_DLL_PUBLIC void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
-		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
-		int etype_id, int trailer_id, int fcs_len);
+/* Structure passed to the ethertype dissector */
+typedef struct ethertype_data_s
+{
+    guint16 etype;
+    int offset_after_ethertype;
+    proto_tree *fh_tree;
+    int etype_id;
+    int trailer_id;
+    int fcs_len;
+} ethertype_data_t;
 
 /*
  * Dump layer/selector/dissector records in a fashion similar to the

@@ -48,6 +48,8 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+static dissector_handle_t ethertype_handle;
+
 static int proto_vmlab = -1;
 
 static int hf_vmlab_flags_part1 = -1;           /* Unknown so far */
@@ -72,7 +74,6 @@ static const value_string fragment_vals[] = {
 static void
 dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
     proto_tree*     volatile vmlab_tree;
     proto_item*     ti;
 
@@ -82,6 +83,7 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const guint8*   dst_addr;
     guint8          attributes;
     guint8          portgroup;
+    ethertype_data_t ethertype_data;
 
     volatile guint16 encap_proto;
 
@@ -132,8 +134,14 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     /* Now call whatever was encapsulated*/
-    ethertype(encap_proto, tvb, offset, pinfo, tree, vmlab_tree, hf_vmlab_etype, hf_vmlab_trailer, 0);
+    ethertype_data.etype = encap_proto;
+    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.fh_tree = vmlab_tree;
+    ethertype_data.etype_id = hf_vmlab_etype;
+    ethertype_data.trailer_id = hf_vmlab_trailer;
+    ethertype_data.fcs_len = 0;
 
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
 }
 
 void
@@ -178,4 +186,6 @@ proto_reg_handoff_vmlab(void)
     vmlab_handle = create_dissector_handle(dissect_vmlab, proto_vmlab);
 
     dissector_add_uint("ethertype", ETHERTYPE_VMLAB, vmlab_handle);
+
+    ethertype_handle = find_dissector("ethertype");
 }
