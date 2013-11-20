@@ -37,7 +37,7 @@ extern "C" {
  * process command line option that affects the paths of the directories
  * used for personal files (configuration, saved captures)
  */
-WS_DLL_PUBLIC gboolean persfilepath_opt(int opt, const char *optstr);
+extern gboolean persfilepath_opt(int opt, const char *optstr);
 
 #ifdef __cplusplus
 }
