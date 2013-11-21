@@ -38,6 +38,8 @@ since version 1.11.1:
 The following features are new (or have been significantly updated)
 since version 1.11.0:
 
+* Dissector output may be encoded as UTF-8. This includes TShark output.
+
 * Qt port:
 
 ** The Follow Stream dialog now supports packet and TCP stream selection.
