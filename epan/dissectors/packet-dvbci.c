@@ -427,6 +427,8 @@
 #define OPP_TUNE_INVALID     2
 #define OPP_TUNE_ERR         3
 
+#define OPP_NO_MORE_DESC 0xFF
+
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
 #define SAS_SESS_STATE_NOT_FOUND 1
@@ -3713,6 +3715,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
     guint8      cap_loop_len;
     gboolean    info_valid;
     guint8      char_tbl;
+    guint8      desc_num;
     guint8      sig_strength, sig_qual;
     proto_item *pi;
 
@@ -3844,8 +3847,11 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, pinfo, tree);
           break;
         case T_OPERATOR_TUNE_STATUS:
-          proto_tree_add_item(tree, hf_dvbci_desc_num,
+          desc_num = tvb_get_guint8(tvb, offset);
+          pi = proto_tree_add_item(tree, hf_dvbci_desc_num,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
+          if (desc_num==OPP_NO_MORE_DESC)
+              proto_item_append_text(pi, " (all descriptors were processed)");
           offset++;
           sig_strength = tvb_get_guint8(tvb, offset);
           proto_tree_add_item(tree, hf_dvbci_sig_strength,
