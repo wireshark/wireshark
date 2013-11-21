@@ -296,6 +296,9 @@ WIRESHARK_QT_SRC = \
 	uat_dialog.cpp \
 	wireshark_application.cpp
 
+WIRESHARK_QT_TAP_SRC = \
+	stats_tree_dialog.cpp
+
 noinst_HEADERS = \
 	$(MOC_HDRS) \
 	packet_list_record.h \
