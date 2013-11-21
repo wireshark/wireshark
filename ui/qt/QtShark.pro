@@ -157,6 +157,25 @@ win32 {
     }
 }
 
+SOURCES_TAP = \
+    stats_tree_dialog.cpp
+
+tap_register.name = Generate wireshark-tap-register.c
+tap_register.input = SOURCES_TAP
+tap_register.output = wireshark-tap-register.c
+tap_register.variable_out = SOURCES
+win32 {
+    isEmpty(PYTHON) {
+	tap_register.commands = $${SH} ../../tools/make-tapreg-dotc wireshark-tap-register.c . $$SOURCES_TAP
+    } else {
+	tap_register.commands = $${PYTHON} "../../tools/make-tap-reg.py" . taps $$SOURCES_TAP
+    }
+} else {
+    tap_register.commands = python ../../tools/make-tap-reg.py . taps $$SOURCES_TAP
+}
+#tap_register.CONFIG += no_link
+QMAKE_EXTRA_COMPILERS += tap_register
+
 INCLUDEPATH += ../.. ../../wiretap
 win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/gtk2/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk2/lib/glib-2.0/include \
@@ -188,7 +207,8 @@ SOURCES_WS_C = \
     ../../proto_hier_stats.c      \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
-    ../../version_info.c
+    ../../version_info.c    \
+    wireshark-tap-register.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
 win32:SOURCES_WS_C += \

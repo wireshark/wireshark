@@ -478,6 +478,9 @@ guilibsdll = $(guilibsdll)
 
 HHC_LIBS = $(HHC_LIBS)
 
+SH = $(SH)
+PYTHON = $(PYTHON)
+
 MSVC_VARIANT = $(MSVC_VARIANT)
 MSVCR_DLL = "$(MSVCR_DLL:\=/)"
 
