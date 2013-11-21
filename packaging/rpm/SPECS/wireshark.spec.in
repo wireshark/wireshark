@@ -155,8 +155,13 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %package	qt
 Summary:	Qt GUI for Wireshark
 Group:		Applications/Internet
+%if 0%{?suse_version}
+Requires:	libqt4 >= @QT_MIN_VERSION@
+BuildRequires:	libqt4-devel >= @QT_MIN_VERSION@
+%else
 Requires:	qt >= @QT_MIN_VERSION@
 BuildRequires:	qt-devel >= @QT_MIN_VERSION@
+%endif
 Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
