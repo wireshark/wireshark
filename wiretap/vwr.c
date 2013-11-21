@@ -97,7 +97,6 @@ typedef struct {
     gint8   signalb;                                /* transmit power, +/- dBm */
     gint8   signalc;                                /* transmit power, +/- dBm */
     gint8   signald;                                /* transmit power, +/- dBm */
-    guint8  pad;
     guint16 vw_flags;                               /* VeriWave-specific packet flags */
     guint16 vw_ht_length;                           /* ht length (in plcp header)*/
     guint16 vw_info;                                /* VeriWave-specific information */
@@ -809,7 +808,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     int      f_len, v_type;
     guint16  data_length  = 0;
     guint16  fpga_version;
-
+    int      valid_but_empty_file = -1;
+ 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
         *err = file_error(wth->fh, err_info);
@@ -838,6 +838,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
             else if (v_type != VT_FRAME) {
                 if (file_seek(wth->fh, f_len, SEEK_CUR, err) < 0)
                     return -1;
+                else if (v_type == VT_CPMSG)
+                    valid_but_empty_file = 1;
             }
             else {
                 rec_size = f_len;
@@ -937,6 +939,10 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
             }
         }
     }
+
+    // An empty file that 
+    if (valid_but_empty_file > 0)
+        return(S3_W_FPGA);
 
     *err = file_error(wth->fh, err_info);
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
@@ -1305,6 +1311,7 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
                 rssi[i] = (s_start_ptr[4+i] >= 128) ? (s_start_ptr[4+i] - 256) : s_start_ptr[4+i];
             }
         }
+
         plcp_ptr = &(rec[16]);
     }
 
