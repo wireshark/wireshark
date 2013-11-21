@@ -1144,6 +1144,11 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
         return 0;
     }
 
+    if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+        luaL_error(L,"out of bounds");
+        return 0;
+    }
+
     lua_pushstring(L, (gchar*)tvb_get_stringz(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,NULL) );
 
     WSLUA_RETURN(1); /* The zero terminated string */
@@ -1156,6 +1161,11 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+        luaL_error(L,"out of bounds");
         return 0;
     }
 
@@ -1173,6 +1183,11 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+        luaL_error(L,"out of bounds");
         return 0;
     }
 
