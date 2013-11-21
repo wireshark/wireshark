@@ -455,7 +455,7 @@ static const enum_val_t dmx_display_line_format[] = {
 static gboolean
 is_acn(tvbuff_t *tvb)
 {
-  static char acn_packet_id[] = "ASC-E1.17\0\0\0";  /* must be 12 bytes */
+  static const char acn_packet_id[] = "ASC-E1.17\0\0\0";  /* must be 12 bytes */
 
   if (tvb_length(tvb) < (4+sizeof(acn_packet_id)))
     return FALSE;
@@ -1849,7 +1849,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
   }
 
   i = 0;
-  /* do our convert, comes out backwords! */
+  /* do our convert, comes out backwards! */
   do {
     string[i++] = "0123456789ABCDEF"[level % base];
   } while ((level /= base) > 0);
@@ -3250,3 +3250,17 @@ proto_reg_handoff_acn(void)
   /* dissector_add_handle("udp.port", acn_handle);                         */
   heur_dissector_add("udp", dissect_acn_heur, proto_acn);
 }
+
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
