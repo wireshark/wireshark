@@ -35,6 +35,72 @@ typedef struct _value_string {
     const gchar *strptr;
 } value_string;
 
+#if 0
+  /*---  VALUE_STRING "Helper" macros  */
+
+  /* Essentially: Provide the capability to define a list of value_strings once and
+     then to expand the list as an enum and/or as a value_string array. */
+
+  /* Usage: */
+
+  /*- define list of value strings -*/
+     #define foo_VALUE_STRING_LIST(XXX) \
+        XXX( foo_a, 1, "aaa" ) \
+        XXX( foo_b, 3, "bbb" )
+
+  /*- gen enum -*/
+     VALUE_STRING_ENUM(foo);      /* gen's 'enum {foo_a=1, foo_b=3};' */
+
+  /*- gen value_string array -*/
+     /* local */
+     VALUE_STRING_ARRAY(foo);     /* gen's 'static const value_string foo[] = {{1,"aaa"}, {3,"bbb"}}; */
+
+     /* global */
+     VALUE_STRING_ARRAY_GLOBAL_DEF(foo); /* gen's 'const value_string foo[] = {{1,"aaa"}, {3,"bbb"}}; */
+     VALUE_STRING_ARRAY_GLOBAL_DCL(foo); /* gen's 'const value_string foo[]; */
+
+  /* Alternatively: */
+     #define bar_VALUE_STRING_LIST(XXX) \
+        XXX( bar_a, 1) \
+        XXX( bar_b, 3)
+
+     VALUE_STRING_ENUM2(bar);     /* gen's 'enum {bar_a=1, bar_b=3};' */
+     VALUE_STRING_ARRAY2(bar);    /* gen's 'static const value_string bar[] = {{1,"bar_a"}, {3,"bar_b"}}; */
+     ...
+#endif
+
+/* -- Public -- */
+#define VALUE_STRING_ENUM(             array_name) _VS_ENUM_XXX( array_name, _VS_ENUM_ENTRY)
+#define VALUE_STRING_ARRAY(            array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY, static)
+#define VALUE_STRING_ARRAY_GLOBAL_DEF( array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY, )
+#define VALUE_STRING_ARRAY_GLOBAL_DCL( array_name) _VS_ARRAY_SC_TYPE_NAME(array_name, extern)
+
+#define VALUE_STRING_ENUM2(             array_name) _VS_ENUM_XXX( array_name, _VS_ENUM_ENTRY2)
+#define VALUE_STRING_ARRAY2(            array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY2, static)
+#define VALUE_STRING_ARRAY2_GLOBAL_DEF( array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY2, )
+#define VALUE_STRING_ARRAY2_GLOBAL_DCL( array_name) _VS_ARRAY_SC_TYPE_NAME(array_name, extern)
+
+/* -- Private -- */
+#define _VS_ENUM_XXX(array_name, macro) \
+enum { \
+    array_name##_VALUE_STRING_LIST(macro) \
+}
+
+#define _VS_ARRAY_XXX(array_name, macro, sc)  \
+    _VS_ARRAY_SC_TYPE_NAME(array_name, sc) = {    \
+    array_name##_VALUE_STRING_LIST(macro) \
+    { 0, NULL } \
+}
+
+#define _VS_ARRAY_SC_TYPE_NAME(array_name, sc) sc const value_string array_name[]
+
+#define _VS_ENUM_ENTRY( name, value, string) name = value,
+#define _VS_ARRAY_ENTRY(name, value, string) { value, string },
+
+#define _VS_ENUM_ENTRY2( name, value) name = value,
+#define _VS_ARRAY_ENTRY2(name, value) { value, #name },
+/* ----- ----- */
+
 WS_DLL_PUBLIC
 const gchar *
 val_to_str(const guint32 val, const value_string *vs, const char *fmt);
