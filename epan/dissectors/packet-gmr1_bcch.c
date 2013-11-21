@@ -761,17 +761,21 @@ CSN_DESCR_BEGIN(Segment3Kbis_t)
   M_FIXED_LABEL(Segment3Kbis_t, 4, 0xb, "= Segment type: K bis"),
 CSN_DESCR_END  (Segment3Kbis_t)
 
+#if 0
 static const
 CSN_DESCR_BEGIN(Segment3L_t)
   M_FIXED_LABEL(Segment3L_t, 1, 0x0, "= Class type: 3"),
   M_FIXED_LABEL(Segment3L_t, 4, 0xc, "= Segment type: L"),
 CSN_DESCR_END  (Segment3L_t)
+#endif
 
+#if 0
 static const
 CSN_DESCR_BEGIN(Segment3M_t)
   M_FIXED_LABEL(Segment3M_t, 1, 0x0, "= Class type: 3"),
   M_FIXED_LABEL(Segment3M_t, 4, 0xd, "= Segment type: M"),
 CSN_DESCR_END  (Segment3M_t)
+#endif
 
 static const
 CSN_DESCR_BEGIN(Segment4A_t)
@@ -1024,10 +1028,10 @@ static const value_string si1_randomization_period_vals[] = {
 static void
 dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *bcch_item = NULL;
-	proto_tree *bcch_tree = NULL;
+	proto_item  *bcch_item = NULL;
+	proto_tree  *bcch_tree = NULL;
 	csnStream_t  ar;
-	gboolean is_si1;
+	gboolean     is_si1;
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(BCCH) ");
 
