@@ -396,11 +396,10 @@ static void NetIdFormater(tvbuff_t *tvb, guint offset, char *szText, gint nMax)
 
 
 /*ams*/
-static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gint dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
    proto_item *ti, *anItem;
    proto_tree *ams_tree = NULL, *ams_adstree, *ams_statetree;
-   gint offset = 0;
    guint ams_length = tvb_reported_length(tvb);
    guint16 stateflags = 0;
    guint16 cmdId = 0;
@@ -412,14 +411,6 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMS");
 
    col_clear(pinfo->cinfo, COL_INFO);
-
-   if( pinfo->ethertype != 0x88a4 )
-   {
-      if( TcpAdsParserHDR_Len > ams_length )
-         return offset;
-
-      offset = TcpAdsParserHDR_Len;
-   }
 
    if( ams_length < AmsHead_Len )
       return offset;
@@ -854,6 +845,19 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 return offset;
 }
 
+/*ams*/
+static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_ams_pdu(tvb, pinfo, tree, 0);
+}
+
+static gint dissect_amstcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    if( TcpAdsParserHDR_Len > tvb_reported_length(tvb))
+        return 0;
+
+    return dissect_ams_pdu(tvb, pinfo, tree, TcpAdsParserHDR_Len);
+}
 
 void proto_register_ams(void)
 {
@@ -1232,9 +1236,10 @@ void proto_register_ams(void)
 
 void proto_reg_handoff_ams(void)
 {
-   dissector_handle_t ams_handle;
+   dissector_handle_t ams_handle, amstcp_handle;
 
    ams_handle = find_dissector("ams");
-   dissector_add_uint("tcp.port", 0xbf02, ams_handle);
+   amstcp_handle = new_create_dissector_handle( dissect_amstcp, proto_ams );
+   dissector_add_uint("tcp.port", 0xbf02, amstcp_handle);
    dissector_add_uint("ecatf.type", 2, ams_handle);
 }
