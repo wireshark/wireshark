@@ -29,6 +29,10 @@
 #include "stats_tree.h"
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define INDENT_MAX 32
 #define NUM_BUF_SIZE 32
 
@@ -181,7 +185,7 @@ WS_DLL_PUBLIC void stats_tree_free(stats_tree *st);
 WS_DLL_PUBLIC gchar *stats_tree_get_abbr(const gchar *optarg);
 
 /** obtains a stats tree from the registry given its abbr */
-WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(gchar *abbr);
+WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(const char *abbr);
 
 /** obtains a stats tree list from the registry 
     caller should free returned list with  g_list_free() */
@@ -208,5 +212,9 @@ WS_DLL_PUBLIC guint stats_tree_branch_max_namelen(const stat_node *node, guint i
    if buffer is NULL returns a newly allocated string */
 WS_DLL_PUBLIC gchar *stats_tree_node_to_str(const stat_node *node,
 				     gchar *buffer, guint len);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __STATS_TREE_PRIV_H */

@@ -32,6 +32,8 @@ noinst_LIBRARIES = libqtui.a
 
 CLEANFILES = \
 	libqtui.a		\
+	wireshark-tap-register.c-tmp		\
+	wireshark-tap-register-cache.pkl	\
 	*~
 
 DISTCLEANFILES = \
@@ -41,6 +43,29 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)		\
 	$(NODIST_GENERATED_FILES)	\
 	Makefile.in
+
+#
+# Build "wireshark-tap-register.c", which contains a function
+# "register_all_tap_listeners()"
+# that calls the register routines for all wireshark tap listeners.
+#
+# We do this by grepping through sources.
+#
+# Formatting conventions:  The name of the tap_listener_register_*
+# routines must start in column zero, or must be preceded only by
+# "void " starting in column zero, and must not be inside #if.
+#
+# The first argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc $(top_srcdir)/tools/make-tap-reg.py
+	@if test -n "$(PYTHON)"; then \
+		echo Making wireshark-tap-register.c with python ; \
+		$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_TAP_SRC); \
+	else \
+		echo Making wireshark-tap-register.c; \
+		$(top_srcdir)/tools/make-tapreg-dotc wireshark-tap-register.c $(srcdir) $(WIRESHARK_TAP_SRC); \
+	fi
 
 RUNLEX=$(top_srcdir)/tools/runlex.sh
 
@@ -142,6 +167,8 @@ search_frame.cpp search_frame.h: ui_search_frame.h
 sequence_dialog.cpp sequence_dialog.h: ui_sequence_dialog.h
 
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
+
+stats_tree_dialog.cpp stats_tree_dialog.h: ui_stats_tree_dialog.h
 
 summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
 

@@ -78,6 +78,7 @@
 #include "profile_dialog.h"
 #include "qt_ui_utils.h"
 #include "sequence_dialog.h"
+#include "stats_tree_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
 #include "wireshark_application.h"
@@ -1773,6 +1774,98 @@ void MainWindow::on_actionStatisticsTcpStreamRoundTripTime_triggered()
 void MainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
 {
     openTcpStreamDialog(GRAPH_WSCALE);
+}
+
+void MainWindow::openStatisticsTreeDialog(const gchar *abbr)
+{
+    StatsTreeDialog *st_dialog = new StatsTreeDialog(this, cap_file_, abbr);
+//    connect(st_dialog, SIGNAL(goToPacket(int)),
+//            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            st_dialog, SLOT(setCaptureFile(capture_file*)));
+    st_dialog->show();
+}
+
+void MainWindow::on_actionStatisticsANCP_triggered()
+{
+    openStatisticsTreeDialog("ancp");
+}
+
+void MainWindow::on_actionStatisticsBACappInstanceId_triggered()
+{
+    openStatisticsTreeDialog("bacapp_instanceid");
+}
+
+void MainWindow::on_actionStatisticsBACappIP_triggered()
+{
+    openStatisticsTreeDialog("bacapp_ip");
+}
+
+void MainWindow::on_actionStatisticsBACappObjectId_triggered()
+{
+    openStatisticsTreeDialog("bacapp_objectid");
+}
+
+void MainWindow::on_actionStatisticsBACappService_triggered()
+{
+    openStatisticsTreeDialog("bacapp_service");
+}
+
+void MainWindow::on_actionStatisticsCollectd_triggered()
+{
+    openStatisticsTreeDialog("collectd");
+}
+
+void MainWindow::on_actionStatisticsHART_IP_triggered()
+{
+    openStatisticsTreeDialog("hart_ip");
+}
+
+void MainWindow::on_actionStatisticsHTTPPacketCounter_triggered()
+{
+    openStatisticsTreeDialog("http");
+}
+
+void MainWindow::on_actionStatisticsHTTPRequests_triggered()
+{
+    openStatisticsTreeDialog("http_req");
+}
+
+void MainWindow::on_actionStatisticsHTTPLoadDistribution_triggered()
+{
+    openStatisticsTreeDialog("http_srv");
+}
+
+void MainWindow::on_actionStatisticsPacketLen_triggered()
+{
+    openStatisticsTreeDialog("plen");
+}
+
+void MainWindow::on_actionStatisticsSametime_triggered()
+{
+    openStatisticsTreeDialog("sametime");
+}
+
+// Telephony Menu
+
+void MainWindow::on_actionTelephonyISUPMessages_triggered()
+{
+    openStatisticsTreeDialog("isup_msg");
+}
+
+void MainWindow::on_actionTelephonyRTSPPacketCounter_triggered()
+{
+    openStatisticsTreeDialog("rtsp");
+}
+
+void MainWindow::on_actionTelephonySMPPOperations_triggered()
+{
+    openStatisticsTreeDialog("smpp_commands");
+}
+
+void MainWindow::on_actionTelephonyUCPMessages_triggered()
+{
+    openStatisticsTreeDialog("ucp_messages");
 }
 
 // Help Menu

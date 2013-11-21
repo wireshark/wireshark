@@ -23,9 +23,11 @@
 
 #include "wireshark_application.h"
 
-#include <wsutil/filesystem.h>
-#include <epan/timestamp.h>
-#include <epan/disabled_protos.h>
+#include "wsutil/filesystem.h"
+
+#include "epan/disabled_protos.h"
+#include "epan/tap.h"
+#include "epan/timestamp.h"
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
@@ -177,6 +179,11 @@ void WiresharkApplication::refreshRecentFiles(void) {
 
         rf_thread->start();
     }
+}
+
+void WiresharkApplication::updateTaps()
+{
+    draw_tap_listeners(FALSE);
 }
 
 void WiresharkApplication::captureCallback(int event _U_, capture_session *cap_session _U_)
@@ -437,7 +444,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     timestamp_set_type (recent.gui_time_format);
     timestamp_set_seconds_type (recent.gui_seconds_format);
     color_filters_enable(recent.packet_list_colorize);
-
+    tap_update_timer_.setInterval(prefs.tap_update_interval);
 
     prefsToCaptureOpts();
     prefs_apply_all();
@@ -584,9 +591,14 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
     setAttribute(Qt::AA_DontShowIconsInMenus, true);
 
-    recent_timer_ = new QTimer(this);
-    connect(recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
-    recent_timer_->start(2000);
+    recent_timer_.setParent(this);
+    connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
+    recent_timer_.start(2000);
+
+    tap_update_timer_.setParent(this);
+    tap_update_timer_.setInterval(TAP_UPDATE_DEFAULT_INTERVAL);
+    connect(this, SIGNAL(appInitialized()), &tap_update_timer_, SLOT(start()));
+    connect(&tap_update_timer_, SIGNAL(timeout()), this, SLOT(updateTaps()));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 }

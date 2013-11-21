@@ -23,7 +23,7 @@
 
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
-set(QTSHARK_H_SRC
+set(WIRESHARK_QT_HEADERS
 	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
@@ -73,6 +73,7 @@ set(QTSHARK_H_SRC
 	sequence_dialog.h
 	simple_dialog_qt.h
 	splash_overlay.h
+	stats_tree_dialog.h
 	summary_dialog.h
 	syntax_line_edit.h
 	tcp_stream_dialog.h
@@ -87,7 +88,7 @@ set(QTSHARK_H_SRC
 	# sparkline_delegate.h
 )
 
-set(CLEAN_FILES
+set(WIRESHARK_QT_SRC
 	accordion_frame.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
@@ -150,11 +151,20 @@ set(CLEAN_FILES
 	wireshark_application.cpp
 )
 
+set(WIRESHARK_QT_TAP_SRC
+	stats_tree_dialog.cpp
+)
+
+set(CLEAN_FILES
+	${WIRESHARK_QT_SRC}
+	${WIRESHARK_QT_TAP_SRC}
+)
+
 set(DIRTY_FILES
 	qcustomplot.cpp
 )
 
-set(QTSHARK_UI
+set(WIRESHARK_QT_UI
 	capture_preferences_frame.ui
 	column_preferences_frame.ui
 	export_object_dialog.ui
@@ -177,13 +187,14 @@ set(QTSHARK_UI
 	search_frame.ui
 	sequence_dialog.ui
 	splash_overlay.ui
+	stats_tree_dialog.ui
 	summary_dialog.ui
 	tcp_stream_dialog.ui
 	time_shift_dialog.ui
 	uat_dialog.ui
 )
 
-set(QTSHARK_QRC
+set(WIRESHARK_QT_QRC
 	../../image/display_filter.qrc
 	../../image/layout.qrc
 	../../image/status.qrc
@@ -192,7 +203,7 @@ set(QTSHARK_QRC
 	welcome.qrc
 )
 
-set(QTSHARK_TS
+set(WIRESHARK_QT_TS
 	qtshark_de.ts
 	qtshark_en.ts # lupdate -pluralonly
 	qtshark_fr.ts
@@ -205,31 +216,26 @@ include_directories(
 )
 
 if (QT_VERSION EQUAL 5)
-	QT5_ADD_TRANSLATION(QTSHARK_TS_QM ${QTSHARK_TS})
-	QT5_ADD_RESOURCES(QTSHARK_QRC_SRC ${QTSHARK_QRC})
-	QT5_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
+	QT5_ADD_TRANSLATION(WIRESHARK_QT_TS_QM ${WIRESHARK_QT_TS})
+	QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
-	QT5_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
+	QT5_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS})
 	# Starting with cmake 2.8.6, we may also use
 	# set(CMAKE_AUTOMOC TRUE)
 	# or
 	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 else()
-	QT4_ADD_TRANSLATION(QTSHARK_TS_QM ${QTSHARK_TS})
-	QT4_ADD_RESOURCES(QTSHARK_QRC_SRC ${QTSHARK_QRC})
-	QT4_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
+	QT4_ADD_TRANSLATION(WIRESHARK_QT_TS_QM ${WIRESHARK_QT_TS})
+	QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
-	QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
+	QT4_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS})
 	# Starting with cmake 2.8.6, we may also use
 	# set(CMAKE_AUTOMOC TRUE)
 	# or
 	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 endif()
-
-set(QTSHARK_SRC
-	${CLEAN_FILES}
-	${DIRTY_FILES}
-)
 
 if (WERROR)
 	set_source_files_properties(
@@ -249,12 +255,20 @@ endif()
 
 add_definitions(${QT_DEFINITIONS})
 
+register_tap_files(wireshark-tap-register.c
+        taps
+	${WIRESHARK_QT_TAP_SRC}
+)
+
 add_library(qtui STATIC
-	${QTSHARK_SRC}
-	${QTSHARK_UI_SRC}
-	${QTSHARK_MOC_SRC}
-	${QTSHARK_QRC_SRC}
-	${QTSHARK_TS_QM}
+	${WIRESHARK_QT_SRC}
+	${WIRESHARK_QT_TAP_SRC}
+	${WIRESHARK_QT_UI_SRC}
+	${WIRESHARK_QT_MOC_SRC}
+	${WIRESHARK_QT_QRC_SRC}
+	${WIRESHARK_QT_TS_QM}
+	${DIRTY_FILES}
+	wireshark-tap-register.c
 )
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(qtui PROPERTIES FOLDER "UI")

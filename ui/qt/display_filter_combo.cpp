@@ -42,7 +42,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(true);
-    setLineEdit(new DisplayFilterEdit());
+    setLineEdit(new DisplayFilterEdit(this, false));
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setAccessibleName(tr("Display filter selector"));
     cur_display_filter_combo = this;

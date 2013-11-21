@@ -318,8 +318,27 @@ private slots:
     void on_actionStatisticsTcpStreamThroughput_triggered();
     void on_actionStatisticsTcpStreamRoundTripTime_triggered();
     void on_actionStatisticsTcpStreamWindowScaling_triggered();
-};
 
+    void openStatisticsTreeDialog(const gchar *abbr);
+    void on_actionStatisticsANCP_triggered();
+    void on_actionStatisticsBACappInstanceId_triggered();
+    void on_actionStatisticsBACappIP_triggered();
+    void on_actionStatisticsBACappObjectId_triggered();
+    void on_actionStatisticsBACappService_triggered();
+    void on_actionStatisticsCollectd_triggered();
+    void on_actionStatisticsHART_IP_triggered();
+    void on_actionStatisticsHTTPPacketCounter_triggered();
+    void on_actionStatisticsHTTPRequests_triggered();
+    void on_actionStatisticsHTTPLoadDistribution_triggered();
+    void on_actionStatisticsPacketLen_triggered();
+    void on_actionStatisticsSametime_triggered();
+
+    void on_actionTelephonyISUPMessages_triggered();
+    void on_actionTelephonyRTSPPacketCounter_triggered();
+    void on_actionTelephonySMPPOperations_triggered();
+    void on_actionTelephonyUCPMessages_triggered();
+
+};
 
 #endif // MAINWINDOW_H
 

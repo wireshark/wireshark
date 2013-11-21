@@ -1,4 +1,4 @@
-/* display_filter_edit.h
+/* stats_tree_dialog.h
  *
  * $Id$
  *
@@ -21,50 +21,58 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef DISPLAYFILTEREDIT_H
-#define DISPLAYFILTEREDIT_H
+#ifndef STATS_TREE_DIALOG_H
+#define STATS_TREE_DIALOG_H
 
-#include <QToolButton>
-#include "syntax_line_edit.h"
+#include "config.h"
 
-class DisplayFilterEdit : public SyntaxLineEdit
-{
-    Q_OBJECT
-public:
-    explicit DisplayFilterEdit(QWidget *parent = 0, bool plain = true);
+#include <glib.h>
 
-protected:
-    void paintEvent(QPaintEvent *evt);
-    void resizeEvent(QResizeEvent *);
-//    void focusInEvent(QFocusEvent *evt);
-//    void focusOutEvent(QFocusEvent *evt);
+#include "cfile.h"
 
-public slots:
-    void applyDisplayFilter();
-    void displayFilterSuccess(bool success);
+#include "epan/stats_tree_priv.h"
 
-private slots:
-    void checkFilter(const QString &text);
-    void bookmarkClicked();
+#include <QDialog>
 
-private:
-    bool plain_;
-    bool field_name_only_;
-    QString empty_filter_message_;
-    QToolButton *bookmark_button_;
-    QToolButton *clear_button_;
-    QToolButton *apply_button_;
+namespace Ui {
+class StatsTreeDialog;
+}
 
-signals:
-    void pushFilterSyntaxStatus(QString&);
-    void popFilterSyntaxStatus();
-    void pushFilterSyntaxWarning(QString&);
-    void filterPackets(QString& new_filter, bool force);
-    void addBookmark(QString filter);
-
+struct _tree_cfg_pres {
+    class StatsTreeDialog* st_dlg;
 };
 
-#endif // DISPLAYFILTEREDIT_H
+class StatsTreeDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit StatsTreeDialog(QWidget *parent = 0, capture_file *cf = NULL, const char *cfg_abbr = NULL);
+    ~StatsTreeDialog();
+    static void setupNode(stat_node* node);
+
+public slots:
+    void setCaptureFile(capture_file *cf);
+
+private:
+    Ui::StatsTreeDialog *ui;
+
+    struct _tree_cfg_pres cfg_pr_;
+    stats_tree *st_;
+    stats_tree_cfg *st_cfg_;
+    capture_file *cap_file_;
+
+    void fillTree();
+    static void resetTap(void *st_ptr);
+    static void drawTreeItems(void *st_ptr);
+
+private slots:
+    void on_applyFilterButton_clicked();
+    void on_actionCopyAsCSV_triggered();
+    void on_actionCopyAsYAML_triggered();
+};
+
+#endif // STATS_TREE_DIALOG_H
 
 /*
  * Editor modelines

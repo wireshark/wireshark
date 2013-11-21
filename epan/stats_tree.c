@@ -324,7 +324,7 @@ stats_tree_register_plugin(const char *tapname, const char *abbr, const char *na
 		    flags,
 		    packet, init,
 		    cleanup);
-	cfg = stats_tree_get_cfg_by_abbr((char*)abbr);
+	cfg = stats_tree_get_cfg_by_abbr(abbr);
 	cfg->plugin = TRUE;
 }
 
@@ -375,7 +375,7 @@ stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *
 }
 
 extern stats_tree_cfg*
-stats_tree_get_cfg_by_abbr(char *abbr)
+stats_tree_get_cfg_by_abbr(const char *abbr)
 {
 	return (stats_tree_cfg *)g_hash_table_lookup(registry,abbr);
 }

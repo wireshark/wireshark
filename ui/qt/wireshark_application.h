@@ -42,6 +42,7 @@
 #include <QFont>
 #include <QList>
 #include <QThread>
+#include <QTimer>
 
 // Recent items:
 // - Read from prefs
@@ -94,7 +95,8 @@ private:
     bool initialized_;
     QFont mono_regular_font_;
     QFont mono_bold_font_;
-    QTimer *recent_timer_;
+    QTimer recent_timer_;
+    QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
 
 protected:
@@ -136,6 +138,7 @@ private slots:
     void cleanup();
     void itemStatusFinished(const QString &filename = "", qint64 size = 0, bool accessible = false);
     void refreshRecentFiles(void);
+    void updateTaps();
 };
 
 extern WiresharkApplication *wsApp;

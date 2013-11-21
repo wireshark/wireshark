@@ -224,6 +224,7 @@ FORMS += \
     search_frame.ui \
     sequence_dialog.ui \
     splash_overlay.ui \
+    stats_tree_dialog.ui \
     summary_dialog.ui \
     time_shift_dialog.ui \
     uat_dialog.ui \
@@ -250,6 +251,7 @@ HEADERS += $$HEADERS_WS_C \
     profile_dialog.h \
     search_frame.h \
     splash_overlay.h \
+    stats_tree_dialog.h \
     summary_dialog.h \
     tango_colors.h \
     uat_dialog.h \
@@ -569,6 +571,7 @@ SOURCES += \
     simple_dialog_qt.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
+    stats_tree_dialog.cpp \
     summary_dialog.cpp \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \

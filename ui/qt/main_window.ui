@@ -330,15 +330,51 @@
      <addaction name="actionStatisticsTcpStreamRoundTripTime"/>
      <addaction name="actionStatisticsTcpStreamWindowScaling"/>
     </widget>
+    <widget class="QMenu" name="menuBACnet">
+     <property name="title">
+      <string>BACnet</string>
+     </property>
+     <addaction name="actionStatisticsBACappInstanceId"/>
+     <addaction name="actionStatisticsBACappIP"/>
+     <addaction name="actionStatisticsBACappObjectId"/>
+     <addaction name="actionStatisticsBACappService"/>
+    </widget>
+    <widget class="QMenu" name="menuHTTP">
+     <property name="title">
+      <string>HTTP</string>
+     </property>
+     <addaction name="actionStatisticsHTTPPacketCounter"/>
+     <addaction name="actionStatisticsHTTPRequests"/>
+     <addaction name="actionStatisticsHTTPLoadDistribution"/>
+    </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
     <addaction name="actionStatisticsFlowGraph"/>
     <addaction name="menuTcpStreamGraphs"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionStatisticsANCP"/>
+    <addaction name="menuBACnet"/>
+    <addaction name="actionStatisticsCollectd"/>
+    <addaction name="actionStatisticsHART_IP"/>
+    <addaction name="menuHTTP"/>
+    <addaction name="actionStatisticsPacketLen"/>
+    <addaction name="actionStatisticsSametime"/>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
      <string>Telephony</string>
     </property>
+    <widget class="QMenu" name="menuRTSP">
+     <property name="title">
+      <string>RTSP</string>
+     </property>
+     <addaction name="actionTelephonyRTSPPacketCounter"/>
+    </widget>
+    <addaction name="actionTelephonyISUPMessages"/>
+    <addaction name="menuRTSP"/>
+    <addaction name="actionTelephonySMPPOperations"/>
+    <addaction name="actionTelephonyUCPMessages"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1328,6 +1364,134 @@
    </property>
    <property name="toolTip">
     <string>Flow sequence diagram</string>
+   </property>
+  </action>
+  <action name="actionStatisticsANCP">
+   <property name="text">
+    <string>ANCP</string>
+   </property>
+   <property name="toolTip">
+    <string>ANCP statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsBACappInstanceId">
+   <property name="text">
+    <string>Packets sorted by Instance ID</string>
+   </property>
+   <property name="toolTip">
+    <string>BACapp statistics sorted by instance ID</string>
+   </property>
+  </action>
+  <action name="actionStatisticsBACappIP">
+   <property name="text">
+    <string>Packets sorted by IP</string>
+   </property>
+   <property name="toolTip">
+    <string>BACapp statistics sorted by IP</string>
+   </property>
+  </action>
+  <action name="actionStatisticsBACappObjectId">
+   <property name="text">
+    <string>Packets sorted by object type</string>
+   </property>
+   <property name="toolTip">
+    <string>BACapp statistics sorted by object type</string>
+   </property>
+  </action>
+  <action name="actionStatisticsBACappService">
+   <property name="text">
+    <string>Packets sorted by service</string>
+   </property>
+   <property name="toolTip">
+    <string>BACapp statistics sorted by service</string>
+   </property>
+  </action>
+  <action name="actionStatisticsCollectd">
+   <property name="text">
+    <string>Collectd</string>
+   </property>
+   <property name="toolTip">
+    <string>Collectd statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsHART_IP">
+   <property name="text">
+    <string>HART-IP</string>
+   </property>
+   <property name="toolTip">
+    <string>HART-IP statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsHTTPPacketCounter">
+   <property name="text">
+    <string>Packet Counter</string>
+   </property>
+   <property name="toolTip">
+    <string>HTTP packet counter</string>
+   </property>
+  </action>
+  <action name="actionStatisticsHTTPRequests">
+   <property name="text">
+    <string>Requests</string>
+   </property>
+   <property name="toolTip">
+    <string>HTTP requests</string>
+   </property>
+  </action>
+  <action name="actionStatisticsHTTPLoadDistribution">
+   <property name="text">
+    <string>Load Distribution</string>
+   </property>
+   <property name="toolTip">
+    <string>HTTP load distribution</string>
+   </property>
+  </action>
+  <action name="actionStatisticsPacketLen">
+   <property name="text">
+    <string>Packet Lengths</string>
+   </property>
+   <property name="toolTip">
+    <string>Packet length statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsSametime">
+   <property name="text">
+    <string>Sametime</string>
+   </property>
+   <property name="toolTip">
+    <string>Sametime statistics</string>
+   </property>
+  </action>
+  <action name="actionTelephonyISUPMessages">
+   <property name="text">
+    <string>&amp;ISUP Messages</string>
+   </property>
+   <property name="toolTip">
+    <string>ISUP message statistics</string>
+   </property>
+  </action>
+  <action name="actionTelephonyRTSPPacketCounter">
+   <property name="text">
+    <string>Packet Counter</string>
+   </property>
+   <property name="toolTip">
+    <string>RTSP packet counts</string>
+   </property>
+  </action>
+  <action name="actionTelephonySMPPOperations">
+   <property name="text">
+    <string>SM&amp;PP Operations</string>
+   </property>
+   <property name="toolTip">
+    <string>SMPP operation statistics</string>
+   </property>
+  </action>
+  <action name="actionTelephonyUCPMessages">
+   <property name="text">
+    <string>&amp;UCP Messages</string>
+   </property>
+   <property name="toolTip">
+    <string>UCP message statistics</string>
    </property>
   </action>
  </widget>

@@ -59,7 +59,8 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_uat_dialog.h
 
 # Generated C source files that we want in the distribution.
-GENERATED_C_FILES =
+GENERATED_C_FILES = \
+	wireshark-tap-register.c
 
 # Generated C source files that we don't want in the distribution.
 NODIST_GENERATED_C_FILES =
@@ -142,6 +143,7 @@ MOC_HDRS = \
 	simple_dialog_qt.h \
 	sparkline_delegate.h \
 	splash_overlay.h \
+	stats_tree_dialog.h \
 	summary_dialog.h \
 	syntax_line_edit.h \
 	tcp_stream_dialog.h \
@@ -176,6 +178,7 @@ UI_FILES = \
 	search_frame.ui			\
 	sequence_dialog.ui		\
 	splash_overlay.ui		\
+	stats_tree_dialog.ui		\
 	summary_dialog.ui 		\
 	tcp_stream_dialog.ui		\
 	time_shift_dialog.ui		\
@@ -284,6 +287,7 @@ WIRESHARK_QT_SRC = \
 	sequence_dialog.cpp \
 	simple_dialog_qt.cpp \
 	sparkline_delegate.cpp \
+	stats_tree_dialog.cpp \
 	summary_dialog.cpp \
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \

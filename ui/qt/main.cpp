@@ -140,8 +140,6 @@ GString *comp_info_str, *runtime_info_str;
 
 //static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
-//static guint  tap_update_timer_id;
-
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 
@@ -879,7 +877,7 @@ int main(int argc, char *argv[])
     register_all_plugin_tap_listeners();
   #endif
 
-//    register_all_tap_listeners();
+    register_all_tap_listeners();
 
     /* Removed thread code:
      * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
