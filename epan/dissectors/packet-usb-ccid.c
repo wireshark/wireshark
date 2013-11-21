@@ -73,6 +73,8 @@ static int hf_ccid_wLcdLayout = -1;
 static int hf_ccid_bPINSupport = -1;
 static int hf_ccid_bMaxCCIDBusySlots = -1;
 
+static dissector_handle_t usb_ccid_handle;
+
 static const int *bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport50,
     &hf_ccid_bVoltageSupport30,
@@ -671,21 +673,24 @@ proto_register_ccid(void)
     ccid_dissector_table = register_dissector_table("usbccid.payload",
                                                     "USBCCID Payload", FT_UINT8, BASE_DEC);
 
-    new_register_dissector("usbccid", dissect_ccid, proto_ccid);
+    usb_ccid_handle = new_register_dissector("usbccid", dissect_ccid, proto_ccid);
 }
 
 /* Handler registration */
 void
 proto_reg_handoff_ccid(void)
 {
-    dissector_handle_t usb_ccid_bulk_handle, usb_ccid_descr_handle;
+    dissector_handle_t usb_ccid_descr_handle;
 
     usb_ccid_descr_handle = new_create_dissector_handle(
             dissect_usb_ccid_descriptor, proto_ccid);
     dissector_add_uint("usb.descriptor", IF_CLASS_SMART_CARD, usb_ccid_descr_handle);
 
-    usb_ccid_bulk_handle = find_dissector("usbccid");
-    dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
+    dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_handle);
+
+    dissector_add_handle("usb.device", usb_ccid_handle);
+    dissector_add_handle("usb.product", usb_ccid_handle);
+    dissector_add_handle("usb.protocol", usb_ccid_handle);
 
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_ISO7816] = find_dissector("iso7816");
