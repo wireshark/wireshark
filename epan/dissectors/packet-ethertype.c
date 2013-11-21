@@ -288,7 +288,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	next_tvb = tvb_new_subset(tvb, ethertype_data->offset_after_ethertype, captured_length,
 				  reported_length);
 
-    p_add_proto_data(pinfo->fd, proto_ethertype, 0, GUINT_TO_POINTER(ethertype_data->etype));
+	p_add_proto_data(pinfo->fd, proto_ethertype, 0, GUINT_TO_POINTER((guint)ethertype_data->etype));
 
 	/* Look for sub-dissector, and call it if found.
 	   Catch exceptions, so that if the reported length of "next_tvb"
