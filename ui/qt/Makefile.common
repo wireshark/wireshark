@@ -50,6 +50,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_preferences_dialog.h \
 	ui_print_dialog.h \
 	ui_profile_dialog.h \
+	ui_stats_tree_dialog.h \
 	ui_search_frame.h \
 	ui_sequence_dialog.h \
 	ui_splash_overlay.h \
