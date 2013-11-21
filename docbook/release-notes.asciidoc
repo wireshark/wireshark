@@ -26,7 +26,9 @@ The following bugs have been fixed:
 The following features are new (or have been significantly updated)
 since version 1.11.2:
 
-* That feature you thought was great is even better.
+* Qt port:
+
+** A (statistics tree) dialog has been added.
 
 The following features are new (or have been significantly updated)
 since version 1.11.1:
