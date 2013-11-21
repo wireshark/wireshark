@@ -57,7 +57,7 @@ xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info
     id = wmem_strdup(wmem_packet_scope(), attr_id->value);
 
     if (!pinfo->fd->flags.visited) {
-        xmpp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, id, EMEM_TREE_STRING_NOCASE);
+        xmpp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, id, WMEM_TREE_STRING_NOCASE);
         if (xmpp_trans) {
             xmpp_trans->resp_frame = pinfo->fd->num;
 
@@ -68,12 +68,12 @@ xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info
             xmpp_trans->req_frame = pinfo->fd->num;
             xmpp_trans->resp_frame = 0;
 
-            wmem_tree_insert_string(xmpp_info->req_resp, se_id, (void *) xmpp_trans, EMEM_TREE_STRING_NOCASE);
+            wmem_tree_insert_string(xmpp_info->req_resp, se_id, (void *) xmpp_trans, WMEM_TREE_STRING_NOCASE);
 
         }
 
     } else {
-        wmem_tree_lookup_string(xmpp_info->req_resp, id, EMEM_TREE_STRING_NOCASE);
+        wmem_tree_lookup_string(xmpp_info->req_resp, id, WMEM_TREE_STRING_NOCASE);
     }
 }
 
@@ -107,7 +107,7 @@ xmpp_jingle_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_
         se_id = wmem_strdup(wmem_file_scope(), attr_id->value);
         se_sid = wmem_strdup(wmem_file_scope(), attr_sid->value);
 
-        wmem_tree_insert_string(xmpp_info->jingle_sessions, se_id, (void*) se_sid, EMEM_TREE_STRING_NOCASE);
+        wmem_tree_insert_string(xmpp_info->jingle_sessions, se_id, (void*) se_sid, WMEM_TREE_STRING_NOCASE);
     }
 }
 
@@ -145,7 +145,7 @@ xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_i
         se_id = wmem_strdup(wmem_file_scope(), attr_id->value);
         se_sid = wmem_strdup(wmem_file_scope(), attr_sid->value);
 
-        wmem_tree_insert_string(xmpp_info->gtalk_sessions, se_id, (void*) se_sid, EMEM_TREE_STRING_NOCASE);
+        wmem_tree_insert_string(xmpp_info->gtalk_sessions, se_id, (void*) se_sid, WMEM_TREE_STRING_NOCASE);
     }
 }
 
@@ -186,7 +186,7 @@ xmpp_ibb_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_inf
         {
             se_id = wmem_strdup(wmem_file_scope(), attr_id->value);
             se_sid = wmem_strdup(wmem_file_scope(), attr_sid->value);
-            wmem_tree_insert_string(xmpp_info->ibb_sessions, se_id, (void*) se_sid, EMEM_TREE_STRING_NOCASE);
+            wmem_tree_insert_string(xmpp_info->ibb_sessions, se_id, (void*) se_sid, WMEM_TREE_STRING_NOCASE);
         }
     }
 }

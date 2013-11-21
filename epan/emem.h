@@ -257,28 +257,6 @@ emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
  */
 #define se_tree_lookup32 emem_tree_lookup32
 
-/** se_tree_lookup32_le
- * Retrieve the data for the largest key that is less than or equal
- * to the search key.
- */
-#define se_tree_lookup32_le emem_tree_lookup32_le
-
-/** se_tree_insert32_array
- * Insert data into the tree and key it by a 32bit integer value
- */
-#define se_tree_insert32_array emem_tree_insert32_array
-
-/** se_tree_lookup32_array
- * Lookup data from the tree that is index by an array
- */
-#define se_tree_lookup32_array emem_tree_lookup32_array
-
-/** se_tree_lookup32_array_le
- * Retrieve the data for the largest key that is less than or equal
- * to the search key.
- */
-#define se_tree_lookup32_array_le emem_tree_lookup32_array_le
-
 /* ******************************************************************
  * Real tree functions
  * ****************************************************************** */
@@ -297,81 +275,10 @@ void emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
 WS_DLL_PUBLIC
 void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
-/** This function will look up a node in the tree indexed by a guint32 integer
- * value.
- * The function will return the node that has the largest key that is
- * equal to or smaller than the search key, or NULL if no such key was
- * found.
- */
-WS_DLL_PUBLIC
-void *emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
-
 typedef struct _emem_tree_key_t {
 	guint32 length;			/**< length in guint32 words */
 	guint32 *key;
 } emem_tree_key_t;
-
-/** This function is used to insert a node indexed by a sequence of guint32
- * key values.
- * The data pointer should be allocated by SE allocators so that the
- * data will be released at the same time as the tree itself is destroyed.
- *
- * Note: all the "key" members of the "key" argument MUST be aligned on
- * 32-bit boundaries; otherwise, this code will crash on platforms such
- * as SPARC that require aligned pointers.
- *
- * If you use ...32_array() calls you MUST make sure that every single node
- * you add to a specific tree always has a key of exactly the same number of
- * keylen words or things will most likely crash. Or at least that every single
- * item that sits behind the same top level node always have exactly the same
- * number of words.
- *
- * One way to guarantee this is the way that NFS does this for the
- * nfs_name_snoop_known tree which holds filehandles for both v2 and v3.
- * v2 filehandles are always 32 bytes (8 words) while v3 filehandles can have
- * any length (though 32 bytes are most common).
- * The NFS dissector handles this by providing a guint32 containing the length
- * as the very first item in this vector :
- *
- *			emem_tree_key_t fhkey[3];
- *
- *			fhlen=nns->fh_length;
- *			fhkey[0].length=1;
- *			fhkey[0].key=&fhlen;
- *			fhkey[1].length=fhlen/4;
- *			fhkey[1].key=nns->fh;
- *			fhkey[2].length=0;
- */
-WS_DLL_PUBLIC
-void emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
-
-/** This function will look up a node in the tree indexed by a sequence of
- * guint32 integer values.
- */
-WS_DLL_PUBLIC
-void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
-
-/** This function will look up a node in the tree indexed by a
- * multi-part tree value.
- * The function will return the node that has the largest key that is
- * equal to or smaller than the search key, or NULL if no such key was
- * found.
- * Note:  The key returned will be "less" in key order.  The usefullness
- * of the returned node must be verified prior to use.
- */
-WS_DLL_PUBLIC
-void *emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key);
-
-/** case insensitive strings as keys */
-#define EMEM_TREE_STRING_NOCASE			0x00000001
-/** Insert a new value under a string key */
-WS_DLL_PUBLIC
-void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v, guint32 flags);
-
-/** Lookup the value under a string key */
-WS_DLL_PUBLIC
-void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k, guint32 flags);
-
 
 /** traverse a tree. if the callback returns TRUE the traversal will end */
 typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
