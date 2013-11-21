@@ -772,7 +772,7 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
     g_string_append_printf(str, "&\r\nSMB FID: %u\r\n", dcerpc_get_transport_salt(pinfo));
     g_string_append(str, "with:\r\n");
 
-    strncpy(result, str->str, MAX_DECODE_AS_PROMPT_LEN);
+    g_strlcpy(result, str->str, MAX_DECODE_AS_PROMPT_LEN);
 }
 
 static gpointer
