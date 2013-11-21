@@ -728,7 +728,11 @@ void MainWindow::setMenusForSelectedPacket()
     wmem_list_frame_t* protos;
     int proto_id;
     const char* proto_name;
+#if 0
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
+#else
+    gboolean is_tcp = FALSE;
+#endif
 
 //    /* Making the menu context-sensitive allows for easier selection of the
 //       desired item and has the added benefit, with large captures, of
@@ -780,6 +784,7 @@ void MainWindow::setMenusForSelectedPacket()
                 proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
                 proto_name = proto_get_protocol_filter_name(proto_id);
 
+#if 0
                 if ((!strcmp(proto_name, "ip")) ||
                     (!strcmp(proto_name, "ipv6"))) {
                     is_ip = TRUE;
@@ -790,6 +795,11 @@ void MainWindow::setMenusForSelectedPacket()
                 } else if (!strcmp(proto_name, "sctp")) {
                     is_sctp = TRUE;
                 }
+#else
+                if (!strcmp(proto_name, "tcp")) {
+                    is_tcp = TRUE;
+                }
+#endif
 
                 protos = wmem_list_frame_next(protos);
             }
