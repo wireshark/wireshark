@@ -623,7 +623,7 @@ void proto_reg_handoff_ptpIP( void ) {
 
     dissector_handle_t ptpIP_handle;
 
-    /*  Use new_create_dissector_handle() to indicate that dissect_wol()
+    /*  Use new_create_dissector_handle() to indicate that dissect_ptpIP()
     *  returns the number of bytes it dissected (or 0 if it thinks the packet
     *  does not belong to PROTONAME).
     */

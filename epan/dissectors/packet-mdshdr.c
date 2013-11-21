@@ -240,7 +240,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Call the Fibre Channel dissector */
     if (fc_dissector_handle) {
-        call_dissector(fc_dissector_handle, next_tvb, pinfo, tree);
+        call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, GUINT_TO_POINTER((guint)ETHERTYPE_FCFT));
     }
     else {
         call_dissector(data_handle, next_tvb, pinfo, tree);

@@ -13587,7 +13587,7 @@ static void
 dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                           proto_tree *tree, gboolean fixed_length_header, gint fcs_len,
                           gboolean wlan_broken_fc, gboolean datapad,
-                          gboolean is_ht)
+                          gboolean is_ht, gboolean is_centrino)
 {
   guint16          fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
   guint16          seq_control;
@@ -14962,7 +14962,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       }
       /* Davide Schiera (2006-11-21) ----------------------------------  */
 
-      if ((pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
+      if ((!is_centrino) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
         /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
         call_dissector(data_handle, next_tvb, pinfo, tree);
         goto end_of_wlan;
@@ -15218,7 +15218,17 @@ static void
 dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE);
+                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header.
+ */
+static void
+dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
+                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE, TRUE);
 }
 
 /*
@@ -15228,7 +15238,7 @@ static void
 dissect_ieee80211_datapad (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE, FALSE);
+                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE, FALSE, FALSE);
 }
 
 /*
@@ -15239,7 +15249,7 @@ dissect_ieee80211_datapad (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, TRUE, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -15249,7 +15259,7 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, 0, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, 0, FALSE, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -15261,7 +15271,7 @@ static void
 dissect_ieee80211_ht (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, TRUE);
+                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, TRUE, FALSE);
 }
 
 static void
@@ -21931,7 +21941,7 @@ proto_register_ieee80211 (void)
 void
 proto_reg_handoff_ieee80211(void)
 {
-  dissector_handle_t data_encap_handle;
+  dissector_handle_t data_encap_handle, centrino_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -21943,7 +21953,9 @@ proto_reg_handoff_ieee80211(void)
 
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
-  dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, ieee80211_handle);
+
+  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_wlan );
+  dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
   /* Register handoff to Aruba GRE */
   dissector_add_uint("gre.proto", GRE_ARUBA_8200, ieee80211_handle);

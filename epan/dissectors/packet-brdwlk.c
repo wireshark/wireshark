@@ -364,7 +364,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     next_tvb = tvb_new_subset(tvb, 2, len, reported_len);
-    call_dissector(fc_dissector_handle, next_tvb, pinfo, tree);
+    call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, GUINT_TO_POINTER((guint)ETHERTYPE_BRDWALK));
 }
 
 static void

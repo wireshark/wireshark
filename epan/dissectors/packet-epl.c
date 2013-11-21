@@ -686,11 +686,10 @@ elp_version( gchar *result, guint32 version )
 
 /* Code to actually dissect the packets */
 static int
-dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udpencap)
 {
 	guint8 epl_mtyp, epl_src, epl_dest;
 	const  gchar *src_str, *dest_str;
-	gboolean udpencap = FALSE;
 	/* static epl_info_t mi; */
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -704,16 +703,14 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	}
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (pinfo->ethertype == ETHERTYPE_EPL_V2)
+	if (!udpencap)
 	{
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL");
-		udpencap = FALSE;
 	}
 	else
 	{
 		/* guess that this is an EPL frame encapsulated into an UDP datagram */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL/UDP");
-		udpencap = TRUE;
 	}
 
 	/*
@@ -858,6 +855,17 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	return offset;
 }
 
+static int
+dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_eplpdu(tvb, pinfo, tree, FALSE);
+}
+
+static int
+dissect_epludp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_eplpdu(tvb, pinfo, tree, TRUE);
+}
 
 
 const gchar*
@@ -2349,8 +2357,10 @@ proto_register_epl(void)
 void
 proto_reg_handoff_epl(void)
 {
+    dissector_handle_t epl_udp_handle = new_create_dissector_handle( dissect_epludp, proto_epl );
+
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
-	dissector_add_uint("udp.port", UDP_PORT_EPL, epl_handle);
+	dissector_add_uint("udp.port", UDP_PORT_EPL, epl_udp_handle);
 }
 
 /*

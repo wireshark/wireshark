@@ -686,7 +686,7 @@ static const value_string fc_els_proto_val[] = {
 
 /* Code to actually dissect the packets */
 static void
-dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp)
+dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp, guint ethertype)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti=NULL, *hidden_item;
@@ -1087,13 +1087,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * and are never fragmented and so we ignore the frag_size assertion for
      *  these frames.
      */
-    if ((pinfo->ethertype == ETHERTYPE_UNK) || (pinfo->ethertype == ETHERTYPE_FCFT)) {
+    if ((ethertype == ETHERTYPE_UNK) || (ethertype == ETHERTYPE_FCFT)) {
         if ((frag_size < MDSHDR_TRAILER_SIZE) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
             THROW(ReportedBoundsError);
         frag_size -= MDSHDR_TRAILER_SIZE;
-    } else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
+    } else if (ethertype == ETHERTYPE_BRDWALK) {
         if ((frag_size <= 8) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
@@ -1229,15 +1229,17 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     tap_queue_packet(fc_tap, pinfo, &fchdr);
 }
 
-static void
-dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    dissect_fc_helper (tvb, pinfo, tree, FALSE);
+    dissect_fc_helper (tvb, pinfo, tree, FALSE, GPOINTER_TO_UINT(data));
+    return tvb_length(tvb);
 }
+
 static void
 dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    dissect_fc_helper (tvb, pinfo, tree, TRUE);
+    dissect_fc_helper (tvb, pinfo, tree, TRUE, 0);
 }
 
 static void
@@ -1526,7 +1528,7 @@ proto_register_fc(void)
 
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
-    fc_handle = register_dissector ("fc", dissect_fc, proto_fc);
+    fc_handle = new_register_dissector ("fc", dissect_fc, proto_fc);
     register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
     fc_tap = register_tap("fc");
 

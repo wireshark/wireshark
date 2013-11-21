@@ -62,18 +62,11 @@
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
-/* IF PROTO exposes code to other dissectors, then it must be exported
-   in a header file. If not, a header file is not needed at all. */
-/* #include "packet-wol.h" */
-
 /* Initialize the protocol and registered fields */
 static int proto_wol = -1;
 static int hf_wol_sync = -1;
 static int hf_wol_mac = -1;
 static int hf_wol_passwd = -1;
-
-/* Global sample preference ("controls" display of numbers) */
-/* static gboolean gPREF_HEX = FALSE; */
 
 /* Initialize the subtree pointers */
 static gint ett_wol = -1;
@@ -81,7 +74,7 @@ static gint ett_wol_macblock = -1;
 
 /* Code to actually dissect the packets */
 static int
-dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint         len;
     gint          offset;
@@ -259,14 +252,22 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 6, passwd, "%s", passwd);
     }
 
-/* If this protocol has a sub-dissector call it here, see section 1.8 */
+    return (len);
+}
 
-/* Return the amount of data this dissector was able to dissect */
-    if ( pinfo->ethertype == ETHERTYPE_WOL )
-        return (len);
+static int
+dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_wol_pdu(tvb, pinfo, tree, data);
+}
 
-    /* Heuristic dissectors return TRUE/FALSE. */
-    return (TRUE);
+static gboolean
+dissect_wolheur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    if (dissect_wol_pdu(tvb, pinfo, tree, data) > 0)
+        return TRUE;
+
+    return FALSE;
 }
 
 
@@ -306,7 +307,6 @@ proto_register_wol(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-
 /* If this dissector uses sub-dissector registration add a registration routine.
    This exact format is required because a script is used to find these
    routines and create the code that calls these routines.
@@ -333,7 +333,7 @@ proto_reg_handoff_wol(void)
      * we'll miss some, but how else to do this ... add a thousand of
      * these dissector_add_uint()'s and heur_dissector_add()'s??? */
     dissector_add_uint("ethertype", ETHERTYPE_WOL, wol_handle);
-    heur_dissector_add("udp", dissect_wol, proto_wol);
+    heur_dissector_add("udp", dissect_wolheur, proto_wol);
 }
 
 /*
