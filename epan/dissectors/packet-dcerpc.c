@@ -773,6 +773,8 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
     g_string_append(str, "with:\r\n");
 
     g_strlcpy(result, str->str, MAX_DECODE_AS_PROMPT_LEN);
+    g_string_free(str, TRUE);
+    g_string_free(address_str, TRUE);
 }
 
 static gpointer
