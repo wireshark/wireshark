@@ -940,7 +940,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
         }
     }
 
-    // An empty file that 
+    /* Is this a valid but empty file?  If so, claim it's the S3_W_FPGA FPGA. */
     if (valid_but_empty_file > 0)
         return(S3_W_FPGA);
 
