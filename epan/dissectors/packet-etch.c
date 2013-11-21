@@ -173,8 +173,8 @@ void proto_reg_handoff_etch(void);
  *     value_string_ext from the array for use by try_val_to_str_ext & friends.
  *  (Code based upon code in packet-diameter.c)
  */
-static GArray           *gbl_symbols_array  = NULL;
-static value_string_ext *gbl_symbols_vs_ext = NULL;
+static GArray                 *gbl_symbols_array  = NULL;
+static const value_string_ext *gbl_symbols_vs_ext = NULL;
 
 static void
 gbl_symbols_new(void)
@@ -186,7 +186,7 @@ gbl_symbols_new(void)
 static void
 gbl_symbols_free(void)
 {
-  wmem_free(wmem_epan_scope(), gbl_symbols_vs_ext);
+  value_string_ext_free(gbl_symbols_vs_ext);
   gbl_symbols_vs_ext = NULL;
 
   if (gbl_symbols_array != NULL) {

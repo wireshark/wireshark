@@ -31,47 +31,47 @@
 /* VALUE TO STRING MATCHING */
 
 typedef struct _value_string {
-  guint32      value;
-  const gchar *strptr;
+    guint32      value;
+    const gchar *strptr;
 } value_string;
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 val_to_str(const guint32 val, const value_string *vs, const char *fmt);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_val_to_str(const guint32 val, const value_string *vs);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx);
 
 /* 64-BIT VALUE TO STRING MATCHING */
 
 typedef struct _val64_string {
-  guint64      value;
-  const gchar *strptr;
+    guint64      value;
+    const gchar *strptr;
 } val64_string;
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 val64_to_str(const guint64 val, const val64_string *vs, const char *fmt);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 val64_to_str_const(const guint64 val, const val64_string *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_val64_to_str(const guint64 val, const val64_string *vs);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx);
 
 /* STRING TO VALUE MATCHING */
@@ -90,12 +90,12 @@ struct _value_string_ext;
 typedef const value_string *(*_value_string_match2_t)(const guint32, const struct _value_string_ext *);
 
 typedef struct _value_string_ext {
-  _value_string_match2_t _vs_match2;
-  guint32 _vs_first_value;    /* first value of the value_string array       */
-  guint   _vs_num_entries;    /* number of entries in the value_string array */
-                              /*  (excluding final {0, NULL})                */
-  const value_string *_vs_p;  /* the value string array address              */
-  const gchar *_vs_name;      /* vse "Name" (for error messages)             */
+    _value_string_match2_t _vs_match2;
+    guint32 _vs_first_value;    /* first value of the value_string array       */
+    guint   _vs_num_entries;    /* number of entries in the value_string array */
+    /*  (excluding final {0, NULL})                */
+    const value_string *_vs_p;  /* the value string array address              */
+    const gchar *_vs_name;      /* vse "Name" (for error messages)             */
 } value_string_ext;
 
 #define VALUE_STRING_EXT_VS_P(x) (x)->_vs_p
@@ -108,54 +108,58 @@ _try_val_to_str_ext_init(const guint32 val, const value_string_ext *vse);
 #define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, array_length(x)-1, x, #x }
 
 WS_DLL_PUBLIC
-value_string_ext*
-value_string_ext_new(value_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
+const value_string_ext *
+value_string_ext_new(const value_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
 
 WS_DLL_PUBLIC
-const gchar*
+void
+value_string_ext_free(const value_string_ext *vse);
+
+WS_DLL_PUBLIC
+const gchar *
 val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 val_to_str_ext_const(const guint32 val, const value_string_ext *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_val_to_str_ext(const guint32 val, const value_string_ext *vse);
 
 WS_DLL_PUBLIC
-const gchar*
-try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
+const gchar *
+try_val_to_str_idx_ext(const guint32 val, const value_string_ext *vse, gint *idx);
 
 /* STRING TO STRING MATCHING */
 
 typedef struct _string_string {
-  const gchar   *value;
-  const gchar   *strptr;
+    const gchar *value;
+    const gchar *strptr;
 } string_string;
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 str_to_str(const gchar *val, const string_string *vs, const char *fmt);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_str_to_str(const gchar *val, const string_string *vs);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx);
 
 /* RANGE TO STRING MATCHING */
 
 typedef struct _range_string {
-  guint32        value_min;
-  guint32        value_max;
-  const gchar   *strptr;
+    guint32      value_min;
+    guint32      value_max;
+    const gchar *strptr;
 } range_string;
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 rval_to_str(const guint32 val, const range_string *rs, const char *fmt);
 
 WS_DLL_PUBLIC
@@ -163,11 +167,11 @@ const gchar *
 rval_to_str_const(const guint32 val, const range_string *rs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_rval_to_str(const guint32 val, const range_string *rs);
 
 WS_DLL_PUBLIC
-const gchar*
+const gchar *
 try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx);
 
 /* MISC (generally do not use) */
@@ -177,7 +181,21 @@ gboolean
 value_string_ext_validate(const value_string_ext *vse);
 
 WS_DLL_LOCAL
-const gchar*
+const gchar *
 value_string_ext_match_type_str(const value_string_ext *vse);
 
 #endif /* __VALUE_STRING_H__ */
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -38,7 +38,7 @@
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar*
+const gchar *
 val_to_str(const guint32 val, const value_string *vs, const char *fmt)
 {
     const gchar *ret;
@@ -55,7 +55,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
-const gchar*
+const gchar *
 val_to_str_const(const guint32 val, const value_string *vs,
         const char *unknown_str)
 {
@@ -74,7 +74,7 @@ val_to_str_const(const guint32 val, const value_string *vs,
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-const gchar*
+const gchar *
 try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -96,7 +96,7 @@ try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx)
 }
 
 /* Like try_val_to_str_idx(), but doesn't return the index. */
-const gchar*
+const gchar *
 try_val_to_str(const guint32 val, const value_string *vs)
 {
     gint ignore_me;
@@ -105,7 +105,7 @@ try_val_to_str(const guint32 val, const value_string *vs)
 
 /* 64-BIT VALUE STRING */
 
-const gchar*
+const gchar *
 val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
 {
     const gchar *ret;
@@ -119,7 +119,7 @@ val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
     return ep_strdup_printf(fmt, val);
 }
 
-const gchar*
+const gchar *
 val64_to_str_const(const guint64 val, const val64_string *vs,
         const char *unknown_str)
 {
@@ -134,7 +134,7 @@ val64_to_str_const(const guint64 val, const val64_string *vs,
     return unknown_str;
 }
 
-const gchar*
+const gchar *
 try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx)
 {
     gint i = 0;
@@ -155,7 +155,7 @@ try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx)
     return NULL;
 }
 
-const gchar*
+const gchar *
 try_val64_to_str(const guint64 val, const val64_string *vs)
 {
     gint ignore_me;
@@ -241,8 +241,8 @@ str_to_val_idx(const gchar *val, const value_string *vs)
  * required {0, NULL} terminating entry of the array.
  * Returns a pointer to an epan-scoped'd and initialized value_string_ext
  * struct. */
-value_string_ext *
-value_string_ext_new(value_string *vs, guint vs_tot_num_entries,
+const value_string_ext *
+value_string_ext_new(const value_string *vs, guint vs_tot_num_entries,
         const gchar *vs_name)
 {
     value_string_ext *vse;
@@ -266,8 +266,14 @@ value_string_ext_new(value_string *vs, guint vs_tot_num_entries,
     return vse;
 }
 
+void
+value_string_ext_free(const value_string_ext *vse)
+{
+    wmem_free(wmem_epan_scope(), (void *)vse);
+}
+
 /* Like try_val_to_str for extended value strings */
-const gchar*
+const gchar *
 try_val_to_str_ext(const guint32 val, const value_string_ext *vse)
 {
     if (vse) {
@@ -282,8 +288,8 @@ try_val_to_str_ext(const guint32 val, const value_string_ext *vse)
 }
 
 /* Like try_val_to_str_idx for extended value strings */
-const gchar*
-try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
+const gchar *
+try_val_to_str_idx_ext(const guint32 val, const value_string_ext *vse, gint *idx)
 {
     if (vse) {
         const value_string *vs = vse->_vs_match2(val, vse);
@@ -297,7 +303,7 @@ try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
 }
 
 /* Like val_to_str for extended value strings */
-const gchar*
+const gchar *
 val_to_str_ext(const guint32 val, const value_string_ext *vse, const char *fmt)
 {
     const gchar *ret;
@@ -312,7 +318,7 @@ val_to_str_ext(const guint32 val, const value_string_ext *vse, const char *fmt)
 }
 
 /* Like val_to_str_const for extended value strings */
-const gchar*
+const gchar *
 val_to_str_ext_const(const guint32 val, const value_string_ext *vse,
         const char *unknown_str)
 {
@@ -442,14 +448,16 @@ _try_val_to_str_ext_init(const guint32 val, const value_string_ext *a_vse)
         /* XXX: Should check for dups ?? */
         if (type == VS_BIN_TREE) {
             if (prev_value > vs_p[i].value) {
-                g_warning("Extended value string %s forced to fall back to linear search: entry %u, value %u < previous entry, value %u",
-                        vse->_vs_name, i, vs_p[i].value, prev_value);
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                          "  entry %u, value %u [%#x] < previous entry, value %u [%#x]",
+                          vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
                 type = VS_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
-                g_warning("Extended value string %s forced to fall back to linear search: entry %u, value %u < first entry, value %u",
-                        vse->_vs_name, i, vs_p[i].value, first_value);
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                          "  entry %u, value %u [%#x] < first entry, value %u [%#x]",
+                          vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
                 type = VS_SEARCH;
                 break;
             }
@@ -482,7 +490,7 @@ _try_val_to_str_ext_init(const guint32 val, const value_string_ext *a_vse)
  * also strings (instead of unsigned integers) */
 
 /* Like val_to_str except for string_string */
-const gchar*
+const gchar *
 str_to_str(const gchar *val, const string_string *vs, const char *fmt)
 {
     const gchar *ret;
@@ -497,7 +505,7 @@ str_to_str(const gchar *val, const string_string *vs, const char *fmt)
 }
 
 /* Like try_val_to_str_idx except for string_string */
-const gchar*
+const gchar *
 try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx)
 {
     gint i = 0;
@@ -517,7 +525,7 @@ try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx)
 }
 
 /* Like try_val_to_str except for string_string */
-const gchar*
+const gchar *
 try_str_to_str(const gchar *val, const string_string *vs)
 {
     gint ignore_me;
