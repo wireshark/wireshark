@@ -728,7 +728,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
    request_info = NULL;
    request_val = (enip_request_val_t *)g_hash_table_lookup( enip_request_hashtable, prequest_key );
-   if(!pinfo->fd->flags.visited)
+   if (!pinfo->fd->flags.visited)
    {
       if ( prequest_key && prequest_key->requesttype == ENIP_REQUEST_PACKET )
       {
@@ -749,7 +749,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
          request_info->cip_info = NULL;
          wmem_tree_insert32(request_val->frames, pinfo->fd->num, (void *)request_info);
       }
-      if( request_val && prequest_key && prequest_key->requesttype == ENIP_RESPONSE_PACKET )
+      if ( request_val && prequest_key && prequest_key->requesttype == ENIP_RESPONSE_PACKET )
       {
          request_info = (enip_request_info_t*)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
          if ( request_info )
@@ -761,7 +761,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
    else
    {
       if ( request_val )
-         request_info = (enip_request_info_t*)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
+         request_info = (enip_request_info_t *)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
    }
 
    if ( tree && request_info )
@@ -787,7 +787,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
             if (request_info->req_num)
             {
                proto_item *it;
-               nstime_t ns;
+               nstime_t    ns;
 
                it = proto_tree_add_uint(tree, hf_enip_response_to,
                      NULL, 0, 0, request_info->req_num);
@@ -929,19 +929,19 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          if (connInfo->O2T.ipaddress.type == AT_IPv6)
          {
              dest_address.type = AT_IPv6;
-             dest_address.len = 16;
+             dest_address.len  = 16;
          }
          else
          {
              dest_address.type = AT_IPv4;
-             dest_address.len = 4;
+             dest_address.len  = 4;
          }
          dest_address.data = connInfo->O2T.ipaddress.data;
 
          /* check for O->T conversation */
          /* similar logic to find_or_create_conversation(), but since I/O traffic
          is on UDP, the pinfo parameter doesn't have the correct information */
-         if((conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &dest_address,
+         if ((conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &dest_address,
                                               PT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
 
             conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &dest_address,
@@ -962,7 +962,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
          dest_address.data = &connInfo->T2O.ipaddress;
-         if((conversationTO = find_conversation(pinfo->fd->num, &pinfo->src, &dest_address,
+         if ((conversationTO = find_conversation(pinfo->fd->num, &pinfo->src, &dest_address,
                                                 PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
 
              conversationTO = conversation_new(pinfo->fd->num, &pinfo->src,
@@ -1060,20 +1060,20 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
    conn_val = NULL;
    switch ( prequest_key->requesttype )
    {
-   case ENIP_REQUEST_PACKET:
-      conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
-      if ( conn_val == NULL )
-         conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid );
-      break;
+       case ENIP_REQUEST_PACKET:
+           conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
+           if ( conn_val == NULL )
+               conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid );
+           break;
 
-   case ENIP_RESPONSE_PACKET:
-      conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid );
-      if ( conn_val == NULL )
-         conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
-      break;
-   case ENIP_CANNOT_CLASSIFY:
-      /* ignore */
-      break;
+       case ENIP_RESPONSE_PACKET:
+           conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid );
+           if ( conn_val == NULL )
+               conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
+           break;
+       case ENIP_CANNOT_CLASSIFY:
+           /* ignore */
+           break;
    }
 
    if ((conn_val == NULL ) || (conn_val->openframe > pinfo->fd->num))
@@ -1082,7 +1082,7 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
    return conn_val->connid;
 }
 
-static enip_conn_val_t*
+static enip_conn_val_t *
 enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pconnid_type)
 {
    conversation_t   *conversation;
@@ -1131,8 +1131,9 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
 }
 
 
-int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                     int offset, int total_len)
 
 {
    proto_item *status_item;
@@ -1155,8 +1156,9 @@ int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item,
    return 4;
 }
 
-int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                         int offset, int total_len)
 
 {
    proto_item *cap_item;
@@ -1183,7 +1185,8 @@ int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 4;
 }
 
-int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int
+dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1205,8 +1208,9 @@ int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_ite
    return 4;
 }
 
-int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                            int offset, int total_len)
 
 {
    guint16     path_size;
@@ -1227,8 +1231,9 @@ int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item
    return path_size+2;
 }
 
-int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                               int offset, int total_len)
 
 {
    guint16 domain_length;
@@ -1251,8 +1256,9 @@ int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_i
    return (22+domain_length);
 }
 
-int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                           int offset, int total_len)
 
 {
    if (total_len < 8)
@@ -1268,8 +1274,9 @@ int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item 
    return 8;
 }
 
-int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                            int offset, int total_len)
 
 {
    tvbuff_t *next_tvb;
@@ -1284,7 +1291,7 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
    proto_tree_add_item(tree, hf_tcpip_lcd_acd_activity, tvb, offset,   1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_tcpip_lcd_remote_mac,   tvb, offset+1, 6, ENC_LITTLE_ENDIAN);
 
-   if( tvb_get_guint8(tvb, offset) == 0 )
+   if ( tvb_get_guint8(tvb, offset) == 0 )
       proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_LITTLE_ENDIAN);
    else
    {
@@ -1301,8 +1308,9 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
    return 35;
 }
 
-int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                              int offset, int total_len)
 
 {
    proto_item *flag_item;
@@ -1326,8 +1334,9 @@ int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_it
    return 4;
 }
 
-int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                 int offset, int total_len)
 
 {
    if (total_len < 44)
@@ -1350,7 +1359,8 @@ int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto
    return 44;
 }
 
-int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int
+dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1375,8 +1385,9 @@ int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_ite
    return 48;
 }
 
-int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                int offset, int total_len)
 
 {
    proto_item *control_item;
@@ -1398,8 +1409,9 @@ int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_
    return 4;
 }
 
-int dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                   int offset, int total_len)
 
 {
    if (total_len < 12)
@@ -1416,8 +1428,9 @@ int dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, pro
    return 12;
 }
 
-int dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                       int offset, int total_len)
 
 {
    if (total_len < 10)
@@ -1431,8 +1444,9 @@ int dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree,
    return 10;
 }
 
-int dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                       int offset, int total_len)
 
 {
    if (total_len < 10)
@@ -1446,8 +1460,9 @@ int dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree,
    return 10;
 }
 
-int dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                            int offset, int total_len)
 
 {
    int pos;
@@ -1458,8 +1473,8 @@ int dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *
       return total_len;
    }
 
-   pos=0;
-   while( pos < total_len)
+   pos = 0;
+   while ( pos < total_len)
    {
       proto_tree_add_item(tree, hf_dlr_rppl_dev_ip_addr,          tvb, offset+pos,   4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_dlr_rppl_dev_physical_address, tvb, offset+pos+4, 6, ENC_LITTLE_ENDIAN);
@@ -1468,8 +1483,9 @@ int dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *
    return total_len;
 }
 
-int dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                      int offset, int total_len)
 
 {
    if (total_len < 10)
@@ -1483,7 +1499,8 @@ int dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, 
    return 10;
 }
 
-int dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int
+dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1509,8 +1526,9 @@ int dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_ite
    return 4;
 }
 
-int dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                     int offset, int total_len)
 
 {
    if (total_len < 11)
@@ -1527,8 +1545,9 @@ int dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, p
    return 11;
 }
 
-int dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
+int
+dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                   int offset, int total_len)
 
 {
    if (total_len < 10)
@@ -1636,7 +1655,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
    count_item = proto_tree_add_item( tree, hf_enip_cpf_itemcount, tvb, offset, 2, ENC_LITTLE_ENDIAN );
    count_tree = proto_item_add_subtree( count_item, ett_count_tree );
 
-   while( item_count-- )
+   while ( item_count-- )
    {
       /* Add item type tree to item count tree*/
       type_item = proto_tree_add_item( count_tree, hf_enip_cpf_typeid, tvb, offset+2, 2, ENC_LITTLE_ENDIAN );
@@ -1648,11 +1667,11 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
       item        = tvb_get_letohs( tvb, offset+2 );
       item_length = tvb_get_letohs( tvb, offset+4 );
 
-      if( item_length )
+      if ( item_length )
       {
           /* Add item data field */
 
-          switch( item )
+          switch ( item )
           {
               case CONNECTION_BASED:
 
@@ -1679,10 +1698,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                /* Call dissector for interface */
                next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
                p_add_proto_data(pinfo->fd, proto_enip, 0, request_info);
-               if( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
+               if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                {
                   /* Show the undissected payload */
-                   if( tvb_length_remaining(tvb, offset) > 0 )
+                   if ( tvb_length_remaining(tvb, offset) > 0 )
                      call_dissector( data_handle, next_tvb, pinfo, dissector_tree);
                }
 
@@ -1712,7 +1731,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
             case CONNECTION_TRANSPORT:
 
-               if( command == SEND_UNIT_DATA )
+               if ( command == SEND_UNIT_DATA )
                {
                   request_info = NULL;
 
@@ -1734,10 +1753,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
                   p_add_proto_data(pinfo->fd, proto_enip, 0, request_info);
-                  if( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
+                  if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                   {
                      /* Show the undissected payload */
-                      if( tvb_length_remaining(tvb, offset) > 0 )
+                      if ( tvb_length_remaining(tvb, offset) > 0 )
                         call_dissector( data_handle, next_tvb, pinfo, dissector_tree );
                   }
                   p_remove_proto_data(pinfo->fd, proto_enip, 0);
@@ -1795,17 +1814,17 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                       }
                       else
                       {
-                         switch(default_io_dissector_type)
+                         switch (default_io_dissector_type)
                          {
-                         case ENIP_IO_SAFETY:
-                            call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
-                            break;
-                         case ENIP_IO_MOTION:
-                            call_dissector(cipmotion_handle, next_tvb, pinfo, dissector_tree);
-                            break;
-                         default:
-                           proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
-                           break;
+                             case ENIP_IO_SAFETY:
+                                 call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
+                                 break;
+                             case ENIP_IO_MOTION:
+                                 call_dissector(cipmotion_handle, next_tvb, pinfo, dissector_tree);
+                                 break;
+                             default:
+                                 proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
+                                 break;
                          }
                       }
                   }
@@ -1961,13 +1980,13 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item(item_tree, hf_enip_cpf_data, tvb, offset+6, item_length, ENC_NA);
                break;
 
-         } /* end of switch( item type ) */
+         } /* end of switch ( item type ) */
 
-      } /* end of if( item length ) */
+      } /* end of if ( item length ) */
 
       offset = offset + item_length + 4;
 
-   } /* end of while( item count ) */
+   } /* end of while ( item count ) */
 
    /* See if there is a CIP connection to establish */
    if (FwdOpenReply == TRUE)
@@ -2047,16 +2066,16 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    switch ( packet_type )
    {
       case ENIP_REQUEST_PACKET:
-         pkt_type_str="Req";
+         pkt_type_str = "Req";
          break;
 
       case ENIP_RESPONSE_PACKET:
-         pkt_type_str="Rsp";
+         pkt_type_str = "Rsp";
          break;
 
       case ENIP_CANNOT_CLASSIFY:
       default:
-         pkt_type_str="?";
+         pkt_type_str = "?";
    }
 
    /* Add encapsulation command to info column */
@@ -2123,17 +2142,17 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    /*
    ** For some commands we want to add some info to the info column
    */
-   switch( encap_cmd )
+   switch ( encap_cmd )
    {
-   case REGISTER_SESSION:
-   case UNREGISTER_SESSION:
-      col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
-                          tvb_get_letohl( tvb, 4 ) );
-      break;
+       case REGISTER_SESSION:
+       case UNREGISTER_SESSION:
+           col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
+                            tvb_get_letohl( tvb, 4 ) );
+           break;
    }
 
    /* Command specific data - create tree */
-   if( encap_data_length )
+   if ( encap_data_length )
    {
       /* The packet have some command specific data, buid a sub tree for it */
 
@@ -2142,7 +2161,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
       csftree = proto_item_add_subtree(csf, ett_command_tree);
 
-      switch( encap_cmd )
+      switch ( encap_cmd )
       {
          case NOP:
             break;
@@ -2191,9 +2210,9 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             proto_tree_add_item(header_tree, hf_enip_encap_data, tvb, 24, encap_data_length, ENC_NA);
             break;
 
-      } /* end of switch() */
+      } /* end of switch () */
 
-   } /* end of if( encapsulated data ) */
+   } /* end of if ( encapsulated data ) */
 
    return tvb_length(tvb);
 } /* end of dissect_enip_pdu() */
@@ -2271,7 +2290,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
    col_clear(pinfo->cinfo, COL_INFO);
 
-   if( tree )
+   if ( tree )
    {
       /* Create display subtree for the protocol */
       ti = proto_tree_add_item(tree, proto_dlr, tvb, 0, -1, ENC_NA );
@@ -2299,7 +2318,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
        val_to_str(dlr_frametype, dlr_frame_type_vals, "Unknown (0x%04x)") );
 
-   if( dlr_frametype == DLR_FT_BEACON )
+   if ( dlr_frametype == DLR_FT_BEACON )
    {
       /* Beacon */
       proto_tree_add_item( dlr_tree, hf_dlr_ringstate,            tvb, DLR_BE_RING_STATE,            1, ENC_BIG_ENDIAN );
@@ -2308,18 +2327,18 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       proto_tree_add_item( dlr_tree, hf_dlr_beacontimeout,        tvb, DLR_BE_BEACON_TIMEOUT,        4, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_beaconreserved,       tvb, DLR_BE_RESERVED,             20, ENC_BIG_ENDIAN );
    }
-   else if( dlr_frametype == DLR_FT_NEIGHBOR_REQ )
+   else if ( dlr_frametype == DLR_FT_NEIGHBOR_REQ )
    {
       /* Neighbor_Check_Request */
       proto_tree_add_item( dlr_tree, hf_dlr_nreqreserved, tvb, DLR_NREQ_RESERVED, 30, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_NEIGHBOR_RES )
+   else if ( dlr_frametype == DLR_FT_NEIGHBOR_RES )
    {
       /* Neighbor_Check_Response */
       proto_tree_add_item( dlr_tree, hf_dlr_nressourceport, tvb, DLR_NRES_SOURCE_PORT,  1, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_nresreserved,   tvb, DLR_NRES_RESERVED,    29, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_LINK_STAT )
+   else if ( dlr_frametype == DLR_FT_LINK_STAT )
    {
       /* Link_Status/Neighbor_Status */
       proto_item* flag_item;
@@ -2335,18 +2354,18 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
       proto_tree_add_item( dlr_tree, hf_dlr_lnknbrreserved, tvb, DLR_LNS_RESERVED,    29, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_LOCATE_FLT )
+   else if ( dlr_frametype == DLR_FT_LOCATE_FLT )
    {
       /* Locate_Fault */
       proto_tree_add_item( dlr_tree, hf_dlr_lfreserved, tvb, DLR_LF_RESERVED, 30, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_ANNOUNCE )
+   else if ( dlr_frametype == DLR_FT_ANNOUNCE )
    {
       /* Announce */
       proto_tree_add_item( dlr_tree, hf_dlr_ringstate,  tvb, DLR_AN_RING_STATE,  1, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_anreserved, tvb, DLR_AN_RESERVED,   29, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_SIGN_ON )
+   else if ( dlr_frametype == DLR_FT_SIGN_ON )
    {
       guint16  nCnt;
       guint16  nNumNodes;
@@ -2367,13 +2386,13 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          nOffset += 4;
       }
 
-      if( nOffset < 42 )
+      if ( nOffset < 42 )
       {
          proto_tree_add_item( dlr_tree, hf_dlr_soreserved, tvb, nOffset, 42 - nOffset, ENC_NA );
          /* nOffset += (42 - nOffset); */
       }
    }
-   else if( dlr_frametype == DLR_FT_ADVERTISE )
+   else if ( dlr_frametype == DLR_FT_ADVERTISE )
    {
       /* Advertise */
       proto_tree_add_item( dlr_tree, hf_dlr_advgatewaystate,         tvb, DLR_ADV_GATEWAY_STATE,           1, ENC_BIG_ENDIAN );
@@ -2383,12 +2402,12 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       proto_tree_add_item( dlr_tree, hf_dlr_advlearningupdateenable, tvb, DLR_ADV_LEARNING_UPDATE_ENABLE,  1, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_advreserved,             tvb, DLR_ADV_RESERVED,               19, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_FLUSH_TABLES )
+   else if ( dlr_frametype == DLR_FT_FLUSH_TABLES )
    {
       proto_tree_add_item( dlr_tree, hf_dlr_flushlearningupdateenable, tvb, DLR_FLUSH_LEARNING_UPDATE_ENABLE,  1, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_flushreserved,             tvb, DLR_FLUSH_RESERVED,               29, ENC_NA );
    }
-   else if( dlr_frametype == DLR_FT_LEARNING_UPDATE )
+   else if ( dlr_frametype == DLR_FT_LEARNING_UPDATE )
    {
       proto_tree_add_item( dlr_tree, hf_dlr_learnreserved,  tvb, DLR_LEARN_RESERVED, 34, ENC_NA );
    }
