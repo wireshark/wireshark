@@ -27,8 +27,6 @@
 #ifndef PERSFILEPATH_OPT_H
 #define PERSFILEPATH_OPT_H
 
-#include "ws_symbol_export.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
