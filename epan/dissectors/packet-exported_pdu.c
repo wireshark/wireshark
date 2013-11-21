@@ -97,7 +97,6 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
-    guint number_of_ppids = 0;
     guint16 tag;
     int tag_len;
     int next_proto_type = -1;
