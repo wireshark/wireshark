@@ -52,7 +52,6 @@
 #define PINFO_SOF_SOFF          0x2
 #define PINFO_EOF_LAST_FRAME    0x80
 #define PINFO_EOF_INVALID       0x40
-#define MAX_NUMBER_OF_PPIDS     2
 
 typedef struct _packet_info {
   const char *current_proto;		/**< name of protocol currently being dissected */
@@ -67,9 +66,7 @@ typedef struct _packet_info {
   address net_dst;					/**< network-layer destination address */
   address src;						/**< source address (net if present, DL otherwise )*/
   address dst;						/**< destination address (net if present, DL otherwise )*/
-  guint32 ethertype;				/**< Ethernet Type Code, if this is an Ethernet packet */
   guint32 ipproto;					/**< IP protocol, if this is an IP packet */
-  guint32 mpls_label;				/**< last mpls label in label stack, if this is a MPLS packet */
   circuit_type ctype;				/**< type of circuit, for protocols with a VC identifier */
   guint32 circuit_id;				/**< circuit ID, for protocols with a VC identifier */
   const char *noreassembly_reason;  /**< reason why reassembly wasn't done, if any */
@@ -176,11 +173,6 @@ typedef struct _packet_info {
   tvbuff_t *gssapi_decrypted_tvb;
   gboolean gssapi_data_encrypted;
 
-/** This is a valid PPID, but we use it to mark the end of the list */
-#define LAST_PPID 0xffffffff
-  guint32 ppids[MAX_NUMBER_OF_PPIDS]; /**< The first NUMBER_OF_PPIDS PPIDS which are present
-                                       * in the SCTP packet
-                                       */
   void    *private_data;		/**< pointer to data passed from one dissector to another */
   GHashTable *private_table;	/**< a hash table passed from one dissector to another */
 

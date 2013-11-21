@@ -440,9 +440,6 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	else if (fd->flags.has_phdr_comment)
 		edt->pi.pkt_comment = phdr->opt_comment;
 
-	/* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
-	edt->pi.ethertype = G_MAXINT;
-
 	EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
 
 	TRY {

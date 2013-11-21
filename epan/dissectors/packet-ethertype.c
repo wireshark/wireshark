@@ -190,12 +190,13 @@ const value_string etype_vals[] = {
 
 static void eth_prompt(packet_info *pinfo, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as", pinfo->ethertype);
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as", 
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_ethertype, 0)));
 }
 
 static gpointer eth_value(packet_info *pinfo)
 {
-	return GUINT_TO_POINTER(pinfo->ethertype);
+    return p_get_proto_data(pinfo->fd, proto_ethertype, 0);
 }
 
 static void add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
@@ -287,7 +288,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	next_tvb = tvb_new_subset(tvb, ethertype_data->offset_after_ethertype, captured_length,
 				  reported_length);
 
-	pinfo->ethertype = ethertype_data->etype;
+    p_add_proto_data(pinfo->fd, proto_ethertype, 0, GUINT_TO_POINTER(ethertype_data->etype));
 
 	/* Look for sub-dissector, and call it if found.
 	   Catch exceptions, so that if the reported length of "next_tvb"

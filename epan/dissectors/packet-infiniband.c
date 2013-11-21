@@ -2509,8 +2509,6 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
             next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length, reported_length);
 
-            pinfo->ethertype = etype;
-
             /* Look for sub-dissector, and call it if found.
                Catch exceptions, so that if the reported length of "next_tvb"
                was reduced by some dissector before an exception was thrown,

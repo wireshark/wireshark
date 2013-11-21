@@ -1036,7 +1036,6 @@ PINFO_GET_NUMBER(Pinfo_desegment_offset,pinfo->ws_pinfo->desegment_offset)
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ws_pinfo->ptype)
 PINFO_GET_NUMBER(Pinfo_src_port,pinfo->ws_pinfo->srcport)
 PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->ws_pinfo->destport)
-PINFO_GET_NUMBER(Pinfo_ethertype,pinfo->ws_pinfo->ethertype)
 PINFO_GET_NUMBER(Pinfo_match_uint,pinfo->ws_pinfo->match_uint)
 
 PINFO_GET_STRING(Pinfo_curr_proto,pinfo->ws_pinfo->current_proto)
@@ -1142,8 +1141,7 @@ typedef enum {
     PARAM_CAN_DESEGMENT,
     PARAM_DESEGMENT_LEN,
     PARAM_DESEGMENT_OFFSET,
-    PARAM_PORT_TYPE,
-    PARAM_ETHERTYPE
+    PARAM_PORT_TYPE
 } pinfo_param_type_t;
 
 static int pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_t pt _U_ ) {
@@ -1219,9 +1217,6 @@ static int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt
             return 0;
         case PARAM_DESEGMENT_OFFSET:
             pinfo->desegment_offset = (int)v;
-            return 0;
-        case PARAM_ETHERTYPE:
-            pinfo->ethertype = (guint32)v;
             return 0;
         default:
             g_assert(!"BUG: A bad parameter");
@@ -1371,9 +1366,6 @@ static const pinfo_method_t Pinfo_methods[] = {
 
 	/* WSLUA_ATTRIBUTE Pinfo_private RW Access to the private table entries */
     {"private", Pinfo_private, pushnil_param, PARAM_NONE},
-
-	/* WSLUA_ATTRIBUTE Pinfo_ethertype RW Ethernet Type Code, if this is an Ethernet packet */
-    {"ethertype", Pinfo_ethertype, Pinfo_set_int, PARAM_ETHERTYPE},
 
 	/* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment */
     {"fragmented", Pinfo_fragmented, pushnil_param, PARAM_NONE},

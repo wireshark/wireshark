@@ -89,8 +89,6 @@
 #define EXP_PDU_TAG_SRC_PORT        25
 #define EXP_PDU_TAG_DST_PORT        26
 
-#define EXP_PDU_TAG_SCTP_PPID       27
-
 #define EXP_PDU_TAG_SS7_OPC         28
 #define EXP_PDU_TAG_SS7_DPC         29
 
@@ -112,8 +110,6 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_SRC_PORT_BIT        0x00000004
 #define EXP_PDU_TAG_DST_PORT_BIT        0x00000008
 
-#define EXP_PDU_TAG_SCTP_PPID_BIT       0x00000010
-
 #define EXP_PDU_TAG_SS7_OPC_BIT         0x00000020
 #define EXP_PDU_TAG_SS7_DPC_BIT         0x00000040
 
@@ -129,8 +125,6 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_PORT_TYPE_LEN       4
 #define EXP_PDU_TAG_SRC_PORT_LEN        4
 #define EXP_PDU_TAG_DST_PORT_LEN        4
-
-#define EXP_PDU_TAG_SCTP_PPID_LEN       4
 
 #define EXP_PDU_TAG_SS7_OPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
 #define EXP_PDU_TAG_SS7_DPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */

@@ -43,7 +43,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	int tag_buf_size = 0;
 	int str_len = 0;
 	int tag_str_len = 0;
-	int i = 0, j;
+	int i = 0;
 	gboolean port_type_defined = FALSE;
 
 	exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
@@ -87,16 +87,6 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			tag_buf_size= tag_buf_size + EXP_PDU_TAG_PORT_TYPE_LEN + 4;
 		}
 		tag_buf_size= tag_buf_size + EXP_PDU_TAG_DST_PORT_LEN + 4;
-	}
-
-	if((tags_bit_field & EXP_PDU_TAG_SCTP_PPID_BIT) == EXP_PDU_TAG_SCTP_PPID_BIT){
-		for(j = 0; j < MAX_NUMBER_OF_PPIDS; j++) {
-			if (pinfo->ppids[j] != LAST_PPID) {
-				tag_buf_size= tag_buf_size + EXP_PDU_TAG_SCTP_PPID_LEN + 4;
-			} else {
-				break;
-			}
-		}
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_SS7_OPC_BIT) == EXP_PDU_TAG_SS7_OPC_BIT){
@@ -253,28 +243,6 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 		exp_pdu_data->tlv_buffer[i+2] = (pinfo->destport & 0x0000ff00) >> 8;
 		exp_pdu_data->tlv_buffer[i+3] = (pinfo->destport & 0x000000ff);
 		i = i +EXP_PDU_TAG_DST_PORT_LEN;
-	}
-
-	if((tags_bit_field & EXP_PDU_TAG_SCTP_PPID_BIT) == EXP_PDU_TAG_SCTP_PPID_BIT){
-		for(j = 0; j < MAX_NUMBER_OF_PPIDS; j++) {
-			if (pinfo->ppids[j] != LAST_PPID) {
-				exp_pdu_data->tlv_buffer[i] = 0;
-				i++;
-				exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SCTP_PPID;
-				i++;
-				exp_pdu_data->tlv_buffer[i] = 0;
-				i++;
-				exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SCTP_PPID_LEN; /* tag length */
-				i++;
-				exp_pdu_data->tlv_buffer[i]   = (pinfo->ppids[j] & 0xff000000) >> 24;
-				exp_pdu_data->tlv_buffer[i+1] = (pinfo->ppids[j] & 0x00ff0000) >> 16;
-				exp_pdu_data->tlv_buffer[i+2] = (pinfo->ppids[j] & 0x0000ff00) >> 8;
-				exp_pdu_data->tlv_buffer[i+3] = (pinfo->ppids[j] & 0x000000ff);
-				i = i +EXP_PDU_TAG_SCTP_PPID_LEN;
-			} else {
-				break;
-			}
-		}
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_SS7_OPC_BIT) == EXP_PDU_TAG_SS7_OPC_BIT){

@@ -79,8 +79,6 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_SRC_PORT,         "Source Port" },
    { EXP_PDU_TAG_DST_PORT,         "Destination Port" },
 
-   { EXP_PDU_TAG_SCTP_PPID,        "SCTP PPID" },
-
    { EXP_PDU_TAG_SS7_OPC,          "SS7 OPC" },
    { EXP_PDU_TAG_SS7_DPC,          "SS7 DPC" },
 
@@ -166,12 +164,6 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case EXP_PDU_TAG_DST_PORT:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                 pinfo->destport = tvb_get_ntohl(tvb, offset);
-                break;
-            case EXP_PDU_TAG_SCTP_PPID:
-                proto_tree_add_item(tag_tree, hf_exported_pdu_sctp_ppid, tvb, offset, 4, ENC_BIG_ENDIAN);
-                if (number_of_ppids < MAX_NUMBER_OF_PPIDS) {
-                    pinfo->ppids[number_of_ppids++] = tvb_get_ntohl(tvb, offset);
-                }
                 break;
             case EXP_PDU_TAG_SS7_OPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_opc, tvb, offset, 4, ENC_BIG_ENDIAN);
