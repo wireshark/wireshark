@@ -198,6 +198,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         tvb, offset, 1, ENC_BIG_ENDIAN);
                 dvbci_set_addrs(dvb_ci_dir, pinfo);
                 break;
+            case EXP_PDU_TAG_END_OF_OPT:
+                break;
             default:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_unknown_tag, tvb, offset, tag_len, ENC_NA);
                 /* Add an expert item too? */
