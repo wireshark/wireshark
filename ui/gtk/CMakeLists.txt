@@ -217,7 +217,10 @@ if (WERROR)
 endif()
 
 if (ENABLE_GTK3)
-	add_definitions(${GTK3_DEFINITIONS})
+	add_definitions(
+		${GTK3_DEFINITIONS}
+		-DGDK_DISABLE_DEPRECATION_WARNINGS
+	)
 else()
 	add_definitions(
 		# We are only allowed to include gtk/gtk.h, no other files. When
