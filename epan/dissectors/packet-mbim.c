@@ -1680,6 +1680,7 @@ mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offs
             break;
         default:
             proto_tree_add_uint(tree, hf_mbim_cid, tvb, *offset, 4, cid);
+            col_append_str(pinfo->cinfo, COL_INFO, ": Unknown");
             break;
     }
     *offset += 4;
@@ -3491,6 +3492,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         /* Fragmentation reassembly not performed yet */
                         proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
                         offset = tvb_length(tvb);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragment #%u out of %u]", current_frag+1, total_frag);
                         break;
                     }
                     offset = 0;
@@ -3969,6 +3971,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         /* Fragmentation reassembly not performed yet */
                         proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
                         offset = tvb_length(tvb);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragment #%u out of %u]", current_frag+1, total_frag);
                         break;
                     }
                     offset = 0;
