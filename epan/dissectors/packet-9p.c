@@ -42,48 +42,48 @@
 
 /**
  * enum _9p_msg_t - 9P message types
- * @_9P_TLERROR: not used
- * @_9P_RLERROR: response for any failed request for 9P2000.L
- * @_9P_TSTATFS: file system status request
- * @_9P_RSTATFS: file system status response
- * @_9P_TSYMLINK: make symlink request
- * @_9P_RSYMLINK: make symlink response
- * @_9P_TMKNOD: create a special file object request
- * @_9P_RMKNOD: create a special file object response
- * @_9P_TLCREATE: prepare a handle for I/O on an new file for 9P2000.L
- * @_9P_RLCREATE: response with file access information for 9P2000.L
- * @_9P_TRENAME: rename request
- * @_9P_RRENAME: rename response
- * @_9P_TMKDIR: create a directory request
- * @_9P_RMKDIR: create a directory response
- * @_9P_TVERSION: version handshake request
- * @_9P_RVERSION: version handshake response
- * @_9P_TAUTH: request to establish authentication channel
- * @_9P_RAUTH: response with authentication information
- * @_9P_TATTACH: establish user access to file service
- * @_9P_RATTACH: response with top level handle to file hierarchy
- * @_9P_TERROR: not used
- * @_9P_RERROR: response for any failed request
- * @_9P_TFLUSH: request to abort a previous request
- * @_9P_RFLUSH: response when previous request has been cancelled
- * @_9P_TWALK: descend a directory hierarchy
- * @_9P_RWALK: response with new handle for position within hierarchy
- * @_9P_TOPEN: prepare a handle for I/O on an existing file
- * @_9P_ROPEN: response with file access information
- * @_9P_TCREATE: prepare a handle for I/O on a new file
- * @_9P_RCREATE: response with file access information
- * @_9P_TREAD: request to transfer data from a file or directory
- * @_9P_RREAD: response with data requested
- * @_9P_TWRITE: reuqest to transfer data to a file
- * @_9P_RWRITE: response with out much data was transfered to file
- * @_9P_TCLUNK: forget about a handle to an entity within the file system
- * @_9P_RCLUNK: response when server has forgotten about the handle
- * @_9P_TREMOVE: request to remove an entity from the hierarchy
- * @_9P_RREMOVE: response when server has removed the entity
- * @_9P_TSTAT: request file entity attributes
- * @_9P_RSTAT: response with file entity attributes
- * @_9P_TWSTAT: request to update file entity attributes
- * @_9P_RWSTAT: response when file entity attributes are updated
+ * @_9P_TLERROR:   not used
+ * @_9P_RLERROR:   response for any failed request for 9P2000.L
+ * @_9P_TSTATFS:   file system status request
+ * @_9P_RSTATFS:   file system status response
+ * @_9P_TSYMLINK:  make symlink request
+ * @_9P_RSYMLINK:  make symlink response
+ * @_9P_TMKNOD:    create a special file object request
+ * @_9P_RMKNOD:    create a special file object response
+ * @_9P_TLCREATE:  prepare a handle for I/O on an new file for 9P2000.L
+ * @_9P_RLCREATE:  response with file access information for 9P2000.L
+ * @_9P_TRENAME:   rename request
+ * @_9P_RRENAME:   rename response
+ * @_9P_TMKDIR:    create a directory request
+ * @_9P_RMKDIR:    create a directory response
+ * @_9P_TVERSION:  version handshake request
+ * @_9P_RVERSION:  version handshake response
+ * @_9P_TAUTH:     request to establish authentication channel
+ * @_9P_RAUTH:     response with authentication information
+ * @_9P_TATTACH:   establish user access to file service
+ * @_9P_RATTACH:   response with top level handle to file hierarchy
+ * @_9P_TERROR:    not used
+ * @_9P_RERROR:    response for any failed request
+ * @_9P_TFLUSH:    request to abort a previous request
+ * @_9P_RFLUSH:    response when previous request has been cancelled
+ * @_9P_TWALK:     descend a directory hierarchy
+ * @_9P_RWALK:     response with new handle for position within hierarchy
+ * @_9P_TOPEN:     prepare a handle for I/O on an existing file
+ * @_9P_ROPEN:     response with file access information
+ * @_9P_TCREATE:   prepare a handle for I/O on a new file
+ * @_9P_RCREATE:   response with file access information
+ * @_9P_TREAD:     request to transfer data from a file or directory
+ * @_9P_RREAD:     response with data requested
+ * @_9P_TWRITE:    reuqest to transfer data to a file
+ * @_9P_RWRITE:    response with out much data was transfered to file
+ * @_9P_TCLUNK:    forget about a handle to an entity within the file system
+ * @_9P_RCLUNK:    response when server has forgotten about the handle
+ * @_9P_TREMOVE:   request to remove an entity from the hierarchy
+ * @_9P_RREMOVE:   response when server has removed the entity
+ * @_9P_TSTAT:     request file entity attributes
+ * @_9P_RSTAT:     response with file entity attributes
+ * @_9P_TWSTAT:    request to update file entity attributes
+ * @_9P_RWSTAT:    response when file entity attributes are updated
  *
  * There are 14 basic operations in 9P2000, paired as
  * requests and responses.  The one special case is ERROR
@@ -168,75 +168,75 @@ enum _9p_msg_t {
 /* 9P Msg types to name mapping */
 static const value_string ninep_msg_type[] =
 {
-	{_9P_TLERROR,		"Tlerror"},
-	{_9P_RLERROR,		"Rlerror"},
-	{_9P_TSTATFS,		"Tstatfs"},
-	{_9P_RSTATFS,		"Rstatfs"},
-	{_9P_TLOPEN,		"Tlopen"},
-	{_9P_RLOPEN,		"Rlopen"},
-	{_9P_TLCREATE,		"Tlcreate"},
-	{_9P_RLCREATE,		"Rlcreate"},
-	{_9P_TSYMLINK,		"Tsymlink"},
-	{_9P_RSYMLINK,		"Rsymlink"},
-	{_9P_TMKNOD,		"Tmknod"},
-	{_9P_RMKNOD,		"Rmknod"},
-	{_9P_TRENAME,		"Trename"},
-	{_9P_RRENAME,		"Rrename"},
-	{_9P_TREADLINK,		"Treadlink"},
-	{_9P_RREADLINK,		"Rreadlink"},
-	{_9P_TGETATTR,		"Tgetattr"},
-	{_9P_RGETATTR,		"Rgetattr"},
-	{_9P_TSETATTR,		"Tsetattr"},
-	{_9P_RSETATTR,		"Rsetattr"},
-	{_9P_TXATTRWALK,	"Txattrwalk"},
-	{_9P_RXATTRWALK,	"Rxattrwalk"},
-	{_9P_TXATTRCREATE,	"Txattrcreate"},
-	{_9P_RXATTRCREATE,	"Rxattrcreate"},
-	{_9P_TREADDIR,		"Treaddir"},
-	{_9P_RREADDIR,		"Rreaddir"},
-	{_9P_TFSYNC,		"Tfsync"},
-	{_9P_RFSYNC,		"Rfsync"},
-	{_9P_TLOCK,		"Tlock"},
-	{_9P_RLOCK,		"Rlock"},
-	{_9P_TGETLOCK,		"Tgetlock"},
-	{_9P_RGETLOCK,		"Rgetlock"},
-	{_9P_TLINK,		"Tlink"},
-	{_9P_RLINK,		"Rlink"},
-	{_9P_TMKDIR,		"Tmkdir"},
-	{_9P_RMKDIR,		"Rmkdir"},
-	{_9P_TRENAMEAT,		"Trenameat"},
-	{_9P_RRENAMEAT,		"Rrenameat"},
-	{_9P_TUNLINKAT,		"Tunlinkat"},
-	{_9P_RUNLINKAT,		"Runlinkat"},
-	{_9P_TVERSION,		"Tversion"},
-	{_9P_RVERSION,		"Rversion"},
-	{_9P_TAUTH,		"Tauth"},
-	{_9P_RAUTH,		"Rauth"},
-	{_9P_TATTACH,		"Tattach"},
-	{_9P_RATTACH,		"Rattach"},
-	{_9P_TERROR,		"Terror"},
-	{_9P_RERROR,		"Rerror"},
-	{_9P_TFLUSH,		"Tflush"},
-	{_9P_RFLUSH,		"Rflush"},
-	{_9P_TWALK,		"Twalk"},
-	{_9P_RWALK,		"Rwalk"},
-	{_9P_TOPEN,		"Topen"},
-	{_9P_ROPEN,		"Ropen"},
-	{_9P_TCREATE,		"Tcreate"},
-	{_9P_RCREATE,		"Rcreate"},
-	{_9P_TREAD,		"Tread"},
-	{_9P_RREAD,		"Rread"},
-	{_9P_TWRITE,		"Twrite"},
-	{_9P_RWRITE,		"Rwrite"},
-	{_9P_TCLUNK,		"Tclunk"},
-	{_9P_RCLUNK,		"Rclunk"},
-	{_9P_TREMOVE,		"Tremove"},
-	{_9P_RREMOVE,		"Rremove"},
-	{_9P_TSTAT,		"Tstat"},
-	{_9P_RSTAT,		"Rstat"},
-	{_9P_TWSTAT,		"Twstat"},
-	{_9P_RWSTAT,		"Rwstat"},
-	{0,			NULL},
+	{_9P_TLERROR,	   "Tlerror"},
+	{_9P_RLERROR,	   "Rlerror"},
+	{_9P_TSTATFS,	   "Tstatfs"},
+	{_9P_RSTATFS,	   "Rstatfs"},
+	{_9P_TLOPEN,	   "Tlopen"},
+	{_9P_RLOPEN,	   "Rlopen"},
+	{_9P_TLCREATE,	   "Tlcreate"},
+	{_9P_RLCREATE,	   "Rlcreate"},
+	{_9P_TSYMLINK,	   "Tsymlink"},
+	{_9P_RSYMLINK,	   "Rsymlink"},
+	{_9P_TMKNOD,	   "Tmknod"},
+	{_9P_RMKNOD,	   "Rmknod"},
+	{_9P_TRENAME,	   "Trename"},
+	{_9P_RRENAME,	   "Rrename"},
+	{_9P_TREADLINK,	   "Treadlink"},
+	{_9P_RREADLINK,	   "Rreadlink"},
+	{_9P_TGETATTR,	   "Tgetattr"},
+	{_9P_RGETATTR,	   "Rgetattr"},
+	{_9P_TSETATTR,	   "Tsetattr"},
+	{_9P_RSETATTR,	   "Rsetattr"},
+	{_9P_TXATTRWALK,   "Txattrwalk"},
+	{_9P_RXATTRWALK,   "Rxattrwalk"},
+	{_9P_TXATTRCREATE, "Txattrcreate"},
+	{_9P_RXATTRCREATE, "Rxattrcreate"},
+	{_9P_TREADDIR,	   "Treaddir"},
+	{_9P_RREADDIR,	   "Rreaddir"},
+	{_9P_TFSYNC,	   "Tfsync"},
+	{_9P_RFSYNC,	   "Rfsync"},
+	{_9P_TLOCK,	   "Tlock"},
+	{_9P_RLOCK,	   "Rlock"},
+	{_9P_TGETLOCK,	   "Tgetlock"},
+	{_9P_RGETLOCK,	   "Rgetlock"},
+	{_9P_TLINK,	   "Tlink"},
+	{_9P_RLINK,	   "Rlink"},
+	{_9P_TMKDIR,	   "Tmkdir"},
+	{_9P_RMKDIR,	   "Rmkdir"},
+	{_9P_TRENAMEAT,	   "Trenameat"},
+	{_9P_RRENAMEAT,	   "Rrenameat"},
+	{_9P_TUNLINKAT,	   "Tunlinkat"},
+	{_9P_RUNLINKAT,	   "Runlinkat"},
+	{_9P_TVERSION,	   "Tversion"},
+	{_9P_RVERSION,	   "Rversion"},
+	{_9P_TAUTH,	   "Tauth"},
+	{_9P_RAUTH,	   "Rauth"},
+	{_9P_TATTACH,	   "Tattach"},
+	{_9P_RATTACH,	   "Rattach"},
+	{_9P_TERROR,	   "Terror"},
+	{_9P_RERROR,	   "Rerror"},
+	{_9P_TFLUSH,	   "Tflush"},
+	{_9P_RFLUSH,	   "Rflush"},
+	{_9P_TWALK,	   "Twalk"},
+	{_9P_RWALK,	   "Rwalk"},
+	{_9P_TOPEN,	   "Topen"},
+	{_9P_ROPEN,	   "Ropen"},
+	{_9P_TCREATE,	   "Tcreate"},
+	{_9P_RCREATE,	   "Rcreate"},
+	{_9P_TREAD,	   "Tread"},
+	{_9P_RREAD,	   "Rread"},
+	{_9P_TWRITE,	   "Twrite"},
+	{_9P_RWRITE,	   "Rwrite"},
+	{_9P_TCLUNK,	   "Tclunk"},
+	{_9P_RCLUNK,	   "Rclunk"},
+	{_9P_TREMOVE,	   "Tremove"},
+	{_9P_RREMOVE,	   "Rremove"},
+	{_9P_TSTAT,	   "Tstat"},
+	{_9P_RSTAT,	   "Rstat"},
+	{_9P_TWSTAT,	   "Twstat"},
+	{_9P_RWSTAT,	   "Rwstat"},
+	{0, NULL},
 };
 static value_string_ext ninep_msg_type_ext = VALUE_STRING_EXT_INIT(ninep_msg_type);
 
@@ -261,11 +261,11 @@ static value_string_ext ninep_version_ext = VALUE_STRING_EXT_INIT(ninep_version)
 /* File open modes */
 #define	_9P_OREAD           0x0
 #define	_9P_OWRITE          0x1
-#define	_9P_ORDWR       	   0x2
+#define	_9P_ORDWR	    0x2
 #define	_9P_OEXEC           0x3
 #define	_9P_MODEMASK        0x3
 #define _9P_OTRUNC         0x10
-#define	_9P_ORCLOSE     	  0x40
+#define	_9P_ORCLOSE    	   0x40
 
 /* Open/Create modes */
 static const value_string ninep_mode_vals[] =
@@ -290,15 +290,15 @@ static value_string_ext ninep_mode_vals_ext = VALUE_STRING_EXT_INIT(ninep_mode_v
 
 /**
  * enum _9p_qid_t - QID types
- * @_9P_QTDIR: directory
- * @_9P_QTAPPEND: append-only
- * @_9P_QTEXCL: excluse use (only one open handle allowed)
- * @_9P_QTMOUNT: mount points
- * @_9P_QTAUTH: authentication file
- * @_9P_QTTMP: non-backed-up files
+ * @_9P_QTDIR:     directory
+ * @_9P_QTAPPEND:  append-only
+ * @_9P_QTEXCL:    excluse use (only one open handle allowed)
+ * @_9P_QTMOUNT:   mount points
+ * @_9P_QTAUTH:    authentication file
+ * @_9P_QTTMP:     non-backed-up files
  * @_9P_QTSYMLINK: symbolic links (9P2000.u)
- * @_9P_QTLINK: hard-link (9P2000.u)
- * @_9P_QTFILE: normal files
+ * @_9P_QTLINK:    hard-link (9P2000.u)
+ * @_9P_QTFILE:    normal files
  *
  * QID types are a subset of permissions - they are primarily
  * used to differentiate semantics for a file system entity via
@@ -308,15 +308,15 @@ static value_string_ext ninep_mode_vals_ext = VALUE_STRING_EXT_INIT(ninep_mode_v
  * See Also: http://plan9.bell-labs.com/magic/man2html/2/stat
  */
 enum _9p_qid_t {
-	_9P_QTDIR = 0x80,
-	_9P_QTAPPEND = 0x40,
-	_9P_QTEXCL = 0x20,
-	_9P_QTMOUNT = 0x10,
-	_9P_QTAUTH = 0x08,
-	_9P_QTTMP = 0x04,
+	_9P_QTDIR     = 0x80,
+	_9P_QTAPPEND  = 0x40,
+	_9P_QTEXCL    = 0x20,
+	_9P_QTMOUNT   = 0x10,
+	_9P_QTAUTH    = 0x08,
+	_9P_QTTMP     = 0x04,
 	_9P_QTSYMLINK = 0x02,
-	_9P_QTLINK = 0x01,
-	_9P_QTFILE = 0x00
+	_9P_QTLINK    = 0x01,
+	_9P_QTFILE    = 0x00
 };
 
 /* 9P Magic Numbers */
@@ -361,45 +361,45 @@ struct _9p_str {
  */
 
 struct _9p_qid {
-	guint8 type; /* Type */
+	guint8 type;     /* Type */
 	guint32 version; /* Monotonically incrementing version number */
-	guint64 path; /* Per-server-unique ID for a file system element */
+	guint64 path;    /* Per-server-unique ID for a file system element */
 };
 
 
 /* Bit values for getattr valid field.
  */
-#define _9P_GETATTR_MODE	0x00000001ULL
-#define _9P_GETATTR_NLINK	0x00000002ULL
-#define _9P_GETATTR_UID		0x00000004ULL
-#define _9P_GETATTR_GID		0x00000008ULL
-#define _9P_GETATTR_RDEV	0x00000010ULL
-#define _9P_GETATTR_ATIME	0x00000020ULL
-#define _9P_GETATTR_MTIME	0x00000040ULL
-#define _9P_GETATTR_CTIME	0x00000080ULL
-#define _9P_GETATTR_INO		0x00000100ULL
-#define _9P_GETATTR_SIZE	0x00000200ULL
-#define _9P_GETATTR_BLOCKS	0x00000400ULL
+#define _9P_GETATTR_MODE         0x00000001ULL
+#define _9P_GETATTR_NLINK        0x00000002ULL
+#define _9P_GETATTR_UID          0x00000004ULL
+#define _9P_GETATTR_GID          0x00000008ULL
+#define _9P_GETATTR_RDEV         0x00000010ULL
+#define _9P_GETATTR_ATIME        0x00000020ULL
+#define _9P_GETATTR_MTIME        0x00000040ULL
+#define _9P_GETATTR_CTIME        0x00000080ULL
+#define _9P_GETATTR_INO          0x00000100ULL
+#define _9P_GETATTR_SIZE         0x00000200ULL
+#define _9P_GETATTR_BLOCKS       0x00000400ULL
 
-#define _9P_GETATTR_BTIME	0x00000800ULL
-#define _9P_GETATTR_GEN		0x00001000ULL
-#define _9P_GETATTR_DATA_VERSION	0x00002000ULL
+#define _9P_GETATTR_BTIME        0x00000800ULL
+#define _9P_GETATTR_GEN          0x00001000ULL
+#define _9P_GETATTR_DATA_VERSION 0x00002000ULL
 
-#define _9P_GETATTR_BASIC	0x000007ffULL /* Mask for fields up to BLOCKS */
-#define _9P_GETATTR_ALL		0x00003fffULL /* Mask for All fields above */
+#define _9P_GETATTR_BASIC        0x000007ffULL /* Mask for fields up to BLOCKS */
+#define _9P_GETATTR_ALL          0x00003fffULL /* Mask for All fields above */
 
 
 /* Bit values for setattr valid field from <linux/fs.h>.
  */
-#define _9P_SETATTR_MODE	0x00000001UL
-#define _9P_SETATTR_UID		0x00000002UL
-#define _9P_SETATTR_GID		0x00000004UL
-#define _9P_SETATTR_SIZE	0x00000008UL
-#define _9P_SETATTR_ATIME	0x00000010UL
-#define _9P_SETATTR_MTIME	0x00000020UL
-#define _9P_SETATTR_CTIME	0x00000040UL
-#define _9P_SETATTR_ATIME_SET	0x00000080UL
-#define _9P_SETATTR_MTIME_SET	0x00000100UL
+#define _9P_SETATTR_MODE         0x00000001UL
+#define _9P_SETATTR_UID          0x00000002UL
+#define _9P_SETATTR_GID          0x00000004UL
+#define _9P_SETATTR_SIZE         0x00000008UL
+#define _9P_SETATTR_ATIME        0x00000010UL
+#define _9P_SETATTR_MTIME        0x00000020UL
+#define _9P_SETATTR_CTIME        0x00000040UL
+#define _9P_SETATTR_ATIME_SET    0x00000080UL
+#define _9P_SETATTR_MTIME_SET    0x00000100UL
 
 #define _9P_SETATTR_ALL	0x000001FFUL
 
@@ -475,8 +475,8 @@ static const value_string ninep_lock_flag[] =
 };
 static value_string_ext ninep_lock_flag_ext = VALUE_STRING_EXT_INIT(ninep_lock_flag);
 
-static const char *invalid_fid_str = "<invalid fid>";
-static const char *afid_str = "<afid>";
+static const char *const invalid_fid_str = "<invalid fid>";
+static const char *const afid_str = "<afid>";
 
 /* Structures for Protocol Operations */
 struct _9p_rlerror {
@@ -1133,7 +1133,7 @@ static void conv_set_fid_nocopy(packet_info *pinfo, guint32 fid, const char *pat
 	}
 
 	/* fill it */
-	wmem_tree_insert32((wmem_tree_t*)val->data, pinfo->fd->num, (void*)path);
+	wmem_tree_insert32((wmem_tree_t *)val->data, pinfo->fd->num, (void *)path);
 }
 
 static void conv_set_fid(packet_info *pinfo, guint32 fid, const gchar *path, gsize len)
@@ -1217,21 +1217,21 @@ static inline void conv_free_tag(packet_info *pinfo, guint16 tag)
 /* Dissect 9P messages*/
 static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 u32, i, fid, dfid, newfid;
-	guint16 u16, tag, _9p_len;
-	enum _9p_msg_t ninemsg;
-	guint offset = 0;
-	const char *mname, *fid_path;
-	char *tvb_s;
-	wmem_strbuf_t *tmppath = NULL;
-	gint len, reportedlen;
-	tvbuff_t *next_tvb;
-	proto_item *ti;
-	proto_tree *ninep_tree, *sub_tree;
-	struct _9p_taginfo* taginfo;
-	nstime_t tv;
-	int _9p_version;
-	const int firstpass = FIRSTPASS(pinfo);
+	guint32             u32, i, fid, dfid, newfid;
+	guint16             u16, tag, _9p_len;
+	enum _9p_msg_t      ninemsg;
+	guint               offset    = 0;
+	const char         *mname, *fid_path;
+	char               *tvb_s;
+	wmem_strbuf_t      *tmppath   = NULL;
+	gint                len, reportedlen;
+	tvbuff_t           *next_tvb;
+	proto_item         *ti;
+	proto_tree         *ninep_tree, *sub_tree;
+	struct _9p_taginfo *taginfo;
+	nstime_t            tv;
+	int                 _9p_version;
+	const int           firstpass = FIRSTPASS(pinfo);
 
 	_9p_version = conv_get_version(pinfo);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, val_to_str_ext_const(_9p_version, &ninep_version_ext, "9P"));
@@ -1254,7 +1254,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	ti = proto_tree_add_item(tree, proto_9P, tvb, 0, -1, ENC_NA);
 	ninep_tree = proto_item_add_subtree(ti, ett_9P);
 	proto_tree_add_item(ninep_tree, hf_9P_msgsz, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset+=4;
+	offset+= 4;
 
 	proto_tree_add_item(ninep_tree, hf_9P_msgtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	++offset;
@@ -1265,7 +1265,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	case _9P_RVERSION:
 	case _9P_TVERSION:
 		proto_tree_add_item(ninep_tree, hf_9P_maxsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_version, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1297,19 +1297,19 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		proto_tree_add_item(ninep_tree, hf_9P_afid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		fid = tvb_get_letohl(tvb, offset);
 		conv_set_fid_nocopy(pinfo, fid, afid_str);
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_uname);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_aname);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		conv_set_tag(pinfo, tag, ninemsg, fid, NULL);
 		break;
@@ -1347,10 +1347,10 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	case _9P_TATTACH:
 		fid = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_afid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, _9p_len, ENC_ASCII|ENC_NA);
@@ -1367,7 +1367,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			conv_set_fid(pinfo, fid, tvb_s, _9p_len+1);
 			g_free(tvb_s);
 		}
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
@@ -1383,15 +1383,15 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
 		}
-		offset +=4;
+		offset += 4;
 
 		fid = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_newfid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		u16 = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_nwalk, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 		/* I can't imagine anyone having a directory depth more than 25,
 		   Limit to 10 times that to be sure, 2^16 is too much */
 		if(u16 > 250) {
@@ -1428,7 +1428,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	case _9P_RWALK:
 		u16 = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_nqid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 		/* I can't imagine anyone having a directory depth more than 25,
 		   Limit to 10 times that to be sure, 2^16 is too much */
 		if(u16 > 250) {
@@ -1448,7 +1448,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		fid = tvb_get_letohl(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti, " (%s)", conv_get_fid(pinfo, fid));
-		offset +=4;
+		offset += 4;
 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_lflags(tvb, ti, offset);
@@ -1460,7 +1460,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		fid = tvb_get_letohl(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti, " (%s)", conv_get_fid(pinfo, fid));
-		offset +=4;
+		offset += 4;
 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		dissect_9P_mode(tvb, ti, offset);
@@ -1474,7 +1474,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		fid_path = conv_get_fid(pinfo, fid);
 		proto_item_append_text(ti, " (%s)", fid_path);
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_name, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1492,11 +1492,11 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_perm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_dm(tvb, ti, offset, 1);
-		offset +=4;
+		offset += 4;
 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		dissect_9P_mode(tvb, ti, offset);
-		offset +=1;
+		offset += 1;
 
 		proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -1509,7 +1509,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		fid_path = conv_get_fid(pinfo, fid);
 		proto_item_append_text(ti, " (%s)", fid_path);
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_name, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1544,13 +1544,13 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		fid = tvb_get_letohl(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti, " (%s)", conv_get_fid(pinfo, fid));
-		offset +=4;
+		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		offset +=8;
+		offset += 8;
 
 		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		conv_set_tag(pinfo, tag, ninemsg, _9P_NOFID, NULL);
 		break;
@@ -1573,10 +1573,10 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		fid = tvb_get_letohl(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti, " (%s)", conv_get_fid(pinfo, fid));
-		offset +=4;
+		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		offset +=8;
+		offset += 8;
 
 		u32 = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1597,60 +1597,60 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
 	case _9P_RSTAT:
 		proto_tree_add_item(ninep_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_sdlen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_stattype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_dev, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		dissect_9P_qid(tvb, ninep_tree, offset);
 		offset += 13;
 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_dm(tvb, ti, offset, 0);
-		offset +=4;
+		offset += 4;
 
 		tv.secs = tvb_get_letohl(tvb, offset);
 		tv.nsecs = 0;
 		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 4, &tv);
-		offset +=4;
+		offset += 4;
 
 		tv.secs = tvb_get_letohl(tvb, offset);
 		tv.nsecs = 0;
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
-		offset +=4;
+		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		offset +=8;
+		offset += 8;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_filename);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_user, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_user);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_group, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_group);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_muid);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		conv_free_tag(pinfo, tag);
 		break;
@@ -1662,60 +1662,60 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_sdlen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_stattype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset +=2;
+		offset += 2;
 
 		proto_tree_add_item(ninep_tree, hf_9P_dev, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset +=4;
+		offset += 4;
 
 		dissect_9P_qid(tvb, ninep_tree, offset);
 		offset += 13;
 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_dm(tvb, ti, offset, 0);
-		offset +=4;
+		offset += 4;
 
 		tv.secs = tvb_get_letohl(tvb, offset);
 		tv.nsecs = 0;
 		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 4, &tv);
-		offset +=4;
+		offset += 4;
 
 		tv.secs = tvb_get_letohl(tvb, offset);
 		tv.nsecs = 0;
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
-		offset +=4;
+		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		offset +=8;
+		offset += 8;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, _9p_len, ENC_ASCII|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_filename);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_user, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_user);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_group, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_group);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_9P_muid);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += _9p_len+2;
+		offset += _9p_len + 2;
 
 		conv_set_tag(pinfo, tag, ninemsg, _9P_NOFID, NULL);
 		break;
@@ -1961,12 +1961,12 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		fid_path = conv_get_fid(pinfo, fid);
 		proto_item_append_text(ti, " (%s)", fid_path);
-		offset +=4;
+		offset += 4;
 
 		newfid = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_newfid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		conv_set_fid_nocopy(pinfo, newfid, fid_path);
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1988,7 +1988,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		fid = tvb_get_letohl(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti, " (%s)", conv_get_fid(pinfo, fid));
-		offset +=4;
+		offset += 4;
 
 		_9p_len = tvb_get_letohs(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -2275,15 +2275,15 @@ static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset)
 	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	qidtype_tree = proto_item_add_subtree(qidtype_item, ett_9P_qidtype);
 
-	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_dir, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_append, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_exclusive, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_mount, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_auth_file, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_temp_file, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_dir,       tvb, offset,     1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_append,    tvb, offset,     1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_exclusive, tvb, offset,     1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_mount,     tvb, offset,     1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_auth_file, tvb, offset,     1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qidtype_tree, hf_9P_qidtype_temp_file, tvb, offset,     1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item(qid_tree, hf_9P_qidvers, tvb, offset+1, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(qid_tree, hf_9P_qidpath, tvb, offset+1+4, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qid_tree, hf_9P_qidvers,               tvb, offset+1,   4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qid_tree, hf_9P_qidpath,               tvb, offset+1+4, 8, ENC_LITTLE_ENDIAN);
 }
 
 /*dissect 9P stat mode and create perm flags */
@@ -2298,22 +2298,22 @@ static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *item, int offset, int iscr
 
 	proto_tree_add_item(mode_tree, hf_9P_dm_dir, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	if(!iscreate) { /* Not applicable to Tcreate (?) */
-		proto_tree_add_item(mode_tree, hf_9P_dm_append, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_9P_dm_append,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(mode_tree, hf_9P_dm_exclusive, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(mode_tree, hf_9P_dm_mount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_9P_dm_mount,     tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(mode_tree, hf_9P_dm_auth_file, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(mode_tree, hf_9P_dm_temp_file, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	}
 
-	proto_tree_add_item(mode_tree, hf_9P_dm_read_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_write_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_exec_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_read_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_write_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_exec_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_read_others, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_read_owner,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_write_owner,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_exec_owner,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_read_group,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_write_group,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_exec_group,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_read_others,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(mode_tree, hf_9P_dm_write_others, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(mode_tree, hf_9P_dm_exec_others, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mode_tree, hf_9P_dm_exec_others,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 /* Dissect 9P getattr_flags */
@@ -2326,19 +2326,19 @@ static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_item *item, int offset)
 		return;
 
 	/* fixme: This is actually 8 bytes (64bit) long, but masks have to fit on 32bit. */
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_nlink, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_gid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_rdev, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_atime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_mtime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_ctime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_ino, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_blocks, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_btime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_getattr_gen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_mode,        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_nlink,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_uid,         tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_gid,         tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_rdev,        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_atime,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_mtime,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_ctime,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_ino,         tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_size,        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_blocks,      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_btime,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_getattr_gen,         tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(attrmask_tree, hf_9P_getattr_dataversion, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -2351,13 +2351,13 @@ static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_item *item, int offset)
 	if(!attrmask_tree)
 		return;
 
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_gid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_atime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_mtime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_setattr_ctime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_mode,      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_uid,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_gid,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_size,      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_atime,     tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_mtime,     tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_setattr_ctime,     tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(attrmask_tree, hf_9P_setattr_atime_set, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(attrmask_tree, hf_9P_setattr_mtime_set, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
@@ -2371,24 +2371,24 @@ static void dissect_9P_lflags(tvbuff_t *tvb, proto_item *item, int offset)
 	if(!attrmask_tree)
 		return;
 
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_rdonly, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_wronly, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_rdwr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_create, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_excl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_noctty, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_trunc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_append, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_nonblock, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_dsync, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_fasync, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_direct, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_rdonly,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_wronly,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_rdwr,      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_create,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_excl,      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_noctty,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_trunc,     tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_append,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_nonblock,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_dsync,     tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_fasync,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_direct,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(attrmask_tree, hf_9P_lflags_largefile, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(attrmask_tree, hf_9P_lflags_directory, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_nofollow, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_noatime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_cloexec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(attrmask_tree, hf_9P_lflags_sync, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_nofollow,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_noatime,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_cloexec,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(attrmask_tree, hf_9P_lflags_sync,      tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -2838,3 +2838,16 @@ void proto_reg_handoff_9P(void)
 	dissector_add_uint("tcp.port", NINEPORT, ninep_handle);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
