@@ -831,10 +831,26 @@ int main(int argc, char *argv[])
               write_failure_alert_box
               );
 
+    splash_update(RA_LISTENERS, NULL, NULL);
+
+    /* Register all tap listeners; we do this before we parse the arguments,
+       as the "-z" argument can specify a registered tap. */
+
+    /* we register the plugin taps before the other taps because
+            stats_tree taps plugins will be registered as tap listeners
+            by stats_tree_stat.c and need to registered before that */
+
+    g_log(NULL, G_LOG_LEVEL_DEBUG, "plugin_dir: %s", get_plugin_dir());
+  #ifdef HAVE_PLUGINS
+    register_all_plugin_tap_listeners();
+  #endif
+
+    register_all_tap_listeners();
+
     splash_update(RA_PREFERENCES, NULL, NULL);
     prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
 
-    //initialize language !
+    // Initialize our language
 
     /*TODO: Enhance... may be get the locale from the enum gui_qt_language */
     switch(prefs_p->gui_qt_language){
@@ -862,22 +878,6 @@ int main(int argc, char *argv[])
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     wsApp->installTranslator(&qtTranslator);
-
-    splash_update(RA_LISTENERS, NULL, NULL);
-
-    /* Register all tap listeners; we do this before we parse the arguments,
-       as the "-z" argument can specify a registered tap. */
-
-    /* we register the plugin taps before the other taps because
-            stats_tree taps plugins will be registered as tap listeners
-            by stats_tree_stat.c and need to registered before that */
-
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "plugin_dir: %s", get_plugin_dir());
-  #ifdef HAVE_PLUGINS
-    register_all_plugin_tap_listeners();
-  #endif
-
-    register_all_tap_listeners();
 
     /* Removed thread code:
      * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
