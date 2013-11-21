@@ -37,7 +37,6 @@
 #include <epan/tap.h>
 #include <epan/timestamp.h>
 #include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/dissector_filters.h>
 #include <epan/strutil.h>
 #include <epan/plugins.h>
@@ -186,11 +185,40 @@ typedef enum {
     CONV_CBA
 } conv_values_e;
 
+static gboolean is_ip_packet(packet_info* pinfo)
+{
+
+    return FALSE;
+}
+
 static char *
 build_conversation_filter(int action, gboolean show_dialog)
 {
     packet_info *pi = &cfile.edt->pi;
+    wmem_list_frame_t * protos = wmem_list_head(pi->layers);
+    int proto_id;
+    const char* proto_name;
     char        *buf;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE;
+
+    /* walk the list of a available protocols in the packet to
+       figure out if any of them affect conversation filters */
+    while (protos != NULL)
+    {
+        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+        proto_name = proto_get_protocol_filter_name(proto_id);
+
+        if ((!strcmp(proto_name, "ip")) ||
+            (!strcmp(proto_name, "ipv6"))) {
+            is_ip = TRUE;
+        } else if (!strcmp(proto_name, "tcp")) {
+            is_tcp = TRUE;
+        } else if (!strcmp(proto_name, "udp")) {
+            is_udp = TRUE;
+        }
+
+        protos = wmem_list_frame_next(protos);
+    }
 
     switch(action) {
     case(CONV_CBA):
@@ -204,7 +232,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
 
         if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-        && pi->ipproto == IP_PROTO_TCP ) {
+        && is_tcp ) {
             /* IPv4 */
             switch(pi->profinet_type) {
             case(1):
@@ -243,7 +271,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
         break;
     case(CONV_TCP):
-        if (pi->ipproto != IP_PROTO_TCP) {
+        if (is_tcp == FALSE) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -269,7 +297,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
         break;
     case(CONV_UDP):
-        if (pi->ipproto != IP_PROTO_UDP) {
+        if (is_udp == FALSE) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -295,7 +323,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
         break;
     case(CONV_IP):
-        if ((pi->ethertype != ETHERTYPE_IP) && (pi->ethertype != ETHERTYPE_IPv6)) {
+        if (is_ip == FALSE) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -4897,11 +4925,16 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
+    packet_info *pi;
+    wmem_list_frame_t* protos;
     GList      *list_entry = dissector_filter_list;
     guint       i          = 0;
     gboolean    properties = FALSE;
     const char *abbrev     = NULL;
     char       *prev_abbrev;
+    int proto_id;
+    const char* proto_name;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -4925,9 +4958,32 @@ set_menus_for_selected_packet(capture_file *cf)
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
 
-    gboolean tcp_packet_selected = FALSE;
+    if (cf->edt)
+    {
+        pi = &cf->edt->pi;
+        protos = wmem_list_head(pi->layers);
 
-    tcp_packet_selected = frame_selected && (cf->edt->pi.ipproto == IP_PROTO_TCP);
+        /* walk the list of a available protocols in the packet to
+           figure out if any of them affect context sensitivity */
+        while (protos != NULL)
+        {
+            proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+            proto_name = proto_get_protocol_filter_name(proto_id);
+
+            if ((!strcmp(proto_name, "ip")) ||
+                (!strcmp(proto_name, "ipv6"))) {
+                is_ip = TRUE;
+            } else if (!strcmp(proto_name, "tcp")) {
+                is_tcp = TRUE;
+            } else if (!strcmp(proto_name, "udp")) {
+                is_udp = TRUE;
+            } else if (!strcmp(proto_name, "sctp")) {
+                is_sctp = TRUE;
+            }
+            
+            protos = wmem_list_frame_next(protos);
+        }
+    }
 
     if (cfile.edt && cfile.edt->tree) {
         GPtrArray          *ga;
@@ -5021,15 +5077,15 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
                          frame_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ManuallyResolveAddress",
-                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+                         frame_selected ? is_ip : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
+                         frame_selected ? is_sctp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowTCPStream",
-                         tcp_packet_selected);
+                         is_tcp);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowTCPStream",
-                         tcp_packet_selected);
+                         is_tcp);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowUDPStream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowSSLStream",
@@ -5039,13 +5095,13 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/Ethernet",
                          frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/IP",
-                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+                         frame_selected ? is_ip : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/TCP",
-                         tcp_packet_selected);
+                         is_tcp);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/UDP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowUDPStream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/PN-CBA",
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
@@ -5053,11 +5109,11 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/Ethernet",
                          frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/IP",
-                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+                         frame_selected ? is_ip : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/TCP",
-                         tcp_packet_selected);
+                         is_tcp);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/UDP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/PN-CBA",
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
@@ -5089,9 +5145,9 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
                                             gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
-                         tcp_packet_selected);
+                         is_tcp);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+                         frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
@@ -5102,7 +5158,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
-                         tcp_packet_selected);
+                         is_tcp);
 
     while (list_entry != NULL) {
         dissector_filter_t *filter_entry;

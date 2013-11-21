@@ -32,7 +32,6 @@
 #include "epan/prefs.h"
 #include "epan/charsets.h"
 #include "epan/epan_dissect.h"
-#include "epan/ipproto.h"
 #include "epan/tap.h"
 
 #include "ui/alert_box.h"
@@ -808,6 +807,10 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     tcp_stream_chunk    sc;
     size_t              nchars;
     GString *           msg;
+    wmem_list_frame_t* protos;
+    int proto_id;
+    const char* proto_name;
+    gboolean is_tcp = FALSE, is_udp = FALSE;
 
     resetStream();
 
@@ -823,17 +826,33 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         return false;
     }
 
+    /* walk the list of a available protocols in the packet to see what we have 
+       Handles error conditions that should probably just be handled with menu sensitivity */
+    protos = wmem_list_head(cap_file_->edt->pi.layers);
+    while (protos != NULL) {
+        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+        proto_name = proto_get_protocol_filter_name(proto_id);
+
+        if (!strcmp(proto_name, "tcp")) {
+            is_tcp = TRUE;
+        } else if (!strcmp(proto_name, "udp")) {
+            is_udp = TRUE;
+        }
+            
+        protos = wmem_list_frame_next(protos);
+    }
+
     switch (follow_type_)
     {
     case FOLLOW_TCP:
-        if (cap_file_->edt->pi.ipproto != IP_PROTO_TCP) {
+        if (!is_tcp) {
             QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a TCP packet selected."));
             return false;
         }
         break;
     case FOLLOW_UDP:
         removeStreamControls();
-        if (cap_file_->edt->pi.ipproto != IP_PROTO_UDP) {
+        if (!is_udp) {
             QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a UDP packet selected."));
             return false;
         }
