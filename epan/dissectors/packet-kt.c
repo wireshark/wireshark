@@ -151,441 +151,472 @@ static gboolean kt_present_key_val_as_ascii;
 
 /* Dissection routines */
 static int
-dissect_kt_replication_wait(tvbuff_t *tvb, proto_tree *tree)
+dissect_kt_replication_wait(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    int offset;
+    gint new_offset;
     guint64 ts;
     nstime_t ns_ts;
 
-    proto_item *pi;
+    new_offset = offset;
 
-    pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_REQUEST);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
 
-    offset = 1;
-
-    ts = tvb_get_ntoh64(tvb, offset);
+    ts = tvb_get_ntoh64(tvb, new_offset);
     ns_ts.secs = (time_t)(ts/1000000000);
     ns_ts.nsecs = (int)(ts%1000000000);
-    proto_tree_add_time(tree, hf_kt_ts, tvb, offset, 8, &ns_ts);
-    offset += 8;
+    proto_tree_add_time(tree, hf_kt_ts, tvb, new_offset, 8, &ns_ts);
+    new_offset += 8;
 
-    return offset;
+    return new_offset;
 }
 
 static int
-dissect_kt_replication(tvbuff_t *tvb, proto_tree *tree)
+dissect_kt_replication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    int offset;
+    gint new_offset;
     guint32 next32, size;
     guint64 ts;
     nstime_t ns_ts;
-
     proto_item *pi;
 
-    offset = 1;
+    new_offset = offset;
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        next32 = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
+
+    if (tvb_reported_length_remaining(tvb, new_offset) > 0) {
+        next32 = tvb_get_ntohl(tvb, new_offset);
         if (next32 <= 1) { /* This means request. the 32 bits are flags */
-            proto_tree_add_item(tree, hf_kt_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+            proto_tree_add_item(tree, hf_kt_flags, tvb, new_offset, 4, ENC_BIG_ENDIAN);
+            new_offset += 4;
 
-            proto_tree_add_item(tree, hf_kt_ts, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+            proto_tree_add_item(tree, hf_kt_ts, tvb, new_offset, 8, ENC_BIG_ENDIAN);
+            new_offset += 8;
 
-            proto_tree_add_item(tree, hf_kt_sid, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+            proto_tree_add_item(tree, hf_kt_sid, tvb, new_offset, 2, ENC_BIG_ENDIAN);
+            new_offset += 2;
         } else { /* This is a response. The 32 bits are the first half of the ts */
-            ts = tvb_get_ntoh64(tvb, offset);
+            ts = tvb_get_ntoh64(tvb, new_offset);
             ns_ts.secs = (time_t)(ts/1000000000);
             ns_ts.nsecs = (int)(ts%1000000000);
-            proto_tree_add_time(tree, hf_kt_ts, tvb, offset, 8, &ns_ts);
-            offset += 8;
+            proto_tree_add_time(tree, hf_kt_ts, tvb, new_offset, 8, &ns_ts);
+            new_offset += 8;
 
-            size = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(tree, hf_kt_size, tvb, offset, 4, size);
-            offset += 4;
+            size = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(tree, hf_kt_size, tvb, new_offset, 4, size);
+            new_offset += 4;
 
-            proto_tree_add_item(tree, hf_kt_log, tvb, offset, size, ENC_NA);
-            offset += size;
+            proto_tree_add_item(tree, hf_kt_log, tvb, new_offset, size, ENC_NA);
+            new_offset += size;
         }
     } else {
         /* This is an empty ack to the message with magic 0xB0. */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
         PROTO_ITEM_SET_GENERATED(pi);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
     }
 
-    return offset;
+    return new_offset;
 }
 
 static int
-dissect_kt_set_bulk(tvbuff_t *tvb, proto_tree *tree)
+dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     guint32 next32, rnum, ksiz, vsiz;
-    gint offset, rec_start_offset;
-
+    gint new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
 
-    offset = 1;
-    next32 = tvb_get_ntohl(tvb, offset);
+    new_offset = offset;
 
-    if (tvb_reported_length_remaining(tvb, (offset + 4)) > 0) {
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
+
+    next32 = tvb_get_ntohl(tvb, new_offset);
+
+    if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) {
         /* There's more data after the 32 bits. This is a request */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_REQUEST);
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
         PROTO_ITEM_SET_GENERATED(pi);
 
-        proto_tree_add_uint(tree, hf_kt_flags, tvb, offset, 4, next32);
-        offset += 4;
+        proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
+        new_offset += 4;
 
-        rnum = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(tree, hf_kt_rnum, tvb, offset, 4, rnum);
-        offset += 4;
+        rnum = tvb_get_ntohl(tvb, new_offset);
+        proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, rnum);
+        new_offset += 4;
 
         while (rnum > 0) {
             /* Create a sub-tree for each record */
-            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, offset, -1, ENC_NA);
+            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, new_offset, -1, ENC_NA);
             rec_tree = proto_item_add_subtree(ti, ett_kt_rec);
-            rec_start_offset = offset;
+            rec_start_offset = new_offset;
 
-            proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+            proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, new_offset, 2, ENC_BIG_ENDIAN);
+            new_offset += 2;
 
-            ksiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, offset, 4, ksiz);
-            offset += 4;
+            ksiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
+            new_offset += 4;
 
-            vsiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, offset, 4, vsiz);
-            offset += 4;
+            vsiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, new_offset, 4, vsiz);
+            new_offset += 4;
 
-            proto_tree_add_item(rec_tree, hf_kt_xt, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+            proto_tree_add_item(rec_tree, hf_kt_xt, tvb, new_offset, 8, ENC_BIG_ENDIAN);
+            new_offset += 8;
 
-            proto_tree_add_item(rec_tree, hf_kt_key, tvb, offset, ksiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += ksiz;
+            new_offset += ksiz;
 
-            proto_tree_add_item(rec_tree, hf_kt_val, tvb, offset, vsiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, offset, vsiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += vsiz;
+            new_offset += vsiz;
 
-            proto_item_set_len(ti, offset-rec_start_offset);
+            proto_item_set_len(ti, new_offset - rec_start_offset);
             rnum--;
         }
     } else {
         /* Nothing remaining after the 32 bits. This is a response. */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
         PROTO_ITEM_SET_GENERATED(pi);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
-        proto_tree_add_uint(tree, hf_kt_hits, tvb, offset, 4, next32);
-        offset += 4;
+        proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, next32);
+        new_offset += 4;
     }
 
-    return offset;
+    return new_offset;
 }
 
 static int
-dissect_kt_play_script(tvbuff_t *tvb, proto_tree *tree)
+dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     guint32 next32, rnum, ksiz, vsiz, nsiz;
-    gint offset, rec_start_offset;
-
+    gint new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
 
-    offset = 1;
-    next32 = tvb_get_ntohl(tvb, offset);
+    new_offset = offset;
+
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
+
+    next32 = tvb_get_ntohl(tvb, new_offset);
 
     if (next32 == 0) {
-        if (tvb_reported_length_remaining(tvb, (offset + 4)) > 0) {
+        if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) {
             /* There's more data after the 32 bits. This is a request */
-            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_REQUEST);
+            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
             PROTO_ITEM_SET_GENERATED(pi);
 
-            proto_tree_add_uint(tree, hf_kt_flags, tvb, offset, 4, next32);
-            offset += 4;
+            proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
+            new_offset += 4;
 
-            nsiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(tree, hf_kt_nsiz, tvb, offset, 4, nsiz);
-            offset += 4;
+            nsiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(tree, hf_kt_nsiz, tvb, new_offset, 4, nsiz);
+            new_offset += 4;
 
-            rnum = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(tree, hf_kt_rnum, tvb, offset, 4, rnum);
-            offset += 4;
+            rnum = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, rnum);
+            new_offset += 4;
 
-            proto_tree_add_item(tree, hf_kt_name, tvb, offset, nsiz, ENC_ASCII|ENC_NA);
-            offset += nsiz;
+            proto_tree_add_item(tree, hf_kt_name, tvb, new_offset, nsiz, ENC_ASCII|ENC_NA);
+            new_offset += nsiz;
 
             while (rnum > 0) {
                 /* Create a sub-tree for each record */
-                ti = proto_tree_add_item(tree, hf_kt_rec, tvb, offset, -1, ENC_NA);
+                ti = proto_tree_add_item(tree, hf_kt_rec, tvb, new_offset, -1, ENC_NA);
                 rec_tree = proto_item_add_subtree(ti, ett_kt_rec);
-                rec_start_offset = offset;
+                rec_start_offset = new_offset;
 
-                ksiz = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, offset, 4, ksiz);
-                offset += 4;
+                ksiz = tvb_get_ntohl(tvb, new_offset);
+                proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
+                new_offset += 4;
 
-                vsiz = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, offset, 4, vsiz);
-                offset += 4;
+                vsiz = tvb_get_ntohl(tvb, new_offset);
+                proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, new_offset, 4, vsiz);
+                new_offset += 4;
 
-                proto_tree_add_item(rec_tree, hf_kt_key, tvb, offset, ksiz, ENC_NA);
+                proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
-                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, offset, ksiz, ENC_ASCII|ENC_NA);
+                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
                     PROTO_ITEM_SET_GENERATED(pi);
                 }
-                offset += ksiz;
+                new_offset += ksiz;
 
-                proto_tree_add_item(rec_tree, hf_kt_val, tvb, offset, vsiz, ENC_NA);
+                proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
-                    pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, offset, vsiz, ENC_ASCII|ENC_NA);
+                    pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
                     PROTO_ITEM_SET_GENERATED(pi);
                 }
-                offset += vsiz;
+                new_offset += vsiz;
 
-                proto_item_set_len(ti, offset-rec_start_offset);
+                proto_item_set_len(ti, new_offset - rec_start_offset);
                 rnum--;
             }
         } else {
             /* Nothing remaining after the 32 bits. This is a response with no records. */
-            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
             PROTO_ITEM_SET_GENERATED(pi);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
-            proto_tree_add_uint(tree, hf_kt_rnum, tvb, offset, 4, next32);
-            offset += 4;
+            proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, next32);
+            new_offset += 4;
         }
     } else { /* response - one or more records */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
         PROTO_ITEM_SET_GENERATED(pi);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
-        rnum = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(tree, hf_kt_hits, tvb, offset, 4, rnum);
-        offset += 4;
+        rnum = tvb_get_ntohl(tvb, new_offset);
+        proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, rnum);
+        new_offset += 4;
 
         while (rnum > 0) {
             /* Create a sub-tree for each record */
-            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, offset, -1, ENC_NA);
+            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, new_offset, -1, ENC_NA);
             rec_tree = proto_item_add_subtree(ti, ett_kt_rec);
-            rec_start_offset = offset;
+            rec_start_offset = new_offset;
 
-            ksiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, offset, 4, ksiz);
-            offset += 4;
+            ksiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
+            new_offset += 4;
 
-            vsiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, offset, 4, vsiz);
-            offset += 4;
+            vsiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, new_offset, 4, vsiz);
+            new_offset += 4;
 
-            proto_tree_add_item(rec_tree, hf_kt_key, tvb, offset, ksiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += ksiz;
+            new_offset += ksiz;
 
-            proto_tree_add_item(rec_tree, hf_kt_val, tvb, offset, vsiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, offset, vsiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += vsiz;
+            new_offset += vsiz;
 
-            proto_item_set_len(ti, offset-rec_start_offset);
+            proto_item_set_len(ti, new_offset - rec_start_offset);
             rnum--;
         }
     }
 
-    return offset;
+    return new_offset;
 }
 
 static int
-dissect_kt_get_bulk(tvbuff_t *tvb, proto_tree *tree)
+dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     guint32 next32, rnum, ksiz, vsiz;
     guint64 xt;
     nstime_t ts;
-    gint offset, rec_start_offset;
-
+    gint new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
 
-    offset = 1;
-    next32 = tvb_get_ntohl(tvb, offset);
+    new_offset = offset;
+
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
+
+    next32 = tvb_get_ntohl(tvb, new_offset);
 
     if (next32 == 0) {
-        if (tvb_reported_length_remaining(tvb, (offset + 4)) > 0) { /* request */
-            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_REQUEST);
+        if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) { /* request */
+            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
             PROTO_ITEM_SET_GENERATED(pi);
 
-            proto_tree_add_uint(tree, hf_kt_flags, tvb, offset, 4, next32);
-            offset += 4;
+            proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
+            new_offset += 4;
 
-            rnum = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(tree, hf_kt_rnum, tvb, offset, 4, rnum);
-            offset += 4;
+            rnum = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, rnum);
+            new_offset += 4;
 
             while (rnum > 0) {
                 /* Create a sub-tree for each record */
-                ti = proto_tree_add_item(tree, hf_kt_rec, tvb, offset, -1, ENC_NA);
+                ti = proto_tree_add_item(tree, hf_kt_rec, tvb, new_offset, -1, ENC_NA);
                 rec_tree = proto_item_add_subtree(ti, ett_kt_rec);
-                rec_start_offset = offset;
+                rec_start_offset = new_offset;
 
-                proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, new_offset, 2, ENC_BIG_ENDIAN);
+                new_offset += 2;
 
-                ksiz = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, offset, 4, ksiz);
-                offset += 4;
+                ksiz = tvb_get_ntohl(tvb, new_offset);
+                proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
+                new_offset += 4;
 
-                proto_tree_add_item(rec_tree, hf_kt_key, tvb, offset, ksiz, ENC_NA);
+                proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
-                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, offset, ksiz, ENC_ASCII|ENC_NA);
+                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
                     PROTO_ITEM_SET_GENERATED(pi);
                 }
-                offset += ksiz;
+                new_offset += ksiz;
 
-                proto_item_set_len(ti, offset-rec_start_offset);
+                proto_item_set_len(ti, new_offset - rec_start_offset);
                 rnum--;
             }
         } else { /* response - no records */
-            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+            pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
             PROTO_ITEM_SET_GENERATED(pi);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
-            proto_tree_add_uint(tree, hf_kt_hits, tvb, offset, 4, next32);
-            offset += 4;
+            proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, next32);
+            new_offset += 4;
         }
     } else { /* response - one or more records */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
         PROTO_ITEM_SET_GENERATED(pi);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
-        rnum = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(tree, hf_kt_hits, tvb, offset, 4, rnum);
-        offset += 4;
+        rnum = tvb_get_ntohl(tvb, new_offset);
+        proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, rnum);
+        new_offset += 4;
 
         while (rnum > 0) {
             /* Create a sub-tree for each record */
-            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, offset, -1, ENC_NA);
+            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, new_offset, -1, ENC_NA);
             rec_tree = proto_item_add_subtree(ti, ett_kt_rec);
-            rec_start_offset = offset;
+            rec_start_offset = new_offset;
 
-            proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+            proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, new_offset, 2, ENC_BIG_ENDIAN);
+            new_offset += 2;
 
-            ksiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, offset, 4, ksiz);
-            offset += 4;
+            ksiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
+            new_offset += 4;
 
-            vsiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, offset, 4, vsiz);
-            offset += 4;
+            vsiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, new_offset, 4, vsiz);
+            new_offset += 4;
 
-            xt = tvb_get_ntoh64(tvb, offset);
+            xt = tvb_get_ntoh64(tvb, new_offset);
             ts.secs = (time_t)(xt&0xFFFFFFFF);
             ts.nsecs = 0;
-            proto_tree_add_time(rec_tree, hf_kt_xt_resp, tvb, offset, 8, &ts);
-            offset += 8;
+            proto_tree_add_time(rec_tree, hf_kt_xt_resp, tvb, new_offset, 8, &ts);
+            new_offset += 8;
 
-            proto_tree_add_item(rec_tree, hf_kt_key, tvb, offset, ksiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += ksiz;
+            new_offset += ksiz;
 
-            proto_tree_add_item(rec_tree, hf_kt_val, tvb, offset, vsiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, offset, vsiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += vsiz;
+            new_offset += vsiz;
 
-            proto_item_set_len(ti, offset-rec_start_offset);
+            proto_item_set_len(ti, new_offset - rec_start_offset);
             rnum--;
         }
     }
 
-    return offset;
+    return new_offset;
 }
 
 static int
-dissect_kt_remove_bulk(tvbuff_t *tvb, proto_tree *tree)
+dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     guint32 next32, rnum, ksiz;
-    gint offset, rec_start_offset;
-
+    gint new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
 
-    offset = 1;
-    next32 = tvb_get_ntohl(tvb, offset);
+    new_offset = offset;
 
-    if (tvb_reported_length_remaining(tvb, (offset + 4)) > 0) { /* request */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_REQUEST);
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
+
+    next32 = tvb_get_ntohl(tvb, new_offset);
+
+    if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) { /* request */
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
         PROTO_ITEM_SET_GENERATED(pi);
 
-        proto_tree_add_uint(tree, hf_kt_flags, tvb, offset, 4, next32);
-        offset += 4;
+        proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
+        new_offset += 4;
 
-        rnum = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(tree, hf_kt_rnum, tvb, offset, 4, rnum);
-        offset += 4;
+        rnum = tvb_get_ntohl(tvb, new_offset);
+        proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, rnum);
+        new_offset += 4;
 
         while (rnum > 0) {
             /* Create a sub-tree for each record */
-            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, offset, -1, ENC_NA);
+            ti = proto_tree_add_item(tree, hf_kt_rec, tvb, new_offset, -1, ENC_NA);
             rec_tree = proto_item_add_subtree(ti, ett_kt_rec);
-            rec_start_offset = offset;
+            rec_start_offset = new_offset;
 
-            proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+            proto_tree_add_item(rec_tree, hf_kt_dbidx, tvb, new_offset, 2, ENC_BIG_ENDIAN);
+            new_offset += 2;
 
-            ksiz = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, offset, 4, ksiz);
-            offset += 4;
+            ksiz = tvb_get_ntohl(tvb, new_offset);
+            proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
+            new_offset += 4;
 
-            proto_tree_add_item(rec_tree, hf_kt_key, tvb, offset, ksiz, ENC_NA);
+            proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
                 PROTO_ITEM_SET_GENERATED(pi);
             }
-            offset += ksiz;
+            new_offset += ksiz;
 
-            proto_item_set_len(ti, offset-rec_start_offset);
+            proto_item_set_len(ti, new_offset - rec_start_offset);
             rnum--;
         }
     } else { /* response */
-        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, 0, 1, KT_OPER_RESPONSE);
+        pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
         PROTO_ITEM_SET_GENERATED(pi);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
-        proto_tree_add_uint(tree, hf_kt_hits, tvb, offset, 4, next32);
-        offset += 4;
+        proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, next32);
+        new_offset += 4;
     }
 
-    return offset;
+    return new_offset;
 }
+
+static int
+dissect_kt_error(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    gint new_offset;
+
+    new_offset = offset;
+
+    proto_tree_add_item(tree, hf_kt_magic, tvb, new_offset, 1, ENC_BIG_ENDIAN);
+    new_offset++;
+
+    return new_offset;
+}
+
 static void
 dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint      magic;
     proto_item *ti;
     proto_tree *kt_tree;
-    int offset;
+    gint offset, offset_start;
 
-    ti = NULL;
-    kt_tree = NULL;
     offset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -599,34 +630,36 @@ dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KT");
         col_set_str(pinfo->cinfo, COL_INFO, try_val_to_str(magic, kt_magic_vals));
 
-        ti = proto_tree_add_item(tree, proto_kt, tvb, 0, tvb_length(tvb), ENC_NA);
+        ti = proto_tree_add_item(tree, proto_kt, tvb, offset, -1, ENC_NA);
         kt_tree = proto_item_add_subtree(ti, ett_kt);
 
-        proto_tree_add_item(kt_tree, hf_kt_magic, tvb, 0, 1, ENC_BIG_ENDIAN);
-        offset++;
+        offset_start=offset;
 
         switch (magic) {
             case KT_MAGIC_REPL_WAIT:
-                offset+= dissect_kt_replication_wait(tvb, kt_tree);
+                offset = dissect_kt_replication_wait(tvb, kt_tree, offset);
                 break;
             case KT_MAGIC_REPLICATION:
-                offset+= dissect_kt_replication(tvb, kt_tree);
+                offset = dissect_kt_replication(tvb, pinfo, kt_tree, offset);
                 break;
             case KT_MAGIC_PLAY_SCRIPT:
-                offset+= dissect_kt_play_script(tvb, kt_tree);
+                offset = dissect_kt_play_script(tvb, pinfo, kt_tree, offset);
                 break;
             case KT_MAGIC_SET_BULK:
-                offset+= dissect_kt_set_bulk(tvb, kt_tree);
+                offset = dissect_kt_set_bulk(tvb, pinfo, kt_tree, offset);
                 break;
             case KT_MAGIC_REMOVE_BULK:
-                offset+= dissect_kt_remove_bulk(tvb, kt_tree);
+                offset = dissect_kt_remove_bulk(tvb, pinfo, kt_tree, offset);
                 break;
             case KT_MAGIC_GET_BULK:
-                offset+= dissect_kt_get_bulk(tvb, kt_tree);
+                offset = dissect_kt_get_bulk(tvb, pinfo, kt_tree, offset);
                 break;
             case KT_MAGIC_ERROR:
+                offset = dissect_kt_error(tvb, kt_tree, offset);
                 break;
         }
+
+        proto_item_set_len(ti, offset-offset_start);
     }
 }
 
