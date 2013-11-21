@@ -185,12 +185,6 @@ typedef enum {
     CONV_CBA
 } conv_values_e;
 
-static gboolean is_ip_packet(packet_info* pinfo)
-{
-
-    return FALSE;
-}
-
 static char *
 build_conversation_filter(int action, gboolean show_dialog)
 {
