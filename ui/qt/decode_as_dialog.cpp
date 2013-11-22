@@ -1,4 +1,4 @@
-/* stats_tree_dialog.h
+/* decode_as_dialog.cpp
  *
  * $Id$
  *
