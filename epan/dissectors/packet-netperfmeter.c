@@ -49,6 +49,10 @@ static gint ett_onoffarray  = -1;
    static const int offset_##variable = offset;    \
    static const int length_##variable = length;
 
+#define INIT_FIELD_WITHOUT_LEN(variable, offset) \
+   static int hf_##variable           = -1;        \
+   static const int offset_##variable = offset;
+
 #define NETPERFMETER_ACKNOWLEDGE    0x01
 #define NETPERFMETER_ADD_FLOW       0x02
 #define NETPERFMETER_REMOVE_FLOW    0x03
@@ -105,7 +109,7 @@ INIT_FIELD(addflow_maxmsgsize,        138,  2)
 INIT_FIELD(addflow_cmt,               140,  1)
 INIT_FIELD(addflow_ccid,              141,  1)
 INIT_FIELD(addflow_onoffevents,       142,  2)
-INIT_FIELD(addflow_onoffeventarray,   144,  4)
+INIT_FIELD_WITHOUT_LEN(addflow_onoffeventarray,   144)
 
 INIT_FIELD(removeflow_flowid,           4,  4)
 INIT_FIELD(removeflow_measurementid,    8,  8)
@@ -124,7 +128,7 @@ INIT_FIELD(data_frameid,         20,  4)
 INIT_FIELD(data_packetseqnumber, 24,  8)
 INIT_FIELD(data_byteseqnumber,   32,  8)
 INIT_FIELD(data_timestamp,       40,  8)
-INIT_FIELD(data_payload,         48,  0)
+INIT_FIELD_WITHOUT_LEN(data_payload,         48)
 
 /* INIT_FIELD(start_padding,         4,  4) */
 INIT_FIELD(start_measurementid,   8,  8)
@@ -132,7 +136,7 @@ INIT_FIELD(start_measurementid,   8,  8)
 /* INIT_FIELD(stop_padding,          4,  4) */
 INIT_FIELD(stop_measurementid,    8,  8)
 
-INIT_FIELD(results_data,          4,  0)
+INIT_FIELD_WITHOUT_LEN(results_data,          4)
 
 
 /* Setup list of Transport Layer protocol types */
