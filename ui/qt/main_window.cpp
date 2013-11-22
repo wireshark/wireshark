@@ -269,11 +269,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),
             proto_tree_, SLOT(collapseAll()));
 
-    connect(packet_list_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+    connect(packet_list_, SIGNAL(packetSelectionChanged()),
             this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
-    connect(packet_list_, SIGNAL(setMenusFollowStream()),
+    connect(packet_list_, SIGNAL(packetSelectionChanged()),
             this, SLOT(setMenusForFollowStream()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),

@@ -427,7 +427,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     int row = selected.first().top();
     cf_select_packet(cap_file_, row);
     related_packet_delegate_.clear();
-    emit setMenusFollowStream();
+    emit packetSelectionChanged();
 
     if (!cap_file_->edt) return;
 
@@ -586,8 +586,8 @@ void PacketList::freeze()
 
 void PacketList::thaw()
 {
-    setUpdatesEnabled(true);
     setModel(packet_list_model_);
+    setUpdatesEnabled(true);
 }
 
 void PacketList::clear() {

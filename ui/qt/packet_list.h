@@ -77,7 +77,7 @@ private:
 
 signals:
     void packetDissectionChanged();
-    void setMenusFollowStream();
+    void packetSelectionChanged();
 
 public slots:
     void setCaptureFile(capture_file *cf);
