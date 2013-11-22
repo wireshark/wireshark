@@ -328,6 +328,7 @@ static const value_string idrp_error_rib_refresh_subcodes[] = {
 };
 
 
+#if 0
 #define IDRP_RIB_REFRESH_REQUEST 1
 #define IDRP_RIB_REFRESH_START 2
 #define IDRP_RIB_REFRESH_END 3
@@ -337,6 +338,7 @@ static const value_string idrp_rib_refresh_opcodes[] = {
     {IDRP_RIB_REFRESH_END, "RIB Refresh End"},
     {0, NULL}
 };
+#endif
 
 
 int dissect_BISPDU_OPEN(tvbuff_t * tvb, int offset, proto_tree * tree)
