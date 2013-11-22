@@ -206,6 +206,7 @@ else()
 		-Wcast-qual
 		-Wformat-security
 		-Wredundant-decls
+		-Wheader-guard
 		# All the registration functions block these for now.
 		-Wmissing-declarations
 	)
