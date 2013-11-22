@@ -140,14 +140,63 @@ typedef struct dtbl_entry dtbl_entry_t;
 
 WS_DLL_PUBLIC dissector_handle_t dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry);
 WS_DLL_PUBLIC dissector_handle_t dtbl_entry_get_initial_handle (dtbl_entry_t * entry);
-void dissector_table_foreach_changed (const char *name, DATFunc func,
+
+/** Iterate over dissectors in a table with non-default "decode as" settings.
+ *
+ * Walk one dissector table calling a user supplied function only on
+ * any entry that has been changed from its original state.
+ *
+ * @param[in] table_name The name of the dissector table, e.g. "ip.proto".
+ * @param[in] func The function to call for each dissector.
+ * @param[in] user_data User data to pass to the function.
+ */
+void dissector_table_foreach_changed (const char *table_name, DATFunc func,
     gpointer user_data);
-WS_DLL_PUBLIC void dissector_table_foreach (const char *name, DATFunc func,
+
+/** Iterate over dissectors in a table.
+ *
+ * Walk one dissector table's hash table calling a user supplied function
+ * on each entry.
+ *
+ * @param[in] table_name The name of the dissector table, e.g. "ip.proto".
+ * @param[in] func The function to call for each dissector.
+ * @param[in] user_data User data to pass to the function.
+ */
+WS_DLL_PUBLIC void dissector_table_foreach (const char *table_name, DATFunc func,
     gpointer user_data);
+
+/** Iterate over dissectors with non-default "decode as" settings.
+ *
+ * Walk all dissector tables calling a user supplied function only on
+ * any "decode as" entry that has been changed from its original state.
+ *
+ * @param[in] func The function to call for each dissector.
+ * @param[in] data User data to pass to the function.
+ */
 WS_DLL_PUBLIC void dissector_all_tables_foreach_changed (DATFunc func,
     gpointer user_data);
-WS_DLL_PUBLIC void dissector_table_foreach_handle(const char *name, DATFunc_handle func,
+
+/** Iterate over dissectors in a table by handle.
+ *
+ * Walk one dissector table's list of handles calling a user supplied
+ * function on each entry.
+ *
+ * @param[in] table_name The name of the dissector table, e.g. "ip.proto".
+ * @param[in] func The function to call for each dissector.
+ * @param[in] user_data User data to pass to the function.
+ */
+WS_DLL_PUBLIC void dissector_table_foreach_handle(const char *table_name, DATFunc_handle func,
     gpointer user_data);
+
+/** Iterate over dissectors in a table matching against a given function.
+ *
+ * Walk all dissector tables calling a user supplied function on each
+ * table.
+ * @param[in] func The function to call for each dissector.
+ * @param[in] user_data User data to pass to the function.
+ * @param[in] compare_key_func Hash table key comparison function. All entries
+ * are matched if NULL.
+ */
 WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
     gpointer user_data, GCompareFunc compare_key_func);
 
@@ -245,6 +294,14 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_string_handle(
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by code in the UI. */
 WS_DLL_PUBLIC void dissector_add_handle(const char *name, dissector_handle_t handle);
+
+/** Get the list of handles for a dissector table
+ */
+WS_DLL_PUBLIC GSList *dissector_table_get_dissector_handles(dissector_table_t dissector_table);
+
+/** Get a dissector table's type
+ */
+WS_DLL_PUBLIC ftenum_t dissector_table_get_type(dissector_table_t dissector_table);
 
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and

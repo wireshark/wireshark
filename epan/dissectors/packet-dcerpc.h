@@ -29,6 +29,10 @@
 #include <epan/conversation.h>
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Data representation.
  */
@@ -253,7 +257,7 @@ int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex, guint32 param);
 int PIDL_dissect_uint64_val (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex, guint32 param, guint64 *pval);
 int dissect_ndr_float (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, dcerpc_info *di, guint8 *drep, 
+                        proto_tree *tree, dcerpc_info *di, guint8 *drep,
                         int hfindex, gfloat *pdata);
 WS_DLL_PUBLIC
 int dissect_ndr_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -351,7 +355,7 @@ int PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 int dissect_ndr_cstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *tree, dcerpc_info *di, guint8 *drep, int size_is,
                         int hfindex, gboolean add_subtree, char **data);
-int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di, guint8 *drep, int size_is,
 			 int hfinfo, gboolean add_subtree,
 			 char **data);
@@ -546,6 +550,10 @@ extern int hf_dcerpc_drep_byteorder;
                                         \
 	/* we need di->call_data->flags.NDR64 == 0 */  \
     call_data.flags = 0;                \
-	di.call_data = &call_data;          
+	di.call_data = &call_data;
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* packet-dcerpc.h */

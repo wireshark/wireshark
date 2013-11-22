@@ -33,8 +33,6 @@
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
-#include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/decode_as.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <wsutil/file_util.h>
@@ -91,13 +89,6 @@
 
 #define E_PAGE_ACTION "notebook_page_action"
 
-/*
- * Filename of the "decode as" entry preferences
- */
-#define DECODE_AS_ENTRIES_FILE_NAME "decode_as_entries"
-
-#define DECODE_AS_ENTRY "decode_as_entry"
-
 /**************************************************/
 /*             File Global Variables              */
 /**************************************************/
@@ -140,90 +131,6 @@ enum action_type  requested_action = (enum action_type)-1;
 /**************************************************/
 
 /**************************************************/
-/*            Reset Changed Dissectors            */
-/**************************************************/
-
-/*
- * Data structure for tracking which dissector need to be reset.  This
- * structure is necessary as a hash table entry cannot be removed
- * while a g_hash_table_foreach walk is in progress.
- */
-struct dissector_delete_item {
-    /* The name of the dissector table */
-    const gchar *ddi_table_name;
-    /* The type of the selector in that dissector table */
-    ftenum_t ddi_selector_type;
-    /* The selector in the dissector table */
-    union {
-        guint   sel_uint;
-        char    *sel_string;
-    } ddi_selector;
-};
-
-/*
- * A typedef for the data structure to track the original dissector
- * used for any given port on any given protocol.
- */
-typedef struct dissector_delete_item dissector_delete_item_t;
-
-/*
- * A list of dissectors that need to be reset.
- */
-GSList *dissector_reset_list = NULL;
-
-/*
- * This routine creates one entry in the list of protocol dissector
- * that need to be reset. It is called by the g_hash_table_foreach
- * routine once for each changed entry in a dissector table.
- * Unfortunately it cannot delete the entry immediately as this screws
- * up the foreach function, so it builds a list of dissectors to be
- * reset once the foreach routine finishes.
- *
- * @param table_name The table name in which this dissector is found.
- *
- * @param key A pointer to the key for this entry in the dissector
- * hash table.  This is generally the numeric selector of the
- * protocol, i.e. the ethernet type code, IP port number, TCP port
- * number, etc.
- *
- * @param value A pointer to the value for this entry in the dissector
- * hash table.  This is an opaque pointer that can only be handed back
- * to routine in the file packet.c - but it's unused.
- *
- * @param user_data Unused.
- */
-static void
-decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
-                         gpointer user_data _U_)
-{
-    dissector_delete_item_t *item;
-
-    item = g_new(dissector_delete_item_t,1);
-    item->ddi_table_name = table_name;
-    item->ddi_selector_type = selector_type;
-    switch (selector_type) {
-
-    case FT_UINT8:
-    case FT_UINT16:
-    case FT_UINT24:
-    case FT_UINT32:
-        item->ddi_selector.sel_uint = GPOINTER_TO_UINT(key);
-        break;
-
-    case FT_STRING:
-    case FT_STRINGZ:
-        item->ddi_selector.sel_string = (char *)key;
-        break;
-
-    default:
-        g_assert_not_reached();
-    }
-    dissector_reset_list = g_slist_prepend(dissector_reset_list, item);
-}
-
-
-/**************************************************/
 /*             Saving "Decode As"                 */
 /**************************************************/
 
@@ -248,91 +155,15 @@ typedef struct da_entry da_entry_t;
 GSList *da_entries = NULL;
 
 /*
- * Data structure used as user data when iterating diessector handles
- */
-struct lookup_entry {
-  gchar*             dissector_short_name;
-  dissector_handle_t handle;
-};
-
-typedef struct lookup_entry lookup_entry_t;
-
-/*
  * Implementation of the dissector_table defined in packet.h
  */
-struct dissector_table {
-  GHashTable *hash_table;
-  GSList     *dissector_handles;
-  const char *ui_name;
-  ftenum_t   type;
-  int        base;
-};
-
-/*
- * A callback function to changed a dissector_handle if matched
- * This is used when iterating a dissector table
- */
-static void
-change_dissector_if_matched(gpointer item, gpointer user_data)
-{
-  dissector_handle_t handle = (dissector_handle_t)item;
-  lookup_entry_t * lookup = (lookup_entry_t *)user_data;
-  if (strcmp(lookup->dissector_short_name, dissector_handle_get_short_name(handle)) == 0) {
-    lookup->handle = handle;
-  }
-}
-
-/*
- * A callback function to parse each "decode as" entry in the file and apply the change
- */
-static prefs_set_pref_e
-read_set_decode_as_entries(gchar *key, const gchar *value,
-			   void *user_data _U_,
-			   gboolean return_range_errors _U_)
-{
-  gchar *values[4] = {NULL, NULL, NULL, NULL};
-  gchar delimiter[4] = {',', ',', ',','\0'};
-  gchar *pch;
-  guint i, j;
-  dissector_table_t sub_dissectors;
-  prefs_set_pref_e retval = PREFS_SET_OK;
-
-  if (strcmp(key, DECODE_AS_ENTRY) == 0) {
-    /* Parse csv into table, selector, initial, current */
-    for (i = 0; i < 4; i++) {
-      pch = strchr(value, delimiter[i]);
-      if (pch == NULL) {
-	for (j = 0; j < i; j++) {
-	  g_free(values[j]);
-	}
-	return PREFS_SET_SYNTAX_ERR;
-      }
-      values[i] = g_strndup(value, pch - value);
-      value = pch + 1;
-    }
-    sub_dissectors = find_dissector_table(values[0]);
-    if (sub_dissectors != NULL) {
-      lookup_entry_t lookup;
-      lookup.dissector_short_name = values[3];
-      lookup.handle = NULL;
-      g_slist_foreach(sub_dissectors->dissector_handles, change_dissector_if_matched, &lookup);
-      if (lookup.handle != NULL) {
-	dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
-	decode_build_reset_list(g_strdup(values[0]), sub_dissectors->type, g_strdup(values[1]), NULL, NULL);
-      }
-    } else {
-      retval = PREFS_SET_SYNTAX_ERR;
-    }
-
-  } else {
-    retval = PREFS_SET_NO_SUCH_PREF;
-  }
-
-  for (i = 0; i < 4; i++) {
-    g_free(values[i]);
-  }
-  return retval;
-}
+//struct dissector_table {
+//  GHashTable *hash_table;
+//  GSList     *dissector_handles;
+//  const char *ui_name;
+//  ftenum_t   type;
+//  int        base;
+//};
 
 /*
  * Save entries into preferences.
@@ -540,50 +371,6 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
 }
 
 
-/* clear all settings */
-static void
-decode_clear_all(gboolean redissect)
-{
-    dissector_delete_item_t *item;
-    GSList *tmp;
-
-    dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
-
-    for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
-        item = (dissector_delete_item_t *)tmp->data;
-        switch (item->ddi_selector_type) {
-
-        case FT_UINT8:
-        case FT_UINT16:
-        case FT_UINT24:
-        case FT_UINT32:
-            dissector_reset_uint(item->ddi_table_name,
-                                 item->ddi_selector.sel_uint);
-            break;
-
-        case FT_STRING:
-        case FT_STRINGZ:
-            dissector_reset_string(item->ddi_table_name,
-                                   item->ddi_selector.sel_string);
-            break;
-
-        default:
-            g_assert_not_reached();
-        }
-        g_free(item);
-    }
-    g_slist_free(dissector_reset_list);
-    dissector_reset_list = NULL;
-
-    decode_dcerpc_reset_all();
-
-    if (redissect) {
-      redissect_packets();
-      redissect_all_packet_windows();
-    }
-}
-
-
 /*
  * This routine is called when the user clicks the "OK" button in
  * the "Decode As:Show..." dialog window.  This routine destroys the
@@ -613,7 +400,9 @@ decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 static void
 decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
 {
-    decode_clear_all(TRUE);
+    decode_clear_all();
+    redissect_packets();
+    redissect_all_packet_windows();
 
     window_destroy(GTK_WIDGET(parent_w));
 
@@ -1114,7 +903,9 @@ decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 static void
 decode_clear_cb(GtkWidget *clear_bt _U_, gpointer user_data _U_)
 {
-    decode_clear_all(TRUE);
+    decode_clear_all();
+    redissect_packets();
+    redissect_all_packet_windows();
 }
 
 
@@ -1692,21 +1483,4 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
 
     gtk_widget_show_all(decode_w);
     window_present(decode_w);
-}
-
-void load_decode_as_entries(void)
-{
-  char   *daf_path;
-  FILE   *daf;
-
-  if (dissector_reset_list) {
-    decode_clear_all(FALSE);
-  }
-
-  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
-  if ((daf = ws_fopen(daf_path, "r")) != NULL) {
-    read_prefs_file(daf_path, daf, read_set_decode_as_entries, NULL);
-    fclose(daf);
-  }
-  g_free(daf_path);
 }

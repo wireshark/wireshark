@@ -39,6 +39,7 @@
 #include <wsutil/filesystem.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
+#include <epan/decode_as.h>
 #include <epan/oids.h>
 #ifdef HAVE_GEOIP
 #include <epan/geoip_db.h>
@@ -3036,6 +3037,7 @@ prefs_reset(void)
    and a pointer to the path of the file into "*pf_path_return", and
    return NULL. */
 e_prefs *
+
 read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
            char **gpf_path_return, int *pf_errno_return,
            int *pf_read_errno_return, char **pf_path_return)
@@ -3147,6 +3149,9 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 
   /* load SMI modules if needed */
   oids_init();
+
+  /* load the decode as entries of this profile */
+  load_decode_as_entries();
 
   return &prefs;
 }

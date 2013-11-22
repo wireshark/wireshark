@@ -1394,6 +1394,18 @@ dtbl_entry_get_initial_handle (dtbl_entry_t *dtbl_entry)
 	return dtbl_entry->initial;
 }
 
+GSList *
+dissector_table_get_dissector_handles(dissector_table_t dissector_table) {
+	if (!dissector_table) return NULL;
+	return dissector_table->dissector_handles;
+}
+
+ftenum_t
+dissector_table_get_type(dissector_table_t dissector_table) {
+	if (!dissector_table) return FT_NONE;
+	return dissector_table->type;
+}
+
 /**************************************************/
 /*                                                */
 /*       Routines to walk dissector tables        */
@@ -1478,14 +1490,14 @@ dissector_all_tables_foreach (DATFunc func,
  * on each entry.
  */
 void
-dissector_table_foreach (const char *name,
+dissector_table_foreach (const char *table_name,
 			 DATFunc     func,
 			 gpointer    user_data)
 {
 	dissector_foreach_info_t info;
-	dissector_table_t        sub_dissectors = find_dissector_table( name);
+	dissector_table_t        sub_dissectors = find_dissector_table(table_name);
 
-	info.table_name    = name;
+	info.table_name    = table_name;
 	info.selector_type = sub_dissectors->type;
 	info.caller_func   = func;
 	info.caller_data   = user_data;
@@ -1497,16 +1509,16 @@ dissector_table_foreach (const char *name,
  * function on each entry.
  */
 void
-dissector_table_foreach_handle(const char     *name,
+dissector_table_foreach_handle(const char     *table_name,
 			       DATFunc_handle  func,
 			       gpointer        user_data)
 {
-	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dissector_table_t sub_dissectors = find_dissector_table(table_name);
 	GSList *tmp;
 
 	for (tmp = sub_dissectors->dissector_handles; tmp != NULL;
 	     tmp = g_slist_next(tmp))
-		func(name, tmp->data, user_data);
+        func(table_name, tmp->data, user_data);
 }
 
 /*
@@ -1555,14 +1567,14 @@ dissector_all_tables_foreach_changed (DATFunc  func,
  * any entry that has been changed from its original state.
  */
 void
-dissector_table_foreach_changed (const char *name,
+dissector_table_foreach_changed (const char *table_name,
 				 DATFunc     func,
 				 gpointer    user_data)
 {
 	dissector_foreach_info_t info;
-	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dissector_table_t sub_dissectors = find_dissector_table(table_name);
 
-	info.table_name    = name;
+	info.table_name    = table_name;
 	info.selector_type = sub_dissectors->type;
 	info.caller_func   = func;
 	info.caller_data   = user_data;

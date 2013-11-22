@@ -71,13 +71,14 @@
 
 #include <wiretap/merge.h>
 
+#include <epan/addr_resolv.h>
+#include <epan/column.h>
+#include <epan/disabled_protos.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
-#include <epan/timestamp.h>
 #include <epan/plugins.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
-#include <epan/addr_resolv.h>
 #include <epan/emem.h>
 #include <epan/ex-opt.h>
 #include <epan/funnel.h>
@@ -88,9 +89,8 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/uat.h>
-#include <epan/column.h>
-#include <epan/disabled_protos.h>
 #include <epan/print.h>
+#include <epan/timestamp.h>
 
 /* general (not GTK specific) */
 #include "../file.h"
@@ -1968,9 +1968,6 @@ read_configuration_files(char **gdp_path, char **dp_path)
   char                *cf_path, *df_path;
   int                  pf_open_errno, pf_read_errno;
   e_prefs             *prefs_p;
-
-  /* load the decode as entries of this profile */
-  load_decode_as_entries();
 
   /* Read the preference files. */
   prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
