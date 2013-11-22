@@ -198,6 +198,7 @@ static gint ett_atn_acse = -1;
 
 #include "packet-atn-ulcs-fn.c"
 
+#if 0
 /* re-implementing external data: packet-per.c */
 static const value_string per_External_encoding_vals[] = {
 {   0, "single-ASN1-type" },
@@ -205,6 +206,7 @@ static const value_string per_External_encoding_vals[] = {
 {   2, "arbitrary" },
 { 0, NULL }
 };
+#endif
 
 /* re-implementing external data: packet-per.c */
 static const per_choice_t External_encoding_choice[] =

@@ -1594,6 +1594,7 @@ static void dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 /*--- End of included file: packet-atn-ulcs-fn.c ---*/
 #line 200 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
+#if 0
 /* re-implementing external data: packet-per.c */
 static const value_string per_External_encoding_vals[] = {
 {   0, "single-ASN1-type" },
@@ -1601,6 +1602,7 @@ static const value_string per_External_encoding_vals[] = {
 {   2, "arbitrary" },
 { 0, NULL }
 };
+#endif
 
 /* re-implementing external data: packet-per.c */
 static const per_choice_t External_encoding_choice[] =
@@ -2493,7 +2495,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 808 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 810 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2573,7 +2575,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 858 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 860 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,
