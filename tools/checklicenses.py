@@ -163,6 +163,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'cmake/TestFileOffsetBits.c': [
         'UNKNOWN',
     ],
+    'cmake/TestWindowsFSeek.c': [
+        'UNKNOWN',
+    ],
     'epan/dissectors/pidl/idl_types.h': [
         # Special IDL license that appears to be compatible as far as I (not a
         # lawyer) can tell. See
