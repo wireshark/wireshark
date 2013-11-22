@@ -7176,7 +7176,7 @@ dissect_rsvp_unknown(proto_tree *ti _U_,
  *------------------------------------------------------------------------------*/
 static void
 dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      int tree_mode, rsvp_conversation_info *rsvph)
+                      int tree_mode, rsvp_conversation_info *rsvph, gboolean e2ei)
 {
     proto_tree *rsvp_tree;
     proto_tree *rsvp_header_tree;
@@ -7201,7 +7201,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_rsvp, tvb, offset, msg_length,
                              ENC_NA);
     rsvp_tree = proto_item_add_subtree(ti, tree_mode);
-    if (pinfo->ipproto == IP_PROTO_RSVPE2EI)
+    if (e2ei)
         proto_item_append_text(rsvp_tree, " (E2E-IGNORE)");
     proto_item_append_text(rsvp_tree, ": ");
     proto_item_append_text(rsvp_tree, "%s", val_to_str_ext(message_type, &message_type_vals_ext,
@@ -7215,7 +7215,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header. %s",
                              val_to_str_ext(message_type, &message_type_vals_ext,
                                         "Unknown Message (%u). "));
-    if (pinfo->ipproto == IP_PROTO_RSVPE2EI)
+    if (e2ei)
         proto_item_append_text(ti, " (E2E-IGNORE)");
     rsvp_header_tree = proto_item_add_subtree(ti, TREE(TT_HDR));
 
@@ -7286,7 +7286,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 tvbuff_t *tvb_sub;
                 sub_len = tvb_get_ntohs(tvb, len2+6);
                 tvb_sub = tvb_new_subset(tvb, len2, sub_len, sub_len);
-                dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG), rsvph);
+                dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG), rsvph, e2ei);
                 len2 += sub_len;
             }
         } else {
@@ -7513,7 +7513,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * The main loop
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean e2ei)
 {
     guint8 message_type;
     int    session_off, tempfilt_off;
@@ -7523,8 +7523,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rsvp_request_key  request_key, *new_request_key;
     struct rsvp_request_val *request_val;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                (pinfo->ipproto == IP_PROTO_RSVPE2EI) ? "RSVP-E2EI" : "RSVP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     message_type = tvb_get_guint8(tvb, 1);
@@ -7552,7 +7550,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
-        dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
+        dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph, e2ei);
     }
 
     /* ACK, SREFRESH and HELLO messages don't have any associated SESSION and,
@@ -7641,6 +7639,24 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     tap_queue_packet(rsvp_tap, pinfo, rsvph);
+}
+
+static int
+dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP");
+
+    dissect_rsvp_common(tvb, pinfo, tree, FALSE);
+    return tvb_length(tvb);
+}
+
+static int
+dissect_rsvp_e2ei(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP-E2EI");
+
+    dissect_rsvp_common(tvb, pinfo, tree, TRUE);
+    return tvb_length(tvb);
 }
 
 static void
@@ -9251,11 +9267,12 @@ proto_register_rsvp(void)
 void
 proto_reg_handoff_rsvp(void)
 {
-    dissector_handle_t rsvp_handle;
+    dissector_handle_t rsvp_handle, rsvpe2ei_handle;
 
-    rsvp_handle = create_dissector_handle(dissect_rsvp, proto_rsvp);
+    rsvp_handle = new_create_dissector_handle(dissect_rsvp, proto_rsvp);
+    rsvpe2ei_handle = new_create_dissector_handle(dissect_rsvp_e2ei, proto_rsvp);
     dissector_add_uint("ip.proto", IP_PROTO_RSVP, rsvp_handle);
-    dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvp_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvpe2ei_handle);
     dissector_add_uint("udp.port", UDP_PORT_PRSVP, rsvp_handle);
     rsvp_tap = register_tap("rsvp");
 }

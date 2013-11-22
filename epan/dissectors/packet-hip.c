@@ -408,7 +408,7 @@ static gint ett_hip_locator_data = -1;
 
 /* Dissect the HIP packet */
 static void
-dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp)
 {
         proto_tree *hip_tree, *hip_tlv_tree=NULL;
         proto_item *ti, *ti_tlv;
@@ -511,7 +511,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                            "0x%04x (correct)",
                                                            checksum_h);
                         } else {
-                               if (checksum_h == 0 && pinfo->ipproto == IP_PROTO_UDP) {
+                               if (checksum_h == 0 && udp) {
                                        proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
                                                                   offset+4, 2, checksum_h,
                                                                   "0x%04x (correct)",
@@ -576,6 +576,12 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_hip_common(tvb, pinfo, tree, FALSE);
+}
+
+static void
 dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint32 nullbytes;
@@ -583,7 +589,7 @@ dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (nullbytes == 0)
         {
                 tvbuff_t *newtvb = tvb_new_subset_remaining(tvb, 4);
-                dissect_hip(newtvb, pinfo, tree);
+                dissect_hip_common(newtvb, pinfo, tree, TRUE);
         }
 }
 

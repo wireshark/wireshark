@@ -87,8 +87,6 @@
 #include <gtk/gtk.h>
 #endif
 
-#include <epan/ipproto.h>
-
 /* buffer lengths */
 #define BUFLS 32
 #define BUFLM 64
@@ -732,8 +730,7 @@ static guint decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint len, proto_
 static void PDUreset(int count, int counr2);
 
 static int
-dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
-
+dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct tcpinfo *info, gboolean is_tcp) {
   ASN1_SCK asn1;
   guint cls, con, tag, len, offset, reassembled;
   gboolean def;
@@ -748,15 +745,13 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
   proto_item *hidden_item;
   PDUprops props;
   static guint lastseq;
-  struct tcpinfo *info;
   gint delta;
 
   pcount++;
   boffset = 0;
 
   reassembled = 1;		/* UDP is not a stream, and thus always reassembled .... */
-  if (pinfo->ipproto == IP_PROTO_TCP) {	/* we have tcpinfo */
-	  info = (struct tcpinfo *)data;
+  if (is_tcp) {	/* we have tcpinfo */
 	  delta = info->seq - lastseq;
 	  reassembled = info->is_reassembled;
 	  lastseq = info->seq;
@@ -1033,6 +1028,16 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
 		   pinfo->desegment_offset, pinfo->desegment_len, pinfo->can_desegment);
 
   return tvb_length(tvb);
+}
+
+static int
+dissect_asn1_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
+    return dissect_asn1(tvb, pinfo, tree, (struct tcpinfo*)data, TRUE);
+}
+
+static int
+dissect_asn1_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
+    return dissect_asn1(tvb, pinfo, tree, NULL, FALSE);
 }
 
 /* decode an ASN.1 sequence, until we have consumed the specified length */
@@ -5379,48 +5384,49 @@ proto_register_asn1(void) {
 
 /* The registration hand-off routing */
 
-static dissector_handle_t asn1_handle;
+static dissector_handle_t asn1_tcp_handle;
+static dissector_handle_t asn1_udp_handle;
 
 static void
 register_tcp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add_uint("tcp.port", port, asn1_handle);
+    dissector_add_uint("tcp.port", port, asn1_tcp_handle);
 }
 
 static void
 unregister_tcp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete_uint("tcp.port", port, asn1_handle);
+    dissector_delete_uint("tcp.port", port, asn1_tcp_handle);
 }
 
 static void
 register_udp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add_uint("udp.port", port, asn1_handle);
+    dissector_add_uint("udp.port", port, asn1_udp_handle);
 }
 
 static void
 unregister_udp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete_uint("udp.port", port, asn1_handle);
+    dissector_delete_uint("udp.port", port, asn1_udp_handle);
 }
 
 static void
 register_sctp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add_uint("sctp.port", port, asn1_handle);
+    dissector_add_uint("sctp.port", port, asn1_udp_handle);
 }
 
 static void
 unregister_sctp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete_uint("sctp.port", port, asn1_handle);
+    dissector_delete_uint("sctp.port", port, asn1_udp_handle);
 }
 
 void
@@ -5459,7 +5465,8 @@ proto_reg_handoff_asn1(void) {
 #endif /* JUST_ONE_PORT */
 
   if(!asn1_initialized) {
-    asn1_handle = new_create_dissector_handle(dissect_asn1,proto_asn1);
+    asn1_tcp_handle = new_create_dissector_handle(dissect_asn1_tcp,proto_asn1);
+    asn1_udp_handle = new_create_dissector_handle(dissect_asn1_udp,proto_asn1);
     asn1_initialized = TRUE;
   } else {	/* clean up ports and their lists */
 #ifdef JUST_ONE_PORT
