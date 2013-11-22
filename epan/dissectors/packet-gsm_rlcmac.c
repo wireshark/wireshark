@@ -6493,7 +6493,6 @@ static const true_false_string retry_vals = {
   "MS sent channel request message once"
 };
 
-#if 0
 static const value_string ctrl_ack_vals[] = {
   {0x00, "In case the message is sent in access burst format, the MS received two RLC/MAC blocks with the same RTI value, one with RBSN = 0 and the other with RBSN = 1 and the mobile station is requesting new TBF. Otherwise the bit value '00' is reserved and shall not be sent. If received it shall be intepreted as the MS received an RLC/MAC control block addressed to itself and with RBSN = 1, and did not receive an RLC/MAC control block with the same RTI value and RBSN = 0"},
   {0x01, "The MS received an RLC/MAC control block addressed to itself and with RBSN = 1, and did not receive an RLC/MAC control block with the same RTI value and RBSN = 0"},
@@ -6501,7 +6500,6 @@ static const value_string ctrl_ack_vals[] = {
   {0x03, "The MS received two RLC/MAC blocks with the same RTI value, one with RBSN = 0 and the other with RBSN = 1"},
   {0, NULL }
 };
-#endif
 
 static const value_string ul_payload_type_vals[] = {
   {0x00, "RLC/MAC block contains an RLC data block"},
@@ -8925,7 +8923,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_packet_control_acknowledgement_ctrl_ack,
       { "CTRL_ACK",        "gsm_rlcmac.ul.packet_control_ack_ctrl_ack",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(ctrl_ack_vals), 0x0,
         NULL, HFILL
       }
     },
