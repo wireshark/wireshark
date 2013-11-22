@@ -207,8 +207,7 @@ SOURCES_WS_C = \
     ../../proto_hier_stats.c      \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
-    ../../version_info.c    \
-    wireshark-tap-register.c
+    ../../version_info.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
 win32:SOURCES_WS_C += \
