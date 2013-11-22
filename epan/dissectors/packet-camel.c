@@ -864,10 +864,12 @@ static const value_string camel_Component_vals[] = {
   { 0, NULL }
 };
 
+#if 0
 static const true_false_string camel_extension_value = {
   "No Extension",
   "Extension"
 };
+#endif
 #define EUROPEAN_DATE 1
 #define AMERICAN_DATE 2
 #define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
@@ -896,6 +898,7 @@ static const value_string digit_value[] = {
     { 0,  NULL}};
 
 
+#if 0
 static const value_string camel_nature_of_addr_indicator_values[] = {
   {   0x00,  "unknown" },
   {   0x01,  "International Number" },
@@ -921,6 +924,7 @@ static const value_string camel_number_plan_values[] = {
   {   0x0f,  "Reserved for extension" },
   { 0, NULL }
 };
+#endif
 
 /* End includes from old" packet-camel.c */
 
@@ -1153,7 +1157,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 276 "../../asn1/camel/packet-camel-template.c"
+#line 280 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1243,7 +1247,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 278 "../../asn1/camel/packet-camel-template.c"
+#line 282 "../../asn1/camel/packet-camel-template.c"
 
 static char camel_number_to_char(int number)
 {
@@ -7006,7 +7010,7 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 325 "../../asn1/camel/packet-camel-template.c"
+#line 329 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7213,7 +7217,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 327 "../../asn1/camel/packet-camel-template.c"
+#line 331 "../../asn1/camel/packet-camel-template.c"
 
 
 static guint8 camel_pdu_type = 0;
@@ -7412,7 +7416,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 518 "../../asn1/camel/packet-camel-template.c"
+#line 522 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -9526,7 +9530,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 691 "../../asn1/camel/packet-camel-template.c"
+#line 695 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9741,7 +9745,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 707 "../../asn1/camel/packet-camel-template.c"
+#line 711 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

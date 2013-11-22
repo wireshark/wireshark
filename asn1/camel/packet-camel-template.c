@@ -168,10 +168,12 @@ static const value_string camel_Component_vals[] = {
   { 0, NULL }
 };
 
+#if 0
 static const true_false_string camel_extension_value = {
   "No Extension",
   "Extension"
 };
+#endif
 #define EUROPEAN_DATE 1
 #define AMERICAN_DATE 2
 #define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
@@ -200,6 +202,7 @@ static const value_string digit_value[] = {
     { 0,  NULL}};
 
 
+#if 0
 static const value_string camel_nature_of_addr_indicator_values[] = {
   {   0x00,  "unknown" },
   {   0x01,  "International Number" },
@@ -225,6 +228,7 @@ static const value_string camel_number_plan_values[] = {
   {   0x0f,  "Reserved for extension" },
   { 0, NULL }
 };
+#endif
 
 /* End includes from old" packet-camel.c */
 
