@@ -37,7 +37,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/emem.h>
-#include <epan/ipproto.h>
 #include <epan/dissectors/packet-tcp.h>
 #include "follow.h"
 #include <epan/conversation.h>
@@ -90,11 +89,32 @@ build_follow_conv_filter( packet_info *pi ) {
   int len;
   conversation_t *conv=NULL;
   struct tcp_analysis *tcpd;
+  wmem_list_frame_t* protos;
+  int proto_id;
+  const char* proto_name;
+  gboolean is_tcp = FALSE, is_udp = FALSE;
+
+  protos = wmem_list_head(pi->layers);
+
+  /* walk the list of a available protocols in the packet to
+      figure out if any of them affect context sensitivity */
+  while (protos != NULL)
+  {
+    proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+    proto_name = proto_get_protocol_filter_name(proto_id);
+
+    if (!strcmp(proto_name, "tcp")) {
+        is_tcp = TRUE;
+    } else if (!strcmp(proto_name, "udp")) {
+        is_udp = TRUE;
+    }
+            
+    protos = wmem_list_frame_next(protos);
+  }
 
   if( ((pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4) ||
        (pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6))
-	&& pi->ipproto == IP_PROTO_TCP 
-        && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
+	&& is_tcp && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
               pi->srcport, pi->destport, 0)) != NULL ) {
     /* TCP over IPv4 */
     tcpd=get_tcp_conversation_data(conv, pi);
@@ -113,7 +133,7 @@ build_follow_conv_filter( packet_info *pi ) {
     }
   }
   else if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	   && pi->ipproto == IP_PROTO_UDP ) {
+	   && is_udp ) {
   /* UDP over IPv4 */
     buf = g_strdup_printf(
 	     "(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
@@ -124,7 +144,7 @@ build_follow_conv_filter( packet_info *pi ) {
     is_ipv6 = FALSE;
   }
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == IP_PROTO_UDP ) {
+	&& is_udp ) {
     /* UDP over IPv6 */
     buf = g_strdup_printf(
 	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
