@@ -1294,8 +1294,8 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
 	  ac_heimdal_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
 	  # MIT Kerberos moved krb5.h to krb5/krb5.h starting with release 1.5
-	  ac_mit_version_olddir=`grep 'Massachusetts Institute of Technology' $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*Massachusetts Institute of Technology.*$/MIT/'`
-	  ac_mit_version_newdir=`grep 'Massachusetts Institute of Technology' $krb5_dir/include/krb5/krb5.h | head -n 1 | sed 's/^.*Massachusetts Institute of Technology.*$/MIT/'`
+	  ac_mit_version_olddir=`grep 'Massachusetts' $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*Massachusetts.*$/MIT/'`
+	  ac_mit_version_newdir=`grep 'Massachusetts' $krb5_dir/include/krb5/krb5.h | head -n 1 | sed 's/^.*Massachusetts.*$/MIT/'`
 	  ac_krb5_version="$ac_heimdal_version$ac_mit_version_olddir$ac_mit_version_newdir"
 	  if test "x$ac_krb5_version" = "xHEIMDAL"
 	  then
