@@ -290,12 +290,12 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
     g_assert(user_data);
     g_assert(value);
 
-    current = (dissector_handle_t)dtbl_entry_get_handle((dtbl_entry_t *)value);
+    current = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current == NULL)
         current_proto_name = "(none)";
     else
         current_proto_name = dissector_handle_get_short_name(current);
-    initial = (dissector_handle_t)dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
+    initial = dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
     if (initial == NULL)
         initial_proto_name = "(none)";
     else

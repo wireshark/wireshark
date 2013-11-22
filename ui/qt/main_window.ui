@@ -309,6 +309,8 @@
     <addaction name="menuApplyAsFilter"/>
     <addaction name="menuPrepareAFilter"/>
     <addaction name="separator"/>
+    <addaction name="actionAnalyzeDecodeAs"/>
+    <addaction name="separator"/>
     <addaction name="actionAnalyzeFollowTCPStream"/>
     <addaction name="actionAnalyzeFollowUDPStream"/>
     <addaction name="actionAnalyzeFollowSSLStream"/>
@@ -349,17 +351,17 @@
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
-    <addaction name="actionStatisticsFlowGraph"/>
-    <addaction name="menuTcpStreamGraphs"/>
+    <addaction name="actionStatisticsPacketLen"/>
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionStatisticsANCP"/>
     <addaction name="menuBACnet"/>
     <addaction name="actionStatisticsCollectd"/>
+    <addaction name="actionStatisticsFlowGraph"/>
     <addaction name="actionStatisticsHART_IP"/>
     <addaction name="menuHTTP"/>
-    <addaction name="actionStatisticsPacketLen"/>
     <addaction name="actionStatisticsSametime"/>
+    <addaction name="menuTcpStreamGraphs"/>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -1360,7 +1362,7 @@
   </action>
   <action name="actionStatisticsFlowGraph">
    <property name="text">
-    <string>Flow Graph...</string>
+    <string>Flow Graph</string>
    </property>
    <property name="toolTip">
     <string>Flow sequence diagram</string>
@@ -1492,6 +1494,14 @@
    </property>
    <property name="toolTip">
     <string>UCP message statistics</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeDecodeAs">
+   <property name="text">
+    <string>Decode &amp;As...</string>
+   </property>
+   <property name="toolTip">
+    <string>Change the way packets are dissected</string>
    </property>
   </action>
  </widget>

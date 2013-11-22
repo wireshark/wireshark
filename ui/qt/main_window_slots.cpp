@@ -70,6 +70,7 @@
 #endif
 
 #include "capture_file_dialog.h"
+#include "decode_as_dialog.h"
 #include "export_object_dialog.h"
 #include "packet_comment_dialog.h"
 #include "preferences_dialog.h"
@@ -1738,6 +1739,14 @@ void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
 void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 {
     matchSelectedFilter(MatchSelectedOrNot, false, false);
+}
+
+void MainWindow::on_actionAnalyzeDecodeAs_triggered()
+{
+    DecodeAsDialog *da_dialog = new DecodeAsDialog(this, cap_file_);
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            da_dialog, SLOT(setCaptureFile(capture_file*)));
+    da_dialog->show();
 }
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {

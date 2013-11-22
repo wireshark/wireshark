@@ -25,6 +25,7 @@
 
 #include "wsutil/filesystem.h"
 
+#include "epan/decode_as.h"
 #include "epan/disabled_protos.h"
 #include "epan/tap.h"
 #include "epan/timestamp.h"
@@ -651,6 +652,9 @@ e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **d
     char                *cf_path, *df_path;
     int                  pf_open_errno, pf_read_errno;
     e_prefs             *prefs_p;
+
+    /* load the decode as entries of this profile */
+    load_decode_as_entries();
 
     /* Read the preference files. */
     prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,

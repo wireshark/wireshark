@@ -277,6 +277,8 @@ private slots:
     void on_actionAnalyzePAFAndNotSelected_triggered();
     void on_actionAnalyzePAFOrNotSelected_triggered();
 
+    void on_actionAnalyzeDecodeAs_triggered();
+
     void openFollowStreamDialog(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();

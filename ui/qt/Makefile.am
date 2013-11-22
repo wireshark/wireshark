@@ -128,6 +128,8 @@ capture_preferences_frame.cpp capture_preferences_frame.h: ui_capture_preference
 
 column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_frame.h
 
+decode_as_dialog.cpp decode_as_dialog.h: ui_decode_as_dialog.h
+
 export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h
 
 file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h

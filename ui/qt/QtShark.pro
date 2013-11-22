@@ -224,6 +224,7 @@ HEADERS_WS_C  = \
 FORMS += \
     capture_preferences_frame.ui \
     column_preferences_frame.ui \
+    decode_as_dialog.ui \
     export_object_dialog.ui \
     file_set_dialog.ui \
     filter_expressions_preferences_frame.ui \
@@ -254,6 +255,7 @@ HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
     capture_preferences_frame.h \
     column_preferences_frame.h \
+    decode_as_dialog.h \
     elided_label.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
@@ -549,6 +551,7 @@ SOURCES += \
     color_dialog.cpp \
     color_utils.cpp \
     column_preferences_frame.cpp \
+    decode_as_dialog.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
     elided_label.cpp \
