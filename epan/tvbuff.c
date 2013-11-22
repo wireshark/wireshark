@@ -1253,6 +1253,7 @@ tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint repre
 	}
 }
 
+#if 0
 static const guint8 inverse_bit_mask8[] = {
 	0xff,
 	0x7f,
@@ -1263,6 +1264,7 @@ static const guint8 inverse_bit_mask8[] = {
 	0x03,
 	0x01
 };
+#endif
 
 static const guint8 bit_mask8[] = {
 	0x00,
