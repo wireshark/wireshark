@@ -155,17 +155,6 @@ typedef struct da_entry da_entry_t;
 GSList *da_entries = NULL;
 
 /*
- * Implementation of the dissector_table defined in packet.h
- */
-//struct dissector_table {
-//  GHashTable *hash_table;
-//  GSList     *dissector_handles;
-//  const char *ui_name;
-//  ftenum_t   type;
-//  int        base;
-//};
-
-/*
  * Save entries into preferences.
  */
 static void
