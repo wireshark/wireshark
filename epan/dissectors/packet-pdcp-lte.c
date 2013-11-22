@@ -45,6 +45,7 @@
 
 /* TODO:
    - Support for deciphering
+       - Next step would be to maintain HFN for COUNT input
    - Verify MAC authentication bytes
    - Add Relay Node user plane data PDU dissection
 */
@@ -290,7 +291,7 @@ static guint pdcp_result_hash_func(gconstpointer v)
 {
     const pdcp_result_hash_key* val1 = (const pdcp_result_hash_key *)v;
 
-    /* TODO: check collision-rate / execution-time of these multipliers?  */
+    /* TODO: This is a bit random.  */
     return val1->frameNumber + (val1->channelId<<13) +
                                (val1->plane<<5) +
                                (val1->SN<<18) +
@@ -1053,7 +1054,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint                  offset              = 0;
     gint                  rohc_offset;
     struct pdcp_lte_info *p_pdcp_info;
-    rohc_info            *p_rohc_info;
     tvbuff_t             *rohc_tvb            = NULL;
     pdcp_security_info_t *current_security = NULL;   /* current security for this UE */
     pdcp_security_info_t *pdu_security;       /* security in place for this PDU */
@@ -1503,12 +1503,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     rohc_offset = offset;
     rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
 
-    /* RoHC settings */
-    p_rohc_info = wmem_new(wmem_packet_scope(), rohc_info);
-
-    /* Copy struct.  TODO: could just pass pdcp_info->rohc ?? */
-    *p_rohc_info = p_pdcp_info->rohc;
-
     /* Only enable writing to column if configured to show ROHC */
     if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
         col_set_writable(pinfo->cinfo, FALSE);
@@ -1518,7 +1512,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Call the ROHC dissector */
-    call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, p_rohc_info);
+    call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
 
     /* Let RLC write to columns again */
     col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
@@ -1575,13 +1569,13 @@ void proto_register_pdcp(void)
             }
         },
         { &hf_pdcp_lte_rohc_rnd,
-            { "RND",  /* TODO: true/false vals? */
+            { "RND",
               "pdcp-lte.rohc.rnd", FT_UINT8, BASE_DEC, NULL, 0x0,
               "RND of outer ip header", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_udp_checksum_present,
-            { "UDP Checksum",  /* TODO: true/false vals? */
+            { "UDP Checksum",
               "pdcp-lte.rohc.checksum-present", FT_UINT8, BASE_DEC, NULL, 0x0,
               "UDP Checksum present", HFILL
             }
