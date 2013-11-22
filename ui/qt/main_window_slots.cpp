@@ -1743,10 +1743,10 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()
 {
-    DecodeAsDialog *da_dialog = new DecodeAsDialog(this, cap_file_);
+    DecodeAsDialog da_dialog(this, cap_file_);
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            da_dialog, SLOT(setCaptureFile(capture_file*)));
-    da_dialog->show();
+            &da_dialog, SLOT(setCaptureFile(capture_file*)));
+    da_dialog.exec();
 }
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {
