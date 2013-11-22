@@ -832,8 +832,6 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                 }
             }
 
-            p_pdcp_lte_info->rohc.rohc_compression = FALSE;
-
             TRY {
                 call_dissector_only(pdcp_lte_handle, pdcp_tvb, pinfo, tree, NULL);
             }
@@ -2946,7 +2944,7 @@ rlc_lte_init_protocol(void)
 
 
 /* Configure number of PDCP SN bits to use for DRB channels.
-   TODO: currently assume all UEs/Channels will use the same length... */
+   TODO: currently assume all UEs/Channels will use the same SN length... */
 void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid _U_, guint8 drbid _U_,
                                         guint8 userplane_seqnum_length)
 {
@@ -3097,6 +3095,7 @@ void proto_register_rlc_lte(void)
             }
         },
 
+        /* Acknowledged mode fields */
         { &hf_rlc_lte_am,
             { "AM",
               "rlc-lte.am", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3220,6 +3219,7 @@ void proto_register_rlc_lte(void)
             }
         },
 
+        /* Sequence analysis fields */
         { &hf_rlc_lte_sequence_analysis,
             { "Sequence Analysis",
               "rlc-lte.sequence-analysis", FT_STRING, BASE_NONE, 0, 0x0,
@@ -3306,6 +3306,7 @@ void proto_register_rlc_lte(void)
             }
         },
 
+        /* Reassembly fields */
         { &hf_rlc_lte_reassembly_source,
             { "Reassembly Source",
               "rlc-lte.reassembly-info", FT_STRING, BASE_NONE, 0, 0x0,
@@ -3370,28 +3371,28 @@ void proto_register_rlc_lte(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_rlc_lte_sequence_analysis_last_segment_not_continued, { "rlc-lte.sequence-analysis.last_segment_not_continued", PI_SEQUENCE, PI_WARN, "Last segment of previous PDU was not continued for UE", EXPFILL }},
-        { &ei_rlc_lte_sequence_analysis_last_segment_complete, { "rlc-lte.sequence-analysis.last_segment_complete", PI_SEQUENCE, PI_WARN, "Last segment of previous PDU was complete, but new segment was not started on UE", EXPFILL }},
+        { &ei_rlc_lte_sequence_analysis_last_segment_not_continued, { "rlc-lte.sequence-analysis.last-segment-not-continued", PI_SEQUENCE, PI_WARN, "Last segment of previous PDU was not continued for UE", EXPFILL }},
+        { &ei_rlc_lte_sequence_analysis_last_segment_complete, { "rlc-lte.sequence-analysis.last-segment-complete", PI_SEQUENCE, PI_WARN, "Last segment of previous PDU was complete, but new segment was not started on UE", EXPFILL }},
         { &ei_rlc_lte_sequence_analysis_mac_retx, { "rlc-lte.sequence-analysis.mac-retx.expert", PI_SEQUENCE, PI_WARN, "AM Frame retransmitted due to MAC retx!", EXPFILL }},
         { &ei_rlc_lte_sequence_analysis_retx, { "rlc-lte.sequence-analysis.retx.expert", PI_SEQUENCE, PI_WARN, "AM Frame retransmitted most likely in response to NACK", EXPFILL }},
         { &ei_rlc_lte_sequence_analysis_repeated, { "rlc-lte.sequence-analysis.repeated-frame.expert", PI_SEQUENCE, PI_WARN, "AM SN Repeated - probably because didn't receive Status PDU?", EXPFILL }},
-        { &ei_rlc_lte_am_sn_missing, { "rlc_lte.sequence-analysis.am_sn.missing", PI_SEQUENCE, PI_WARN, "AM SNs missing", EXPFILL }},
+        { &ei_rlc_lte_am_sn_missing, { "rlc-lte.sequence-analysis.am-sn.missing", PI_SEQUENCE, PI_WARN, "AM SNs missing", EXPFILL }},
         { &ei_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame, { "rlc-lte.sequence-analysis.ack-out-of-range.last-sn-frame.expert", PI_SEQUENCE, PI_ERROR, "AM ACK for SN - but last received SN in other direction is X", EXPFILL }},
-        { &ei_rlc_lte_um_sn_missing, { "rlc_lte.sequence-analysis.um_sn.missing", PI_SEQUENCE, PI_WARN, "UM SNs missing", EXPFILL }},
-        { &ei_rlc_lte_um_sn_repeated, { "rlc_lte.sequence-analysis.um_sn.repeated", PI_SEQUENCE, PI_WARN, "UM SN repeated", EXPFILL }},
-        { &ei_rlc_lte_wrong_sequence_number, { "rlc_lte.wrong_sequence_number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
+        { &ei_rlc_lte_um_sn_missing, { "rlc-lte.sequence-analysis.um-sn.missing", PI_SEQUENCE, PI_WARN, "UM SNs missing", EXPFILL }},
+        { &ei_rlc_lte_um_sn_repeated, { "rlc-lte.sequence-analysis.um-sn.repeated", PI_SEQUENCE, PI_WARN, "UM SN repeated", EXPFILL }},
+        { &ei_rlc_lte_wrong_sequence_number, { "rlc-lte.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
         { &ei_rlc_lte_sequence_analysis_repeated_nack, { "rlc-lte.sequence-analysis.repeated-nack.expert", PI_SEQUENCE, PI_ERROR, "Same SN NACKd on successive Status PDUs", EXPFILL }},
-        { &ei_rlc_lte_reserved_bits_not_zero, { "rlc_lte.reserved_bits_not_zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
+        { &ei_rlc_lte_reserved_bits_not_zero, { "rlc-lte.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
         { &ei_rlc_lte_um_sn, { "rlc-lte.um.sn.invalid", PI_MALFORMED, PI_ERROR, "Invalid sequence number length", EXPFILL }},
         { &ei_rlc_lte_header_only, { "rlc-lte.header-only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
         { &ei_rlc_lte_am_cpt, { "rlc-lte.am.cpt.invalid", PI_MALFORMED, PI_ERROR, "RLC Control frame type not handled", EXPFILL }},
-        { &ei_rlc_lte_am_nack_sn_ack_same, { "rlc-lte.am.nack-sn.ack_same", PI_MALFORMED, PI_ERROR, "Status PDU shouldn't ACK and NACK the same sequence number", EXPFILL }},
-        { &ei_rlc_lte_am_nack_sn_ahead_ack, { "rlc-lte.am.nack-sn.ahead_ack", PI_MALFORMED, PI_ERROR, "NACK must not be ahead of ACK in status PDU", EXPFILL }},
+        { &ei_rlc_lte_am_nack_sn_ack_same, { "rlc-lte.am.nack-sn.ack-same", PI_MALFORMED, PI_ERROR, "Status PDU shouldn't ACK and NACK the same sequence number", EXPFILL }},
+        { &ei_rlc_lte_am_nack_sn_ahead_ack, { "rlc-lte.am.nack-sn.ahead-ack", PI_MALFORMED, PI_ERROR, "NACK must not be ahead of ACK in status PDU", EXPFILL }},
         { &ei_rlc_lte_am_nack_sn_partial, { "rlc-lte.am.nack-sn.partial", PI_SEQUENCE, PI_WARN, "Status PDU reports NACK (partial)", EXPFILL }},
         { &ei_rlc_lte_am_nack_sn, { "rlc-lte.am.nack-sn.expert", PI_SEQUENCE, PI_WARN, "Status PDU reports NACK", EXPFILL }},
-        { &ei_rlc_lte_bytes_after_status_pdu_complete, { "rlc_lte.bytes_after_status_pdu_complete", PI_MALFORMED, PI_ERROR, "bytes remaining after Status PDU complete", EXPFILL }},
-        { &ei_rlc_lte_am_data_no_data_beyond_extensions, { "rlc_lte.am_data.no_data_beyond_extensions", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data beyond extensions", EXPFILL }},
-        { &ei_rlc_lte_am_data_no_data, { "rlc_lte.am_data.no_data", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data", EXPFILL }},
+        { &ei_rlc_lte_bytes_after_status_pdu_complete, { "rlc-lte.bytes-after-status-pdu-complete", PI_MALFORMED, PI_ERROR, "bytes remaining after Status PDU complete", EXPFILL }},
+        { &ei_rlc_lte_am_data_no_data_beyond_extensions, { "rlc-lte.am-data.no-data-beyond-extensions", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data beyond extensions", EXPFILL }},
+        { &ei_rlc_lte_am_data_no_data, { "rlc-lte.am-data.no-data", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data", EXPFILL }},
         { &ei_rlc_lte_context_mode, { "rlc-lte.mode.invalid", PI_MALFORMED, PI_ERROR, "Unrecognised RLC Mode set", EXPFILL }},
     };
 

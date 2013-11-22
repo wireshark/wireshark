@@ -1815,10 +1815,10 @@ void proto_register_pdcp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pdcp_lte_sequence_analysis_sn_missing, { "pdcp-lte.sequence-analysis.sn_missing", PI_SEQUENCE, PI_WARN, "PDCP SN missing", EXPFILL }},
-        { &ei_pdcp_lte_sequence_analysis_sn_repeated, { "pdcp-lte.sequence-analysis.sn_repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
-        { &ei_pdcp_lte_sequence_analysis_wrong_sequence_number, { "pdcp-lte.sequence-analysis.wrong_sequence_number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
-        { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp_lte.reserved_bits_not_zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
+        { &ei_pdcp_lte_sequence_analysis_sn_missing, { "pdcp-lte.sequence-analysis.sn-missing", PI_SEQUENCE, PI_WARN, "PDCP SN missing", EXPFILL }},
+        { &ei_pdcp_lte_sequence_analysis_sn_repeated, { "pdcp-lte.sequence-analysis.sn-repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
+        { &ei_pdcp_lte_sequence_analysis_wrong_sequence_number, { "pdcp-lte.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
+        { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
