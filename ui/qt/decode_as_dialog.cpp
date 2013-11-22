@@ -149,6 +149,7 @@ void DecodeAsDialog::buildChangedList(const gchar *table_name, ftenum_t selector
 
 void DecodeAsDialog::buildDceRpcChangedList(gpointer data, gpointer user_data)
 {
+    Q_UNUSED(user_data);
     decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)data;
     qDebug() << "=bdcecl" << binding->ifname;
 }
