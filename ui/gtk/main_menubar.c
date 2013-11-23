@@ -189,30 +189,10 @@ static char *
 build_conversation_filter(int action, gboolean show_dialog)
 {
     packet_info *pi = &cfile.edt->pi;
-    wmem_list_frame_t * protos = wmem_list_head(pi->layers);
-    int proto_id;
-    const char* proto_name;
     char        *buf;
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE;
 
-    /* walk the list of a available protocols in the packet to
-       figure out if any of them affect conversation filters */
-    while (protos != NULL)
-    {
-        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-        proto_name = proto_get_protocol_filter_name(proto_id);
-
-        if ((!strcmp(proto_name, "ip")) ||
-            (!strcmp(proto_name, "ipv6"))) {
-            is_ip = TRUE;
-        } else if (!strcmp(proto_name, "tcp")) {
-            is_tcp = TRUE;
-        } else if (!strcmp(proto_name, "udp")) {
-            is_udp = TRUE;
-        }
-
-        protos = wmem_list_frame_next(protos);
-    }
+    proto_get_frame_protocols(pi->layers, &is_ip, &is_tcp, &is_udp, NULL);
 
     switch(action) {
     case(CONV_CBA):

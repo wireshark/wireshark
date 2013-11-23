@@ -94,25 +94,9 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     follow_stats_t stats;
     follow_info_t *follow_info;
     GString *msg;
-    wmem_list_frame_t* protos;
-    int proto_id;
-    const char* proto_name;
     gboolean is_udp = FALSE;
 
-    /* we got udp so we can follow (should really be protected by menu sensitivity) */
-    protos = wmem_list_head(cfile.edt->pi.layers);
-    /* walk the list of a available protocols in the packet to see if we have UDP */
-    while (protos != NULL) {
-        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-        proto_name = proto_get_protocol_filter_name(proto_id);
-
-        if (!strcmp(proto_name, "udp")) {
-            is_udp = TRUE;
-            break;
-        }
-            
-        protos = wmem_list_frame_next(protos);
-    }
+    proto_get_frame_protocols(cfile.edt->pi.layers, NULL, NULL, &is_udp, NULL);
 
     if (!is_udp) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

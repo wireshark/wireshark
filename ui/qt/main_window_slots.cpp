@@ -726,9 +726,6 @@ void MainWindow::setMenusForSelectedPacket()
 //    gboolean    properties = FALSE;
 //    const char *abbrev     = NULL;
 //    char       *prev_abbrev;
-    wmem_list_frame_t* protos;
-    int proto_id;
-    const char* proto_name;
 #if 0
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
 #else
@@ -776,34 +773,7 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (cap_file_->edt)
         {
-            protos = wmem_list_head(cap_file_->edt->pi.layers);
-
-            /* walk the list of a available protocols in the packet to
-               figure out if any of them affect context sensitivity */
-            while (protos != NULL)
-            {
-                proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-                proto_name = proto_get_protocol_filter_name(proto_id);
-
-#if 0
-                if ((!strcmp(proto_name, "ip")) ||
-                    (!strcmp(proto_name, "ipv6"))) {
-                    is_ip = TRUE;
-                } else if (!strcmp(proto_name, "tcp")) {
-                    is_tcp = TRUE;
-                } else if (!strcmp(proto_name, "udp")) {
-                    is_udp = TRUE;
-                } else if (!strcmp(proto_name, "sctp")) {
-                    is_sctp = TRUE;
-                }
-#else
-                if (!strcmp(proto_name, "tcp")) {
-                    is_tcp = TRUE;
-                }
-#endif
-
-                protos = wmem_list_frame_next(protos);
-            }
+            proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, NULL, NULL);
         }
     }
 //    if (cfile.edt && cfile.edt->tree) {

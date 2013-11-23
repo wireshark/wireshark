@@ -105,25 +105,9 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     size_t      nchars;
     gchar       *data_out_filename;
     char        stream_window_title[256];
-    wmem_list_frame_t* protos;
-    int proto_id;
-    const char* proto_name;
     gboolean is_tcp = FALSE;
 
-    /* we got tcp so we can follow (should really be protected by menu sensitivity) */
-    protos = wmem_list_head(cfile.edt->pi.layers);
-    /* walk the list of a available protocols in the packet to see if we have TCP */
-    while (protos != NULL) {
-        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-        proto_name = proto_get_protocol_filter_name(proto_id);
-
-        if (!strcmp(proto_name, "tcp")) {
-            is_tcp = TRUE;
-            break;
-        }
-            
-        protos = wmem_list_frame_next(protos);
-    }
+    proto_get_frame_protocols(cfile.edt->pi.layers, NULL, &is_tcp, NULL, NULL);
 
     if (!is_tcp) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

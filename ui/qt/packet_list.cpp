@@ -460,27 +460,12 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
     bool fa_enabled = filter_actions_[0]->isEnabled();
     QAction *act;
-    wmem_list_frame_t* protos;
-    int proto_id;
-    const char* proto_name;
     gboolean is_tcp = FALSE, is_udp = FALSE;
 
     /* walk the list of a available protocols in the packet to see what we have */
     if ((cap_file_ != NULL) && (cap_file_->edt != NULL))
     {
-        protos = wmem_list_head(cap_file_->edt->pi.layers);
-        while (protos != NULL) {
-            proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-            proto_name = proto_get_protocol_filter_name(proto_id);
-
-            if (!strcmp(proto_name, "tcp")) {
-                is_tcp = TRUE;
-            } else if (!strcmp(proto_name, "udp")) {
-                is_udp = TRUE;
-            }
-            
-            protos = wmem_list_frame_next(protos);
-        }
+        proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL);
     }
 
     foreach (act, filter_actions_)

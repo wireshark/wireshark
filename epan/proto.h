@@ -1787,6 +1787,19 @@ WS_DLL_PUBLIC gboolean proto_is_protocol_enabled(const protocol_t *protocol);
  @return its filter name. */
 WS_DLL_PUBLIC const char *proto_get_protocol_filter_name(const int proto_id);
 
+/** Find commonly-used protocols in a layer list.
+ * @param layers Protocol layer list
+ * @param is_ip Set to TRUE if the layer list contains IPv4 or IPv6, otherwise
+ * unchanged. May be NULL.
+ * @param is_tcp Set to TRUE if the layer list contains TCP, otherwise
+ * unchanged. May be NULL.
+ * @param is_udp Set to TRUE if the layer list contains UDP, otherwise
+ * unchanged. May be NULL.
+ * @param is_sctp Set to TRUE if the layer list contains SCTP, otherwise
+ * unchanged. May be NULL.
+ */
+WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp);
+
 /** Enable / Disable protocol of the given item number.
  @param proto_id protocol id (0-indexed)
  @param enabled enable / disable the protocol */
