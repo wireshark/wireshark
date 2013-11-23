@@ -3418,6 +3418,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     struct mbim_conv_info *mbim_conv;
     struct mbim_info *mbim_info;
 
+    if (mbim_control_decode_unknown_itf && (tvb_reported_length(tvb) < 12)) {
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MBIM");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -3438,7 +3442,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     ti = proto_tree_add_text(mbim_tree, tvb, offset, 12, "Message Header");
     header_tree = proto_item_add_subtree(ti, ett_mbim_msg_header);
     msg_type = tvb_get_letohl(tvb, offset);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(msg_type, mbim_msg_type_vals, "Unknown"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%-19s", val_to_str_const(msg_type, mbim_msg_type_vals, "Unknown"));
     proto_tree_add_uint(header_tree, hf_mbim_header_message_type, tvb, offset, 4, msg_type);
     offset += 4;
     msg_length = tvb_get_letohl(tvb, offset);
@@ -3492,7 +3496,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         /* Fragmentation reassembly not performed yet */
                         proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
                         offset = tvb_length(tvb);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragment #%u out of %u]", current_frag+1, total_frag);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ": [Fragment #%u out of %u]", current_frag+1, total_frag);
                         break;
                     }
                     offset = 0;
@@ -3971,7 +3975,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         /* Fragmentation reassembly not performed yet */
                         proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
                         offset = tvb_length(tvb);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragment #%u out of %u]", current_frag+1, total_frag);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ": [Fragment #%u out of %u]", current_frag+1, total_frag);
                         break;
                     }
                     offset = 0;
