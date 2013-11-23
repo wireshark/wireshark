@@ -97,9 +97,9 @@ typedef struct {
 /* Utility routines used by packet*.c */
 struct _packet_info;
 
-WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key, void *proto_data);
-WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key);
-void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key);
+WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
+WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
+void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
 gchar *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index);
 
 /* no sense to include epan.h + dependencies for opaque epan session type */

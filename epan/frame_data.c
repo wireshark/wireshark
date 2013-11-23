@@ -40,7 +40,7 @@
    index and opaque pointer. */
 typedef struct _frame_proto_data {
   int   proto;
-  guint8 key;
+  guint32 key;
   void *proto_data;
 } frame_proto_data;
 
@@ -68,7 +68,7 @@ p_compare(gconstpointer a, gconstpointer b)
 }
 
 void
-p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key, void *proto_data)
+p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data)
 {
   frame_proto_data *p1;
   GSList** proto_list;
@@ -92,7 +92,7 @@ p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto,
 }
 
 void *
-p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key)
+p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key)
 {
   frame_proto_data  temp, *p1;
   GSList           *item;
@@ -117,7 +117,7 @@ p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto,
 }
 
 void
-p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key)
+p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key)
 {
   frame_proto_data  temp;
   GSList           *item;
