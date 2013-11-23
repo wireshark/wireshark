@@ -433,8 +433,8 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
             return &no_sua_assoc;
     }
 
-    opck = opc->type == AT_SS7PC ? mtp3_pc_hash((mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(opc));
-    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(dpc));
+    opck = opc->type == AT_SS7PC ? mtp3_pc_hash((mtp3_addr_pc_t *)opc->data) : g_str_hash(ep_address_to_str(opc));
+    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((mtp3_addr_pc_t *)dpc->data) : g_str_hash(ep_address_to_str(dpc));
 
     switch (message_type) {
         case MESSAGE_TYPE_CORE:

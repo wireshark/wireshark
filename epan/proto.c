@@ -5355,7 +5355,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name,
-				   address_to_str( &addr ));
+				   ep_address_to_str( &addr ));
 			break;
 
 		case FT_ETHER:

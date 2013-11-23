@@ -4854,8 +4854,8 @@ bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_ip, 0, TRUE);
     packets_for_this_dst = tick_stat_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
@@ -4900,8 +4900,8 @@ bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* ed
 
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_service, 0, TRUE);
     if (binfo->service_type) {
@@ -4938,8 +4938,8 @@ bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_objectid, 0, TRUE);
     if (binfo->object_ident) {
@@ -4976,8 +4976,8 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", ep_address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", ep_address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_instanceid, 0, TRUE);
     if (binfo->object_ident) {

@@ -50,8 +50,6 @@ extern "C" {
 
 struct     e_in6_addr;
 
-/* !!Deprecated!! - use ep_address_to_str() */
-#define address_to_str ep_address_to_str
 WS_DLL_PUBLIC gchar*	ep_address_to_str(const address *);
 extern gchar*	se_address_to_str(const address *);
 WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);

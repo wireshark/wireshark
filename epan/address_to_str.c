@@ -489,7 +489,7 @@ get_ax25_name(const guint8 *ad)
     addr.len  = 7;
     addr.data = ad;
 
-    return address_to_str( &addr );
+    return ep_address_to_str( &addr );
 }
 
 /*XXX FIXME the code below may be called very very frequently in the future.
