@@ -133,7 +133,6 @@ typedef struct _packet_info {
 								*/
   guint32 bytes_until_next_pdu;
 
-  guint8  ip_ttl;               /**< IP time to live */
   int	  p2p_dir;              /**< Packet was captured as an
                                        outbound (P2P_DIR_SENT)
                                        inbound (P2P_DIR_RECV)

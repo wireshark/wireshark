@@ -1486,11 +1486,12 @@ value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
 static void
 dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                  guint optlen, packet_info *pinfo, proto_tree *opt_tree,
-                 void * data _U_)
+                 void * data)
 {
   proto_tree *field_tree;
   proto_item *tf;
   proto_item *ti;
+  ws_ip *iph = (ws_ip*)data;
 
   guint8 command = tvb_get_guint8(tvb, offset + 2);
   guint8 function = command >> 4;
@@ -1512,7 +1513,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   if (function == QS_RATE_REQUEST) {
     proto_tree_add_item(field_tree, hf_ip_opt_qs_rate, tvb, offset + 2, 1, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_ttl, tvb, offset + 3, 1, ENC_NA);
-    ttl_diff = (pinfo->ip_ttl - tvb_get_guint8(tvb, offset + 3) % 256);
+    ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset + 3) % 256);
     ti = proto_tree_add_uint_format_value(field_tree, hf_ip_opt_qs_ttl_diff,
                                           tvb, offset + 3, 1, ttl_diff,
                                           "%u", ttl_diff);
@@ -1931,8 +1932,8 @@ ip_checksum(const guint8 *ptr, int len)
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-  proto_tree *ip_tree = NULL, *field_tree = NULL;
-  proto_item *ti = NULL, *tf;
+  proto_tree *ip_tree, *field_tree = NULL;
+  proto_item *ti, *tf;
   guint32    addr;
   int        offset = 0, dst_off;
   guint      hlen, optlen;
@@ -1965,13 +1966,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   hlen = lo_nibble(iph->ip_v_hl) * 4;   /* IP header length, in bytes */
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
-    ip_tree = proto_item_add_subtree(ti, ett_ip);
+  ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
+  ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-    proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
+  proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
                         hi_nibble(iph->ip_v_hl));
-  }
 
   /* if IP is not referenced from any filters we don't need to worry about
      generating any tree items.  We must do this after we created the actual
@@ -1988,17 +1987,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
-    if (tree) {
-      proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+
+    proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
                                  "%u bytes (bogus, must be at least %u)", hlen, IPH_MIN_LEN);
-    }
     return;
   }
 
-  if (tree) {
-    proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+  proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
                                "%u bytes", hlen);
-  }
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (g_ip_dscp_actif) {
@@ -2119,7 +2115,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
-  pinfo->ip_ttl = iph->ip_ttl;
   if (tree) {
     ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
   } else {
@@ -2322,7 +2317,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                              "Options: (%u bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_ip_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen, ipopts, N_IP_OPTS,
-                           IPOPT_EOOL, &IP_OPT_TYPES, &ei_ip_opt_len_invalid, pinfo, field_tree, tf, NULL);
+                           IPOPT_EOOL, &IP_OPT_TYPES, &ei_ip_opt_len_invalid, pinfo, field_tree, tf, iph);
   }
 
   pinfo->ipproto = iph->ip_p;
@@ -2403,8 +2398,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      type in question. */
   if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, iph))) {
     /* We're good */
-  } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo,
-                                 parent_tree)) {
+  } else if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo,
+                                 parent_tree, TRUE, iph)) {
     if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, iph))) {
       /* Unknown protocol */
       if (update_col_info) {

@@ -950,7 +950,7 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item)
+dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item, ws_ip* iph)
 {
     int len;
     int offset_end;
@@ -1091,7 +1091,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                   proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_NA);
                   offset += 1;
                   proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_NA);
-                  ttl_diff = (pinfo->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
+                  ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
                   offset += 1;
                   ti = proto_tree_add_uint_format_value(opt_tree, hf_ipv6_opt_qs_ttl_diff,
                                                         tvb, offset, 1, ttl_diff,
@@ -1167,15 +1167,15 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 }
 
 static int
-dissect_hopopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
+dissect_hopopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, ws_ip* iph)
 {
-    return dissect_opts(tvb, offset, tree, pinfo, hf_ipv6_hop_opt);
+    return dissect_opts(tvb, offset, tree, pinfo, hf_ipv6_hop_opt, iph);
 }
 
 static int
-dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
+dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, ws_ip* iph)
 {
-    return dissect_opts(tvb, offset, tree, pinfo, hf_ipv6_dst_opt);
+    return dissect_opts(tvb, offset, tree, pinfo, hf_ipv6_dst_opt, iph);
 }
 
 /* START SHIM6 PART */
@@ -1731,8 +1731,8 @@ dissect_shim6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
 static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *ipv6_tree = NULL;
-  proto_item *ipv6_item = NULL, *ti;
+  proto_tree *ipv6_tree, *ipv6_tc_tree, *pt;
+  proto_item *ipv6_item, *ipv6_tc, *ti, *pi;
   guint8 nxt;
   guint8 stype=0;
   int advance;
@@ -1747,6 +1747,11 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean save_fragmented = FALSE;
   const char *sep = "IPv6 ";
   guint8 *mac_addr;
+  const char *name;
+
+  /* Provide as much IPv4 header information as possible as some dissectors
+     in the ip.proto dissector table may need it */
+  ws_ip iph;
 
   struct ip6_hdr ipv6;
 
@@ -1754,6 +1759,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
+  memset(&iph, 0, sizeof(iph));
   tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6));
 
   /* Get extension header and payload length */
@@ -1767,16 +1773,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset + IP6H_DST, 16);
   TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6,     tvb, offset + IP6H_DST, 16);
 
+  ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
+  ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
+
   if (tree) {
-    proto_tree* pt;
-    proto_item* pi;
-    proto_tree *ipv6_tc_tree;
-    proto_item *ipv6_tc;
-    const char *name;
-
-    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
-    ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
-
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
     pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
                         offset + (int)offsetof(struct ip6_hdr, ip6_vfc), 1, ENC_BIG_ENDIAN);
@@ -1812,8 +1812,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
                         offset + (int)offsetof(struct ip6_hdr, ip6_hlim), 1, ENC_BIG_ENDIAN);
-    /* Yes, there is not TTL in IPv6 Header... but it is the same of Hop Limit...*/
-    pinfo->ip_ttl = tvb_get_guint8(tvb, offset + (int)offsetof(struct ip6_hdr, ip6_hlim));
 
     /* Add the different items for the source address */
     proto_tree_add_item(ipv6_tree, hf_ipv6_src, tvb,
@@ -1995,6 +1993,12 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     add_geoip_info(ipv6_tree, tvb, offset, &ipv6.ip6_src, &ipv6.ip6_dst);
   }
 #endif
+  /* Fill in IPv4 fields for potential subdissectors */
+  iph.ip_v_hl = (tvb_get_guint8(tvb, offset + (int)offsetof(struct ip6_hdr, ip6_vfc)) >> 4) & 0x0F;
+  iph.ip_tos = (guint8)((tvb_get_ntohl(tvb, offset + (int)offsetof(struct ip6_hdr, ip6_flow)) >> 20) & 0xFF);
+  iph.ip_len = tvb_get_ntohs(tvb, offset + (int)offsetof(struct ip6_hdr, ip6_plen));
+  /* Yes, there is not TTL in IPv6 Header... but it is the same of Hop Limit...*/
+  iph.ip_ttl = tvb_get_guint8(tvb, offset + (int)offsetof(struct ip6_hdr, ip6_hlim));
 
   /* start of the new header (could be a extension header) */
   nxt = tvb_get_guint8(tvb, offset + 6);
@@ -2015,7 +2019,7 @@ again:
 
    case IP_PROTO_HOPOPTS:
       hopopts = TRUE;
-      advance = dissect_hopopts(tvb, offset, ipv6_tree, pinfo);
+      advance = dissect_hopopts(tvb, offset, ipv6_tree, pinfo, &iph);
       nxt = tvb_get_guint8(tvb, offset);
       offset += advance;
       plen -= advance;
@@ -2077,7 +2081,7 @@ again:
 
     case IP_PROTO_DSTOPTS:
       dstopts = TRUE;
-      advance = dissect_dstopts(tvb, offset, ipv6_tree, pinfo);
+      advance = dissect_dstopts(tvb, offset, ipv6_tree, pinfo, &iph);
       nxt = tvb_get_guint8(tvb, offset);
       offset += advance;
       plen -= advance;
@@ -2112,25 +2116,24 @@ again:
     /* COL_INFO was filled in by "dissect_frag6()" */
     call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     return;
-  } else {
-    /* First fragment, not fragmented, or already reassembled.  Dissect what we have here. */
+  } 
+  
+  /* First fragment, not fragmented, or already reassembled.  Dissect what we have here. */
 
-    /* Get a tvbuff for the payload. */
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
+  /* Get a tvbuff for the payload. */
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    /*
-     * If this is the first fragment, but not the only fragment,
-     * tell the next protocol that.
-     */
-    if (offlg & IP6F_MORE_FRAG)
-      pinfo->fragmented = TRUE;
-    else
-      pinfo->fragmented = FALSE;
-  }
-
+  /*
+   * If this is the first fragment, but not the only fragment,
+   * tell the next protocol that.
+   */
+  if (offlg & IP6F_MORE_FRAG)
+    pinfo->fragmented = TRUE;
+  else
+    pinfo->fragmented = FALSE;
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
+  if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo, tree, TRUE, &iph)) {
     /* Unknown protocol.
        Handle "no next header" specially. */
     if (nxt == IP_PROTO_NONE) {

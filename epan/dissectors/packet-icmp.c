@@ -1239,8 +1239,8 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
  * RFC 1256 for router discovery messages.
  * RFC 2002 and 3012 for Mobile IP stuff.
  */
-static void
-dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
 	proto_tree *icmp_tree = NULL;
 	proto_item *ti;
@@ -1259,6 +1259,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	guint32 conv_key[2];
 	icmp_transaction_t *trans = NULL;
 	nstime_t ts, time_relative;
+	ws_ip *iph = (ws_ip*)data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1404,7 +1405,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				" id=0x%04x, seq=%u/%u, ttl=%u",
 				tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb,
 								     6),
-				tvb_get_letohs(tvb, 6), pinfo->ip_ttl);
+				tvb_get_letohs(tvb, 6), (iph != NULL) ? iph->ip_ttl : 0);
 		break;
 
 	case ICMP_UNREACH:
@@ -1694,6 +1695,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (trans) {
 		tap_queue_packet(icmp_tap, pinfo, trans);
 	}
+
+	return tvb_length(tvb);
 }
 
 void proto_register_icmp(void)
@@ -2010,7 +2013,7 @@ void proto_register_icmp(void)
 				       "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
 				       &favor_icmp_mpls_ext);
 
-	register_dissector("icmp", dissect_icmp, proto_icmp);
+	new_register_dissector("icmp", dissect_icmp, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }
 

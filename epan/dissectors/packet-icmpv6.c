@@ -55,6 +55,7 @@
 #include "packet-icmp.h"    /* same transaction_t used both both v4 and v6 */
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
+#include "packet-ip.h"
 
 /*
  * The information used comes from:
@@ -3176,7 +3177,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 
 
 static int
-dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_tree         *icmp6_tree = NULL, *flag_tree = NULL;
     proto_item         *ti         = NULL, *hidden_item, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;
@@ -3189,6 +3190,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     tvbuff_t           *next_tvb;
     guint8              icmp6_type, icmp6_code;
     icmp_transaction_t *trans      = NULL;
+    ws_ip *iph = (ws_ip*)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -3307,7 +3309,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u, hop limit=%u",
-            identifier, sequence, pinfo->ip_ttl);
+            identifier, sequence, (iph != NULL) ? iph->ip_ttl : 0);
 
         if (pinfo->destport == 3544 && icmp6_type == ICMP6_ECHO_REQUEST) {
             /* RFC 4380
