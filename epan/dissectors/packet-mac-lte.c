@@ -1903,7 +1903,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     offset += (gint)strlen(MAC_LTE_START_STRING);
 
     /* If redissecting, use previous info struct (if available) */
-    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
+    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
@@ -1921,7 +1921,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!infoAlreadySet) {
         /* Store info in packet */
-        p_add_proto_data(pinfo->fd, proto_mac_lte, 0, p_mac_lte_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
     }
 
     /**************************************/
@@ -2552,7 +2552,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     struct rlc_lte_info *p_rlc_lte_info;
 
     /* Resuse or create RLC info */
-    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte, 0);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0);
     if (p_rlc_lte_info == NULL) {
         p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
     }
@@ -2568,7 +2568,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     p_rlc_lte_info->UMSequenceNumberLength = UMSequenceNumberLength;
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_rlc_lte, 0, p_rlc_lte_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0, p_rlc_lte_info);
 
     if (global_mac_lte_layer_to_show != ShowRLCLayer) {
         /* Don't want these columns replaced */
@@ -2723,7 +2723,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 /* Return TRUE if the given packet is thought to be a retx */
 int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
 {
-    struct mac_lte_info *p_mac_lte_info = (struct mac_lte_info *)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
+    struct mac_lte_info *p_mac_lte_info = (struct mac_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
 
     if (p_mac_lte_info == NULL) {
         return FALSE;
@@ -4880,7 +4880,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mac_lte_tree = proto_item_add_subtree(pdu_ti, ett_mac_lte);
 
     /* Look for packet info! */
-    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
+    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
 
     /* Can't dissect anything without it... */
     if (p_mac_lte_info == NULL) {
@@ -5534,13 +5534,13 @@ void set_mac_lte_drx_config_release(guint16 ueid, packet_info *pinfo)
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
 mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo)
 {
-    return (mac_lte_info *)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
+    return (mac_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
 }
 
 /* Function to be called from outside this module (e.g. in a plugin) to set per-packet data */
 void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 {
-    p_add_proto_data(pinfo->fd, proto_mac_lte, 0, p_mac_lte_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
 }
 
 void proto_register_mac_lte(void)

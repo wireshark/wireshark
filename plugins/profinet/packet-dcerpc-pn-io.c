@@ -2597,7 +2597,7 @@ typedef struct pnio_ar_s {
 static void
 pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 {
-    p_add_proto_data(pinfo->fd, proto_pn_io, 0, ar );
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0, ar );
     pinfo->profinet_type = 10;
 
     if (tree) {
@@ -9426,7 +9426,7 @@ pn_io_ar_conv_valid(packet_info *pinfo)
 static const gchar *
 pn_io_ar_conv_filter(packet_info *pinfo)
 {
-    pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(pinfo->fd, proto_pn_io, 0);
+    pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     char      *buf;
 
     if ((pinfo->profinet_type != 10) || (ar == NULL)) {
@@ -9446,7 +9446,7 @@ pn_io_ar_conv_filter(packet_info *pinfo)
 static const gchar *
 pn_io_ar_conv_data_filter(packet_info *pinfo)
 {
-    pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(pinfo->fd, proto_pn_io, 0);
+    pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     char      *buf;
 
     if ((pinfo->profinet_type != 10) || (ar == NULL)) {

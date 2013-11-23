@@ -571,6 +571,8 @@ static const GtkActionEntry expert_popup_entries[] = {
   { "/Copy/Protocol Plus Summary",				NULL, "Protocol Plus Summary",			NULL, "Protocol Plus Summary",			G_CALLBACK(copy_cb) },
 };
 
+int gselection_count = 0;
+
 static void
 expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 {
@@ -581,6 +583,8 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 
     if (gtk_tree_selection_get_selected (selection, &model, &iter))
     {
+        gselection_count++;
+
         gtk_tree_model_get (model, &iter,
                             PROTOCOL_COLUMN, &pkt,
                             GROUP_COLUMN,    &grp,

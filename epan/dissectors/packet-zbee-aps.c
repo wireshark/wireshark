@@ -1177,7 +1177,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset += ZBEE_APS_CMD_KEY_LENGTH;
 
     /* Update the key ring for this pan */
-    if ( !pinfo->fd->flags.visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd,
+    if ( !pinfo->fd->flags.visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                     proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0))) {
 
         nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);

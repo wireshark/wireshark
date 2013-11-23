@@ -928,7 +928,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 
     /* If redissecting, use previous info struct (if available) */
-    p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
+    p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
     if (p_pdcp_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_pdcp_lte_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
@@ -1020,7 +1020,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!infoAlreadySet) {
         /* Store info in packet */
-        p_add_proto_data(pinfo->fd, proto_pdcp_lte, 0, p_pdcp_lte_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_lte_info);
     }
 
     /**************************************/
@@ -1063,7 +1063,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
     /* Look for attached packet info! */
-    p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
+    p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
     /* Can't dissect anything without it... */
     if (p_pdcp_info == NULL) {
         return;
@@ -1071,7 +1071,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Don't want to overwrite the RLC Info column if configured not to */
     if ((global_pdcp_lte_layer_to_show == ShowRLCLayer) &&
-        (p_get_proto_data(pinfo->fd, proto_rlc_lte, 0) != NULL)) {
+        (p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0) != NULL)) {
 
         col_set_writable(pinfo->cinfo, FALSE);
     }
@@ -1410,13 +1410,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 case FALSE:
                     break;
                 case SEQUENCE_ANALYSIS_RLC_ONLY:
-                    if ((p_get_proto_data(pinfo->fd, proto_rlc_lte, 0) != NULL) &&
+                    if ((p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0) != NULL) &&
                         !p_pdcp_info->is_retx) {
                         do_analysis = TRUE;
                     }
                     break;
                 case SEQUENCE_ANALYSIS_PDCP_ONLY:
-                    if (p_get_proto_data(pinfo->fd, proto_rlc_lte, 0) == NULL) {
+                    if (p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0) == NULL) {
                         do_analysis = TRUE;
                     }
                     break;

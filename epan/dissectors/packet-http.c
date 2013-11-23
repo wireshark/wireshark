@@ -649,7 +649,7 @@ static void push_req(http_conv_t *conv_data, packet_info *pinfo)
 	req_res->req_framenum = pinfo->fd->num;
 	req_res->req_ts = pinfo->fd->abs_ts;
 
-	p_add_proto_data(pinfo->fd, proto_http, 0, req_res);
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
 }
 
 /**
@@ -668,7 +668,7 @@ static void push_res(http_conv_t *conv_data, packet_info *pinfo)
 		req_res = push_req_res(conv_data);
 	}
 	req_res->res_framenum = pinfo->fd->num;
-	p_add_proto_data(pinfo->fd, proto_http, 0, req_res);
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
 }
 
 /*
@@ -1025,7 +1025,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		proto_item *pi;
-		http_req_res_t *curr = (http_req_res_t *)p_get_proto_data(pinfo->fd, proto_http, 0);
+		http_req_res_t *curr = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
 		http_req_res_t *prev = curr ? curr->prev : NULL;
 		http_req_res_t *next = curr ? curr->next : NULL;
 

@@ -431,7 +431,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if (!pinfo->fd->flags.visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = lun;
-        p_add_proto_data(pinfo->fd, proto_fcp, 0, proto_data);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
     }
 
     request_data = (fcp_request_data_t*)wmem_tree_lookup32(fcp_conv_data->luns, lun);
@@ -714,9 +714,9 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (!pinfo->fd->flags.visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = fchdr->itlq->lun;
-        p_add_proto_data(pinfo->fd, proto_fcp, 0, proto_data);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
     } else {
-        proto_data = (fcp_proto_data_t *)p_get_proto_data(pinfo->fd, proto_fcp, 0);
+        proto_data = (fcp_proto_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0);
         fchdr->itlq->lun = proto_data->lun;
     }
 

@@ -1651,7 +1651,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    *      - has the AUTHENTICATE message in a second TCP connection;
    *        (The authentication aparently succeeded).
    */
-  conv_ntlmssp_info = (ntlmssp_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY);
+  conv_ntlmssp_info = (ntlmssp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY);
   if (conv_ntlmssp_info == NULL) {
     /*
      * There isn't any.  Is there any from this conversation?  If so,
@@ -1670,7 +1670,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
             same as the one attached to the conversation. That is: *both* point to
             the exact same struct in memory.  Is this what is indended ?  */
-    p_add_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY, conv_ntlmssp_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY, conv_ntlmssp_info);
   }
 
   if (conv_ntlmssp_info != NULL) {
@@ -2023,11 +2023,11 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   ntlmssp_packet_info *stored_packet_ntlmssp_info = NULL;
 
   /* Check to see if we already have state for this packet */
-  packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
+  packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
     packet_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_packet_info);
-    p_add_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
   }
   if (!packet_ntlmssp_info->payload_decrypted) {
     conversation_t *conversation;
@@ -2247,7 +2247,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   int                  sequence            = 0;
   ntlmssp_packet_info *stored_packet_ntlmssp_info = NULL;
 
-  packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
+  packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have data for this packet */
     return;
@@ -2554,11 +2554,11 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
   fprintf(stderr, "Called dissect_ntlmssp_encrypted_payload\n");
   /* Check to see if we already have state for this packet */
-  packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
+  packet_ntlmssp_info = p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
     packet_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_packet_info);
-    p_add_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
   }
 
   if (!packet_ntlmssp_info->payload_decrypted) {

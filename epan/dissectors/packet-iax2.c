@@ -1634,7 +1634,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   iax2_info->dcallno = dcallno;
 
   /* see if we've seen this packet before */
-  iax_packet = (iax_packet_data *)p_get_proto_data(pinfo->fd, proto_iax2, 0);
+  iax_packet = (iax_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iax2, 0);
   if (!iax_packet) {
     /* if not, find or create an iax_call info structure for this IAX session. */
 
@@ -1648,7 +1648,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
     }
 
     iax_packet = iax_new_packet_data(iax_call, reversed);
-    p_add_proto_data(pinfo->fd, proto_iax2, 0, iax_packet);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_iax2, 0, iax_packet);
   } else {
     iax_call = iax_packet->call_data;
     reversed = iax_packet->reversed;
@@ -1807,7 +1807,7 @@ static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info *pinfo,
                                                             gboolean video)
 {
   /* see if we've seen this packet before */
-  iax_packet_data *p = (iax_packet_data *)p_get_proto_data(pinfo->fd, proto_iax2, 0);
+  iax_packet_data *p = (iax_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iax2, 0);
 
   if (!p) {
     /* if not, find or create an iax_call info structure for this IAX session. */
@@ -1817,7 +1817,7 @@ static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info *pinfo,
     iax_call = iax_lookup_call(pinfo, scallno, 0, &reversed);
 
     p = iax_new_packet_data(iax_call, reversed);
-    p_add_proto_data(pinfo->fd, proto_iax2, 0, p);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_iax2, 0, p);
 
     /* set the codec for this frame to be whatever the last full frame used */
     if (iax_call) {

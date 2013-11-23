@@ -780,7 +780,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * info first.
    */
 
-  beep_frame_data = (struct beep_proto_data *)p_get_proto_data(pinfo->fd, proto_beep, 0);
+  beep_frame_data = (struct beep_proto_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_beep, 0);
 
   if (!beep_frame_data) {
 
@@ -874,7 +874,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     beep_frame_data->pl_size = 0;
     beep_frame_data->mime_hdr = 0;
 
-    p_add_proto_data(pinfo->fd, proto_beep, 0, beep_frame_data);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_beep, 0, beep_frame_data);
 
   }
 
@@ -890,7 +890,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     beep_frame_data->pl_size = 0;
     beep_frame_data->mime_hdr = 0;
 
-    p_add_proto_data(pinfo->fd, proto_beep, 0, beep_frame_data);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_beep, 0, beep_frame_data);
 
   }
 

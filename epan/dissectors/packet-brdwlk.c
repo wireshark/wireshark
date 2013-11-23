@@ -293,7 +293,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * We therefore attach a non-null pointer as frame data to
              * any frame preceded by dropped packets.
              */
-            if (p_get_proto_data(pinfo->fd, proto_brdwlk, 0) != NULL)
+            if (p_get_proto_data(wmem_file_scope(), pinfo, proto_brdwlk, 0) != NULL)
                 dropped_packets = TRUE;
         } else {
             /*
@@ -314,7 +314,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      * packets.  (The data we use as the frame data doesn't
                      * matter - it just matters that it's non-null.)
                      */
-                    p_add_proto_data(pinfo->fd, proto_brdwlk, 0, &packet_count);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_brdwlk, 0, &packet_count);
                 }
             }
         }

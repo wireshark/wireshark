@@ -440,7 +440,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Is there any data attached to this frame?
    */
-  spd_frame_data = (struct smtp_proto_data *)p_get_proto_data(pinfo->fd, proto_smtp, 0);
+  spd_frame_data = (struct smtp_proto_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smtp, 0);
 
   if (!spd_frame_data) {
 
@@ -457,7 +457,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       spd_frame_data->conversation_id = conversation->index;
       spd_frame_data->more_frags = TRUE;
 
-      p_add_proto_data(pinfo->fd, proto_smtp, 0, spd_frame_data);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_smtp, 0, spd_frame_data);
 
     }
 

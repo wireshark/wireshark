@@ -403,10 +403,10 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_AAL5PROTO:
             aal5proto    = tvb_get_guint8(tvb, offs);
-            p_sscop_info = (sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop, 0);
+            p_sscop_info = (sscop_payload_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0);
             if (!p_sscop_info) {
                 p_sscop_info = wmem_new0(wmem_file_scope(), sscop_payload_info);
-                p_add_proto_data(pinfo->fd, proto_sscop, 0, p_sscop_info);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0, p_sscop_info);
             }
             switch (aal5proto) {
                 case META_AAL5PROTO_MTP3:
@@ -429,7 +429,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 /* TODO: check for additional protos on Iu 802 LLC/SNAP ... */
                 default:
                     /* TODO: add warning */
-                    p_remove_proto_data(pinfo->fd, proto_sscop, 0);
+                    p_remove_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0);
             }
             proto_tree_add_uint(meta_tree, hf_meta_item_aal5proto, tvb,
                 offs, 1, aal5proto);

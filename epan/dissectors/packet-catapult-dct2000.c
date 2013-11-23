@@ -1111,7 +1111,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
     guint8                channelId;
 
     /* Look this up so can update channel info */
-    p_pdcp_lte_info = (struct pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
+    p_pdcp_lte_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
     if (p_pdcp_lte_info == NULL) {
         /* This really should be set...can't dissect anything without it */
         return;
@@ -1445,7 +1445,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
     int  calculated_variant;
 
     /* Only need to set info once per session. */
-    struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     if (p_fp_info != NULL) {
         return;
     }
@@ -1570,7 +1570,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
     if (strcmp(protocol_name, "fpiur_r5") == 0) {
         /* Store info in packet */
         p_fp_info->iface_type = IuR_Interface;
-        p_add_proto_data(pinfo->fd, proto_fp, 0, p_fp_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
         return;
     }
 
@@ -1634,7 +1634,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
     p_fp_info->iface_type = IuB_Interface;
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_fp, 0, p_fp_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
 }
 
 
@@ -1644,7 +1644,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
 {
     /* Only need to set info once per session. */
     struct fp_info  *p_fp_info;
-    struct rlc_info *p_rlc_info = (struct rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
+    struct rlc_info *p_rlc_info = (struct rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
 
     if (p_rlc_info != NULL) {
         return;
@@ -1700,7 +1700,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
     p_rlc_info->li_size[0] = (enum rlc_li_size)outhdr_values[0];
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_rlc, 0, p_rlc_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, p_rlc_info);
 
     /* Also store minimal FP info consulted by RLC dissector
        TODO: Don't really know direction, but use S/R flag to make
@@ -1708,7 +1708,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
        but RLC dissector seems to not use anyway... */
     p_fp_info->is_uplink = is_sent;
     p_fp_info->cur_tb = 0; /* Always the first/only one */
-    p_add_proto_data(pinfo->fd, proto_fp, 0, p_fp_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
 }
 
 
@@ -1842,7 +1842,7 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     unsigned int         i = 0;
 
     /* Only need to set info once per session. */
-    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte, 0);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0);
     if (p_rlc_lte_info != NULL) {
         return;
     }
@@ -1860,7 +1860,7 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     p_rlc_lte_info->pduLength = outhdr_values[i];
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_rlc_lte, 0, p_rlc_lte_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0, p_rlc_lte_info);
 }
 
 /* Fill in a PDCP LTE packet info struct and attach it to the packet for the PDCP LTE
@@ -1871,7 +1871,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     unsigned int          i = 0;
 
     /* Only need to set info once per session. */
-    p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
+    p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
     if (p_pdcp_lte_info != NULL) {
         return;
     }
@@ -1898,7 +1898,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     /* Remaining 2 (fixed) fields are ah_length and gre_checksum */
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_pdcp_lte, 0, p_pdcp_lte_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_lte_info);
 }
 
 

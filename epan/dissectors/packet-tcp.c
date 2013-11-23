@@ -642,7 +642,7 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
 {
     if( !tcppd ) {
         tcppd = wmem_new(wmem_file_scope(), struct tcp_per_packet_data_t);
-        p_add_proto_data(pinfo->fd, proto_tcp, 0, tcppd);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0, tcppd);
     }
 
     if (!tcpd)
@@ -674,7 +674,7 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
     PROTO_ITEM_SET_GENERATED(item);
 
     if( !tcppd )
-        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(pinfo->fd, proto_tcp, 0);
+        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0);
 
     if( tcppd ) {
         item = proto_tree_add_time(tree, hf_tcp_ts_delta, tvb, 0, 0,
@@ -4174,7 +4174,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */
     if (tcp_calculate_ts) {
-        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(pinfo->fd, proto_tcp, 0);
+        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0);
 
         /*
          * Calculate the timestamps relative to this conversation (but only on the

@@ -505,7 +505,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_ssupervisor_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(pinfo->fd, proto_cip, 0);
+   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    if ((preq_info != NULL) &&
        (preq_info->ciaData != NULL))
    {
@@ -1169,7 +1169,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_svalidator_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(pinfo->fd, proto_cip, 0);
+   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    if ((preq_info != NULL) &&
        (preq_info->ciaData != NULL))
    {
@@ -1323,7 +1323,7 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       if (service & 0x80)
       {
          /* Service response */
-         preq_info = (cip_req_info_t*)p_get_proto_data(pinfo->fd, proto_cip, 0);
+         preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
          if ((preq_info != NULL) &&
              (preq_info->dissector == dissector_get_uint_handle( subdissector_class_table, CI_CLS_SAFETY_VALIDATOR)))
          {
@@ -1464,7 +1464,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    gboolean server_dir = FALSE;
    enum enip_connid_type conn_type = ECIDT_UNKNOWN;
    enum cip_safety_format_type format = CIP_SAFETY_BASE_FORMAT;
-   cip_safety_info_t* safety_info = (cip_safety_info_t*)p_get_proto_data( pinfo->fd, proto_cipsafety, 0 );
+   cip_safety_info_t* safety_info = (cip_safety_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0 );
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Safety");

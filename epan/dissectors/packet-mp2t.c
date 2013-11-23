@@ -621,11 +621,11 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         frag_tot_len = pid_analysis->frag_tot_len;
         fragmentation = pid_analysis->fragmentation;
         frag_id = pid_analysis->frag_id;
-        pdata = (packet_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
+        pdata = (packet_analysis_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mp2t, 0);
         if (!pdata) {
             pdata = wmem_new0(wmem_file_scope(), packet_analysis_data_t);
             pdata->subpacket_table = wmem_tree_new(wmem_file_scope());
-            p_add_proto_data(pinfo->fd, proto_mp2t, 0, pdata);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_mp2t, 0, pdata);
 
         } else {
             spdata = (subpacket_analysis_data_t *)wmem_tree_lookup32(pdata->subpacket_table, offset);
@@ -642,7 +642,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         }
     } else {
         /* Get saved values */
-        pdata = (packet_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
+        pdata = (packet_analysis_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mp2t, 0);
         if (!pdata) {
             /* Occurs for the first packets in the capture which cannot be reassembled */
             return;

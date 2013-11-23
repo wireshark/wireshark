@@ -222,7 +222,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct _msrp_conversation_info *p_conv_data = NULL;
 
     /* Use existing packet data if available */
-    p_conv_data = (struct _msrp_conversation_info *)p_get_proto_data(pinfo->fd, proto_msrp, 0);
+    p_conv_data = (struct _msrp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_msrp, 0);
 
     if (!p_conv_data)
     {
@@ -243,7 +243,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 p_conv_packet_data = (struct _msrp_conversation_info *)wmem_memdup(wmem_file_scope(),
                        p_conv_data, sizeof(struct _msrp_conversation_info));
 
-                p_add_proto_data(pinfo->fd, proto_msrp, 0, p_conv_packet_data);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_msrp, 0, p_conv_packet_data);
             }
         }
     }

@@ -2535,7 +2535,7 @@ static void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, c
 {
    cip_req_info_t *preq_info;
 
-   preq_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip, 0 );
+   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
 
    if ((preq_info == NULL) || (preq_info->isUnconnectedSend == FALSE))
    {
@@ -4294,7 +4294,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
    else
    {
        /* Add services */
-       cip_req_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip, 0 );
+       cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
        if ( cip_req_info )
        {
           if ( cip_req_info->pData == NULL )
@@ -4631,7 +4631,7 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
       return;
    }
 
-   cip_req_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip, 0 );
+   cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
    if ( cip_req_info )
    {
       mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
@@ -4745,7 +4745,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       return tvb_length(tvb);
    }
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(pinfo->fd, proto_cip, 0);
+   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    if ((preq_info != NULL) &&
        (preq_info->ciaData != NULL))
    {
@@ -5088,7 +5088,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
    /* Special handling for Unconnected send response. If successful, embedded service code is sent.
     * If failed, it can be either an Unconnected send response or the embedded service code response. */
-   preq_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip, 0 );
+   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
    if (  preq_info != NULL && ( service & 0x80 )
       && preq_info->bService == SC_CM_UNCON_SEND
       )
@@ -5117,9 +5117,9 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             tvbuff_t *next_tvb;
             void *p_save_proto_data;
 
-            p_save_proto_data = p_get_proto_data( pinfo->fd, proto_cip, 0 );
-            p_remove_proto_data(pinfo->fd, proto_cip, 0);
-            p_add_proto_data(pinfo->fd, proto_cip, 0, pembedded_req_info );
+            p_save_proto_data = p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
+            p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, pembedded_req_info );
 
             proto_tree_add_text( item_tree, NULL, 0, 0, "(Service: Unconnected Send (Response))" );
             next_tvb = tvb_new_subset(tvb, offset, item_length, item_length);
@@ -5128,8 +5128,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             else
                call_dissector( cip_class_generic_handle, next_tvb, pinfo, item_tree );
 
-            p_remove_proto_data(pinfo->fd, proto_cip, 0);
-            p_add_proto_data(pinfo->fd, proto_cip, 0, p_save_proto_data);
+            p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, p_save_proto_data);
             return;
          }
       }
@@ -5422,7 +5422,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             col_append_str( pinfo->cinfo, COL_INFO, ": ");
 
             next_tvb = tvb_new_subset(tvb, offset+2+req_path_size+4, msg_req_siz, msg_req_siz);
-            preq_info = (cip_req_info_t *)p_get_proto_data( pinfo->fd, proto_cip, 0 );
+            preq_info = (cip_req_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
             pembedded_req_info = NULL;
             if ( preq_info )
             {
@@ -5588,10 +5588,10 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                   request_info->packet_type = RESPONSE_PACKET;
                   request_info->register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
                   request_info->register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
-                  p_add_proto_data(pinfo->fd, proto_modbus, 0, request_info);
+                  p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
 
                   call_dissector(modbus_handle, next_tvb, pinfo, cmd_data_tree);
-                  p_remove_proto_data(pinfo->fd, proto_modbus, 0);
+                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
                }
                break;
 
@@ -5678,10 +5678,10 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                request_info->packet_type = QUERY_PACKET;
                request_info->register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
                request_info->register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
-               p_add_proto_data(pinfo->fd, proto_modbus, 0, request_info);
+               p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, request_info);
 
                call_dissector(modbus_handle, next_tvb, pinfo, cmd_data_tree);
-               p_remove_proto_data(pinfo->fd, proto_modbus, 0);
+               p_remove_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
             }
             break;
 
@@ -5918,7 +5918,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_cco_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(pinfo->fd, proto_cip, 0);
+   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    if ((preq_info != NULL) &&
        (preq_info->ciaData != NULL))
    {
@@ -6079,7 +6079,7 @@ dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (service & 0x80)
       {
          /* Service response */
-         preq_info = (cip_req_info_t*)p_get_proto_data(pinfo->fd, proto_cip, 0);
+         preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
          if ((preq_info != NULL) &&
              (preq_info->dissector == dissector_get_uint_handle( subdissector_class_table, CI_CLS_CCO)))
          {
@@ -6150,9 +6150,9 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    dissector_handle_t dissector;
    gint service_index;
 
-   p_save_proto_data = p_get_proto_data(pinfo->fd, proto_cip, 0);
-   p_remove_proto_data(pinfo->fd, proto_cip, 0);
-   p_add_proto_data(pinfo->fd, proto_cip, 0, preq_info);
+   p_save_proto_data = p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+   p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, preq_info);
 
    /* Create display subtree for the protocol */
    ti = proto_tree_add_item(item_tree, proto_cip, tvb, 0, -1, ENC_NA);
@@ -6332,8 +6332,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       }
    } /* End of if-else( request ) */
 
-   p_remove_proto_data(pinfo->fd, proto_cip, 0);
-   p_add_proto_data(pinfo->fd, proto_cip, 0, p_save_proto_data);
+   p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, p_save_proto_data);
 
 } /* End of dissect_cip_data() */
 
@@ -6350,7 +6350,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    col_clear(pinfo->cinfo, COL_INFO);
 
    /* Each CIP request received by ENIP gets a unique ID */
-   enip_info = (enip_request_info_t*)p_get_proto_data(pinfo->fd, proto_enip, 0);
+   enip_info = (enip_request_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
 
    if ( enip_info )
    {

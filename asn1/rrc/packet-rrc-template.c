@@ -198,7 +198,7 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rrc_info *rrcinf;
 
     top_tree = tree;
-    rrcinf = (struct rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc, 0);
+    rrcinf = (struct rrc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rrc, 0);
 
     /* make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");

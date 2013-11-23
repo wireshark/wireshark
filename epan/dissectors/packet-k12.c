@@ -276,10 +276,10 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 
 	for (i = 0; handles[i] && handles[i+1]; ++i) {
 		if (handles[i] == sscop_handle) {
-			sscop_payload_info *p_sscop_info = (sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop, 0);
+			sscop_payload_info *p_sscop_info = (sscop_payload_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0);
 			if (!p_sscop_info) {
 				p_sscop_info = wmem_new0(wmem_file_scope(), sscop_payload_info);
-                p_add_proto_data(pinfo->fd, proto_sscop, 0, p_sscop_info);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_sscop, 0, p_sscop_info);
                 p_sscop_info->subdissector = handles[i+1];
 			}
 		}
@@ -290,10 +290,10 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 
 	/* Setup information required by certain protocols */
 	if (sub_handle == fp_handle) {
-		fp_info *p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+		fp_info *p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 		if (!p_fp_info) {
 			p_fp_info = wmem_new0(wmem_file_scope(), fp_info);
-            p_add_proto_data(pinfo->fd, proto_fp, 0, p_fp_info);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
 
             fill_fp_info(p_fp_info,
                          pinfo->pseudo_header->k12.extra_info,

@@ -239,7 +239,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* get remaining data from previous packets */
 	conversation = find_or_create_conversation(pinfo);
-	lapd_ppi = (lapd_ppi_t*)p_get_proto_data(pinfo->fd, proto_lapd, 0);
+	lapd_ppi = (lapd_ppi_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_lapd, 0);
 	if (lapd_ppi) {
 		prev_byte_state = &lapd_ppi->start_byte_state;
 		if (prev_byte_state) {
@@ -362,7 +362,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	{
-		if (NULL == p_get_proto_data(pinfo->fd, proto_lapd, 0)) {
+		if (NULL == p_get_proto_data(wmem_file_scope(), pinfo, proto_lapd, 0)) {
 			/* Per packet information */
 			lapd_ppi = wmem_new(wmem_file_scope(), lapd_ppi_t);
 			lapd_ppi->has_crc = TRUE;
@@ -373,7 +373,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 				fill_lapd_byte_state(&lapd_ppi->start_byte_state, OUT_OF_SYNC, 0x00, 0, 0, data, 0);
 
-			p_add_proto_data(pinfo->fd, proto_lapd, 0, lapd_ppi);
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_lapd, 0, lapd_ppi);
 
 
 			/* Conversation info*/

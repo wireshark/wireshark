@@ -3072,11 +3072,11 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         conversation_set_dissector(conversation, spice_handle);
     }
 
-    per_packet_info = (spice_packet_t *)p_get_proto_data(pinfo->fd, proto_spice, 0);
+    per_packet_info = (spice_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spice, 0);
     if (!per_packet_info) {
         per_packet_info = wmem_new(wmem_file_scope(), spice_packet_t);
         per_packet_info->state = spice_info->next_state;
-        p_add_proto_data(pinfo->fd, proto_spice, 0, per_packet_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_spice, 0, per_packet_info);
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Spice");

@@ -99,7 +99,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* get tap info */
 	rtp_event_info.info_rtp_evt = rtp_evt;
 
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"), 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
 	if (p_conv_data)
 		rtp_event_info.info_setup_frame_num = p_conv_data->frame_number;
 	else

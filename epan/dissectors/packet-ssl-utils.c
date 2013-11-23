@@ -3723,11 +3723,11 @@ ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len,
     SslRecordInfo* rec;
     SslPacketInfo* pi;
 
-    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto, 0);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
     if (!pi)
     {
         pi = (SslPacketInfo *)wmem_alloc0(wmem_file_scope(), sizeof(SslPacketInfo));
-        p_add_proto_data(pinfo->fd, proto, 0, pi);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto, 0, pi);
     }
 
     real_data = (guchar *)wmem_alloc(wmem_file_scope(), data_len);
@@ -3749,7 +3749,7 @@ ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint re
 {
     SslRecordInfo* rec;
     SslPacketInfo* pi;
-    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto, 0);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
 
     if (!pi)
         return NULL;
@@ -3768,11 +3768,11 @@ ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, g
     SslDataInfo   *rec, **prec;
     SslPacketInfo *pi;
 
-    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto, 0);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
     if (!pi)
     {
         pi = (SslPacketInfo *)wmem_alloc0(wmem_file_scope(), sizeof(SslPacketInfo));
-        p_add_proto_data(pinfo->fd, proto, 0, pi);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto, 0, pi);
     }
 
     rec = (SslDataInfo *)wmem_alloc(wmem_file_scope(), sizeof(SslDataInfo)+data_len);
@@ -3803,7 +3803,7 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key)
 {
     SslDataInfo*   rec;
     SslPacketInfo* pi;
-    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto, 0);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
 
     if (!pi) return NULL;
 

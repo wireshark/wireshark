@@ -261,23 +261,23 @@ void proto_reg_handoff_btgnss(void);
 static void btrfcomm_serv_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM SERVICE %d as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV )));
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV )));
 }
 
 static gpointer btrfcomm_serv_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV );
+    return p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV );
 }
 
 static void btrfcomm_chan_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM Channel %d as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV )));
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV )));
 }
 
 static gpointer btrfcomm_chan_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV );
+    return p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV );
 }
 
 static dissector_handle_t
@@ -458,8 +458,8 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
     channel = dlci >> 1;
     proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", dlci & 0x01, channel);
 
-    if (p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV ) == NULL) {
-        p_add_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV, GUINT_TO_POINTER((guint)channel));
+    if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV ) == NULL) {
+        p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_CHANNEL_CONV, GUINT_TO_POINTER((guint)channel));
     }
 
     dlci_tree = proto_item_add_subtree(dlci_item, ett_dlci);
@@ -784,8 +784,8 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rfcomm_data->remote_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
         rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;
 
-        if (p_get_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV ) == NULL) {
-            p_add_proto_data(pinfo->fd, proto_btrfcomm, BTRFCOMM_SERVICE_CONV, GUINT_TO_POINTER((guint)service_info->uuid.bt_uuid));
+        if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV ) == NULL) {
+            p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, BTRFCOMM_SERVICE_CONV, GUINT_TO_POINTER((guint)service_info->uuid.bt_uuid));
         }
 
         if (!dissector_try_uint_new(rfcomm_channel_dissector_table, (guint32) dlci >> 1,

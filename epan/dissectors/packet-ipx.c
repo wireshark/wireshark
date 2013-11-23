@@ -722,7 +722,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 				spx_rexmit_info_p = wmem_new(wmem_file_scope(), spx_rexmit_info);
 				spx_rexmit_info_p->num = pkt_value->num;
-				p_add_proto_data(pinfo->fd, proto_spx, 0,
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_spx, 0,
 				    spx_rexmit_info_p);
 			}
 		} else {
@@ -732,7 +732,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * data indicates which frame had the original
 			 * transmission.
 			 */
-			spx_rexmit_info_p = (spx_rexmit_info *)p_get_proto_data(pinfo->fd,
+			spx_rexmit_info_p = (spx_rexmit_info *)p_get_proto_data(wmem_file_scope(), pinfo,
 			    proto_spx, 0);
 		}
 	}

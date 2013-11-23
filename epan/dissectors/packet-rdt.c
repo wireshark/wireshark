@@ -1233,7 +1233,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct _rdt_conversation_info *p_conv_data;
 
     /* Use existing packet info if available */
-    p_conv_data = (struct _rdt_conversation_info *)p_get_proto_data(pinfo->fd, proto_rdt, 0);
+    p_conv_data = (struct _rdt_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rdt, 0);
 
     if (!p_conv_data)
     {
@@ -1254,7 +1254,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RDT_SETUP_METHOD_SIZE);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_conv_packet_data->feature_level = p_conv_data->feature_level;
-                p_add_proto_data(pinfo->fd, proto_rdt, 0, p_conv_packet_data);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_rdt, 0, p_conv_packet_data);
             }
         }
     }

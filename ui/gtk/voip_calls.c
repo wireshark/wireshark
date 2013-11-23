@@ -561,7 +561,7 @@ RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void cons
 		/* if it is dynamic payload, let use the conv data to see if it is defined */
 		if ( (strinfo->pt >= PT_UNDF_96) && (strinfo->pt <= PT_UNDF_127) ) {
 			/* Use existing packet info if available */
-			p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"), 0);
+			p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
 			if (p_conv_data && p_conv_data->rtp_dyn_payload) {
 				encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
 				encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &strinfo->pt);

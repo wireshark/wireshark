@@ -33,6 +33,7 @@
 #include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/timestamp.h>
+#include <epan/packet_info.h>
 
 
 /* Protocol-specific data attached to a frame_data structure - protocol
@@ -67,23 +68,31 @@ p_compare(gconstpointer a, gconstpointer b)
 }
 
 void
-p_add_proto_data(frame_data *fd, int proto, guint8 key, void *proto_data)
+p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key, void *proto_data)
 {
-  frame_proto_data *p1 = (frame_proto_data *)wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
+  frame_proto_data *p1;
+  GSList** proto_list;
+
+  if (scope == pinfo->pool) {
+    p1 = (frame_proto_data *)wmem_alloc(scope, sizeof(frame_proto_data));
+    proto_list = &pinfo->proto_data;
+  } else {
+    p1 = (frame_proto_data *)wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
+    proto_list = &pinfo->fd->pfd;
+  }
 
   p1->proto = proto;
   p1->key = key;
   p1->proto_data = proto_data;
 
   /* Add it to the GSLIST */
-
-  fd -> pfd = g_slist_insert_sorted(fd -> pfd,
+  *proto_list = g_slist_insert_sorted(*proto_list,
                     (gpointer *)p1,
                     p_compare);
 }
 
 void *
-p_get_proto_data(frame_data *fd, int proto, guint8 key)
+p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key)
 {
   frame_proto_data  temp, *p1;
   GSList           *item;
@@ -92,7 +101,11 @@ p_get_proto_data(frame_data *fd, int proto, guint8 key)
   temp.key = key;
   temp.proto_data = NULL;
 
-  item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
+  if (scope == pinfo->pool) {
+    item = g_slist_find_custom(pinfo->proto_data, (gpointer *)&temp, p_compare);
+  } else {
+    item = g_slist_find_custom(pinfo->fd->pfd, (gpointer *)&temp, p_compare);
+  }
 
   if (item) {
     p1 = (frame_proto_data *)item->data;
@@ -104,30 +117,41 @@ p_get_proto_data(frame_data *fd, int proto, guint8 key)
 }
 
 void
-p_remove_proto_data(frame_data *fd, int proto, guint8 key)
+p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint8 key)
 {
   frame_proto_data  temp;
   GSList           *item;
+  GSList** proto_list;
 
   temp.proto = proto;
   temp.key = key;
   temp.proto_data = NULL;
 
-  item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
+  if (scope == pinfo->pool) {
+    item = g_slist_find_custom(pinfo->fd->pfd, (gpointer *)&temp, p_compare);
+    proto_list = &pinfo->proto_data;
+  } else {
+    item = g_slist_find_custom(pinfo->fd->pfd, (gpointer *)&temp, p_compare);
+    proto_list = &pinfo->fd->pfd;
+  }
 
   if (item) {
-    fd->pfd = g_slist_remove(fd->pfd, item->data);
+    *proto_list = g_slist_remove(*proto_list, item->data);
   }
+
 }
 
 gchar *
-p_get_proto_name_and_key(frame_data *fd, guint pfd_index){
+p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index){
 	frame_proto_data  *temp;
 
-	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, pfd_index);
+  if (scope == pinfo->pool) {
+	temp = (frame_proto_data*)g_slist_nth_data(pinfo->proto_data, pfd_index);
+  } else {
+	temp = (frame_proto_data*)g_slist_nth_data(pinfo->fd->pfd, pfd_index);
+  }
 
-	return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
-
+  return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
 }
 
 #define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \

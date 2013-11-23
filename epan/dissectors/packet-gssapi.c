@@ -369,14 +369,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   * pointer; it just treats it as an opaque pointer, it
 		   * doesn't dereference it or free what it points to.)
 		   */
-		  oidvalue = (gssapi_oid_value *)p_get_proto_data(pinfo->fd, proto_gssapi, 0);
+		  oidvalue = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0);
 		  if (!oidvalue && !pinfo->fd->flags.visited)
 		  {
 		    /* No handle attached to this frame, but it's the first */
 		    /* pass, so it'd be attached to the conversation. */
 		    oidvalue = gss_info->oid;
 		    if (gss_info->oid)
-		      p_add_proto_data(pinfo->fd, proto_gssapi, 0, gss_info->oid);
+		      p_add_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0, gss_info->oid);
 		  }
 		  if (!oidvalue)
 		  {

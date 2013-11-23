@@ -1014,7 +1014,7 @@ init_t38_info_conv(packet_info *pinfo)
 	p_t38_conv = NULL;
 
 	/* Use existing packet info if available */
-	 p_t38_packet_conv = (t38_conv *)p_get_proto_data(pinfo->fd, proto_t38, 0);
+	 p_t38_packet_conv = (t38_conv *)p_get_proto_data(wmem_file_scope(), pinfo, proto_t38, 0);
 
 
 	/* find the conversation used for Reassemble and Setup Info */
@@ -1071,7 +1071,7 @@ init_t38_info_conv(packet_info *pinfo)
 		memcpy(&(p_t38_packet_conv->src_t38_info), &(p_t38_conv->src_t38_info), sizeof(t38_conv_info));
 		memcpy(&(p_t38_packet_conv->dst_t38_info), &(p_t38_conv->dst_t38_info), sizeof(t38_conv_info));
 
-		p_add_proto_data(pinfo->fd, proto_t38, 0, p_t38_packet_conv);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_t38, 0, p_t38_packet_conv);
 	}
 
 	if (ADDRESSES_EQUAL(&p_conv->key_ptr->addr1, &pinfo->net_src)) {

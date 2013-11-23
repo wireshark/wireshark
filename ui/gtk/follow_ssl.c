@@ -78,7 +78,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     show_stream_t        from = FROM_CLIENT;
 
     /* Skip packets without decrypted payload data. */
-    pi = (SslPacketInfo*) p_get_proto_data(pinfo->fd, proto_ssl, 0);
+    pi = (SslPacketInfo*) p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0);
     if (!pi || !pi->appl_data) return 0;
 
     /* Compute the packet's sender. */

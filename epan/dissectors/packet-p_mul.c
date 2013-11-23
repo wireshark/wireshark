@@ -437,12 +437,12 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     }
   }
 
-  pkg_list = (GHashTable *)p_get_proto_data(pinfo->fd, proto_p_mul, 0);
+  pkg_list = (GHashTable *)p_get_proto_data(wmem_file_scope(), pinfo, proto_p_mul, 0);
   if (!pkg_list) {
     /* Never saved list for this packet, create a new */
     pkg_list = g_hash_table_new (NULL, NULL);
     p_mul_package_data_list = g_list_append (p_mul_package_data_list, pkg_list);
-    p_add_proto_data (pinfo->fd, proto_p_mul, 0, pkg_list);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_p_mul, 0, pkg_list);
   }
 
   if (!pinfo->fd->flags.visited) {

@@ -1079,7 +1079,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 	payload_len = tvb_length_remaining(newtvb, offset);
 
 	/* first check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 	if (p_conv_data && p_conv_data->srtp_info) {
 		srtp_info = p_conv_data->srtp_info;
 		payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
@@ -1201,7 +1201,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint32 seqno;
 
 	/* Retrieve RTPs idea of a converation */
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
 	if(p_conv_data != NULL)
 		finfo = p_conv_data->rtp_conv_info;
@@ -1403,7 +1403,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar *payload_type_str;
 
 	/* Retrieve RTPs idea of a converation */
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
 	/* Add try to RFC 2198 data */
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC 2198: Redundant Audio Data");
@@ -1739,7 +1739,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	/* Look for conv and add to the frame if found */
 	get_conv_info(pinfo, rtp_info);
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
 	if (p_conv_data)
 		rtp_info->info_is_video = p_conv_data->is_video;
@@ -1750,7 +1750,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
 
 	/* check if this is added as an SRTP stream - if so, don't try to dissect the payload data for now */
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
 #if 0 /* XXX: srtp_offset never actually used ?? */
 	if (p_conv_data && p_conv_data->srtp_info) {
@@ -2229,7 +2229,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	/* Use existing packet info if available */
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
 	if (!p_conv_data)
 	{
@@ -2256,7 +2256,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 				p_conv_packet_data->srtp_info = p_conv_data->srtp_info;
 				p_conv_packet_data->bta2dp_info = p_conv_data->bta2dp_info;
 				p_conv_packet_data->btvdp_info = p_conv_data->btvdp_info;
-				p_add_proto_data(pinfo->fd, proto_rtp, 0, p_conv_packet_data);
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0, p_conv_packet_data);
 
 				/* calculate extended sequence number */
 				seqno = calculate_extended_seqno(p_conv_data->extended_seqno,
@@ -2281,7 +2281,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 
 	/* Use existing packet info if available */
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp, 0);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
 	if (!p_conv_data) return;
 

@@ -404,7 +404,7 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
 
-  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp, 0);
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
   if(fpinf && ((c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) != NULL) ){
     c_inf->setup_frame = actx->pinfo->fd->num;
   }
@@ -722,7 +722,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         num_chans_per_flow[flowd]++;
 
         if(num_chans_per_flow[flowd] > 1 ){
-            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
+            rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
                 expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
@@ -758,7 +758,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 
         if(num_chans_per_flow[flowd] > 1 ){
-            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
+            rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
                 expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
@@ -789,10 +789,10 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
 #.FN_FTR H-RNTI
-  rrcinf = (struct rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
+  rrcinf = (struct rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
   if (!rrcinf) {
     rrcinf = wmem_new0(wmem_file_scope(), struct rrc_info);
-    p_add_proto_data(actx->pinfo->fd, proto_rrc, 0, rrcinf);
+    p_add_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0, rrcinf);
   }
   rrcinf->hrnti[actx->pinfo->fd->subnum] = tvb_get_ntohs(hrnti_tvb, 0);
 
@@ -806,7 +806,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
   /*We base this map on communication context from fp*/
-    fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp, 0);
+    fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
 
   /*If no info found, skip all this*/
   if(fpinf == NULL){
@@ -859,7 +859,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 
 
-  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp, 0);
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
 
 %(DEFAULT_BODY)s
 

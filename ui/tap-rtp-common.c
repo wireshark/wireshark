@@ -255,7 +255,7 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_strinfo.rtp_stats.reg_pt = PT_UNDEFINED;
 
 			/* Get the Setup frame number who set this RTP stream */
-			p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"), 0);
+			p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
 			if (p_conv_data)
 				tmp_strinfo.setup_frame_number = p_conv_data->frame_number;
 			else

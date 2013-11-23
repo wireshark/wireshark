@@ -174,12 +174,12 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     rsync_tree = proto_item_add_subtree(ti, ett_rsync);
 
-    rsync_frame_data_p = (struct rsync_frame_data *)p_get_proto_data(pinfo->fd, hfi_rsync->id, 0);
+    rsync_frame_data_p = (struct rsync_frame_data *)p_get_proto_data(wmem_file_scope(), pinfo, hfi_rsync->id, 0);
     if (!rsync_frame_data_p) {
     /* then we haven't seen this frame before */
     rsync_frame_data_p = wmem_new(wmem_file_scope(), struct rsync_frame_data);
     rsync_frame_data_p->state = (me == SERVER) ? conversation_data->server_state : conversation_data->client_state;
-    p_add_proto_data(pinfo->fd, hfi_rsync->id, 0, rsync_frame_data_p);
+    p_add_proto_data(wmem_file_scope(), pinfo, hfi_rsync->id, 0, rsync_frame_data_p);
     }
 
     if (me == SERVER) {

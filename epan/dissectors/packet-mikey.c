@@ -1353,12 +1353,12 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	int	    payload;
 	mikey_t	   *mikey;
 
-	mikey = (mikey_t *)p_get_proto_data(pinfo->fd, proto_mikey, 0);
+	mikey = (mikey_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mikey, 0);
 
 	if (!mikey) {
 		mikey = wmem_new0(wmem_file_scope(), mikey_t);
 		mikey->type = -1;
-		p_add_proto_data(pinfo->fd, proto_mikey, 0, mikey);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_mikey, 0, mikey);
 	}
 
 

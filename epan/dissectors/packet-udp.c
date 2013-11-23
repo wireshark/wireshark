@@ -317,7 +317,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   gboolean prev_heur_found = FALSE;
 
   if (pinfo->fd->flags.visited) {
-    udp_p_info = (udp_p_info_t*)p_get_proto_data(pinfo->fd, hfi_udp->id, pinfo->curr_layer_num);
+    udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
     if (udp_p_info) {
       prev_heur_found = udp_p_info->found_heuristic;
     }
@@ -363,7 +363,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
         udp_p_info->found_heuristic = TRUE;
-        p_add_proto_data(pinfo->fd, hfi_udp->id, curr_layer_num, udp_p_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
       return;
     }
@@ -407,7 +407,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
         udp_p_info->found_heuristic = TRUE;
-        p_add_proto_data(pinfo->fd, hfi_udp->id, curr_layer_num, udp_p_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
       return;
     }

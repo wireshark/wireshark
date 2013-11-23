@@ -575,7 +575,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 	if ( pinfo->fd->flags.visited){	/* if not first pass */
 					/* get uncompressed data */
-		pdata_ptr = (wcp_pdata_t *)p_get_proto_data( pinfo->fd, proto_wcp, 0);
+		pdata_ptr = (wcp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wcp, 0);
 
 		if ( !pdata_ptr) {	/* exit if no data */
 			REPORT_DISSECTOR_BUG("Can't find uncompressed data");
@@ -589,7 +589,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur,  len);
 		pdata_ptr->len = len;
 
-		p_add_proto_data( pinfo->fd, proto_wcp, 0, (void*)pdata_ptr);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_wcp, 0, (void*)pdata_ptr);
 
 		buf_ptr->buf_cur = dst;
 	}

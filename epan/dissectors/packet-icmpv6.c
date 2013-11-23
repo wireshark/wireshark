@@ -2165,7 +2165,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         break;
                 }
                 /* Update the 6LoWPAN dissectors with new context information. */
-                hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, 0,
+                hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, 0,
                         proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
                 if ((opt_len <= 24) && hints) {
                     lowpan_context_insert(context_id, hints->src_pan, context_len, &context_prefix, pinfo->fd->num);

@@ -372,13 +372,13 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (!pinfo->fd->flags.visited) {
         /* Allocate frame data with hints for upper layers */
         nwk_hints = wmem_new0(wmem_file_scope(), zbee_nwk_hints_t);
-        p_add_proto_data(pinfo->fd, proto_zbee_nwk, 0, nwk_hints);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0, nwk_hints);
     } else {
         /* Retrieve existing structure */
-        nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd, proto_zbee_nwk, 0);
+        nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
     }
 
-    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
+    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
             proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
 
     /* Add ourself to the protocol column, clear the info column, and create the protocol tree. */

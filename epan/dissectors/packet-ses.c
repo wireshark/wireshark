@@ -1072,12 +1072,12 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			has_user_information = TRUE;
 			break;
 		case SES_MAJOR_SYNC_POINT:
-			pres_ctx_id = (guint32 *)p_get_proto_data (pinfo->fd, proto_ses, 0);
+			pres_ctx_id = (guint32 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ses, 0);
 			if (ses_rtse_reassemble != 0 && !pres_ctx_id) {
 				/* First time visited - save pres_ctx_id */
 				pres_ctx_id = wmem_new(wmem_file_scope(), guint32);
 				*pres_ctx_id = ses_pres_ctx_id;
-				p_add_proto_data (pinfo->fd, proto_ses, 0, pres_ctx_id);
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_ses, 0, pres_ctx_id);
 			}
 			if (pres_ctx_id) {
 				session.pres_ctx_id = *pres_ctx_id;

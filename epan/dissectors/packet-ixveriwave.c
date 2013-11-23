@@ -480,7 +480,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Calculate the IFG */
 
     /* Check for an existing ifg value associated with the frame */
-    p_ifg_info = (ifg_info *)p_get_proto_data(pinfo->fd, proto_ixveriwave, 0);
+    p_ifg_info = (ifg_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
     if (!p_ifg_info)
     {
         /* allocate the space */
@@ -506,7 +506,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         p_ifg_info->current_start_time = vw_startt;
 
         /* Add the ifg onto the frame */
-        p_add_proto_data(pinfo->fd, proto_ixveriwave, 0, p_ifg_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0, p_ifg_info);
     }
 
     /* Grab the rest of the frame. */
@@ -544,7 +544,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     offset = 0;
 
     /* First add the IFG information */
-    p_ifg_info = (struct ifg_info *) p_get_proto_data(pinfo->fd, proto_ixveriwave, 0);
+    p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
     if (tree) {
         ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg,
                                  tvb, offset, 0, p_ifg_info->ifg);
@@ -698,7 +698,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
     /* First add the IFG information, need to grab the info bit field here */
     vw_info = tvb_get_letohs(tvb, 20);
-    p_ifg_info = (struct ifg_info *) p_get_proto_data(pinfo->fd, proto_ixveriwave, 0);
+    p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
     if (tree) {
         if ((vw_info & 0x0400) && !(vw_info & 0x0800))  /* If the packet is part of an A-MPDU but not the first MPDU */
             ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, 0);

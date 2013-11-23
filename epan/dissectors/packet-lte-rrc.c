@@ -12846,7 +12846,7 @@ dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                    ett_lte_rrc_DRB_ToAddMod, DRB_ToAddMod_sequence);
 
   /* Need UE identifier */
-  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info == NULL) {
     return offset;
   }
@@ -13007,7 +13007,7 @@ dissect_lte_rrc_T_release(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   /* Look for UE identifier */
-  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info != NULL) {
     /* If found, tell MAC to release DRX config */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
@@ -13956,7 +13956,7 @@ dissect_lte_rrc_MAC_MainConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     drx_check_config_sane(drx_config, actx);
 
     /* Look for UE identifier */
-    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
     if (p_mac_lte_info != NULL) {
       /* If found, configure MAC with DRX config */
       set_mac_lte_drx_config(p_mac_lte_info->ueid, drx_config, actx->pinfo);
@@ -18778,7 +18778,7 @@ dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 
   /* Look for UE identifier */
-  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info != NULL) {
     /* If found, tell MAC to release DRX config coming from a previous RRC connection */
     /* We do release the configuration here instead of RRC Connection Release message */
@@ -22272,7 +22272,7 @@ dissect_lte_rrc_SecurityAlgorithmConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
   /* Look for UE identifier */
-  p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_pdcp_lte, 0);
+  p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_pdcp_lte, 0);
   if (p_pdcp_lte_info != NULL) {
     /* Configure algorithms */
     set_pdcp_lte_security_algorithms(p_pdcp_lte_info->ueid, p_security_algorithms);

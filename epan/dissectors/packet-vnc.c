@@ -467,10 +467,10 @@ static void vnc_server_ring_bell(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
 static guint vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
-static void vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel);
-static void vnc_set_depth(const packet_info *pinfo, const guint8 depth);
-static guint8 vnc_get_bytes_per_pixel(const packet_info *pinfo);
-static guint8 vnc_get_depth(const packet_info *pinfo);
+static void vnc_set_bytes_per_pixel(packet_info *pinfo, const guint8 bytes_per_pixel);
+static void vnc_set_depth(packet_info *pinfo, const guint8 depth);
+static guint8 vnc_get_bytes_per_pixel(packet_info *pinfo);
+static guint8 vnc_get_depth(packet_info *pinfo);
 static guint32 vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 
 static guint vnc_supported_messages(tvbuff_t *tvb, gint *offset,
@@ -1008,7 +1008,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	gint num_auth_types;
 	proto_item* auth_item;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 
 	if(!per_packet_info) {
 		per_packet_info = wmem_new(wmem_file_scope(), vnc_packet_t);
@@ -1016,7 +1016,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		per_packet_info->state = per_conversation_info->vnc_next_state;
 		per_packet_info->preferred_encoding = -1;
 
-		p_add_proto_data(pinfo->fd, proto_vnc, 0, per_packet_info);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0, per_packet_info);
 	}
 
 	/* Packet dissection follows */
@@ -1716,7 +1716,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint         counter;
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2948,7 +2948,7 @@ process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, gint *offse
 
 	/* See TightVNC's vnc_unixsrc/vncviewer/tight.c:InitFilterPaletteBPP() */
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2989,7 +2989,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	gint bit_offset;
 	gint bytes_needed = -1;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -3273,11 +3273,11 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 
 static void
-vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel)
+vnc_set_bytes_per_pixel(packet_info *pinfo, const guint8 bytes_per_pixel)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -3286,11 +3286,11 @@ vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel)
 
 
 static void
-vnc_set_depth(const packet_info *pinfo, const guint8 depth)
+vnc_set_depth(packet_info *pinfo, const guint8 depth)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -3299,11 +3299,11 @@ vnc_set_depth(const packet_info *pinfo, const guint8 depth)
 
 
 static guint8
-vnc_get_bytes_per_pixel(const packet_info *pinfo)
+vnc_get_bytes_per_pixel(packet_info *pinfo)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -3312,11 +3312,11 @@ vnc_get_bytes_per_pixel(const packet_info *pinfo)
 
 
 static guint8
-vnc_get_depth(const packet_info *pinfo)
+vnc_get_depth(packet_info *pinfo)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 

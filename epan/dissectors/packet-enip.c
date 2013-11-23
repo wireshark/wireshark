@@ -1697,7 +1697,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                /* Call dissector for interface */
                next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
-               p_add_proto_data(pinfo->fd, proto_enip, 0, request_info);
+               p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, 0, request_info);
                if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                {
                   /* Show the undissected payload */
@@ -1725,7 +1725,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                }
                else
                {
-                  p_remove_proto_data(pinfo->fd, proto_enip, 0);
+                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
                }
                break;
 
@@ -1752,14 +1752,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
-                  p_add_proto_data(pinfo->fd, proto_enip, 0, request_info);
+                  p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, 0, request_info);
                   if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                   {
                      /* Show the undissected payload */
                       if ( tvb_length_remaining(tvb, offset) > 0 )
                         call_dissector( data_handle, next_tvb, pinfo, dissector_tree );
                   }
-                  p_remove_proto_data(pinfo->fd, proto_enip, 0);
+                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
                }
                else
                {
@@ -1776,7 +1776,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                             cip_safety->conn_type = connid_type;
                             cip_safety->server_dir = (conn_info->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
                             cip_safety->format = conn_info->safety.format;
-                            p_add_proto_data(pinfo->fd, proto_cipsafety, 0, cip_safety);
+                            p_add_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0, cip_safety);
                             call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
                          }
                          else if (conn_info->motion == TRUE)
@@ -1921,7 +1921,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                if ((FwdOpen == TRUE) || (FwdOpenReply == TRUE))
                {
-                  request_info = (enip_request_info_t *)p_get_proto_data(pinfo->fd, proto_enip, 0);
+                  request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
                   if (request_info != NULL)
                   {
                      if (item == SOCK_ADR_INFO_OT)
@@ -1991,16 +1991,16 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
    /* See if there is a CIP connection to establish */
    if (FwdOpenReply == TRUE)
    {
-      request_info = (enip_request_info_t *)p_get_proto_data(pinfo->fd, proto_enip, 0);
+      request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
       if (request_info != NULL)
       {
          enip_open_cip_connection(pinfo, request_info->cip_info->connInfo);
       }
-      p_remove_proto_data(pinfo->fd, proto_enip, 0);
+      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
    }
    else if (FwdOpen == TRUE)
    {
-      p_remove_proto_data(pinfo->fd, proto_enip, 0);
+      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
    }
 
 } /* end of dissect_cpf() */

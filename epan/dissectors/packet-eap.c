@@ -899,7 +899,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             first pass through the capture.
           */
           /* See if we have a remembered defragmentation EAP ID. */
-          packet_state = (frame_state_t *)p_get_proto_data(pinfo->fd, proto_eap, 0);
+          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 0);
           if (packet_state == NULL) {
             /*
              * We haven't - does this message require reassembly?
@@ -962,7 +962,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  */
                 packet_state = wmem_new(wmem_file_scope(), frame_state_t);
                 packet_state->info = eap_reass_cookie;
-                p_add_proto_data(pinfo->fd, proto_eap, 0, packet_state);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 0, packet_state);
               }
             }
           } else {
@@ -1078,7 +1078,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* This part is state-dependent. */
 
         /* See if we've already remembered the state. */
-        packet_state = (frame_state_t *)p_get_proto_data(pinfo->fd, proto_eap, 0);
+        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 0);
         if (packet_state == NULL) {
           /*
            * We haven't - compute the state based on the current
@@ -1099,7 +1099,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
            */
           packet_state = wmem_new(wmem_file_scope(), frame_state_t);
           packet_state->info = leap_state;
-          p_add_proto_data(pinfo->fd, proto_eap, 0, packet_state);
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 0, packet_state);
 
           /*
            * Update the conversation's state.

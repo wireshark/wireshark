@@ -755,7 +755,7 @@ static void
 request_seen(packet_info *pinfo)
 {
   /* Don't count frame again after already recording first time around. */
-  if (p_get_proto_data(pinfo->fd, proto_arp, 0) == 0)
+  if (p_get_proto_data(wmem_file_scope(), pinfo, proto_arp, 0) == 0)
   {
     arp_request_count++;
   }
@@ -767,10 +767,10 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   gboolean report_storm = FALSE;
 
-  if (p_get_proto_data(pinfo->fd, proto_arp, 0) != 0)
+  if (p_get_proto_data(wmem_file_scope(), pinfo, proto_arp, 0) != 0)
   {
     /* Read any previous stored packet setting */
-    report_storm = (p_get_proto_data(pinfo->fd, proto_arp, 0) == (void*)STORM);
+    report_storm = (p_get_proto_data(wmem_file_scope(), pinfo, proto_arp, 0) == (void*)STORM);
   }
   else
   {
@@ -786,7 +786,7 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Time period elapsed without threshold being exceeded */
       arp_request_count = 1;
       time_at_start_of_count = pinfo->fd->abs_ts;
-      p_add_proto_data(pinfo->fd, proto_arp, 0, (void*)NO_STORM);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_arp, 0, (void*)NO_STORM);
       return;
     }
     else
@@ -794,13 +794,13 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       {
         /* Storm detected, record and reset start time. */
         report_storm = TRUE;
-        p_add_proto_data(pinfo->fd, proto_arp, 0, (void*)STORM);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_arp, 0, (void*)STORM);
         time_at_start_of_count = pinfo->fd->abs_ts;
       }
       else
       {
         /* Threshold not exceeded yet - no storm */
-        p_add_proto_data(pinfo->fd, proto_arp, 0, (void*)NO_STORM);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_arp, 0, (void*)NO_STORM);
       }
   }
 

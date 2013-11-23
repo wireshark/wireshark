@@ -4369,12 +4369,12 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
             request_value = ndps_hash_insert(conversation, (guint32) pinfo->srcport);
         }
         /* Add it to pinfo so we can get it on further dissection requests */
-        p_add_proto_data(pinfo->fd, proto_ndps, 0, (void*) request_value);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_ndps, 0, (void*) request_value);
     }
     else
     {
         /* Get request value data */
-        request_value = (ndps_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ndps, 0);
+        request_value = (ndps_req_hash_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ndps, 0);
     }
     if (!request_value)
     {
@@ -6982,12 +6982,12 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             /* find the record telling us the request made that caused
             this reply */
             request_value = ndps_hash_lookup(conversation, (guint32) pinfo->destport);
-            p_add_proto_data(pinfo->fd, proto_ndps, 0, (void*) request_value);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_ndps, 0, (void*) request_value);
         }
         /* else... we haven't seen an NDPS Request for that conversation. */
     }
     else {
-        request_value = (ndps_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ndps, 0);
+        request_value = (ndps_req_hash_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ndps, 0);
     }
     if (request_value) {
         ndps_prog = request_value->ndps_prog;

@@ -106,12 +106,12 @@ void proto_reg_handoff_btavctp(void);
 static void btavctp_pid_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "AVCTP SERVICE 0x%04x as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV )));
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV )));
 }
 
 static gpointer btavctp_pid_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV );
+    return p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV );
 }
 
 static gint
@@ -177,8 +177,8 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(btavctp_tree, hf_btavctp_pid,  tvb, offset, 2, ENC_BIG_ENDIAN);
         pid = tvb_get_ntohs(tvb, offset);
 
-        if (p_get_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV ) == NULL) {
-            p_add_proto_data(pinfo->fd, proto_btavctp, BTAVCTP_PID_CONV, GUINT_TO_POINTER(pid));
+        if (p_get_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV ) == NULL) {
+            p_add_proto_data(pinfo->pool, pinfo, proto_btavctp, BTAVCTP_PID_CONV, GUINT_TO_POINTER(pid));
         }
         offset +=2;
     }

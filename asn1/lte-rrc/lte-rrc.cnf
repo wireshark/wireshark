@@ -754,7 +754,7 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
     drx_check_config_sane(drx_config, actx);
 
     /* Look for UE identifier */
-    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
     if (p_mac_lte_info != NULL) {
       /* If found, configure MAC with DRX config */
       set_mac_lte_drx_config(p_mac_lte_info->ueid, drx_config, actx->pinfo);
@@ -1204,7 +1204,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   memset(drb_mapping, 0, sizeof(*drb_mapping));
 %(DEFAULT_BODY)s
   /* Need UE identifier */
-  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info == NULL) {
     return offset;
   }
@@ -1494,7 +1494,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   mac_lte_info* p_mac_lte_info;
 %(DEFAULT_BODY)s
   /* Look for UE identifier */
-  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info != NULL) {
     /* If found, tell MAC to release DRX config */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
@@ -1502,7 +1502,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
 #.FN_BODY RRCConnectionSetup
   /* Look for UE identifier */
-  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info != NULL) {
     /* If found, tell MAC to release DRX config coming from a previous RRC connection */
     /* We do release the configuration here instead of RRC Connection Release message */
@@ -1519,7 +1519,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
   /* Look for UE identifier */
-  p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_pdcp_lte, 0);
+  p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_pdcp_lte, 0);
   if (p_pdcp_lte_info != NULL) {
     /* Configure algorithms */
     set_pdcp_lte_security_algorithms(p_pdcp_lte_info->ueid, p_security_algorithms);

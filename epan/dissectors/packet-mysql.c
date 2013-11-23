@@ -1836,7 +1836,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
-	mysql_frame_data_p = (struct mysql_frame_data *)p_get_proto_data(pinfo->fd, proto_mysql, 0);
+	mysql_frame_data_p = (struct mysql_frame_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mysql, 0);
 	if (!mysql_frame_data_p) {
 		/*  We haven't seen this frame before.  Store the state of the
 		 *  conversation now so if/when we dissect the frame again
@@ -1844,7 +1844,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		 */
 		mysql_frame_data_p = wmem_new(wmem_file_scope(), struct mysql_frame_data);
 		mysql_frame_data_p->state = conn_data->state;
-		p_add_proto_data(pinfo->fd, proto_mysql, 0, mysql_frame_data_p);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_mysql, 0, mysql_frame_data_p);
 
 	} else if (conn_data->state != FIELD_PACKET  && conn_data->state != ROW_PACKET ) {
 		/*  We have seen this frame before.  Set the connection state

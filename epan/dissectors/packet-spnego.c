@@ -1741,7 +1741,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * It has to be per-frame as there can be more than one GSS-API
 	 * negotiation in a conversation.
 	 */
-	next_level_value = (gssapi_oid_value *)p_get_proto_data(pinfo->fd, proto_spnego, 0);
+	next_level_value = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spnego, 0);
 	if (!next_level_value && !pinfo->fd->flags.visited) {
 	    /*
 	     * No handle attached to this frame, but it's the first
@@ -1757,7 +1757,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		next_level_value = (gssapi_oid_value *)conversation_get_proto_data(conversation,
 							       proto_spnego);
 		if (next_level_value)
-		    p_add_proto_data(pinfo->fd, proto_spnego, 0, next_level_value);
+		    p_add_proto_data(wmem_file_scope(), pinfo, proto_spnego, 0, next_level_value);
 	    }
 	}
 

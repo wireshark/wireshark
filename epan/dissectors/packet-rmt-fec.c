@@ -123,7 +123,7 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		fec_data = wmem_new0(wmem_file_scope(), fec_packet_data_t);
 		fec_data->instance_id = instance_id;
 
-		p_add_proto_data(pinfo->fd, proto_rmt_fec, 0, fec_data);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_rmt_fec, 0, fec_data);
 	}
 
 	if (encoding_id == 6){
@@ -194,7 +194,7 @@ dissect_fec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	guint offset = 0;
 	fec_data_exchange_t* fec = (fec_data_exchange_t*)data;
 	guint8 encoding_id = 0;
-	fec_packet_data_t* packet_data = (fec_packet_data_t*)p_get_proto_data(pinfo->fd, proto_rmt_fec, 0);
+	fec_packet_data_t* packet_data = (fec_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_rmt_fec, 0);
 
 	if (fec != NULL)
 	{

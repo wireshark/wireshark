@@ -491,7 +491,7 @@ static void sctp_both_prompt(packet_info *pinfo _U_, gchar* result)
 
 static void sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
 {
-    guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_sctp, 0));
+    guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 0));
 
     if (ppid == LAST_PPID) {
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
@@ -502,7 +502,7 @@ static void sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
 
 static void sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
 {
-    guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_sctp, 1));
+    guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1));
 
     if (ppid == LAST_PPID) {
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
@@ -513,12 +513,12 @@ static void sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
 
 static gpointer sctp_ppi_value1(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->fd, proto_sctp, 0);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 0);
 }
 
 static gpointer sctp_ppi_value2(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->fd, proto_sctp, 1);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1);
 }
 
 
@@ -2863,12 +2863,12 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
   /* insert the PPID in the pinfo structure if it is not already there and there is still room */
   for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
-    ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_sctp, number_of_ppid));
+    ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, number_of_ppid));
     if ((ppid == LAST_PPID) || (ppid == payload_proto_id))
       break;
   }
   if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (ppid == LAST_PPID))
-    p_add_proto_data(pinfo->fd, proto_sctp, number_of_ppid, GUINT_TO_POINTER(payload_proto_id));
+    p_add_proto_data(pinfo->pool, pinfo, proto_sctp, number_of_ppid, GUINT_TO_POINTER(payload_proto_id));
 
   e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
   b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
@@ -4131,7 +4131,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
-    p_add_proto_data(pinfo->fd, proto_sctp, number_of_ppid, GUINT_TO_POINTER(LAST_PPID));
+    p_add_proto_data(pinfo->pool, pinfo, proto_sctp, number_of_ppid, GUINT_TO_POINTER(LAST_PPID));
   }
 
   /*  The tvb array in struct _sctp_info is huge: currently 2k pointers.

@@ -925,7 +925,7 @@ region_lookup(packet_info *pinfo, guint32 base_addr)
     fm_conversation    *conv;
     fastser_dataregion *dataregion = NULL;
 
-    conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
+    conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
     if (conv) {
         dataregion = (fastser_dataregion*)wmem_tree_lookup32(conv->fastser_dataregions, base_addr);
     }
@@ -1140,7 +1140,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
     /* Search for previously-encountered Configuration information to dissect the frame */
     {
-        conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
+        conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
 
         if (conv) {
             wmem_list_frame_t *frame = wmem_list_head(conv->fm_config_frames);
@@ -1636,7 +1636,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
     if (payload_tvb) {
 
         /* Search for previously-encountered data format reference information to dissect the frame */
-        conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
+        conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
 
         if (conv) {
             /* Start at front of list and cycle through possible instances of multiple fastser_dataitem frames, looking for match */
@@ -2285,7 +2285,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             conversation_add_proto_data(conversation, proto_selfm, (void *)fm_conv_data);
         }
 
-        p_add_proto_data(pinfo->fd, proto_selfm, 0, fm_conv_data);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0, fm_conv_data);
 
         /* 1. Configuration frames (0xA5C1, 0xA5C2, 0xA5C3) need special treatment during the first run         */
         /* For each Fast Meter Configuration frame (0xA5Cx), a 'fm_config_frame' struct is created to hold the  */

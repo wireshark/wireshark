@@ -194,9 +194,12 @@ typedef struct _packet_info {
   guint16 clnp_dstref;			/**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
 
   int link_dir;					/**< 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
+
+  GSList* proto_data;          /**< Per packet proto data */
+
   GSList* dependent_frames;		/**< A list of frames which this one depends on */
 
-  GSList *frame_end_routines;
+  GSList* frame_end_routines;
 
   wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
   struct epan_session *epan;

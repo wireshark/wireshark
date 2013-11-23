@@ -320,12 +320,12 @@ static dissector_table_t mpls_subdissector_table;
 static void mpls_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Data after label %u as", 
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_mpls, 0)));
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 0)));
 }
 
 static gpointer mpls_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->fd, proto_mpls, 0);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 0);
 }
 
 /*
@@ -550,7 +550,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * update pinfo
          */
         mplsinfo.label = label;
-        p_add_proto_data(pinfo->fd, proto_mpls, 0, GUINT_TO_POINTER(label));
+        p_add_proto_data(pinfo->pool, pinfo, proto_mpls, 0, GUINT_TO_POINTER(label));
         mplsinfo.exp   = exp;
         mplsinfo.bos   = bos;
         mplsinfo.ttl   = ttl;

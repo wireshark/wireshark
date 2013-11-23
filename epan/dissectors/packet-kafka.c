@@ -805,7 +805,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     if (PINFO_FD_VISITED(pinfo)) {
-        matcher = (kafka_query_response_t *) p_get_proto_data(pinfo->fd, proto_kafka, 0);
+        matcher = (kafka_query_response_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_kafka, 0);
     }
 
     if (pinfo->destport == kafka_port) {
@@ -818,7 +818,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             matcher->request_frame  = PINFO_FD_NUM(pinfo);
             matcher->response_found = FALSE;
 
-            p_add_proto_data(pinfo->fd, proto_kafka, 0, matcher);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_kafka, 0, matcher);
 
             /* The kafka server always responds, except in the case of a produce
              * request whose RequiredAcks field is 0. This field is at a dynamic
@@ -890,7 +890,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             matcher->response_frame = PINFO_FD_NUM(pinfo);
             matcher->response_found = TRUE;
 
-            p_add_proto_data(pinfo->fd, proto_kafka, 0, matcher);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_kafka, 0, matcher);
         }
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Kafka %s Response",
