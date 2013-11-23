@@ -128,7 +128,7 @@ my %APIs = (
 
         ### Deprecated emem functions (use wmem instead!)
         # These will become errors once they've been removed from all the
-        # existing dissectors
+        # existing code
         'emem' => { 'count_errors' => 0, 'functions' => [
                 'ep_alloc',
                 'ep_new',
@@ -147,6 +147,7 @@ my %APIs = (
                 'ep_stack_push',
                 'ep_stack_pop',
                 'ep_stack_peek',
+                'ep_address_to_str',
                 'se_alloc',
                 'se_new',
                 'se_alloc0',
@@ -157,6 +158,7 @@ my %APIs = (
                 'se_strdup_vprintf',
                 'se_strdup_printf',
                 'se_alloc_array',
+                'se_address_to_str',
                 'se_tree_create',
                 'se_tree_insert32',
                 'se_tree_lookup32',

@@ -62,6 +62,7 @@
 #include <epan/dissectors/packet-mtp3.h>
 #include <stdio.h>
 #include "emem.h"
+#include "wmem/wmem.h"
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably
@@ -504,6 +505,16 @@ get_ax25_name(const guint8 *ad)
    that "col_set_addr()" need know nothing whatsoever about particular
    address types */
 /* convert an address struct into a printable string */
+
+gchar*
+address_to_str(wmem_allocator_t *scope, const address *addr)
+{
+    gchar *str;
+
+    str=(gchar *)wmem_alloc(scope, MAX_ADDR_STR_LEN);
+    address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
+    return str;
+}
 
 gchar*
 ep_address_to_str(const address *addr)
