@@ -18653,12 +18653,12 @@ BindingID_port = 0;
         if(old_conversation){
             nbap_debug3("Frame %u E-DCH-FDD-Information-to-Modify: found old conv on IP %s Port %u",
                 actx->pinfo->fd->num,
-                ep_address_to_str(&dst_addr),
+                address_to_str(wmem_packet_scope(), &dst_addr),
                 BindingID_port);
         }else{
             nbap_debug3("Frame %u E-DCH-FDD-Information-to-Modify: Did not find old conv on IP %s Port %u",
                 actx->pinfo->fd->num,
-                ep_address_to_str(&dst_addr),
+                address_to_str(wmem_packet_scope(), &dst_addr),
                 BindingID_port);
         }
 
@@ -23797,7 +23797,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
             nbap_debug4("Frame %u HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %u Look for conv on IP %s Port %u",
                         actx->pinfo->fd->num,
                         i,
-                        ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
+                        address_to_str (wmem_packet_scope(), &(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                PT_UDP,
@@ -24134,7 +24134,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_debug3("    hsdsch_macdflow_id %u Look for conv on IP %s Port %u",
                         i,
-                        ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
+                        address_to_str (wmem_packet_scope(), &(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                PT_UDP,
@@ -28866,7 +28866,7 @@ BindingID_port = 0;
                     nbap_debug4("    g_tree_insert(edch_flow_port_map) com_context_id %u e_dch_macdflow_id %u IP %s Port %u",
                         umts_fp_conversation_info->com_context_id,
                         e_dch_macdflow_id,
-                        ep_address_to_str(&dst_addr),
+                        address_to_str(wmem_packet_scope(), &dst_addr),
                         BindingID_port);
 
                     /* Set address for collection of DDI entries */
@@ -28879,7 +28879,7 @@ BindingID_port = 0;
                     nbap_debug4("    Insert in existing edch_flow_port_map com_context_id %u e_dch_macdflow_id %u IP %s Port %u",
                         umts_fp_conversation_info->com_context_id,
                         e_dch_macdflow_id,
-                        ep_address_to_str(&dst_addr),
+                        address_to_str(wmem_packet_scope(), &dst_addr),
                         BindingID_port);
 
                     /* Must be same ADDRESS */

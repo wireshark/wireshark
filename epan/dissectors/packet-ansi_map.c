@@ -1197,8 +1197,8 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
     guint8 *dst_str;
     const char *buf = NULL;
 
-    src_str = ep_address_to_str(src);
-    dst_str = ep_address_to_str(dst);
+    src_str = address_to_str(wmem_packet_scope(), src);
+    dst_str = address_to_str(wmem_packet_scope(), dst);
 
     /* Data from the TCAP dissector */
     if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
@@ -16215,8 +16215,8 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
 
     /* Data from the TCAP dissector */
     /* The hash string needs to contain src and dest to distiguish differnt flows */
-    src_str = ep_address_to_str(src);
-    dst_str = ep_address_to_str(dst);
+    src_str = address_to_str(wmem_packet_scope(), src);
+    dst_str = address_to_str(wmem_packet_scope(), dst);
     /* Reverse order to invoke */
     switch(ansi_map_response_matching_type){
         case ANSI_MAP_TID_ONLY:

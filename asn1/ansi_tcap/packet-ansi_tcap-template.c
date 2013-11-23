@@ -187,9 +187,11 @@ ansi_tcap_init_protocol(void)
 static void
 save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
-  address* src = &(pinfo->src);
-  address* dst = &(pinfo->dst);
+  gchar *src, *dst;
   char *buf;
+
+  src = address_to_str(wmem_packet_scope(), &(pinfo->src));
+  dst = address_to_str(wmem_packet_scope(), &(pinfo->dst));
 
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
 
@@ -200,10 +202,10 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
                                 buf = wmem_strdup(wmem_packet_scope(), ansi_tcap_private.TransactionID_str);
                                 break;
                         case 1:
-                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
+                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",ansi_tcap_private.TransactionID_str,src);
                                 break;
                         default:
-                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
+                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",ansi_tcap_private.TransactionID_str,src,dst);
                                 break;
                 }
 
@@ -229,32 +231,31 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 static gboolean
 find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
-  address* src = &(pinfo->src);
-  address* dst = &(pinfo->dst);
+  gchar *src, *dst;
   char *buf;
 
   if (!ansi_tcap_private.TransactionID_str) {
     return FALSE;
   }
 
+  src = address_to_str(wmem_packet_scope(), &(pinfo->src));
+  dst = address_to_str(wmem_packet_scope(), &(pinfo->dst));
+
   /* The hash string needs to contain src and dest to distiguish differnt flows */
   buf = (char *)wmem_alloc(wmem_packet_scope(), MAX_TID_STR_LEN);
   buf[0] = '\0';
   /* Reverse order to invoke */
-  g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
-        ansi_tcap_private.TransactionID_str, ep_address_to_str(dst),
-        ep_address_to_str(src));
   switch(ansi_tcap_response_matching_type){
         case 0:
                 g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
                 break;
         case 1:
-                g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst));
+                g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,dst);
                 break;
         default:
-                    g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst),ep_address_to_str(src));
-                    break;
-    }
+                g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,dst,src);
+                break;
+  }
 
   ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
