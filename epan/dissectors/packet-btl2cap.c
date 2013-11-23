@@ -2415,9 +2415,9 @@ proto_register_btl2cap(void)
     new_register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
 
     /* subdissector code */
-    l2cap_psm_dissector_table     = register_dissector_table("btl2cap.psm",     "L2CAP PSM",     FT_UINT16, BASE_HEX);
-    l2cap_service_dissector_table = register_dissector_table("btl2cap.service", "L2CAP Service", FT_UINT16, BASE_HEX);
-    l2cap_cid_dissector_table     = register_dissector_table("btl2cap.cid",     "L2CAP CID",     FT_UINT16, BASE_HEX);
+    l2cap_psm_dissector_table     = register_dissector_table("btl2cap.psm",     "BT L2CAP PSM",     FT_UINT16, BASE_HEX);
+    l2cap_service_dissector_table = register_dissector_table("btl2cap.service", "BT L2CAP Service", FT_UINT16, BASE_HEX);
+    l2cap_cid_dissector_table     = register_dissector_table("btl2cap.cid",     "BT L2CAP CID",     FT_UINT16, BASE_HEX);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btl2cap, hf, array_length(hf));

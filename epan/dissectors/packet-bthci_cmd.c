@@ -2012,12 +2012,19 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
         case 0x0028: /* Setup Synchronous Connection */
         case 0x0029: /* Accept Synchronous Connection Request */
-            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset+=2;
+            if (cmd_ocf == 0x0028) {
+                proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset+=2;
+            } else {
+                offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+            }
+
             proto_tree_add_item(tree, hf_bthci_cmd_transmit_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset+=4;
+
             proto_tree_add_item(tree, hf_bthci_cmd_receive_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset+=4;
+
             proto_tree_add_item(tree, hf_bthci_cmd_max_latency_ms, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
@@ -2044,7 +2051,6 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
-
         case 0x002a: /* Reject Synchronous Connection Request */
             offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 

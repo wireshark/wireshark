@@ -57,6 +57,17 @@ static int hf_hdr_val_unicode = -1;
 static int hf_hdr_val_byte_seq = -1;
 static int hf_hdr_val_byte = -1;
 static int hf_hdr_val_long = -1;
+static int hf_authentication_challenge_tag = -1;
+static int hf_authentication_response_tag = -1;
+static int hf_authentication_key = -1;
+static int hf_authentication_result_key = -1;
+static int hf_authentication_user_id = -1;
+static int hf_authentication_length = -1;
+static int hf_authentication_info_charset = -1;
+static int hf_authentication_info = -1;
+static int hf_authentication_option_reserved = -1;
+static int hf_authentication_option_user_id = -1;
+static int hf_authentication_option_read_only = -1;
 static int hf_application_parameter = -1;
 static int hf_application_parameter_id = -1;
 static int hf_application_parameter_length = -1;
@@ -170,8 +181,9 @@ static int hf_map_application_parameter_data_fraction_deliver = -1;
 static int hf_map_application_parameter_data_status_indicator = -1;
 static int hf_map_application_parameter_data_status_value = -1;
 static int hf_map_application_parameter_data_mse_time = -1;
-
 static int hf_profile = -1;
+
+static expert_field ei_unexpected_data = EI_INIT;
 
 
 /* ************************************************************************* */
@@ -416,8 +428,8 @@ static const value_string header_id_vals[] = {
     { 0x49, "End Of Body" },
     { 0x4a, "Who" },
     { 0x4c, "Application Parameters" },
-    { 0x4d, "Auth. Challenge" },
-    { 0x4e, "Auth. Response" },
+    { 0x4d, "Authentication Challenge" },
+    { 0x4e, "Authentication Response" },
     { 0x4f, "Object Class" },
     { 0xc0, "Count" },
     { 0xc3, "Length" },
@@ -540,6 +552,26 @@ static const value_string map_fraction_deliver_vals[] = {
 static const value_string map_status_indicator_vals[] = {
     { 0x00, "Read Status" },
     { 0x01, "Deleted Status" },
+    { 0,    NULL }
+};
+
+static const value_string authentication_challenge_tag_vals[] = {
+    { 0x00, "Key" },
+    { 0x01, "Options" },
+    { 0x02, "Info" },
+    { 0,    NULL }
+};
+
+static const value_string authentication_response_tag_vals[] = {
+    { 0x00, "Result Key" },
+    { 0x01, "User ID" },
+    { 0x02, "Key" },
+    { 0,    NULL }
+};
+
+static const value_string info_charset_vals[] = {
+    { 0x00, "ASCII" },
+    { 0xFF, "Unicode" },
     { 0,    NULL }
 };
 
@@ -1138,6 +1170,109 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             break;
                     }
                     break;
+                } else if (hdr_id == 0x04D) { /* Authentication Challenge */
+                    guint8 tag;
+
+                    proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    parameters_length = tvb_get_ntohs(tvb, offset) - 3;
+                    offset += 2;
+
+                    while (parameters_length) {
+                        guint8       parameter_id;
+                        guint8       sub_parameter_length;
+                        proto_item  *parameter_item;
+                        proto_tree  *parameter_tree;
+
+                        parameter_id = tvb_get_guint8(tvb, offset);
+                        sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_application_parameter, tvb, offset,
+                                2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
+                                authentication_challenge_tag_vals, "Unknown"));
+                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
+
+                        proto_tree_add_item(parameter_tree, hf_authentication_challenge_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        tag = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        proto_tree_add_item(parameter_tree, hf_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+
+                        switch (tag) {
+                        case 0x00:
+                            proto_tree_add_item(parameter_tree, hf_authentication_key, tvb, offset, 16, ENC_NA);
+                            offset += 16;
+                            break;
+                        case 0x01:
+                            proto_tree_add_item(parameter_tree, hf_authentication_option_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(parameter_tree, hf_authentication_option_read_only, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(parameter_tree, hf_authentication_option_user_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+                            break;
+                        case 0x02:
+                            proto_tree_add_item(parameter_tree, hf_authentication_info_charset, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+                            proto_tree_add_item(parameter_tree, hf_authentication_info, tvb, offset, sub_parameter_length - 1, ENC_ASCII|ENC_NA);
+                            offset += sub_parameter_length - 1;
+                        default:
+                            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+                            offset += sub_parameter_length;
+                        }
+
+                        parameters_length -= 2 + sub_parameter_length;
+                    }
+                    break;
+                } else if (hdr_id == 0x04E) { /* Authentication Response */
+                    guint8 tag;
+
+                    proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    parameters_length = tvb_get_ntohs(tvb, offset) - 3;
+                    offset += 2;
+
+                    while (parameters_length) {
+                        guint8       parameter_id;
+                        guint8       sub_parameter_length;
+                        proto_item  *parameter_item;
+                        proto_tree  *parameter_tree;
+
+                        parameter_id = tvb_get_guint8(tvb, offset);
+                        sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_application_parameter, tvb, offset,
+                                2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
+                                authentication_response_tag_vals, "Unknown"));
+                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
+
+                        proto_tree_add_item(parameter_tree, hf_authentication_response_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        tag = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        proto_tree_add_item(parameter_tree, hf_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        sub_parameter_length = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        switch (tag) {
+                        case 0x00:
+                            proto_tree_add_item(parameter_tree, hf_authentication_result_key, tvb, offset, 16, ENC_NA);
+                            offset += 16;
+                            break;
+                        case 0x01:
+                            proto_tree_add_item(parameter_tree, hf_authentication_user_id, tvb, offset, sub_parameter_length, ENC_NA);
+                            offset += sub_parameter_length;
+                            break;
+                        case 0x02:
+                            proto_tree_add_item(parameter_tree, hf_authentication_key, tvb, offset, 16, ENC_NA);
+                            offset += 16;
+                            break;
+                        default:
+                            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+                            offset += sub_parameter_length;
+                        }
+
+
+                        parameters_length -= 2 + sub_parameter_length;
+                    }
+                    break;
                 }
 
                 proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1273,6 +1408,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32               k_channel;
     obex_last_opcode_data_t  *obex_last_opcode_data;
     guint32                   k_direction;
+    guint32                   length;
 
     save_fragmented = pinfo->fragmented;
 
@@ -1475,6 +1611,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* length */
         proto_tree_add_item(st, hf_length, next_tvb, offset, 2, ENC_BIG_ENDIAN);
+        length = tvb_get_ntohs(tvb, offset) - 3;
         offset += 2;
 
         switch(code)
@@ -1510,6 +1647,12 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
 
         default:
+            if (length == 0 && tvb_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_expert(st, pinfo, &ei_unexpected_data, tvb, offset, tvb_length_remaining(tvb, offset));
+                offset += tvb_length_remaining(tvb, offset);
+                break;
+            } else if (length == 0) break;
+
             if (is_obex_over_l2cap) {
                 btl2cap_data_t      *l2cap_data;
 
@@ -1682,6 +1825,61 @@ proto_register_btobex(void)
           { "Value", "btobex.header.value.long",
             FT_UINT32, BASE_DEC, NULL, 0,
             "4-byte Value", HFILL}
+        },
+        { &hf_authentication_challenge_tag,
+          { "Tag", "btobex.authentication.challenge_tag",
+            FT_UINT8, BASE_HEX, VALS(authentication_challenge_tag_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_authentication_response_tag,
+          { "Tag", "btobex.authentication.response_tag",
+            FT_UINT8, BASE_HEX, VALS(authentication_response_tag_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_authentication_length,
+          { "Length", "btobex.authentication.length",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_authentication_key,
+          { "Key", "btobex.authentication.key",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_authentication_result_key,
+          { "Result Key", "btobex.authentication.result_key",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_authentication_user_id,
+          { "User Id", "btobex.authentication.user_id",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_authentication_option_reserved,
+          { "Reserved", "btobex.authentication.option.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL}
+        },
+        { &hf_authentication_option_read_only,
+          { "Read Only", "btobex.authentication.option.read_only",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        { &hf_authentication_option_user_id,
+          { "User ID", "btobex.authentication.option.user_id",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        { &hf_authentication_info_charset,
+          { "Charset", "btobex.authentication.info.charset",
+            FT_UINT8, BASE_HEX, VALS(info_charset_vals), 0,
+            NULL, HFILL}
+        },
+        { &hf_authentication_info,
+          { "Info", "btobex.authentication.info",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL}
         },
         { &hf_application_parameter,
           { "Parameter", "btobex.parameter",
@@ -2311,6 +2509,7 @@ proto_register_btobex(void)
 
     static ei_register_info ei[] = {
         { &ei_application_parameter_length_bad, { "btobex.parameter.length.bad", PI_PROTOCOL, PI_WARN, "Parameter length bad", EXPFILL }},
+        { &ei_unexpected_data, { "btobex.expert.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
     };
 
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

@@ -63,6 +63,10 @@ struct btsnooprec_hdr {
 #define KHciLoggerDatalinkTypeBCSP		1003
 /* H5 is the official three wire serial protocol derived from BCSP*/
 #define KHciLoggerDatalinkTypeH5		1004
+/* BlueZ 5 Monitor */
+#define KHciLoggerDatalinkBlueZ5Monitor	 2001
+/* BlueZ 5 Simulator */
+#define KHciLoggerDatalinkBlueZ5Simulator	2002
 
 #define KHciLoggerHostToController		0
 #define KHciLoggerControllerToHost		0x00000001
@@ -126,6 +130,9 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	case KHciLoggerDatalinkTypeH1:
 		file_encap=WTAP_ENCAP_BLUETOOTH_HCI;
 		break;
+	case KHciLoggerDatalinkTypeH4:
+		file_encap=WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
+		break;
 	case KHciLoggerDatalinkTypeBCSP:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: BCSP capture logs unsupported");
@@ -134,9 +141,14 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
 		return -1;
-	case KHciLoggerDatalinkTypeH4:
-		file_encap=WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
-		break;
+	case KHciLoggerDatalinkBlueZ5Monitor:
+		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("btsnoop: BlueZ 5 Monitor capture logs unsupported");
+		return -1;
+	case KHciLoggerDatalinkBlueZ5Simulator:
+		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("btsnoop: BlueZ 5 Simulator capture logs unsupported");
+		return -1;
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: datalink type %u unknown or unsupported", hdr.datalink);
