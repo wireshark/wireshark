@@ -328,8 +328,9 @@ followUdpPacket(
   if (tvbp->length > 0)
   {
     memcpy(sc.src_addr, pip->net_src.data, pip->net_src.len);
-    sc.src_port = pip->srcport;
-    sc.dlen     = tvbp->length;
+    sc.src_port   = pip->srcport;
+    sc.dlen       = tvbp->length;
+    sc.packet_num = pip->fd->num;
 
     size = fwrite(&sc, 1, sizeof sc, fp->filep);
     if (sizeof sc != size)
@@ -390,8 +391,9 @@ followSslPacket(
   if (length > 0)
   {
     memcpy(sc.src_addr, pip->net_src.data, pip->net_src.len);
-    sc.src_port = pip->srcport;
-    sc.dlen     = length;
+    sc.src_port   = pip->srcport;
+    sc.dlen       = length;
+    sc.packet_num = pip->fd->num;
 
     size = fwrite(&sc, 1, sizeof sc, fp->filep);
     if (sizeof sc != size)
