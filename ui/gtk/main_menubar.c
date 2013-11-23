@@ -4959,13 +4959,13 @@ set_menus_for_selected_packet(capture_file *cf)
         }
     }
 
-    if (cfile.edt && cfile.edt->tree) {
+    if (cf->edt && cf->edt->tree) {
         GPtrArray          *ga;
         header_field_info  *hfinfo;
         field_info         *v;
         guint              ii;
 
-        ga = proto_all_finfos(cfile.edt->tree);
+        ga = proto_all_finfos(cf->edt->tree);
 
         for (ii = ga->len - 1; ii > 0 ; ii -= 1) {
 
@@ -5067,7 +5067,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter",
                          frame_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/Ethernet",
-                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+                         cf->edt && cf->edt->pi.dl_src.type == AT_ETHER);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/IP",
                          frame_selected ? is_ip : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/TCP",
@@ -5077,11 +5077,11 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowUDPStream",
                          frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/PN-CBA",
-                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+                         cf->edt && cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
                          frame_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/Ethernet",
-                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+                         cf->edt && cf->edt->pi.dl_src.type == AT_ETHER);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/IP",
                          frame_selected ? is_ip : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/TCP",
@@ -5089,7 +5089,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/UDP",
                          frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/PN-CBA",
-                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+                         cf->edt && cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
                          frame_selected && decode_as_ok());
 
