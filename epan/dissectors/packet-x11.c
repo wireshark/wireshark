@@ -160,6 +160,7 @@ static x11_conv_data_t *x11_conv_data_list = NULL;
 
 static GHashTable *extension_table; /* hashtable of extension name <-> dispatch function */
 static GHashTable *event_table;     /* hashtable of extension name <-> event info list */
+static GHashTable *genevent_table;     /* hashtable of extension name <-> generic event info list */
 static GHashTable *error_table;     /* hashtable of extension name <-> error list */
 static GHashTable *reply_table;     /* hashtable of extension name <-> reply list */
 
@@ -884,6 +885,7 @@ static const value_string opcode_vals[] = {
 #define ColormapNotify          32
 #define ClientMessage           33
 #define MappingNotify           34
+#define GenericEvent            35
 
 static const value_string eventcode_vals[] = {
       { KeyPress,          "KeyPress" },
@@ -919,6 +921,7 @@ static const value_string eventcode_vals[] = {
       { ColormapNotify,    "ColormapNotify" },
       { ClientMessage,     "ClientMessage" },
       { MappingNotify,     "MappingNotify" },
+      { GenericEvent,      "GenericEvent" },
       { 0,                 NULL }
 };
 
@@ -1069,6 +1072,7 @@ static const value_string zero_is_none_vals[] = {
 #define VALUE8(tvb, offset) (tvb_get_guint8(tvb, offset))
 #define VALUE16(tvb, offset) (byte_order == ENC_BIG_ENDIAN ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset))
 #define VALUE32(tvb, offset) (byte_order == ENC_BIG_ENDIAN ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset))
+#define VALUE64(tvb, offset) (byte_order == ENC_BIG_ENDIAN ? tvb_get_ntoh64(tvb, offset) : tvb_get_letoh64(tvb, offset))
 #define FLOAT(tvb, offset) (byte_order == ENC_BIG_ENDIAN ? tvb_get_ntohieee_float(tvb, offset) : tvb_get_letohieee_float(tvb, offset))
 #define DOUBLE(tvb, offset) (byte_order == ENC_BIG_ENDIAN ? tvb_get_ntohieee_double(tvb, offset) : tvb_get_letohieee_double(tvb, offset))
 
@@ -1509,6 +1513,30 @@ static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             *offsetp += 4;
       }
 }
+
+#if 0 /* Not yet used by any extension */
+static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+                         int hf_item, int length, guint byte_order)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      while(length--) {
+            proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 8, VALUE64(tvb, *offsetp));
+            *offsetp += 8;
+      }
+}
+
+static void listOfInt64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+                         int hf_item, int length, guint byte_order)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      while(length--) {
+            proto_tree_add_int(tt, hf_item, tvb, *offsetp, 8, VALUE64(tvb, *offsetp));
+            *offsetp += 8;
+      }
+}
+#endif
 
 static void listOfFloat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, guint byte_order)
@@ -3008,14 +3036,22 @@ typedef struct event_info {
       void (*dissect)(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order);
 } x11_event_info;
 
+typedef struct x11_generic_event_info {
+      const guint16 minor;
+      void (*dissect)(tvbuff_t *tvb, int length, int *offsetp, proto_tree *t, guint byte_order);
+} x11_generic_event_info;
+
 static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order),
                         const char **errors,
                         const x11_event_info *event_info,
+                        const x11_generic_event_info *genevent_info,
                         const x11_reply_info *reply_info)
 {
       g_hash_table_insert(extension_table, (gpointer)name, (gpointer)func);
       g_hash_table_insert(error_table, (gpointer)name, (gpointer)errors);
       g_hash_table_insert(event_table, (gpointer)name, (gpointer)event_info);
+      if (genevent_info)
+          g_hash_table_insert(genevent_table, (gpointer)name, (gpointer)genevent_info);
       g_hash_table_insert(reply_table, (gpointer)name, (gpointer)reply_info);
 }
 
@@ -3072,6 +3108,49 @@ static void tryExtensionEvent(int event, tvbuff_t *tvb, int *offsetp, proto_tree
       func = (void (*)(tvbuff_t *, int *, proto_tree *, guint))g_hash_table_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
       if (func)
             func(tvb, offsetp, t, byte_order);
+}
+
+static void tryGenericExtensionEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
+                                     x11_conv_data_t *state, guint byte_order)
+{
+      const gchar *extname;
+      int extension, length;
+
+      extension = VALUE8(tvb, *offsetp);
+      (*offsetp)++;
+      extname = try_val_to_str(extension, state->opcode_vals);
+
+      if (extname) {
+          proto_tree_add_uint_format(t, hf_x11_extension, tvb, *offsetp, 1, extension, "extension: %d (%s)", extension, extname);
+      } else {
+          proto_tree_add_uint(t, hf_x11_extension, tvb, *offsetp, 1, extension);
+      }
+
+      CARD16(event_sequencenumber);
+
+      length = REPLYLENGTH(eventlength);
+      length = length * 4 + 32;
+      *offsetp += 4;
+
+      if (extname) {
+          x11_generic_event_info *info;
+          info = (x11_generic_event_info *)g_hash_table_lookup(genevent_table, extname);
+
+          if (info) {
+              int i;
+
+              int opcode = VALUE16(tvb, *offsetp);
+
+              for (i = 0; info[i].dissect != NULL; i++) {
+                  if (info[i].minor == opcode) {
+                      *offsetp += 2;
+                      info[i].dissect(tvb, length, offsetp, t, byte_order);
+                      return;
+                  }
+              }
+          }
+      }
+      CARD16(minor_opcode);
 }
 
 static void register_extension(x11_conv_data_t *state, value_string *vals_p,
@@ -5476,6 +5555,10 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   UNUSED(25);
                   break;
 
+            case GenericEvent:
+                  tryGenericExtensionEvent(tvb, offsetp, t, state, byte_order);
+                  break;
+
             default:
                   tryExtensionEvent(eventcode & 0x7F, tvb, offsetp, t, state, byte_order);
                   break;
@@ -5625,6 +5708,7 @@ void proto_register_x11(void)
       extension_table = g_hash_table_new(g_str_hash, g_str_equal);
       error_table = g_hash_table_new(g_str_hash, g_str_equal);
       event_table = g_hash_table_new(g_str_hash, g_str_equal);
+      genevent_table = g_hash_table_new(g_str_hash, g_str_equal);
       reply_table = g_hash_table_new(g_str_hash, g_str_equal);
       register_x11_extensions();
 
