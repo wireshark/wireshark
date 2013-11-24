@@ -4,7 +4,7 @@
 /* $Id$ */
 
 /*
- * Copyright 2008, 2009 Open Text Corporation <pharris[AT]opentext.com>
+ * Copyright 2008, 2009, 2013 Open Text Corporation <pharris[AT]opentext.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>

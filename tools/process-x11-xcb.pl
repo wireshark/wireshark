@@ -4,7 +4,7 @@
 # X11 dissector. Creates header files containing code to
 # dissect X11 extensions.
 #
-# Copyright 2008, 2009 Open Text Corporation <pharris[AT]opentext.com>
+# Copyright 2008, 2009, 2013 Open Text Corporation <pharris[AT]opentext.com>
 #
 # $Id$
 #
@@ -595,8 +595,9 @@ sub register_element($$$$;$)
 	my $enumname = dump_enum_values($enum_name{$enum});
 	$vals = "VALS($enumname)";
 
-	# Wireshark does not allow FT_BYTES or BASE_NONE to have an enum
+	# Wireshark does not allow FT_BYTES, FT_BOOLEAN, or BASE_NONE to have an enum
 	$ft =~ s/FT_BYTES/FT_UINT8/;
+	$ft =~ s/FT_BOOLEAN/FT_UINT8/;
 	$base =~ s/BASE_NONE/BASE_DEC/;
     }
 
@@ -1572,7 +1573,7 @@ eot
     # Add license text
     print $out <<eot
 /*
- * Copyright 2008, 2009 Open Text Corporation <pharris[AT]opentext.com>
+ * Copyright 2008, 2009, 2013 Open Text Corporation <pharris[AT]opentext.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
