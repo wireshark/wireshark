@@ -897,6 +897,9 @@ RSRP-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRP_Range_vals_ext
 #.TYPE_ATTR
 RSRQ-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
 
+#.TYPE_ATTR
+MeasResultForECID-r9/ue-RxTxTimeDiffResult-r9 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_ue_RxTxTimeDiffResult_fmt
+
 #.FN_BODY SoundingRS-UL-ConfigDedicated/setup/duration
   actx->created_item = proto_tree_add_bits_item(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;

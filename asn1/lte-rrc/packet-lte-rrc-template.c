@@ -1714,6 +1714,20 @@ static const value_string lte_rrc_RSRQ_Range_vals[] = {
 };
 static value_string_ext lte_rrc_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRQ_Range_vals);
 
+static void
+lte_rrc_ue_RxTxTimeDiffResult_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "T < 2Ts (0)");
+  } else if (v < 2048) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%uTs <= T < %uTs (%u)", v*2, (v+1)*2, v);
+  } else if (v < 4095) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%uTs <= T < %uTs (%u)", (v*8)-12288, ((v+1)*8)-12288, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "20472Ts <= T (4095)");
+  }
+}
+
 static const true_false_string lte_rrc_duration_val = {
   "indefinite",
   "single"

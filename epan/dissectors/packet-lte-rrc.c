@@ -5041,6 +5041,20 @@ static const value_string lte_rrc_RSRQ_Range_vals[] = {
 };
 static value_string_ext lte_rrc_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRQ_Range_vals);
 
+static void
+lte_rrc_ue_RxTxTimeDiffResult_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "T < 2Ts (0)");
+  } else if (v < 2048) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%uTs <= T < %uTs (%u)", v*2, (v+1)*2, v);
+  } else if (v < 4095) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%uTs <= T < %uTs (%u)", (v*8)-12288, ((v+1)*8)-12288, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "20472Ts <= T (4095)");
+  }
+}
+
 static const true_false_string lte_rrc_duration_val = {
   "indefinite",
   "single"
@@ -34739,7 +34753,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2193 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2207 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -41871,7 +41885,7 @@ void proto_register_lte_rrc(void) {
         "INTEGER_0_63", HFILL }},
     { &hf_lte_rrc_ue_RxTxTimeDiffResult_r9,
       { "ue-RxTxTimeDiffResult-r9", "lte-rrc.ue_RxTxTimeDiffResult_r9",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_CUSTOM, &lte_rrc_ue_RxTxTimeDiffResult_fmt, 0,
         "INTEGER_0_4095", HFILL }},
     { &hf_lte_rrc_currentSFN_r9,
       { "currentSFN-r9", "lte-rrc.currentSFN_r9",
@@ -43403,7 +43417,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2340 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2354 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44914,7 +44928,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2763 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2777 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44981,7 +44995,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2814 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2828 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
