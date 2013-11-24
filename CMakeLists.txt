@@ -210,7 +210,6 @@ else()
 		-fwrapv
 		-fno-strict-overflow
 		-fno-delete-null-pointer-checks
-		-ftrapv
 		# All the registration functions block these for now.
 		-Wmissing-declarations
 	)

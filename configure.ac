@@ -819,7 +819,6 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fwrapv)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fno-strict-overflow)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fno-delete-null-pointer-checks)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-ftrapv)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wold-style-definition, C)
 # The Qt headers generate a ton of shortening errors on 64-bit systems
 # so only enable this for C for now.
