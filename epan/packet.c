@@ -426,7 +426,6 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.dcetransporttype = -1;
 	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
-	edt->pi.dcerpc_procedure_name="";
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;

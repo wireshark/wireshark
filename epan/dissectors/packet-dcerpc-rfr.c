@@ -328,7 +328,7 @@ rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="RfrGetNewDSA";
+	di->dcerpc_procedure_name="RfrGetNewDSA";
 	offset = rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -345,7 +345,7 @@ rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 rfr_dissect_RfrGetNewDSA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="RfrGetNewDSA";
+	di->dcerpc_procedure_name="RfrGetNewDSA";
 	offset = rfr_dissect_element_RfrGetNewDSA_ulFlags(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = rfr_dissect_element_RfrGetNewDSA_pUserDN(tvb, offset, pinfo, tree, di, drep);
@@ -431,7 +431,7 @@ rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
+	di->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
 	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -445,7 +445,7 @@ rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 rfr_dissect_RfrGetFQDNFromLegacyDN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
+	di->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
 	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ulFlags(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvb, offset, pinfo, tree, di, drep);

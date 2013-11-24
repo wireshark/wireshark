@@ -1137,7 +1137,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		if(!pol_name){
 			pol_name="<...>";
 		}
-		pol_string=wmem_strdup_printf(wmem_packet_scope(), "%s(%s)", pinfo->dcerpc_procedure_name, pol_name);
+		pol_string=wmem_strdup_printf(wmem_packet_scope(), "%s(%s)", di->dcerpc_procedure_name, pol_name);
 		dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_string);
 		dcerpc_store_polhnd_type(&policy_hnd, pinfo, param&PIDL_POLHND_TYPE_MASK);
 	}

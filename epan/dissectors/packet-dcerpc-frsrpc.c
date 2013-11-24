@@ -3097,7 +3097,7 @@ frsrpc_dissect_FrsSendCommPkt_response(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="FrsSendCommPkt";
+	di->dcerpc_procedure_name="FrsSendCommPkt";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
@@ -3109,7 +3109,7 @@ frsrpc_dissect_FrsSendCommPkt_response(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 frsrpc_dissect_FrsSendCommPkt_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FrsSendCommPkt";
+	di->dcerpc_procedure_name="FrsSendCommPkt";
 	offset = frsrpc_dissect_element_FrsSendCommPkt_req(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -3221,7 +3221,7 @@ frsrpc_dissect_FrsVerifyPromotionParent_response(tvbuff_t *tvb _U_, int offset _
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="FrsVerifyPromotionParent";
+	di->dcerpc_procedure_name="FrsVerifyPromotionParent";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
@@ -3233,7 +3233,7 @@ frsrpc_dissect_FrsVerifyPromotionParent_response(tvbuff_t *tvb _U_, int offset _
 static int
 frsrpc_dissect_FrsVerifyPromotionParent_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FrsVerifyPromotionParent";
+	di->dcerpc_procedure_name="FrsVerifyPromotionParent";
 	offset = frsrpc_dissect_element_FrsVerifyPromotionParent_parent_account(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = frsrpc_dissect_element_FrsVerifyPromotionParent_parent_password(tvb, offset, pinfo, tree, di, drep);
@@ -3526,7 +3526,7 @@ frsrpc_dissect_FrsStartPromotionParent_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="FrsStartPromotionParent";
+	di->dcerpc_procedure_name="FrsStartPromotionParent";
 	offset = frsrpc_dissect_element_FrsStartPromotionParent_parent_guid(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -3541,7 +3541,7 @@ frsrpc_dissect_FrsStartPromotionParent_response(tvbuff_t *tvb _U_, int offset _U
 static int
 frsrpc_dissect_FrsStartPromotionParent_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FrsStartPromotionParent";
+	di->dcerpc_procedure_name="FrsStartPromotionParent";
 	offset = frsrpc_dissect_element_FrsStartPromotionParent_parent_account(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = frsrpc_dissect_element_FrsStartPromotionParent_parent_password(tvb, offset, pinfo, tree, di, drep);
@@ -3578,7 +3578,7 @@ frsrpc_dissect_FrsNOP_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="FrsNOP";
+	di->dcerpc_procedure_name="FrsNOP";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
@@ -3590,7 +3590,7 @@ frsrpc_dissect_FrsNOP_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 frsrpc_dissect_FrsNOP_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FrsNOP";
+	di->dcerpc_procedure_name="FrsNOP";
 	return offset;
 }
 
@@ -3601,14 +3601,14 @@ frsrpc_dissect_FrsNOP_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE";
 	return offset;
 }
 
@@ -3619,14 +3619,14 @@ frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_5_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_5";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_5";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_5_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_5";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_5";
 	return offset;
 }
 
@@ -3637,14 +3637,14 @@ frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_5_request(tvbuff_t *tvb _U_, int offset _U
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_6_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_6";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_6";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_6_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_6";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_6";
 	return offset;
 }
 
@@ -3655,14 +3655,14 @@ frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_6_request(tvbuff_t *tvb _U_, int offset _U
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_7_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_7";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_7";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_7_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_7";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_7";
 	return offset;
 }
 
@@ -3673,14 +3673,14 @@ frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_7_request(tvbuff_t *tvb _U_, int offset _U
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_8_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_8";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_8";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_8_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_8";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_8";
 	return offset;
 }
 
@@ -3691,14 +3691,14 @@ frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_8_request(tvbuff_t *tvb _U_, int offset _U
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_9_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_9";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_9";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_9_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_9";
+	di->dcerpc_procedure_name="FRSRPC_BACKUP_COMPLETE_9";
 	return offset;
 }
 
@@ -3709,14 +3709,14 @@ frsrpc_dissect_FRSRPC_BACKUP_COMPLETE_9_request(tvbuff_t *tvb _U_, int offset _U
 static int
 frsrpc_dissect_FRSRPC_VERIFY_PROMOTION_PARENT_EX_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_VERIFY_PROMOTION_PARENT_EX";
+	di->dcerpc_procedure_name="FRSRPC_VERIFY_PROMOTION_PARENT_EX";
 	return offset;
 }
 
 static int
 frsrpc_dissect_FRSRPC_VERIFY_PROMOTION_PARENT_EX_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="FRSRPC_VERIFY_PROMOTION_PARENT_EX";
+	di->dcerpc_procedure_name="FRSRPC_VERIFY_PROMOTION_PARENT_EX";
 	return offset;
 }
 

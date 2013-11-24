@@ -2689,7 +2689,7 @@ dnsserver_dissect_DnssrvOperation_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvOperation";
+	di->dcerpc_procedure_name="DnssrvOperation";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -2701,7 +2701,7 @@ dnsserver_dissect_DnssrvOperation_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 dnsserver_dissect_DnssrvOperation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvOperation";
+	di->dcerpc_procedure_name="DnssrvOperation";
 	return offset;
 }
 
@@ -2714,7 +2714,7 @@ dnsserver_dissect_DnssrvQuery_response(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvQuery";
+	di->dcerpc_procedure_name="DnssrvQuery";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -2726,7 +2726,7 @@ dnsserver_dissect_DnssrvQuery_response(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 dnsserver_dissect_DnssrvQuery_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvQuery";
+	di->dcerpc_procedure_name="DnssrvQuery";
 	return offset;
 }
 
@@ -2739,7 +2739,7 @@ dnsserver_dissect_DnssrvComplexOperation_response(tvbuff_t *tvb _U_, int offset 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvComplexOperation";
+	di->dcerpc_procedure_name="DnssrvComplexOperation";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -2751,7 +2751,7 @@ dnsserver_dissect_DnssrvComplexOperation_response(tvbuff_t *tvb _U_, int offset 
 static int
 dnsserver_dissect_DnssrvComplexOperation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvComplexOperation";
+	di->dcerpc_procedure_name="DnssrvComplexOperation";
 	return offset;
 }
 
@@ -2764,7 +2764,7 @@ dnsserver_dissect_DnssrvEnumRecords_response(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvEnumRecords";
+	di->dcerpc_procedure_name="DnssrvEnumRecords";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -2776,7 +2776,7 @@ dnsserver_dissect_DnssrvEnumRecords_response(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dnsserver_dissect_DnssrvEnumRecords_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvEnumRecords";
+	di->dcerpc_procedure_name="DnssrvEnumRecords";
 	return offset;
 }
 
@@ -2789,7 +2789,7 @@ dnsserver_dissect_DnssrvUpdateRecord_response(tvbuff_t *tvb _U_, int offset _U_,
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvUpdateRecord";
+	di->dcerpc_procedure_name="DnssrvUpdateRecord";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -2801,7 +2801,7 @@ dnsserver_dissect_DnssrvUpdateRecord_response(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dnsserver_dissect_DnssrvUpdateRecord_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvUpdateRecord";
+	di->dcerpc_procedure_name="DnssrvUpdateRecord";
 	return offset;
 }
 
@@ -2814,7 +2814,7 @@ dnsserver_dissect_DnssrvOperation2_response(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvOperation2";
+	di->dcerpc_procedure_name="DnssrvOperation2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -2826,7 +2826,7 @@ dnsserver_dissect_DnssrvOperation2_response(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 dnsserver_dissect_DnssrvOperation2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvOperation2";
+	di->dcerpc_procedure_name="DnssrvOperation2";
 	return offset;
 }
 
@@ -2950,7 +2950,7 @@ dnsserver_dissect_DnssrvQuery2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvQuery2";
+	di->dcerpc_procedure_name="DnssrvQuery2";
 	offset = dnsserver_dissect_element_DnssrvQuery2_type_id(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -2968,7 +2968,7 @@ dnsserver_dissect_DnssrvQuery2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 dnsserver_dissect_DnssrvQuery2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvQuery2";
+	di->dcerpc_procedure_name="DnssrvQuery2";
 	offset = dnsserver_dissect_element_DnssrvQuery2_client_version(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = dnsserver_dissect_element_DnssrvQuery2_setting_flags(tvb, offset, pinfo, tree, di, drep);
@@ -2991,7 +2991,7 @@ dnsserver_dissect_DnssrvComplexOperation2_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvComplexOperation2";
+	di->dcerpc_procedure_name="DnssrvComplexOperation2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -3003,7 +3003,7 @@ dnsserver_dissect_DnssrvComplexOperation2_response(tvbuff_t *tvb _U_, int offset
 static int
 dnsserver_dissect_DnssrvComplexOperation2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvComplexOperation2";
+	di->dcerpc_procedure_name="DnssrvComplexOperation2";
 	return offset;
 }
 
@@ -3225,7 +3225,7 @@ dnsserver_dissect_DnssrvEnumRecords2_response(tvbuff_t *tvb _U_, int offset _U_,
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvEnumRecords2";
+	di->dcerpc_procedure_name="DnssrvEnumRecords2";
 	offset = dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -3243,7 +3243,7 @@ dnsserver_dissect_DnssrvEnumRecords2_response(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dnsserver_dissect_DnssrvEnumRecords2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvEnumRecords2";
+	di->dcerpc_procedure_name="DnssrvEnumRecords2";
 	offset = dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = dnsserver_dissect_element_DnssrvEnumRecords2_setting_flags(tvb, offset, pinfo, tree, di, drep);
@@ -3276,7 +3276,7 @@ dnsserver_dissect_DnssrvUpdateRecord2_response(tvbuff_t *tvb _U_, int offset _U_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="DnssrvUpdateRecord2";
+	di->dcerpc_procedure_name="DnssrvUpdateRecord2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_status, &status);
 
 	if (status != 0)
@@ -3288,7 +3288,7 @@ dnsserver_dissect_DnssrvUpdateRecord2_response(tvbuff_t *tvb _U_, int offset _U_
 static int
 dnsserver_dissect_DnssrvUpdateRecord2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="DnssrvUpdateRecord2";
+	di->dcerpc_procedure_name="DnssrvUpdateRecord2";
 	return offset;
 }
 

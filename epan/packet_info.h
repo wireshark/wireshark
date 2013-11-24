@@ -186,8 +186,6 @@ typedef struct _packet_info {
 								 */
   guint16 profinet_type; 		/**< the type of PROFINET packet (0: not a PROFINET packet) */
 
-  const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
-
   struct _sccp_msg_info_t* sccp_info;
   guint16 clnp_srcref;			/**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
   guint16 clnp_dstref;			/**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */

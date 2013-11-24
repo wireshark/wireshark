@@ -521,7 +521,7 @@ sub Function($$$)
 		error($fn, "unknown return type `$fn->{RETURN_TYPE}'");
 	}
 
-	$self->pidl_code("pinfo->dcerpc_procedure_name=\"${fn_name}\";");
+	$self->pidl_code("di->dcerpc_procedure_name=\"${fn_name}\";");
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/out/,@{$_->{DIRECTION}})) {
 			$self->pidl_code("$dissectornames{$_->{NAME}}");
@@ -569,7 +569,7 @@ sub Function($$$)
 	$self->pidl_code("$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)");
 	$self->pidl_code("{");
 	$self->indent;
-	$self->pidl_code("pinfo->dcerpc_procedure_name=\"${fn_name}\";");
+	$self->pidl_code("di->dcerpc_procedure_name=\"${fn_name}\";");
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/in/,@{$_->{DIRECTION}})) {
 			$self->pidl_code("$dissectornames{$_->{NAME}}");

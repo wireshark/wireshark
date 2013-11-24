@@ -163,6 +163,7 @@ typedef struct _dcerpc_info {
 	guint32 array_actual_count_offset;
 	int hf_index;
 	dcerpc_call_value *call_data;
+    const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
 	void *private_data;
 } dcerpc_info;
 

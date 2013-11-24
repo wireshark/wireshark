@@ -351,6 +351,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
 	di.call_data = &call_data;
+    di.dcerpc_procedure_name = "";
 
 	/* first the count */
 	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);

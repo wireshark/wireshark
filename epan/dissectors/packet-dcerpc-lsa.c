@@ -6612,7 +6612,7 @@ lsarpc_dissect_lsa_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_Close";
+	di->dcerpc_procedure_name="lsa_Close";
 	offset = lsarpc_dissect_element_lsa_Close_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -6627,7 +6627,7 @@ lsarpc_dissect_lsa_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 lsarpc_dissect_lsa_Close_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_Close";
+	di->dcerpc_procedure_name="lsa_Close";
 	offset = lsarpc_dissect_element_lsa_Close_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -6658,7 +6658,7 @@ lsarpc_dissect_lsa_Delete_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_Delete";
+	di->dcerpc_procedure_name="lsa_Delete";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -6670,7 +6670,7 @@ lsarpc_dissect_lsa_Delete_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 lsarpc_dissect_lsa_Delete_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_Delete";
+	di->dcerpc_procedure_name="lsa_Delete";
 	offset = lsarpc_dissect_element_lsa_Delete_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -6744,7 +6744,7 @@ lsarpc_dissect_lsa_EnumPrivs_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumPrivs";
+	di->dcerpc_procedure_name="lsa_EnumPrivs";
 	offset = lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -6762,7 +6762,7 @@ lsarpc_dissect_lsa_EnumPrivs_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 lsarpc_dissect_lsa_EnumPrivs_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumPrivs";
+	di->dcerpc_procedure_name="lsa_EnumPrivs";
 	offset = lsarpc_dissect_element_lsa_EnumPrivs_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6823,7 +6823,7 @@ lsarpc_dissect_lsa_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QuerySecurity";
+	di->dcerpc_procedure_name="lsa_QuerySecurity";
 	offset = lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -6838,7 +6838,7 @@ lsarpc_dissect_lsa_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 lsarpc_dissect_lsa_QuerySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QuerySecurity";
+	di->dcerpc_procedure_name="lsa_QuerySecurity";
 	offset = lsarpc_dissect_element_lsa_QuerySecurity_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvb, offset, pinfo, tree, di, drep);
@@ -6855,7 +6855,7 @@ lsarpc_dissect_lsa_SetSecObj_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetSecObj";
+	di->dcerpc_procedure_name="lsa_SetSecObj";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -6867,7 +6867,7 @@ lsarpc_dissect_lsa_SetSecObj_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 lsarpc_dissect_lsa_SetSecObj_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetSecObj";
+	di->dcerpc_procedure_name="lsa_SetSecObj";
 	return offset;
 }
 
@@ -6880,7 +6880,7 @@ lsarpc_dissect_lsa_ChangePassword_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_ChangePassword";
+	di->dcerpc_procedure_name="lsa_ChangePassword";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -6892,7 +6892,7 @@ lsarpc_dissect_lsa_ChangePassword_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 lsarpc_dissect_lsa_ChangePassword_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_ChangePassword";
+	di->dcerpc_procedure_name="lsa_ChangePassword";
 	return offset;
 }
 
@@ -6964,7 +6964,7 @@ lsarpc_dissect_lsa_OpenPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_OpenPolicy";
+	di->dcerpc_procedure_name="lsa_OpenPolicy";
 	offset = lsarpc_dissect_element_lsa_OpenPolicy_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -6979,7 +6979,7 @@ lsarpc_dissect_lsa_OpenPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 lsarpc_dissect_lsa_OpenPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_OpenPolicy";
+	di->dcerpc_procedure_name="lsa_OpenPolicy";
 	offset = lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_OpenPolicy_attr(tvb, offset, pinfo, tree, di, drep);
@@ -7040,7 +7040,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QueryInfoPolicy";
+	di->dcerpc_procedure_name="lsa_QueryInfoPolicy";
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7055,7 +7055,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 lsarpc_dissect_lsa_QueryInfoPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QueryInfoPolicy";
+	di->dcerpc_procedure_name="lsa_QueryInfoPolicy";
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvb, offset, pinfo, tree, di, drep);
@@ -7114,7 +7114,7 @@ lsarpc_dissect_lsa_SetInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetInfoPolicy";
+	di->dcerpc_procedure_name="lsa_SetInfoPolicy";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -7126,7 +7126,7 @@ lsarpc_dissect_lsa_SetInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 lsarpc_dissect_lsa_SetInfoPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetInfoPolicy";
+	di->dcerpc_procedure_name="lsa_SetInfoPolicy";
 	offset = lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvb, offset, pinfo, tree, di, drep);
@@ -7145,7 +7145,7 @@ lsarpc_dissect_lsa_ClearAuditLog_response(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_ClearAuditLog";
+	di->dcerpc_procedure_name="lsa_ClearAuditLog";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -7157,7 +7157,7 @@ lsarpc_dissect_lsa_ClearAuditLog_response(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 lsarpc_dissect_lsa_ClearAuditLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_ClearAuditLog";
+	di->dcerpc_procedure_name="lsa_ClearAuditLog";
 	return offset;
 }
 
@@ -7229,7 +7229,7 @@ lsarpc_dissect_lsa_CreateAccount_response(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CreateAccount";
+	di->dcerpc_procedure_name="lsa_CreateAccount";
 	offset = lsarpc_dissect_element_lsa_CreateAccount_acct_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7244,7 +7244,7 @@ lsarpc_dissect_lsa_CreateAccount_response(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 lsarpc_dissect_lsa_CreateAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CreateAccount";
+	di->dcerpc_procedure_name="lsa_CreateAccount";
 	offset = lsarpc_dissect_element_lsa_CreateAccount_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_CreateAccount_sid(tvb, offset, pinfo, tree, di, drep);
@@ -7322,7 +7322,7 @@ lsarpc_dissect_lsa_EnumAccounts_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumAccounts";
+	di->dcerpc_procedure_name="lsa_EnumAccounts";
 	offset = lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7340,7 +7340,7 @@ lsarpc_dissect_lsa_EnumAccounts_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_EnumAccounts_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumAccounts";
+	di->dcerpc_procedure_name="lsa_EnumAccounts";
 	offset = lsarpc_dissect_element_lsa_EnumAccounts_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7418,7 +7418,7 @@ lsarpc_dissect_lsa_CreateTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CreateTrustedDomain";
+	di->dcerpc_procedure_name="lsa_CreateTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7433,7 +7433,7 @@ lsarpc_dissect_lsa_CreateTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_lsa_CreateTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CreateTrustedDomain";
+	di->dcerpc_procedure_name="lsa_CreateTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_CreateTrustedDomain_info(tvb, offset, pinfo, tree, di, drep);
@@ -7511,7 +7511,7 @@ lsarpc_dissect_lsa_EnumTrustDom_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumTrustDom";
+	di->dcerpc_procedure_name="lsa_EnumTrustDom";
 	offset = lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7529,7 +7529,7 @@ lsarpc_dissect_lsa_EnumTrustDom_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_EnumTrustDom_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumTrustDom";
+	di->dcerpc_procedure_name="lsa_EnumTrustDom";
 	offset = lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7642,7 +7642,7 @@ lsarpc_dissect_lsa_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupNames";
+	di->dcerpc_procedure_name="lsa_LookupNames";
 	offset = lsarpc_dissect_element_lsa_LookupNames_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7663,7 +7663,7 @@ lsarpc_dissect_lsa_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_LookupNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupNames";
+	di->dcerpc_procedure_name="lsa_LookupNames";
 	offset = lsarpc_dissect_element_lsa_LookupNames_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupNames_num_names(tvb, offset, pinfo, tree, di, drep);
@@ -7781,7 +7781,7 @@ lsarpc_dissect_lsa_LookupSids_response(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupSids";
+	di->dcerpc_procedure_name="lsa_LookupSids";
 	offset = lsarpc_dissect_element_lsa_LookupSids_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7802,7 +7802,7 @@ lsarpc_dissect_lsa_LookupSids_response(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 lsarpc_dissect_lsa_LookupSids_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupSids";
+	di->dcerpc_procedure_name="lsa_LookupSids";
 	offset = lsarpc_dissect_element_lsa_LookupSids_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupSids_sids(tvb, offset, pinfo, tree, di, drep);
@@ -7876,7 +7876,7 @@ lsarpc_dissect_lsa_CreateSecret_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CreateSecret";
+	di->dcerpc_procedure_name="lsa_CreateSecret";
 	offset = lsarpc_dissect_element_lsa_CreateSecret_sec_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7891,7 +7891,7 @@ lsarpc_dissect_lsa_CreateSecret_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_CreateSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CreateSecret";
+	di->dcerpc_procedure_name="lsa_CreateSecret";
 	offset = lsarpc_dissect_element_lsa_CreateSecret_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_CreateSecret_name(tvb, offset, pinfo, tree, di, drep);
@@ -7969,7 +7969,7 @@ lsarpc_dissect_lsa_OpenAccount_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_OpenAccount";
+	di->dcerpc_procedure_name="lsa_OpenAccount";
 	offset = lsarpc_dissect_element_lsa_OpenAccount_acct_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -7984,7 +7984,7 @@ lsarpc_dissect_lsa_OpenAccount_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_OpenAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_OpenAccount";
+	di->dcerpc_procedure_name="lsa_OpenAccount";
 	offset = lsarpc_dissect_element_lsa_OpenAccount_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_OpenAccount_sid(tvb, offset, pinfo, tree, di, drep);
@@ -8036,7 +8036,7 @@ lsarpc_dissect_lsa_EnumPrivsAccount_response(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumPrivsAccount";
+	di->dcerpc_procedure_name="lsa_EnumPrivsAccount";
 	offset = lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8051,7 +8051,7 @@ lsarpc_dissect_lsa_EnumPrivsAccount_response(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 lsarpc_dissect_lsa_EnumPrivsAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumPrivsAccount";
+	di->dcerpc_procedure_name="lsa_EnumPrivsAccount";
 	offset = lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -8099,7 +8099,7 @@ lsarpc_dissect_lsa_AddPrivilegesToAccount_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_AddPrivilegesToAccount";
+	di->dcerpc_procedure_name="lsa_AddPrivilegesToAccount";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8111,7 +8111,7 @@ lsarpc_dissect_lsa_AddPrivilegesToAccount_response(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_lsa_AddPrivilegesToAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_AddPrivilegesToAccount";
+	di->dcerpc_procedure_name="lsa_AddPrivilegesToAccount";
 	offset = lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvb, offset, pinfo, tree, di, drep);
@@ -8170,7 +8170,7 @@ lsarpc_dissect_lsa_RemovePrivilegesFromAccount_response(tvbuff_t *tvb _U_, int o
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_RemovePrivilegesFromAccount";
+	di->dcerpc_procedure_name="lsa_RemovePrivilegesFromAccount";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8182,7 +8182,7 @@ lsarpc_dissect_lsa_RemovePrivilegesFromAccount_response(tvbuff_t *tvb _U_, int o
 static int
 lsarpc_dissect_lsa_RemovePrivilegesFromAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_RemovePrivilegesFromAccount";
+	di->dcerpc_procedure_name="lsa_RemovePrivilegesFromAccount";
 	offset = lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_remove_all(tvb, offset, pinfo, tree, di, drep);
@@ -8201,7 +8201,7 @@ lsarpc_dissect_lsa_GetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_GetQuotasForAccount";
+	di->dcerpc_procedure_name="lsa_GetQuotasForAccount";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8213,7 +8213,7 @@ lsarpc_dissect_lsa_GetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_lsa_GetQuotasForAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_GetQuotasForAccount";
+	di->dcerpc_procedure_name="lsa_GetQuotasForAccount";
 	return offset;
 }
 
@@ -8226,7 +8226,7 @@ lsarpc_dissect_lsa_SetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetQuotasForAccount";
+	di->dcerpc_procedure_name="lsa_SetQuotasForAccount";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8238,7 +8238,7 @@ lsarpc_dissect_lsa_SetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_lsa_SetQuotasForAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetQuotasForAccount";
+	di->dcerpc_procedure_name="lsa_SetQuotasForAccount";
 	return offset;
 }
 
@@ -8251,7 +8251,7 @@ lsarpc_dissect_lsa_GetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_GetSystemAccessAccount";
+	di->dcerpc_procedure_name="lsa_GetSystemAccessAccount";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8263,7 +8263,7 @@ lsarpc_dissect_lsa_GetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_lsa_GetSystemAccessAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_GetSystemAccessAccount";
+	di->dcerpc_procedure_name="lsa_GetSystemAccessAccount";
 	return offset;
 }
 
@@ -8276,7 +8276,7 @@ lsarpc_dissect_lsa_SetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetSystemAccessAccount";
+	di->dcerpc_procedure_name="lsa_SetSystemAccessAccount";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8288,7 +8288,7 @@ lsarpc_dissect_lsa_SetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_lsa_SetSystemAccessAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetSystemAccessAccount";
+	di->dcerpc_procedure_name="lsa_SetSystemAccessAccount";
 	return offset;
 }
 
@@ -8360,7 +8360,7 @@ lsarpc_dissect_lsa_OpenTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_,
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_OpenTrustedDomain";
+	di->dcerpc_procedure_name="lsa_OpenTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8375,7 +8375,7 @@ lsarpc_dissect_lsa_OpenTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_,
 static int
 lsarpc_dissect_lsa_OpenTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_OpenTrustedDomain";
+	di->dcerpc_procedure_name="lsa_OpenTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomain_sid(tvb, offset, pinfo, tree, di, drep);
@@ -8436,7 +8436,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QueryTrustedDomainInfo";
+	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfo";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8451,7 +8451,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_lsa_QueryTrustedDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QueryTrustedDomainInfo";
+	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfo";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvb, offset, pinfo, tree, di, drep);
@@ -8468,7 +8468,7 @@ lsarpc_dissect_lsa_SetInformationTrustedDomain_response(tvbuff_t *tvb _U_, int o
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetInformationTrustedDomain";
+	di->dcerpc_procedure_name="lsa_SetInformationTrustedDomain";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8480,7 +8480,7 @@ lsarpc_dissect_lsa_SetInformationTrustedDomain_response(tvbuff_t *tvb _U_, int o
 static int
 lsarpc_dissect_lsa_SetInformationTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetInformationTrustedDomain";
+	di->dcerpc_procedure_name="lsa_SetInformationTrustedDomain";
 	return offset;
 }
 
@@ -8544,7 +8544,7 @@ lsarpc_dissect_lsa_OpenSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_OpenSecret";
+	di->dcerpc_procedure_name="lsa_OpenSecret";
 	offset = lsarpc_dissect_element_lsa_OpenSecret_sec_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8559,7 +8559,7 @@ lsarpc_dissect_lsa_OpenSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 lsarpc_dissect_lsa_OpenSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_OpenSecret";
+	di->dcerpc_procedure_name="lsa_OpenSecret";
 	offset = lsarpc_dissect_element_lsa_OpenSecret_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_OpenSecret_name(tvb, offset, pinfo, tree, di, drep);
@@ -8628,7 +8628,7 @@ lsarpc_dissect_lsa_SetSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetSecret";
+	di->dcerpc_procedure_name="lsa_SetSecret";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -8640,7 +8640,7 @@ lsarpc_dissect_lsa_SetSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 lsarpc_dissect_lsa_SetSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetSecret";
+	di->dcerpc_procedure_name="lsa_SetSecret";
 	offset = lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_SetSecret_new_val(tvb, offset, pinfo, tree, di, drep);
@@ -8743,7 +8743,7 @@ lsarpc_dissect_lsa_QuerySecret_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QuerySecret";
+	di->dcerpc_procedure_name="lsa_QuerySecret";
 	offset = lsarpc_dissect_element_lsa_QuerySecret_new_val(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8767,7 +8767,7 @@ lsarpc_dissect_lsa_QuerySecret_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_QuerySecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QuerySecret";
+	di->dcerpc_procedure_name="lsa_QuerySecret";
 	offset = lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QuerySecret_new_val(tvb, offset, pinfo, tree, di, drep);
@@ -8840,7 +8840,7 @@ lsarpc_dissect_lsa_LookupPrivValue_response(tvbuff_t *tvb _U_, int offset _U_, p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupPrivValue";
+	di->dcerpc_procedure_name="lsa_LookupPrivValue";
 	offset = lsarpc_dissect_element_lsa_LookupPrivValue_luid(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8855,7 +8855,7 @@ lsarpc_dissect_lsa_LookupPrivValue_response(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 lsarpc_dissect_lsa_LookupPrivValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupPrivValue";
+	di->dcerpc_procedure_name="lsa_LookupPrivValue";
 	offset = lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupPrivValue_name(tvb, offset, pinfo, tree, di, drep);
@@ -8922,7 +8922,7 @@ lsarpc_dissect_lsa_LookupPrivName_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupPrivName";
+	di->dcerpc_procedure_name="lsa_LookupPrivName";
 	offset = lsarpc_dissect_element_lsa_LookupPrivName_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -8937,7 +8937,7 @@ lsarpc_dissect_lsa_LookupPrivName_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 lsarpc_dissect_lsa_LookupPrivName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupPrivName";
+	di->dcerpc_procedure_name="lsa_LookupPrivName";
 	offset = lsarpc_dissect_element_lsa_LookupPrivName_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupPrivName_luid(tvb, offset, pinfo, tree, di, drep);
@@ -9030,7 +9030,7 @@ lsarpc_dissect_lsa_LookupPrivDisplayName_response(tvbuff_t *tvb _U_, int offset 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupPrivDisplayName";
+	di->dcerpc_procedure_name="lsa_LookupPrivDisplayName";
 	offset = lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9048,7 +9048,7 @@ lsarpc_dissect_lsa_LookupPrivDisplayName_response(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_lsa_LookupPrivDisplayName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupPrivDisplayName";
+	di->dcerpc_procedure_name="lsa_LookupPrivDisplayName";
 	offset = lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvb, offset, pinfo, tree, di, drep);
@@ -9069,7 +9069,7 @@ lsarpc_dissect_lsa_DeleteObject_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_DeleteObject";
+	di->dcerpc_procedure_name="lsa_DeleteObject";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9081,7 +9081,7 @@ lsarpc_dissect_lsa_DeleteObject_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_DeleteObject_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_DeleteObject";
+	di->dcerpc_procedure_name="lsa_DeleteObject";
 	return offset;
 }
 
@@ -9144,7 +9144,7 @@ lsarpc_dissect_lsa_EnumAccountsWithUserRight_response(tvbuff_t *tvb _U_, int off
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumAccountsWithUserRight";
+	di->dcerpc_procedure_name="lsa_EnumAccountsWithUserRight";
 	offset = lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9159,7 +9159,7 @@ lsarpc_dissect_lsa_EnumAccountsWithUserRight_response(tvbuff_t *tvb _U_, int off
 static int
 lsarpc_dissect_lsa_EnumAccountsWithUserRight_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumAccountsWithUserRight";
+	di->dcerpc_procedure_name="lsa_EnumAccountsWithUserRight";
 	offset = lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name(tvb, offset, pinfo, tree, di, drep);
@@ -9226,7 +9226,7 @@ lsarpc_dissect_lsa_EnumAccountRights_response(tvbuff_t *tvb _U_, int offset _U_,
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumAccountRights";
+	di->dcerpc_procedure_name="lsa_EnumAccountRights";
 	offset = lsarpc_dissect_element_lsa_EnumAccountRights_rights(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9241,7 +9241,7 @@ lsarpc_dissect_lsa_EnumAccountRights_response(tvbuff_t *tvb _U_, int offset _U_,
 static int
 lsarpc_dissect_lsa_EnumAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumAccountRights";
+	di->dcerpc_procedure_name="lsa_EnumAccountRights";
 	offset = lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_EnumAccountRights_sid(tvb, offset, pinfo, tree, di, drep);
@@ -9308,7 +9308,7 @@ lsarpc_dissect_lsa_AddAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_AddAccountRights";
+	di->dcerpc_procedure_name="lsa_AddAccountRights";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9320,7 +9320,7 @@ lsarpc_dissect_lsa_AddAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 lsarpc_dissect_lsa_AddAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_AddAccountRights";
+	di->dcerpc_procedure_name="lsa_AddAccountRights";
 	offset = lsarpc_dissect_element_lsa_AddAccountRights_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_AddAccountRights_sid(tvb, offset, pinfo, tree, di, drep);
@@ -9398,7 +9398,7 @@ lsarpc_dissect_lsa_RemoveAccountRights_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_RemoveAccountRights";
+	di->dcerpc_procedure_name="lsa_RemoveAccountRights";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9410,7 +9410,7 @@ lsarpc_dissect_lsa_RemoveAccountRights_response(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_lsa_RemoveAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_RemoveAccountRights";
+	di->dcerpc_procedure_name="lsa_RemoveAccountRights";
 	offset = lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_RemoveAccountRights_sid(tvb, offset, pinfo, tree, di, drep);
@@ -9490,7 +9490,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_response(tvbuff_t *tvb _U_, int o
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoBySid";
+	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoBySid";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9505,7 +9505,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_response(tvbuff_t *tvb _U_, int o
 static int
 lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoBySid";
+	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoBySid";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid(tvb, offset, pinfo, tree, di, drep);
@@ -9524,7 +9524,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset _
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetTrustedDomainInfo";
+	di->dcerpc_procedure_name="lsa_SetTrustedDomainInfo";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9536,7 +9536,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_lsa_SetTrustedDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetTrustedDomainInfo";
+	di->dcerpc_procedure_name="lsa_SetTrustedDomainInfo";
 	return offset;
 }
 
@@ -9582,7 +9582,7 @@ lsarpc_dissect_lsa_DeleteTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_DeleteTrustedDomain";
+	di->dcerpc_procedure_name="lsa_DeleteTrustedDomain";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9594,7 +9594,7 @@ lsarpc_dissect_lsa_DeleteTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_lsa_DeleteTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_DeleteTrustedDomain";
+	di->dcerpc_procedure_name="lsa_DeleteTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvb, offset, pinfo, tree, di, drep);
@@ -9611,7 +9611,7 @@ lsarpc_dissect_lsa_StorePrivateData_response(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_StorePrivateData";
+	di->dcerpc_procedure_name="lsa_StorePrivateData";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9623,7 +9623,7 @@ lsarpc_dissect_lsa_StorePrivateData_response(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 lsarpc_dissect_lsa_StorePrivateData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_StorePrivateData";
+	di->dcerpc_procedure_name="lsa_StorePrivateData";
 	return offset;
 }
 
@@ -9636,7 +9636,7 @@ lsarpc_dissect_lsa_RetrievePrivateData_response(tvbuff_t *tvb _U_, int offset _U
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_RetrievePrivateData";
+	di->dcerpc_procedure_name="lsa_RetrievePrivateData";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9648,7 +9648,7 @@ lsarpc_dissect_lsa_RetrievePrivateData_response(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_lsa_RetrievePrivateData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_RetrievePrivateData";
+	di->dcerpc_procedure_name="lsa_RetrievePrivateData";
 	return offset;
 }
 
@@ -9723,7 +9723,7 @@ lsarpc_dissect_lsa_OpenPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_OpenPolicy2";
+	di->dcerpc_procedure_name="lsa_OpenPolicy2";
 	offset = lsarpc_dissect_element_lsa_OpenPolicy2_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9738,7 +9738,7 @@ lsarpc_dissect_lsa_OpenPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_OpenPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_OpenPolicy2";
+	di->dcerpc_procedure_name="lsa_OpenPolicy2";
 	offset = lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_OpenPolicy2_attr(tvb, offset, pinfo, tree, di, drep);
@@ -9810,7 +9810,7 @@ lsarpc_dissect_lsa_GetUserName_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_GetUserName";
+	di->dcerpc_procedure_name="lsa_GetUserName";
 	offset = lsarpc_dissect_element_lsa_GetUserName_account_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9828,7 +9828,7 @@ lsarpc_dissect_lsa_GetUserName_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_GetUserName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_GetUserName";
+	di->dcerpc_procedure_name="lsa_GetUserName";
 	offset = lsarpc_dissect_element_lsa_GetUserName_system_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_GetUserName_account_name(tvb, offset, pinfo, tree, di, drep);
@@ -9889,7 +9889,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QueryInfoPolicy2";
+	di->dcerpc_procedure_name="lsa_QueryInfoPolicy2";
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9904,7 +9904,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 lsarpc_dissect_lsa_QueryInfoPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QueryInfoPolicy2";
+	di->dcerpc_procedure_name="lsa_QueryInfoPolicy2";
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvb, offset, pinfo, tree, di, drep);
@@ -9963,7 +9963,7 @@ lsarpc_dissect_lsa_SetInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetInfoPolicy2";
+	di->dcerpc_procedure_name="lsa_SetInfoPolicy2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -9975,7 +9975,7 @@ lsarpc_dissect_lsa_SetInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 lsarpc_dissect_lsa_SetInfoPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetInfoPolicy2";
+	di->dcerpc_procedure_name="lsa_SetInfoPolicy2";
 	offset = lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvb, offset, pinfo, tree, di, drep);
@@ -10045,7 +10045,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoByName";
+	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoByName";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10060,7 +10060,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int 
 static int
 lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoByName";
+	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoByName";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domain(tvb, offset, pinfo, tree, di, drep);
@@ -10130,7 +10130,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int of
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetTrustedDomainInfoByName";
+	di->dcerpc_procedure_name="lsa_SetTrustedDomainInfoByName";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10142,7 +10142,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int of
 static int
 lsarpc_dissect_lsa_SetTrustedDomainInfoByName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetTrustedDomainInfoByName";
+	di->dcerpc_procedure_name="lsa_SetTrustedDomainInfoByName";
 	offset = lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvb, offset, pinfo, tree, di, drep);
@@ -10222,7 +10222,7 @@ lsarpc_dissect_lsa_EnumTrustedDomainsEx_response(tvbuff_t *tvb _U_, int offset _
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_EnumTrustedDomainsEx";
+	di->dcerpc_procedure_name="lsa_EnumTrustedDomainsEx";
 	offset = lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10240,7 +10240,7 @@ lsarpc_dissect_lsa_EnumTrustedDomainsEx_response(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_lsa_EnumTrustedDomainsEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_EnumTrustedDomainsEx";
+	di->dcerpc_procedure_name="lsa_EnumTrustedDomainsEx";
 	offset = lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10259,7 +10259,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CreateTrustedDomainEx";
+	di->dcerpc_procedure_name="lsa_CreateTrustedDomainEx";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10271,7 +10271,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_lsa_CreateTrustedDomainEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CreateTrustedDomainEx";
+	di->dcerpc_procedure_name="lsa_CreateTrustedDomainEx";
 	return offset;
 }
 
@@ -10300,7 +10300,7 @@ lsarpc_dissect_lsa_CloseTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset _
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CloseTrustedDomainEx";
+	di->dcerpc_procedure_name="lsa_CloseTrustedDomainEx";
 	offset = lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10315,7 +10315,7 @@ lsarpc_dissect_lsa_CloseTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_lsa_CloseTrustedDomainEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CloseTrustedDomainEx";
+	di->dcerpc_procedure_name="lsa_CloseTrustedDomainEx";
 	offset = lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -10372,7 +10372,7 @@ lsarpc_dissect_lsa_QueryDomainInformationPolicy_response(tvbuff_t *tvb _U_, int 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_QueryDomainInformationPolicy";
+	di->dcerpc_procedure_name="lsa_QueryDomainInformationPolicy";
 	offset = lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10387,7 +10387,7 @@ lsarpc_dissect_lsa_QueryDomainInformationPolicy_response(tvbuff_t *tvb _U_, int 
 static int
 lsarpc_dissect_lsa_QueryDomainInformationPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_QueryDomainInformationPolicy";
+	di->dcerpc_procedure_name="lsa_QueryDomainInformationPolicy";
 	offset = lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvb, offset, pinfo, tree, di, drep);
@@ -10446,7 +10446,7 @@ lsarpc_dissect_lsa_SetDomainInformationPolicy_response(tvbuff_t *tvb _U_, int of
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_SetDomainInformationPolicy";
+	di->dcerpc_procedure_name="lsa_SetDomainInformationPolicy";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10458,7 +10458,7 @@ lsarpc_dissect_lsa_SetDomainInformationPolicy_response(tvbuff_t *tvb _U_, int of
 static int
 lsarpc_dissect_lsa_SetDomainInformationPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_SetDomainInformationPolicy";
+	di->dcerpc_procedure_name="lsa_SetDomainInformationPolicy";
 	offset = lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvb, offset, pinfo, tree, di, drep);
@@ -10528,7 +10528,7 @@ lsarpc_dissect_lsa_OpenTrustedDomainByName_response(tvbuff_t *tvb _U_, int offse
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_OpenTrustedDomainByName";
+	di->dcerpc_procedure_name="lsa_OpenTrustedDomainByName";
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10543,7 +10543,7 @@ lsarpc_dissect_lsa_OpenTrustedDomainByName_response(tvbuff_t *tvb _U_, int offse
 static int
 lsarpc_dissect_lsa_OpenTrustedDomainByName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_OpenTrustedDomainByName";
+	di->dcerpc_procedure_name="lsa_OpenTrustedDomainByName";
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomainByName_name(tvb, offset, pinfo, tree, di, drep);
@@ -10562,7 +10562,7 @@ lsarpc_dissect_lsa_TestCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_TestCall";
+	di->dcerpc_procedure_name="lsa_TestCall";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10574,7 +10574,7 @@ lsarpc_dissect_lsa_TestCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 lsarpc_dissect_lsa_TestCall_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_TestCall";
+	di->dcerpc_procedure_name="lsa_TestCall";
 	return offset;
 }
 
@@ -10698,7 +10698,7 @@ lsarpc_dissect_lsa_LookupSids2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupSids2";
+	di->dcerpc_procedure_name="lsa_LookupSids2";
 	offset = lsarpc_dissect_element_lsa_LookupSids2_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10719,7 +10719,7 @@ lsarpc_dissect_lsa_LookupSids2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_LookupSids2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupSids2";
+	di->dcerpc_procedure_name="lsa_LookupSids2";
 	offset = lsarpc_dissect_element_lsa_LookupSids2_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupSids2_sids(tvb, offset, pinfo, tree, di, drep);
@@ -10858,7 +10858,7 @@ lsarpc_dissect_lsa_LookupNames2_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupNames2";
+	di->dcerpc_procedure_name="lsa_LookupNames2";
 	offset = lsarpc_dissect_element_lsa_LookupNames2_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10879,7 +10879,7 @@ lsarpc_dissect_lsa_LookupNames2_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_LookupNames2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupNames2";
+	di->dcerpc_procedure_name="lsa_LookupNames2";
 	offset = lsarpc_dissect_element_lsa_LookupNames2_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupNames2_num_names(tvb, offset, pinfo, tree, di, drep);
@@ -10908,7 +10908,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx2_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CreateTrustedDomainEx2";
+	di->dcerpc_procedure_name="lsa_CreateTrustedDomainEx2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10920,7 +10920,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx2_response(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_lsa_CreateTrustedDomainEx2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CreateTrustedDomainEx2";
+	di->dcerpc_procedure_name="lsa_CreateTrustedDomainEx2";
 	return offset;
 }
 
@@ -10933,7 +10933,7 @@ lsarpc_dissect_lsa_CREDRWRITE_response(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRWRITE";
+	di->dcerpc_procedure_name="lsa_CREDRWRITE";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10945,7 +10945,7 @@ lsarpc_dissect_lsa_CREDRWRITE_response(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 lsarpc_dissect_lsa_CREDRWRITE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRWRITE";
+	di->dcerpc_procedure_name="lsa_CREDRWRITE";
 	return offset;
 }
 
@@ -10958,7 +10958,7 @@ lsarpc_dissect_lsa_CREDRREAD_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRREAD";
+	di->dcerpc_procedure_name="lsa_CREDRREAD";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10970,7 +10970,7 @@ lsarpc_dissect_lsa_CREDRREAD_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 lsarpc_dissect_lsa_CREDRREAD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRREAD";
+	di->dcerpc_procedure_name="lsa_CREDRREAD";
 	return offset;
 }
 
@@ -10983,7 +10983,7 @@ lsarpc_dissect_lsa_CREDRENUMERATE_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRENUMERATE";
+	di->dcerpc_procedure_name="lsa_CREDRENUMERATE";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -10995,7 +10995,7 @@ lsarpc_dissect_lsa_CREDRENUMERATE_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 lsarpc_dissect_lsa_CREDRENUMERATE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRENUMERATE";
+	di->dcerpc_procedure_name="lsa_CREDRENUMERATE";
 	return offset;
 }
 
@@ -11008,7 +11008,7 @@ lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int o
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRWRITEDOMAINCREDENTIALS";
+	di->dcerpc_procedure_name="lsa_CREDRWRITEDOMAINCREDENTIALS";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11020,7 +11020,7 @@ lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int o
 static int
 lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRWRITEDOMAINCREDENTIALS";
+	di->dcerpc_procedure_name="lsa_CREDRWRITEDOMAINCREDENTIALS";
 	return offset;
 }
 
@@ -11033,7 +11033,7 @@ lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int of
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRREADDOMAINCREDENTIALS";
+	di->dcerpc_procedure_name="lsa_CREDRREADDOMAINCREDENTIALS";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11045,7 +11045,7 @@ lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int of
 static int
 lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRREADDOMAINCREDENTIALS";
+	di->dcerpc_procedure_name="lsa_CREDRREADDOMAINCREDENTIALS";
 	return offset;
 }
 
@@ -11058,7 +11058,7 @@ lsarpc_dissect_lsa_CREDRDELETE_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRDELETE";
+	di->dcerpc_procedure_name="lsa_CREDRDELETE";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11070,7 +11070,7 @@ lsarpc_dissect_lsa_CREDRDELETE_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_CREDRDELETE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRDELETE";
+	di->dcerpc_procedure_name="lsa_CREDRDELETE";
 	return offset;
 }
 
@@ -11083,7 +11083,7 @@ lsarpc_dissect_lsa_CREDRGETTARGETINFO_response(tvbuff_t *tvb _U_, int offset _U_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRGETTARGETINFO";
+	di->dcerpc_procedure_name="lsa_CREDRGETTARGETINFO";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11095,7 +11095,7 @@ lsarpc_dissect_lsa_CREDRGETTARGETINFO_response(tvbuff_t *tvb _U_, int offset _U_
 static int
 lsarpc_dissect_lsa_CREDRGETTARGETINFO_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRGETTARGETINFO";
+	di->dcerpc_procedure_name="lsa_CREDRGETTARGETINFO";
 	return offset;
 }
 
@@ -11108,7 +11108,7 @@ lsarpc_dissect_lsa_CREDRPROFILELOADED_response(tvbuff_t *tvb _U_, int offset _U_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRPROFILELOADED";
+	di->dcerpc_procedure_name="lsa_CREDRPROFILELOADED";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11120,7 +11120,7 @@ lsarpc_dissect_lsa_CREDRPROFILELOADED_response(tvbuff_t *tvb _U_, int offset _U_
 static int
 lsarpc_dissect_lsa_CREDRPROFILELOADED_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRPROFILELOADED";
+	di->dcerpc_procedure_name="lsa_CREDRPROFILELOADED";
 	return offset;
 }
 
@@ -11245,7 +11245,7 @@ lsarpc_dissect_lsa_LookupNames3_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupNames3";
+	di->dcerpc_procedure_name="lsa_LookupNames3";
 	offset = lsarpc_dissect_element_lsa_LookupNames3_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -11266,7 +11266,7 @@ lsarpc_dissect_lsa_LookupNames3_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_LookupNames3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupNames3";
+	di->dcerpc_procedure_name="lsa_LookupNames3";
 	offset = lsarpc_dissect_element_lsa_LookupNames3_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupNames3_num_names(tvb, offset, pinfo, tree, di, drep);
@@ -11295,7 +11295,7 @@ lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_response(tvbuff_t *tvb _U_, int offset _
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRGETSESSIONTYPES";
+	di->dcerpc_procedure_name="lsa_CREDRGETSESSIONTYPES";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11307,7 +11307,7 @@ lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_response(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRGETSESSIONTYPES";
+	di->dcerpc_procedure_name="lsa_CREDRGETSESSIONTYPES";
 	return offset;
 }
 
@@ -11320,7 +11320,7 @@ lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offset
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARREGISTERAUDITEVENT";
+	di->dcerpc_procedure_name="lsa_LSARREGISTERAUDITEVENT";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11332,7 +11332,7 @@ lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARREGISTERAUDITEVENT";
+	di->dcerpc_procedure_name="lsa_LSARREGISTERAUDITEVENT";
 	return offset;
 }
 
@@ -11345,7 +11345,7 @@ lsarpc_dissect_lsa_LSARGENAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_,
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARGENAUDITEVENT";
+	di->dcerpc_procedure_name="lsa_LSARGENAUDITEVENT";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11357,7 +11357,7 @@ lsarpc_dissect_lsa_LSARGENAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_,
 static int
 lsarpc_dissect_lsa_LSARGENAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARGENAUDITEVENT";
+	di->dcerpc_procedure_name="lsa_LSARGENAUDITEVENT";
 	return offset;
 }
 
@@ -11370,7 +11370,7 @@ lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offs
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARUNREGISTERAUDITEVENT";
+	di->dcerpc_procedure_name="lsa_LSARUNREGISTERAUDITEVENT";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11382,7 +11382,7 @@ lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offs
 static int
 lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARUNREGISTERAUDITEVENT";
+	di->dcerpc_procedure_name="lsa_LSARUNREGISTERAUDITEVENT";
 	return offset;
 }
 
@@ -11462,7 +11462,7 @@ lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_response(tvbuff_t *tvb _U_, i
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_lsaRQueryForestTrustInformation";
+	di->dcerpc_procedure_name="lsa_lsaRQueryForestTrustInformation";
 	offset = lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -11477,7 +11477,7 @@ lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_response(tvbuff_t *tvb _U_, i
 static int
 lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_lsaRQueryForestTrustInformation";
+	di->dcerpc_procedure_name="lsa_lsaRQueryForestTrustInformation";
 	offset = lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name(tvb, offset, pinfo, tree, di, drep);
@@ -11496,7 +11496,7 @@ lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_response(tvbuff_t *tvb _U_, int
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARSETFORESTTRUSTINFORMATION";
+	di->dcerpc_procedure_name="lsa_LSARSETFORESTTRUSTINFORMATION";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11508,7 +11508,7 @@ lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_response(tvbuff_t *tvb _U_, int
 static int
 lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARSETFORESTTRUSTINFORMATION";
+	di->dcerpc_procedure_name="lsa_LSARSETFORESTTRUSTINFORMATION";
 	return offset;
 }
 
@@ -11521,7 +11521,7 @@ lsarpc_dissect_lsa_CREDRRENAME_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_CREDRRENAME";
+	di->dcerpc_procedure_name="lsa_CREDRRENAME";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11533,7 +11533,7 @@ lsarpc_dissect_lsa_CREDRRENAME_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_CREDRRENAME_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_CREDRRENAME";
+	di->dcerpc_procedure_name="lsa_CREDRRENAME";
 	return offset;
 }
 
@@ -11640,7 +11640,7 @@ lsarpc_dissect_lsa_LookupSids3_response(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupSids3";
+	di->dcerpc_procedure_name="lsa_LookupSids3";
 	offset = lsarpc_dissect_element_lsa_LookupSids3_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -11661,7 +11661,7 @@ lsarpc_dissect_lsa_LookupSids3_response(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 lsarpc_dissect_lsa_LookupSids3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupSids3";
+	di->dcerpc_procedure_name="lsa_LookupSids3";
 	offset = lsarpc_dissect_element_lsa_LookupSids3_sids(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupSids3_names(tvb, offset, pinfo, tree, di, drep);
@@ -11781,7 +11781,7 @@ lsarpc_dissect_lsa_LookupNames4_response(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LookupNames4";
+	di->dcerpc_procedure_name="lsa_LookupNames4";
 	offset = lsarpc_dissect_element_lsa_LookupNames4_domains(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -11802,7 +11802,7 @@ lsarpc_dissect_lsa_LookupNames4_response(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 lsarpc_dissect_lsa_LookupNames4_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LookupNames4";
+	di->dcerpc_procedure_name="lsa_LookupNames4";
 	offset = lsarpc_dissect_element_lsa_LookupNames4_num_names(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = lsarpc_dissect_element_lsa_LookupNames4_names(tvb, offset, pinfo, tree, di, drep);
@@ -11829,7 +11829,7 @@ lsarpc_dissect_lsa_LSAROPENPOLICYSCE_response(tvbuff_t *tvb _U_, int offset _U_,
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSAROPENPOLICYSCE";
+	di->dcerpc_procedure_name="lsa_LSAROPENPOLICYSCE";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11841,7 +11841,7 @@ lsarpc_dissect_lsa_LSAROPENPOLICYSCE_response(tvbuff_t *tvb _U_, int offset _U_,
 static int
 lsarpc_dissect_lsa_LSAROPENPOLICYSCE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSAROPENPOLICYSCE";
+	di->dcerpc_procedure_name="lsa_LSAROPENPOLICYSCE";
 	return offset;
 }
 
@@ -11854,7 +11854,7 @@ lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _U_
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARADTREGISTERSECURITYEVENTSOURCE";
+	di->dcerpc_procedure_name="lsa_LSARADTREGISTERSECURITYEVENTSOURCE";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11866,7 +11866,7 @@ lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _U_
 static int
 lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARADTREGISTERSECURITYEVENTSOURCE";
+	di->dcerpc_procedure_name="lsa_LSARADTREGISTERSECURITYEVENTSOURCE";
 	return offset;
 }
 
@@ -11879,7 +11879,7 @@ lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE";
+	di->dcerpc_procedure_name="lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11891,7 +11891,7 @@ lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _
 static int
 lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE";
+	di->dcerpc_procedure_name="lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE";
 	return offset;
 }
 
@@ -11904,7 +11904,7 @@ lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response(tvbuff_t *tvb _U_, int of
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="lsa_LSARADTREPORTSECURITYEVENT";
+	di->dcerpc_procedure_name="lsa_LSARADTREPORTSECURITYEVENT";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
@@ -11916,7 +11916,7 @@ lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response(tvbuff_t *tvb _U_, int of
 static int
 lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="lsa_LSARADTREPORTSECURITYEVENT";
+	di->dcerpc_procedure_name="lsa_LSARADTREPORTSECURITYEVENT";
 	return offset;
 }
 

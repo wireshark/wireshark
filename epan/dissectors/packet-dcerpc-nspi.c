@@ -9365,7 +9365,7 @@ nspi_dissect_NspiBind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiBind";
+	di->dcerpc_procedure_name="NspiBind";
 	offset = nspi_dissect_element_NspiBind_mapiuid(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9382,7 +9382,7 @@ nspi_dissect_NspiBind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 nspi_dissect_NspiBind_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiBind";
+	di->dcerpc_procedure_name="NspiBind";
 	offset = nspi_dissect_element_NspiBind_unknown(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiBind_settings(tvb, offset, pinfo, tree, di, drep);
@@ -9426,7 +9426,7 @@ nspi_dissect_NspiUnbind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiUnbind";
+	di->dcerpc_procedure_name="NspiUnbind";
 	offset = nspi_dissect_element_NspiUnbind_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9440,7 +9440,7 @@ nspi_dissect_NspiUnbind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 nspi_dissect_NspiUnbind_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiUnbind";
+	di->dcerpc_procedure_name="NspiUnbind";
 	offset = nspi_dissect_element_NspiUnbind_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiUnbind_status(tvb, offset, pinfo, tree, di, drep);
@@ -9455,14 +9455,14 @@ nspi_dissect_NspiUnbind_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 nspi_dissect_NspiUpdateStat_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiUpdateStat";
+	di->dcerpc_procedure_name="NspiUpdateStat";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiUpdateStat_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiUpdateStat";
+	di->dcerpc_procedure_name="NspiUpdateStat";
 	return offset;
 }
 
@@ -9602,7 +9602,7 @@ nspi_dissect_NspiQueryRows_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiQueryRows";
+	di->dcerpc_procedure_name="NspiQueryRows";
 	offset = nspi_dissect_element_NspiQueryRows_settings(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9619,7 +9619,7 @@ nspi_dissect_NspiQueryRows_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 nspi_dissect_NspiQueryRows_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiQueryRows";
+	di->dcerpc_procedure_name="NspiQueryRows";
 	offset = nspi_dissect_element_NspiQueryRows_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiQueryRows_flag(tvb, offset, pinfo, tree, di, drep);
@@ -9644,14 +9644,14 @@ nspi_dissect_NspiQueryRows_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 nspi_dissect_NspiSeekEntries_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiSeekEntries";
+	di->dcerpc_procedure_name="NspiSeekEntries";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiSeekEntries_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiSeekEntries";
+	di->dcerpc_procedure_name="NspiSeekEntries";
 	return offset;
 }
 
@@ -9817,7 +9817,7 @@ nspi_dissect_NspiGetMatches_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiGetMatches";
+	di->dcerpc_procedure_name="NspiGetMatches";
 	offset = nspi_dissect_element_NspiGetMatches_settings(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9837,7 +9837,7 @@ nspi_dissect_NspiGetMatches_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 nspi_dissect_NspiGetMatches_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetMatches";
+	di->dcerpc_procedure_name="NspiGetMatches";
 	offset = nspi_dissect_element_NspiGetMatches_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiGetMatches_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -9864,14 +9864,14 @@ nspi_dissect_NspiGetMatches_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 nspi_dissect_NspiResortRestriction_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiResortRestriction";
+	di->dcerpc_procedure_name="NspiResortRestriction";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiResortRestriction_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiResortRestriction";
+	di->dcerpc_procedure_name="NspiResortRestriction";
 	return offset;
 }
 
@@ -9960,7 +9960,7 @@ nspi_dissect_NspiDNToEph_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiDNToEph";
+	di->dcerpc_procedure_name="NspiDNToEph";
 	offset = nspi_dissect_element_NspiDNToEph_instance_key(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9974,7 +9974,7 @@ nspi_dissect_NspiDNToEph_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 nspi_dissect_NspiDNToEph_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiDNToEph";
+	di->dcerpc_procedure_name="NspiDNToEph";
 	offset = nspi_dissect_element_NspiDNToEph_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiDNToEph_flag(tvb, offset, pinfo, tree, di, drep);
@@ -9993,14 +9993,14 @@ nspi_dissect_NspiDNToEph_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 nspi_dissect_NspiGetPropList_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetPropList";
+	di->dcerpc_procedure_name="NspiGetPropList";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiGetPropList_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetPropList";
+	di->dcerpc_procedure_name="NspiGetPropList";
 	return offset;
 }
 
@@ -10097,7 +10097,7 @@ nspi_dissect_NspiGetProps_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiGetProps";
+	di->dcerpc_procedure_name="NspiGetProps";
 	offset = nspi_dissect_element_NspiGetProps_REPL_values(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10111,7 +10111,7 @@ nspi_dissect_NspiGetProps_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 nspi_dissect_NspiGetProps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetProps";
+	di->dcerpc_procedure_name="NspiGetProps";
 	offset = nspi_dissect_element_NspiGetProps_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiGetProps_flag(tvb, offset, pinfo, tree, di, drep);
@@ -10130,14 +10130,14 @@ nspi_dissect_NspiGetProps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 nspi_dissect_NspiCompareDNTs_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiCompareDNTs";
+	di->dcerpc_procedure_name="NspiCompareDNTs";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiCompareDNTs_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiCompareDNTs";
+	di->dcerpc_procedure_name="NspiCompareDNTs";
 	return offset;
 }
 
@@ -10148,14 +10148,14 @@ nspi_dissect_NspiCompareDNTs_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 nspi_dissect_NspiModProps_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiModProps";
+	di->dcerpc_procedure_name="NspiModProps";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiModProps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiModProps";
+	di->dcerpc_procedure_name="NspiModProps";
 	return offset;
 }
 
@@ -10252,7 +10252,7 @@ nspi_dissect_NspiGetHierarchyInfo_response(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="NspiGetHierarchyInfo";
+	di->dcerpc_procedure_name="NspiGetHierarchyInfo";
 	offset = nspi_dissect_element_NspiGetHierarchyInfo_unknown2(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10269,7 +10269,7 @@ nspi_dissect_NspiGetHierarchyInfo_response(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 nspi_dissect_NspiGetHierarchyInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetHierarchyInfo";
+	di->dcerpc_procedure_name="NspiGetHierarchyInfo";
 	offset = nspi_dissect_element_NspiGetHierarchyInfo_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = nspi_dissect_element_NspiGetHierarchyInfo_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -10288,14 +10288,14 @@ nspi_dissect_NspiGetHierarchyInfo_request(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 nspi_dissect_NspiGetTemplateInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetTemplateInfo";
+	di->dcerpc_procedure_name="NspiGetTemplateInfo";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiGetTemplateInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetTemplateInfo";
+	di->dcerpc_procedure_name="NspiGetTemplateInfo";
 	return offset;
 }
 
@@ -10306,14 +10306,14 @@ nspi_dissect_NspiGetTemplateInfo_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 nspi_dissect_NspiModLInkAtt_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiModLInkAtt";
+	di->dcerpc_procedure_name="NspiModLInkAtt";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiModLInkAtt_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiModLInkAtt";
+	di->dcerpc_procedure_name="NspiModLInkAtt";
 	return offset;
 }
 
@@ -10324,14 +10324,14 @@ nspi_dissect_NspiModLInkAtt_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 nspi_dissect_NspiDeleteEntries_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiDeleteEntries";
+	di->dcerpc_procedure_name="NspiDeleteEntries";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiDeleteEntries_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiDeleteEntries";
+	di->dcerpc_procedure_name="NspiDeleteEntries";
 	return offset;
 }
 
@@ -10342,14 +10342,14 @@ nspi_dissect_NspiDeleteEntries_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 nspi_dissect_NspiQueryColumns_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiQueryColumns";
+	di->dcerpc_procedure_name="NspiQueryColumns";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiQueryColumns_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiQueryColumns";
+	di->dcerpc_procedure_name="NspiQueryColumns";
 	return offset;
 }
 
@@ -10360,14 +10360,14 @@ nspi_dissect_NspiQueryColumns_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 nspi_dissect_NspiGetNamesFromIDs_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetNamesFromIDs";
+	di->dcerpc_procedure_name="NspiGetNamesFromIDs";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiGetNamesFromIDs_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetNamesFromIDs";
+	di->dcerpc_procedure_name="NspiGetNamesFromIDs";
 	return offset;
 }
 
@@ -10378,14 +10378,14 @@ nspi_dissect_NspiGetNamesFromIDs_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 nspi_dissect_NspiGetIDsFromNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetIDsFromNames";
+	di->dcerpc_procedure_name="NspiGetIDsFromNames";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiGetIDsFromNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiGetIDsFromNames";
+	di->dcerpc_procedure_name="NspiGetIDsFromNames";
 	return offset;
 }
 
@@ -10396,14 +10396,14 @@ nspi_dissect_NspiGetIDsFromNames_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 nspi_dissect_NspiResolveNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiResolveNames";
+	di->dcerpc_procedure_name="NspiResolveNames";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiResolveNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiResolveNames";
+	di->dcerpc_procedure_name="NspiResolveNames";
 	return offset;
 }
 
@@ -10414,14 +10414,14 @@ nspi_dissect_NspiResolveNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 nspi_dissect_NspiResolveNamesW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiResolveNamesW";
+	di->dcerpc_procedure_name="NspiResolveNamesW";
 	return offset;
 }
 
 static int
 nspi_dissect_NspiResolveNamesW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="NspiResolveNamesW";
+	di->dcerpc_procedure_name="NspiResolveNamesW";
 	return offset;
 }
 

@@ -2639,6 +2639,7 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
     di.conformant_run=0;
     /* we need di->call_data->flags.NDR64 == 0 */
     di.call_data=&call_data;
+    di.dcerpc_procedure_name = "";
 
     init_ndr_pointer_list(&di);
     offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
@@ -2672,6 +2673,7 @@ dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int
     di.conformant_run=0;
     /* we need di->call_data->flags.NDR64 == 0 */
     di.call_data=&call_data;
+    di.dcerpc_procedure_name = "";
 
     init_ndr_pointer_list(&di);
     offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,

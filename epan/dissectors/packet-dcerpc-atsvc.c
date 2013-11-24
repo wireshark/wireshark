@@ -1145,7 +1145,7 @@ atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="JobAdd";
+	di->dcerpc_procedure_name="JobAdd";
 	offset = atsvc_dissect_element_JobAdd_job_id(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -1160,7 +1160,7 @@ atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 atsvc_dissect_JobAdd_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="JobAdd";
+	di->dcerpc_procedure_name="JobAdd";
 	offset = atsvc_dissect_element_JobAdd_servername(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = atsvc_dissect_element_JobAdd_job_info(tvb, offset, pinfo, tree, di, drep);
@@ -1214,7 +1214,7 @@ atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="JobDel";
+	di->dcerpc_procedure_name="JobDel";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_atsvc_status, &status);
 
 	if (status != 0)
@@ -1226,7 +1226,7 @@ atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 atsvc_dissect_JobDel_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="JobDel";
+	di->dcerpc_procedure_name="JobDel";
 	offset = atsvc_dissect_element_JobDel_servername(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = atsvc_dissect_element_JobDel_min_job_id(tvb, offset, pinfo, tree, di, drep);
@@ -1324,7 +1324,7 @@ atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="JobEnum";
+	di->dcerpc_procedure_name="JobEnum";
 	offset = atsvc_dissect_element_JobEnum_ctr(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -1345,7 +1345,7 @@ atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 atsvc_dissect_JobEnum_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="JobEnum";
+	di->dcerpc_procedure_name="JobEnum";
 	offset = atsvc_dissect_element_JobEnum_servername(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = atsvc_dissect_element_JobEnum_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -1419,7 +1419,7 @@ atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="JobGetInfo";
+	di->dcerpc_procedure_name="JobGetInfo";
 	offset = atsvc_dissect_element_JobGetInfo_job_info(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -1434,7 +1434,7 @@ atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 atsvc_dissect_JobGetInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="JobGetInfo";
+	di->dcerpc_procedure_name="JobGetInfo";
 	offset = atsvc_dissect_element_JobGetInfo_servername(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = atsvc_dissect_element_JobGetInfo_job_id(tvb, offset, pinfo, tree, di, drep);

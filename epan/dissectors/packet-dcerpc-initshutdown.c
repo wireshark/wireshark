@@ -317,7 +317,7 @@ initshutdown_dissect_Init_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="Init";
+	di->dcerpc_procedure_name="Init";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_initshutdown_werror, &status);
 
 	if (status != 0)
@@ -329,7 +329,7 @@ initshutdown_dissect_Init_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 initshutdown_dissect_Init_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="Init";
+	di->dcerpc_procedure_name="Init";
 	offset = initshutdown_dissect_element_Init_hostname(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = initshutdown_dissect_element_Init_message(tvb, offset, pinfo, tree, di, drep);
@@ -368,7 +368,7 @@ initshutdown_dissect_Abort_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="Abort";
+	di->dcerpc_procedure_name="Abort";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_initshutdown_werror, &status);
 
 	if (status != 0)
@@ -380,7 +380,7 @@ initshutdown_dissect_Abort_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 initshutdown_dissect_Abort_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="Abort";
+	di->dcerpc_procedure_name="Abort";
 	offset = initshutdown_dissect_element_Abort_server(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -464,7 +464,7 @@ initshutdown_dissect_InitEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="InitEx";
+	di->dcerpc_procedure_name="InitEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_initshutdown_werror, &status);
 
 	if (status != 0)
@@ -476,7 +476,7 @@ initshutdown_dissect_InitEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 initshutdown_dissect_InitEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="InitEx";
+	di->dcerpc_procedure_name="InitEx";
 	offset = initshutdown_dissect_element_InitEx_hostname(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = initshutdown_dissect_element_InitEx_message(tvb, offset, pinfo, tree, di, drep);

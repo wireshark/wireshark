@@ -1379,6 +1379,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
 	di.call_data = &call_data;
+    di.dcerpc_procedure_name = "";
 
 	switch (mode) {
 	case FID_MODE_OPEN:

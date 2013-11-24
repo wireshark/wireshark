@@ -940,6 +940,7 @@ get_next_di(void)
     }
 
     memset(&di[di_counter], 0, sizeof(dcerpc_info));
+    di[di_counter].dcerpc_procedure_name = "";
 
     return &di[di_counter];
 }

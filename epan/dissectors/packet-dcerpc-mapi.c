@@ -9619,7 +9619,7 @@ mapi_dissect_EcDoConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="EcDoConnect";
+	di->dcerpc_procedure_name="EcDoConnect";
 	offset = mapi_dissect_element_EcDoConnect_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9654,7 +9654,7 @@ mapi_dissect_EcDoConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 mapi_dissect_EcDoConnect_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDoConnect";
+	di->dcerpc_procedure_name="EcDoConnect";
 	offset = mapi_dissect_element_EcDoConnect_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = mapi_dissect_element_EcDoConnect_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -9699,7 +9699,7 @@ mapi_dissect_EcDoDisconnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="EcDoDisconnect";
+	di->dcerpc_procedure_name="EcDoDisconnect";
 	offset = mapi_dissect_element_EcDoDisconnect_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9713,7 +9713,7 @@ mapi_dissect_EcDoDisconnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 mapi_dissect_EcDoDisconnect_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDoDisconnect";
+	di->dcerpc_procedure_name="EcDoDisconnect";
 	offset = mapi_dissect_element_EcDoDisconnect_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
@@ -9790,7 +9790,7 @@ mapi_dissect_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="EcDoRpc";
+	di->dcerpc_procedure_name="EcDoRpc";
 	offset = mapi_dissect_element_EcDoRpc_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9816,7 +9816,7 @@ mapi_dissect_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 mapi_dissect_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDoRpc";
+	di->dcerpc_procedure_name="EcDoRpc";
 	offset = mapi_dissect_element_EcDoRpc_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = mapi_dissect_element_EcDoRpc_size(tvb, offset, pinfo, tree, di, drep);
@@ -9839,14 +9839,14 @@ mapi_dissect_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 mapi_dissect_EcGetMoreRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcGetMoreRpc";
+	di->dcerpc_procedure_name="EcGetMoreRpc";
 	return offset;
 }
 
 static int
 mapi_dissect_EcGetMoreRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcGetMoreRpc";
+	di->dcerpc_procedure_name="EcGetMoreRpc";
 	return offset;
 }
 
@@ -9962,7 +9962,7 @@ mapi_dissect_EcRRegisterPushNotification_response(tvbuff_t *tvb _U_, int offset 
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="EcRRegisterPushNotification";
+	di->dcerpc_procedure_name="EcRRegisterPushNotification";
 	offset = mapi_dissect_element_EcRRegisterPushNotification_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -9979,7 +9979,7 @@ mapi_dissect_EcRRegisterPushNotification_response(tvbuff_t *tvb _U_, int offset 
 static int
 mapi_dissect_EcRRegisterPushNotification_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcRRegisterPushNotification";
+	di->dcerpc_procedure_name="EcRRegisterPushNotification";
 	offset = mapi_dissect_element_EcRRegisterPushNotification_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = mapi_dissect_element_EcRRegisterPushNotification_ulEventMask(tvb, offset, pinfo, tree, di, drep);
@@ -10041,7 +10041,7 @@ mapi_dissect_EcRUnregisterPushNotification_response(tvbuff_t *tvb _U_, int offse
 {
 	guint32 status;
 
-	pinfo->dcerpc_procedure_name="EcRUnregisterPushNotification";
+	di->dcerpc_procedure_name="EcRUnregisterPushNotification";
 	offset = mapi_dissect_element_EcRUnregisterPushNotification_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
@@ -10055,7 +10055,7 @@ mapi_dissect_EcRUnregisterPushNotification_response(tvbuff_t *tvb _U_, int offse
 static int
 mapi_dissect_EcRUnregisterPushNotification_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcRUnregisterPushNotification";
+	di->dcerpc_procedure_name="EcRUnregisterPushNotification";
 	offset = mapi_dissect_element_EcRUnregisterPushNotification_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = mapi_dissect_element_EcRUnregisterPushNotification_unknown(tvb, offset, pinfo, tree, di, drep);
@@ -10070,14 +10070,14 @@ mapi_dissect_EcRUnregisterPushNotification_request(tvbuff_t *tvb _U_, int offset
 static int
 mapi_dissect_EcDummyRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDummyRpc";
+	di->dcerpc_procedure_name="EcDummyRpc";
 	return offset;
 }
 
 static int
 mapi_dissect_EcDummyRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDummyRpc";
+	di->dcerpc_procedure_name="EcDummyRpc";
 	return offset;
 }
 
@@ -10088,14 +10088,14 @@ mapi_dissect_EcDummyRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 mapi_dissect_EcRGetDCName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcRGetDCName";
+	di->dcerpc_procedure_name="EcRGetDCName";
 	return offset;
 }
 
 static int
 mapi_dissect_EcRGetDCName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcRGetDCName";
+	di->dcerpc_procedure_name="EcRGetDCName";
 	return offset;
 }
 
@@ -10106,14 +10106,14 @@ mapi_dissect_EcRGetDCName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 mapi_dissect_EcRNetGetDCName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcRNetGetDCName";
+	di->dcerpc_procedure_name="EcRNetGetDCName";
 	return offset;
 }
 
 static int
 mapi_dissect_EcRNetGetDCName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcRNetGetDCName";
+	di->dcerpc_procedure_name="EcRNetGetDCName";
 	return offset;
 }
 
@@ -10124,14 +10124,14 @@ mapi_dissect_EcRNetGetDCName_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 mapi_dissect_EcDoRpcExt_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDoRpcExt";
+	di->dcerpc_procedure_name="EcDoRpcExt";
 	return offset;
 }
 
 static int
 mapi_dissect_EcDoRpcExt_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	pinfo->dcerpc_procedure_name="EcDoRpcExt";
+	di->dcerpc_procedure_name="EcDoRpcExt";
 	return offset;
 }
 
