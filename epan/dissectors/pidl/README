@@ -99,10 +99,6 @@ Not compiling idl
 As of November 23, 2013, the following idl have issues when generating
 and compiling:
 
-pidl generates code that uses ALIGN_TO_5_BYTES and has other bogosities
-
-	dfs.idl
-
 pidl generates declarations of functions that take a dcerpc_info *
 argument and definitions of those functions that don't:
 
@@ -116,11 +112,13 @@ dcerpc_info * argument, but calls to those functions that don't:
 pidl generates code that refers to types with "1632", rather than "16"
 or "32", in the name (and that don't actually exist):
 
+	dfs.idl
 	frstrans.idl
 
 pidl generates code that passes "*0" rather than "0" as the last
 argument in calls:
 
+	dfs.idl
 	dnsserver.idl
 	dssetup.idl
 	lsa.idl
