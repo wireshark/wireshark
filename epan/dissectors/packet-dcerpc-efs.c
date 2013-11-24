@@ -2,9 +2,9 @@
 	This filter was automatically generated
 	from efs.idl and efs.cnf.
 	
-	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
+	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
-	Instructions on how to download and install Pidl can be 
+	Instructions on how to download and install Pidl can be
 	found at http://wiki.wireshark.org/Pidl
 
 	$Id$
@@ -132,7 +132,7 @@ static int efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb _U_, 
 static int efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int
-efs_dissect_struct_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+efs_dissect_struct_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -1185,69 +1185,69 @@ static dcerpc_sub_dissector efs_dissectors[] = {
 void proto_register_dcerpc_efs(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_efs_EfsRpcQueryUsersOnFile_pUsers, 
+	{ &hf_efs_EfsRpcQueryUsersOnFile_pUsers,
 	  { "Pusers", "efs.EfsRpcQueryUsersOnFile.pUsers", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcDecryptFileSrv_FileName, 
+	{ &hf_efs_EfsRpcDecryptFileSrv_FileName,
 	  { "Filename", "efs.EfsRpcDecryptFileSrv.FileName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcEncryptFileSrv_Filename, 
+	{ &hf_efs_EfsRpcEncryptFileSrv_Filename,
 	  { "Filename", "efs.EfsRpcEncryptFileSrv.Filename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcOpenFileRaw_pvContext, 
+	{ &hf_efs_EfsRpcOpenFileRaw_pvContext,
 	  { "Pvcontext", "efs.EfsRpcOpenFileRaw.pvContext", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_TotalLength, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_TotalLength,
 	  { "Totallength", "efs.ENCRYPTION_CERTIFICATE.TotalLength", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EFS_CERTIFICATE_BLOB_dwCertEncodingType, 
+	{ &hf_efs_EFS_CERTIFICATE_BLOB_dwCertEncodingType,
 	  { "Dwcertencodingtype", "efs.EFS_CERTIFICATE_BLOB.dwCertEncodingType", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_pCertBlob, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_pCertBlob,
 	  { "Pcertblob", "efs.ENCRYPTION_CERTIFICATE.pCertBlob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers,
 	  { "Pusers", "efs.ENCRYPTION_CERTIFICATE_HASH_LIST.pUsers", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcWriteFileRaw_pvContext, 
+	{ &hf_efs_EfsRpcWriteFileRaw_pvContext,
 	  { "Pvcontext", "efs.EfsRpcWriteFileRaw.pvContext", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EFS_HASH_BLOB_pbData, 
+	{ &hf_efs_EFS_HASH_BLOB_pbData,
 	  { "Pbdata", "efs.EFS_HASH_BLOB.pbData", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcAddUsersToFile_FileName, 
+	{ &hf_efs_EfsRpcAddUsersToFile_FileName,
 	  { "Filename", "efs.EfsRpcAddUsersToFile.FileName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcReadFileRaw_pvContext, 
+	{ &hf_efs_EfsRpcReadFileRaw_pvContext,
 	  { "Pvcontext", "efs.EfsRpcReadFileRaw.pvContext", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_werror, 
+	{ &hf_efs_werror,
 	  { "Windows Error", "efs.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcSetFileEncryptionKey_pEncryptionCertificate, 
+	{ &hf_efs_EfsRpcSetFileEncryptionKey_pEncryptionCertificate,
 	  { "Pencryptioncertificate", "efs.EfsRpcSetFileEncryptionKey.pEncryptionCertificate", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcQueryRecoveryAgents_FileName, 
+	{ &hf_efs_EfsRpcQueryRecoveryAgents_FileName,
 	  { "Filename", "efs.EfsRpcQueryRecoveryAgents.FileName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcOpenFileRaw_FileName, 
+	{ &hf_efs_EfsRpcOpenFileRaw_FileName,
 	  { "Filename", "efs.EfsRpcOpenFileRaw.FileName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_opnum, 
+	{ &hf_efs_opnum,
 	  { "Operation", "efs.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash,
 	  { "Ncert Hash", "efs.ENCRYPTION_CERTIFICATE_HASH_LIST.nCert_Hash", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcDecryptFileSrv_Reserved, 
+	{ &hf_efs_EfsRpcDecryptFileSrv_Reserved,
 	  { "Reserved", "efs.EfsRpcDecryptFileSrv.Reserved", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_pHash, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_pHash,
 	  { "Phash", "efs.ENCRYPTION_CERTIFICATE_HASH.pHash", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_pUserSid, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_pUserSid,
 	  { "Pusersid", "efs.ENCRYPTION_CERTIFICATE_HASH.pUserSid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_pUserSid, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_pUserSid,
 	  { "Pusersid", "efs.ENCRYPTION_CERTIFICATE.pUserSid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EFS_CERTIFICATE_BLOB_pbData, 
+	{ &hf_efs_EFS_CERTIFICATE_BLOB_pbData,
 	  { "Pbdata", "efs.EFS_CERTIFICATE_BLOB.pbData", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EFS_HASH_BLOB_cbData, 
+	{ &hf_efs_EFS_HASH_BLOB_cbData,
 	  { "Cbdata", "efs.EFS_HASH_BLOB.cbData", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcCloseRaw_pvContext, 
+	{ &hf_efs_EfsRpcCloseRaw_pvContext,
 	  { "Pvcontext", "efs.EfsRpcCloseRaw.pvContext", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EFS_CERTIFICATE_BLOB_cbData, 
+	{ &hf_efs_EFS_CERTIFICATE_BLOB_cbData,
 	  { "Cbdata", "efs.EFS_CERTIFICATE_BLOB.cbData", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcQueryUsersOnFile_FileName, 
+	{ &hf_efs_EfsRpcQueryUsersOnFile_FileName,
 	  { "Filename", "efs.EfsRpcQueryUsersOnFile.FileName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength,
 	  { "Cbtotallength", "efs.ENCRYPTION_CERTIFICATE_HASH.cbTotalLength", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcOpenFileRaw_Flags, 
+	{ &hf_efs_EfsRpcOpenFileRaw_Flags,
 	  { "Flags", "efs.EfsRpcOpenFileRaw.Flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcQueryRecoveryAgents_pRecoveryAgents, 
+	{ &hf_efs_EfsRpcQueryRecoveryAgents_pRecoveryAgents,
 	  { "Precoveryagents", "efs.EfsRpcQueryRecoveryAgents.pRecoveryAgents", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation, 
+	{ &hf_efs_ENCRYPTION_CERTIFICATE_HASH_lpDisplayInformation,
 	  { "Lpdisplayinformation", "efs.ENCRYPTION_CERTIFICATE_HASH.lpDisplayInformation", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_efs_EfsRpcRemoveUsersFromFile_FileName, 
+	{ &hf_efs_EfsRpcRemoveUsersFromFile_FileName,
 	  { "Filename", "efs.EfsRpcRemoveUsersFromFile.FileName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 

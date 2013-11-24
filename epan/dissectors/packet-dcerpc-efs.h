@@ -4,9 +4,9 @@
 	This filter was automatically generated
 	from efs.idl and efs.cnf.
 	
-	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
+	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
-	Instructions on how to download and install Pidl can be 
+	Instructions on how to download and install Pidl can be
 	found at http://wiki.wireshark.org/Pidl
 
 	$Id$
