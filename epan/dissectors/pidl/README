@@ -96,9 +96,10 @@ release, a copy of pidl is located in tools/pidl.
 
 Not compiling idl
 =================
-As of October 2013, the following idl have issues when generating and compiling:
+As of November 23, 2013, the following idl have issues when generating
+and compiling:
 
-pidl generates incorrect code for these:
+pidl generates code that fails to compile for these:
 
 	dfs.idl
 	dnsserver.idl
@@ -109,6 +110,10 @@ pidl generates incorrect code for these:
 	lsa.idl
 	misc.idl
 	samr.idl
+
+pidl generates possibly-incorrect code for these - this needs checking:
+
+	rfr/rfr.idl
 
 pidl rejects these with errors:
 
