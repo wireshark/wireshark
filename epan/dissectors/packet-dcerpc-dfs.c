@@ -2,9 +2,9 @@
 	This filter was automatically generated
 	from dfs.idl and dfs.cnf.
 	
-	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
+	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
-	Instructions on how to download and install Pidl can be 
+	Instructions on how to download and install Pidl can be
 	found at http://wiki.wireshark.org/Pidl
 
 	$Id$
@@ -593,7 +593,7 @@ netdfs_dissect_struct_dfs_Info0(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info0);
 	}
 	
@@ -639,7 +639,7 @@ netdfs_dissect_struct_dfs_Info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info1);
 	}
 	
@@ -671,7 +671,7 @@ netdfs_dissect_bitmap_dfs_VolumeState(tvbuff_t *tvb _U_, int offset _U_, packet_
 	ALIGN_TO_4_BYTES;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 		tree = proto_item_add_subtree(item,ett_netdfs_dfs_VolumeState);
 	}
 
@@ -810,7 +810,7 @@ netdfs_dissect_struct_dfs_Info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info2);
 	}
 	
@@ -845,7 +845,7 @@ netdfs_dissect_bitmap_dfs_StorageState(tvbuff_t *tvb _U_, int offset _U_, packet
 	ALIGN_TO_4_BYTES;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 		tree = proto_item_add_subtree(item,ett_netdfs_dfs_StorageState);
 	}
 
@@ -951,7 +951,7 @@ netdfs_dissect_struct_dfs_StorageInfo(tvbuff_t *tvb _U_, int offset _U_, packet_
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_StorageInfo);
 	}
 	
@@ -1066,7 +1066,7 @@ netdfs_dissect_struct_dfs_Info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info3);
 	}
 	
@@ -1203,7 +1203,7 @@ netdfs_dissect_struct_dfs_Info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info4);
 	}
 	
@@ -1246,7 +1246,7 @@ netdfs_dissect_bitmap_dfs_PropertyFlags(tvbuff_t *tvb _U_, int offset _U_, packe
 	ALIGN_TO_4_BYTES;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, DREP_ENC_INTEGER(drep));
 		tree = proto_item_add_subtree(item,ett_netdfs_dfs_PropertyFlags);
 	}
 
@@ -1413,7 +1413,7 @@ netdfs_dissect_struct_dfs_Info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info5);
 	}
 	
@@ -1506,7 +1506,7 @@ netdfs_dissect_struct_dfs_Target_Priority(tvbuff_t *tvb _U_, int offset _U_, pac
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Target_Priority);
 	}
 	
@@ -1556,7 +1556,7 @@ netdfs_dissect_struct_dfs_StorageInfo2(tvbuff_t *tvb _U_, int offset _U_, packet
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_StorageInfo2);
 	}
 	
@@ -1705,7 +1705,7 @@ netdfs_dissect_struct_dfs_Info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info6);
 	}
 	
@@ -1758,7 +1758,7 @@ netdfs_dissect_struct_dfs_Info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info7);
 	}
 	
@@ -1806,7 +1806,7 @@ netdfs_dissect_struct_dfs_Info100(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info100);
 	}
 	
@@ -1843,7 +1843,7 @@ netdfs_dissect_struct_dfs_Info101(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info101);
 	}
 	
@@ -1880,7 +1880,7 @@ netdfs_dissect_struct_dfs_Info102(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info102);
 	}
 	
@@ -1917,7 +1917,7 @@ netdfs_dissect_struct_dfs_Info103(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info103);
 	}
 	
@@ -1954,7 +1954,7 @@ netdfs_dissect_struct_dfs_Info104(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info104);
 	}
 	
@@ -2038,7 +2038,7 @@ netdfs_dissect_struct_dfs_Info105(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info105);
 	}
 	
@@ -2092,7 +2092,7 @@ netdfs_dissect_struct_dfs_Info106(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info106);
 	}
 	
@@ -2142,7 +2142,7 @@ netdfs_dissect_struct_dfs_Info200(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info200);
 	}
 	
@@ -2219,7 +2219,7 @@ netdfs_dissect_struct_dfs_Info300(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info300);
 	}
 	
@@ -2624,7 +2624,7 @@ netdfs_dissect_struct_dfs_EnumArray1(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray1);
 	}
 	
@@ -2688,7 +2688,7 @@ netdfs_dissect_struct_dfs_EnumArray2(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray2);
 	}
 	
@@ -2752,7 +2752,7 @@ netdfs_dissect_struct_dfs_EnumArray3(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray3);
 	}
 	
@@ -2816,7 +2816,7 @@ netdfs_dissect_struct_dfs_EnumArray4(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray4);
 	}
 	
@@ -2880,7 +2880,7 @@ netdfs_dissect_struct_dfs_EnumArray200(tvbuff_t *tvb _U_, int offset _U_, packet
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray200);
 	}
 	
@@ -2944,7 +2944,7 @@ netdfs_dissect_struct_dfs_EnumArray300(tvbuff_t *tvb _U_, int offset _U_, packet
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray300);
 	}
 	
@@ -3144,7 +3144,7 @@ netdfs_dissect_struct_dfs_EnumStruct(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumStruct);
 	}
 	
@@ -3203,7 +3203,7 @@ netdfs_dissect_struct_dfs_UnknownStruct(tvbuff_t *tvb _U_, int offset _U_, packe
 	old_offset = offset;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_UnknownStruct);
 	}
 	
@@ -4775,343 +4775,343 @@ static dcerpc_sub_dissector netdfs_dissectors[] = {
 void proto_register_dcerpc_netdfs(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_netdfs_dfs_EnumEx_level, 
+	{ &hf_netdfs_dfs_EnumEx_level,
 	  { "Level", "netdfs.dfs_EnumEx.level", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_pktsize, 
+	{ &hf_netdfs_dfs_Info5_pktsize,
 	  { "Pktsize", "netdfs.dfs_Info5.pktsize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE, 
+	{ &hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ONLINE,
 	  { "Dfs Storage State Online", "netdfs.dfs_StorageState.DFS_STORAGE_STATE_ONLINE", FT_BOOLEAN, 32, TFS(&dfs_StorageState_DFS_STORAGE_STATE_ONLINE_tfs), ( 2 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumEx_bufsize, 
+	{ &hf_netdfs_dfs_EnumEx_bufsize,
 	  { "Bufsize", "netdfs.dfs_EnumEx.bufsize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_comment, 
+	{ &hf_netdfs_dfs_Info4_comment,
 	  { "Comment", "netdfs.dfs_Info4.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_dns_servername, 
+	{ &hf_netdfs_dfs_AddFtRoot_dns_servername,
 	  { "Dns Servername", "netdfs.dfs_AddFtRoot.dns_servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING, 
+	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING,
 	  { "Dfs Property Flag Site Costing", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_SITE_COSTING", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_SITE_COSTING_tfs), ( 0x04 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY, 
+	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY,
 	  { "Dfs Property Flag Root Scalability", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_ROOT_SCALABILITY", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_ROOT_SCALABILITY_tfs), ( 0x02 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE, 
+	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE,
 	  { "Dfs Volume State Offline", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_OFFLINE", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE_tfs), ( 0x4 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_guid, 
+	{ &hf_netdfs_dfs_Info5_guid,
 	  { "Guid", "netdfs.dfs_Info5.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Target_Priority_target_priority_rank, 
+	{ &hf_netdfs_dfs_Target_Priority_target_priority_rank,
 	  { "Target Priority Rank", "netdfs.dfs_Target_Priority.target_priority_rank", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRootForced_servername, 
+	{ &hf_netdfs_dfs_AddStdRootForced_servername,
 	  { "Servername", "netdfs.dfs_AddStdRootForced.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumInfo_info200, 
+	{ &hf_netdfs_dfs_EnumInfo_info200,
 	  { "Info200", "netdfs.dfs_EnumInfo.info200", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK, 
+	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK,
 	  { "Dfs Property Flag Target Failback", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_TARGET_FAILBACK", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_TARGET_FAILBACK_tfs), ( 0x08 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Target_Priority_reserved, 
+	{ &hf_netdfs_dfs_Target_Priority_reserved,
 	  { "Reserved", "netdfs.dfs_Target_Priority.reserved", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Enum_bufsize, 
+	{ &hf_netdfs_dfs_Enum_bufsize,
 	  { "Bufsize", "netdfs.dfs_Enum.bufsize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRootForced_rootshare, 
+	{ &hf_netdfs_dfs_AddStdRootForced_rootshare,
 	  { "Rootshare", "netdfs.dfs_AddStdRootForced.rootshare", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveFtRoot_servername, 
+	{ &hf_netdfs_dfs_RemoveFtRoot_servername,
 	  { "Servername", "netdfs.dfs_RemoveFtRoot.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_unknown1, 
+	{ &hf_netdfs_dfs_AddFtRoot_unknown1,
 	  { "Unknown1", "netdfs.dfs_AddFtRoot.unknown1", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray4_s, 
+	{ &hf_netdfs_dfs_EnumArray4_s,
 	  { "S", "netdfs.dfs_EnumArray4.s", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_unknown2, 
+	{ &hf_netdfs_dfs_AddFtRoot_unknown2,
 	  { "Unknown2", "netdfs.dfs_AddFtRoot.unknown2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_comment, 
+	{ &hf_netdfs_dfs_Info6_comment,
 	  { "Comment", "netdfs.dfs_Info6.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_entry_path, 
+	{ &hf_netdfs_dfs_Info6_entry_path,
 	  { "Entry Path", "netdfs.dfs_Info6.entry_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info1_path, 
+	{ &hf_netdfs_dfs_Info1_path,
 	  { "Path", "netdfs.dfs_Info1.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumStruct_level, 
+	{ &hf_netdfs_dfs_EnumStruct_level,
 	  { "Level", "netdfs.dfs_EnumStruct.level", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_GetInfo_sharename, 
+	{ &hf_netdfs_dfs_GetInfo_sharename,
 	  { "Sharename", "netdfs.dfs_GetInfo.sharename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info105_comment, 
+	{ &hf_netdfs_dfs_Info105_comment,
 	  { "Comment", "netdfs.dfs_Info105.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRoot_rootshare, 
+	{ &hf_netdfs_dfs_AddStdRoot_rootshare,
 	  { "Rootshare", "netdfs.dfs_AddStdRoot.rootshare", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_SetInfo_level, 
+	{ &hf_netdfs_dfs_SetInfo_level,
 	  { "Level", "netdfs.dfs_SetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_flags, 
+	{ &hf_netdfs_dfs_Info6_flags,
 	  { "Flags", "netdfs.dfs_Info6.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_state, 
+	{ &hf_netdfs_dfs_Info4_state,
 	  { "State", "netdfs.dfs_Info4.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_guid, 
+	{ &hf_netdfs_dfs_Info4_guid,
 	  { "Guid", "netdfs.dfs_Info4.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info105_property_flags, 
+	{ &hf_netdfs_dfs_Info105_property_flags,
 	  { "Property Flags", "netdfs.dfs_Info105.property_flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Enum_total, 
+	{ &hf_netdfs_dfs_Enum_total,
 	  { "Total", "netdfs.dfs_Enum.total", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumStruct_e, 
+	{ &hf_netdfs_dfs_EnumStruct_e,
 	  { "E", "netdfs.dfs_EnumStruct.e", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray4_count, 
+	{ &hf_netdfs_dfs_EnumArray4_count,
 	  { "Count", "netdfs.dfs_EnumArray4.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageInfo2_info, 
+	{ &hf_netdfs_dfs_StorageInfo2_info,
 	  { "Info", "netdfs.dfs_StorageInfo2.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info105_state, 
+	{ &hf_netdfs_dfs_Info105_state,
 	  { "State", "netdfs.dfs_Info105.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_FlushFtTable_servername, 
+	{ &hf_netdfs_dfs_FlushFtTable_servername,
 	  { "Servername", "netdfs.dfs_FlushFtTable.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_stores, 
+	{ &hf_netdfs_dfs_Info4_stores,
 	  { "Stores", "netdfs.dfs_Info4.stores", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_num_stores, 
+	{ &hf_netdfs_dfs_Info4_num_stores,
 	  { "Num Stores", "netdfs.dfs_Info4.num_stores", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_GetInfo_dfs_entry_path, 
+	{ &hf_netdfs_dfs_GetInfo_dfs_entry_path,
 	  { "Dfs Entry Path", "netdfs.dfs_GetInfo.dfs_entry_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray1_count, 
+	{ &hf_netdfs_dfs_EnumArray1_count,
 	  { "Count", "netdfs.dfs_EnumArray1.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageInfo_state, 
+	{ &hf_netdfs_dfs_StorageInfo_state,
 	  { "State", "netdfs.dfs_StorageInfo.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_FlushFtTable_rootshare, 
+	{ &hf_netdfs_dfs_FlushFtTable_rootshare,
 	  { "Rootshare", "netdfs.dfs_FlushFtTable.rootshare", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRoot_servername, 
+	{ &hf_netdfs_dfs_AddStdRoot_servername,
 	  { "Servername", "netdfs.dfs_AddStdRoot.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray200_s, 
+	{ &hf_netdfs_dfs_EnumArray200_s,
 	  { "S", "netdfs.dfs_EnumArray200.s", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_servername, 
+	{ &hf_netdfs_dfs_AddFtRoot_servername,
 	  { "Servername", "netdfs.dfs_AddFtRoot.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_stores, 
+	{ &hf_netdfs_dfs_Info6_stores,
 	  { "Stores", "netdfs.dfs_Info6.stores", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_GetInfo_servername, 
+	{ &hf_netdfs_dfs_GetInfo_servername,
 	  { "Servername", "netdfs.dfs_GetInfo.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageInfo2_target_priority, 
+	{ &hf_netdfs_dfs_StorageInfo2_target_priority,
 	  { "Target Priority", "netdfs.dfs_StorageInfo2.target_priority", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray2_s, 
+	{ &hf_netdfs_dfs_EnumArray2_s,
 	  { "S", "netdfs.dfs_EnumArray2.s", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveFtRoot_flags, 
+	{ &hf_netdfs_dfs_RemoveFtRoot_flags,
 	  { "Flags", "netdfs.dfs_RemoveFtRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray200_count, 
+	{ &hf_netdfs_dfs_EnumArray200_count,
 	  { "Count", "netdfs.dfs_EnumArray200.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumEx_info, 
+	{ &hf_netdfs_dfs_EnumEx_info,
 	  { "Info", "netdfs.dfs_EnumEx.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info104_priority, 
+	{ &hf_netdfs_dfs_Info104_priority,
 	  { "Priority", "netdfs.dfs_Info104.priority", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_timeout, 
+	{ &hf_netdfs_dfs_Info4_timeout,
 	  { "Timeout", "netdfs.dfs_Info4.timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_comment, 
+	{ &hf_netdfs_dfs_AddFtRoot_comment,
 	  { "Comment", "netdfs.dfs_AddFtRoot.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED, 
+	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED,
 	  { "Dfs Property Flag Cluster Enabled", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_CLUSTER_ENABLED", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_CLUSTER_ENABLED_tfs), ( 0x10 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Enum_info, 
+	{ &hf_netdfs_dfs_Enum_info,
 	  { "Info", "netdfs.dfs_Enum.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRoot_comment, 
+	{ &hf_netdfs_dfs_AddStdRoot_comment,
 	  { "Comment", "netdfs.dfs_AddStdRoot.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_GetInfo_info, 
+	{ &hf_netdfs_dfs_GetInfo_info,
 	  { "Info", "netdfs.dfs_GetInfo.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Add_share, 
+	{ &hf_netdfs_dfs_Add_share,
 	  { "Share", "netdfs.dfs_Add.share", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info100_comment, 
+	{ &hf_netdfs_dfs_Info100_comment,
 	  { "Comment", "netdfs.dfs_Info100.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumInfo_info300, 
+	{ &hf_netdfs_dfs_EnumInfo_info300,
 	  { "Info300", "netdfs.dfs_EnumInfo.info300", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_state, 
+	{ &hf_netdfs_dfs_Info6_state,
 	  { "State", "netdfs.dfs_Info6.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB, 
+	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB,
 	  { "Dfs Volume State Ad Blob", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_AD_BLOB", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB_tfs), ( DFS_VOLUME_FLAVOR_AD_BLOB ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Add_comment, 
+	{ &hf_netdfs_dfs_Add_comment,
 	  { "Comment", "netdfs.dfs_Add.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_timeout, 
+	{ &hf_netdfs_dfs_Info6_timeout,
 	  { "Timeout", "netdfs.dfs_Info6.timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveFtRoot_rootshare, 
+	{ &hf_netdfs_dfs_RemoveFtRoot_rootshare,
 	  { "Rootshare", "netdfs.dfs_RemoveFtRoot.rootshare", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info105_timeout, 
+	{ &hf_netdfs_dfs_Info105_timeout,
 	  { "Timeout", "netdfs.dfs_Info105.timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info3_comment, 
+	{ &hf_netdfs_dfs_Info3_comment,
 	  { "Comment", "netdfs.dfs_Info3.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info3_state, 
+	{ &hf_netdfs_dfs_Info3_state,
 	  { "State", "netdfs.dfs_Info3.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_flags, 
+	{ &hf_netdfs_dfs_Info5_flags,
 	  { "Flags", "netdfs.dfs_Info5.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info7_generation_guid, 
+	{ &hf_netdfs_dfs_Info7_generation_guid,
 	  { "Generation Guid", "netdfs.dfs_Info7.generation_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveFtRoot_unknown, 
+	{ &hf_netdfs_dfs_RemoveFtRoot_unknown,
 	  { "Unknown", "netdfs.dfs_RemoveFtRoot.unknown", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumEx_total, 
+	{ &hf_netdfs_dfs_EnumEx_total,
 	  { "Total", "netdfs.dfs_EnumEx.total", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_GetInfo_level, 
+	{ &hf_netdfs_dfs_GetInfo_level,
 	  { "Level", "netdfs.dfs_GetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_num_stores, 
+	{ &hf_netdfs_dfs_Info5_num_stores,
 	  { "Num Stores", "netdfs.dfs_Info5.num_stores", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_pktsize, 
+	{ &hf_netdfs_dfs_Info6_pktsize,
 	  { "Pktsize", "netdfs.dfs_Info6.pktsize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray300_s, 
+	{ &hf_netdfs_dfs_EnumArray300_s,
 	  { "S", "netdfs.dfs_EnumArray300.s", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Add_server, 
+	{ &hf_netdfs_dfs_Add_server,
 	  { "Server", "netdfs.dfs_Add.server", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_comment, 
+	{ &hf_netdfs_dfs_Info5_comment,
 	  { "Comment", "netdfs.dfs_Info5.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_werror, 
+	{ &hf_netdfs_werror,
 	  { "Windows Error", "netdfs.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray3_count, 
+	{ &hf_netdfs_dfs_EnumArray3_count,
 	  { "Count", "netdfs.dfs_EnumArray3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT, 
+	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT,
 	  { "Dfs Volume State Inconsistent", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_INCONSISTENT", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT_tfs), ( 0x2 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_rootshare, 
+	{ &hf_netdfs_dfs_AddFtRoot_rootshare,
 	  { "Rootshare", "netdfs.dfs_AddFtRoot.rootshare", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Add_flags, 
+	{ &hf_netdfs_dfs_Add_flags,
 	  { "Flags", "netdfs.dfs_Add.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveStdRoot_servername, 
+	{ &hf_netdfs_dfs_RemoveStdRoot_servername,
 	  { "Servername", "netdfs.dfs_RemoveStdRoot.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveFtRoot_dfsname, 
+	{ &hf_netdfs_dfs_RemoveFtRoot_dfsname,
 	  { "Dfsname", "netdfs.dfs_RemoveFtRoot.dfsname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_dfs_config_dn, 
+	{ &hf_netdfs_dfs_AddFtRoot_dfs_config_dn,
 	  { "Dfs Config Dn", "netdfs.dfs_AddFtRoot.dfs_config_dn", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_dfsname, 
+	{ &hf_netdfs_dfs_AddFtRoot_dfsname,
 	  { "Dfsname", "netdfs.dfs_AddFtRoot.dfsname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Remove_sharename, 
+	{ &hf_netdfs_dfs_Remove_sharename,
 	  { "Sharename", "netdfs.dfs_Remove.sharename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info101_state, 
+	{ &hf_netdfs_dfs_Info101_state,
 	  { "State", "netdfs.dfs_Info101.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info103_flags, 
+	{ &hf_netdfs_dfs_Info103_flags,
 	  { "Flags", "netdfs.dfs_Info103.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info200_dom_root, 
+	{ &hf_netdfs_dfs_Info200_dom_root,
 	  { "Dom Root", "netdfs.dfs_Info200.dom_root", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_OFFLINE, 
+	{ &hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_OFFLINE,
 	  { "Dfs Storage State Offline", "netdfs.dfs_StorageState.DFS_STORAGE_STATE_OFFLINE", FT_BOOLEAN, 32, TFS(&dfs_StorageState_DFS_STORAGE_STATE_OFFLINE_tfs), ( 1 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_ONLINE, 
+	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_ONLINE,
 	  { "Dfs Volume State Online", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_ONLINE", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_ONLINE_tfs), ( 0x8 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info0, 
+	{ &hf_netdfs_dfs_Info_info0,
 	  { "Info0", "netdfs.dfs_Info.info0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_SetInfo_servername, 
+	{ &hf_netdfs_dfs_SetInfo_servername,
 	  { "Servername", "netdfs.dfs_SetInfo.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info1, 
+	{ &hf_netdfs_dfs_Info_info1,
 	  { "Info1", "netdfs.dfs_Info.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info2_num_stores, 
+	{ &hf_netdfs_dfs_Info2_num_stores,
 	  { "Num Stores", "netdfs.dfs_Info2.num_stores", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info2, 
+	{ &hf_netdfs_dfs_Info_info2,
 	  { "Info2", "netdfs.dfs_Info.info2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveFtRoot_dns_servername, 
+	{ &hf_netdfs_dfs_RemoveFtRoot_dns_servername,
 	  { "Dns Servername", "netdfs.dfs_RemoveFtRoot.dns_servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info3, 
+	{ &hf_netdfs_dfs_Info_info3,
 	  { "Info3", "netdfs.dfs_Info.info3", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info4, 
+	{ &hf_netdfs_dfs_Info_info4,
 	  { "Info4", "netdfs.dfs_Info.info4", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info5, 
+	{ &hf_netdfs_dfs_Info_info5,
 	  { "Info5", "netdfs.dfs_Info.info5", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE, 
+	{ &hf_netdfs_dfs_StorageState_DFS_STORAGE_STATE_ACTIVE,
 	  { "Dfs Storage State Active", "netdfs.dfs_StorageState.DFS_STORAGE_STATE_ACTIVE", FT_BOOLEAN, 32, TFS(&dfs_StorageState_DFS_STORAGE_STATE_ACTIVE_tfs), ( 4 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info6, 
+	{ &hf_netdfs_dfs_Info_info6,
 	  { "Info6", "netdfs.dfs_Info.info6", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Enum_level, 
+	{ &hf_netdfs_dfs_Enum_level,
 	  { "Level", "netdfs.dfs_Enum.level", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info7, 
+	{ &hf_netdfs_dfs_Info_info7,
 	  { "Info7", "netdfs.dfs_Info.info7", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info300_flavor, 
+	{ &hf_netdfs_dfs_Info300_flavor,
 	  { "Flavor", "netdfs.dfs_Info300.flavor", FT_UINT16, BASE_DEC, VALS(netdfs_dfs_VolumeFlavor_vals), 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRootForced_store, 
+	{ &hf_netdfs_dfs_AddStdRootForced_store,
 	  { "Store", "netdfs.dfs_AddStdRootForced.store", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_path, 
+	{ &hf_netdfs_dfs_Info5_path,
 	  { "Path", "netdfs.dfs_Info5.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_GetManagerVersion_version, 
+	{ &hf_netdfs_dfs_GetManagerVersion_version,
 	  { "Version", "netdfs.dfs_GetManagerVersion.version", FT_UINT32, BASE_DEC, VALS(netdfs_dfs_ManagerVersion_vals), 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info3_stores, 
+	{ &hf_netdfs_dfs_Info3_stores,
 	  { "Stores", "netdfs.dfs_Info3.stores", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE, 
+	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE,
 	  { "Dfs Volume State Standalone", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_STANDALONE", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE_tfs), ( DFS_VOLUME_FLAVOR_STANDALONE ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray3_s, 
+	{ &hf_netdfs_dfs_EnumArray3_s,
 	  { "S", "netdfs.dfs_EnumArray3.s", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info106_priority, 
+	{ &hf_netdfs_dfs_Info106_priority,
 	  { "Priority", "netdfs.dfs_Info106.priority", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_UnknownStruct_unknown1, 
+	{ &hf_netdfs_dfs_UnknownStruct_unknown1,
 	  { "Unknown1", "netdfs.dfs_UnknownStruct.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_UnknownStruct_unknown2, 
+	{ &hf_netdfs_dfs_UnknownStruct_unknown2,
 	  { "Unknown2", "netdfs.dfs_UnknownStruct.unknown2", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK, 
+	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OK,
 	  { "Dfs Volume State Ok", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_OK", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_OK_tfs), ( 0x1 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageInfo_server, 
+	{ &hf_netdfs_dfs_StorageInfo_server,
 	  { "Server", "netdfs.dfs_StorageInfo.server", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_SetInfo_dfs_entry_path, 
+	{ &hf_netdfs_dfs_SetInfo_dfs_entry_path,
 	  { "Dfs Entry Path", "netdfs.dfs_SetInfo.dfs_entry_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveStdRoot_flags, 
+	{ &hf_netdfs_dfs_RemoveStdRoot_flags,
 	  { "Flags", "netdfs.dfs_RemoveStdRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddFtRoot_flags, 
+	{ &hf_netdfs_dfs_AddFtRoot_flags,
 	  { "Flags", "netdfs.dfs_AddFtRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_ManagerInitialize_flags, 
+	{ &hf_netdfs_dfs_ManagerInitialize_flags,
 	  { "Flags", "netdfs.dfs_ManagerInitialize.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info4_path, 
+	{ &hf_netdfs_dfs_Info4_path,
 	  { "Path", "netdfs.dfs_Info4.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_state, 
+	{ &hf_netdfs_dfs_Info5_state,
 	  { "State", "netdfs.dfs_Info5.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_StorageInfo_share, 
+	{ &hf_netdfs_dfs_StorageInfo_share,
 	  { "Share", "netdfs.dfs_StorageInfo.share", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRoot_flags, 
+	{ &hf_netdfs_dfs_AddStdRoot_flags,
 	  { "Flags", "netdfs.dfs_AddStdRoot.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_num_stores, 
+	{ &hf_netdfs_dfs_Info6_num_stores,
 	  { "Num Stores", "netdfs.dfs_Info6.num_stores", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Target_Priority_target_priority_class, 
+	{ &hf_netdfs_dfs_Target_Priority_target_priority_class,
 	  { "Target Priority Class", "netdfs.dfs_Target_Priority.target_priority_class", FT_UINT32, BASE_DEC, VALS(netdfs_dfs_Target_PriorityClass_vals), 0, NULL, HFILL }},
-	{ &hf_netdfs_opnum, 
+	{ &hf_netdfs_opnum,
 	  { "Operation", "netdfs.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_INSITE_REFERRALS, 
+	{ &hf_netdfs_dfs_PropertyFlags_DFS_PROPERTY_FLAG_INSITE_REFERRALS,
 	  { "Dfs Property Flag Insite Referrals", "netdfs.dfs_PropertyFlags.DFS_PROPERTY_FLAG_INSITE_REFERRALS", FT_BOOLEAN, 32, TFS(&dfs_PropertyFlags_DFS_PROPERTY_FLAG_INSITE_REFERRALS_tfs), ( 0x01 ), NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info2_state, 
+	{ &hf_netdfs_dfs_Info2_state,
 	  { "State", "netdfs.dfs_Info2.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info106_state, 
+	{ &hf_netdfs_dfs_Info106_state,
 	  { "State", "netdfs.dfs_Info106.state", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info100, 
+	{ &hf_netdfs_dfs_Info_info100,
 	  { "Info100", "netdfs.dfs_Info.info100", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_AddStdRootForced_comment, 
+	{ &hf_netdfs_dfs_AddStdRootForced_comment,
 	  { "Comment", "netdfs.dfs_AddStdRootForced.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info101, 
+	{ &hf_netdfs_dfs_Info_info101,
 	  { "Info101", "netdfs.dfs_Info.info101", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Add_path, 
+	{ &hf_netdfs_dfs_Add_path,
 	  { "Path", "netdfs.dfs_Add.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info102_timeout, 
+	{ &hf_netdfs_dfs_Info102_timeout,
 	  { "Timeout", "netdfs.dfs_Info102.timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info102, 
+	{ &hf_netdfs_dfs_Info_info102,
 	  { "Info102", "netdfs.dfs_Info.info102", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info103, 
+	{ &hf_netdfs_dfs_Info_info103,
 	  { "Info103", "netdfs.dfs_Info.info103", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info104, 
+	{ &hf_netdfs_dfs_Info_info104,
 	  { "Info104", "netdfs.dfs_Info.info104", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info3_path, 
+	{ &hf_netdfs_dfs_Info3_path,
 	  { "Path", "netdfs.dfs_Info3.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info105, 
+	{ &hf_netdfs_dfs_Info_info105,
 	  { "Info105", "netdfs.dfs_Info.info105", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info_info106, 
+	{ &hf_netdfs_dfs_Info_info106,
 	  { "Info106", "netdfs.dfs_Info.info106", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_SetInfo_sharename, 
+	{ &hf_netdfs_dfs_SetInfo_sharename,
 	  { "Sharename", "netdfs.dfs_SetInfo.sharename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_ManagerInitialize_servername, 
+	{ &hf_netdfs_dfs_ManagerInitialize_servername,
 	  { "Servername", "netdfs.dfs_ManagerInitialize.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumInfo_info1, 
+	{ &hf_netdfs_dfs_EnumInfo_info1,
 	  { "Info1", "netdfs.dfs_EnumInfo.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info300_dom_root, 
+	{ &hf_netdfs_dfs_Info300_dom_root,
 	  { "Dom Root", "netdfs.dfs_Info300.dom_root", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray2_count, 
+	{ &hf_netdfs_dfs_EnumArray2_count,
 	  { "Count", "netdfs.dfs_EnumArray2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray300_count, 
+	{ &hf_netdfs_dfs_EnumArray300_count,
 	  { "Count", "netdfs.dfs_EnumArray300.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumInfo_info2, 
+	{ &hf_netdfs_dfs_EnumInfo_info2,
 	  { "Info2", "netdfs.dfs_EnumInfo.info2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Remove_dfs_entry_path, 
+	{ &hf_netdfs_dfs_Remove_dfs_entry_path,
 	  { "Dfs Entry Path", "netdfs.dfs_Remove.dfs_entry_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumInfo_info3, 
+	{ &hf_netdfs_dfs_EnumInfo_info3,
 	  { "Info3", "netdfs.dfs_EnumInfo.info3", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumEx_dfs_name, 
+	{ &hf_netdfs_dfs_EnumEx_dfs_name,
 	  { "Dfs Name", "netdfs.dfs_EnumEx.dfs_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_RemoveStdRoot_rootshare, 
+	{ &hf_netdfs_dfs_RemoveStdRoot_rootshare,
 	  { "Rootshare", "netdfs.dfs_RemoveStdRoot.rootshare", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumInfo_info4, 
+	{ &hf_netdfs_dfs_EnumInfo_info4,
 	  { "Info4", "netdfs.dfs_EnumInfo.info4", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info5_timeout, 
+	{ &hf_netdfs_dfs_Info5_timeout,
 	  { "Timeout", "netdfs.dfs_Info5.timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_EnumArray1_s, 
+	{ &hf_netdfs_dfs_EnumArray1_s,
 	  { "S", "netdfs.dfs_EnumArray1.s", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Remove_servername, 
+	{ &hf_netdfs_dfs_Remove_servername,
 	  { "Servername", "netdfs.dfs_Remove.servername", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info3_num_stores, 
+	{ &hf_netdfs_dfs_Info3_num_stores,
 	  { "Num Stores", "netdfs.dfs_Info3.num_stores", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info105_property_flag_mask, 
+	{ &hf_netdfs_dfs_Info105_property_flag_mask,
 	  { "Property Flag Mask", "netdfs.dfs_Info105.property_flag_mask", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info2_comment, 
+	{ &hf_netdfs_dfs_Info2_comment,
 	  { "Comment", "netdfs.dfs_Info2.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info6_guid, 
+	{ &hf_netdfs_dfs_Info6_guid,
 	  { "Guid", "netdfs.dfs_Info6.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_Info2_path, 
+	{ &hf_netdfs_dfs_Info2_path,
 	  { "Path", "netdfs.dfs_Info2.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_netdfs_dfs_SetInfo_info, 
+	{ &hf_netdfs_dfs_SetInfo_info,
 	  { "Info", "netdfs.dfs_SetInfo.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
