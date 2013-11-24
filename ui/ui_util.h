@@ -67,7 +67,7 @@ void packet_list_recreate_visible_rows(void);
 void packet_list_thaw(void);
 void packet_list_next(void);
 void packet_list_prev(void);
-guint packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo);
+guint packet_list_append(column_info *cinfo, frame_data *fdata);
 frame_data * packet_list_get_row_data(gint row);
 void packet_list_set_selected_row(gint row);
 void packet_list_enable_color(gboolean enable);

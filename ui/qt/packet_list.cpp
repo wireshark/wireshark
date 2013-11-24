@@ -62,10 +62,9 @@ static PacketList *gbl_cur_packet_list = NULL;
 const int max_comments_to_fetch_ = 20000000; // Arbitrary
 
 guint
-packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo)
+packet_list_append(column_info *cinfo, frame_data *fdata)
 {
     Q_UNUSED(cinfo);
-    Q_UNUSED(pinfo);
 
     if (!gbl_cur_packet_list)
         return 0;

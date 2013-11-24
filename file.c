@@ -1195,7 +1195,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (add_to_packet_list) {
     /* We fill the needed columns from new_packet_list */
-      row = packet_list_append(cinfo, fdata, &edt->pi);
+      row = packet_list_append(cinfo, fdata);
   }
 
   if (fdata->flags.passed_dfilter || fdata->flags.ref_time)

@@ -144,7 +144,7 @@ packet_list_recreate(void)
 }
 
 guint
-packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo _U_)
+packet_list_append(column_info *cinfo _U_, frame_data *fdata)
 {
 	/* fdata should be filled with the stuff we need
 	 * strings are built at display time.
