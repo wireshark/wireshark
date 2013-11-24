@@ -238,16 +238,16 @@ static const value_string type_vals[] = {
 };
 
 static const value_string machine_vals[] = {
-    { 0,  "No machine" },
-    { 1,  "AT&T WE 32100" },
-    { 2,  "SPARC" },
-    { 3,  "Intel 80386" },
-    { 4,  "Motorola 68000" },
-    { 5,  "Motorola 88000" },
-    { 7,  "Intel 80860" },
+    {  0,  "No machine" },
+    {  1,  "AT&T WE 32100" },
+    {  2,  "SPARC" },
+    {  3,  "Intel 80386" },
+    {  4,  "Motorola 68000" },
+    {  5,  "Motorola 88000" },
+    {  7,  "Intel 80860" },
     /* From Draft */
-    { 8,  "MIPS I Architecture" },
-    { 9,  "IBM System/370 Processor" },
+    {  8,  "MIPS I Architecture" },
+    {  9,  "IBM System/370 Processor" },
     { 10,  "MIPS RS3000 Little-endian" },
     { 15,  "Hewlett-Packard PA-RISC" },
     { 17,  "Fujitsu VPP500" },
@@ -402,6 +402,7 @@ static const value_string machine_vals[] = {
     { 204,  "Microchip 8-bit PIC(r) family" },
     { 0, NULL }
 };
+static value_string_ext machine_vals_ext = VALUE_STRING_EXT_INIT(machine_vals);
 
 /* From Draft */
 static const value_string os_abi_vals[] = {
@@ -422,6 +423,7 @@ static const value_string os_abi_vals[] = {
     { 0x10,  "The FenixOS highly scalable multi-core OS" },
     { 0, NULL }
 };
+static value_string_ext os_abi_vals_ext = VALUE_STRING_EXT_INIT(os_abi_vals);
 
 static const value_string p_type_vals[] = {
     { 0,  "PT_NULL" },
@@ -456,6 +458,7 @@ static const value_string sh_type_vals[] = {
     /* TODO: http://www.sco.com/developers/gabi/latest/ch4.sheader.html range_string? */
     { 0, NULL }
 };
+static value_string_ext sh_type_vals_ext = VALUE_STRING_EXT_INIT(sh_type_vals);
 
 static const value_string eh_dwarf_upper[] = {
     { 0x0,  "Normal Value"  },
@@ -518,6 +521,7 @@ static const value_string symbol_table_info_type_vals[] = {
     { 15,   "Processor Specific" },
     { 0, NULL }
 };
+static value_string_ext symbol_table_info_type_vals_ext = VALUE_STRING_EXT_INIT(symbol_table_info_type_vals);
 
 static const range_string symbol_table_shndx_rvals[] = {
     { 0x0000, 0x0000,  "Undefined" },
@@ -832,11 +836,11 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tr
 
     proto_item_append_text(info_item, " (Bind: %s, Type: %s)",
             val_to_str_const(info_bind, symbol_table_info_bind_vals, "Unknown"),
-            val_to_str_const(info_type, symbol_table_info_type_vals, "Unknown"));
+            val_to_str_ext_const(info_type, &symbol_table_info_type_vals_ext, "Unknown"));
 
     proto_item_append_text(entry_item, " (Bind: %s, Type: %s)",
             val_to_str_const(info_bind, symbol_table_info_bind_vals, "Unknown"),
-            val_to_str_const(info_type, symbol_table_info_type_vals, "Unknown"));
+            val_to_str_ext_const(info_type, &symbol_table_info_type_vals_ext, "Unknown"));
 
     return offset;
 }
@@ -1486,7 +1490,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_item_append_text(sh_entry_item, "User Specific (0x%08x)", sh_type);
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type_user_specific, tvb, offset, 4, machine_encoding);
         }else {
-            proto_item_append_text(sh_entry_item, "%s", val_to_str_const(sh_type, sh_type_vals, "Unknown"));
+            proto_item_append_text(sh_entry_item, "%s", val_to_str_ext_const(sh_type, &sh_type_vals_ext, "Unknown"));
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type, tvb, offset, 4, machine_encoding);
         }
         offset += 4;
@@ -1760,7 +1764,7 @@ proto_register_elf(void)
         },
         { &hf_elf_os_abi,
             { "OS ABI",                                    "elf.os_abi",
-            FT_UINT8, BASE_HEX, VALS(os_abi_vals), 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &os_abi_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_elf_abi_version,
@@ -1780,7 +1784,7 @@ proto_register_elf(void)
         },
         { &hf_elf_machine,
             { "Machine",                                   "elf.machine",
-            FT_UINT16, BASE_HEX, VALS(machine_vals), 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &machine_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_elf_version,
@@ -1967,7 +1971,7 @@ proto_register_elf(void)
         },
         { &hf_elf_sh_type,
             { "Type",                                      "elf.sh_type",
-            FT_UINT32, BASE_HEX_DEC, VALS(sh_type_vals), 0x00,
+            FT_UINT32, BASE_HEX_DEC | BASE_EXT_STRING, &sh_type_vals_ext, 0x00,
             "This member categorizes the section's contents and semantics.", HFILL }
         },
         { &hf_elf_sh_type_operating_system_specific,
@@ -2275,7 +2279,7 @@ proto_register_elf(void)
         },
         { &hf_elf_symbol_table_info_type,
             { "Type",                                      "elf.symbol_table.info.type",
-            FT_UINT8, BASE_HEX, VALS(symbol_table_info_type_vals), 0x0F,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &symbol_table_info_type_vals_ext, 0x0F,
             NULL, HFILL }
         },
         { &hf_elf_symbol_table_other,
