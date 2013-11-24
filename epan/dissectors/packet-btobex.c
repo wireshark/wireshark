@@ -1267,6 +1267,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         default:
                             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
                             offset += sub_parameter_length;
+                            break;
                         }
 
 
