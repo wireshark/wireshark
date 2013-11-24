@@ -151,6 +151,7 @@ event-y	UINT16	DEC	event y
 eventbutton	UINT8	DEC
 eventcode	UINT8	DEC	VALS
 eventwindow	UINT32	HEX
+extension	UINT8	DEC
 
 first-event	UINT8	DEC
 first-error	UINT8	DEC
@@ -231,6 +232,7 @@ event-mask	UINT32	HEX
 	OwnerGrabButton		BOOLEAN 32	0x01000000
 	erroneous-bits		BOOLEAN 32	0xfe000000
 
+eventlength	UINT32	DEC
 exact-blue	UINT16	DEC
 exact-green	UINT16	DEC
 exact-red	UINT16	DEC
