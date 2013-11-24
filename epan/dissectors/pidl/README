@@ -109,8 +109,15 @@ dcerpc_info * argument, but calls to those functions that don't:
 
 	frsrpc.idl
 
-pidl generates code that refers to types with "1632", rather than "16"
-or "32", in the name (and that don't actually exist):
+pidl generates code that refers to a type just named "g", perhaps
+because the NDR type is an empty string (not set?) and it's prepending
+"g" to the NDR type:
+
+	dfs.idl
+
+pidl generates code that, after declaring a guint1632 variable, has, on
+the next line, a declaration that has a blank, a letter, and a
+semicolon:
 
 	dfs.idl
 	frstrans.idl
