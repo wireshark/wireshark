@@ -51,14 +51,19 @@ gtk_iface_mon_event_cb(const char *iface, int up)
     interface_options interface_opts;
 
     for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
-      device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
-      if (!strcmp(device.name, iface)) {
-          present = 1;
-          if (!up) {
-          	 for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-                interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-                if (strcmp(interface_opts.name, device.name) == 0) {
-                	g_array_remove_index(global_capture_opts.ifaces, j);
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
+        if (strcmp(device.name, iface) == 0) {
+            present = 1;
+            if (!up) {
+                /*
+                 * Interface went down or disappeared; remove all instances
+                 * of it from the current list of interfaces selected
+                 * for capturing.
+                 */
+                for (j = 0; j < global_capture_opts.ifaces->len; j++) {
+                    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+                    if (strcmp(interface_opts.name, device.name) == 0) {
+                        g_array_remove_index(global_capture_opts.ifaces, j);
                 }
              }
           }
