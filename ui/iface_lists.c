@@ -213,9 +213,27 @@ scan_local_interfaces(void (*update_cb)(void))
             device.monitor_mode_enabled = monitor_mode;
             device.monitor_mode_supported = caps->can_set_rfmon;
 #endif
+            /*
+             * If there's a preference for the link-layer header type for
+             * this interface, use it.
+             *
+             * The global capture options has a link-layer header type,
+             * but that's just because the capture options structure
+             * has one; a global link-layer header type makes little
+             * sense, as not all interfaces support the same sets of
+             * link-layer header types, so we don't use it.
+             */
+            device.active_dlt = capture_dev_user_linktype_find(if_info->name);
+
+            /*
+             * Process the list of link-layer header types.
+             * If the active link-layer header type wasn't set from a
+             * preference (meaning it's -1), default to the first
+             * link-layer header type in the list.
+             */
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
                 data_link_info = (data_link_info_t *)lt_entry->data;
-                if (linktype_count == 0) {
+                if (linktype_count == 0 && device.active_dlt == -1) {
                     device.active_dlt = data_link_info->dlt;
                 }
                 link = (link_row *)g_malloc(sizeof(link_row));
@@ -228,11 +246,6 @@ scan_local_interfaces(void (*update_cb)(void))
                 }
                 device.links = g_list_append(device.links, link);
                 linktype_count++;
-            }
-            if (linktype_count > 0) {
-                if ((device.active_dlt = capture_dev_user_linktype_find(if_info->name)) == -1) {
-                    device.active_dlt = global_capture_opts.default_options.linktype;
-                }
             }
         } else {
 #if defined(HAVE_PCAP_CREATE)
