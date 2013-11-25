@@ -37,6 +37,8 @@
 
 #include <QTreeWidget>
 
+typedef QList<int> PointList;
+
 class InterfaceTree : public QTreeWidget
 {
     Q_OBJECT
@@ -62,12 +64,17 @@ public slots:
     // add_interface_to_list
     // change_interface_selection
     // change_interface_selection_for_all
+    //void getPoints(int row, QList<int> *pts);
+    void getPoints(int row, PointList *pts);
 
 private slots:
     void getInterfaceList();
     void updateStatistics(void);
     void updateSelectedInterfaces();
 };
+
+
+//Q_DECLARE_METATYPE(QList<int>)
 
 #endif // INTERFACE_TREE_H
 

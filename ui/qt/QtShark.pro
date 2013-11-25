@@ -222,6 +222,7 @@ HEADERS_WS_C  = \
 
 FORMS += \
     capture_preferences_frame.ui \
+    capture_interfaces_dialog.ui \
     column_preferences_frame.ui \
     decode_as_dialog.ui \
     export_object_dialog.ui \
@@ -252,6 +253,7 @@ FORMS += \
 
 HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
+    capture_interfaces_dialog.h \
     capture_preferences_frame.h \
     column_preferences_frame.h \
     decode_as_dialog.h \
@@ -546,6 +548,7 @@ SOURCES += \
     capture_filter_syntax_worker.cpp \
     capture_info_dialog.cpp \
     capture_interface_dialog.cpp \
+    capture_interfaces_dialog.cpp \
     capture_preferences_frame.cpp \
     color_dialog.cpp \
     color_utils.cpp \

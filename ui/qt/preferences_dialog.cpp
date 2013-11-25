@@ -64,6 +64,62 @@ pref_t *prefFromPrefPtr(void *pref_ptr)
     return pref_ptr_to_pref_[pref_ptr];
 }
 
+guint
+fill_advanced_prefs(module_t *module, gpointer root_ptr)
+{
+    QTreeWidgetItem *root_item = static_cast<QTreeWidgetItem *>(root_ptr);
+
+    if (!module || !root_item) return 1;
+
+    if (module->numprefs < 1 && !prefs_module_has_submodules(module)) return 0;
+
+    QString module_title = module->title;
+
+    QTreeWidgetItem *tl_item = new QTreeWidgetItem(root_item);
+    tl_item->setText(0, module_title);
+    tl_item->setToolTip(0, QString("<span>%1</span>").arg(module->description));
+    tl_item->setFirstColumnSpanned(true);
+
+    QList<QTreeWidgetItem *>tl_children;
+    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
+        pref_t *pref = (pref_t *) pref_l->data;
+
+        if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
+
+        const char *type_name = prefs_pref_type_name(pref);
+        if (!type_name) continue;
+
+        pref_stash(pref, NULL);
+
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        QString full_name = QString(module->name ? module->name : module->parent->name) + "." + pref->name;
+        QString type_desc = gchar_free_to_qstring(prefs_pref_type_description(pref));
+        QString default_value = gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed));
+
+        item->setData(0, Qt::UserRole, qVariantFromValue(pref));
+        item->setText(0, full_name);
+        item->setToolTip(0, QString("<span>%1</span>").arg(pref->description));
+        item->setToolTip(1, QObject::tr("Has this preference been changed?"));
+        item->setText(2, type_name);
+        item->setToolTip(2, QString("<span>%1</span>").arg(type_desc));
+        item->setToolTip(3, QString("<span>%1</span>").arg(
+                             default_value.isEmpty() ? default_value : QObject::tr("Default value is empty")));
+        tl_children << item;
+
+        // .uat is a void * so it wins the "useful key value" prize.
+        if (pref->varp.uat) {
+            pref_ptr_to_pref_[pref->varp.uat] = pref;
+        }
+    }
+    tl_item->addChildren(tl_children);
+
+    if(prefs_module_has_submodules(module))
+        return prefs_modules_foreach_submodules(module, fill_advanced_prefs, tl_item);
+
+    return 0;
+}
+
+
 extern "C" {
 // Callbacks prefs routines
 
@@ -148,61 +204,6 @@ module_prefs_show(module_t *module, gpointer ti_ptr)
 
     /* Attach the page to the tree item */
     new_item->setData(0, Qt::UserRole, qVariantFromValue(qobject_cast<QWidget *>(mpsa)));
-
-    return 0;
-}
-
-static guint
-fill_advanced_prefs(module_t *module, gpointer root_ptr)
-{
-    QTreeWidgetItem *root_item = static_cast<QTreeWidgetItem *>(root_ptr);
-
-    if (!module || !root_item) return 1;
-
-    if (module->numprefs < 1 && !prefs_module_has_submodules(module)) return 0;
-
-    QString module_title = module->title;
-
-    QTreeWidgetItem *tl_item = new QTreeWidgetItem(root_item);
-    tl_item->setText(0, module_title);
-    tl_item->setToolTip(0, QString("<span>%1</span>").arg(module->description));
-    tl_item->setFirstColumnSpanned(true);
-
-    QList<QTreeWidgetItem *>tl_children;
-    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
-        pref_t *pref = (pref_t *) pref_l->data;
-
-        if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
-
-        const char *type_name = prefs_pref_type_name(pref);
-        if (!type_name) continue;
-
-        pref_stash(pref, NULL);
-
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        QString full_name = QString(module->name ? module->name : module->parent->name) + "." + pref->name;
-        QString type_desc = gchar_free_to_qstring(prefs_pref_type_description(pref));
-        QString default_value = gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed));
-
-        item->setData(0, Qt::UserRole, qVariantFromValue(pref));
-        item->setText(0, full_name);
-        item->setToolTip(0, QString("<span>%1</span>").arg(pref->description));
-        item->setToolTip(1, QObject::tr("Has this preference been changed?"));
-        item->setText(2, type_name);
-        item->setToolTip(2, QString("<span>%1</span>").arg(type_desc));
-        item->setToolTip(3, QString("<span>%1</span>").arg(
-                             default_value.isEmpty() ? default_value : QObject::tr("Default value is empty")));
-        tl_children << item;
-
-        // .uat is a void * so it wins the "useful key value" prize.
-        if (pref->varp.uat) {
-            pref_ptr_to_pref_[pref->varp.uat] = pref;
-        }
-    }
-    tl_item->addChildren(tl_children);
-
-    if(prefs_module_has_submodules(module))
-        return prefs_modules_foreach_submodules(module, fill_advanced_prefs, tl_item);
 
     return 0;
 }

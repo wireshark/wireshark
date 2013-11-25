@@ -29,6 +29,7 @@
 #include <QTreeWidgetItem>
 
 #include "splash_overlay.h"
+#include "interface_tree.h"
 
 namespace Ui {
     class MainWelcome;
@@ -39,6 +40,7 @@ class MainWelcome : public QFrame
     Q_OBJECT
 public:
     explicit MainWelcome(QWidget *parent = 0);
+    InterfaceTree *getInterfaceTree();
 
 protected:
     void resizeEvent(QResizeEvent *event);

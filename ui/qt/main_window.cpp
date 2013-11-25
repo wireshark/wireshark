@@ -119,6 +119,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&summary_dialog_, SIGNAL(captureCommentChanged()), this, SLOT(updateForUnsavedChanges()));
 
+    connect(&capture_interfaces_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
+    connect(&capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
+
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
@@ -292,6 +295,9 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SLOT(captureFilterSyntaxChanged(bool)));
+
+    connect(&capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
+            this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }

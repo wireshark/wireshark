@@ -124,6 +124,8 @@ ui_%.h: %.ui
 #moc_%.cpp: %.h
 #	$(MOC) $< -o $@
 
+capture_interfaces_dialog.cpp capture_interfaces_dialog.h: ui_capture_interfaces_dialog.h
+
 capture_preferences_frame.cpp capture_preferences_frame.h: ui_capture_preferences_frame.h
 
 column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_frame.h

@@ -49,6 +49,8 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 {
     QTreeWidgetItem *ti;
 
+    qRegisterMetaType< PointList >( "PointList" );
+
     header()->setVisible(false);
     setRootIsDecorated(false);
     setUniformRowHeights(true);
@@ -198,6 +200,33 @@ void InterfaceTree::getInterfaceList()
     addTopLevelItem(ti);
     resizeColumnToContents(0);
 #endif // HAVE_LIBPCAP
+}
+
+void InterfaceTree::getPoints(int row, PointList *pts)
+{
+    QTreeWidgetItemIterator iter(this);
+    qDebug("iter;..!");
+
+    for (int i = 0; (*iter); i++)
+    {
+        if (row == i)
+        {
+            qDebug("found! row:%d", row);
+            QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+            QList<int> *punkt = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
+            for (int j = 0; j < punkt->length(); j++)
+            {
+                pts->append(punkt->at(j));
+            }
+            //pts = new QList<int>(*punkt);
+            //pts->operator =(punkt);
+            //pts = punkt;
+            //pts->append(150);
+            qDebug("done");
+            return;
+        }
+        iter++;
+    }
 }
 
 void InterfaceTree::updateStatistics(void) {

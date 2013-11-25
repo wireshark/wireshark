@@ -58,6 +58,7 @@
 #include "capture_file_dialog.h"
 #include "summary_dialog.h"
 #include "follow_stream_dialog.h"
+#include "capture_interfaces_dialog.h"
 
 class QAction;
 
@@ -116,6 +117,7 @@ private:
 
     bool capture_stopping_;
     bool capture_filter_valid_;
+    CaptureInterfacesDialog capture_interfaces_dialog_;
 
     // Pipe input
     gint                pipe_source_;
@@ -320,6 +322,8 @@ private slots:
     void on_actionStatisticsTcpStreamThroughput_triggered();
     void on_actionStatisticsTcpStreamRoundTripTime_triggered();
     void on_actionStatisticsTcpStreamWindowScaling_triggered();
+
+    void on_actionCaptureInterfaces_triggered();
 
     void openStatisticsTreeDialog(const gchar *abbr);
     void on_actionStatisticsANCP_triggered();

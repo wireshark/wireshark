@@ -167,6 +167,11 @@ MainWelcome::MainWelcome(QWidget *parent) :
     splash_overlay_ = new SplashOverlay(this);
 }
 
+InterfaceTree *MainWelcome::getInterfaceTree()
+{
+    return welcome_ui_->interfaceTree;
+}
+
 void MainWelcome::destroySplashOverlay()
 {
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)

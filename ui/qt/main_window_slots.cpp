@@ -2013,11 +2013,6 @@ void MainWindow::on_goToLineEdit_returnPressed()
     on_goToGo_clicked();
 }
 
-void MainWindow::on_actionCaptureOptions_triggered()
-{
-    qDebug() << "Capture options";
-}
-
 void MainWindow::on_actionStartCapture_triggered()
 {
 //#ifdef HAVE_AIRPCAP
@@ -2081,6 +2076,44 @@ void MainWindow::on_actionSummary_triggered()
     summary_dialog_.raise();
     summary_dialog_.activateWindow();
 }
+
+void MainWindow::on_actionCaptureInterfaces_triggered()
+{
+    capture_interfaces_dialog_.SetTab(0);
+    capture_interfaces_dialog_.UpdateInterfaces();
+
+    if (capture_interfaces_dialog_.isMinimized() == true)
+    {
+        capture_interfaces_dialog_.showNormal();
+    }
+    else
+    {
+        capture_interfaces_dialog_.show();
+    }
+
+    capture_interfaces_dialog_.raise();
+    capture_interfaces_dialog_.activateWindow();
+}
+
+void MainWindow::on_actionCaptureOptions_triggered()
+{
+    capture_interfaces_dialog_.SetTab(2);
+    capture_interfaces_dialog_.UpdateInterfaces();
+
+    if (capture_interfaces_dialog_.isMinimized() == true)
+    {
+        capture_interfaces_dialog_.showNormal();
+    }
+    else
+    {
+        capture_interfaces_dialog_.show();
+    }
+
+    capture_interfaces_dialog_.raise();
+    capture_interfaces_dialog_.activateWindow();
+}
+
+
 
 /*
  * Editor modelines
