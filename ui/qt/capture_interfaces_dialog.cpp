@@ -290,8 +290,10 @@ void CaptureInterfacesDialog::UpdateInterfaces()
             output = QString().sprintf("%d", device.buffer);
             ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, BUFFER, new QTableWidgetItem(output));
 
+#if defined (HAVE_PCAP_CREATE)
             output = QString(device.monitor_mode_enabled ? "true" : "false");
             ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, MONITOR, new QTableWidgetItem(output));
+#endif
 
             if (strstr(prefs.capture_device, device.name) != NULL) {
                 device.selected = TRUE;
