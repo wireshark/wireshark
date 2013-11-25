@@ -560,8 +560,6 @@ static const value_string siii_mdt_idn_text[]=
   {IDN(0,0,0,0,1024), "SERCOS III: Ring control - node control"},
   {IDN(0,0,0,0,1025), "SERCOS III: Ring status - node status"},
   {IDN(0,0,0,0,1026), "SERCOS III: Hardware identification"},
-  {IDN(1,0,0,0,1027), "Requested MTU"},
-  {IDN(2,0,0,0,1027), "Effective MTU"},
   {IDN(0,0,0,0,1028), "SERCOS III: Error counter MDT0 MST"},
   {IDN(0,0,0,0,1029), "SERCOS III: Error counter MDT0-3"},
   {IDN(0,0,0,0,1030), "SERCOS III: Error counter AT0-3"},
@@ -574,8 +572,11 @@ static const value_string siii_mdt_idn_text[]=
   {IDN(0,0,0,0,1046), "IDN-list of SERCOS addresses in device"},
   {IDN(0,0,0,0,1134), "SERCOS III: Device control"},
   {IDN(0,0,0,0,1135), "SERCOS III: Device status"},
+  {IDN(1,0,0,0,1027), "Requested MTU"},
+  {IDN(2,0,0,0,1027), "Effective MTU"},
   {0, NULL}
 };
+static value_string_ext siii_mdt_idn_text_ext = VALUE_STRING_EXT_INIT(siii_mdt_idn_text);
 
 static const value_string siii_mdt_svch_dbe_text[]=
 {
@@ -743,6 +744,8 @@ static const value_string siii_mdt_hotplug_control_functioncode_text[]=
   {0x83, "AT-RTD pointer"},
   {0, NULL}
 };
+static value_string_ext siii_mdt_hotplug_control_functioncode_text_ext =
+    VALUE_STRING_EXT_INIT(siii_mdt_hotplug_control_functioncode_text);
 
 static const value_string siii_mdt_hotplug_control_svc_switch_text[]=
 {
@@ -774,9 +777,9 @@ static const value_string siii_at_hotplug_status_error_text[]=
 
 void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_item*  ti;
-  proto_tree* subtree;
-  proto_tree* subtree2;
+  proto_item *ti;
+  proto_tree *subtree;
+  proto_tree *subtree2;
 
   ti = proto_tree_add_text(tree, tvb, 0, 6, "MST");
   subtree = proto_item_add_subtree(ti, ett_siii_mst);
@@ -784,25 +787,25 @@ void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   ti = proto_tree_add_text(subtree, tvb, 0, 1, "Telegram Type");
   subtree2 = proto_item_add_subtree(ti, ett_siii_mst_teltype);
 
-  proto_tree_add_item(subtree2, hf_siii_mst_channel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_mst_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_mst_channel,       tvb, 0, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_mst_type,          tvb, 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_mst_cyclecntvalid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_mst_telno, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_mst_telno,         tvb, 0, 1, ENC_LITTLE_ENDIAN);
 
   ti = proto_tree_add_text(subtree, tvb, 1, 1, "Phase Field");
   subtree2 = proto_item_add_subtree(ti, ett_siii_mst_phase);
 
-  proto_tree_add_item(subtree2, hf_siii_mst_phase, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_mst_phase,    tvb, 1, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_mst_cyclecnt, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mst_crc32, tvb, 2, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_mst_crc32,     tvb, 2, 4, ENC_LITTLE_ENDIAN);
 
 }
 
 void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree* subtree;
-  proto_tree* subtree2;
-  proto_item* ti;
+  proto_tree *subtree;
+  proto_tree *subtree2;
+  proto_item *ti;
 
   ti = proto_tree_add_text(tree, tvb, 0, 8, "Hot-Plug");
   subtree = proto_item_add_subtree(ti, ett_siii_mdt_hp);
@@ -813,28 +816,28 @@ void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   subtree2 = proto_item_add_subtree(ti, ett_siii_mdt_hp_ctrl);
 
   proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_svc_switch, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_param, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_param,      tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
   proto_tree_add_item(subtree, hf_siii_mdt_hp_info, tvb, 4, 4, ENC_NA);
 }
 
 void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree* subtree;
-  proto_item* ti;
+  proto_tree *subtree;
+  proto_item *ti;
 
   ti = proto_tree_add_item(tree, hf_siii_mdt_dev_control, tvb, 0, 2, ENC_LITTLE_ENDIAN);
   subtree = proto_item_add_subtree(ti, ett_siii_mdt_devctrl);
 
-  proto_tree_add_item(subtree, hf_siii_at_dev_control_ident, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_control_ident,            tvb, 0, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree, hf_siii_mdt_dev_control_change_topology, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_top_control, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_top_control,     tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be needed in later versions */
 {
-  proto_tree* subtree;
-  proto_item* ti;
+  proto_tree *subtree;
+  proto_item *ti;
 
   guint16 svc_ctrl = tvb_get_letohs(tvb, 0); /* service channel header */
   guint32 svc_info = tvb_get_letohl(tvb, 2); /* service channel data */
@@ -845,28 +848,29 @@ void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
   proto_tree_add_item(subtree, hf_siii_mdt_svch_dbe, tvb, 0, 2, ENC_LITTLE_ENDIAN); /* data block element */
   proto_tree_add_item(subtree, hf_siii_mdt_svch_eot, tvb, 0, 2, ENC_LITTLE_ENDIAN); /* end of transmission */
-  proto_tree_add_item(subtree, hf_siii_mdt_svch_rw, tvb, 0, 2, ENC_LITTLE_ENDIAN);  /* read or write */
+  proto_tree_add_item(subtree, hf_siii_mdt_svch_rw,  tvb, 0, 2, ENC_LITTLE_ENDIAN);  /* read or write */
   proto_tree_add_item(subtree, hf_siii_mdt_svch_mhs, tvb, 0, 2, ENC_LITTLE_ENDIAN); /* master hand shake */
 
   ti = proto_tree_add_item(tree, hf_siii_mdt_svch_info, tvb, 2, 4, ENC_NA);
 
-  if(1 == svc_dbe)
+  if (1 == svc_dbe)
   {
     subtree = proto_item_add_subtree(ti, ett_siii_mdt_svcinfo);
     proto_tree_add_text(subtree, tvb, 2, 4, "IDN code: %c-%u-%04d.%d.%d",
       ((0xFFFF & svc_info)>>15)?'P':'S', /* private or sercos IDN */
-      (svc_info>>12)&7, /* parameter record */
-      (svc_info&4095), /* IDN */
-      (svc_info>>24) & 0xFF, /* structure index */
-      (svc_info>>16) & 0xFF); /* structure element */
+      (svc_info>>12)&7,                  /* parameter record */
+      (svc_info&4095),                   /* IDN */
+      (svc_info>>24) & 0xFF,             /* structure index */
+      (svc_info>>16) & 0xFF);            /* structure element */
     proto_tree_add_item(subtree, hf_siii_mdt_svch_idn, tvb, 2, 4, ENC_LITTLE_ENDIAN);
   }
 }
 
 static void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_item* ti;
-  proto_tree* subtree;
+  proto_item *ti;
+  proto_tree *subtree;
+
   ti = proto_tree_add_item(tree, hf_siii_mdt_version, tvb, 0, 4, ENC_LITTLE_ENDIAN);
   subtree = proto_item_add_subtree(ti, ett_siii_mdt_version);
 
@@ -878,15 +882,15 @@ static void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
-  guint devstart = telno * SERCOS_SLAVE_GROUP_SIZE; /* MDT0: slaves 0-127; MDT1: slaves 128-255; ... */
-  tvbuff_t* tvb_n;
+  guint     devstart = telno * SERCOS_SLAVE_GROUP_SIZE; /* MDT0: slaves 0-127; MDT1: slaves 128-255; ... */
+  tvbuff_t *tvb_n;
 
   guint idx;
 
-  proto_item* ti;
-  proto_tree* subtree;
-  proto_tree* subtree_svc;
-  proto_tree* subtree_devctrl;
+  proto_item *ti;
+  proto_tree *subtree;
+  proto_tree *subtree_svc;
+  proto_tree *subtree_devctrl;
 
   ti = proto_tree_add_text(tree, tvb, 0, SERCOS_SLAVE_GROUP_SIZE * 6, "Service Channels");
   subtree_svc = proto_item_add_subtree(ti, ett_siii_mdt_svc);
@@ -894,7 +898,7 @@ static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   ti = proto_tree_add_text(tree, tvb, SERCOS_SLAVE_GROUP_SIZE * 6, 512, "Device Control");
   subtree_devctrl = proto_item_add_subtree(ti, ett_siii_mdt_svc);
 
-  for(idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each MDT of CP1/2 has data for 128 different slaves */
+  for (idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each MDT of CP1/2 has data for 128 different slaves */
   {
     tvb_n = tvb_new_subset(tvb, 6 * idx, 6, 6); /* subset for service channel data */
 
@@ -913,9 +917,9 @@ static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
-  guint devstart _U_ = telno * SERCOS_SLAVE_GROUP_SIZE;
+  /* guint devstart _U_ = telno * SERCOS_SLAVE_GROUP_SIZE; */
 
-  if(0 == telno) /* dissect hotplug field in MDT0 only */
+  if (0 == telno) /* dissect hotplug field in MDT0 only */
     dissect_siii_mdt_hp(tvb, pinfo, tree);
 
   /* offsets of service channel, device status and connections are unknown
@@ -928,19 +932,19 @@ static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item* ti;
-  proto_tree* subtree;
-  tvbuff_t* tvb_n;
+  proto_item *ti;
+  proto_tree *subtree;
+  tvbuff_t   *tvb_n;
 
-  guint t_phase;
-  guint telno;
+  guint       t_phase;
+  guint       telno;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIII MDT");
 
   t_phase = (tvb_get_guint8(tvb, 1)&0x8F); /* read communication phase out of SERCOS III header */
-  telno = (tvb_get_guint8(tvb, 0) & 0xF); /* read number of MDT out of SERCOS III header */
+  telno   = (tvb_get_guint8(tvb, 0) & 0xF); /* read number of MDT out of SERCOS III header */
 
-  if(t_phase & 0x80) /* communication phase switching in progress */
+  if (t_phase & 0x80) /* communication phase switching in progress */
   {
     col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP?s -> CP%u",
           (t_phase&0x0f));
@@ -956,7 +960,7 @@ void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_siii_mst(tvb, pinfo, subtree); /* dissect SERCOS III header */
 
-  switch(t_phase) /* call the MDT dissector depending on the current communication phase */
+  switch (t_phase) /* call the MDT dissector depending on the current communication phase */
   {
   case COMMUNICATION_PHASE_0: /* CP0 */
     tvb_n = tvb_new_subset(tvb, 6, 40, 40);
@@ -982,68 +986,68 @@ void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be used in later versions */
 {
-  proto_tree* subtree;
-  proto_item* ti;
+  proto_tree *subtree;
+  proto_item *ti;
 
   ti = proto_tree_add_item(tree, hf_siii_at_svch_stat, tvb, 0, 2, ENC_LITTLE_ENDIAN);
   subtree = proto_item_add_subtree(ti, ett_siii_at_svcstat);
 
   proto_tree_add_item(subtree, hf_siii_at_svch_valid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree, hf_siii_at_svch_error, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_svch_busy, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_svch_ahs, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_svch_busy,  tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_svch_ahs,   tvb, 0, 2, ENC_LITTLE_ENDIAN);
 
   proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, ENC_NA);
 }
 
 void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree* subtree;
-  proto_item* ti;
+  proto_tree *subtree;
+  proto_item *ti;
 
-  ti = proto_tree_add_item(tree, hf_siii_at_dev_status, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  ti = proto_tree_add_item(tree, hf_siii_at_dev_status,                             tvb, 0, 2, ENC_LITTLE_ENDIAN);
   subtree = proto_item_add_subtree(ti, ett_siii_at_devstatus);
 
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_commwarning, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_change_topology, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_top_status, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_inactive_port_status, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_errorconnection, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_slave_valid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_proc_command_change, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_commwarning,                   tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_change_topology,               tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_top_status,                    tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_inactive_port_status,          tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_errorconnection,               tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_slave_valid,                   tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_proc_command_change,           tvb, 0, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree, hf_siii_at_dev_status_parameterization_level_active, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree* subtree;
-  proto_tree* subtree2;
-  proto_item* ti;
+  proto_tree *subtree;
+  proto_tree *subtree2;
+  proto_item *ti;
 
   ti = proto_tree_add_text(tree, tvb, 0, 8, "Hot-Plug");
   subtree = proto_item_add_subtree(ti, ett_siii_at_hp);
 
-  proto_tree_add_item(subtree, hf_siii_at_hotplug_address, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_hotplug_address,              tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
-  ti = proto_tree_add_item(subtree, hf_siii_at_hp_stat, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  ti = proto_tree_add_item(subtree, hf_siii_at_hp_stat,                 tvb, 2, 2, ENC_LITTLE_ENDIAN);
   subtree2 = proto_item_add_subtree(ti, ett_siii_at_hp_stat);
 
-  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_error, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_error,        tvb, 2, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_hp0_finished, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_param, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_param,        tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
-  proto_tree_add_item(subtree, hf_siii_at_hp_info, tvb, 4, 4, ENC_NA);
+  proto_tree_add_item(subtree, hf_siii_at_hp_info,                      tvb, 4, 4, ENC_NA);
 }
 
 static void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint16 seqcnt; /* sequence counter */
-  guint16 tfield; /* topology field for sercos addresses */
-  guint16 i;
-  char devices[]="Recognized Devices"; /* fixme: it would be nice to have this as subtree */
+  guint16     seqcnt;           /* sequence counter */
+  guint16     tfield;           /* topology field for sercos addresses */
+  guint16     i;
   static char outbuf[200];
 
-  proto_tree_add_text(tree, tvb, 0, 1024, "%s", devices);
+ /* fixme: it would be nice to have this as subtree */
+  proto_tree_add_text(tree, tvb, 0, 1024, "Recognized Devices");
 
   /* check sequence count field */
   seqcnt = tvb_get_letohs(tvb, 0);
@@ -1051,15 +1055,15 @@ static void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   proto_tree_add_text(tree, tvb, 0, 2, "%s", outbuf);
 
   /* check SERCOS address of each topology field */
-  for(i=1;i < MAX_SERCOS_DEVICES; ++i)
+  for (i = 1; i < MAX_SERCOS_DEVICES; ++i)
   {
     tfield = tvb_get_letohs(tvb, i*2);
 
-    if(tfield == 0)
+    if (tfield == 0)
     {
       g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: No SERCOS Address", i);
     }
-    else if(tfield == 0xFFFF)
+    else if (tfield == 0xFFFF)
     {
       g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: No Device", i);
     }
@@ -1073,15 +1077,15 @@ static void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
-  guint devstart = telno * SERCOS_SLAVE_GROUP_SIZE; /* AT0: slaves 0-127; AT1: slaves 128-255; ... */
-  tvbuff_t* tvb_n;
+  guint     devstart = telno * SERCOS_SLAVE_GROUP_SIZE; /* AT0: slaves 0-127; AT1: slaves 128-255; ... */
+  tvbuff_t *tvb_n;
 
   guint idx;
 
-  proto_item* ti; /* temporary item */
-  proto_tree* subtree;
-  proto_tree* subtree_svc;
-  proto_tree* subtree_devstat;
+  proto_item *ti;
+  proto_tree *subtree;
+  proto_tree *subtree_svc;
+  proto_tree *subtree_devstat;
 
   ti = proto_tree_add_text(tree, tvb, 0, SERCOS_SLAVE_GROUP_SIZE * 6, "Service Channel");
   subtree_svc = proto_item_add_subtree(ti, ett_siii_at_svc);
@@ -1089,7 +1093,7 @@ static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   ti = proto_tree_add_text(tree, tvb, SERCOS_SLAVE_GROUP_SIZE * 6, 512, "Device Status");
   subtree_devstat = proto_item_add_subtree(ti, ett_siii_at_devstats);
 
-  for(idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each AT of CP1/2 has data of 128 different slaves */
+  for (idx = 0; idx < SERCOS_SLAVE_GROUP_SIZE; ++idx) /* each AT of CP1/2 has data of 128 different slaves */
   {
     tvb_n = tvb_new_subset(tvb, 6 * idx, 6, 6); /* subset for service channel data */
 
@@ -1107,7 +1111,7 @@ static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
-  if(0 == telno) /* dissect hotplug field in AT0 only */
+  if (0 == telno) /* dissect hotplug field in AT0 only */
     dissect_siii_at_hp(tvb, pinfo, tree);
 
   /* offsets of service channel, device status and connections are unknown
@@ -1120,19 +1124,19 @@ static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item*  ti; /* temporary item */
-  proto_tree* subtree;
-  tvbuff_t* tvb_n;
+  proto_item *ti;
+  proto_tree *subtree;
+  tvbuff_t   *tvb_n;
 
-  guint8 phase;
-  guint telno;
+  guint8      phase;
+  guint       telno;
 
   phase = (tvb_get_guint8(tvb, 1)&0x8F); /* read communication phase out of SERCOS III header*/
   telno = (tvb_get_guint8(tvb, 0) & 0xF); /* read number of AT out of SERCOS III header */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIII AT");
 
-  if(phase & 0x80) /* communication phase switching in progress */
+  if (phase & 0x80) /* communication phase switching in progress */
   {
     col_append_fstr(pinfo->cinfo, COL_INFO, " Phase=CP?s -> CP%u",
           (phase&0x0f));
@@ -1148,7 +1152,7 @@ void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_siii_mst(tvb, pinfo, subtree); /* dissect SERCOS III header */
 
-    switch(phase) /* call the AT dissector depending on the current communication phase */
+    switch (phase) /* call the AT dissector depending on the current communication phase */
     {
     case COMMUNICATION_PHASE_0: /* CP0 */
       tvb_n = tvb_new_subset(tvb, 6, 1024, 1024);
@@ -1177,12 +1181,12 @@ void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item*  ti;
-  proto_tree*  siii_tree;
-  guint    type;
-  const char* tel_ch="?";
-  const char* tel_type="?";
-  guint tel_no = 0;
+  proto_item *ti;
+  proto_tree *siii_tree;
+  guint       type;
+  const char *tel_ch   = "?";
+  const char *tel_type = "?";
+  guint       tel_no   = 0;
 
   /* setup columns */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SERCOS III V1.1");
@@ -1198,15 +1202,15 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* check what we got on our hand */
   type = tvb_get_guint8(tvb, 0);
-  if(type&0x80) /* primary or secondary channel */
-    tel_ch="S";
+  if (type & 0x80) /* primary or secondary channel */
+    tel_ch = "S";
   else
-    tel_ch="P";
+    tel_ch = "P";
 
-  if(type&0x40) /* master data telegram (mdt) or slave telegram (at) */
-    tel_type="AT ";
+  if (type & 0x40) /* master data telegram (mdt) or slave telegram (at) */
+    tel_type = "AT ";
   else
-    tel_type="MDT";
+    tel_type = "MDT";
 
   tel_no = type &0xF; /* even though it's reserved (the V1.1 spec states that it is reserved for additional MDT/AT) */
 
@@ -1217,7 +1221,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   siii_tree = proto_item_add_subtree(ti, ett_siii);
 
    /* enter the specific dissector for AT or MDT */
-  if(type & 0x40)
+  if (type & 0x40)
     dissect_siii_at(tvb, pinfo, siii_tree);
   else
     dissect_siii_mdt(tvb, pinfo, siii_tree);
@@ -1340,7 +1344,7 @@ proto_register_sercosiii(void)
     },
     { &hf_siii_mdt_svch_idn,
       {"IDN", "siii.mdt.svch.idn",
-      FT_UINT32, BASE_HEX, VALS(siii_mdt_idn_text), 0,
+      FT_UINT32, BASE_HEX | BASE_EXT_STRING, &siii_mdt_idn_text_ext, 0,
       NULL, HFILL }
     },
     { &hf_siii_mdt_svch_dbe,
@@ -1486,7 +1490,7 @@ proto_register_sercosiii(void)
     },
     { &hf_siii_mdt_hotplug_control_param,
       {"Parameter", "siii.mdt.hp.parameter",
-        FT_UINT16, BASE_DEC, VALS(siii_mdt_hotplug_control_functioncode_text), 0xFF,
+        FT_UINT16, BASE_DEC | BASE_EXT_STRING, &siii_mdt_hotplug_control_functioncode_text_ext, 0xFF,
         NULL, HFILL }
     },
     { &hf_siii_mdt_hotplug_control_svc_switch,
@@ -1575,3 +1579,16 @@ proto_reg_handoff_sercosiii(void)
   siii_handle = create_dissector_handle(dissect_siii, proto_siii);
   dissector_add_uint("ethertype", ETHERTYPE_SERCOS, siii_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
