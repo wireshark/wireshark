@@ -95,8 +95,10 @@ private:
     Ui::CaptureInterfacesDialog *ui;
     Qt::CheckState m_pressedItemState;
 
+#ifdef HAVE_LIBPCAP
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
+#endif // HAVE_LIBPCAP
 };
 
 #endif // CAPTURE_INTERFACES_DIALOG_H
