@@ -10,9 +10,22 @@
 		6.3.2 Experimental-Result-Code AVP values defined in the present
 		document
 	This clause defines the specific values of the Experimental-Result-Code AVP (vendor-id is ETSI):
-	-->
+  
+  XXX prefixed with ETSI to not clash with the IETF one, that causes some filter problem with Wireshark when creating custom columns
+  
+  The following tshark parameters ” -Y diameter -z
+proto,colinfo,diameter.Experimental-Result-Code,diameter.Experimental-Result-Code”
+
+yields no result where as
+
+-Y diameter -z proto,colinfo,diameter.Result-Code,diameter.Result-Code
+
+Does
+  
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="no" >
-			<type type-name="Unsigned32"/>
+	-->
+    <avp name="ETSI-Experimental-Result-Code" code="298" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="no" >
+      <type type-name="Unsigned32"/>
 			<enum name="INSUFFICIENT_RESOURCES" code="4041"/>
 			<enum name="COMMIT_FAILURE"		code="4043"/>
 			<enum name="REFRESH_FAILURE"		code="4044"/>
