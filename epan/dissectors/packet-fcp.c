@@ -618,7 +618,7 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fchdr)
+dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, fc_hdr *fchdr)
 {
     guint8 r_ctl;
 
