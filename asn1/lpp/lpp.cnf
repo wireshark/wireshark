@@ -255,15 +255,15 @@ PolygonPoints/degreesLongitude DISPLAY=BASE_CUSTOM STRINGS=&lpp_degreesLongitude
     }
   }
 
-#.FN_BODY PeriodicalReportingCriteria/reportingInterval VAL_PTR=&index
-  guint32 index;
+#.FN_BODY PeriodicalReportingCriteria/reportingInterval VAL_PTR=&idx
+  guint32 idx;
   const gchar *interval[10] = {"", ": 1 s", ": 2 s", ": 4 s", ": 8 s", ": 10 s",
                                ": 16 s", ": 20 s", ": 32 s", ": 64 s"};
 
 %(DEFAULT_BODY)s
 
 #.FN_FTR PeriodicalReportingCriteria/reportingInterval
-  proto_item_append_text(actx->created_item, "%s", interval[index]);
+  proto_item_append_text(actx->created_item, "%s", interval[idx]);
 
 #.FN_BODY ReportingDuration VAL_PTR = &duration
   guint32 duration;
