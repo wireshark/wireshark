@@ -1285,7 +1285,7 @@ static const value_string rtp_midi_note_values[] = {
 	{ 127,								"G9" },
 	{ 0,								NULL }
 };
-
+static value_string_ext rtp_midi_note_values_ext = VALUE_STRING_EXT_INIT(rtp_midi_note_values);
 
 
 
@@ -1360,7 +1360,7 @@ static const value_string rtp_midi_controller_values[] = {
 	{ RTP_MIDI_CTRL_POLY_MODE_ON,					"Poly Mode On" },
 	{ 0,								NULL }
 };
-
+static value_string_ext rtp_midi_controller_values_ext = VALUE_STRING_EXT_INIT(rtp_midi_controller_values);
 
 
 static const value_string rtp_midi_manu_short_values[] = {
@@ -1404,8 +1404,8 @@ static const value_string rtp_midi_manu_short_values[] = {
 	{ RTP_MIDI_MANU_SHORT_SOLTON,					"Solton" },
 	{ RTP_MIDI_MANU_SHORT_JELLINGHAUS_MS,				"Jellinghaus MS" },
 	{ RTP_MIDI_MANU_SHORT_SOUTHWORK_MUSIC_SYSTEMS,			"Southworks Music Systems" },
-	{ RTP_MIDI_MANU_SHORT_JEN,					"JEN" },
 	{ RTP_MIDI_MANU_SHORT_PPG,					"PPG" },
+	{ RTP_MIDI_MANU_SHORT_JEN,					"JEN" },
 	{ RTP_MIDI_MANU_SHORT_SSL,					"SSL (Solid States Logic)" },
 	{ RTP_MIDI_MANU_SHORT_AUDIO_VERITRIEB,				"Audio Veritrieb" },
 	{ RTP_MIDI_MANU_SHORT_NEVE_HINTON_INSTRUMENTS,			"Neve / Hinton Instruments" },
@@ -1459,6 +1459,7 @@ static const value_string rtp_midi_manu_short_values[] = {
 	{ RTP_MIDI_MANU_SHORT_REALTIME_UNIVERSAL,			"Realtime Universal" },
 	{ 0,								NULL }
 };
+static value_string_ext rtp_midi_manu_short_values_ext = VALUE_STRING_EXT_INIT(rtp_midi_manu_short_values);
 
 static const value_string rtp_midi_manu_long_values[] = {
 	/* North American Manufacturers */
@@ -1852,6 +1853,7 @@ static const value_string rtp_midi_manu_long_values[] = {
 	{ RTP_MIDI_MANU_LONG_DM_HOLDINGS_INC,				"D&M Holdings Inc." },
 	{ 0,								NULL }
 };
+static value_string_ext rtp_midi_manu_long_values_ext = VALUE_STRING_EXT_INIT(rtp_midi_manu_long_values);
 
 static const value_string rtp_midi_channels[] = {
 	{ RTP_MIDI_CHANNEL_1,						"Channel 1" },
@@ -2069,6 +2071,8 @@ static const value_string rtp_midi_sysex_common_rt_show_control[] = {
 	{ RTP_MIDI_SYSEX_COMMON_RT_SC_ALL_TYPES,			"All Types" },
 	{ 0,								NULL }
 };
+static value_string_ext rtp_midi_sysex_common_rt_show_control_ext =
+	VALUE_STRING_EXT_INIT(rtp_midi_sysex_common_rt_show_control);
 
 static const value_string rtp_midi_sysex_common_rt_notations[] = {
 	{ RTP_MIDI_SYSEX_COMMON_RT_NT_BAR_NUMBER,			"Bar Number" },
@@ -3007,7 +3011,7 @@ decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned in
 		return -1;
 	}
 
-	note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 	/* broken: we have only one further octet */
 	if ( cmd_len < 2 ) {
@@ -3128,7 +3132,7 @@ decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int
 		return -1;
 	}
 
-	note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 	/* broken: we have only one further octet */
 	if ( cmd_len < 2 ) {
@@ -3255,7 +3259,7 @@ decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 		return -1;
 	}
 
-	note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 	/* broken: we have only one further octet */
 	if ( cmd_len < 2 ) {
@@ -3650,7 +3654,7 @@ decode_control_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 		return -1;
 	}
 
-	ctrl_str = val_to_str( controller, rtp_midi_controller_values, "Unknown: %d" );
+	ctrl_str = val_to_str_ext( controller, &rtp_midi_controller_values_ext, "Unknown: %d" );
 
 	/* broken: we have only one further octet */
 	if ( cmd_len < 2 ) {
@@ -4198,7 +4202,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			if ( data_len < 3 )
 				return -1;
 
-			note_str = val_to_str( i, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+			note_str = val_to_str_ext( i, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 			tune_item = proto_tree_add_text(tree, tvb, offset, 3, "Note: %s", note_str );
 			tune_tree = proto_item_add_subtree( tune_item, ett_rtp_midi_sysex_common_tune_note );
@@ -4251,7 +4255,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			note = tvb_get_guint8( tvb, offset );
 
-			note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+			note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 			tune_item = proto_tree_add_text(tree, tvb, offset, 3, "Note: %s", note_str );
 			tune_tree = proto_item_add_subtree( tune_item, ett_rtp_midi_sysex_common_tune_note );
@@ -6025,7 +6029,7 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			note = tvb_get_guint8( tvb, offset ) & 0x7f;
 			velocity = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;
 
-			note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+			note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 			ti = proto_tree_add_text(rtp_midi_loglist_tree, tvb, offset, 2, "%s (n=%s, v=%d)", RTP_MIDI_TREE_NAME_CJ_CHAPTER_N_LOGITEM, note_str, velocity );
 			ti = proto_item_add_subtree( ti, ett_rtp_midi_cj_chapter_n_logitem );
@@ -6105,7 +6109,7 @@ decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		octet = tvb_get_guint8( tvb, offset + 1 );
 		count_vel = octet & 0x7f;
 
-		note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+		note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 		if ( octet & 0x80 ) {
 			ti = proto_tree_add_text(rtp_midi_loglist_tree, tvb, offset, 2, "%s (n=%s, v=%d)", RTP_MIDI_TREE_NAME_CJ_CHAPTER_E_LOGITEM1, note_str, count_vel );
@@ -6181,7 +6185,7 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		note	 = tvb_get_guint8( tvb, offset ) & 0x7f;
 		pressure = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;
 
-		note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
+		note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 		ti = proto_tree_add_text(rtp_midi_loglist_tree, tvb, offset, 2, "%s (n=%s, p=%d)", RTP_MIDI_TREE_NAME_CJ_CHAPTER_A_LOGITEM, note_str, pressure );
 		ti = proto_item_add_subtree( ti, ett_rtp_midi_cj_chapter_a_logitem );
@@ -7527,8 +7531,8 @@ proto_register_rtp_midi( void )
 				"Note",
 				"rtpmidi.note",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_note_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_note_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -7563,8 +7567,8 @@ proto_register_rtp_midi( void )
 				"Controller",
 				"rtpmidi.controller",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_controller_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_controller_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -7635,8 +7639,8 @@ proto_register_rtp_midi( void )
 				"Manufacturer (short)",
 				"rtpmidi.manufacturer_short",
 				FT_UINT8,
-				BASE_HEX,
-				VALS(rtp_midi_manu_short_values),
+				BASE_HEX | BASE_EXT_STRING,
+				&rtp_midi_manu_short_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -7647,8 +7651,8 @@ proto_register_rtp_midi( void )
 				"Manufacturer (long)",
 				"rtpmidi.manufacturer_long",
 				FT_UINT16,
-				BASE_HEX,
-				VALS(rtp_midi_manu_long_values),
+				BASE_HEX | BASE_EXT_STRING,
+				&rtp_midi_manu_long_values_ext,
 				0x7f7f,
 				NULL, HFILL
 			}
@@ -7991,8 +7995,8 @@ proto_register_rtp_midi( void )
 				"Chapter C Number",
 				"rtpmidi.cj_chapter_c_number",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_controller_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_controller_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -8602,8 +8606,8 @@ proto_register_rtp_midi( void )
 				"Chapter N Log Note",
 				"rtpmidi.cj_chapter_n_log_note",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_note_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_note_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -8693,8 +8697,8 @@ proto_register_rtp_midi( void )
 				"Chapter E Log Note",
 				"rtpmidi.cj_chapter_e_log_note",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_note_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_note_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -8810,8 +8814,8 @@ proto_register_rtp_midi( void )
 				"Chapter A Log Note",
 				"rtpmidi.cj_chapter_a_log_note",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_note_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_note_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -9976,8 +9980,8 @@ proto_register_rtp_midi( void )
 				"Sysex Common Realtime Show Control",
 				"rtpmidi.sysex_common_realtime_sc",
 				FT_UINT8,
-				BASE_HEX,
-				VALS(rtp_midi_sysex_common_rt_show_control),
+				BASE_HEX | BASE_EXT_STRING,
+				&rtp_midi_sysex_common_rt_show_control_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -10396,8 +10400,8 @@ proto_register_rtp_midi( void )
 				"Sysex Common (Non-)Realtime Tuning Note",
 				"rtpmidi.sysex_common_tune_note",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(rtp_midi_note_values),
+				BASE_DEC | BASE_EXT_STRING,
+				&rtp_midi_note_values_ext,
 				0x7f,
 				NULL, HFILL
 			}
@@ -10907,3 +10911,16 @@ proto_reg_handoff_rtp_midi( void )
 	}
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
