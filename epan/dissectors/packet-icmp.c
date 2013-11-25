@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/in_cksum.h>
 
 #include "packet-ip.h"
@@ -53,6 +54,7 @@ static int icmp_tap = -1;
 /* Conversation related data */
 static int hf_icmp_resp_in = -1;
 static int hf_icmp_resp_to = -1;
+static int hf_icmp_no_resp = -1;
 static int hf_icmp_resptime = -1;
 static int hf_icmp_data_time = -1;
 static int hf_icmp_data_time_relative = -1;
@@ -146,6 +148,9 @@ static gint ett_icmp_ext_object = -1;
 
 /* MPLS extensions */
 static gint ett_icmp_mpls_stack_object = -1;
+
+static expert_field ei_icmp_resp_not_found = EI_INIT;
+
 
 /* ICMP definitions */
 #define ICMP_ECHOREPLY     0
@@ -1060,6 +1065,21 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 					   icmp_key);
 	}
 	if (icmp_trans == NULL) {
+		if (PINFO_FD_VISITED(pinfo)) {
+			/* No response found - add field and expert info */
+			it = proto_tree_add_item(tree, hf_icmp_no_resp, NULL, 0, 0,
+						 ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_GENERATED(it);
+	
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
+	
+			/* Expert info.  TODO: add to _icmp_transaction_t type and sequence number
+			   so can report here (and in taps) */
+			expert_add_info_format(pinfo, it, &ei_icmp_resp_not_found,
+					       "No response seen to ICMP request in frame %u",
+					       pinfo->fd->num);
+		}
+
 		return NULL;
 	}
 
@@ -1909,6 +1929,12 @@ void proto_register_icmp(void)
 		  "The frame number of the corresponding response",
 		  HFILL}},
 
+		{&hf_icmp_no_resp,
+		 {"No response seen", "icmp.no_resp", FT_NONE, BASE_NONE,
+		  NULL, 0x0,
+		  "No corresponding response frame was seen",
+		  HFILL}},
+
 		{&hf_icmp_resp_to,
 		 {"Request frame", "icmp.resp_to", FT_FRAMENUM, BASE_NONE,
 		  NULL, 0x0,
@@ -1998,12 +2024,19 @@ void proto_register_icmp(void)
 		&ett_icmp_interface_name
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
+	};
+
 	module_t *icmp_module;
+	expert_module_t* expert_icmp;
 
 	proto_icmp =
 	    proto_register_protocol("Internet Control Message Protocol",
 				    "ICMP", "icmp");
 	proto_register_field_array(proto_icmp, hf, array_length(hf));
+	expert_icmp = expert_register_protocol(proto_icmp);
+	expert_register_field_array(expert_icmp, ei, array_length(ei));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	icmp_module = prefs_register_protocol(proto_icmp, NULL);
