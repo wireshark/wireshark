@@ -3240,7 +3240,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	tvbuff_t *new_tvb;
 	proto_item *frag_tree_item;
 
-	pinfo->dcetransportsalt = fid;
+	dcerpc_set_transport_salt(fid, pinfo);
 
 	/*
 	 * Offer desegmentation service to DCERPC if we have all the
@@ -3634,8 +3634,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (fid != -1) {
 				if (d_tvb == NULL)
 					return FALSE;
-		                return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid);
-		        }
+				return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid);
+			}
 			break;
 		}
 		break;

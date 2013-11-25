@@ -457,9 +457,8 @@ typedef struct decode_dcerpc_bind_values_s {
     guint16 ver;
 } decode_dcerpc_bind_values_t;
 
-WS_DLL_PUBLIC
-guint16
-dcerpc_get_transport_salt (packet_info *pinfo);
+WS_DLL_PUBLIC guint16 dcerpc_get_transport_salt(packet_info *pinfo);
+WS_DLL_PUBLIC void dcerpc_set_transport_salt(guint16 dcetransportsalt, packet_info *pinfo);
 
 /* Authentication services */
 

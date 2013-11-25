@@ -634,6 +634,29 @@ typedef struct _dcerpc_bind_value {
     e_uuid_t transport;
 } dcerpc_bind_value;
 
+/* Extra data for DCERPC handling and tracking of context ids */
+typedef struct _dcerpc_decode_as_data {
+    guint16 dcectxid;             /**< Context ID (DCERPC-specific) */
+    int     dcetransporttype;     /**< Transport type
+                                    * Value -1 means "not a DCERPC packet"
+                                    */
+    guint16 dcetransportsalt;     /**< fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
+} dcerpc_decode_as_data;
+
+static dcerpc_decode_as_data*
+dcerpc_get_decode_data(packet_info* pinfo)
+{
+    dcerpc_decode_as_data* data = (dcerpc_decode_as_data*)p_get_proto_data(pinfo->pool, pinfo, proto_dcerpc, 0);
+    if (data == NULL)
+    {
+        data = wmem_new0(pinfo->pool, dcerpc_decode_as_data);
+        data->dcetransporttype = -1;
+        p_add_proto_data(pinfo->pool, pinfo, proto_dcerpc, 0, data);
+    }
+
+    return data;
+}
+
 /**
  *  Registers a conversation/UUID binding association, so that
  *  we can invoke the proper sub-dissector for a given DCERPC
@@ -753,6 +776,7 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
 {
     GString *str = g_string_new("Replace binding between:\r\n"),
             *address_str = g_string_new("");
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     switch(pinfo->ptype) {
     case(PT_TCP):
@@ -768,7 +792,7 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
     g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->srcport);
     g_string_append(str, "&\r\n");
     g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->destport);
-    g_string_append_printf(str, "&\r\nContext ID: %u\r\n", pinfo->dcectxid);
+    g_string_append_printf(str, "&\r\nContext ID: %u\r\n", decode_data->dcectxid);
     g_string_append_printf(str, "&\r\nSMB FID: %u\r\n", dcerpc_get_transport_salt(pinfo));
     g_string_append(str, "with:\r\n");
 
@@ -781,6 +805,7 @@ static gpointer
 dcerpc_value(packet_info *pinfo)
 {
     decode_dcerpc_bind_values_t *binding;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     /* clone binding */
     binding = g_new(decode_dcerpc_bind_values_t,1);
@@ -789,7 +814,7 @@ dcerpc_value(packet_info *pinfo)
     binding->ptype = pinfo->ptype;
     binding->port_a = pinfo->srcport;
     binding->port_b = pinfo->destport;
-    binding->ctx_id = pinfo->dcectxid;
+    binding->ctx_id = decode_data->dcectxid;
     binding->smb_fid = dcerpc_get_transport_salt(pinfo);
     binding->ifname = NULL;
     /*binding->uuid = NULL;*/
@@ -3184,14 +3209,23 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
 
 guint16 dcerpc_get_transport_salt(packet_info *pinfo)
 {
-    switch (pinfo->dcetransporttype) {
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+
+    switch (decode_data->dcetransporttype) {
     case DCE_CN_TRANSPORT_SMBPIPE:
         /* DCERPC over smb */
-        return pinfo->dcetransportsalt;
+        return decode_data->dcetransportsalt;
     }
 
     /* Some other transport... */
     return 0;
+}
+
+void dcerpc_set_transport_salt(guint16 dcetransportsalt, packet_info *pinfo)
+{
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+
+    decode_data->dcetransportsalt = dcetransportsalt;
 }
 
 /*
@@ -3216,6 +3250,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     char             *uuid_str;
     const char       *uuid_name     = NULL;
     proto_item       *iface_item    = NULL;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_max_xmit, NULL);
@@ -3245,7 +3280,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* save context ID for use with dcerpc_add_conv_to_bind_table() */
         /* (if we have multiple contexts, this might cause "decode as"
          *  to behave unpredictably) */
-        pinfo->dcectxid = ctx_id;
+        decode_data->dcectxid = ctx_id;
 
         if (dcerpc_tree) {
             ctx_item = proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_ctx_item,
@@ -3797,6 +3832,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32           alloc_hint;
     proto_item       *pi;
     proto_item       *parent_pi;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -3812,7 +3848,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_opnum, &opnum);
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
-    pinfo->dcectxid = ctx_id;
+    decode_data->dcectxid = ctx_id;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", opnum: %u, Ctx: %u",
                     opnum, ctx_id);
@@ -3967,6 +4003,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_item        *pi;
     proto_item        *parent_pi;
     e_uuid_t           obj_id_null = DCERPC_UUID_NULL;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -3979,7 +4016,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
-    pinfo->dcectxid = ctx_id;
+    decode_data->dcectxid = ctx_id;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Ctx: %u", ctx_id);
 
@@ -4096,6 +4133,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32            alloc_hint;
     dcerpc_auth_info   auth_info;
     proto_item        *pi    = NULL;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -4122,7 +4160,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     expert_add_info_format(pinfo, pi, &ei_dcerpc_cn_status, "Fault: %s", val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
-    pinfo->dcectxid = ctx_id;
+    decode_data->dcectxid = ctx_id;
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     ", Ctx: %u, status: %s", ctx_id,
@@ -4667,6 +4705,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     e_dce_cn_common_hdr_t  hdr;
     dcerpc_auth_info       auth_info;
     tvbuff_t              *fragment_tvb;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
     /*
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
@@ -4713,7 +4752,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     hdr.call_id = dcerpc_tvb_get_ntohl(tvb, offset, hdr.drep);
     /*offset += 4;*/
 
-    if (pinfo->dcectxid == 0) {
+    if (decode_data->dcectxid == 0) {
         col_append_fstr(pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
     } else {
         /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
@@ -4731,7 +4770,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCERPC");
 
-    if (pinfo->dcectxid != 0) {
+    if (decode_data->dcectxid != 0) {
         /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
          * append a delimiter and set a column fence */
         col_append_str(pinfo->cinfo, COL_INFO, " # ");
@@ -4740,7 +4779,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: call_id: %u",
                  pckt_vals[hdr.ptype].strptr, hdr.call_id);
 
-    if (pinfo->dcectxid != 0) {
+    if (decode_data->dcectxid != 0) {
         /* this is not the first DCE-RPC request/response in this (TCP?-)PDU */
         expert_add_info(pinfo, NULL, &ei_dcerpc_fragment_multiple);
     }
@@ -4914,11 +4953,13 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gboolean
 dissect_dcerpc_cn_pk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+
     /*
      * Only one PDU per transport packet, and only one transport
      * packet per PDU.
      */
-    pinfo->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
+    decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
     if (!dissect_dcerpc_cn(tvb, 0, pinfo, tree, FALSE, NULL)) {
         /*
          * It wasn't a DCERPC PDU.
@@ -5039,21 +5080,27 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    pinfo->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+
+    decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 
 static gboolean
 dissect_dcerpc_cn_smbpipe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    pinfo->dcetransporttype = DCE_CN_TRANSPORT_SMBPIPE;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+
+    decode_data->dcetransporttype = DCE_CN_TRANSPORT_SMBPIPE;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 
 static gboolean
 dissect_dcerpc_cn_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    pinfo->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
+    dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+
+    decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 

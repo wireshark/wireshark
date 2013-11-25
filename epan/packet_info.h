@@ -147,13 +147,6 @@ typedef struct _packet_info {
                                  * Bit 1 set if first frame in sequence
                                  */
 
-  /* Extra data for DCERPC handling and tracking of context ids */
-  guint16 dcectxid;             /**< Context ID (DCERPC-specific) */
-  int     dcetransporttype;     /**< Transport type
-                                 * Value -1 means "not a DCERPC packet"
-                                 */
-  guint16 dcetransportsalt;		/**< fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
-
   /**< Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
      Caller sets decrypt_gssapi_tvb if this service is requested.
      If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following

@@ -6841,7 +6841,6 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
     if(vars != NULL) {
         debugprintf("Found some vars (ie. server/client challenges), let's see if I can get a session key\n");
-        debugprintf("Context Id = %d \n", pinfo->dcectxid);
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
             debugprintf("looping auth reply...\n");
             vars = vars->next;
