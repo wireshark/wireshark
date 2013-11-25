@@ -45,6 +45,7 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-dvbci.h>
 #include <epan/dissectors/packet-mpeg-descriptor.h>
+#include <epan/dissectors/packet-mpeg-sect.h>
 #include <epan/dissectors/packet-mpeg-pmt.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/dissectors/packet-x509ce.h>
@@ -809,9 +810,6 @@ static const value_string dvbci_apdu_tag[] = {
     { T_SAS_ASYNC_MSG,                 "SAS async message" },
     { 0, NULL }
 };
-
-/* convert a byte that contains two 4bit BCD digits into a decimal value */
-#define BCD44_TO_DEC(x)  (((x&0xf0) >> 4) * 10 + (x&0x0f))
 
 static int proto_dvbci = -1;
 
@@ -1780,32 +1778,6 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
     }
 
     return cap_loop_len;
-}
-
-/* read a utc_time field in an apdu and write it to utc_time
-   the encoding of the field is according to DVB-SI specification, section 5.2.5
-   16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss
-   return the length in bytes or -1 for error */
-static gint
-read_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time)
-{
-    gint   bcd_time_offset;     /* start offset of the bcd time in the tvbuff */
-    guint8 hour, min, sec;
-
-    if (!utc_time)
-        return -1;
-
-    nstime_set_zero(utc_time);
-    utc_time->secs = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
-    bcd_time_offset = offset+2;
-    hour = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
-    min = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
-    sec = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
-    if (hour>23 || min>59 || sec>59)
-        return -1;
-
-    utc_time->secs += hour*3600 + min*60 + sec;
-    return 5;
 }
 
 
@@ -2859,7 +2831,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
             return;
         }
 
-        time_field_len = read_utc_time(tvb, offset, &utc_time);
+        time_field_len = packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &utc_time);
         if (time_field_len<0) {
             proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, offset, 5,
                 "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
@@ -3312,13 +3284,14 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             proto_tree_add_item(tree, hf_dvbci_capability_field,
                     tvb, offset, 1 , ENC_BIG_ENDIAN);
             offset++;
-            /* we can't read_utc_time() and check with nstime_is_zero() */
+            /* we can't packet_mpeg_sect_mjd_to_utc_time()
+               and check with nstime_is_zero() */
             if (tvb_get_ntoh40(tvb, offset) == 0) {
                 proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
                         "CICAM PIN has never been changed");
             }
             else {
-                if (read_utc_time(tvb, offset, &utc_time) < 0) {
+                if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &utc_time) < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, offset, UTC_TIME_LEN,
                             "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
                     break;
@@ -3348,7 +3321,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             offset++;
             dissect_rating(tvb, offset, pinfo, tree);
             offset++;
-            if (read_utc_time(tvb, offset, &utc_time) < 0) {
+            if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &utc_time) < 0) {
                 proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, offset, UTC_TIME_LEN,
                         "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
                 break;

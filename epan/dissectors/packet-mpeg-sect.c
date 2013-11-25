@@ -152,8 +152,7 @@ static const value_string mpeg_sect_table_id_vals[] = {
     { 0, NULL }
 };
 
-/* From packet-dvbci.c
-   read a utc_time field in an apdu and write it to utc_time
+/* read a utc_time field in a tvb and write it to the utc_time struct
    the encoding of the field is according to DVB-SI specification, section 5.2.5
    16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss
    return the length in bytes or -1 for error */
