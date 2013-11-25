@@ -48,6 +48,14 @@ static dissector_table_t mpeg_sect_tid_dissector_table;
 
 static gboolean mpeg_sect_check_crc = FALSE;
 
+/* minimum length of the entire section ==
+   bytes from table_id to section_length == 3 bytes */
+#define MPEG_SECT_MIN_LEN    3
+/* the section_length field is 12 bits, it can add up to 4096 bytes
+   after the initial bytes */
+#define MPEG_SECT_MAX_LEN    MPEG_SECT_MIN_LEN+4096
+
+
 #define MPEG_SECT_SYNTAX_INDICATOR_MASK 0x8000
 #define MPEG_SECT_RESERVED_MASK         0x7000
 #define MPEG_SECT_LENGTH_MASK           0x0FFF
@@ -272,9 +280,11 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static void
-dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data _U_)
 {
+    gint     tvb_len;
     gint     offset           = 0;
     guint    section_length   = 0;
     gboolean syntax_indicator = FALSE;
@@ -283,11 +293,17 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     proto_tree *mpeg_sect_tree;
 
+    /* the incoming tvb contains only one section, no additional data */
+
+    tvb_len = (gint)tvb_reported_length(tvb);
+    if (tvb_len<MPEG_SECT_MIN_LEN || tvb_len>MPEG_SECT_MAX_LEN)
+        return 0;
+
     table_id = tvb_get_guint8(tvb, offset);
 
     /* Check if a dissector can parse the current table */
     if (dissector_try_uint(mpeg_sect_tid_dissector_table, table_id, tvb, pinfo, tree))
-        return;
+        return tvb_len;
 
     /* If no dissector is registered, use the common one */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
@@ -303,6 +319,8 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (syntax_indicator)
         packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));
+
+    return tvb_len;
 }
 
 
@@ -348,7 +366,7 @@ proto_register_mpeg_sect(void)
     expert_module_t* expert_mpeg_sect;
 
     proto_mpeg_sect = proto_register_protocol("MPEG2 Section", "MPEG SECT", "mpeg_sect");
-    register_dissector("mpeg_sect", dissect_mpeg_sect, proto_mpeg_sect);
+    new_register_dissector("mpeg_sect", dissect_mpeg_sect, proto_mpeg_sect);
 
     proto_register_field_array(proto_mpeg_sect, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
