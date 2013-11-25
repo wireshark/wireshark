@@ -21,11 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
 
 #include "capture_interfaces_dialog.h"
 #include "ui_capture_interfaces_dialog.h"
-
-#include "config.h"
 
 #ifdef HAVE_LIBPCAP
 
