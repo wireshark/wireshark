@@ -39,6 +39,9 @@ do
 	# to fix svn properties too).
 	svn add $file
 
+	# Don't allow svn to automatically set this
+	svn propdel svn:executable $file
+
 	case "$file" in
 		*.asciidoc|*.dox|*.txt)
 			svn ps svn:keywords Id $file
