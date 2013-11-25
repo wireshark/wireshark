@@ -716,8 +716,7 @@ static expert_field ei_sccp_class_unexpected = EI_INIT;
 static expert_field ei_sccp_handling_invalid = EI_INIT;
 
 
-/* Declarations to desegment XUDT Messages */
-static gboolean sccp_xudt_desegment = TRUE;
+static gboolean sccp_reassemble = TRUE;
 static gboolean show_key_params = FALSE;
 static gboolean set_addresses = FALSE;
 
@@ -2837,7 +2836,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
 
     /* Reassemble */
-    if (!sccp_xudt_desegment) {
+    if (!sccp_reassemble) {
       proto_tree_add_text(sccp_tree, tvb, variable_pointer1,
                           tvb_get_guint8(tvb, variable_pointer1)+1,
                           "Segmented Data");
@@ -3063,7 +3062,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                     variable_pointer2);
 
     if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
-      if (!sccp_xudt_desegment) {
+      if (!sccp_reassemble) {
         proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
       } else {
         guint8 octet;
@@ -3150,7 +3149,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                     variable_pointer2);
 
     if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
-      if (!sccp_xudt_desegment) {
+      if (!sccp_reassemble) {
         proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
 
       } else {
@@ -4041,9 +4040,9 @@ proto_register_sccp(void)
                                  &sccp_show_length);
 
   prefs_register_bool_preference(sccp_module, "defragment_xudt",
-                                 "Reassemble XUDT messages",
-                                 "Whether XUDT messages should be reassembled",
-                                 &sccp_xudt_desegment);
+                                 "Reassemble SCCP messages",
+                                 "Whether SCCP messages should be reassembled",
+                                 &sccp_reassemble);
 
   prefs_register_bool_preference(sccp_module, "trace_sccp",
                                  "Trace Associations",
