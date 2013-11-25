@@ -117,7 +117,9 @@ private:
 
     bool capture_stopping_;
     bool capture_filter_valid_;
+#ifdef HAVE_LIBPCAP
     CaptureInterfacesDialog capture_interfaces_dialog_;
+#endif
 
     // Pipe input
     gint                pipe_source_;
@@ -263,7 +265,9 @@ private slots:
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 
+#ifdef HAVE_LIBPCAP
     void on_actionCaptureOptions_triggered();
+#endif
 
     void matchSelectedFilter(MainWindow::MatchSelected filter_type, bool apply = false, bool copy_only = false);
     void on_actionAnalyzeAAFSelected_triggered();
@@ -323,7 +327,9 @@ private slots:
     void on_actionStatisticsTcpStreamRoundTripTime_triggered();
     void on_actionStatisticsTcpStreamWindowScaling_triggered();
 
+#ifdef HAVE_LIBPCAP
     void on_actionCaptureInterfaces_triggered();
+#endif
 
     void openStatisticsTreeDialog(const gchar *abbr);
     void on_actionStatisticsANCP_triggered();

@@ -2077,6 +2077,7 @@ void MainWindow::on_actionSummary_triggered()
     summary_dialog_.activateWindow();
 }
 
+#ifdef HAVE_LIBPCAP
 void MainWindow::on_actionCaptureInterfaces_triggered()
 {
     capture_interfaces_dialog_.SetTab(0);
@@ -2112,7 +2113,7 @@ void MainWindow::on_actionCaptureOptions_triggered()
     capture_interfaces_dialog_.raise();
     capture_interfaces_dialog_.activateWindow();
 }
-
+#endif
 
 
 /*

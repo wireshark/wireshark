@@ -25,6 +25,8 @@
 #ifndef CAPTURE_INTERFACES_DIALOG_H
 #define CAPTURE_INTERFACES_DIALOG_H
 
+#ifdef HAVE_LIBPCAP
+
 #include <QDialog>
 #include <QTableWidget>
 
@@ -72,7 +74,6 @@ public:
     //void updateStatistics(void);
 
 private slots:
-#ifdef HAVE_LIBPCAP
     void on_capturePromModeCheckBox_toggled(bool checked);
     void on_cbStopCaptureAuto_toggled(bool checked);
     void on_cbUpdatePacketsRT_toggled(bool checked);
@@ -82,7 +83,6 @@ private slots:
     void on_cbResolveMacAddresses_toggled(bool checked);
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
-#endif
     void on_bStart_clicked();
     void on_bStop_clicked();
     void tableItemClicked(QTableWidgetItem * item);
@@ -99,11 +99,11 @@ private:
     Ui::CaptureInterfacesDialog *ui;
     Qt::CheckState m_pressedItemState;
 
-#ifdef HAVE_LIBPCAP
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
-#endif // HAVE_LIBPCAP
 };
+
+#endif /* HAVE_LIBPCAP */
 
 #endif // CAPTURE_INTERFACES_DIALOG_H
 

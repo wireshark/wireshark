@@ -119,8 +119,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&summary_dialog_, SIGNAL(captureCommentChanged()), this, SLOT(updateForUnsavedChanges()));
 
+#ifdef HAVE_LIBPCAP
     connect(&capture_interfaces_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
     connect(&capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
+#endif
 
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
@@ -288,6 +290,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
             this, SLOT(openCaptureFile(QString&)));
 
+#ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
     if (iface_tree) {
         connect(iface_tree, SIGNAL(itemSelectionChanged()),
@@ -298,6 +301,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
             this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
+#endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
