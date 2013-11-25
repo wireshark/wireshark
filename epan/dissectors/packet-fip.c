@@ -42,6 +42,7 @@
 #include <epan/to_str.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include "packet-fc.h"
 
 /*
  * FIP protocol information.
@@ -494,10 +495,12 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FIP_DT_LOGO:
         case FIP_DT_ELP: {
             tvbuff_t *ls_tvb;
+            fc_data_t fc_data = {ETHERTYPE_FIP, 0};
+
             subtree = proto_item_add_subtree(item, ett_fip_dt_caps);
             fip_desc_type_len(subtree, desc_tvb);
             ls_tvb = tvb_new_subset(desc_tvb, 4, dlen - 4, -1);
-            call_dissector(fc_handle, ls_tvb, pinfo, subtree);
+            call_dissector_with_data(fc_handle, ls_tvb, pinfo, subtree, &fc_data);
             proto_item_append_text(item, "%u bytes", dlen - 4);
         }
             break;

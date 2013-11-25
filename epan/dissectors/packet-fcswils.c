@@ -1758,8 +1758,8 @@ static fcswils_func_table_t fcswils_func_table[FC_SWILS_MAXCODE] = {
 };
 
 /* Code to actually dissect the packets */
-static void
-dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item          *ti            = NULL;
     guint8               opcode;
@@ -1771,6 +1771,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree          *swils_tree    = NULL;
     guint8               isreq         = FC_SWILS_REQ;
     tvbuff_t            *next_tvb;
+    fc_hdr *fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SW_ILS");
@@ -1787,12 +1788,12 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Register conversation if this is not a response */
     if ((opcode != FC_SWILS_SWACC) && (opcode != FC_SWILS_SWRJT)) {
         conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                         pinfo->ptype, pinfo->oxid,
-                                         pinfo->rxid, NO_PORT2);
+                                         pinfo->ptype, fchdr->oxid,
+                                         fchdr->rxid, NO_PORT2);
         if (!conversation) {
             conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                            pinfo->ptype, pinfo->oxid,
-                                            pinfo->rxid, NO_PORT2);
+                                            pinfo->ptype, fchdr->oxid,
+                                            fchdr->rxid, NO_PORT2);
         }
 
         ckey.conv_idx = conversation->index;
@@ -1819,15 +1820,15 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         /* Opcode is ACC or RJT */
         conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                         pinfo->ptype, pinfo->oxid,
-                                         pinfo->rxid, NO_PORT2);
+                                         pinfo->ptype, fchdr->oxid,
+                                         fchdr->rxid, NO_PORT2);
         isreq = FC_SWILS_RPLY;
         if (!conversation) {
             if (tree && (opcode == FC_SWILS_SWACC)) {
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_text(swils_tree, tvb, 0, tvb_length(tvb),
                                     "No record of Exchg. Unable to decode SW_ACC");
-                return;
+                return 0;
             }
         }
         else {
@@ -1847,7 +1848,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* No record of what this accept is for. Can't decode */
                     proto_tree_add_text(swils_tree, tvb, 0, tvb_length(tvb),
                                         "No record of SW_ILS Req. Unable to decode SW_ACC");
-                    return;
+                    return 0;
                 }
             }
         }
@@ -1882,6 +1883,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
 
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -2568,7 +2570,7 @@ proto_reg_handoff_fcswils(void)
 {
     dissector_handle_t swils_handle;
 
-    swils_handle = create_dissector_handle(dissect_fcswils, proto_fcswils);
+    swils_handle = new_create_dissector_handle(dissect_fcswils, proto_fcswils);
     dissector_add_uint("fc.ftype", FC_FTYPE_SWILS, swils_handle);
 
     data_handle = find_dissector("data");

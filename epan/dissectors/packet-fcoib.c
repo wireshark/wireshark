@@ -37,6 +37,7 @@
 #include <epan/wmem/wmem.h>
 #include <errno.h>
 #include "packet-infiniband.h"
+#include "packet-fc.h"
 
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
@@ -184,6 +185,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint32     crc_computed = 0;
     guint32     crc          = 0;
     gboolean    packet_match_manual;
+    fc_data_t   fc_data;
 
     tree = proto_tree_get_root(tree);   /* we don't want to add FCoIB under the Infiniband tree */
 
@@ -319,23 +321,24 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     }
 
     /* Set the SOF/EOF flags in the packet_info header */
-    pinfo->sof_eof = 0;
+    fc_data.sof_eof = 0;
     if (sof == FCOIB_SOFi3 || sof == FCOIB_SOFi2 || sof == FCOIB_SOFi4) {
-        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+        fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
     } else if (sof == FCOIB_SOFf) {
-        pinfo->sof_eof = PINFO_SOF_SOFF;
+        fc_data.sof_eof = FC_DATA_SOF_SOFF;
     }
 
     if (eof != FCOIB_EOFn) {
-        pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+        fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
     } else if (eof != FCOIB_EOFt) {
-        pinfo->sof_eof |= PINFO_EOF_INVALID;
+        fc_data.sof_eof |= FC_DATA_EOF_INVALID;
     }
 
     /* Call the FC Dissector if this is carrying an FC frame */
+    fc_data.ethertype = 0;
 
     if (fc_handle) {
-        call_dissector(fc_handle, next_tvb, pinfo, tree);
+        call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
     } else if (data_handle) {
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }

@@ -26,6 +26,7 @@
 #ifndef __PACKET_FC_H_
 #define __PACKET_FC_H_
 
+#include <epan/conversation.h>
 #include "packet-scsi.h"
 #include "ws_symbol_export.h"
 
@@ -145,5 +146,21 @@ typedef struct _fc_hdr {
     itlq_nexus_t *itlq;
     guint32 relative_offset;
 } fc_hdr;
+
+#define FC_DATA_SOF_FIRST_FRAME   0x1
+#define FC_DATA_SOF_SOFF          0x2
+#define FC_DATA_EOF_LAST_FRAME    0x80
+#define FC_DATA_EOF_INVALID       0x40
+
+/* Data structure to pass into FC dissector */
+typedef struct _fc_data {
+    guint   ethertype;
+    guint8  sof_eof;              /**< FC's SOF/EOF encoding passed to FC decoder
+                                 * Bit 7 set if Last frame in sequence
+                                 * Bit 6 set if invalid frame content
+                                 * Bit 2 set if SOFf
+                                 * Bit 1 set if first frame in sequence
+                                 */
+} fc_data_t;
 
 #endif /* __PACKET_FC_H_ */

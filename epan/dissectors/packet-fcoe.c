@@ -40,6 +40,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include "packet-fc.h"
 
 #define FCOE_HEADER_LEN   14        /* header: version, SOF, and padding */
 #define FCOE_TRAILER_LEN   8        /* trailer: CRC, EOF, and padding */
@@ -131,6 +132,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean    crc_exists;
     guint32     crc_computed = 0;
     guint32     crc          = 0;
+    fc_data_t fc_data;
 
     /*
      * For now, handle both the version defined before and after August 2007.
@@ -251,23 +253,24 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Set the SOF/EOF flags in the packet_info header */
-    pinfo->sof_eof = 0;
+    fc_data.sof_eof = 0;
     if (sof == FCOE_SOFi3 || sof == FCOE_SOFi2 || sof == FCOE_SOFi4) {
-        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+        fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
     } else if (sof == FCOE_SOFf) {
-        pinfo->sof_eof = PINFO_SOF_SOFF;
+        fc_data.sof_eof = FC_DATA_SOF_SOFF;
     }
 
     if (eof != FCOE_EOFn) {
-        pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+        fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
     } else if (eof != FCOE_EOFt) {
-        pinfo->sof_eof |= PINFO_EOF_INVALID;
+        fc_data.sof_eof |= FC_DATA_EOF_INVALID;
     }
 
     /* Call the FC Dissector if this is carrying an FC frame */
+    fc_data.ethertype = 0;
 
     if (fc_handle) {
-        call_dissector(fc_handle, next_tvb, pinfo, tree);
+        call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
     } else if (data_handle) {
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }

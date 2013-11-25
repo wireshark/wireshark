@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
+#include "packet-fc.h"
 
 #define iFCP_ENCAP_HEADER_LEN                    28
 #define iFCP_MIN_HEADER_LEN                      16 /* upto frame len field */
@@ -321,6 +322,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	proto_tree *frame_len_tree=NULL;
 	proto_tree *sof_tree=NULL;
 	proto_tree *eof_tree=NULL;
+	fc_data_t fc_data;
 
 	/* verify we have a full header  (do we need to do this? */
 	if(tvb_length(tvb)<iFCP_ENCAP_HEADER_LEN){
@@ -463,31 +465,32 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
 	/* Call the FC Dissector if this is carrying an FC frame */
 	/* Set the SOF/EOF flags in the packet_info header */
-	pinfo->sof_eof = 0;
+	fc_data.sof_eof = 0;
 
 	switch(sof){
 	case iFCP_SOFi3:
 	case iFCP_SOFi2:
 	case iFCP_SOFi4:
-		pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+		fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
 		break;
 	case iFCP_SOFf:
-		pinfo->sof_eof = PINFO_SOF_SOFF;
+		fc_data.sof_eof = FC_DATA_SOF_SOFF;
 		break;
 	default:
 		if(sof){
 			if (eof != iFCP_EOFn) {
-				pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+				fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
                 	} else if (eof != iFCP_EOFt) {
-				pinfo->sof_eof |= PINFO_EOF_INVALID;
+				fc_data.sof_eof |= FC_DATA_EOF_INVALID;
 			}
 		}
 	}
 
 	next_tvb=tvb_new_subset(tvb, offset, frame_len-offset-4, frame_len-offset-4);
+	fc_data.ethertype = 0;
 
 	if(fc_handle){
-		call_dissector(fc_handle, next_tvb, pinfo, parent_tree);
+		call_dissector_with_data(fc_handle, next_tvb, pinfo, parent_tree, &fc_data);
 	} else if(data_handle){
 		call_dissector(data_handle, next_tvb, pinfo, parent_tree);
 	}

@@ -763,8 +763,8 @@ dissect_fcfcs_rjt (tvbuff_t *tvb, proto_tree *tree)
 
 }
 
-static void
-dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -778,6 +778,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fcfcs_conv_key_t ckey, *req_key;
     int opcode,
         failed_opcode = 0;
+    fc_hdr *fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-FCS");
@@ -798,12 +799,12 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ((opcode != FCCT_MSG_ACC) && (opcode != FCCT_MSG_RJT)) {
         conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
+                                          pinfo->ptype, fchdr->oxid,
+                                          fchdr->rxid, NO_PORT2);
         if (!conversation) {
             conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                             pinfo->ptype, pinfo->oxid,
-                                             pinfo->rxid, NO_PORT2);
+                                             pinfo->ptype, fchdr->oxid,
+                                             fchdr->rxid, NO_PORT2);
         }
 
         ckey.conv_idx = conversation->index;
@@ -832,8 +833,8 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         /* Opcode is ACC or RJT */
         conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
+                                          pinfo->ptype, fchdr->oxid,
+                                          fchdr->rxid, NO_PORT2);
         isreq = 0;
         if (!conversation) {
             if (opcode == FCCT_MSG_ACC) {
@@ -843,7 +844,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_text (fcfcs_tree, tvb, 0, tvb_length (tvb),
                                      "No record of Exchg. Unable to decode MSG_ACC/RJT");
-                return;
+                return 0;
             }
         }
         else {
@@ -876,7 +877,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* No record of what this accept is for. Can't decode */
                     proto_tree_add_text (fcfcs_tree, tvb, 0, tvb_length (tvb),
                                          "No record of Exchg. Unable to decode MSG_ACC/RJT");
-                    return;
+                    return 0;
                 }
             }
         }
@@ -978,6 +979,8 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         call_dissector (data_handle, tvb, pinfo, fcfcs_tree);
         break;
     }
+
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1099,7 +1102,7 @@ proto_reg_handoff_fcfcs (void)
 {
     dissector_handle_t fcs_handle;
 
-    fcs_handle = create_dissector_handle (dissect_fcfcs, proto_fcfcs);
+    fcs_handle = new_create_dissector_handle (dissect_fcfcs, proto_fcfcs);
 
     dissector_add_uint("fcct.server", FCCT_GSRVR_FCS, fcs_handle);
 

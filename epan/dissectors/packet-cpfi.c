@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "packet-fc.h"
 
 void proto_register_cpfi(void);
 void proto_reg_handoff_cpfi(void);
@@ -315,6 +316,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_tree *cpfi_tree = NULL;
   gint        length, reported_length, body_length, reported_body_length;
   guint8      frame_type;
+  fc_data_t fc_data;
 
   frame_type = (tvb_get_ntohl (message_tvb, 0) & CPFI_FRAME_TYPE_MASK) >> CPFI_FRAME_TYPE_SHIFT;
 
@@ -360,10 +362,10 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   }
 
   /* Set up the frame controls - can we do better than this? */
-  pinfo->sof_eof = 0;
-  pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
-  pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
-  pinfo->sof_eof |= PINFO_EOF_INVALID;
+  fc_data.sof_eof = 0;
+  fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
+  fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
+  fc_data.sof_eof |= FC_DATA_EOF_INVALID;
 
   /* dissect the message */
 
@@ -372,7 +374,8 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   dissect_cpfi_header(header_tvb, pinfo, cpfi_tree);
 
   body_tvb = tvb_new_subset(message_tvb, 8, body_length, reported_body_length);
-  call_dissector(fc_handle, body_tvb, pinfo, tree);
+  fc_data.ethertype = 0;
+  call_dissector_with_data(fc_handle, body_tvb, pinfo, tree, &fc_data);
 
   /* add more info, now that FC added its */
   proto_item_append_text(cpfi_item, direction_and_port_string, left, arrow, right);

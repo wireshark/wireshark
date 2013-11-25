@@ -1580,8 +1580,8 @@ dissect_fcdns_rjt (tvbuff_t *tvb, proto_tree *req_tree)
     }
 }
 
-static void
-dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti = NULL;
@@ -1594,6 +1594,8 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t *conversation;
     fcdns_conv_data_t *cdata;
     fcdns_conv_key_t ckey, *req_key;
+    fc_hdr *fchdr = (fc_hdr *)data;
+
 
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset);
@@ -1625,12 +1627,12 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ((opcode != FCCT_MSG_ACC) && (opcode != FCCT_MSG_RJT)) {
         conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
+                                          pinfo->ptype, fchdr->oxid,
+                                          fchdr->rxid, NO_PORT2);
         if (!conversation) {
             conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                             pinfo->ptype, pinfo->oxid,
-                                             pinfo->rxid, NO_PORT2);
+                                             pinfo->ptype, fchdr->oxid,
+                                             fchdr->rxid, NO_PORT2);
         }
 
         ckey.conv_idx = conversation->index;
@@ -1659,8 +1661,8 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         /* Opcode is ACC or RJT */
         conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
+                                          pinfo->ptype, fchdr->oxid,
+                                          fchdr->rxid, NO_PORT2);
         isreq = 0;
         if (!conversation) {
             if (opcode == FCCT_MSG_ACC) {
@@ -1670,7 +1672,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_text (fcdns_tree, tvb, 0, -1,
                                      "No record of Exchg. Unable to decode MSG_ACC/RJT");
-                return;
+                return 0;
             }
         }
         else {
@@ -1703,7 +1705,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* No record of what this accept is for. Can't decode */
                     proto_tree_add_text (fcdns_tree, tvb, 0, -1,
                                          "No record of Exchg. Unable to decode MSG_ACC/RJT");
-                    return;
+                    return 0;
                 }
             }
         }
@@ -1854,6 +1856,8 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
         break;
     }
+
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1947,7 +1951,7 @@ proto_register_fcdns (void)
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine (&fcdns_init_protocol);
 
-    dns_handle = create_dissector_handle (dissect_fcdns, proto_fcdns);
+    dns_handle = new_create_dissector_handle (dissect_fcdns, proto_fcdns);
 }
 
 void

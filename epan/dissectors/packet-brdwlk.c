@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include "packet-fc.h"
 
 #define BRDWLK_MAX_PACKET_CNT  0xFFFF
 #define BRDWLK_TRUNCATED_BIT   0x8
@@ -219,6 +220,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint len, reported_len, plen;
     guint16 pkt_cnt;
     gboolean dropped_packets;
+    fc_data_t fc_data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Boardwalk");
@@ -227,12 +229,13 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     sof = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
 
+    fc_data.sof_eof = 0;
     if ((sof == FCM_DELIM_SOFI3) || (sof == FCM_DELIM_SOFI2) || (sof == FCM_DELIM_SOFI1)
         || (sof == FCM_DELIM_SOFI4)) {
-        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+        fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
     }
     else if (sof == FCM_DELIM_SOFF) {
-        pinfo->sof_eof = PINFO_SOF_SOFF;
+        fc_data.sof_eof = FC_DATA_SOF_SOFF;
     }
 
     if (tree) {
@@ -331,10 +334,10 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         eof = tvb_get_guint8(tvb, offset+3);
         if (eof != FCM_DELIM_EOFN) {
-            pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+            fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
         }
         else if (eof != FCM_DELIM_EOFT) {
-            pinfo->sof_eof |= PINFO_EOF_INVALID;
+            fc_data.sof_eof |= FC_DATA_EOF_INVALID;
         }
 
         if (tree) {
@@ -363,8 +366,9 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
+    fc_data.ethertype = ETHERTYPE_BRDWALK;
     next_tvb = tvb_new_subset(tvb, 2, len, reported_len);
-    call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, GUINT_TO_POINTER((guint)ETHERTYPE_BRDWALK));
+    call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, &fc_data);
 }
 
 static void

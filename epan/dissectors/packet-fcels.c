@@ -1829,8 +1829,8 @@ dissect_fcels_lsrjt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static void
-dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -1846,6 +1846,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint options;
     address dstaddr;
     guint8 addrdata[3];
+    fc_hdr *fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC ELS");
@@ -1868,7 +1869,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, &ei_fcels_src_unknown,
                                        "Unknown source address type: %u",
                                        pinfo->src.type);
-                return;
+                return 0;
             }
 
             srcfc = (guint8 *)pinfo->src.data;
@@ -1884,13 +1885,13 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             options = NO_PORT2;
         }
         conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, options);
+                                          pinfo->ptype, fchdr->oxid,
+                                          fchdr->rxid, options);
 
         if (!conversation) {
             conversation = conversation_new (pinfo->fd->num, &pinfo->dst, &pinfo->src,
-                                             pinfo->ptype, pinfo->oxid,
-                                             pinfo->rxid, options);
+                                             pinfo->ptype, fchdr->oxid,
+                                             fchdr->rxid, options);
         }
 
         ckey.conv_idx = conversation->index;
@@ -1919,8 +1920,8 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         options = NO_PORT2;
         conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, options);
+                                          pinfo->ptype, fchdr->oxid,
+                                          fchdr->rxid, options);
         if (!conversation) {
             /* FLOGI has two ways to save state: without the src and using just
              * the port (ALPA) part of the address. Try both.
@@ -1932,7 +1933,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, &ei_fcels_dst_unknown,
                                        "Unknown destination address type: %u",
                                        pinfo->dst.type);
-                return;
+                return 0;
             }
 
             dstfc = (guint8 *)pinfo->dst.data;
@@ -1941,23 +1942,23 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             addrdata[2] = dstfc[2];
             SET_ADDRESS (&dstaddr, AT_FC, 3, addrdata);
             conversation = find_conversation (pinfo->fd->num, &dstaddr, &pinfo->src,
-                                              pinfo->ptype, pinfo->oxid,
-                                              pinfo->rxid, options);
+                                              pinfo->ptype, fchdr->oxid,
+                                              fchdr->rxid, options);
         }
 
         if (!conversation) {
             /* Finally check for FLOGI with both NO_PORT2 and NO_ADDR2 set */
             options = NO_ADDR2 | NO_PORT2;
             conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                              pinfo->ptype, pinfo->oxid,
-                                              pinfo->rxid, options);
+                                              pinfo->ptype, fchdr->oxid,
+                                              fchdr->rxid, options);
             if (!conversation) {
                 if (tree && (opcode == FC_ELS_ACC)) {
                     /* No record of what this accept is for. Can't decode */
                     acc_tree = proto_item_add_subtree (ti, ett_fcels_acc);
                     proto_tree_add_text (acc_tree, tvb, offset, tvb_length (tvb),
                                          "No record of Exchange. Unable to decode ACC");
-                    return;
+                    return 0;
                 }
                 failed_opcode = 0;
             }
@@ -1978,7 +1979,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_text (acc_tree, tvb, offset,
                                              tvb_length (tvb),
                                              "No record of Exchg. Unable to decode ACC");
-                        return;
+                        return 0;
                     }
                 }
                 if (opcode == FC_ELS_ACC)
@@ -1993,7 +1994,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     acc_tree = proto_item_add_subtree (ti, ett_fcels_acc);
                     proto_tree_add_text (acc_tree, tvb, offset, tvb_length (tvb),
                                          "No record of ELS Req. Unable to decode ACC");
-                    return;
+                    return 0;
                 }
             }
         }
@@ -2112,6 +2113,8 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         call_dissector (data_handle, tvb, pinfo, tree);
         break;
     }
+
+    return tvb_length(tvb);
 }
 
 void
@@ -2575,7 +2578,7 @@ proto_reg_handoff_fcels (void)
 {
     dissector_handle_t els_handle;
 
-    els_handle = create_dissector_handle (dissect_fcels, proto_fcels);
+    els_handle = new_create_dissector_handle (dissect_fcels, proto_fcels);
     dissector_add_uint("fc.ftype", FC_FTYPE_ELS, els_handle);
 
     data_handle = find_dissector ("data");

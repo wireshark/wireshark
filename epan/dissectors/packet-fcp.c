@@ -618,11 +618,11 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fchdr)
 {
     guint8 r_ctl;
 
-    r_ctl = pinfo->r_ctl & 0xf;
+    r_ctl = fchdr->r_ctl & 0xf;
     if (r_ctl == FCP_IU_UNSOL_CTL) {            /* request */
         proto_tree_add_item(tree, hf_fcp_srr_ox_id, tvb, 4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_fcp_srr_rx_id, tvb, 6, 2, ENC_BIG_ENDIAN);
@@ -643,7 +643,7 @@ static const value_string fcp_els_iu_val[] = {
  * Dissect FC-4 ELS for FCP.
  */
 static void
-dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fchdr)
 {
     guint8 op;
 
@@ -655,7 +655,7 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (op) {   /* XXX should switch based on conv for LS_ACC */
     case FC_ELS_SRR:
-        dissect_fcp_srr(tvb, pinfo, tree);
+        dissect_fcp_srr(tvb, pinfo, tree, fchdr);
         break;
     default:
         call_dissector(data_handle, tvb, pinfo, tree);
@@ -668,7 +668,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item      *ti            = NULL;
     proto_tree      *fcp_tree      = NULL;
-    fc_hdr          *fchdr;
+    fc_hdr          *fchdr = (fc_hdr *)data;
     guint8           r_ctl;
     conversation_t  *fc_conv;
     fcp_conv_data_t *fcp_conv_data = NULL;
@@ -676,12 +676,10 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     gboolean         els;
     fcp_proto_data_t *proto_data;
 
-    fchdr = (fc_hdr *)data;
-
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");
 
-    r_ctl = pinfo->r_ctl;
+    r_ctl = fchdr->r_ctl;
     els = (r_ctl & 0xf0) == FC_RCTL_LINK_DATA;
     r_ctl &= 0xF;
 
@@ -751,7 +749,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     if (els) {
-        dissect_fcp_els(tvb, pinfo, fcp_tree);
+        dissect_fcp_els(tvb, pinfo, fcp_tree, fchdr);
         return tvb_length(tvb);
     }
 

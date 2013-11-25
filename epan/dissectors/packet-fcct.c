@@ -134,8 +134,8 @@ get_gs_server (guint8 gstype, guint8 gssubtype)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -208,12 +208,15 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     /* We do not change the starting offset for the next protocol in the
      * chain since the fc_ct header is common to the sub-protocols.
+     * Pass the fchdr* received from parent dissector through to sub-protocols
      */
     next_tvb = tvb_new_subset_remaining (tvb, 0);
-    if (!dissector_try_uint (fcct_gserver_table, server, next_tvb, pinfo,
-                             tree)) {
+    if (!dissector_try_uint_new(fcct_gserver_table, server, next_tvb, pinfo,
+                             tree, TRUE, data)) {
         call_dissector (data_handle, next_tvb, pinfo, tree);
     }
+
+    return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -291,7 +294,7 @@ proto_reg_handoff_fcct (void)
 {
     dissector_handle_t fcct_handle;
 
-    fcct_handle = create_dissector_handle (dissect_fcct, proto_fcct);
+    fcct_handle = new_create_dissector_handle (dissect_fcct, proto_fcct);
     dissector_add_uint("fc.ftype", FC_FTYPE_FCCT, fcct_handle);
 
     data_handle = find_dissector ("data");

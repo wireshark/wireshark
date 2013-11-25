@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <etypes.h>
 #include <epan/prefs.h>
+#include "packet-fc.h"
 
 #define MDSHDR_VERSION_OFFSET             0
 
@@ -143,6 +144,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t   *next_tvb;
     guint8      sof, eof;
     int         trailer_start = 0; /*0 means "no trailer found"*/
+    fc_data_t fc_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDS Header");
 
@@ -164,21 +166,21 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         eof = MDSHDR_EOF_UNKNOWN;
     }
 
-    pinfo->sof_eof = 0;
+    fc_data.sof_eof = 0;
 
     if ((sof == MDSHDR_SOFi3) || (sof == MDSHDR_SOFi2) || (sof == MDSHDR_SOFi1)
         || (sof == MDSHDR_SOFi4)) {
-        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+        fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
     }
     else if (sof == MDSHDR_SOFf) {
-        pinfo->sof_eof = PINFO_SOF_SOFF;
+        fc_data.sof_eof = FC_DATA_SOF_SOFF;
     }
 
     if (eof != MDSHDR_EOFn) {
-        pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+        fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
     }
     else if (eof != MDSHDR_EOFt) {
-        pinfo->sof_eof |= PINFO_EOF_INVALID;
+        fc_data.sof_eof |= FC_DATA_EOF_INVALID;
     }
 
     if (tree) {
@@ -240,7 +242,8 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Call the Fibre Channel dissector */
     if (fc_dissector_handle) {
-        call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, GUINT_TO_POINTER((guint)ETHERTYPE_FCFT));
+        fc_data.ethertype = ETHERTYPE_FCFT;
+        call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, &fc_data);
     }
     else {
         call_dissector(data_handle, next_tvb, pinfo, tree);

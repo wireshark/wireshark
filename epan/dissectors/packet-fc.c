@@ -686,7 +686,7 @@ static const value_string fc_els_proto_val[] = {
 
 /* Code to actually dissect the packets */
 static void
-dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp, guint ethertype)
+dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp, fc_data_t* fc_data)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti=NULL, *hidden_item;
@@ -762,10 +762,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     param = tvb_get_ntohl (tvb, offset+20);
     seq_id = tvb_get_guint8 (tvb, offset+12);
 
-    pinfo->oxid = fchdr.oxid;
-    pinfo->rxid = fchdr.rxid;
     pinfo->ptype = PT_EXCHG;
-    pinfo->r_ctl = fchdr.r_ctl;
 
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
@@ -844,11 +841,11 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * (i) The SOF bits indicate that this is the first frame OR
      * (ii) This is an SOFf frame and seqcnt is 0.
      */
-    is_1frame_inseq = (((pinfo->sof_eof & PINFO_SOF_FIRST_FRAME) == PINFO_SOF_FIRST_FRAME) ||
-                       (((pinfo->sof_eof & PINFO_SOF_SOFF) == PINFO_SOF_SOFF) &&
+    is_1frame_inseq = (((fc_data->sof_eof & FC_DATA_SOF_FIRST_FRAME) == FC_DATA_SOF_FIRST_FRAME) ||
+                       (((fc_data->sof_eof & FC_DATA_SOF_SOFF) == FC_DATA_SOF_SOFF) &&
                         (fchdr.seqcnt == 0)));
 
-    is_lastframe_inseq = ((pinfo->sof_eof & PINFO_EOF_LAST_FRAME) == PINFO_EOF_LAST_FRAME);
+    is_lastframe_inseq = ((fc_data->sof_eof & FC_DATA_EOF_LAST_FRAME) == FC_DATA_EOF_LAST_FRAME);
 
     is_lastframe_inseq |= fchdr.fctl & FC_FCTL_SEQ_LAST;
     /*is_valid_frame = ((pinfo->sof_eof & 0x40) == 0x40);*/
@@ -1087,13 +1084,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * and are never fragmented and so we ignore the frag_size assertion for
      *  these frames.
      */
-    if ((ethertype == ETHERTYPE_UNK) || (ethertype == ETHERTYPE_FCFT)) {
+    if ((fc_data->ethertype == ETHERTYPE_UNK) || (fc_data->ethertype == ETHERTYPE_FCFT)) {
         if ((frag_size < MDSHDR_TRAILER_SIZE) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
             THROW(ReportedBoundsError);
         frag_size -= MDSHDR_TRAILER_SIZE;
-    } else if (ethertype == ETHERTYPE_BRDWALK) {
+    } else if (fc_data->ethertype == ETHERTYPE_BRDWALK) {
         if ((frag_size <= 8) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
@@ -1163,7 +1160,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
              col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
         } else {
 
-             frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;
+             frag_id = ((fchdr.oxid << 16) ^ seq_id) | is_exchg_resp ;
 
              /* We assume that all frames are of the same max size */
              fcfrag_head = fragment_add (&fc_reassembly_table,
@@ -1232,14 +1229,19 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 static int
 dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    dissect_fc_helper (tvb, pinfo, tree, FALSE, GPOINTER_TO_UINT(data));
+    fc_data_t* fc_data = (fc_data_t*)data;
+
+    dissect_fc_helper (tvb, pinfo, tree, FALSE, fc_data);
     return tvb_length(tvb);
 }
 
-static void
-dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    dissect_fc_helper (tvb, pinfo, tree, TRUE, 0);
+    fc_data_t* fc_data = (fc_data_t*)data;
+
+    dissect_fc_helper (tvb, pinfo, tree, TRUE, fc_data);
+    return tvb_length(tvb);
 }
 
 static void
@@ -1259,6 +1261,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     const gint FCSOF_TRAILER_LEN = 8;
     const gint FCSOF_HEADER_LEN = 4;
     gint frame_len_for_checksum = 0;
+    fc_data_t fc_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
@@ -1309,21 +1312,22 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     bytes_remaining = tvb_length_remaining(tvb, 4);
     next_tvb = tvb_new_subset(tvb, 4, bytes_remaining, -1);
 
-    pinfo->sof_eof = 0;
+    fc_data.ethertype = 0;
+    fc_data.sof_eof = 0;
     if (sof == FC_SOFI2 || sof == FC_SOFI3) {
-        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+        fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
     } else if (sof == FC_SOFF) {
-        pinfo->sof_eof = PINFO_SOF_SOFF;
+        fc_data.sof_eof = FC_DATA_SOF_SOFF;
     }
 
     if (eof == EOFT_POS || eof == EOFT_NEG) {
-        pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+        fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
     } else if (eof == EOFDTI_NEG || eof == EOFDTI_POS) {
-        pinfo->sof_eof |= PINFO_EOF_INVALID;
+        fc_data.sof_eof |= FC_DATA_EOF_INVALID;
     }
 
     /* Call FC dissector */
-    call_dissector(fc_handle, next_tvb, pinfo, tree);
+    call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
 }
 
 /* Register the protocol with Wireshark */
@@ -1529,7 +1533,7 @@ proto_register_fc(void)
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
     fc_handle = new_register_dissector ("fc", dissect_fc, proto_fc);
-    register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
+    new_register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
     fc_tap = register_tap("fc");
 
     /* Required function calls to register the header fields and subtrees used */
