@@ -1282,7 +1282,7 @@ insert_new_rows(GList *list)
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     monitor_mode = prefs_capture_device_monitor_mode(if_string);
-    caps = capture_get_if_capabilities(if_string, monitor_mode, NULL,main_window_update);
+    caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
       if (ips != 0) {
