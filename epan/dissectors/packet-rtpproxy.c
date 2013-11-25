@@ -163,7 +163,7 @@ static guint rtpproxy_udp_port = 22222;
 void proto_reg_handoff_rtpproxy(void);
 
 gint
-rtpptoxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint realsize)
+rtpproxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint realsize)
 {
 	proto_item *ti = NULL;
 	proto_tree *another_tree = NULL;
@@ -234,7 +234,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 void
-rtpptoxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint end)
+rtpproxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint end)
 {
 	gint offset = 0;
 	gint tmp = 0;
@@ -443,14 +443,14 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			}
 
 			/* Extract first tag */
-			new_offset = rtpptoxy_add_tag(rtpproxy_tree, tvb, offset, realsize);
+			new_offset = rtpproxy_add_tag(rtpproxy_tree, tvb, offset, realsize);
 			if(new_offset == -1)
 				break; /* No more parameters */
 			/* Skip whitespace */
 			offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
 			/* Extract second tag */
-			new_offset = rtpptoxy_add_tag(rtpproxy_tree, tvb, offset, realsize);
+			new_offset = rtpproxy_add_tag(rtpproxy_tree, tvb, offset, realsize);
 			if(new_offset == -1)
 				break; /* No more parameters */
 			/* Skip whitespace */
@@ -466,12 +466,12 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
 				if(new_offset == -1){
 					/* NotifyTag wasn't found (we should re-use Call-ID instead) */
-					rtpptoxy_add_notify_addr(rtpproxy_tree, tvb, offset, realsize);
+					rtpproxy_add_notify_addr(rtpproxy_tree, tvb, offset, realsize);
 					break; /* No more parameters */
 				}
 
 				/* NotifyTag was found */
-				rtpptoxy_add_notify_addr(rtpproxy_tree, tvb, offset, new_offset);
+				rtpproxy_add_notify_addr(rtpproxy_tree, tvb, offset, new_offset);
 				/* Skip whitespace */
 				offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
