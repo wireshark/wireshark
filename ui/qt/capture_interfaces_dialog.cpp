@@ -32,12 +32,13 @@
 #include <QSpacerItem>
 #include <QTimer>
 
-#include "../capture_globals.h"
-
+#ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"
-#include "ui/ui_util.h"
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
+#endif
+
+#include "ui/ui_util.h"
 #include "ui/utf8_entities.h"
 
 #include <cstdio>
@@ -54,8 +55,10 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+#ifdef HAVE_LIBPCAP
     stat_timer_ = NULL;
     stat_cache_ = NULL;
+#endif
 
     connect(ui->tbInterfaces,SIGNAL(itemPressed(QTableWidgetItem *)),this,SLOT(tableItemPressed(QTableWidgetItem *)));
     connect(ui->tbInterfaces,SIGNAL(itemClicked(QTableWidgetItem *)),this,SLOT(tableItemClicked(QTableWidgetItem *)));
@@ -65,6 +68,7 @@ void CaptureInterfacesDialog::tableItemClicked(QTableWidgetItem * item)
 {
     Q_UNUSED(item)
 
+#ifdef HAVE_LIBPCAP
     interface_t device;
     global_capture_opts.num_selected = 0;
 
@@ -88,8 +92,8 @@ void CaptureInterfacesDialog::tableItemClicked(QTableWidgetItem * item)
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, row);
             g_array_insert_val(global_capture_opts.all_ifaces, row, device);
         }
-
     }
+#endif
 }
 
 CaptureInterfacesDialog::~CaptureInterfacesDialog()
@@ -102,6 +106,7 @@ void CaptureInterfacesDialog::SetTab(int index)
     ui->tabWidget->setCurrentIndex(index);
 }
 
+#ifdef HAVE_LIBPCAP
 void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
 {
     prefs.capture_prom_mode = checked;
@@ -147,6 +152,7 @@ void CaptureInterfacesDialog::on_cbResolveTransportNames_toggled(bool checked)
 {
     gbl_resolv_flags.transport_name = checked;
 }
+#endif
 
 void CaptureInterfacesDialog::on_bStart_clicked()
 {
@@ -166,6 +172,7 @@ void CaptureInterfacesDialog::on_bStop_clicked()
 
 void CaptureInterfacesDialog::UpdateInterfaces()
 {
+#ifdef HAVE_LIBPCAP
     ui->cbPcap->setCurrentIndex(!prefs.capture_pcap_ng);
     ui->capturePromModeCheckBox->setChecked(prefs.capture_prom_mode);
 
@@ -315,9 +322,13 @@ void CaptureInterfacesDialog::UpdateInterfaces()
         connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
         stat_timer_->start(stat_update_interval_);
     }
+
+#endif
 }
 
-void CaptureInterfacesDialog::updateStatistics(void) {
+void CaptureInterfacesDialog::updateStatistics(void)
+{
+#ifdef HAVE_LIBPCAP
     //guint diff;
     QList<int> *points = NULL;
 
@@ -369,23 +380,28 @@ void CaptureInterfacesDialog::updateStatistics(void) {
 //            g_array_insert_val(global_capture_opts.all_ifaces, if_idx, device);
 
     }
+#endif
 }
 
 
-void CaptureInterfacesDialog::on_tbInterfaces_hideEvent(QHideEvent *evt) {
+void CaptureInterfacesDialog::on_tbInterfaces_hideEvent(QHideEvent *evt)
+{
     Q_UNUSED(evt);
-
+#ifdef HAVE_LIBPCAP
     if (stat_timer_) stat_timer_->stop();
     if (stat_cache_) {
         capture_stat_stop(stat_cache_);
         stat_cache_ = NULL;
     }
+#endif
 }
 
-void CaptureInterfacesDialog::on_tbInterfaces_showEvent(QShowEvent *evt) {
+void CaptureInterfacesDialog::on_tbInterfaces_showEvent(QShowEvent *evt)
+{
     Q_UNUSED(evt);
-
+#ifdef HAVE_LIBPCAP
     if (stat_timer_) stat_timer_->start(stat_update_interval_);
+#endif
 }
 
 /*

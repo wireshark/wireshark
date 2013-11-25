@@ -28,6 +28,8 @@
 #include <QDialog>
 #include <QTableWidget>
 
+typedef struct if_stat_cache_s if_stat_cache_t;
+
 #include "interface_tree.h"
 #include "preferences_dialog.h"
 
@@ -70,6 +72,7 @@ public:
     //void updateStatistics(void);
 
 private slots:
+#ifdef HAVE_LIBPCAP
     void on_capturePromModeCheckBox_toggled(bool checked);
     void on_cbStopCaptureAuto_toggled(bool checked);
     void on_cbUpdatePacketsRT_toggled(bool checked);
@@ -79,6 +82,7 @@ private slots:
     void on_cbResolveMacAddresses_toggled(bool checked);
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
+#endif
     void on_bStart_clicked();
     void on_bStop_clicked();
     void tableItemClicked(QTableWidgetItem * item);
