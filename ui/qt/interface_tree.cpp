@@ -205,13 +205,13 @@ void InterfaceTree::getInterfaceList()
 void InterfaceTree::getPoints(int row, PointList *pts)
 {
     QTreeWidgetItemIterator iter(this);
-    qDebug("iter;..!");
+    //qDebug("iter;..!");
 
     for (int i = 0; (*iter); i++)
     {
         if (row == i)
         {
-            qDebug("found! row:%d", row);
+            //qDebug("found! row:%d", row);
             QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
             QList<int> *punkt = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
             for (int j = 0; j < punkt->length(); j++)
@@ -222,7 +222,7 @@ void InterfaceTree::getPoints(int row, PointList *pts)
             //pts->operator =(punkt);
             //pts = punkt;
             //pts->append(150);
-            qDebug("done");
+            //qDebug("done");
             return;
         }
         iter++;
