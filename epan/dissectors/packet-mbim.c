@@ -3523,6 +3523,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx);
                 cmd_type = tvb_get_letohl(frag_tvb, offset);
                 proto_tree_add_uint(mbim_tree, hf_mbim_command_type, frag_tvb, offset, 4, cmd_type);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(cmd_type, mbim_command_type_vals, "Unknown"));
                 offset += 4;
                 info_buff_len = tvb_get_letohl(frag_tvb, offset);
                 proto_tree_add_uint(mbim_tree, hf_mbim_info_buffer_len, frag_tvb, offset, 4, info_buff_len);
