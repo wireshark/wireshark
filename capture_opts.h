@@ -175,7 +175,26 @@ typedef struct capture_options_tag {
                                          Currently only used by dumpcap. */
     GArray   *all_ifaces;
     guint    num_selected;
+
+    /*
+     * Options to be applied to all interfaces.
+     *
+     * Some of these can be set from the GUI, others can't; setting
+     * the link-layer header type, for example, doesn't necessarily
+     * make sense, as different interfaces may support different sets
+     * of link-layer header types.
+     *
+     * Some that can't be set from the GUI can be set from the command
+     * line, by specifying them before any interface is specified.
+     * This includes the link-layer header type, so if somebody asks
+     * for a link-layer header type that an interface on which they're
+     * capturing doesn't support, we should report an error and fail
+     * to capture.
+     *
+     * These can be overridden per-interface.
+     */
     interface_options default_options;
+
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
     gboolean group_read_access;     /**< TRUE is group read permission needs to be set */
