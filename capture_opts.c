@@ -64,7 +64,7 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->default_options.cfilter         = NULL;
   capture_opts->default_options.has_snaplen     = FALSE;
   capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE;
-  capture_opts->default_options.linktype        = -1;
+  capture_opts->default_options.linktype        = -1; /* use interface default */
   capture_opts->default_options.promisc_mode    = TRUE;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
