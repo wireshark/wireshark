@@ -215,21 +215,21 @@ scan_local_interfaces(void (*update_cb)(void))
 #endif
             /*
              * If there's a preference for the link-layer header type for
-             * this interface, use it.
-             *
-             * The global capture options has a link-layer header type,
-             * but that's just because the capture options structure
-             * has one; a global link-layer header type makes little
-             * sense, as not all interfaces support the same sets of
-             * link-layer header types, so we don't use it.
+             * this interface, use it.  If not, use the all-interface
+             * default; if that's not set on the command line, that will
+             * be -1, meaning "use per-interface defaults", otherwise
+             * we'll fail if it's not one of the types the interface
+             * supports.
              */
-            device.active_dlt = capture_dev_user_linktype_find(if_info->name);
+            if ((device.active_dlt = capture_dev_user_linktype_find(if_info->name)) == -1) {
+                device.active_dlt = global_capture_opts.default_options.linktype;
+            }
 
             /*
              * Process the list of link-layer header types.
              * If the active link-layer header type wasn't set from a
-             * preference (meaning it's -1), default to the first
-             * link-layer header type in the list.
+             * preference or a global option (meaning it's -1), default
+             * to the first link-layer header type in the list.
              */
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
                 data_link_info = (data_link_info_t *)lt_entry->data;
