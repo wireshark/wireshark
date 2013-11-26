@@ -768,11 +768,7 @@ open_capture_device(interface_options *interface_opts,
 
 static void
 get_capture_device_open_failure_messages(const char *open_err_str,
-                                         const char *iface
-#ifndef _WIN32
-                                                           _U_
-#endif
-                                         ,
+                                         const char *iface,
                                          char *errmsg, size_t errmsg_len,
                                          char *secondary_errmsg,
                                          size_t secondary_errmsg_len)
@@ -783,7 +779,8 @@ get_capture_device_open_failure_messages(const char *open_err_str,
 #endif
 
     g_snprintf(errmsg, (gulong) errmsg_len,
-               "The capture session could not be initiated (%s).", open_err_str);
+               "The capture session could not be initiated on interface '%s' (%s).",
+               iface, open_err_str);
 #ifdef _WIN32
     if (!has_wpcap) {
       g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
@@ -843,12 +840,7 @@ get_capture_device_open_failure_messages(const char *open_err_str,
 
 /* Set the data link type on a pcap. */
 static gboolean
-set_pcap_linktype(pcap_t *pcap_h, int linktype,
-#ifdef HAVE_PCAP_SET_DATALINK
-                  char *name _U_,
-#else
-                  char *name,
-#endif
+set_pcap_linktype(pcap_t *pcap_h, int linktype, char *name,
                   char *errmsg, size_t errmsg_len,
                   char *secondary_errmsg, size_t secondary_errmsg_len)
 {
@@ -867,8 +859,8 @@ set_pcap_linktype(pcap_t *pcap_h, int linktype,
     set_linktype_err_str =
         "That DLT isn't one of the DLTs supported by this device";
 #endif
-    g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type (%s).",
-               set_linktype_err_str);
+    g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type on interface '%s' (%s).",
+               name, set_linktype_err_str);
     /*
      * If the error isn't "XXX is not one of the DLTs supported by this device",
      * tell the user to tell the Wireshark developers about it.
@@ -5069,7 +5061,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
              */
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
             cmdarg_err(
-              "Invalid capture filter \"%s\" for interface %s!\n"
+              "Invalid capture filter \"%s\" for interface '%s'!\n"
               "\n"
               "That string isn't a valid capture filter (%s).\n"
               "See the User's Guide for a description of the capture filter syntax.",
@@ -5104,7 +5096,7 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
 
     if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Packets received/dropped on interface %s: %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
+            "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
             name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop);
         /* XXX: Need to provide interface id, changes to consumers required. */
         pipe_write_block(2, SP_DROPS, tmp);

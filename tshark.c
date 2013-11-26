@@ -2478,7 +2478,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
 
   if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
     cmdarg_err(
-      "Invalid capture filter \"%s\" for interface %s!\n"
+      "Invalid capture filter \"%s\" for interface '%s'!\n"
       "\n"
       "That string looks like a valid display filter; however, it isn't a valid\n"
       "capture filter (%s).\n"
@@ -2491,7 +2491,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
     dfilter_free(rfcode);
   } else {
     cmdarg_err(
-      "Invalid capture filter \"%s\" for interface %s!\n"
+      "Invalid capture filter \"%s\" for interface '%s'!\n"
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
