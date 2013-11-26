@@ -1,17 +1,17 @@
 # Note that this is NOT a relocatable package
 # $Id$
 # @configure_input@
+# configure options: @CONFIG_ARGS@
+
+%bcond_without gtk2
+%bcond_with    gtk3
+%bcond_with    qt
 
 # Set these to 1 if you want to ensure your package inclues support for them:
 %global with_adns 0
 %global with_c_ares 1
 %global with_lua  1
 %global with_portaudio 0
-
-# Set to 1 if you want GTK3 instead of GTK2:
-%global with_gtk3 0
-# Set to 1 if you want the Qt GUI too
-%global with_qt 1
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -116,15 +116,18 @@ view the reconstructed stream of a TCP session.
 This package contains command-line utilities, plugins, and documentation for
 Wireshark. A GTK+ and a Qt graphical user interface are packaged separately.
 
+%if %{with gtk2} || %{with gtk3}
 %package	gnome
 Summary:	Gnome desktop integration for Wireshark
 Group:		Applications/Internet
-%if %{with_gtk3}
+%if %{with gtk3}
 Requires:	gtk3 >= @GTK3_MIN_VERSION@
 BuildRequires:	gtk3-devel >= @GTK3_MIN_VERSION@
 %else
+%if %{with gtk2}
 Requires:	gtk2 >= @GTK2_MIN_VERSION@
 BuildRequires:	gtk2-devel >= @GTK2_MIN_VERSION@
+%endif
 %endif
 Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
@@ -150,8 +153,9 @@ Requires:	portaudio
 
 %description gnome
 Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
+%endif
 
-%if %{with_qt}
+%if %{with qt}
 %package	qt
 Summary:	Qt GUI for Wireshark
 Group:		Applications/Internet
@@ -201,14 +205,9 @@ Contains the Qt Wireshark GUI and desktop integration files.
 %if %{with_portaudio}
   --with-portaudio \
 %endif
-%if %{with_gtk3}
-  --with-gtk3 \
-%else
-  --with-gtk2 \
-%endif
-%if %{with_qt}
-  --with-qt \
-%endif
+  %{?_with_gtk2} \
+  %{?_with_gtk3} \
+  %{?_with_qt} \
   --disable-warnings-as-errors
 
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
@@ -218,8 +217,11 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+%if %{with gtk3} || %{with gtk2}
 # Change the program name for 'alternatives'
 mv %{buildroot}%{_bindir}/wireshark %{buildroot}%{_bindir}/wireshark-gtk
+%endif
+%if %{with gtk2} || %{with gtk3} || %{with qt}
 # Create the 'alternative' file
 touch %{buildroot}%{_bindir}/wireshark
 make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
@@ -232,6 +234,7 @@ make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
 # require this (at least if desktop-file-install was not used to install it).
 desktop-file-validate %{buildroot}/usr/share/applications/wireshark.desktop
+%endif
 %endif
 
 %clean
@@ -246,6 +249,7 @@ getent group wireshark >/dev/null || groupadd -r wireshark
 
 %postun -p /sbin/ldconfig
 
+%if %{with gtk2} || %{with gtk3}
 %post gnome
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
@@ -261,8 +265,9 @@ if [ $1 -eq 0 ] ; then
 	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 	%{_sbindir}/update-alternatives --remove %{name} %{_bindir}/wireshark-gtk
 fi
+%endif
 
-%if %{with_qt}
+%if %{with qt}
 %post qt
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
@@ -331,6 +336,7 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_mandir}/man4/*
 %{_datadir}/wireshark
 
+%if %{with gtk2} || %{with gtk3}
 %files gnome
 %defattr(-,root,root)
 /usr/share/applications/wireshark.desktop
@@ -340,8 +346,9 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_bindir}/wireshark-gtk
 %{_mandir}/man1/wireshark.*
 %ghost %{_bindir}/wireshark
+%endif
 
-%if %{with_qt}
+%if %{with qt}
 %files qt
 %defattr(-,root,root)
 /usr/share/applications/wireshark.desktop
@@ -354,6 +361,10 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %endif
 
 %changelog
+* Tue Nov 26 2013 Jeff Morriss
+- Overhaul options handling to pull in the UI choice from ./configure.
+- Make it possible to not build the GNOME package.
+
 * Tue Nov 12 2013 Jeff Morriss
 - Add q qt package using 'alternatives' to allow the administrator to choose
   which one they actually use.

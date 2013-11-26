@@ -8,6 +8,8 @@ m4_define([version_micro_extra], version_micro)
 m4_append([version_micro_extra], [])
 
 AC_INIT(wireshark, [version_major.version_minor.version_micro_extra], http://bugs.wireshark.org/, , http://www.wireshark.org/)
+CONFIG_ARGS="$*"
+AC_SUBST(CONFIG_ARGS)
 
 # Minimum autoconf version we require.
 AC_PREREQ(2.60)
@@ -1719,9 +1721,7 @@ AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 AC_SUBST(OSX_APP_FLAGS)
 AC_SUBST(OSX_DMG_FLAGS)
 
-
 # Enable/disable tshark
-
 AC_ARG_ENABLE(tshark,
   AC_HELP_STRING( [--enable-tshark],
                   [build TShark @<:@default=yes@:>@]),
@@ -2642,6 +2642,43 @@ case $host_cpu in
 		AC_DEFINE(NEED_8_BYTE_ALIGNMENT, 1, [Define if we need memory allocations to be 8-byte aligned])
 		;;
 esac
+
+# Gather only the "--with*" arguments and also a list of --with arguments for rpmbuild
+for f in $CONFIG_ARGS
+do
+	case $f in
+	--with-gtk2*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with gtk2"
+		;;
+	--without-gtk2*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without gtk2"
+		;;
+	--with-gtk3*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with gtk3"
+		;;
+	--without-gtk3*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without gtk3"
+		;;
+	--with-qt*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
+		;;
+	--without-qt*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt"
+		;;
+	--with*)
+		CONFIG_WITH_ARGS="$CONFIG_WITH_ARGS $f"
+		;;
+	esac
+
+done
+AC_SUBST(CONFIG_WITH_ARGS)
+AC_SUBST(RPMBUILD_WITH_ARGS)
 
 dnl libtool defs
 #

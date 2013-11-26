@@ -1090,6 +1090,8 @@ stagedir=$(top_stagedir)/$(PACKAGE).inst
 host_cpu=@host_cpu@
 host_os=@host_os@
 
+solaris-package: svr4-package
+
 svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
 	@if test x$(HAVE_SVR4_PACKAGING) = xyes ; then \
 		rm -rf $(stagedir) ; \
@@ -1104,7 +1106,6 @@ svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
 		echo "Package build abandoned." ; \
 	fi
 
-solaris-package: svr4-package
 
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 rpm-package: dist
@@ -1114,7 +1115,8 @@ rpm-package: dist
 		cd SOURCES ; \
 		ln -sf ../../../$(distdir).tar.bz2 ; \
 		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" --clean -ba SPECS/wireshark.spec && \
+		rpmbuild --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" \
+			@RPMBUILD_WITH_ARGS@ --clean -ba SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/RPMS." && \
 			rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2 ; \
 	else \
