@@ -741,6 +741,11 @@ static int hf_smb_unix_file_name_length = -1;
 static int hf_smb_unix_file_name = -1;
 static int hf_smb_unix_find_file_nextoffset = -1;
 static int hf_smb_unix_find_file_resumekey = -1;
+static int hf_smb_unix_whoami_mapflags = -1;
+static int hf_smb_unix_whoami_mapflags_mask = -1;
+static int hf_smb_unix_whoami_num_supl_gids = -1;
+static int hf_smb_unix_whoami_num_supl_sids = -1;
+static int hf_smb_unix_whoami_sids_buflen = -1;
 static int hf_smb_disposition_delete_on_close = -1;
 static int hf_smb_pipe_info_flag = -1;
 static int hf_smb_mode = -1;
@@ -842,6 +847,8 @@ static gint ett_smb_secblob = -1;
 static gint ett_smb_unicode_password = -1;
 static gint ett_smb_ea = -1;
 static gint ett_smb_unix_capabilities = -1;
+static gint ett_smb_unix_whoami_gids = -1;
+static gint ett_smb_unix_whoami_sids = -1;
 static gint ett_smb_posix_ace = -1;
 static gint ett_smb_posix_ace_perms = -1;
 static gint ett_smb_info2_file_flags = -1;
@@ -10633,6 +10640,7 @@ static const value_string qfsi_vals[] = {
 	{ 0x0104,	"Query FS Device Info"},
 	{ 0x0105,	"Query FS Attribute Info"},
 	{ 0x0200,       "Unix Query FS Info"},
+	{ 0x0202,       "Unix Query POSIX whoami"},
 	{ 0x0301,	"Mac Query FS Info"},
 	{ 1001,		"Query FS Label Info"},
 	{ 1002,		"Query FS Volume Info"},
@@ -15847,6 +15855,96 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		break;
 	}
+
+	case 0x202: {	/* SMB_QUERY_POSIX_WHOAMI */
+		proto_item *it_gids = NULL;
+		proto_tree *st_gids = NULL;
+		guint32     num_gids;
+		guint       i;
+		proto_item *it_sids = NULL;
+		proto_tree *st_sids = NULL;
+		int         old_sid_offset;
+		guint32     num_sids;
+		guint32     sids_buflen;
+
+		/* Mapping flags */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_unix_whoami_mapflags,
+				tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* Mapping flags mask */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_unix_whoami_mapflags_mask,
+				tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* primary UID */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_unix_file_uid,
+				tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* primary GID */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_unix_file_gid,
+				tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* number of supplementary GIDs */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		num_gids = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb_unix_whoami_num_supl_gids,
+				tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* number of supplementary SIDs */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		num_sids = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb_unix_whoami_num_supl_sids,
+				tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* supplementary SIDs buffer length */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		sids_buflen = tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb_unix_whoami_sids_buflen,
+				tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* pad / reserved (must be zero) */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+
+		/* GIDs */
+		it_gids = proto_tree_add_text(tree, tvb, offset, num_gids * 8,
+				"Supplementary UNIX GIDs");
+		st_gids = proto_item_add_subtree(it_gids, ett_smb_unix_whoami_gids);
+
+		for (i = 0; i < num_gids; i++) {
+			CHECK_BYTE_COUNT_TRANS_SUBR(8);
+			proto_tree_add_item(st_gids, hf_smb_unix_file_gid,
+					tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			COUNT_BYTES_TRANS_SUBR(8);
+		}
+
+		/* SIDs */
+		it_sids = proto_tree_add_text(tree, tvb, offset, sids_buflen,
+				"List of SIDs");
+		st_sids = proto_item_add_subtree(it_sids, ett_smb_unix_whoami_sids);
+
+		for (i = 0; i < num_sids; i++) {
+			old_sid_offset = offset;
+			offset = dissect_nt_sid(tvb, offset, st_sids, "SID", NULL, -1);
+			CHECK_BYTE_COUNT_TRANS_SUBR(offset-old_sid_offset);
+			*bcp -= (offset - old_sid_offset);
+		}
+
+		break;
+	}
+
 	case 0x301: 	/* MAC_QUERY_FS_INFO */
 		/* Create time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
@@ -20649,6 +20747,26 @@ proto_register_smb(void)
 	  { "Resume key", "smb.unix.find_file.resume_key", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_unix_whoami_mapflags,
+	  { "UNIX whoami mapping flags", "smb.unix.whoami.mapflags", FT_UINT32, BASE_DEC,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_unix_whoami_mapflags_mask,
+	  { "UNIX whoami mapping flags mask", "smb.unix.whoami.mapflags_mask", FT_UINT32, BASE_DEC,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_unix_whoami_num_supl_gids,
+	  { "Number of supplementary UNIX GIDs", "smb.unix.whoami.num_gids", FT_UINT32, BASE_DEC,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_unix_whoami_num_supl_sids,
+	  { "Number of supplementary SIDs", "smb.unix.whoami.num_sids", FT_UINT32, BASE_DEC,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_unix_whoami_sids_buflen,
+	  { "Supplementary SIDs buffer length", "smb.unix.whoami.sids_buflen", FT_UINT32, BASE_DEC,
+	    NULL, 0, NULL, HFILL }},
+
 	{ &hf_smb_create_flags,
 	  { "Create Flags", "smb.create_flags", FT_UINT32, BASE_HEX,
 	    NULL, 0, NULL, HFILL }},
@@ -20839,6 +20957,8 @@ proto_register_smb(void)
 		&ett_smb_unicode_password,
 		&ett_smb_ea,
 		&ett_smb_unix_capabilities,
+		&ett_smb_unix_whoami_gids,
+		&ett_smb_unix_whoami_sids,
 		&ett_smb_posix_ace,
 		&ett_smb_posix_ace_perms,
 		&ett_smb_info2_file_flags
