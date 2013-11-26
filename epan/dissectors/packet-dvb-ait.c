@@ -272,7 +272,7 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
         }
         else {
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_bytes,
-                tvb, offset, offset_start+body_len-offset, ENC_BIG_ENDIAN);
+                tvb, offset, offset_start+body_len-offset, ENC_NA);
             offset = offset_start+body_len;
         }
     }
