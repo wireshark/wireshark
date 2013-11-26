@@ -1029,7 +1029,8 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 	}
 
 	/* Update everything that shows an interface list that includes
-	   local interfaces. */
+	   local interfaces, as we may have changed something that
+	   affects how those lists are displayed. */
 	refresh_local_interface_lists();
 
 	/* Now nuke this window. */

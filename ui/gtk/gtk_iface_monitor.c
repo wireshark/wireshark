@@ -73,6 +73,11 @@ gtk_iface_mon_event_cb(const char *iface, int up)
     if (present == up)
         return;
 
+    /*
+     * We've been told that there's a new interface or that an old
+     * interface is gone; reload the list and refresh all places
+     * that are displaying the list.
+     */
     refresh_local_interface_lists();
 }
 

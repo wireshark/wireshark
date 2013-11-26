@@ -971,6 +971,9 @@ update_capture_box(void)
     gtk_tree_selection_set_select_function(GTK_TREE_SELECTION(entry), on_selection_changed, (gpointer)&changed, NULL);
 }
 
+/*
+ * We've been asked to rescan the system looking for interfaces.
+ */
 static void
 refresh_interfaces_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {

@@ -3800,7 +3800,9 @@ apply_local_cb(GtkWidget *win _U_, gpointer *data _U_)
     hide_interface(g_strdup(new_hide));
 
     /* Refresh all places that are displaying an interface list
-       that includes local interfaces. */
+       that includes local interfaces, in case we've changed
+       a property of the interface list that changes how it's
+       displayed. */
     refresh_local_interface_lists();
 
     /* save changes to the preferences file */
@@ -3823,6 +3825,9 @@ capture_dlg_refresh_if (void)
   update_properties_all();
 }
 
+/*
+ * We've been asked to rescan the system looking for interfaces.
+ */
 static void
 rescan_local_cb(GtkWidget *button _U_, gpointer *data _U_)
 {

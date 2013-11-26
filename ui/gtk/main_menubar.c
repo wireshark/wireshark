@@ -837,6 +837,9 @@ capture_filters_action_cb(GtkAction *action _U_, gpointer user_data _U_)
     cfilter_dialog_cb(NULL /* GtkWidget *w _U_ */);
 }
 
+/*
+ * We've been asked to rescan the system looking for interfaces.
+ */
 static void
 refresh_interfaces_action_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
