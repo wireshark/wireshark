@@ -49,6 +49,26 @@ CommonComponentId
 SubscriberId
 GuidanceInfo
 SS-InfoList
+# Not yet used Nokia extensions
+DsdArgExt
+CanLocArgExt
+ATMargExt
+DTMargExt
+NumberPorted
+ATMresExt
+AbsentSubscriberExt
+SriForSMArgExt
+ReportSMDelStatArgExt
+UdlArgExt
+RoamNotAllowedExt
+MO-ForwardSM-ArgExt
+ErrOlcmInfoTableExt
+RoutingCategoryExt
+AnyTimeModArgExt
+ExtensionType
+AccessTypeExt
+AccessSubscriptionListExt
+AllowedServiceData
 #.END
 #.PDU_NEW
 LCS-ClientID
