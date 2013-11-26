@@ -101,8 +101,9 @@ typedef struct _rtpproxy_info {
 	nstime_t req_time;
 } rtpproxy_info_t;
 
-static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
+static dissector_handle_t rtp_events_handle;
+static dissector_handle_t rtp_handle;
 
 typedef struct _rtpproxy_conv_info {
 	wmem_tree_t *trans;
@@ -295,6 +296,7 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 	guint offset = 0;
 	guint new_offset = 0;
 	gint i = 0;
+	guint pt = 0;
 	gchar** codecs = NULL;
 	guint8* rawstr = NULL;
 
@@ -344,6 +346,10 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 				new_offset = (gint)strspn(rawstr+offset, "0123456789");
 				another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_dtmf);
 				proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_dtmf, tvb, begin+offset, new_offset, ENC_ASCII | ENC_NA);
+				if(rtpproxy_establish_conversation){
+					pt = (guint)strtoul(tvb_format_text(tvb,begin+offset,new_offset),NULL,10);
+					dissector_add_uint("rtp.pt", pt, rtp_events_handle);
+				}
 				offset += new_offset;
 				break;
 			case 'm':
@@ -1321,8 +1327,9 @@ proto_reg_handoff_rtpproxy(void)
 		dissector_add_uint("udp.port", rtpproxy_udp_port, rtpproxy_udp_handle);
 	old_rtpproxy_udp_port = rtpproxy_udp_port;
 
-	rtp_handle    = find_dissector("rtp");
 	rtcp_handle   = find_dissector("rtcp");
+	rtp_events_handle    = find_dissector("rtpevent");
+	rtp_handle    = find_dissector("rtp");
 }
 
 /*
