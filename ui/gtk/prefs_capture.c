@@ -1026,7 +1026,7 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 		ifopts_write_new_snaplen();
 		/* create/write new promiscuous mode interfaces string */
 		ifopts_write_new_pmode();
-}
+	}
 
 	/* Update everything that shows an interface list that includes
 	   local interfaces. */
