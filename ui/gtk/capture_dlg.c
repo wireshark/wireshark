@@ -1312,6 +1312,12 @@ insert_new_rows(GList *list)
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;
         linkr = (link_row *)g_malloc(sizeof(link_row));
+        /*
+         * For link-layer types libpcap/WinPcap doesn't know about, the
+         * name will be "DLT n", and the description will be null.
+         * We mark those as unsupported, and don't allow them to be
+         * used.
+         */
         if (data_link_info->description != NULL) {
           str = g_strdup_printf("%s", data_link_info->description);
           linkr->dlt = data_link_info->dlt;
@@ -5921,6 +5927,12 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
       linkr = (link_row *)g_malloc(sizeof(link_row));
       data_link_info = (data_link_info_t *)lt_entry->data;
+      /*
+       * For link-layer types libpcap/WinPcap doesn't know about, the
+       * name will be "DLT n", and the description will be null.
+       * We mark those as unsupported, and don't allow them to be
+       * used - capture filters won't work on them, for example.
+       */
       if (data_link_info->description != NULL) {
         ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
                                              data_link_info->description,
@@ -5932,7 +5944,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
         linkr->name = g_strdup(data_link_info->description);
       } else {
         gchar *str;
-        /* Not supported - tell them about it but don't let them select it. */
+        /* XXX - should we just omit them? */
         str = g_strdup_printf("%s (not supported)", data_link_info->name);
         ws_combo_box_append_text_and_pointer_full(GTK_COMBO_BOX(linktype_combo_box),
                                                   NULL,
