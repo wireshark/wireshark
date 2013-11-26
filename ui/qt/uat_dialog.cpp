@@ -218,6 +218,7 @@ void UatDialog::activateLastItem()
     ui->uatTreeWidget->clearSelection();
     ui->uatTreeWidget->selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
     on_uatTreeWidget_itemActivated(ui->uatTreeWidget->topLevelItem(last_item), 0);
+    ui->uatTreeWidget->setCurrentItem(ui->uatTreeWidget->topLevelItem(last_item));
 }
 
 void UatDialog::on_uatTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
@@ -230,11 +231,15 @@ void UatDialog::on_uatTreeWidget_currentItemChanged(QTreeWidgetItem *current, QT
             updateItem(*previous);
         }
     }
+    ui->uatTreeWidget->setCurrentItem(current);
 }
 
 void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column)
 {
     if (!uat_) return;
+
+    cur_line_edit_ = NULL;
+    cur_combo_box_ = NULL;
 
     uat_field_t *field = &uat_->fields[column];
     guint row = item->data(0, Qt::UserRole).toUInt();
@@ -321,6 +326,9 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
         item->setText(column, "");
         edit_frame->setLayout(hb);
         ui->uatTreeWidget->setItemWidget(item, column, edit_frame);
+        if (cur_line_edit_) {
+            ui->uatTreeWidget->setCurrentItem(item);
+        }
         editor->setFocus();
     }
 }
@@ -368,6 +376,9 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
 void UatDialog::stringPrefTextChanged(const QString &text)
 {
     QTreeWidgetItem *item = ui->uatTreeWidget->currentItem();
+    if (!cur_line_edit_) {
+        cur_line_edit_ = new SyntaxLineEdit();
+    }
     if (!cur_line_edit_ || !item) return;
     guint row = item->data(0, Qt::UserRole).toUInt();
     void *rec = UAT_INDEX_PTR(uat_, row);
@@ -444,8 +455,7 @@ void UatDialog::on_deleteToolButton_clicked()
     uat_remove_record_idx(uat_, row);
     updateItems();
 
-    ui->deleteToolButton->setEnabled(false);
-    ui->copyToolButton->setEnabled(false);
+    on_uatTreeWidget_itemSelectionChanged();
     uat_->changed = TRUE;
 }
 
