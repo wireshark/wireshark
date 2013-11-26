@@ -31,10 +31,26 @@
 #include "config.h"
 
 #include <ctype.h>
+#include <glib.h>
 
+#include <epan/address.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>       /* needed to define AF_ values on Windows */
+#endif
+#ifdef NEED_INET_V6DEFS_H
+#include "wsutil/inet_v6defs.h"
+#endif
+
+/* For setting up RTP/RTCP dissectors based on the RTPproxy's answers */
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
 
 static int proto_rtpproxy = -1;
 
@@ -74,6 +90,9 @@ typedef struct _rtpproxy_info {
 	guint32 resp_frame;
 	nstime_t req_time;
 } rtpproxy_info_t;
+
+static dissector_handle_t rtp_handle;
+static dissector_handle_t rtcp_handle;
 
 typedef struct _rtpproxy_conv_info {
 	wmem_tree_t *trans;
@@ -159,6 +178,7 @@ static gint ett_rtpproxy_reply = -1;
 
 static guint rtpproxy_tcp_port = 22222;
 static guint rtpproxy_udp_port = 22222;
+static gboolean rtpproxy_establish_conversation = TRUE;
 
 void proto_reg_handoff_rtpproxy(void);
 
@@ -279,6 +299,10 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	conversation_t *conversation;
 	rtpproxy_conv_info_t *rtpproxy_conv;
 	gchar* cookie = NULL;
+	/* For RT(C)P setup */
+	address addr;
+	guint16 port;
+	guint32 ipaddr[4];
 
 	/* If it does not start with a printable character it's not RTPProxy */
 	if(!isprint(tvb_get_guint8(tvb, 0)))
@@ -528,16 +552,38 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 			/* Extract Port */
 			new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+			/* Convert port to unsigned 16-bit number */
+			port = (guint16) g_ascii_strtoull((gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, new_offset - offset), NULL, 10);
 			proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_port, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
 			/* Skip whitespace */
 			offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
 			/* Extract IP */
 			tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, FALSE);
-			if (tvb_find_guint8(tvb, offset, -1, ':') == -1)
+			if (tvb_find_guint8(tvb, offset, -1, ':') == -1){
+				inet_pton(AF_INET, (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tmp), &ipaddr);
+				addr.type = AT_IPv4;
+				addr.len  = 4;
+				addr.data = wmem_memdup(wmem_packet_scope(), &ipaddr, 4);
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ipv4, tvb, offset, tmp, ENC_ASCII | ENC_NA);
-			else
+			}
+			else{
+				inet_pton(AF_INET6, (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tmp), &ipaddr);
+				addr.type = AT_IPv6;
+				addr.len  = 16;
+				addr.data = wmem_memdup(wmem_packet_scope(), &ipaddr, 16);
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ipv6, tvb, offset, tmp, ENC_ASCII | ENC_NA);
+			}
+
+			if(rtpproxy_establish_conversation){
+				if (rtp_handle) {
+					/* FIXME tell if isn't a video stream, and setup codec mapping */
+					rtp_add_address(pinfo, &addr, port, 0, "RTPproxy", pinfo->fd->num, 0, NULL);
+				}
+				if (rtcp_handle) {
+					rtcp_add_address(pinfo, &addr, port+1, 0, "RTPproxy", pinfo->fd->num);
+				}
+			}
 			break;
 		default:
 			break;
@@ -952,6 +998,11 @@ proto_register_rtpproxy(void)
 								 "RTPproxy UDP Port", /* Descr */
 								 10,
 								 &rtpproxy_udp_port);
+	prefs_register_bool_preference(rtpproxy_module, "establish_conversation",
+                                 "Establish Media Conversation",
+                                 "Specifies that RTP/RTCP/T.38/MSRP/etc streams are decoded based "
+                                 "upon port numbers found in RTPproxy answers",
+                                 &rtpproxy_establish_conversation);
 }
 
 void
@@ -983,6 +1034,9 @@ proto_reg_handoff_rtpproxy(void)
 	if(rtpproxy_udp_port != 0 && old_rtpproxy_udp_port != rtpproxy_udp_port)
 		dissector_add_uint("udp.port", rtpproxy_udp_port, rtpproxy_udp_handle);
 	old_rtpproxy_udp_port = rtpproxy_udp_port;
+
+	rtp_handle    = find_dissector("rtp");
+	rtcp_handle   = find_dissector("rtcp");
 }
 
 /*
