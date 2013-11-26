@@ -406,8 +406,9 @@
       </grouped>
     </avp>
     <!--
-    652 Priviledged-Sender-Indication Enumerated
-    -->
+652 Priviledged-Sender-Indication Enumerated
+653 LIA-Flags Unsigned32
+-->
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 
 </application>

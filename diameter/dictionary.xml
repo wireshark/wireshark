@@ -2871,23 +2871,23 @@
 		NOTE AVP 500 - 523 is in gqpolicy.xml
 		AVP 524 - 532 is in TGPPRx.xml (3GPP TS 29.214)
     -->
-    <avp name="Rx-Request-Type" code="533" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Rx-Request-Type" code="533" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="INITIAL_REQUEST" code="0"/>
       <enum name="UPDATE_REQUEST" code="1"/>
     </avp>
-    <avp name="Min-Requested-Bandwidth-DL" code="534" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Min-Requested-Bandwidth-DL" code="534" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Min-Requested-Bandwidth-UL" code="535" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Min-Requested-Bandwidth-UL" code="535" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Rx-Request-Type" code="536" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Required-Access-Info" code="536" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="USER_LOCATION" code="0"/>
       <enum name="MS_TIME_ZONE" code="1"/>
     </avp>
-    <avp name="IP-Domain-Id" code="537" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="IP-Domain-Id" code="537" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
 
@@ -4044,7 +4044,23 @@
 		<avp name="Max-Supported-Bandwidth-UL" code="1084" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+<!-- 
+1085 Redirect-Information Grouped
+1086 Redirect- Support Enumerated
+1087 TDF-Information Grouped
+1088 TDF-Application-Identifier OctetString
+1089 TDF-Destination-Host DiameterIdentity
+1090 TDF-Destination-Realm DiameterIdentity
+1091 TDF-IP-address Address
+1092 ADC-Rule-Install Grouped
+1093 ADC-Rule-Remove Grouped
+1094 ADC-Rule-Definition Grouped
+1095 ADC-Rule-Base-Name UTF8String
+1096 ADC-Rule-Name OctetString
+1097 ADC-Rule-Report Grouped
+1098 Application-Detection-Information Grouped
+1099 PS-to-CS-Session-Continuity Enumerated
+-->
 		<!-- Note: The AVP codes from 1085 to 1099 are reserved for TS 29.212 -->
 
 		<!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
@@ -5234,7 +5250,24 @@
 		<avp name="MIP-FA-RK-SPI" code="1507" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+    <!-- 
+1508 PPR-Flags Unsigned32
+1509 WLAN-Identifier Grouped
+1510 TWAN-Access-Info Grouped
+1511 Access-Authorization-Flags Unsigned32
+1512 TWAN-Default-APN-Context-Id Unsigned32
+1513 Reserved -
+1514 Reserved -
+1515 Reserved -
+1516 Full-Network-Name OctetString
+1517 Short-Network-Name OctetString
+1518 AAA-Failure-Indication Unsigned32
+1519 Transport-Access-Type Enumerated
+1520 DER-Flags Unsigned32
+1521 DEA-Flags Unsigned32
+1522 RAR-Flags Unsigned32
+1523 DER-S6b-Flags Unsigned32
+    -->
 		<!--
 		Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
 		Note: The AVP codes from 1508 to 1599 are reserved for TS 29.273
@@ -5540,7 +5573,11 @@
     <avp name="Restoration-Priority" code="1662" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-
+    <!-- 
+1663 Restoration-Priority Unsigned32
+1664 Reserved -
+1665 Reserved -    
+    -->
     <!--
 		Note: The AVP codes from 1663 to 1699 are reserved for TS 29.272.
 		-->

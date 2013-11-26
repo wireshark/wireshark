@@ -133,7 +133,11 @@
 		<enum name="RAT-Type-Requested" code="2"/>
 		<!--  <enum name="Location-Information-EPS-Supported,RAT-Type-Requested" code="3"/> -->
 	</avp>
-
+<!-- 
+720 Call-Reference-Info Grouped
+721 Call-Reference-Number OctetString
+722 AS-Number OctetString
+-->
 	<!-- Note: The AVP codes from 720 to 799 are reserved for TS 29.329. -->
 	<!-- ************************ END 3GPP Sh AVPS ******************* -->
 
