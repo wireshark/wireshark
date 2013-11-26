@@ -30,6 +30,7 @@
 #include "epan/tap.h"
 #include "epan/timestamp.h"
 
+#include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
@@ -447,7 +448,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     color_filters_enable(recent.packet_list_colorize);
     tap_update_timer_.setInterval(prefs.tap_update_interval);
 
-    prefsToCaptureOpts();
+    prefs_to_capture_opts();
     prefs_apply_all();
     emit filterExpressionsChanged();
 //    macros_post_update();
@@ -465,19 +466,6 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     /* Update menus with new recent values */
 //    menu_recent_read_finished();
-}
-
-void WiresharkApplication::prefsToCaptureOpts()
-{
-#ifdef HAVE_LIBPCAP
-    /* Set promiscuous mode from the preferences setting. */
-    /* the same applies to other preferences settings as well. */
-    global_capture_opts.default_options.promisc_mode = prefs.capture_prom_mode;
-    global_capture_opts.use_pcapng                   = prefs.capture_pcap_ng;
-    global_capture_opts.show_info                    = prefs.capture_show_info;
-    global_capture_opts.real_time_mode               = prefs.capture_real_time;
-//    auto_scroll_live                                 = prefs.capture_auto_scroll;
-#endif /* HAVE_LIBPCAP */
 }
 
 void WiresharkApplication::setLastOpenDir(const char *dir_name)

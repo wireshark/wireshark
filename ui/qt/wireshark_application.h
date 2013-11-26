@@ -90,8 +90,6 @@ public:
     bool isInitialized() { return initialized_; }
 
 private:
-    void prefsToCaptureOpts();
-
     bool initialized_;
     QFont mono_regular_font_;
     QFont mono_bold_font_;
