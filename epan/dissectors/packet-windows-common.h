@@ -218,7 +218,7 @@ extern value_string_ext WERR_errors_ext;
     XXX( SMBE_DOS_invalidformsize,                1903, "Invalid form size")                 /* NT printer driver system only */ \
     XXX( SMBE_DOS_buftoosmall,                    2123, "Buffer too small") \
     XXX( SMBE_DOS_unknownipc,                     2142, "Unknown IPC Operation") \
-    XXX( SMBE_DOS_nosuchprintjob,                 2151, "No such print job")                 /* NT printer driver system only *?? / \
+    XXX( SMBE_DOS_nosuchprintjob,                 2151, "No such print job")                 /* NT printer driver system only ?? */ \
     XXX( SMBE_DOS_invgroup,                       2455, "Invalid Group") \
     XXX( SMBE_DOS_unknownprintmonitor,            3000, "Unknown print monitor")             /* NT printer driver system only */ \
     XXX( SMBE_DOS_printerdriverinuse,             3001, "Printer driver in use")             /* NT printer driver system only */ \
