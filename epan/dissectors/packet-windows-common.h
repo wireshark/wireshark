@@ -33,106 +33,115 @@
  * interfaces (those that do not return NT status that is)
  *
  * The list is generated from the samba doserr.h file by running :
-(echo "#include \"doserr.h\"";echo "#define W_ERROR(x) x";cat doserr.h | grep "^#define WERR" | grep -v "FOOBAR" | sed -e "s/^#define[ \t]//" | while read WERR junk;do echo int foo${WERR}=${WERR}";" ; done ) | cpp | grep "^int foo" | sed -e "s/^int foo/#define /" -e "s/=/ /" -e "s/;$//"
+     (echo "#include \"doserr.h\"";echo "#define W_ERROR(x) x";cat doserr.h | grep "^#define WERR" | grep -v "FOOBAR" | sed -e "s/^#define[ \t]//" | while read WERR junk;do echo int foo${WERR}=${WERR}";" ; done ) | cpp | grep "^int foo" | sed -e "s/^int foo/#define /" -e "s/=/ /" -e "s/;$//"
+ *
+ * [11/18/2013] The WERR_errors list was hand-edited to have all values be decimal, and then sorted by value.
+ *
+ * [11/19/2013] XXX - The samba doserr.h file no longer contains any WERR related entries.
+ *                    WERR_errors list below left as is for now.
  */
-#define WERR_OK 0
-#define WERR_BADFUNC 1
-#define WERR_BADFILE 2
-#define WERR_ACCESS_DENIED 5
-#define WERR_BADFID 6
-#define WERR_NOMEM 8
-#define WERR_GENERAL_FAILURE 31
-#define WERR_NOT_SUPPORTED 50
-#define WERR_BAD_NETPATH 53
-#define WERR_UNEXP_NET_ERR 59
-#define WERR_PRINTQ_FULL 61
-#define WERR_NO_SPOOL_SPACE 62
-#define WERR_NO_SUCH_SHARE 67
-#define WERR_FILE_EXISTS 80
-#define WERR_BAD_PASSWORD 86
-#define WERR_INVALID_PARAM 87
-#define WERR_INSUFFICIENT_BUFFER 122
-#define WERR_INVALID_NAME 123
-#define WERR_UNKNOWN_LEVEL 124
-#define WERR_OBJECT_PATH_INVALID 161
-#define WERR_ALREADY_EXISTS 183
-#define WERR_NO_MORE_ITEMS 259
-#define WERR_MORE_DATA 234
-#define WERR_CAN_NOT_COMPLETE 1003
-#define WERR_NOT_FOUND 1168
-#define WERR_INVALID_COMPUTERNAME 1210
-#define WERR_INVALID_DOMAINNAME 1212
-#define WERR_UNKNOWN_REVISION 1305
-#define WERR_REVISION_MISMATCH 1306
-#define WERR_INVALID_OWNER 1307
-#define WERR_NO_SUCH_PRIVILEGE 1313
-#define WERR_PRIVILEGE_NOT_HELD 1314
-#define WERR_NO_SUCH_USER 1317
-#define WERR_INVALID_SECURITY_DESCRIPTOR 1338
-#define WERR_NO_SUCH_DOMAIN 1355
-#define WERR_NO_SYSTEM_RESOURCES 1450
-#define WERR_SERVER_UNAVAILABLE 1722
-#define WERR_INVALID_FORM_NAME 1902
-#define WERR_INVALID_FORM_SIZE 1903
-#define WERR_ALREADY_SHARED 2118
-#define WERR_BUF_TOO_SMALL 2123
-#define WERR_JOB_NOT_FOUND 2151
-#define WERR_DEST_NOT_FOUND 2152
-#define WERR_NOT_LOCAL_DOMAIN 2320
-#define WERR_DEVICE_NOT_AVAILABLE 4319
-#define WERR_STATUS_MORE_ENTRIES 0x0105
-#define WERR_PRINTER_DRIVER_ALREADY_INSTALLED 1795
-#define WERR_UNKNOWN_PORT 1796
-#define WERR_UNKNOWN_PRINTER_DRIVER 1797
-#define WERR_UNKNOWN_PRINTPROCESSOR 1798
-#define WERR_INVALID_SEPARATOR_FILE 1799
-#define WERR_INVALID_PRIORITY 1800
-#define WERR_INVALID_PRINTER_NAME 1801
-#define WERR_PRINTER_ALREADY_EXISTS 1802
-#define WERR_INVALID_PRINTER_COMMAND 1803
-#define WERR_INVALID_DATATYPE 1804
-#define WERR_INVALID_ENVIRONMENT 1805
-#define WERR_SESSION_NOT_FOUND 2312
-#define WERR_FID_NOT_FOUND 2314
-#define WERR_UNKNOWN_PRINT_MONITOR 3000
-#define WERR_PRINTER_DRIVER_IN_USE 3001
-#define WERR_SPOOL_FILE_NOT_FOUND 3002
-#define WERR_SPL_NO_STARTDOC 3003
-#define WERR_SPL_NO_ADDJOB 3004
-#define WERR_PRINT_PROCESSOR_ALREADY_INSTALLED 3005
-#define WERR_PRINT_MONITOR_ALREADY_INSTALLED 3006
-#define WERR_INVALID_PRINT_MONITOR 3007
-#define WERR_PRINT_MONITOR_IN_USE 3008
-#define WERR_PRINTER_HAS_JOBS_QUEUED 3009
-#define WERR_CLASS_NOT_REGISTERED 0x40154
-#define WERR_NO_SHUTDOWN_IN_PROGRESS 0x45c
-#define WERR_SHUTDOWN_ALREADY_IN_PROGRESS 0x45b
-#define WERR_NET_NAME_NOT_FOUND (2100)+210
-#define WERR_DEVICE_NOT_SHARED (2100)+211
-#define WERR_DFS_NO_SUCH_VOL (2100)+562
-#define WERR_DFS_NO_SUCH_SHARE (2100)+565
-#define WERR_DFS_NO_SUCH_SERVER (2100)+573
-#define WERR_DFS_INTERNAL_ERROR (2100)+590
-#define WERR_DFS_CANT_CREATE_JUNCT (2100)+569
-#define WERR_DS_SERVICE_BUSY 0x0000200e
-#define WERR_DS_SERVICE_UNAVAILABLE 0x0000200f
-#define WERR_DS_NO_SUCH_OBJECT 0x00002030
-#define WERR_DS_OBJ_NOT_FOUND 0x0000208d
-#define WERR_DS_DRA_INVALID_PARAMETER 0x000020f5
-#define WERR_DS_DRA_BAD_DN 0x000020f7
-#define WERR_DS_DRA_BAD_NC 0x000020f8
-#define WERR_DS_DRA_INTERNAL_ERROR 0x000020fa
-#define WERR_DS_DRA_OUT_OF_MEM 0x000020fe
-#define WERR_DS_SINGLE_VALUE_CONSTRAINT 0x00002081
-#define WERR_DS_DRA_DB_ERROR 0x00002103
-#define WERR_DS_DRA_NO_REPLICA 0x00002104
-#define WERR_DS_DRA_ACCESS_DENIED 0x00002105
-#define WERR_DS_DNS_LOOKUP_FAILURE 0x0000214c
-#define WERR_DS_WRONG_LINKED_ATTRIBUTE_SYNTAX 0x00002150
-#define WERR_SEC_E_ALGORITHM_MISMATCH 0x80090331
+#define WERR_errors_VALUE_STRING_LIST(XXX)             \
+    XXX( WERR_OK,                                   0) \
+    XXX( WERR_BADFUNC,                              1) \
+    XXX( WERR_BADFILE,                              2) \
+    XXX( WERR_ACCESS_DENIED,                        5) \
+    XXX( WERR_BADFID,                               6) \
+    XXX( WERR_NOMEM,                                8) \
+    XXX( WERR_GENERAL_FAILURE,                     31) \
+    XXX( WERR_NOT_SUPPORTED,                       50) \
+    XXX( WERR_BAD_NETPATH,                         53) \
+    XXX( WERR_UNEXP_NET_ERR,                       59) \
+    XXX( WERR_PRINTQ_FULL,                         61) \
+    XXX( WERR_NO_SPOOL_SPACE,                      62) \
+    XXX( WERR_NO_SUCH_SHARE,                       67) \
+    XXX( WERR_FILE_EXISTS,                         80) \
+    XXX( WERR_BAD_PASSWORD,                        86) \
+    XXX( WERR_INVALID_PARAM,                       87) \
+    XXX( WERR_INSUFFICIENT_BUFFER,                122) \
+    XXX( WERR_INVALID_NAME,                       123) \
+    XXX( WERR_UNKNOWN_LEVEL,                      124) \
+    XXX( WERR_OBJECT_PATH_INVALID,                161) \
+    XXX( WERR_ALREADY_EXISTS,                     183) \
+    XXX( WERR_MORE_DATA,                          234) \
+    XXX( WERR_NO_MORE_ITEMS,                      259) \
+    XXX( WERR_STATUS_MORE_ENTRIES,                261) /* 0x0105 */ \
+    XXX( WERR_CAN_NOT_COMPLETE,                  1003) \
+    XXX( WERR_SHUTDOWN_ALREADY_IN_PROGRESS,      1115) /* 0x45b */  \
+    XXX( WERR_NO_SHUTDOWN_IN_PROGRESS,           1116) /* 0x45c */  \
+    XXX( WERR_NOT_FOUND,                         1168) \
+    XXX( WERR_INVALID_COMPUTERNAME,              1210) \
+    XXX( WERR_INVALID_DOMAINNAME,                1212) \
+    XXX( WERR_UNKNOWN_REVISION,                  1305) \
+    XXX( WERR_REVISION_MISMATCH,                 1306) \
+    XXX( WERR_INVALID_OWNER,                     1307) \
+    XXX( WERR_NO_SUCH_PRIVILEGE,                 1313) \
+    XXX( WERR_PRIVILEGE_NOT_HELD,                1314) \
+    XXX( WERR_NO_SUCH_USER,                      1317) \
+    XXX( WERR_INVALID_SECURITY_DESCRIPTOR,       1338) \
+    XXX( WERR_NO_SUCH_DOMAIN,                    1355) \
+    XXX( WERR_NO_SYSTEM_RESOURCES,               1450) \
+    XXX( WERR_SERVER_UNAVAILABLE,                1722) \
+    XXX( WERR_PRINTER_DRIVER_ALREADY_INSTALLED,  1795) \
+    XXX( WERR_UNKNOWN_PORT,                      1796) \
+    XXX( WERR_UNKNOWN_PRINTER_DRIVER,            1797) \
+    XXX( WERR_UNKNOWN_PRINTPROCESSOR,            1798) \
+    XXX( WERR_INVALID_SEPARATOR_FILE,            1799) \
+    XXX( WERR_INVALID_PRIORITY,                  1800) \
+    XXX( WERR_INVALID_PRINTER_NAME,              1801) \
+    XXX( WERR_PRINTER_ALREADY_EXISTS,            1802) \
+    XXX( WERR_INVALID_PRINTER_COMMAND,           1803) \
+    XXX( WERR_INVALID_DATATYPE,                  1804) \
+    XXX( WERR_INVALID_ENVIRONMENT,               1805) \
+    XXX( WERR_INVALID_FORM_NAME,                 1902) \
+    XXX( WERR_INVALID_FORM_SIZE,                 1903) \
+    XXX( WERR_ALREADY_SHARED,                    2118) \
+    XXX( WERR_BUF_TOO_SMALL,                     2123) \
+    XXX( WERR_JOB_NOT_FOUND,                     2151) \
+    XXX( WERR_DEST_NOT_FOUND,                    2152) \
+    XXX( WERR_NET_NAME_NOT_FOUND,                2310) /* (2100)+210 */ \
+    XXX( WERR_DEVICE_NOT_SHARED,                 2311) /* (2100)+211 */ \
+    XXX( WERR_SESSION_NOT_FOUND,                 2312) \
+    XXX( WERR_FID_NOT_FOUND,                     2314) \
+    XXX( WERR_NOT_LOCAL_DOMAIN,                  2320) \
+    XXX( WERR_DFS_NO_SUCH_VOL,                   2662) /* (2100)+562 */ \
+    XXX( WERR_DFS_NO_SUCH_SHARE,                 2665) /* (2100)+565 */ \
+    XXX( WERR_DFS_CANT_CREATE_JUNCT,             2669) /* (2100)+569 */ \
+    XXX( WERR_DFS_NO_SUCH_SERVER,                2673) /* (2100)+573 */ \
+    XXX( WERR_DFS_INTERNAL_ERROR,                2690) /* (2100)+590 */ \
+    XXX( WERR_UNKNOWN_PRINT_MONITOR,             3000) \
+    XXX( WERR_PRINTER_DRIVER_IN_USE,             3001) \
+    XXX( WERR_SPOOL_FILE_NOT_FOUND,              3002) \
+    XXX( WERR_SPL_NO_STARTDOC,                   3003) \
+    XXX( WERR_SPL_NO_ADDJOB,                     3004) \
+    XXX( WERR_PRINT_PROCESSOR_ALREADY_INSTALLED, 3005) \
+    XXX( WERR_PRINT_MONITOR_ALREADY_INSTALLED,   3006) \
+    XXX( WERR_INVALID_PRINT_MONITOR,             3007) \
+    XXX( WERR_PRINT_MONITOR_IN_USE,              3008) \
+    XXX( WERR_PRINTER_HAS_JOBS_QUEUED,           3009) \
+    XXX( WERR_DEVICE_NOT_AVAILABLE,              4319) \
+    XXX( WERR_DS_SERVICE_BUSY,                   8206) /* 0x0000200e */ \
+    XXX( WERR_DS_SERVICE_UNAVAILABLE,            8207) /* 0x0000200f */ \
+    XXX( WERR_DS_NO_SUCH_OBJECT,                 8240) /* 0x00002030 */ \
+    XXX( WERR_DS_SINGLE_VALUE_CONSTRAINT,        8321) /* 0x00002081 */ \
+    XXX( WERR_DS_OBJ_NOT_FOUND,                  8333) /* 0x0000208d */ \
+    XXX( WERR_DS_DRA_INVALID_PARAMETER,          8437) /* 0x000020f5 */ \
+    XXX( WERR_DS_DRA_BAD_DN,                     8439) /* 0x000020f7 */ \
+    XXX( WERR_DS_DRA_BAD_NC,                     8440) /* 0x000020f8 */ \
+    XXX( WERR_DS_DRA_INTERNAL_ERROR,             8442) /* 0x000020fa */ \
+    XXX( WERR_DS_DRA_OUT_OF_MEM,                 8446) /* 0x000020fe */ \
+    XXX( WERR_DS_DRA_DB_ERROR,                   8451) /* 0x00002103 */ \
+    XXX( WERR_DS_DRA_NO_REPLICA,                 8452) /* 0x00002104 */ \
+    XXX( WERR_DS_DRA_ACCESS_DENIED,              8453) /* 0x00002105 */ \
+    XXX( WERR_DS_DNS_LOOKUP_FAILURE,             8524) /* 0x0000214c */ \
+    XXX( WERR_DS_WRONG_LINKED_ATTRIBUTE_SYNTAX,  8528) /* 0x00002150 */ \
+    XXX( WERR_CLASS_NOT_REGISTERED,            262484) /* 0x00040154 */  \
+    XXX( WERR_SEC_E_ALGORITHM_MISMATCH,    2148074289) /* 0x80090331 */
 
-extern const value_string WERR_errors[];
-
+#if 0  /* WERR_... symbols not referenced within Wireshark */
+VALUE_STRING_ENUM2(WERR_errors);
+#endif
+VALUE_STRING_ARRAY2_GLOBAL_DCL(WERR_errors);  /* XXX: Remove once all PIDL generated dissectors ref WERR_errors_ext */
+extern value_string_ext WERR_errors_ext;
 
 /*
  * DOS error codes used by other dissectors.
@@ -140,69 +149,98 @@ extern const value_string WERR_errors[];
  * the ERRDOS error class, but they might be error codes returned from
  * DOS.
  */
-#define SMBE_badfunc 1             /* Invalid function (or system call) */
-#define SMBE_badfile 2             /* File not found (pathname error) */
-#define SMBE_badpath 3             /* Directory not found */
-#define SMBE_nofids 4              /* Too many open files */
-#define SMBE_noaccess 5            /* Access denied */
-#define SMBE_badfid 6              /* Invalid fid */
-#define SMBE_badmcb 7              /* Memory control blocks destroyed */
-#define SMBE_nomem 8               /* Out of memory */
-#define SMBE_badmem 9              /* Invalid memory block address */
-#define SMBE_badenv 10             /* Invalid environment */
-#define SMBE_badformat 11          /* Invalid format */
-#define SMBE_badaccess 12          /* Invalid open mode */
-#define SMBE_baddata 13            /* Invalid data (only from ioctl call) */
-#define SMBE_res 14
-#define SMBE_baddrive 15           /* Invalid drive */
-#define SMBE_remcd 16              /* Attempt to delete current directory */
-#define SMBE_diffdevice 17         /* rename/move across different filesystems */
-#define SMBE_nofiles 18            /* no more files found in file search */
-#define SMBE_badshare 32           /* Share mode on file conflict with open mode */
-#define SMBE_lock 33               /* Lock request conflicts with existing lock */
-#define SMBE_unsup 50              /* Request unsupported, returned by Win 95, RJS 20Jun98 */
-#define SMBE_nosuchshare 67        /* Share does not exist */
-#define SMBE_filexists 80          /* File in operation already exists */
-#define SMBE_invalidparam 87	   /* Invalid parameter */
-#define SMBE_cannotopen 110        /* Cannot open the file specified */
-#define SMBE_insufficientbuffer 122/* Insufficient buffer size */
-#define SMBE_invalidname 123       /* Invalid name */
-#define SMBE_unknownlevel 124      /* Unknown info level */
-#define SMBE_alreadyexists 183     /* File already exists */
-#define SMBE_badpipe 230           /* Named pipe invalid */
-#define SMBE_pipebusy 231          /* All instances of pipe are busy */
-#define SMBE_pipeclosing 232       /* named pipe close in progress */
-#define SMBE_notconnected 233      /* No process on other end of named pipe */
-#define SMBE_moredata 234          /* More data to be returned */
-#define SMBE_nomoreitems 259       /* No more items */
-#define SMBE_baddirectory 267      /* Invalid directory name in a path. */
-#define SMBE_eas_didnt_fit 275     /* Extended attributes didn't fit */
-#define SMBE_eas_nsup 282          /* Extended attributes not supported */
-#define SMBE_notify_buf_small 1022 /* Buffer too small to return change notify. */
-#define SMBE_serverunavailable 1722/* Server unavailable */
-#define SMBE_unknownipc 2142
-#define SMBE_noipc 66              /* don't support ipc */
 
-/* These errors seem to be only returned by the NT printer driver system */
+#define DOS_errors_VALUE_STRING_LIST(XXX) \
+    XXX( SMBE_DOS_success,                           0, "Success") \
+    XXX( SMBE_DOS_badfunc,                           1, "Invalid function (or system call)") \
+    XXX( SMBE_DOS_badfile,                           2, "File not found (pathname error)") \
+    XXX( SMBE_DOS_badpath,                           3, "Directory not found") \
+    XXX( SMBE_DOS_nofids,                            4, "Too many open files") \
+    XXX( SMBE_DOS_noaccess,                          5, "Access denied") \
+    XXX( SMBE_DOS_badfid,                            6, "Invalid fid") \
+    XXX( SMBE_DOS_badmcb,                            7, "Memory control blocks destroyed") /* ??? */ \
+    XXX( SMBE_DOS_nomem,                             8, "Out of memory") \
+    XXX( SMBE_DOS_badmem,                            9, "Invalid memory block address") \
+    XXX( SMBE_DOS_badenv,                           10, "Invalid environment") \
+    XXX( SMBE_DOS_badformat,                        11, "Invalid format")  /* ??? */ \
+    XXX( SMBE_DOS_badaccess,                        12, "Invalid open mode") \
+    XXX( SMBE_DOS_baddata,                          13, "Invalid data (only from ioctl call)") \
+    XXX( SMBE_DOS_res,                              14, "Reserved error code?")              /* out of memory ? */ \
+    XXX( SMBE_DOS_baddrive,                         15, "Invalid drive") \
+    XXX( SMBE_DOS_remcd,                            16, "Attempt to delete current directory") \
+    XXX( SMBE_DOS_diffdevice,                       17, "Rename/move across different filesystems") \
+    XXX( SMBE_DOS_nofiles,                          18, "No more files found in file search") \
+    XXX( SMBE_DOS_general,                          31, "General failure")                   /* Also "SMBE_HRD" */ \
+    XXX( SMBE_DOS_badshare,                         32, "Share mode on file conflict with open mode") \
+    XXX( SMBE_DOS_lock,                             33, "Lock request conflicts with existing lock") \
+    XXX( SMBE_DOS_unsup,                            50, "Request unsupported, returned by Win 95") /* RJS 20Jun98 */ \
+    XXX( SMBE_DOS_netnamedel,                       64, "Network name deleted or not available") \
+    XXX( SMBE_DOS_noipc,                            66, "Don't support ipc")   \
+    XXX( SMBE_DOS_nosuchshare,                      67, "Requested share does not exist") \
+    XXX( SMBE_DOS_filexists,                        80, "File in operation already exists") \
+    XXX( SMBE_DOS_invalidparam,                     87, "Invalid parameter") \
+    XXX( SMBE_DOS_cannotopen,                      110, "Cannot open the file specified") \
+    XXX( SMBE_DOS_bufferoverflow,                  111, "Buffer overflow") \
+    XXX( SMBE_DOS_insufficientbuffer,              122, "Insufficient buffer") \
+    XXX( SMBE_DOS_invalidname,                     123, "Invalid name") \
+    XXX( SMBE_DOS_unknownlevel,                    124, "Unknown info level") \
+    XXX( SMBE_DOS_notlocked,                       158, "This region is not locked by this locking context.") \
+    XXX( SMBE_DOS_invalidpath,                     161, "Invalid Path") \
+    XXX( SMBE_DOS_cancelviolation,                 173, "Cancel violation") \
+    XXX( SMBE_DOS_noatomiclocks,                   174, "No atomic clocks") \
+    XXX( SMBE_DOS_alreadyexists,                   183, "File already exists") /* 'rename" ? */ \
+    XXX( SMBE_DOS_badpipe,                         230, "Named pipe invalid") \
+    XXX( SMBE_DOS_pipebusy,                        231, "All instances of pipe are busy") \
+    XXX( SMBE_DOS_pipeclosing,                     232, "Named pipe close in progress") \
+    XXX( SMBE_DOS_notconnected,                    233, "No process on other end of named pipe") \
+    XXX( SMBE_DOS_moredata,                        234, "More data to be returned") \
+    XXX( SMBE_DOS_eainconsistent,                  255, "ea inconsistent") /* from EMC */ \
+    XXX( SMBE_DOS_nomoreitems,                     259, "No more items") \
+    XXX( SMBE_DOS_baddirectory,                    267, "Invalid directory name in a path.") \
+    XXX( SMBE_DOS_eas_didnt_fit,                   275, "Extended attributes didn't fit") \
+    XXX( SMBE_DOS_eas_nsup,                        282, "Extended attributes not supported") \
+    XXX( SMBE_DOS_notify_buf_small,               1022, "Buffer too small to return change notify.") \
+    XXX( SMBE_DOS_invalidowner,                   1307, "Invalid security descriptor owner") /* NT printer driver system only */ \
+    XXX( SMBE_DOS_logonfailure,                   1326, "Unknown username or bad password") \
+    XXX( SMBE_DOS_invalidsecuritydescriptor,      1338, "Invalid security descriptor")       /* NT printer driver system only */ \
+    XXX( SMBE_DOS_serverunavailable,              1722, "Server unavailable") \
+    XXX( SMBE_DOS_driveralreadyinstalled,         1795, "Printer driver already installed")  /* NT printer driver system only */ \
+    XXX( SMBE_DOS_unknownprinterport,             1796, "Error unknown port")                /* NT printer driver system only */ \
+    XXX( SMBE_DOS_unknownprinterdriver,           1797, "Unknown printer driver")            /* NT printer driver system only */ \
+    XXX( SMBE_DOS_unknownprintprocessor,          1798, "Unknown print processor")           /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidseparatorfile,           1799, "Invalid separator file")            /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidjobpriority,             1800, "Invalid priority")                  /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidprintername,             1801, "Invalid printer name")              /* NT printer driver system only */ \
+    XXX( SMBE_DOS_printeralreadyexists,           1802, "Printer already exists")            /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidprintercommand,          1803, "Invalid printer command")           /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invaliddatatype,                1804, "Invalid datatype")                  /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidenvironment,             1805, "Invalid environment")               /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidformsize,                1903, "Invalid form size")                 /* NT printer driver system only */ \
+    XXX( SMBE_DOS_buftoosmall,                    2123, "Buffer too small") \
+    XXX( SMBE_DOS_unknownipc,                     2142, "Unknown IPC Operation") \
+    XXX( SMBE_DOS_nosuchprintjob,                 2151, "No such print job")                 /* NT printer driver system only *?? / \
+    XXX( SMBE_DOS_invgroup,                       2455, "Invalid Group") \
+    XXX( SMBE_DOS_unknownprintmonitor,            3000, "Unknown print monitor")             /* NT printer driver system only */ \
+    XXX( SMBE_DOS_printerdriverinuse,             3001, "Printer driver in use")             /* NT printer driver system only */ \
+    XXX( SMBE_DOS_spoolfilenotfound,              3002, "Spool file not found")              /* NT printer driver system only */ \
+    XXX( SMBE_DOS_nostartdoc,                     3003, "Error_spl_no_startdoc")             /* NT printer driver system only */ \
+    XXX( SMBE_DOS_noaddjob,                       3004, "Spl no addjob")                     /* NT printer driver system only */ \
+    XXX( SMBE_DOS_printprocessoralreadyinstalled, 3005, "Print processor already installed") /* NT printer driver system only */ \
+    XXX( SMBE_DOS_printmonitoralreadyinstalled,   3006, "Print monitor already installed")   /* NT printer driver system only */ \
+    XXX( SMBE_DOS_invalidprintmonitor,            3007, "Invalid print monitor")             /* NT printer driver system only */ \
+    XXX( SMBE_DOS_printmonitorinuse,              3008, "Print monitor in use")              /* NT printer driver system only */ \
+    XXX( SMBE_DOS_printerhasjobsqueued,           3009, "Printer has jobs queued")           /* NT printer driver system only */
 
-#define SMBE_invalidowner 1307	/* Invalid security descriptor owner */
-#define SMBE_invalidsecuritydescriptor 1338 /* Invalid security descriptor */
-#define SMBE_unknownprinterdriver 1797 /* Unknown printer driver */
-#define SMBE_invalidprintername 1801   /* Invalid printer name */
-#define SMBE_printeralreadyexists 1802 /* Printer already exists */
-#define SMBE_invaliddatatype 1804      /* Invalid datatype */
-#define SMBE_invalidenvironment 1805   /* Invalid environment */
-#define SMBE_invalidformsize    1903   /* Invalid form size */
-#define SMBE_printerdriverinuse 3001   /* Printer driver in use */
-
-extern const value_string DOS_errors[];
+VALUE_STRING_ENUM(DOS_errors);
+extern value_string_ext DOS_errors_ext;
 
 /*
  * NT error codes used by other dissectors.
  */
-extern const value_string NT_errors[];
+extern const value_string NT_errors[]; /* XXX: Remove once all PIDL generated dissectors ref NT_errors_ext */
+extern value_string_ext NT_errors_ext;
 
-extern const value_string ms_country_codes[];
+extern value_string_ext ms_country_codes_ext;
 
 WS_DLL_PUBLIC
 int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);

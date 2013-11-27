@@ -121,94 +121,36 @@ WS_DLL_PUBLIC value_string_ext nt_cmd_vals_ext;
 #define SMB_ERRHRD  0x03  /* Hardware style error */
 #define SMB_ERRCMD  0x04  /* Not an SMB format command */
 
-/* Error codes for the ERRSRV class */
-
-#define SMBE_error 1               /* Non specific error code */
-#define SMBE_badpw 2               /* Bad password */
-#define SMBE_badtype 3             /* reserved */
-#define SMBE_access 4              /* No permissions to do the requested operation */
-#define SMBE_invnid 5              /* tid invalid */
-#define SMBE_invnetname 6          /* Invalid servername */
-#define SMBE_invdevice 7           /* Invalid device */
-#define SMBE_qfull 49              /* Print queue full */
-#define SMBE_qtoobig 50            /* Queued item too big */
-#define SMBE_qeof 51               /* EOF in print queue dump */
-#define SMBE_invpfid 52            /* Invalid print file in smb_fid */
-#define SMBE_smbcmd 64             /* Unrecognised command */
-#define SMBE_srverror 65           /* smb server internal error */
-#define SMBE_filespecs 67          /* fid and pathname invalid combination */
-#define SMBE_badlink 68
-#define SMBE_badpermits 69         /* Access specified for a file is not valid */
-#define SMBE_badpid 70
-#define SMBE_setattrmode 71        /* attribute mode invalid */
-#define SMBE_paused 81             /* Message server paused */
-#define SMBE_msgoff 82             /* Not receiving messages */
-#define SMBE_noroom 83             /* No room for message */
-#define SMBE_rmuns 87              /* too many remote usernames */
-#define SMBE_timeout 88            /* operation timed out */
-#define SMBE_noresource  89        /* No resources currently available for request. */
-#define SMBE_toomanyuids 90        /* too many userids */
-#define SMBE_baduid 91             /* bad userid */
-#define SMBE_useMPX 250            /* temporarily unable to use raw mode, use MPX mode */
-#define SMBE_useSTD 251            /* temporarily unable to use raw mode, use standard mode */
-#define SMBE_contMPX 252           /* resume MPX mode */
-#define SMBE_badPW 253             /* Check this out ... */
-#define SMBE_nosupport 0xFFFF
-#define SMBE_unknownsmb 22         /* from NT 3.5 response */
-
-/* Error codes for the ERRHRD class */
-
-#define SMBE_nowrite 19     /* read only media */
-#define SMBE_badunit 20     /* Unknown device */
-#define SMBE_notready 21    /* Drive not ready */
-#define SMBE_badcmd 22      /* Unknown command */
-#define SMBE_data 23        /* Data (CRC) error */
-#define SMBE_badreq 24      /* Bad request structure length */
-#define SMBE_seek 25        /* Seek error */
-#define SMBE_badmedia 26    /* Unknown media type */
-#define SMBE_badsector 27   /* Sector not found */
-#define SMBE_nopaper 28     /* Printer out of paper */
-#define SMBE_write 29       /* Write fault */
-#define SMBE_read 30        /* Read fault */
-#define SMBE_general 31     /* General failure */
-#define SMBE_badshare 32    /* An open conflicts with an existing open */
-#define SMBE_lock 33        /* Lock conflict or invalid mode, or unlock of
-                               lock held by another process */
-#define SMBE_wrongdisk 34   /* The wrong disk was found in a drive */
-#define SMBE_FCBunavail 35  /* No FCBs are available to process request */
-#define SMBE_sharebufexc 36 /* A sharing buffer has been exceeded */
-#define SMBE_diskfull 39
-
 /* used for SMB export object functionality */
 typedef struct _smb_eo_t {
-	guint	smbversion;
-	guint16 cmd;
-	int     tid,uid;
-	guint	fid;
-	guint32  pkt_num;
-	gchar   *hostname;
-	gchar   *filename;
-	int fid_type;
-	gint64  end_of_file;
-	gchar   *content_type;
-	guint32  payload_len;
+	guint	      smbversion;
+	guint16	      cmd;
+	int	      tid,uid;
+	guint	      fid;
+	guint32	      pkt_num;
+	gchar	     *hostname;
+	gchar	     *filename;
+	int	      fid_type;
+	gint64	      end_of_file;
+	gchar	     *content_type;
+	guint32	      payload_len;
 	const guint8 *payload_data;
-	guint64 smb_file_offset;
-	guint32 smb_chunk_len;
+	guint64	      smb_file_offset;
+	guint32	      smb_chunk_len;
 } smb_eo_t;
 
-/* the information we need to keep around for NT transatcion commands */
+/* the information we need to keep around for NT transaction commands */
 typedef struct {
-	int subcmd;
-	int fid_type;
+	int	subcmd;
+	int	fid_type;
 	guint32 ioctl_function;
 } smb_nt_transact_info_t;
 
 /* the information we need to keep around for transaction2 commands */
 typedef struct {
-	int subcmd;
-	int info_level;
-	gboolean resume_keys; /* if "return resume" keys set in T2 FIND_FIRST request */
+	int	    subcmd;
+	int	    info_level;
+	gboolean    resume_keys; /* if "return resume" keys set in T2 FIND_FIRST request */
 	const char *name;
 } smb_transact2_info_t;
 
@@ -224,7 +166,7 @@ typedef enum {
 	SMB_EI_NTI,		/* smb_nt_transact_info_t * */
 	SMB_EI_TRI,		/* smb_transact_info_t * */
 	SMB_EI_T2I,		/* smb_transact2_info_t * */
-	SMB_EI_TIDNAME,	/* tid tracking char * */
+	SMB_EI_TIDNAME,		/* tid tracking char * */
 	SMB_EI_FILEDATA,	/* fid tracking */
 	SMB_EI_FILENAME,	/* filename tracking */
 	SMB_EI_UID,		/* smb_uid_t */
@@ -233,18 +175,20 @@ typedef enum {
 	SMB_EI_RENAMEDATA,	/* rename data */
 	SMB_EI_DIALECTS		/* negprot dialects */
 } smb_extra_info_t;
+
 typedef struct _smb_fid_into_t smb_fid_info_t;
+
 typedef struct {
-	guint32 frame_req, frame_res;
-	nstime_t req_time;
-	guint16 flags;
-	guint8 cmd;
-	void *extra_info;
-	smb_extra_info_t extra_info_type;
+	guint32		  frame_req, frame_res;
+	nstime_t	  req_time;
+	guint16		  flags;
+	guint8		  cmd;
+	void		 *extra_info;
+	smb_extra_info_t  extra_info_type;
 	/* we save the fid in each transaction so that we can get fid filters
 	   to match both request and response */
-	gboolean fid_seen_in_request;
-	guint16 fid;
+	gboolean	  fid_seen_in_request;
+	guint16		  fid;
 } smb_saved_info_t;
 
 /*
@@ -255,16 +199,16 @@ typedef struct {
  * subdissectors?
  */
 typedef struct {
-	int subcmd;
-	int trans_subcmd;
-	int function;
-        /* Unification of fid variable type (was int) */
-        guint16 fid;
-	guint16 lanman_cmd;
-	guchar *param_descrip;  /* Keep these descriptors around */
-	guchar *data_descrip;
-	guchar *aux_data_descrip;
-	int info_level;
+	int	 subcmd;
+	int	 trans_subcmd;
+	int	 function;
+	/* Unification of fid variable type (was int) */
+	guint16	 fid;
+	guint16	 lanman_cmd;
+	guchar	*param_descrip; /* Keep these descriptors around */
+	guchar	*data_descrip;
+	guchar	*aux_data_descrip;
+	int	 info_level;
 } smb_transact_info_t;
 
 /*
@@ -281,20 +225,20 @@ typedef struct {
 /* this is the structure which is associated with each conversation */
 typedef struct conv_tables {
 	/* these two tables are used to match requests with responses */
-	GHashTable *unmatched;
-	GHashTable *matched;
+	GHashTable  *unmatched;
+	GHashTable  *matched;
 	/* This table keeps primary transact requests so secondaries can find
 	   them */
-	GHashTable *primaries;
+	GHashTable  *primaries;
 
 	/* This table is used to track TID->services for a conversation */
-	GHashTable *tid_service;
-        gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */
+	GHashTable  *tid_service;
+	gboolean     raw_ntlmssp; /* Do extended security exc use raw ntlmssp */
 
 	/* track fid to fidstruct (filename/openframe/closeframe */
 	wmem_tree_t *fid_tree;
         /* We'll use a GSL list instead */
-        GSList  *GSL_fid_info;
+        GSList	    *GSL_fid_info;
 
 	/* track tid to fidstruct (sharename/shareframe/unshareframe */
 	wmem_tree_t *tid_tree;
@@ -304,16 +248,16 @@ typedef struct conv_tables {
 } conv_tables_t;
 
 typedef struct smb_info {
-  guint8 cmd;
-  int tid, pid, uid, mid;
-  guint32 nt_status;
+  guint8   cmd;
+  int	   tid, pid, uid, mid;
+  guint32  nt_status;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
   gboolean unidir;
-  int info_level;
-  int info_count;
+  int	   info_level;
+  int	   info_count;
   smb_saved_info_t *sip;	/* smb_saved_info_t, if any, for this */
-  conv_tables_t *ct;
+  conv_tables_t	   *ct;
 } smb_info_t;
 
 /*
@@ -336,47 +280,50 @@ typedef struct _smb_rename_saved_info_t {
 
 /* used for tracking lock data between lock request/response */
 typedef struct _smb_lock_info_t {
-  struct _smb_lock_info_t *next;
-	guint16 pid;
-	guint64 offset;
-	guint64 length;
+	struct _smb_lock_info_t *next;
+	guint16	pid;
+	guint64	offset;
+	guint64	length;
 } smb_lock_info_t;
+
 typedef struct _smb_locking_saved_info_t {
-	guint8 type;
-	guint8 oplock_level;
-	guint16 num_lock;
-	guint16 num_unlock;
+	guint8	type;
+	guint8	oplock_level;
+	guint16	num_lock;
+	guint16	num_unlock;
 	smb_lock_info_t *locks;
 	smb_lock_info_t *unlocks;
 } smb_locking_saved_info_t;
+
 /* used for tracking fid/tid to filename/sharename openedframe closedframe */
 typedef struct _smb_fid_saved_info_t {
-	char *filename;
-	guint32 create_flags;
-	guint32 access_mask;
-	guint32 file_attributes;
-	guint32 share_access;
-	guint32 create_options;
-	guint32 create_disposition;
+	char	*filename;
+	guint32	 create_flags;
+	guint32	 access_mask;
+	guint32	 file_attributes;
+	guint32	 share_access;
+	guint32	 create_options;
+	guint32	 create_disposition;
 } smb_fid_saved_info_t;
+
 struct _smb_fid_into_t {
-        guint16 tid,fid;
+        guint16	tid,fid;
         /* The end_of_file will store the last registered offset or
            the reported end_of_file from the SMB protocol */
-        gint64  end_of_file;
+        gint64	end_of_file;
         /* These two were int */
-	guint opened_in;
-	guint closed_in;
-	int type;
+	guint	opened_in;
+	guint	closed_in;
+	int	type;
 	smb_fid_saved_info_t *fsi;
 };
 
 /* used for tracking tid to sharename openedframe closedframe */
 typedef struct _smb_tid_into_t {
-	int opened_in;
-	int closed_in;
+	int   opened_in;
+	int   closed_in;
 	char *filename;
-	int type;
+	int   type;
 } smb_tid_info_t;
 
 
@@ -440,3 +387,16 @@ extern int dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo, prot
 extern const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd);
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

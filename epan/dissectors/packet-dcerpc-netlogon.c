@@ -4921,7 +4921,7 @@ netlogon_dissect_netrlogoncontrol2_reply(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_netlogon_werr_rc, &status);
 
     if (status != 0)
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown WERR error 0x%08x"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown WERR error 0x%08x"));
 
 
     return offset;
@@ -8067,16 +8067,16 @@ proto_register_dcerpc_netlogon(void)
             NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_rc, {
-                "Return code", "netlogon.rc", FT_UINT32, BASE_HEX,
-                VALS(NT_errors), 0x0, "Netlogon return code", HFILL }},
+                "Return code", "netlogon.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+                &NT_errors_ext, 0x0, "Netlogon return code", HFILL }},
 
         { &hf_netlogon_dos_rc,
           { "DOS error code", "netlogon.dos.rc", FT_UINT32,
-            BASE_HEX, VALS(DOS_errors), 0x0, NULL, HFILL}},
+            BASE_HEX | BASE_EXT_STRING, &DOS_errors_ext, 0x0, NULL, HFILL}},
 
         { &hf_netlogon_werr_rc,
           { "WERR error code", "netlogon.werr.rc", FT_UINT32,
-            BASE_HEX, VALS(WERR_errors), 0x0, NULL, HFILL}},
+            BASE_HEX | BASE_EXT_STRING, &WERR_errors_ext, 0x0, NULL, HFILL}},
 
         { &hf_netlogon_param_ctrl, {
                 "Param Ctrl", "netlogon.param_ctrl", FT_UINT32, BASE_HEX,
@@ -8575,8 +8575,8 @@ proto_register_dcerpc_netlogon(void)
             NULL, 0x0, "Number of failed logins", HFILL }},
 
         { &hf_netlogon_country,
-          { "Country", "netlogon.country", FT_UINT16, BASE_DEC,
-            VALS(ms_country_codes), 0x0, "Country setting for this account", HFILL }},
+          { "Country", "netlogon.country", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            &ms_country_codes_ext, 0x0, "Country setting for this account", HFILL }},
 
         { &hf_netlogon_codepage,
           { "Codepage", "netlogon.codepage", FT_UINT16, BASE_DEC,

@@ -936,7 +936,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(status, NT_errors,
+				val_to_str_ext(status, &NT_errors_ext,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;
@@ -958,7 +958,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(status, DOS_errors,
+				val_to_str_ext(status, &DOS_errors_ext,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;

@@ -203,8 +203,8 @@ static hf_register_info hf[] = {
 		"Operation", "tapi.opnum", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_tapi_rc, {
-		"Return code", "tapi.rc", FT_UINT32, BASE_HEX,
-		VALS(NT_errors), 0x0, "TAPI return code", HFILL }},
+		"Return code", "tapi.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		&NT_errors_ext, 0x0, "TAPI return code", HFILL }},
 	{ &hf_tapi_hnd, {
 		"Context Handle", "tapi.hnd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},

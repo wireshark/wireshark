@@ -210,11 +210,11 @@ static dissector_handle_t data_handle;
  */
 
 static const value_string status_vals[] = {
-	{0,	"Success"},
-	{5,	"User has insufficient privilege"},
-	{65,	"Network access is denied"},
-	{86,	"The specified password is invalid"},
-	{SMBE_moredata, "Additional data is available"},
+	{   0,	"Success"},
+	{   5,	"User has insufficient privilege"},
+	{  65,	"Network access is denied"},
+	{  86,	"The specified password is invalid"},
+	{SMBE_DOS_moredata, "Additional data is available"},
 	{2114,	"Service is not running on the remote computer"},
 	{2123,	"Supplied buffer is too small"},
 	{2141,	"Server is not configured for transactions (IPC$ not shared)"},
@@ -3154,10 +3154,9 @@ proto_register_pipe_lanman(void)
 			{ "Logon Server", "lanman.logon_server", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Logon Server", HFILL }},
 
-		/* XXX - we should have a value_string table for this */
 		{ &hf_country_code,
-			{ "Country Code", "lanman.country_code", FT_UINT16, BASE_DEC,
-			VALS(ms_country_codes), 0, "LANMAN Country Code", HFILL }},
+			{ "Country Code", "lanman.country_code", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+			&ms_country_codes_ext, 0, "LANMAN Country Code", HFILL }},
 
 		{ &hf_workstations,
 			{ "Workstations", "lanman.workstations", FT_STRING, BASE_NONE,
@@ -3608,7 +3607,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		if(tri == NULL)
 			return FALSE;
 		trans_subcmd = tri->trans_subcmd;
-        }
+	}
 
 	if (tri == NULL) {
 		/*
@@ -3903,3 +3902,17 @@ proto_reg_handoff_smb_pipe(void)
 {
 	data_handle = find_dissector("data");
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -2299,7 +2299,7 @@ dissect_krb5_PW_SALT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
     if(nt_status) {
         col_append_fstr(actx->pinfo->cinfo, COL_INFO,
                         " NT Status: %s",
-                        val_to_str(nt_status, NT_errors,
+                        val_to_str_ext(nt_status, &NT_errors_ext,
                                    "Unknown error code %#x"));
     }
     offset += 4;
@@ -5317,8 +5317,8 @@ proto_register_kerberos(void)
                 "DlgLen", "kerberos.gssapi.dlglen", FT_UINT16, BASE_DEC,
                 NULL, 0, "GSSAPI DlgLen", HFILL }},
         { &hf_krb_smb_nt_status, {
-                "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
-                VALS(NT_errors), 0, "NT Status code", HFILL }},
+                "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+                &NT_errors_ext, 0, "NT Status code", HFILL }},
         { &hf_krb_smb_unknown, {
                 "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
                 NULL, 0, NULL, HFILL }},

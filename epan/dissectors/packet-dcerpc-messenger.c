@@ -106,7 +106,7 @@ proto_register_dcerpc_messenger(void)
 		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_messenger_rc,
-                  { "Return code", "messenger.rc", FT_UINT32, BASE_HEX, VALS (NT_errors), 0x0, NULL, HFILL }},
+                  { "Return code", "messenger.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &NT_errors_ext, 0x0, NULL, HFILL }},
 
 		{ &hf_messenger_server, {
 		"Server", "messenger.server",

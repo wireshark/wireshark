@@ -1140,8 +1140,8 @@ static hf_register_info hf[] = {
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_browser_rc, {
-		"Return code", "rpc_browser.rc", FT_UINT32, BASE_HEX,
-		VALS(NT_errors), 0x0, "Browser return code", HFILL }},
+		"Return code", "rpc_browser.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		&NT_errors_ext, 0x0, "Browser return code", HFILL }},
 
 	{ &hf_browser_unknown_long, {
 		"Unknown long", "rpc_browser.unknown.long", FT_UINT32, BASE_HEX,

@@ -6932,8 +6932,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		if (si->status) {
 			col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
-					val_to_str(si->status, NT_errors,
-					"Unknown (0x%08X)"));
+					val_to_str_ext(si->status, &NT_errors_ext,
+						       "Unknown (0x%08X)"));
 		}
 
 
@@ -7113,8 +7113,8 @@ proto_register_smb2(void)
 		  { "Header Length", "smb2.header_len", FT_UINT16, BASE_DEC,
 		    NULL, 0, "SMB2 Size of Header", HFILL }},
 		{ &hf_smb2_nt_status,
-		  { "NT Status", "smb2.nt_status", FT_UINT32, BASE_HEX,
-		    VALS(NT_errors), 0, "NT Status code", HFILL }},
+		  { "NT Status", "smb2.nt_status", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		    &NT_errors_ext, 0, "NT Status code", HFILL }},
 		{ &hf_smb2_msg_id,
 		  { "Message ID", "smb2.msg_id", FT_INT64, BASE_DEC,
 		    NULL, 0, "SMB2 Messsage ID", HFILL }},
@@ -7815,8 +7815,8 @@ proto_register_smb2(void)
 		    NULL, 0, "MxAc timestamp", HFILL }},
 
 		{ &hf_smb2_mxac_status,
-		  { "Query Status", "smb2.mxac_status", FT_UINT32, BASE_HEX,
-		    VALS(NT_errors), 0, "NT Status code", HFILL }},
+		  { "Query Status", "smb2.mxac_status", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		    &NT_errors_ext, 0, "NT Status code", HFILL }},
 
 		{ &hf_smb2_qfid_fid,
 		  { "Opaque File ID", "smb2.qfid_fid", FT_BYTES, BASE_NONE,

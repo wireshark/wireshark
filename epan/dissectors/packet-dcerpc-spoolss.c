@@ -7216,8 +7216,8 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "SPOOLSS policy handle", HFILL }},
 
 		{ &hf_rc,
-		  { "Return code", "spoolss.rc", FT_UINT32, BASE_HEX,
-		    VALS(DOS_errors), 0x0, "SPOOLSS return code", HFILL }},
+		  { "Return code", "spoolss.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		    &DOS_errors_ext, 0x0, "SPOOLSS return code", HFILL }},
 
 		{ &hf_offered,
 		  { "Offered", "spoolss.offered", FT_UINT32, BASE_DEC,

@@ -70,8 +70,8 @@ static hf_register_info hf[] = {
 		NULL, 0x0, NULL, HFILL }},
 #if 0
 	{ &hf_trksvr_rc, {
-		"Return code", "trksvr.rc", FT_UINT32, BASE_HEX,
-		VALS(NT_errors), 0x0, "TRKSVR return code", HFILL }},
+		"Return code", "trksvr.rc", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		&NT_errors_ext, 0x0, "TRKSVR return code", HFILL }},
 #endif
 	};
 

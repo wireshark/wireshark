@@ -985,21 +985,21 @@ gboolean eosmb_take_name_as_fid = FALSE ;
 const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 	const gchar	*buf;
 
-	if (pinfo->src.type==AT_IPv4) {
-		if (	cmd==SMB_COM_READ_ANDX ||
-			cmd==SMB_COM_READ ||
-			cmd==SMB2_COM_READ) {
-			buf=(gchar *)ip_to_str((const guint8 *)pinfo->src.data);
+	if (pinfo->src.type == AT_IPv4) {
+		if (	cmd == SMB_COM_READ_ANDX ||
+			cmd == SMB_COM_READ ||
+			cmd == SMB2_COM_READ) {
+			buf = (gchar *)ip_to_str((const guint8 *)pinfo->src.data);
 		} else {
-			buf=(gchar *)ip_to_str((const guint8 *)pinfo->dst.data);
+			buf = (gchar *)ip_to_str((const guint8 *)pinfo->dst.data);
 		}
 	} else {
-		if (	cmd==SMB_COM_READ_ANDX ||
-			cmd==SMB_COM_READ ||
-			cmd==SMB2_COM_READ) {
-			buf=(gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->src.data);
+		if (	cmd == SMB_COM_READ_ANDX ||
+			cmd == SMB_COM_READ ||
+			cmd == SMB2_COM_READ) {
+			buf = (gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->src.data);
 		} else {
-			buf=(gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->dst.data);
+			buf = (gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->dst.data);
 		}
 	}
 
@@ -1009,8 +1009,9 @@ const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 
 /* ExportObject feed function*/
 static void
-feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb,packet_info *pinfo,guint16 dataoffset,guint32 datalen, guint32 chunk_len,
+feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb, packet_info *pinfo, guint16 dataoffset, guint32 datalen, guint32 chunk_len,
 			guint64 file_offset, smb_info_t *si) {
+
 	smb_eo_t        *eo_info; /* 	eo_info variable to pass info. to
 					export object and aux */
 	smb_tid_info_t  *tid_info = NULL;
@@ -1040,26 +1041,26 @@ feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb,packet_info *pinfo,guint16 
 	tid_info = (smb_tid_info_t *)wmem_tree_lookup32(si->ct->tid_tree, si->tid);
 
 	/* Construct the eo_info structure */
-	eo_info->smbversion=1;
+	eo_info->smbversion = 1;
 	if (tid_info) {
 		if (tid_info->filename) {
 			eo_info->hostname = tid_info->filename;
 		} else {
-			eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_UNKNOWN",tree_ip_str(pinfo,cmd));
+			eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_UNKNOWN", tree_ip_str(pinfo, cmd));
 		}
 	}
-	else            eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_%i",tree_ip_str(pinfo,cmd),si->tid);
+	else            eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_%i", tree_ip_str(pinfo, cmd), si->tid);
 	if (fid_info) {
 		eo_info->filename = NULL;
 		if (fid_info->fsi)
 			if (fid_info->fsi->filename)
 				eo_info->filename = (gchar *) fid_info->fsi->filename;
-		if (!eo_info->filename) eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\FILEID_%i",fid);
+		if (!eo_info->filename) eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\FILEID_%i", fid);
 		eo_info->fid_type = fid_info->type;
 		eo_info->end_of_file = fid_info->end_of_file;
 	} else {
 		eo_info->fid_type = SMB_FID_TYPE_UNKNOWN;
-		eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\FILEID_%i",fid);
+		eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\FILEID_%i", fid);
 		eo_info->end_of_file = 0;
 	}
 	if (eosmb_take_name_as_fid) {
@@ -1382,7 +1383,7 @@ TimeZone(time_t t)
 	tm = localtime(&t);
 	if (tm == NULL)
 		return 0;
-	return tm_diff(&tm_utc,tm);
+	return tm_diff(&tm_utc, tm);
 }
 
 /*
@@ -1408,7 +1409,7 @@ TimeZone(time_t t)
 static int
 TimeZoneFaster(time_t t)
 {
-	static struct dst_table {time_t start,end; int zone;} *tdt;
+	static struct dst_table {time_t start, end; int zone;} *tdt;
 	static struct dst_table *dst_table = NULL;
 	static int table_size = 0;
 	int        i;
@@ -1429,7 +1430,7 @@ TimeZoneFaster(time_t t)
 	if (i < table_size) {
 		zone = dst_table[i].zone;
 	} else {
-		time_t low,high;
+		time_t low, high;
 
 		zone = TimeZone(t);
 		if (dst_table == NULL)
@@ -1836,7 +1837,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_file_eattr, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
-		if (len==0)
+		if (len == 0)
 			PROTO_ITEM_SET_GENERATED(item);
 		/*
 		 * XXX - Network Monitor disagrees on some of the
@@ -2319,7 +2320,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		si->sip->extra_info = dialects;
 	}
 
-	while(bc) {
+	while (bc) {
 		int len;
 		const guint8 *str;
 		proto_item *dit = NULL;
@@ -2549,7 +2550,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		if (dn == NULL)
 			goto endofcommand;
 		proto_tree_add_string(tree, hf_smb_primary_domain, tvb,
-			offset, dn_len,dn);
+			offset, dn_len, dn);
 		COUNT_BYTES(dn_len);
 		break;
 
@@ -2615,7 +2616,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			 */
 			sbloblen = bc;
 			if (sbloblen > tvb_length_remaining(tvb, offset)) {
-				sbloblen = tvb_length_remaining(tvb,offset);
+				sbloblen = tvb_length_remaining(tvb, offset);
 			}
 			blob_item = proto_tree_add_item(
 				tree, hf_smb_security_blob,
@@ -3366,7 +3367,7 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		item = proto_tree_add_uint(parent_tree, hf_smb_create_flags, tvb, offset, len, mask);
 
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
-		if (len==0)
+		if (len == 0)
 			PROTO_ITEM_SET_GENERATED(item);
 	}
 
@@ -3406,7 +3407,7 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_access_mask, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
-		if (len==0)
+		if (len == 0)
 			PROTO_ITEM_SET_GENERATED(item);
 		/*
 		 * Some of these bits come from
@@ -3488,7 +3489,7 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_share_access, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
-		if (len==0)
+		if (len == 0)
 			PROTO_ITEM_SET_GENERATED(item);
 
 		proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
@@ -3536,7 +3537,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_create_options, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
-		if (len==0)
+		if (len == 0)
 			PROTO_ITEM_SET_GENERATED(item);
 		/*
 		 * From
@@ -3732,7 +3733,7 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		fid_info->end_of_file = 0;
 		if (fid_info->fsi) {
 			/* File Type */
-			fattr=fid_info->fsi->file_attributes;
+			fattr = fid_info->fsi->file_attributes;
 			/* XXX Volumes considered as directories */
 			isdir = (fattr & SMB_FILE_ATTRIBUTE_DIRECTORY) || (fattr & SMB_FILE_ATTRIBUTE_VOLUME);
 			if (isdir == 0) {
@@ -3891,7 +3892,7 @@ dissect_create_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		fid_info->end_of_file = 0;
 		if (fid_info->fsi) {
 			/* File Type */
-			fattr=fid_info->fsi->file_attributes;
+			fattr = fid_info->fsi->file_attributes;
 			/* XXX Volumes considered as directories */
 			isdir = (fattr & SMB_FILE_ATTRIBUTE_DIRECTORY) || (fattr & SMB_FILE_ATTRIBUTE_VOLUME);
 			if (isdir == 0) {
@@ -4420,12 +4421,12 @@ dissect_file_data_maybe_dcerpc(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
-	guint16     cnt = 0, bc;
-	guint8      wc;
-	int         fid = 0;
-	guint32	datalen=0,dataoffset=0;
-	guint32 tvblen;
-	rw_info_t  *rwi        = NULL;
+	guint16    cnt	   = 0, bc;
+	guint8     wc;
+	int        fid	   = 0;
+	guint32	   datalen = 0, dataoffset = 0;
+	guint32	   tvblen;
+	rw_info_t *rwi     = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -4451,7 +4452,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	datalen = tvb_get_letohs(tvb, offset);
 	COUNT_BYTES(2);
-	dataoffset=offset;
+	dataoffset = offset;
 
 	/* file data, might be DCERPC on a pipe */
 	if (bc) {
@@ -4484,7 +4485,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* feed the export object tap listener */
 	tvblen = tvb_length_remaining(tvb, dataoffset);
 	if (have_tap_listener(smb_eo_tap) && (datalen == tvblen) && rwi) {
-		feed_eo_smb(SMB_COM_READ,fid,tvb,pinfo,dataoffset,datalen,rwi->len,rwi->offset, si);
+		feed_eo_smb(SMB_COM_READ, fid, tvb, pinfo, dataoffset, datalen, rwi->len, rwi->offset, si);
 	}
 
 	END_OF_SMB
@@ -4531,12 +4532,12 @@ dissect_lock_and_read_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
-	guint32     ofs = 0;
-	guint16     cnt = 0, bc, fid = 0;
-	guint8      wc;
-	rw_info_t  *rwi = NULL;
-	guint32 datalen=0,dataoffset=0;
-	guint32 tvblen;
+	guint32    ofs	   = 0;
+	guint16    cnt	   = 0, bc, fid = 0;
+	guint8     wc;
+	rw_info_t *rwi	   = NULL;
+	guint32	   datalen = 0, dataoffset = 0;
+	guint32	   tvblen;
 
 	DISSECTOR_ASSERT(si);
 
@@ -4600,7 +4601,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	CHECK_BYTE_COUNT(2);
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(2);
-	dataoffset=offset;
+	dataoffset = offset;
 
 	/* file data, might be DCERPC on a pipe */
 	if (bc != 0) {
@@ -4612,7 +4613,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* feed the export object tap listener */
 	tvblen = tvb_length_remaining(tvb, dataoffset);
 	if (have_tap_listener(smb_eo_tap) && (datalen == tvblen) && rwi) {
-		feed_eo_smb(SMB_COM_WRITE,fid,tvb,pinfo,dataoffset,datalen,rwi->len,rwi->offset, si);
+		feed_eo_smb(SMB_COM_WRITE, fid, tvb, pinfo, dataoffset, datalen, rwi->len, rwi->offset, si);
 	}
 
 	END_OF_SMB
@@ -5637,7 +5638,7 @@ dissect_search_find_response(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(2);
 
-	while(count--) {
+	while (count--) {
 		offset = dissect_search_dir_info(tvb, pinfo, tree, offset,
 		    &bc, &trunc, has_find_id, si);
 		if (trunc)
@@ -5815,14 +5816,14 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* store the locking data for the response */
 	if ((!pinfo->fd->flags.visited) && si->sip) {
 		ld = (smb_locking_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_locking_saved_info_t));
-		ld->type = lt;
-		ld->oplock_level= ol;
-		ld->num_lock = num_lock;
-		ld->num_unlock = num_unlock;
-		ld->locks = NULL;
-		ld->unlocks = NULL;
+		ld->type	 = lt;
+		ld->oplock_level = ol;
+		ld->num_lock	 = num_lock;
+		ld->num_unlock	 = num_unlock;
+		ld->locks	 = NULL;
+		ld->unlocks	 = NULL;
 		si->sip->extra_info_type = SMB_EI_LOCKDATA;
-		si->sip->extra_info = ld;
+		si->sip->extra_info      = ld;
 	}
 
 	/* unlocks */
@@ -5831,7 +5832,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		it = proto_tree_add_text(tree, tvb, offset, -1, "Unlocks");
 		tr = proto_item_add_subtree(it, ett_smb_unlocks);
-		while(un--) {
+		while (un--) {
 			proto_item *litem_2 = NULL;
 			proto_tree *ltree_2 = NULL;
 			if (lt&0x10) {
@@ -5912,7 +5913,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		it = proto_tree_add_text(tree, tvb, offset, -1, "Locks");
 		tr = proto_item_add_subtree(it, ett_smb_locks);
-		while(ln--) {
+		while (ln--) {
 			proto_item *litem_2 = NULL;
 			proto_tree *ltree_2 = NULL;
 			if (lt&0x10) {
@@ -6045,7 +6046,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Locks");
 				ltr = proto_item_add_subtree(lit, ett_smb_lock);
 				li = ld->locks;
-				while(li) {
+				while (li) {
 					proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
 					proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
 					proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
@@ -6054,7 +6055,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Unlocks");
 				ltr = proto_item_add_subtree(lit, ett_smb_unlock);
 				li = ld->unlocks;
-				while(li) {
+				while (li) {
 					proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
 					proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
 					proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
@@ -6746,7 +6747,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* feed the export object tap listener */
 	tvblen = tvb_length_remaining(tvb, dataoffset);
 	if (have_tap_listener(smb_eo_tap) && (datalen == tvblen) && rwi) {
-		feed_eo_smb(SMB_COM_READ_ANDX,fid,tvb,pinfo,dataoffset,datalen,rwi->len,rwi->offset, si);
+		feed_eo_smb(SMB_COM_READ_ANDX, fid, tvb, pinfo, dataoffset, datalen, rwi->len, rwi->offset, si);
 	}
 
 	END_OF_SMB
@@ -6908,7 +6909,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_IPC);
 		}
 		if (si->sip) {
-			si->sip->flags|=SMB_SIF_TID_IS_IPC;
+			si->sip->flags |= SMB_SIF_TID_IS_IPC;
 		}
 	}
 
@@ -6922,7 +6923,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* feed the export object tap listener */
 	tvblen = tvb_length_remaining(tvb, dataoffset);
 	if (have_tap_listener(smb_eo_tap) && (datalen == tvblen) && rwi) {
-		feed_eo_smb(SMB_COM_WRITE_ANDX,fid,tvb,pinfo,dataoffset,datalen,rwi->len,rwi->offset, si);
+		feed_eo_smb(SMB_COM_WRITE_ANDX, fid, tvb, pinfo, dataoffset, datalen, rwi->len, rwi->offset, si);
 	}
 
 	END_OF_SMB
@@ -7187,8 +7188,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * of the security blob.
 		 */
 		sbloblen_short = sbloblen;
-		if (sbloblen_short > tvb_length_remaining(tvb,offset)) {
-			sbloblen_short = tvb_length_remaining(tvb,offset);
+		if (sbloblen_short > tvb_length_remaining(tvb, offset)) {
+			sbloblen_short = tvb_length_remaining(tvb, offset);
 		}
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset, sbloblen_short,
@@ -7238,9 +7239,9 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						smb_uid_t *smb_uid;
 
 						smb_uid = (smb_uid_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_uid_t));
-						smb_uid->logged_in=-1;
-						smb_uid->logged_out=-1;
-						smb_uid->domain = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
+						smb_uid->logged_in  = -1;
+						smb_uid->logged_out = -1;
+						smb_uid->domain  = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
 						smb_uid->account = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
 
 						si->sip->extra_info = smb_uid;
@@ -7482,8 +7483,8 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		 * short frames and then we will not see anything at all
 		 * of the security blob.
 		 */
-		if (sbloblen > tvb_length_remaining(tvb,offset)) {
-			sbloblen = tvb_length_remaining(tvb,offset);
+		if (sbloblen > tvb_length_remaining(tvb, offset)) {
+			sbloblen = tvb_length_remaining(tvb, offset);
 		}
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset, sbloblen, ENC_NA);
@@ -7907,7 +7908,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if (g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))) {
 			g_hash_table_remove(si->ct->tid_service, GUINT_TO_POINTER(si->tid));
 		}
-		if (strcmp(an,"IPC") == 0) {
+		if (strcmp(an, "IPC") == 0) {
 			g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_IPC);
 		} else {
 			g_hash_table_insert(si->ct->tid_service, GUINT_TO_POINTER(si->tid), (void *)TID_NORMAL);
@@ -7969,7 +7970,6 @@ static const value_string nt_cmd_vals[] = {
 	{NT_TRANS_SET_USER_QUOTA,	"NT SET USER QUOTA"},
 	{0, NULL}
 };
-
 value_string_ext nt_cmd_vals_ext = VALUE_STRING_EXT_INIT(nt_cmd_vals);
 
 static const value_string nt_ioctl_isfsctl_vals[] = {
@@ -8264,6 +8264,7 @@ static const value_string device_type_vals[] = {
 	{0x0000002c,	"VDM"},
 	{0,	NULL}
 };
+static value_string_ext device_type_vals_ext = VALUE_STRING_EXT_INIT(device_type_vals);
 
 static const value_string is_directory_vals[] = {
 	{0,	"This is NOT a directory"},
@@ -8570,7 +8571,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 		if (qsize) {
 			offset = old_offset+qsize;
 		}
-	}while(qsize);
+	}while (qsize);
 
 
 	return offset;
@@ -8629,10 +8630,10 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		if (nti) {
 			switch(nti->fid_type) {
 			case SMB_FID_TYPE_FILE:
-				ami= &smb_file_access_mask_info;
+				ami = &smb_file_access_mask_info;
 				break;
 			case SMB_FID_TYPE_DIR:
-				ami= &smb_dir_access_mask_info;
+				ami = &smb_dir_access_mask_info;
 				break;
 			}
 		}
@@ -9227,10 +9228,10 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		if (nti) {
 			switch(nti->fid_type) {
 			case SMB_FID_TYPE_FILE:
-				ami= &smb_file_access_mask_info;
+				ami = &smb_file_access_mask_info;
 				break;
 			case SMB_FID_TYPE_DIR:
-				ami= &smb_dir_access_mask_info;
+				ami = &smb_dir_access_mask_info;
 				break;
 			}
 		}
@@ -9383,7 +9384,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	case NT_TRANS_SSD:
 		break;
 	case NT_TRANS_NOTIFY:
-		while(len) {
+		while (len) {
 			old_offset = offset;
 
 			/* next entry offset */
@@ -9918,7 +9919,7 @@ dissect_get_print_queue_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	COUNT_BYTES(2);
 
 	/* queue elements */
-	while(cnt--) {
+	while (cnt--) {
 		offset = dissect_print_queue_element(tvb, pinfo, tree, offset,
 		    &bc, &trunc, si);
 		if (trunc)
@@ -10475,7 +10476,6 @@ static const value_string trans2_cmd_vals[] = {
 	{ 0x11,		"REPORT_DFS_INCONSISTENCY" },
 	{ 0,    NULL }
 };
-
 value_string_ext trans2_cmd_vals_ext = VALUE_STRING_EXT_INIT(trans2_cmd_vals);
 
 static const true_false_string tfs_tf_dtid = {
@@ -10588,6 +10588,7 @@ static const value_string qpi_loi_vals[] = {
 	{ 1037,		"Query File Maximum Info"},
 	{0, NULL}
 };
+static value_string_ext qpi_loi_vals_ext = VALUE_STRING_EXT_INIT(qpi_loi_vals);
 
 /* values used by :
 	TRANS2_SET_PATH_INFORMATION
@@ -10630,6 +10631,7 @@ static const value_string spi_loi_vals[] = {
 	{ 1040,         "Set OLE Information (?)"},
 	{0, NULL}
 };
+static value_string_ext spi_loi_vals_ext = VALUE_STRING_EXT_INIT(spi_loi_vals);
 
 static const value_string qfsi_vals[] = {
 	{ 1,		"Info Allocation"},
@@ -10652,6 +10654,7 @@ static const value_string qfsi_vals[] = {
 	{ 1008,         "Object ID Information"},
 	{0, NULL}
 };
+static value_string_ext qfsi_vals_ext = VALUE_STRING_EXT_INIT(qfsi_vals);
 
 static const value_string sfsi_vals[] = {
 	{ 0x203,	"Request Transport Encryption"},
@@ -10660,8 +10663,8 @@ static const value_string sfsi_vals[] = {
 };
 
 static const value_string nt_rename_vals[] = {
-   	{ 0x0103,	"Create Hard Link"},
-  	{0, NULL}
+	{ 0x0103,	"Create Hard Link"},
+	{0, NULL}
 };
 
 
@@ -11078,7 +11081,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(2);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-					val_to_str(si->info_level, qfsi_vals,
+					val_to_str_ext(si->info_level, &qfsi_vals_ext,
 						   "Unknown (0x%02x)"));
 
 		break;
@@ -11107,7 +11110,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(si->info_level, qpi_loi_vals,
+				val_to_str_ext(si->info_level, &qpi_loi_vals_ext,
 					   "Unknown (%u)"));
 
 		/* 4 reserved bytes */
@@ -11177,7 +11180,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(si->info_level, qpi_loi_vals,
+				val_to_str_ext(si->info_level, &qpi_loi_vals_ext,
 					   "Unknown (%u)"));
 
 		break;
@@ -11719,7 +11722,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 		}
 		ucstring_end = -1;
 
-		while(numref--) {
+		while (numref--) {
 			proto_item *ri = NULL;
 			proto_tree *rt = NULL;
 			int old_offset_2 = offset;
@@ -12480,7 +12483,7 @@ dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	/* compression unit shift */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_t2_compressed_unit_shift,tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_unit_shift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* compression chunk shift */
@@ -12647,7 +12650,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb_posix_num_def_aces, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(2);
 
-	while(num_file_aces--) {
+	while (num_file_aces--) {
 		proto_item *it;
 		proto_tree *tr;
 		int old_offset = offset;
@@ -13498,7 +13501,7 @@ dissect_sfsi_request(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* security blob */
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset,
-						tvb_length_remaining(tvb,offset),
+						tvb_length_remaining(tvb, offset),
 						ENC_NA);
 
 		/* As an optimization, because Windows is perverse,
@@ -13520,7 +13523,7 @@ dissect_sfsi_request(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 			call_dissector(gssapi_handle, blob_tvb, pinfo, blob_tree);
 		}
 
-		offset += tvb_length_remaining(tvb,offset);
+		offset += tvb_length_remaining(tvb, offset);
 		*bcp = 0;
 		break;
 	}
@@ -13551,7 +13554,7 @@ dissect_sfsi_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* security blob */
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset,
-						tvb_length_remaining(tvb,offset),
+						tvb_length_remaining(tvb, offset),
 						ENC_NA);
 
 		/* As an optimization, because Windows is perverse,
@@ -13573,7 +13576,7 @@ dissect_sfsi_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 			call_dissector(gssapi_handle, blob_tvb, pinfo, blob_tree);
 		}
 
-		offset += tvb_length_remaining(tvb,offset);
+		offset += tvb_length_remaining(tvb, offset);
 		*bcp = 0;
 		break;
 	}
@@ -14492,7 +14495,7 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(4);
 
 	/* The EAs ... they are formatted as in MS-CIFS 2.2.1.2.2 */
-	proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, ea_size, NULL,"EAs");
+	proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, ea_size, NULL, "EAs");
 	COUNT_BYTES_SUBR(ea_size);
 	*bcp -= ea_size;
 
@@ -16088,7 +16091,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 				       ", Files:");
 		}
 
-		while(count--) {
+		while (count--) {
 			offset = dissect_ff2_response_data(tvb, pinfo, tree,
 							   offset, &dc, &trunc, si);
 			if (trunc)
@@ -16107,7 +16110,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 				       ", Files:");
 		}
 
-		while(count--) {
+		while (count--) {
 			offset = dissect_ff2_response_data(tvb, pinfo, tree,
 				offset, &dc, &trunc, si);
 			if (trunc)
@@ -16661,7 +16664,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	*/
 	save_fragmented = pinfo->fragmented;
 	/* do we need reassembly? */
-	if ( (td!=dc) || (tp!=pc) ) {
+	if ( (td != dc) || (tp != pc) ) {
 		/* oh yeah, either data or parameter section needs
 		   reassembly
 		*/
@@ -16709,13 +16712,13 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		if ( (pd == 0) && (dd == 0) ) {
 			int min;
 			int reported_min;
-			min = MIN(pc,tvb_length_remaining(tvb,po));
-			reported_min = MIN(pc,tvb_reported_length_remaining(tvb,po));
+			min = MIN(pc, tvb_length_remaining(tvb, po));
+			reported_min = MIN(pc, tvb_reported_length_remaining(tvb, po));
 			if (min && reported_min) {
 				p_tvb = tvb_new_subset(tvb, po, min, reported_min);
 			}
-			min = MIN(dc,tvb_length_remaining(tvb,od));
-			reported_min = MIN(dc,tvb_reported_length_remaining(tvb,od));
+			min = MIN(dc, tvb_length_remaining(tvb, od));
+			reported_min = MIN(dc, tvb_reported_length_remaining(tvb, od));
 			if (min && reported_min) {
 				d_tvb = tvb_new_subset(tvb, od, min, reported_min);
 			}
@@ -17176,7 +17179,7 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 
 	DISSECTOR_ASSERT(si);
 
-	if (cmd!=0xff) {
+	if (cmd != 0xff) {
 		proto_item *cmd_item;
 		proto_tree *cmd_tree;
 		int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, smb_info_t *si);
@@ -17212,8 +17215,8 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 			}
 		}
 
-		dissector = (si->request)?
-			smb_dissector[cmd].request:smb_dissector[cmd].response;
+		dissector = (si->request) ?
+			smb_dissector[cmd].request : smb_dissector[cmd].response;
 
 		offset = (*dissector)(tvb, pinfo, cmd_tree, offset, smb_tree, si);
 
@@ -17226,125 +17229,124 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 }
 
 static const value_string smb_cmd_vals[] = {
-  { 0x00, "Create Directory" },
-  { 0x01, "Delete Directory" },
-  { 0x02, "Open" },
-  { 0x03, "Create" },
-  { 0x04, "Close" },
-  { 0x05, "Flush" },
-  { 0x06, "Delete" },
-  { 0x07, "Rename" },
-  { 0x08, "Query Information" },
-  { 0x09, "Set Information" },
-  { 0x0A, "Read" },
-  { 0x0B, "Write" },
-  { 0x0C, "Lock Byte Range" },
-  { 0x0D, "Unlock Byte Range" },
-  { 0x0E, "Create Temp" },
-  { 0x0F, "Create New" },
-  { 0x10, "Check Directory" },
-  { 0x11, "Process Exit" },
-  { 0x12, "Seek" },
-  { 0x13, "Lock And Read" },
-  { 0x14, "Write And Unlock" },
-  { 0x15, "unknown-0x15" },
-  { 0x16, "unknown-0x16" },
-  { 0x17, "unknown-0x17" },
-  { 0x18, "unknown-0x18" },
-  { 0x19, "unknown-0x19" },
-  { 0x1A, "Read Raw" },
-  { 0x1B, "Read MPX" },
-  { 0x1C, "Read MPX Secondary" },
-  { 0x1D, "Write Raw" },
-  { 0x1E, "Write MPX" },
-  { 0x1F, "Write MPX Secondary" },
-  { 0x20, "Write Complete" },
+	{ 0x00, "Create Directory" },
+	{ 0x01, "Delete Directory" },
+	{ 0x02, "Open" },
+	{ 0x03, "Create" },
+	{ 0x04, "Close" },
+	{ 0x05, "Flush" },
+	{ 0x06, "Delete" },
+	{ 0x07, "Rename" },
+	{ 0x08, "Query Information" },
+	{ 0x09, "Set Information" },
+	{ 0x0A, "Read" },
+	{ 0x0B, "Write" },
+	{ 0x0C, "Lock Byte Range" },
+	{ 0x0D, "Unlock Byte Range" },
+	{ 0x0E, "Create Temp" },
+	{ 0x0F, "Create New" },
+	{ 0x10, "Check Directory" },
+	{ 0x11, "Process Exit" },
+	{ 0x12, "Seek" },
+	{ 0x13, "Lock And Read" },
+	{ 0x14, "Write And Unlock" },
+	{ 0x15, "unknown-0x15" },
+	{ 0x16, "unknown-0x16" },
+	{ 0x17, "unknown-0x17" },
+	{ 0x18, "unknown-0x18" },
+	{ 0x19, "unknown-0x19" },
+	{ 0x1A, "Read Raw" },
+	{ 0x1B, "Read MPX" },
+	{ 0x1C, "Read MPX Secondary" },
+	{ 0x1D, "Write Raw" },
+	{ 0x1E, "Write MPX" },
+	{ 0x1F, "Write MPX Secondary" },
+	{ 0x20, "Write Complete" },
 
-  /*
-   * To quote
-   *
-   *    http://msdn.microsoft.com/en-us/library/ee442098.aspx
-   *
-   * "This command was introduced in the NT LAN Manager dialect, and
-   * was reserved but not implemented.
-   *
-   * Clients SHOULD NOT send requests using this command code, and
-   * servers receiving requests with this command code SHOULD return
-   * STATUS_NOT_IMPLEMENTED (ERRDOS/ERRbadfunc)."
-   */
-  { 0x21, "Query Server (reserved)" },
+	/*
+	 * To quote
+	 *
+	 *    http://msdn.microsoft.com/en-us/library/ee442098.aspx
+	 *
+	 * "This command was introduced in the NT LAN Manager dialect, and
+	 * was reserved but not implemented.
+	 *
+	 * Clients SHOULD NOT send requests using this command code, and
+	 * servers receiving requests with this command code SHOULD return
+	 * STATUS_NOT_IMPLEMENTED (ERRDOS/ERRbadfunc)."
+	 */
+	{ 0x21, "Query Server (reserved)" },
 
-  { 0x22, "Set Information2" },
-  { 0x23, "Query Information2" },
-  { 0x24, "Locking AndX" },
-  { 0x25, "Trans" },
-  { 0x26, "Trans Secondary" },
-  { 0x27, "IOCTL" },
-  { 0x28, "IOCTL Secondary" },
-  { 0x29, "Copy" },
-  { 0x2A, "Move" },
-  { 0x2B, "Echo" },
-  { 0x2C, "Write And Close" },
-  { 0x2D, "Open AndX" },
-  { 0x2E, "Read AndX" },
-  { 0x2F, "Write AndX" },
+	{ 0x22, "Set Information2" },
+	{ 0x23, "Query Information2" },
+	{ 0x24, "Locking AndX" },
+	{ 0x25, "Trans" },
+	{ 0x26, "Trans Secondary" },
+	{ 0x27, "IOCTL" },
+	{ 0x28, "IOCTL Secondary" },
+	{ 0x29, "Copy" },
+	{ 0x2A, "Move" },
+	{ 0x2B, "Echo" },
+	{ 0x2C, "Write And Close" },
+	{ 0x2D, "Open AndX" },
+	{ 0x2E, "Read AndX" },
+	{ 0x2F, "Write AndX" },
 
-  /*
-   * To quote
-   *
-   *    http://msdn.microsoft.com/en-us/library/ee442127.aspx
-   *
-   * "This command was reserved but not implemented. It was also never
-   * defined. It is listed in [SNIA], but it is not defined in that
-   * document and does not appear in any other references.
-   *
-   * Clients SHOULD NOT send requests using this command code, and
-   * servers receiving requests with this command code SHOULD return
-   * STATUS_NOT_IMPLEMENTED (ERRDOC/ERRbadfunc)."
-   */
-  { 0x30, "New File Size (reserved)" },
+	/*
+	 * To quote
+	 *
+	 *    http://msdn.microsoft.com/en-us/library/ee442127.aspx
+	 *
+	 * "This command was reserved but not implemented. It was also never
+	 * defined. It is listed in [SNIA], but it is not defined in that
+	 * document and does not appear in any other references.
+	 *
+	 * Clients SHOULD NOT send requests using this command code, and
+	 * servers receiving requests with this command code SHOULD return
+	 * STATUS_NOT_IMPLEMENTED (ERRDOC/ERRbadfunc)."
+	 */
+	{ 0x30, "New File Size (reserved)" },
 
-  { 0x31, "Close And Tree Disconnect" },
-  { 0x32, "Trans2" },
-  { 0x33, "Trans2 Secondary" },
-  { 0x34, "Find Close2" },
-  { 0x35, "Find Notify Close" },
-  { 0x70, "Tree Connect" },
-  { 0x71, "Tree Disconnect" },
-  { 0x72, "Negotiate Protocol" },
-  { 0x73, "Session Setup AndX" },
-  { 0x74, "Logoff AndX" },
-  { 0x75, "Tree Connect AndX" },
-  { 0x80, "Query Information Disk" },
-  { 0x81, "Search" },
-  { 0x82, "Find" },
-  { 0x83, "Find Unique" },
-  { 0x84, "Find Close" },
-  { 0xA0, "NT Trans" },
-  { 0xA1, "NT Trans Secondary" },
-  { 0xA2, "NT Create AndX" },
-  { 0xA3, "unknown-0xA3" },
-  { 0xA4, "NT Cancel" },
-  { 0xA5, "NT Rename" },
-  { 0xC0, "Open Print File" },
-  { 0xC1, "Write Print File" },
-  { 0xC2, "Close Print File" },
-  { 0xC3, "Get Print Queue" },
-  { 0xD0, "Send Single Block Message" },
-  { 0xD1, "Send Broadcast Message" },
-  { 0xD2, "Forward User Name" },
-  { 0xD3, "Cancel Forward" },
-  { 0xD4, "Get Machine Name" },
-  { 0xD5, "Send Start of Multi-block Message" },
-  { 0xD6, "Send End of Multi-block Message" },
-  { 0xD7, "Send Text of Multi-block Message" },
-  { 0xD8, "SMBreadbulk" },
-  { 0xD9, "SMBwritebulk" },
-  { 0xDA, "SMBwritebulkdata" },
-  { 0xFE, "SMBinvalid" },
-  { 0x00, NULL },
+	{ 0x31, "Close And Tree Disconnect" },
+	{ 0x32, "Trans2" },
+	{ 0x33, "Trans2 Secondary" },
+	{ 0x34, "Find Close2" },
+	{ 0x35, "Find Notify Close" },
+	{ 0x70, "Tree Connect" },
+	{ 0x71, "Tree Disconnect" },
+	{ 0x72, "Negotiate Protocol" },
+	{ 0x73, "Session Setup AndX" },
+	{ 0x74, "Logoff AndX" },
+	{ 0x75, "Tree Connect AndX" },
+	{ 0x80, "Query Information Disk" },
+	{ 0x81, "Search" },
+	{ 0x82, "Find" },
+	{ 0x83, "Find Unique" },
+	{ 0x84, "Find Close" },
+	{ 0xA0, "NT Trans" },
+	{ 0xA1, "NT Trans Secondary" },
+	{ 0xA2, "NT Create AndX" },
+	{ 0xA3, "unknown-0xA3" },
+	{ 0xA4, "NT Cancel" },
+	{ 0xA5, "NT Rename" },
+	{ 0xC0, "Open Print File" },
+	{ 0xC1, "Write Print File" },
+	{ 0xC2, "Close Print File" },
+	{ 0xC3, "Get Print Queue" },
+	{ 0xD0, "Send Single Block Message" },
+	{ 0xD1, "Send Broadcast Message" },
+	{ 0xD2, "Forward User Name" },
+	{ 0xD3, "Cancel Forward" },
+	{ 0xD4, "Get Machine Name" },
+	{ 0xD5, "Send Start of Multi-block Message" },
+	{ 0xD6, "Send End of Multi-block Message" },
+	{ 0xD7, "Send Text of Multi-block Message" },
+	{ 0xD8, "SMBreadbulk" },
+	{ 0xD9, "SMBwritebulk" },
+	{ 0xDA, "SMBwritebulkdata" },
+	{ 0xFE, "SMBinvalid" },
+	{ 0x00, NULL },
 };
-
 value_string_ext smb_cmd_vals_ext = VALUE_STRING_EXT_INIT(smb_cmd_vals);
 
 
@@ -17392,66 +17394,77 @@ static const value_string errcls_types[] = {
 
 /* Error codes for the ERRSRV class */
 
-static const value_string SRV_errors[] = {
-	{SMBE_error,       "Non specific error code"},
-	{SMBE_badpw,       "Bad password"},
-	{SMBE_badtype,     "Reserved"},
-	{SMBE_access,      "No permissions to perform the requested operation"},
-	{SMBE_invnid,      "TID invalid"},
-	{SMBE_invnetname,  "Invalid network name. Service not found"},
-	{SMBE_invdevice,   "Invalid device"},
-	{SMBE_unknownsmb,  "Unknown SMB, from NT 3.5 response"},
-	{SMBE_qfull,       "Print queue full"},
-	{SMBE_qtoobig,     "Queued item too big"},
-	{SMBE_qeof,        "EOF on print queue dump"},
-	{SMBE_invpfid,     "Invalid print file in smb_fid"},
-	{SMBE_smbcmd,      "Unrecognised command"},
-	{SMBE_srverror,    "SMB server internal error"},
-	{SMBE_filespecs,   "Fid and pathname invalid combination"},
-	{SMBE_badlink,     "Bad link in request ???"},
-	{SMBE_badpermits,  "Access specified for a file is not valid"},
-	{SMBE_badpid,      "Bad process id in request"},
-	{SMBE_setattrmode, "Attribute mode invalid"},
-	{SMBE_paused,      "Message server paused"},
-	{SMBE_msgoff,      "Not receiving messages"},
-	{SMBE_noroom,      "No room for message"},
-	{SMBE_rmuns,       "Too many remote usernames"},
-	{SMBE_timeout,     "Operation timed out"},
-	{SMBE_noresource,  "No resources currently available for request."},
-	{SMBE_toomanyuids, "Too many userids"},
-	{SMBE_baduid,      "Bad userid"},
-	{SMBE_useMPX,      "Temporarily unable to use raw mode, use MPX mode"},
-	{SMBE_useSTD,      "Temporarily unable to use raw mode, use standard mode"},
-	{SMBE_contMPX,     "Resume MPX mode"},
-	{SMBE_badPW,       "Bad Password???"},
-	{SMBE_nosupport,   "Operation not supported"},
-	{ 0, NULL}
-};
+#define SRV_errors_VALUE_STRING_LIST(XXX) \
+    XXX( SMBE_SRV_error,          1, "Non specific error code") \
+    XXX( SMBE_SRV_badpw,          2, "Bad password") \
+    XXX( SMBE_SRV_badtype,        3, "Reserved") \
+    XXX( SMBE_SRV_access,         4, "No permissions to perform the requested operation") \
+    XXX( SMBE_SRV_invnid,         5, "TID invalid") \
+    XXX( SMBE_SRV_invnetname,     6, "Invalid network name. Service not found") \
+    XXX( SMBE_SRV_invdevice,      7, "Invalid device") \
+    XXX( SMBE_SRV_unknownsmb,    22, "Unknown SMB, from NT 3.5 response") \
+    XXX( SMBE_SRV_qfull,         49, "Print queue full") \
+    XXX( SMBE_SRV_qtoobig,       50, "Queued item too big") \
+    XXX( SMBE_SRV_qeof,          51, "EOF in print queue dump") \
+    XXX( SMBE_SRV_invpfid,       52, "Invalid print file in smb_fid") \
+    XXX( SMBE_SRV_smbcmd,        64, "Unrecognised command") \
+    XXX( SMBE_SRV_srverror,      65, "SMB server internal error") \
+    XXX( SMBE_SRV_filespecs,     67, "Fid and pathname invalid combination") \
+    XXX( SMBE_SRV_badlink,       68, "Bad link in request ???") \
+    XXX( SMBE_SRV_badpermits,    69, "Access specified for a file is not valid") \
+    XXX( SMBE_SRV_badpid,        70, "Bad process id in request") \
+    XXX( SMBE_SRV_setattrmode,   71, "Attribute mode invalid") \
+    XXX( SMBE_SRV_paused,        81, "Message server paused") \
+    XXX( SMBE_SRV_msgoff,        82, "Not receiving messages") \
+    XXX( SMBE_SRV_noroom,        83, "No room for message") \
+    XXX( SMBE_SRV_rmuns,         87, "Too many remote usernames") \
+    XXX( SMBE_SRV_timeout,       88, "Operation timed out") \
+    XXX( SMBE_SRV_noresource,    89, "No resources currently available for request.") \
+    XXX( SMBE_SRV_toomanyuids,   90, "Too many userids") \
+    XXX( SMBE_SRV_baduid,        91, "Bad userid") \
+    XXX( SMBE_SRV_useMPX,       250, "Temporarily unable to use raw mode, use MPX mode") \
+    XXX( SMBE_SRV_useSTD,       251, "Temporarily unable to use raw mode, use standard mode") \
+    XXX( SMBE_SRV_contMPX,      252, "Resume MPX mode") \
+    XXX( SMBE_SRV_badPW,        253, "Bad Password???") \
+    XXX( SMBE_SRV_nosupport, 0xFFFF, "Operation not supported")
+
+#if 0 /* Values not needed */
+VALUE_STRING_ENUM(SRV_errors);
+#endif
+VALUE_STRING_ARRAY(SRV_errors);
+static value_string_ext SRV_errors_ext = VALUE_STRING_EXT_INIT(SRV_errors);
+
 
 /* Error codes for the ERRHRD class */
 
-static const value_string HRD_errors[] = {
-	{SMBE_nowrite,     "Read only media"},
-	{SMBE_badunit,     "Unknown device"},
-	{SMBE_notready,    "Drive not ready"},
-	{SMBE_badcmd,      "Unknown command"},
-	{SMBE_data,        "Data (CRC) error"},
-	{SMBE_badreq,      "Bad request structure length"},
-	{SMBE_seek,        "Seek error"},
-	{SMBE_badmedia,    "Unknown media type"},
-	{SMBE_badsector,   "Sector not found"},
-	{SMBE_nopaper,     "Printer out of paper"},
-	{SMBE_write,       "Write fault"},
-	{SMBE_read,        "Read fault"},
-	{SMBE_general,     "General failure"},
-	{SMBE_badshare,    "A open conflicts with an existing open"},
-	{SMBE_lock,        "Lock conflict/invalid mode, or unlock of another process's lock"},
-	{SMBE_wrongdisk,   "The wrong disk was found in a drive"},
-	{SMBE_FCBunavail,  "No FCBs are available to process request"},
-	{SMBE_sharebufexc, "A sharing buffer has been exceeded"},
-	{SMBE_diskfull,    "Disk full???"},
-	{0, NULL}
-};
+#define HRD_errors_VALUE_STRING_LIST(XXX) \
+    XXX( SMBE_HRD_nowrite,     19, "Read only media") \
+    XXX( SMBE_HRD_badunit,     20, "Unknown device") \
+    XXX( SMBE_HRD_notready,    21, "Drive not ready") \
+    XXX( SMBE_HRD_badcmd,      22, "Unknown command") \
+    XXX( SMBE_HRD_data,        23, "Data (CRC) error") \
+    XXX( SMBE_HRD_badreq,      24, "Bad request structure length") \
+    XXX( SMBE_HRD_seek,        25, "Seek error") \
+    XXX( SMBE_HRD_badmedia,    26, "Unknown media type") \
+    XXX( SMBE_HRD_badsector,   27, "Sector not found") \
+    XXX( SMBE_HRD_nopaper,     28, "Printer out of paper") \
+    XXX( SMBE_HRD_write,       29, "Write fault") \
+    XXX( SMBE_HRD_read,        30, "Read fault") \
+    XXX( SMBE_HRD_general,     31, "General failure") \
+/* -- (really part of ERRDOS class ??) -- */ \
+    XXX( SMBE_HRD_badshare,    32, "An open conflicts with an existing open") \
+    XXX( SMBE_HRD_lock,        33, "Lock conflict/invalid mode, or unlock of another process's lock") \
+/* -- --*/ \
+    XXX( SMBE_HRD_wrongdisk,   34, "The wrong disk was found in a drive") \
+    XXX( SMBE_HRD_FCBunavail,  35, "No FCBs are available to process request") \
+    XXX( SMBE_HRD_sharebufexc, 36, "A sharing buffer has been exceeded") \
+    XXX( SMBE_HRD_diskfull,    39, "Disk full???")
+
+#if 0 /* Values not needed */
+VALUE_STRING_ENUM(HRD_errors);
+#endif
+VALUE_STRING_ARRAY(HRD_errors);
+static value_string_ext HRD_errors_ext = VALUE_STRING_EXT_INIT(HRD_errors);
 
 static const char *decode_smb_error(guint8 errcls, guint16 errcode)
 {
@@ -17464,15 +17477,15 @@ static const char *decode_smb_error(guint8 errcls, guint16 errcode)
 
 	case SMB_ERRDOS:
 
-		return(val_to_str(errcode, DOS_errors, "Unknown DOS error (%x)"));
+		return(val_to_str_ext(errcode, &DOS_errors_ext, "Unknown DOS error (%x)"));
 
 	case SMB_ERRSRV:
 
-		return(val_to_str(errcode, SRV_errors, "Unknown SRV error (%x)"));
+		return(val_to_str_ext(errcode, &SRV_errors_ext, "Unknown SRV error (%x)"));
 
 	case SMB_ERRHRD:
 
-		return(val_to_str(errcode, HRD_errors, "Unknown HRD error (%x)"));
+		return(val_to_str_ext(errcode, &HRD_errors_ext, "Unknown HRD error (%x)"));
 
 	default:
 
@@ -17514,7 +17527,7 @@ static const true_false_string tfs_smb_flags_response = {
 static int
 dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	guint8 mask;
+	guint8	    mask;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -17717,9 +17730,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->ct = (conv_tables_t *)g_malloc(sizeof(conv_tables_t));
 
 		conv_tables = g_slist_prepend(conv_tables, si->ct);
-		si->ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
+		si->ct->matched = g_hash_table_new(smb_saved_info_hash_matched,
 			smb_saved_info_equal_matched);
-		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
+		si->ct->unmatched = g_hash_table_new(smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
 		/* We used the same key format as the unmatched entries */
 		si->ct->primaries = g_hash_table_new(
@@ -17784,7 +17797,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   This can fail but is better than nothing
 			*/
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
-			if (sip!=NULL) {
+			if (sip != NULL) {
 				new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
 				new_key->frame = pinfo->fd->num;
 				new_key->pid_mid = pid_mid;
@@ -17852,7 +17865,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   the current one
 			*/
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
-			if (sip!=NULL) {
+			if (sip != NULL) {
 				gboolean cmd_match = FALSE;
 
 				/*
@@ -18178,7 +18191,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				 */
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
-					val_to_str(si->nt_status, NT_errors,
+					val_to_str_ext(si->nt_status, &NT_errors_ext,
 					    "Unknown (0x%08X)"));
 			}
 		} else {
@@ -18261,8 +18274,8 @@ proto_register_smb(void)
 		NULL, 0, "This packet is a continuation to the packet in this frame", HFILL }},
 
 	{ &hf_smb_nt_status,
-		{ "NT Status", "smb.nt_status", FT_UINT32, BASE_HEX,
-		VALS(NT_errors), 0, "NT Status code", HFILL }},
+		{ "NT Status", "smb.nt_status", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		&NT_errors_ext, 0, "NT Status code", HFILL }},
 
 	{ &hf_smb_error_class,
 		{ "Error Class", "smb.error_class", FT_UINT8, BASE_HEX,
@@ -19876,8 +19889,8 @@ proto_register_smb(void)
 		NULL, 0, "Target file name", HFILL }},
 
 	{ &hf_smb_device_type,
-		{ "Device Type", "smb.device.type", FT_UINT32, BASE_HEX,
-		VALS(device_type_vals), 0, "Type of device", HFILL }},
+		{ "Device Type", "smb.device.type", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+		&device_type_vals_ext, 0, "Type of device", HFILL }},
 
 	{ &hf_smb_is_directory,
 		{ "Is Directory", "smb.is_directory", FT_UINT8, BASE_DEC,
@@ -20028,8 +20041,8 @@ proto_register_smb(void)
 		VALS(qpi_loi_vals), 0, "Level of interest for TRANSACTION[2] QUERY_{FILE,PATH}_INFO commands", HFILL }},
 
 	{ &hf_smb_spi_loi,
-		{ "Level of Interest", "smb.spi_loi", FT_UINT16, BASE_DEC,
-		VALS(spi_loi_vals), 0, "Level of interest for TRANSACTION[2] SET_{FILE,PATH}_INFO commands", HFILL }},
+		{ "Level of Interest", "smb.spi_loi", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+		&spi_loi_vals_ext, 0, "Level of interest for TRANSACTION[2] SET_{FILE,PATH}_INFO commands", HFILL }},
 
 #if 0
 	{ &hf_smb_sfi_writetru,
@@ -20054,18 +20067,18 @@ proto_register_smb(void)
 		NULL, 0, "Latest referral version number understood", HFILL }},
 
 	{ &hf_smb_qfsi_information_level,
-		{ "Level of Interest", "smb.qfsi_loi", FT_UINT16, BASE_HEX,
-		VALS(qfsi_vals), 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
+		{ "Level of Interest", "smb.qfsi_loi", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+		&qfsi_vals_ext, 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
 
 	{ &hf_smb_sfsi_information_level,
 		{ "Level of Interest", "smb.sfsi_loi", FT_UINT16, BASE_HEX,
 		VALS(sfsi_vals), 0, "Level of interest for SET_FS_INFORMATION2 command", HFILL }},
 
-  	{ &hf_smb_nt_rename_level,
+	{ &hf_smb_nt_rename_level,
 		{ "Level of Interest", "smb.ntr_loi", FT_UINT16, BASE_DEC,
 		VALS(nt_rename_vals), 0, "NT Rename level", HFILL }},
 
-   	{ &hf_smb_cluster_count,
+	{ &hf_smb_cluster_count,
 		{ "Cluster count", "smb.ntr_clu", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of clusters", HFILL }},
 
