@@ -1,5 +1,5 @@
 
-                         Wireshark 1.11.1 Release Notes
+                         Wireshark 1.11.3 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -23,7 +23,18 @@ What's New
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 1.11.2:
+     * Qt port:
+          + A (statistics tree) dialog has been added.
+
+   The following features are new (or have been significantly updated)
+   since version 1.11.1:
+     * Mac OS X packaging has been improved.
+
+   The following features are new (or have been significantly updated)
    since version 1.11.0:
+     * Dissector output may be encoded as UTF-8. This includes TShark
+       output.
      * Qt port:
           + The Follow Stream dialog now supports packet and TCP stream
             selection.
@@ -61,12 +72,13 @@ What's New
   New Protocol Support
 
    802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData, ELF
-   file format, EXPORTED PDU, FINGER, HTTP2, IDRP, ILP, Kafka, MBIM, MiNT,
-   MP4/ISOBMFF file format, NXP PN532 HCI, OpenFlow, Picture Transfer Protocol
-   Over IP, QUIC (Quick UDP Internet Connections), SEL RTAC (Real Time
-   Automation Controller) EIA-232 Serial-Line Dissection, Sippy RTPproxy,
-   STANAG 4607, STANAG 5066 SIS, Tinkerforge, UDT, URL Encoded Form Data,
-   WHOIS, and Wi-Fi Display
+   file format, EXPORTED PDU, FINGER, HTTP2, IDRP, ILP, Kafka, Kyoto
+   Tycoon binary protocol, MBIM, MiNT, MP4 / ISOBMFF file format, NXP
+   PN532 HCI, OpenFlow, Picture Transfer Protocol Over IP, QUIC (Quick UDP
+   Internet Connections), SEL RTAC (Real Time Automation Controller)
+   EIA-232 Serial-Line Dissection, Sippy RTPproxy, STANAG 4607, STANAG
+   5066 SIS, Tinkerforge, UDT, URL Encoded Form Data, WHOIS, and Wi-Fi
+   Display
 
   Updated Protocol Support
 
@@ -146,7 +158,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [21]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-11-15 00:54:41 CET
+   Last updated 2013-11-21 18:44:12 CET
 
 References
 
