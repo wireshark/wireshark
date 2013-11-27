@@ -450,6 +450,7 @@ static const value_string usb_protocols[] = {
     {0xFE0301,    "USB Test and Measurement Device conforming to the USBTMC USB488"},
     {0, NULL}
 };
+static value_string_ext usb_protocols_ext = VALUE_STRING_EXT_INIT(usb_protocols);
 
 static const value_string usb_transfer_type_vals[] = {
     {URB_CONTROL,                       "URB_CONTROL"},
@@ -988,6 +989,7 @@ static const value_string win32_usbd_status_vals[] = {
     {0xC0100009, "USBD_STATUS_BAD_ENDPOINT_ADDRESS"},
     {0, NULL}
 };
+static value_string_ext win32_usbd_status_vals_ext = VALUE_STRING_EXT_INIT(win32_usbd_status_vals);
 
 static const value_string win32_usb_info_direction_vals[] = {
     {0, "FDO -> PDO"},
@@ -1008,6 +1010,7 @@ static const value_string usb_cdc_protocol_vals[] = {
     {0xFF, "Vendor-specific"},
     {0, NULL}
 };
+static value_string_ext usb_cdc_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_cdc_protocol_vals);
 
 static const value_string usb_cdc_data_protocol_vals[] = {
     {0x00, "No class specific protocol required"},
@@ -1027,6 +1030,7 @@ static const value_string usb_cdc_data_protocol_vals[] = {
     {0xFF, "Vendor-specific"},
     {0, NULL}
 };
+static value_string_ext usb_cdc_data_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_cdc_data_protocol_vals);
 
 static const value_string usb_hid_subclass_vals[] = {
     {0, "No Subclass"},
@@ -1233,7 +1237,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
     offset += 2;
 
     protocol = tvb_get_ntoh24(tvb, offset);
-    description = val_to_str_const(protocol, usb_protocols, "");
+    description = val_to_str_ext_const(protocol, &usb_protocols_ext, "");
 
     /* bDeviceClass */
     proto_tree_add_item(tree, hf_usb_bDeviceClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1327,7 +1331,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     offset += 2;
 
     protocol = tvb_get_ntoh24(tvb, offset);
-    description = val_to_str_const(protocol, usb_protocols, "");
+    description = val_to_str_ext_const(protocol, &usb_protocols_ext, "");
 
     /* bDeviceClass */
     proto_tree_add_item(tree, hf_usb_bDeviceClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2408,6 +2412,7 @@ static const value_string setup_request_names_vals[] = {
     {USB_SETUP_SET_ISOCH_DELAY,         "SET ISOCH DELAY"},
     {0, NULL}
 };
+static value_string_ext setup_request_names_vals_ext = VALUE_STRING_EXT_INIT(setup_request_names_vals);
 
 
 static const true_false_string tfs_bmrequesttype_direction = {
@@ -2443,7 +2448,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
 
     *type = USB_TYPE(tvb_get_guint8(tvb, offset));
     proto_tree_add_item(tree, hf_usb_bmRequestType_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_bmRequestType_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_bmRequestType_type,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_bmRequestType_recipient, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
     return ++offset;
@@ -2855,7 +2860,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     offset += 1;
 
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
-                            val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"));
+                            val_to_str_ext(usb_trans_info->setup.request, &setup_request_names_vals_ext, "Unknown type %x"));
 
                     dissector = NULL;
                     for(tmp = setup_request_dissectors;tmp->dissector;tmp++) {
@@ -3007,8 +3012,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 if ((header_info & USB_HEADER_IS_USBPCAP) &&
                     (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Status",
-                        val_to_str(usb_conv_info->usb_trans_info->setup.request,
-                            setup_request_names_vals, "Unknown type %x"));
+                        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
+                            &setup_request_names_vals_ext, "Unknown type %x"));
                     /* There is no data to dissect */
                     return;
                 }
@@ -3031,8 +3036,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                      * dissector
                      */
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-                        val_to_str(usb_conv_info->usb_trans_info->setup.request,
-                            setup_request_names_vals, "Unknown type %x"));
+                        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
+                            &setup_request_names_vals_ext, "Unknown type %x"));
 
                     dissector = NULL;
                     for(tmp = setup_response_dissectors;tmp->dissector;tmp++) {
@@ -3501,7 +3506,7 @@ proto_register_usb(void)
 
         { &hf_usb_usbd_status,
           { "IRP USBD_STATUS", "usb.usbd_status",
-            FT_UINT32, BASE_HEX, VALS(win32_usbd_status_vals), 0x0,
+            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &win32_usbd_status_vals_ext, 0x0,
             "USB request status value", HFILL }},
 
         { &hf_usb_function,
@@ -3566,7 +3571,7 @@ proto_register_usb(void)
 
         { &hf_usb_win32_iso_status,
           { "ISO USBD status", "usb.win32.iso_status",
-            FT_UINT32, BASE_HEX, VALS(win32_usbd_status_vals), 0x0,
+            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &win32_usbd_status_vals_ext, 0x0,
             NULL, HFILL }},
 
 
@@ -3577,7 +3582,7 @@ proto_register_usb(void)
 
         { &hf_usb_request,
           { "bRequest", "usb.setup.bRequest",
-            FT_UINT8, BASE_DEC, VALS(setup_request_names_vals), 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &setup_request_names_vals_ext, 0x0,
             NULL, HFILL }},
 
         /* Same as hf_usb_request but no descriptive text */
@@ -3817,12 +3822,12 @@ proto_register_usb(void)
 
         { &hf_usb_bInterfaceProtocol_cdc,
           { "bInterfaceProtocol", "usb.bInterfaceProtocol",
-            FT_UINT8, BASE_HEX, VALS(usb_cdc_protocol_vals), 0x0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_cdc_protocol_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceProtocol_cdc_data,
           { "bInterfaceProtocol", "usb.bInterfaceProtocol",
-            FT_UINT8, BASE_HEX, VALS(usb_cdc_data_protocol_vals), 0x0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_cdc_data_protocol_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceProtocol_hid_boot,
@@ -4050,3 +4055,16 @@ proto_reg_handoff_usb(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USBPCAP, win32_usb_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
