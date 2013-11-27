@@ -3261,13 +3261,11 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
   GtkTreeIter        iter;
   GtkTreeView       *if_cb;
   GtkTreeModel      *model;
-  gboolean           enabled = FALSE, set;
+  gboolean           enabled = FALSE;
   interface_t        device;
   interface_options  interface_opts;
   guint              i;
 
-  set = gtk_toggle_button_get_active(button);
-  gtk_toggle_button_set_active(button, (set?FALSE:TRUE));
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
 
@@ -4813,7 +4811,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), get_all_prom_mode());
   }
-  g_signal_connect(promisc_cb, "button-press-event", G_CALLBACK(promisc_mode_callback), NULL);
+  g_signal_connect(promisc_cb, "toggled", G_CALLBACK(promisc_mode_callback), NULL);
 
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
