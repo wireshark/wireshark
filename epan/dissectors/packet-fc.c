@@ -1231,6 +1231,9 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     fc_data_t* fc_data = (fc_data_t*)data;
 
+    if (!fc_data)
+       return 0;
+
     dissect_fc_helper (tvb, pinfo, tree, FALSE, fc_data);
     return tvb_length(tvb);
 }
@@ -1239,6 +1242,9 @@ static int
 dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     fc_data_t* fc_data = (fc_data_t*)data;
+
+    if (!fc_data)
+       return 0;
 
     dissect_fc_helper (tvb, pinfo, tree, TRUE, fc_data);
     return tvb_length(tvb);
