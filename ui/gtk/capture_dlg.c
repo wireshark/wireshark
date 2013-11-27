@@ -247,6 +247,7 @@ static guint num_selected = 0;
 #endif
 
 static gulong capture_all_handler_id;
+static gulong promisc_all_handler_id;
 
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
@@ -4498,7 +4499,9 @@ update_properties_all(void)
   /* If all selected interfaces are in promiscuous mode, check the global
      "promiscuous mode" checkbox, otherwise un-check it. */
   promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
+  g_signal_handler_block(promisc_b, promisc_all_handler_id);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), promisc_all);
+  g_signal_handler_unblock(promisc_b, promisc_all_handler_id);
 
   /* If all selected interfaces have the same filter string, set the
      global filter string to it. */
@@ -4813,7 +4816,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), get_all_prom_mode());
   }
-  g_signal_connect(promisc_cb, "toggled", G_CALLBACK(promisc_mode_callback), NULL);
+  promisc_all_handler_id = g_signal_connect(promisc_cb, "toggled", G_CALLBACK(promisc_mode_callback), NULL);
 
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
