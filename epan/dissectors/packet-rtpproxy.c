@@ -295,7 +295,7 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 	proto_tree *another_tree = NULL;
 	guint offset = 0;
 	guint new_offset = 0;
-	gint i = 0;
+	gint i;
 	guint pt = 0;
 	gchar** codecs = NULL;
 	guint codec_len;
@@ -315,6 +315,7 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 				new_offset = (gint)strspn(rawstr+offset, "0123456789,");
 				another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_codecs);
 				codecs = g_strsplit(tvb_get_string(wmem_packet_scope(), tvb, begin+offset, new_offset), ",", 0);
+				i = 0;
 				while(codecs[i]){
 					/* We assume strings < 2^32-1 bytes long. :-) */
 					codec_len = (guint)strlen(codecs[i]);
