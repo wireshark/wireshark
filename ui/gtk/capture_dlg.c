@@ -4492,7 +4492,7 @@ update_properties_all(void)
      checkbox, otherwise un-check it. */
   capture_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL);
   g_signal_handler_block(capture_b, capture_all_handler_id);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), capture_all ? TRUE : FALSE);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), capture_all);
   g_signal_handler_unblock(capture_b, capture_all_handler_id);
 
   /* If all selected interfaces are in promiscuous mode, check the global
