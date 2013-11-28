@@ -81,11 +81,11 @@ fcstat_packet(void *pfc, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 		return 0;
 	}
 	/* if we havnt seen the request, just ignore it */
-	if( (!fc->itlq) || (fc->itlq->first_exchange_frame==0) ){
+	if ( (!fc->fc_ex) || (fc->fc_ex->first_exchange_frame==0) ){
 		return 0;
 	}
 
-	add_srt_table_data(&fs->fc_srt_table, fc->type, &fc->itlq->fc_time, pinfo);
+	add_srt_table_data(&fs->fc_srt_table, fc->type, &fc->fc_ex->fc_time, pinfo);
 
 	return 1;
 }

@@ -149,6 +149,7 @@ typedef struct _fc_hdr {
     guint8 r_ctl;
     guint8 cs_ctl;
     guint16 lun;
+    fc_exchange_t* fc_ex;
     guint32 relative_offset;
 } fc_hdr;
 

@@ -716,6 +716,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
     fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
+    fchdr.fc_ex = NULL;
 
     /*
      * If the frame contains a VFT (virtual fabric tag), decode it
@@ -1196,6 +1197,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
         wmem_tree_insert32(fc_conv_data->exchanges, exchange_key, fc_ex);
     }
+
+    fchdr.fc_ex = fc_ex;
 
     /* populate the exchange struct */
     if(!pinfo->fd->flags.visited){
