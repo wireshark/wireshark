@@ -52,7 +52,7 @@
 /* From ETSI TS 102 899 */
 #define DVB_AIT_TID             0x74 /* packet-dvb-ait.c */
 
-/* From ESTI EN 301 192 */
+/* From ETSI EN 301 192 */
 #define DVB_DATA_MPE_TID        0x3E /* packet-dvb-data-mpe.c */
 
 /* From OC-SP-ETV-AM 1.0-IO5 */
