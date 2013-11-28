@@ -3439,8 +3439,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     device_product_data = (device_product_data_t *) wmem_tree_lookup32_array_le(device_to_product_table, key);
     if (device_product_data && device_product_data->bus_id == bus_id &&
             device_product_data->device_address == device_address) {
-        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID, GUINT_TO_POINTER(device_product_data->vendor));
-        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID, GUINT_TO_POINTER(device_product_data->product));
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID, GUINT_TO_POINTER((guint)device_product_data->vendor));
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID, GUINT_TO_POINTER((guint)device_product_data->product));
     } else {
         device_product_data = NULL;
     }
