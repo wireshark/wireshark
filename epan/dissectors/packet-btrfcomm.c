@@ -627,7 +627,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         k_interface_id    = l2cap_data->interface_id;
         k_adapter_id      = l2cap_data->adapter_id;
         k_sdp_psm         = SDP_PSM_DEFAULT;
-        k_direction       = (dlci & 0x01) ? P2P_DIR_SENT : P2P_DIR_RECV;
+        k_direction       = (l2cap_data->is_local_psm) ? P2P_DIR_SENT : P2P_DIR_RECV;
         if (k_direction == P2P_DIR_RECV) {
             k_bd_addr_oui     = l2cap_data->remote_bd_addr_oui;
             k_bd_addr_id      = l2cap_data->remote_bd_addr_id;
@@ -780,6 +780,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rfcomm_data->adapter_id         = l2cap_data->adapter_id;
         rfcomm_data->chandle            = l2cap_data->chandle;
         rfcomm_data->cid                = l2cap_data->cid;
+        rfcomm_data->is_local_psm       = l2cap_data->is_local_psm;
         rfcomm_data->dlci               = dlci;
         rfcomm_data->remote_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
         rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;

@@ -619,7 +619,7 @@ dissect_bcs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     pitem = proto_tree_add_uint(tree, hf_bcs_codec, tvb, offset, parameter_length, value);
 
-    if (value > 1) {
+    if (value <  1 ||  value > 2) {
         expert_add_info(pinfo, pitem, &ei_bcs);
     }
 
@@ -642,7 +642,7 @@ dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     pitem = proto_tree_add_uint(tree, hf_bac_codec, tvb, offset, parameter_length, value);
 
-    if (value > 1) {
+    if (value <  1 ||  value > 2)  {
         expert_add_info(pinfo, pitem, &ei_bac);
     }
 
@@ -1207,7 +1207,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         k_interface_id    = rfcomm_data->interface_id;
         k_adapter_id      = rfcomm_data->adapter_id;
         k_sdp_psm         = SDP_PSM_DEFAULT;
-        k_direction       = (rfcomm_data->dlci & 0x01) ? P2P_DIR_SENT : P2P_DIR_RECV;
+        k_direction       = (rfcomm_data->is_local_psm) ? P2P_DIR_SENT : P2P_DIR_RECV;
         if (k_direction == P2P_DIR_RECV) {
             k_bd_addr_oui     = rfcomm_data->remote_bd_addr_oui;
             k_bd_addr_id      = rfcomm_data->remote_bd_addr_id;
@@ -1252,8 +1252,10 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 service_info->bd_addr_id == 0)) &&
                 service_info->type == BTSDP_RFCOMM_PROTOCOL_UUID &&
                 service_info->channel == (rfcomm_data->dlci >> 1)) {
-            if ((service_info->uuid.bt_uuid == BTSDP_HFP_GW_SERVICE_UUID && pinfo->p2p_dir == P2P_DIR_SENT) ||
-                (service_info->uuid.bt_uuid == BTSDP_HFP_SERVICE_UUID && pinfo->p2p_dir == P2P_DIR_RECV)) {
+            if ((service_info->uuid.bt_uuid == BTSDP_HFP_GW_SERVICE_UUID && service_info->direction == P2P_DIR_RECV && pinfo->p2p_dir == P2P_DIR_SENT) ||
+                (service_info->uuid.bt_uuid == BTSDP_HFP_GW_SERVICE_UUID && service_info->direction == P2P_DIR_SENT && pinfo->p2p_dir == P2P_DIR_RECV) ||
+                (service_info->uuid.bt_uuid == BTSDP_HFP_SERVICE_UUID && service_info->direction == P2P_DIR_RECV && pinfo->p2p_dir == P2P_DIR_RECV) ||
+                (service_info->uuid.bt_uuid == BTSDP_HFP_SERVICE_UUID && service_info->direction == P2P_DIR_SENT && pinfo->p2p_dir == P2P_DIR_SENT)) {
                 role = ROLE_HS;
             } else {
                 role = ROLE_AG;

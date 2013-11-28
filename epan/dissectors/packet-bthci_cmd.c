@@ -410,6 +410,8 @@ static gint ett_eir_subtree = -1;
 static gint ett_eir_struct_subtree = -1;
 static gint ett_flow_spec_subtree = -1;
 
+static dissector_handle_t bthci_cmd_handle;
+
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 extern value_string_ext did_vendor_id_source_vals_ext;
@@ -3237,6 +3239,9 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
     }
 
+    SET_ADDRESS(&pinfo->src, AT_STRINGZ, 5, "host");
+    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 11, "controller");
+
     opcode = tvb_get_letohs(tvb, offset);
     ocf = opcode & 0x03ff;
     ogf = (guint8) (opcode >> 10);
@@ -5146,7 +5151,7 @@ proto_register_bthci_cmd(void)
     /* Register the protocol name and description */
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
 
-    new_register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
+    bthci_cmd_handle = new_register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_cmd, hf, array_length(hf));
@@ -5169,8 +5174,6 @@ proto_register_bthci_cmd(void)
 void
 proto_reg_handoff_bthci_cmd(void)
 {
-    dissector_handle_t bthci_cmd_handle;
-    bthci_cmd_handle = find_dissector("bthci_cmd");
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_CMD, bthci_cmd_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_COMMAND, bthci_cmd_handle);
 }

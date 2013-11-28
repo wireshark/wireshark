@@ -44,6 +44,7 @@
 #include "packet-sdp.h"
 
 static dissector_handle_t bthci_cmd_handle;
+static dissector_handle_t bthci_evt_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_evt = -1;
@@ -3662,6 +3663,9 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
     }
 
+    SET_ADDRESS(&pinfo->src, AT_STRINGZ, 11, "controller");
+    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 5, "host");
+
     hci_data = (hci_data_t *) data;
     DISSECTOR_ASSERT(hci_data);
 
@@ -5845,7 +5849,7 @@ proto_register_bthci_evt(void)
     /* Register the protocol name and description */
     proto_bthci_evt = proto_register_protocol("Bluetooth HCI Event",
             "HCI_EVT", "bthci_evt");
-    new_register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
+    bthci_evt_handle = new_register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_evt, hf, array_length(hf));
@@ -5864,9 +5868,6 @@ proto_register_bthci_evt(void)
 void
 proto_reg_handoff_bthci_evt(void)
 {
-    dissector_handle_t bthci_evt_handle;
-
-    bthci_evt_handle = find_dissector("bthci_evt");
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_EVT, bthci_evt_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_EVENT, bthci_evt_handle);
 
