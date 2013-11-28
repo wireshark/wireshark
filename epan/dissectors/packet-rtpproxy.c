@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -89,6 +90,9 @@ static int hf_rtpproxy_mediaid = -1;
 static int hf_rtpproxy_reply = -1;
 static int hf_rtpproxy_version_request = -1;
 static int hf_rtpproxy_version_supported = -1;
+
+/* Expert fields */
+static expert_field ei_rtpproxy_timeout = EI_INIT;
 
 /* Request/response tracking */
 static int hf_rtpproxy_request_in = -1;
@@ -248,9 +252,14 @@ static gint ett_rtpproxy_notify = -1;
 
 static gint ett_rtpproxy_reply = -1;
 
+/* Default values */
 static guint rtpproxy_tcp_port = 22222;
 static guint rtpproxy_udp_port = 22222;
 static gboolean rtpproxy_establish_conversation = TRUE;
+/* See - http://www.opensips.org/html/docs/modules/1.11.x/rtpproxy.html#id250018 */
+/* See - http://www.kamailio.org/docs/modules/devel/modules/rtpproxy.html#idm448 */
+static guint rtpproxy_timeout = 1000;
+static nstime_t rtpproxy_timeout_ns = {1, 0};
 
 void proto_reg_handoff_rtpproxy(void);
 
@@ -415,6 +424,8 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 				nstime_delta(&ns, &pinfo->fd->abs_ts, &rtpproxy_info->req_time);
 				pi = proto_tree_add_time(rtpproxy_tree, hf_rtpproxy_response_time, tvb, 0, 0, &ns);
 				PROTO_ITEM_SET_GENERATED(pi);
+				if (nstime_cmp(&rtpproxy_timeout_ns, &ns) < 0)
+					expert_add_info_format(pinfo, rtpproxy_tree, &ei_rtpproxy_timeout, "Response timeout %'.3f seconds", nstime_to_sec(&ns));
 			}
 		}
 	}
@@ -767,6 +778,7 @@ void
 proto_register_rtpproxy(void)
 {
 	module_t *rtpproxy_module;
+	expert_module_t* expert_rtpproxy_module;
 
 	static hf_register_info hf[] = {
 		{
@@ -1253,6 +1265,10 @@ proto_register_rtpproxy(void)
 		}
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_rtpproxy_timeout, { "rtpproxy.response_timeout", PI_RESPONSE_CODE, PI_WARN, "TIMEOUT", EXPFILL }},
+	};
+
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_rtpproxy,
@@ -1282,7 +1298,11 @@ proto_register_rtpproxy(void)
 	proto_register_field_array(proto_rtpproxy, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	expert_rtpproxy_module = expert_register_protocol(proto_rtpproxy);
+	expert_register_field_array(expert_rtpproxy_module, ei, array_length(ei));
+
 	rtpproxy_module = prefs_register_protocol(proto_rtpproxy, proto_reg_handoff_rtpproxy);
+
 	prefs_register_uint_preference(rtpproxy_module, "tcp.port",
 								 "RTPproxy TCP Port", /* Title */
 								 "RTPproxy TCP Port", /* Descr */
@@ -1294,11 +1314,18 @@ proto_register_rtpproxy(void)
 								 "RTPproxy UDP Port", /* Descr */
 								 10,
 								 &rtpproxy_udp_port);
+
 	prefs_register_bool_preference(rtpproxy_module, "establish_conversation",
                                  "Establish Media Conversation",
                                  "Specifies that RTP/RTCP/T.38/MSRP/etc streams are decoded based "
                                  "upon port numbers found in RTPproxy answers",
                                  &rtpproxy_establish_conversation);
+
+	prefs_register_uint_preference(rtpproxy_module, "reply.timeout",
+								 "RTPproxy reply timeout", /* Title */
+								 "Maximum timeout value in waiting for reply from RTPProxy (in milliseconds).", /* Descr */
+								 10,
+								 &rtpproxy_timeout);
 }
 
 void
@@ -1334,6 +1361,10 @@ proto_reg_handoff_rtpproxy(void)
 	rtcp_handle   = find_dissector("rtcp");
 	rtp_events_handle    = find_dissector("rtpevent");
 	rtp_handle    = find_dissector("rtp");
+
+	/* Calculate nstime_t struct for the timeout from the rtpproxy_timeout value in milliseconds */
+	rtpproxy_timeout_ns.secs = (rtpproxy_timeout - rtpproxy_timeout % 1000) / 1000;
+	rtpproxy_timeout_ns.nsecs = (rtpproxy_timeout % 1000) * 1000;
 }
 
 /*
