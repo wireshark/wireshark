@@ -131,6 +131,11 @@ WS_DLL_PUBLIC const value_string fc_fc4_val[];
 #define FC_FCTL_REL_OFFSET		0x000008
 
 
+typedef struct _fc_exchange_t {
+    guint32 first_exchange_frame;
+    guint32 last_exchange_frame;
+    nstime_t fc_time;
+} fc_exchange_t;
 
 /* FC header structure */
 typedef struct _fc_hdr {
@@ -143,7 +148,7 @@ typedef struct _fc_hdr {
     guint16 rxid;
     guint8 r_ctl;
     guint8 cs_ctl;
-    itlq_nexus_t *itlq;
+    guint16 lun;
     guint32 relative_offset;
 } fc_hdr;
 

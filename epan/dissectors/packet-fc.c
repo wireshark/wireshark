@@ -150,8 +150,8 @@ static int fc_tap = -1;
 
 typedef struct _fc_conv_data_t {
     wmem_tree_t *exchanges;
+    wmem_tree_t *luns;
 } fc_conv_data_t;
-
 
 /* Reassembly stuff */
 static gboolean fc_reassemble = TRUE;
@@ -689,33 +689,28 @@ static void
 dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp, fc_data_t* fc_data)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti=NULL, *hidden_item;
-    proto_tree *fc_tree = NULL;
+    proto_item *ti, *hidden_item;
+    proto_tree *fc_tree;
     tvbuff_t *next_tvb;
     int offset = 0, next_offset;
     int vft_offset = -1;
-    gboolean is_lastframe_inseq, is_1frame_inseq/*, is_valid_frame*/;
-    gboolean is_exchg_resp = 0;
+    gboolean is_lastframe_inseq, is_1frame_inseq, is_exchg_resp = 0;
     fragment_head *fcfrag_head;
-    guint32 frag_id;
-    guint32 frag_size;
+    guint32 frag_id, frag_size;
     guint8 df_ctl, seq_id;
     guint32 f_ctl;
 
-    guint32 param;
+    guint32 param, exchange_key;
     guint16 real_seqcnt;
     guint8 ftype;
-    /*gboolean is_ack;*/
 
-    static fc_hdr fchdr;
-    itlq_nexus_t *fc_ex=NULL;
+    fc_hdr fchdr;
+    fc_exchange_t *fc_ex;
     fc_conv_data_t *fc_conv_data=NULL;
 
     conversation_t *conversation;
     fcseq_conv_data_t *cdata;
     fcseq_conv_key_t ckey, *req_key;
-
-    fchdr.itlq=NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
@@ -771,68 +766,21 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if(!fc_conv_data){
         fc_conv_data=wmem_new(wmem_file_scope(), fc_conv_data_t);
         fc_conv_data->exchanges=wmem_tree_new(wmem_file_scope());
+        fc_conv_data->luns=wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(conversation, proto_fc, fc_conv_data);
     }
 
-    /* set up the exchange data */
-    /* XXX we should come up with a way to handle when the 16bit oxid wraps
-     * so that large traces will work
-     */
-    fc_ex=(itlq_nexus_t *)wmem_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
-    if(!fc_ex){
-        fc_ex=wmem_new(wmem_file_scope(), itlq_nexus_t);
-        fc_ex->first_exchange_frame=0;
-        fc_ex->last_exchange_frame=0;
-        fc_ex->lun=0xffff;
-        fc_ex->scsi_opcode=0xffff;
-        fc_ex->task_flags=0;
-        fc_ex->data_length=0;
-        fc_ex->bidir_data_length=0;
-        fc_ex->fc_time=pinfo->fd->abs_ts;
-        fc_ex->flags=0;
-        fc_ex->alloc_len=0;
-        fc_ex->extra_data=NULL;
-        wmem_tree_insert32(fc_conv_data->exchanges, fchdr.oxid, fc_ex);
+    /* Set up LUN data. OXID + LUN make up unique exchanges, but LUN is populated in subdissectors
+       and not necessarily in every frame. Stub it here for now */
+    fchdr.lun = 0xFFFF;
+    if (!pinfo->fd->flags.visited) {
+        fchdr.lun = (guint16)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr.oxid));
     }
-    /* populate the exchange struct */
-    if(!pinfo->fd->flags.visited){
-        if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
-            fc_ex->first_exchange_frame=pinfo->fd->num;
-            fc_ex->fc_time = pinfo->fd->abs_ts;
-        }
-        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
-            fc_ex->last_exchange_frame=pinfo->fd->num;
-        }
-    }
-
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
-    if (tree) {
-        ti = proto_tree_add_protocol_format (tree, proto_fc, tvb, offset,
-                                             FC_HEADER_SIZE, "Fibre Channel");
-        fc_tree = proto_item_add_subtree (ti, ett_fc);
-    }
-
-    /* put some nice exchange data in the tree */
-    if(!(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST)){
-        proto_item *it;
-        it=proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
-        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
-            nstime_t delta_ts;
-            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fc_ex->fc_time);
-            it=proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
-            PROTO_ITEM_SET_GENERATED(it);
-        }
-    }
-    if(!(fchdr.fctl&FC_FCTL_EXCHANGE_LAST)){
-        proto_item *it;
-        it=proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
-    }
-
-    fchdr.itlq=fc_ex;
+    ti = proto_tree_add_protocol_format (tree, proto_fc, tvb, offset, FC_HEADER_SIZE, "Fibre Channel");
+    fc_tree = proto_item_add_subtree (ti, ett_fc);
 
     /*is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));*/
 
@@ -1223,6 +1171,61 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             col_set_str(pinfo->cinfo, COL_INFO, "ABTS");
         }
     }
+
+    /* Lun is only populated by subdissectors, and subsequent packets assume the same lun.
+       The only way that consistently works is to save the lun on the first pass (with OXID as
+       key) when packets are guaranteed to be parsed consecutively */
+
+    /* Set up LUN data */
+    if (!pinfo->fd->flags.visited) {
+        wmem_tree_insert32(fc_conv_data->luns, fchdr.oxid, GUINT_TO_POINTER((guint)fchdr.lun));
+    }
+
+    exchange_key = ((fchdr.oxid & 0xFFFF) | ((fchdr.lun << 16) & 0xFFFF0000));
+
+    /* set up the exchange data */
+    /* XXX we should come up with a way to handle when the 16bit oxid wraps
+     * so that large traces will work
+     */
+    fc_ex=(fc_exchange_t*)wmem_tree_lookup32(fc_conv_data->exchanges, exchange_key);
+    if(!fc_ex){
+        fc_ex=wmem_new(wmem_file_scope(), fc_exchange_t);
+        fc_ex->first_exchange_frame=0;
+        fc_ex->last_exchange_frame=0;
+        fc_ex->fc_time=pinfo->fd->abs_ts;
+
+        wmem_tree_insert32(fc_conv_data->exchanges, exchange_key, fc_ex);
+    }
+
+    /* populate the exchange struct */
+    if(!pinfo->fd->flags.visited){
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
+            fc_ex->first_exchange_frame=pinfo->fd->num;
+            fc_ex->fc_time = pinfo->fd->abs_ts;
+        }
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
+            fc_ex->last_exchange_frame=pinfo->fd->num;
+        }
+    }
+
+    /* put some nice exchange data in the tree */
+    if(!(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST)){
+        proto_item *it;
+        it=proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
+            nstime_t delta_ts;
+            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fc_ex->fc_time);
+            it=proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+    if(!(fchdr.fctl&FC_FCTL_EXCHANGE_LAST)){
+        proto_item *it;
+        it=proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
     tap_queue_packet(fc_tap, pinfo, &fchdr);
 }
 
