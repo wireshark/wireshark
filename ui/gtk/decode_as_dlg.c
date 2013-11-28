@@ -970,7 +970,7 @@ decode_transport(GtkWidget *notebook_pg)
     gchar *table_name;
     gint requested_srcdst, requested_port, ppid;
     gpointer portp;
-    gpointer ptr;
+    gpointer ptr = GUINT_TO_POINTER(LAST_PPID);
 #ifdef DEBUG
     gchar *string;
 #endif
@@ -980,8 +980,7 @@ decode_transport(GtkWidget *notebook_pg)
         gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
     combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_COMBO_BOX_SRCDST);
-    if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(combo_box), &ptr))
-        g_assert_not_reached();  /* Programming error if no active item in combo_box */
+    ws_combo_box_get_active_pointer(GTK_COMBO_BOX(combo_box), &ptr);
     requested_srcdst = GPOINTER_TO_INT(ptr);
 
 #ifdef DEBUG
