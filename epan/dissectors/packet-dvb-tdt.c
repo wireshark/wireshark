@@ -38,8 +38,6 @@ static int hf_dvb_tdt_utc_time = -1;
 
 static gint ett_dvb_tdt = -1;
 
-#define DVB_TDT_TID 0x70
-
 static void
 dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

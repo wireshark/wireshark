@@ -49,9 +49,6 @@ static gint ett_dvb_data_mpe = -1;
 static dissector_handle_t ip_handle;
 static dissector_handle_t llc_handle;
 
-#define DVB_DATA_MPE_TID    0x3E
-
-
 #define DVB_DATA_MPE_RESERVED_MASK                0xC0
 #define DVB_DATA_MPE_PAYLOAD_SCRAMBLING_MASK      0x30
 #define DVB_DATA_MPE_ADDRESS_SCRAMBLING_MASK      0x0C

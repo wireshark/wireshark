@@ -42,8 +42,6 @@ static int hf_dvb_tot_descriptors_loop_length = -1;
 
 static gint ett_dvb_tot = -1;
 
-#define DVB_TOT_TID                             0x73
-
 #define DVB_TOT_RESERVED_MASK                   0xF000
 #define DVB_TOT_DESCRIPTORS_LOOP_LENGTH_MASK    0x0FFF
 

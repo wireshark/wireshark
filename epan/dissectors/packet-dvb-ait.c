@@ -79,8 +79,6 @@ static int hf_dvb_ait_org_id = -1;
 static int hf_dvb_ait_app_id = -1;
 static int hf_dvb_ait_app_ctrl_code = -1;
 
-#define DVB_AIT_TID 0x74
-
 static const value_string app_ctrl_code[] = {
     { 0x01,  "Autostart" },
     { 0x02,  "Present" },

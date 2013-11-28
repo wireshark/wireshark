@@ -99,8 +99,6 @@ static expert_field ei_eiss_section_number = EI_INIT;
 static expert_field ei_eiss_application_type = EI_INIT;
 static expert_field ei_eiss_invalid_reserved_bits = EI_INIT;
 
-#define EISS_SECTION_TID		0xe0
-
 #define MPEG_SECT_SYNTAX_INDICATOR_MASK	0x8000
 #define MPEG_SECT_RESERVED_MASK		0x7000
 #define MPEG_SECT_LENGTH_MASK		0x0FFF

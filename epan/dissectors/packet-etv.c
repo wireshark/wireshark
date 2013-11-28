@@ -59,9 +59,6 @@ static expert_field ei_etv_ddb_filter_info = EI_INIT;
 static gint ett_etv = -1;
 static gint ett_etv_payload = -1;
 
-#define ETV_TID_DII_SECTION		0xe3
-#define ETV_TID_DDB_SECTION		0xe4
-
 static void
 dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto,
 	int hf_filter_info, int hf_reserved,

@@ -47,8 +47,6 @@ static int hf_mpeg_pat_program_map_pid = -1;
 static gint ett_mpeg_pat = -1;
 static gint ett_mpeg_pat_prog = -1;
 
-#define MPEG_PAT_TID    0x00
-
 #define MPEG_PAT_RESERVED_MASK                    0xC0
 #define MPEG_PAT_VERSION_NUMBER_MASK              0x3E
 #define MPEG_PAT_CURRENT_NEXT_INDICATOR_MASK      0x01

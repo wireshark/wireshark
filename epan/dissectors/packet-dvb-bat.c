@@ -58,8 +58,6 @@ static gint ett_dvb_bat = -1;
 static gint ett_dvb_bat_transport_stream = -1;
 
 
-#define DVB_BAT_TID                                 0x4A
-
 #define DVB_BAT_RESERVED1_MASK                      0xC0
 #define DVB_BAT_VERSION_NUMBER_MASK                 0x3E
 #define DVB_BAT_CURRENT_NEXT_INDICATOR_MASK         0x01

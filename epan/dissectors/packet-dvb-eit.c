@@ -59,9 +59,6 @@ static gint ett_dvb_eit = -1;
 static gint ett_dvb_eit_event = -1;
 
 
-#define DVB_EIT_TID_MIN                           0x4E
-#define DVB_EIT_TID_MAX                           0x6F
-
 #define DVB_EIT_RESERVED_MASK                     0xC0
 #define DVB_EIT_VERSION_NUMBER_MASK               0x3E
 #define DVB_EIT_CURRENT_NEXT_INDICATOR_MASK       0x01

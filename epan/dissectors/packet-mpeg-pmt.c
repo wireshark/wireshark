@@ -54,8 +54,6 @@ static int hf_mpeg_pmt_stream_es_info_length = -1;
 static gint ett_mpeg_pmt = -1;
 static gint ett_mpeg_pmt_stream = -1;
 
-#define MPEG_PMT_TID                              0x02
-
 #define MPEG_PMT_RESERVED1_MASK                   0xC0
 #define MPEG_PMT_VERSION_NUMBER_MASK              0x3E
 #define MPEG_PMT_CURRENT_NEXT_INDICATOR_MASK      0x01

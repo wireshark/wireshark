@@ -57,9 +57,6 @@ static gint ett_dvb_nit = -1;
 static gint ett_dvb_nit_ts = -1;
 
 
-#define DVB_NIT_TID             0x40
-#define DVB_NIT_TID_OTHER       0x41
-
 #define DVB_NIT_RESERVED1_MASK                            0xC0
 #define DVB_NIT_VERSION_NUMBER_MASK                       0x3E
 #define DVB_NIT_CURRENT_NEXT_INDICATOR_MASK               0x01

@@ -182,12 +182,6 @@ static gint ett_dsmcc_dii_module = -1;
 static expert_field ei_dsmcc_invalid_value = EI_INIT;
 static expert_field ei_dsmcc_crc_invalid = EI_INIT;
 
-#define DSMCC_TID_LLCSNAP         0x3a
-#define DSMCC_TID_UN_MSG          0x3b
-#define DSMCC_TID_DD_MSG          0x3c
-#define DSMCC_TID_DESC_LIST       0x3d
-#define DSMCC_TID_PRIVATE         0x3e
-
 #define DSMCC_TCP_PORT            13819
 
 /* DSM-CC protocol discriminator, (table 2-1) */

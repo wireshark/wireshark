@@ -41,8 +41,6 @@ static int hf_mpeg_ca_last_section_number = -1;
 
 static gint ett_mpeg_ca = -1;
 
-#define MPEG_CA_TID                                 0x01
-
 #define MPEG_CA_RESERVED_MASK                   0xFFFFC0
 #define MPEG_CA_VERSION_NUMBER_MASK             0x00003E
 #define MPEG_CA_CURRENT_NEXT_INDICATOR_MASK     0x000001

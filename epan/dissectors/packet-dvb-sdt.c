@@ -57,9 +57,6 @@ static int hf_dvb_sdt_descriptors_loop_length = -1;
 static gint ett_dvb_sdt = -1;
 static gint ett_dvb_sdt_service = -1;
 
-#define DVB_SDT_TID_ACTUAL                      0x42
-#define DVB_SDT_TID_OTHER                       0x46
-
 #define DVB_SDT_RESERVED1_MASK                  0xC0
 #define DVB_SDT_VERSION_NUMBER_MASK             0x3E
 #define DVB_SDT_CURRENT_NEXT_INDICATOR_MASK     0x01
