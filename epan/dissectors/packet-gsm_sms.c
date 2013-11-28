@@ -2582,12 +2582,13 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
 void
 dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
-              guint8 *udl, gboolean uncomp_7bits, guint8 *fill_bits)
+              guint8 *udl, enum character_set cset, guint8 *fill_bits)
 {
     guint8      oct;
     proto_item *udh_item;
     proto_tree *udh_subtree;
-    static const guint8 fill_bits_mask[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
+    static const guint8 fill_bits_mask_gsm[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
+    static const guint8 fill_bits_mask_ascii[7] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc };
 
     /* step over header */
 
@@ -2613,7 +2614,7 @@ dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
     *offset += oct;
     *length -= oct;
 
-    if (uncomp_7bits)
+    if (cset != OTHER)
     {
         /* step over fill bits ? */
 
@@ -2623,7 +2624,14 @@ dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
         {
             oct = tvb_get_guint8(tvb, *offset);
 
-            other_decode_bitfield_value(bigbuf, oct, fill_bits_mask[*fill_bits], 8);
+            if (cset == GSM_7BITS)
+            {
+                other_decode_bitfield_value(bigbuf, oct, fill_bits_mask_gsm[*fill_bits], 8);
+            }
+            else
+            {
+                other_decode_bitfield_value(bigbuf, oct, fill_bits_mask_ascii[*fill_bits], 8);
+            }
             proto_tree_add_text(udh_subtree,
                                 tvb, *offset, 1,
                                 "%s :  Fill bits",
@@ -2675,7 +2683,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     if (udhi)
     {
-        dis_field_udh(tvb, subtree, &offset, &length, &udl, (seven_bit && !compressed), &fill_bits);
+        dis_field_udh(tvb, subtree, &offset, &length, &udl, (seven_bit && !compressed) ? GSM_7BITS : OTHER, &fill_bits);
     }
 
     if (g_frags > 1)
