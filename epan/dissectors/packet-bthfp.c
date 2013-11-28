@@ -121,6 +121,8 @@ static gint ett_bthfp_command = -1;
 static gint ett_bthfp_brsf_hf = -1;
 static gint ett_bthfp_brsf_ag = -1;
 
+static dissector_handle_t bthfp_handle;
+
 static wmem_tree_t *fragments = NULL;
 static wmem_tree_t *sdp_service_infos = NULL;
 
@@ -2021,7 +2023,7 @@ proto_register_bthfp(void)
     fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_bthfp = proto_register_protocol("Bluetooth HFP Profile", "BT HFP", "bthfp");
-    new_register_dissector("bthfp", dissect_bthfp, proto_bthfp);
+    bthfp_handle = new_register_dissector("bthfp", dissect_bthfp, proto_bthfp);
 
     proto_register_field_array(proto_bthfp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2043,10 +2045,6 @@ proto_register_bthfp(void)
 void
 proto_reg_handoff_bthfp(void)
 {
-    dissector_handle_t bthfp_handle;
-
-    bthfp_handle = find_dissector("bthfp");
-
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthfp_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthfp_handle);
     dissector_add_handle("btrfcomm.channel", bthfp_handle);
