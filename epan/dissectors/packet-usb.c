@@ -40,6 +40,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
 
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
@@ -1047,6 +1048,91 @@ static const value_string usb_hid_boot_protocol_vals[] = {
 
 void proto_register_usb(void);
 void proto_reg_handoff_usb(void);
+
+/* This keys provide information for DecodeBy and other dissector via
+   per packet data: p_get_proto_data()/p_add_proto_data() */
+#define USB_BUS_ID           0
+#define USB_DEVICE_ADDRESS   1
+#define USB_VENDOR_ID        2
+#define USB_PRODUCT_ID       3
+#define USB_DEVICE_CLASS     4
+#define USB_DEVICE_SUBCLASS  5
+#define USB_DEVICE_PROTOCOL  6
+
+static void
+usb_device_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Bus ID %u \nDevice Address %u\nas ",
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID)),
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_ADDRESS)));
+}
+
+static gpointer
+usb_device_value(packet_info *pinfo)
+{
+    guint32 value = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID)) << 8;
+    value |= GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_ADDRESS));
+    return GUINT_TO_POINTER(value);
+}
+
+static void
+usb_product_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor ID 0x%04x \nProduct ID 0x%04x\nas ",
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID)),
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID)));
+}
+
+static gpointer
+usb_product_value(packet_info *pinfo)
+{
+    guint32 value = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID)) << 16;
+    value |= GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID));
+    return GUINT_TO_POINTER(value);
+}
+
+static void
+usb_protocol_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Class ID 0x%04x \nSubclass ID 0x%04x\nProtocol 0x%04x\nas ",
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_CLASS)),
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_SUBCLASS)),
+            GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_PROTOCOL)));
+}
+
+static gpointer
+usb_protocol_value(packet_info *pinfo)
+{
+    guint32 value = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_CLASS)) << 16;
+    value |= GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_SUBCLASS)) << 8;
+    value |= GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_PROTOCOL));
+    return GUINT_TO_POINTER(value);
+}
+
+static build_valid_func   usb_product_da_build_value[1] = {usb_product_value};
+static decode_as_value_t  usb_product_da_values         = {usb_product_prompt, 1, usb_product_da_build_value};
+static decode_as_t        usb_product_da = {
+        "usb", "USB Product", "usb.product",
+        1, 0, &usb_product_da_values, NULL, NULL,
+        decode_as_default_populate_list, decode_as_default_reset,
+        decode_as_default_change, NULL};
+
+static build_valid_func   usb_device_da_build_value[1] = {usb_device_value};
+static decode_as_value_t  usb_device_da_values         = {usb_device_prompt, 1, usb_device_da_build_value};
+static decode_as_t        usb_device_da = {
+        "usb", "USB Device", "usb.device",
+        1, 0, &usb_device_da_values, NULL, NULL,
+        decode_as_default_populate_list, decode_as_default_reset,
+        decode_as_default_change, NULL};
+
+static build_valid_func   usb_protocol_da_build_value[1] = {usb_protocol_value};
+static decode_as_value_t  usb_protocol_da_values         = {usb_protocol_prompt, 1, usb_protocol_da_build_value};
+static decode_as_t        usb_protocol_da = {
+        "usb", "USB Device Protocol", "usb.protocol",
+        1, 0, &usb_protocol_da_values, NULL, NULL,
+        decode_as_default_populate_list, decode_as_default_reset,
+        decode_as_default_change, NULL};
+
 
 static usb_conv_info_t *
 get_usb_conv_info(conversation_t *conversation)
@@ -2633,6 +2719,12 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint                bus_id = 0;
     guint                device_address = 0;
     tvbuff_t             *next_tvb = NULL;
+    device_product_data_t   *device_product_data = NULL;
+    device_protocol_data_t  *device_protocol_data = NULL;
+    wmem_tree_key_t          key[4];
+    guint32                  k_frame_number;
+    guint32                  k_device_address;
+    guint32                  k_bus_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
 
@@ -2793,6 +2885,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (type != URB_CONTROL) {
         tap_queue_packet(usb_tap, pinfo, tap_data);
     }
+
+
 
     switch(type) {
     case URB_BULK:
@@ -3329,14 +3423,43 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
+    k_frame_number = pinfo->fd->num;
+    k_device_address = device_address;
+    k_bus_id = bus_id;
+
+    key[0].length = 1;
+    key[0].key    = &k_device_address;
+    key[1].length = 1;
+    key[1].key    = &k_bus_id;
+    key[2].length = 1;
+    key[2].key    = &k_frame_number;
+    key[3].length = 0;
+    key[3].key    = NULL;
+
+    device_product_data = (device_product_data_t *) wmem_tree_lookup32_array_le(device_to_product_table, key);
+    if (device_product_data && device_product_data->bus_id == bus_id &&
+            device_product_data->device_address == device_address) {
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID, GUINT_TO_POINTER(device_product_data->vendor));
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID, GUINT_TO_POINTER(device_product_data->product));
+    } else {
+        device_product_data = NULL;
+    }
+
+    device_protocol_data = (device_protocol_data_t *) wmem_tree_lookup32_array_le(device_to_protocol_table, key);
+    if (device_protocol_data && device_protocol_data->bus_id == bus_id &&
+            device_protocol_data->device_address == device_address) {
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_CLASS, GUINT_TO_POINTER(device_protocol_data->protocol >> 16));
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_SUBCLASS, GUINT_TO_POINTER((device_protocol_data->protocol >> 8) & 0xFF));
+        p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_PROTOCOL, GUINT_TO_POINTER(device_protocol_data->protocol & 0xFF));
+    } else {
+        device_protocol_data = NULL;
+    }
+
+    p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID, GUINT_TO_POINTER(bus_id));
+    p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_ADDRESS, GUINT_TO_POINTER(device_address));
+
     /* try dissect by "usb.product" */
     if (!dissector_try_uint_new(device_to_dissector, (guint32) (bus_id << 8 | device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
-        wmem_tree_key_t         key[4];
-        guint32                 k_frame_number;
-        guint32                 k_device_address;
-        guint32                 k_bus_id;
-        device_protocol_data_t  *device_protocol_data;
-
         k_frame_number = pinfo->fd->num;
         k_device_address = device_address;
         k_bus_id = bus_id;
@@ -3351,16 +3474,16 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         key[3].key    = NULL;
 
         /* try dissect by "usb.protocol" */
-        device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
+        if (!device_protocol_data)
+            device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
         if (device_protocol_data && device_protocol_data->bus_id == bus_id &&
                 device_protocol_data->device_address == device_address &&
                 dissector_try_uint_new(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
             offset += tvb_length(next_tvb);
         } else { /* try dissect by "usb.device" */
-            device_product_data_t   *device_product_data;
-
-            device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
-            if (device_product_data && device_product_data->bus_id == bus_id &&
+            if (!device_product_data)
+                device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
+            if (device_product_data && device_product_data && device_product_data->bus_id == bus_id &&
                     device_product_data->device_address == device_address &&
                     dissector_try_uint_new(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product),
                                            next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
@@ -4039,6 +4162,10 @@ proto_register_usb(void)
          "\"usb.control\" dissector tables.", &try_heuristics);
 
     usb_tap = register_tap("usb");
+
+    register_decode_as(&usb_protocol_da);
+    register_decode_as(&usb_product_da);
+    register_decode_as(&usb_device_da);
 }
 
 void
