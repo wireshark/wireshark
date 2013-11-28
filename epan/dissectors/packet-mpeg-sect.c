@@ -99,7 +99,7 @@ enum {
     TID_TIM = 0xB0
 };
 
-/* From ESTI EN 301 192 */
+/* From ETSI EN 301 192 */
 enum {
     TID_DVB_MPE = 0x3E
 };

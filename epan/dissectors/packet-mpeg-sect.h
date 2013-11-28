@@ -32,11 +32,11 @@
 #define MPEG_PMT_TID            0x02 /* packet-mpeg-pmt.c */
 
 /* From ISO/IEC 13818-6 */
-#define DSMCC_TID_LLCSNAP       0x3a /* packet-dsmcc.c */
-#define DSMCC_TID_UN_MSG        0x3b /* packet-dsmcc.c */
-#define DSMCC_TID_DD_MSG        0x3c /* packet-dsmcc.c */
-#define DSMCC_TID_DESC_LIST     0x3d /* packet-dsmcc.c */
-#define DSMCC_TID_PRIVATE       0x3e /* packet-dsmcc.c */
+#define DSMCC_TID_LLCSNAP       0x3A /* packet-mpeg-dsmcc.c */
+#define DSMCC_TID_UN_MSG        0x3B /* packet-mpeg-dsmcc.c */
+#define DSMCC_TID_DD_MSG        0x3C /* packet-mpeg-dsmcc.c */
+#define DSMCC_TID_DESC_LIST     0x3D /* packet-mpeg-dsmcc.c */
+#define DSMCC_TID_PRIVATE       0x3E /* packet-mpeg-dsmcc.c */
 
 /* From ETSI EN 300 468 */
 #define DVB_NIT_TID             0x40 /* packet-dvb-nit.c */
@@ -56,9 +56,9 @@
 #define DVB_DATA_MPE_TID        0x3E /* packet-dvb-data-mpe.c */
 
 /* From OC-SP-ETV-AM 1.0-IO5 */
-#define EISS_SECTION_TID        0xe0 /* packet-eiss.c */
-#define ETV_TID_DII_SECTION     0xe3 /* packet-etv.c */
-#define ETV_TID_DDB_SECTION     0xe4 /* packet-etv.c */
+#define EISS_SECTION_TID        0xE0 /* packet-eiss.c */
+#define ETV_TID_DII_SECTION     0xE3 /* packet-etv.c */
+#define ETV_TID_DDB_SECTION     0xE4 /* packet-etv.c */
 
 #define PACKET_MPEG_SECT_PI__TABLE_ID	0
 #define PACKET_MPEG_SECT_PI__SSI	1
