@@ -4290,9 +4290,9 @@ int SetUnion(char *s1, char *s2)
 ** Code for processing tables in the LEMON parser generator.
 */
 
-PRIVATE int strhash(const char *x)
+PRIVATE unsigned int strhash(const char *x)
 {
-  int h = 0;
+  unsigned int h = 0;
   while( *x) h = h*13 + *(x++);
   return h;
 }
