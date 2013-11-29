@@ -691,10 +691,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   tap_queue_packet(udp_tap, pinfo, udph);
 
   /* find(or create if needed) the conversation for this udp session */
-  if (udp_process_info) {
-    conv=find_or_create_conversation(pinfo);
-    udpd=get_udp_conversation_data(conv,pinfo);
-  }
+  conv=find_or_create_conversation(pinfo);
+  udpd=get_udp_conversation_data(conv,pinfo);
+
 
   if (udpd) {
     item = proto_tree_add_uint(udp_tree, &hfi_udp_stream, tvb, offset, 0, udpd->stream);
