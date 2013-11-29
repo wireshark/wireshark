@@ -709,11 +709,11 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Calculate milliseconds since capture start. */
     delta_msec = phdr->ts.nsecs / 1000000;
     delta_msec += ( (guint32) phdr->ts.secs - visual->start_time) * 1000;
-    vpkt_hdr.ts_delta = htolel(delta_msec);
+    vpkt_hdr.ts_delta = GUINT32_TO_LE(delta_msec);
 
     /* Fill in the length fields. */
-    vpkt_hdr.orig_len = htoles(phdr->len);
-    vpkt_hdr.incl_len = htoles(phdr->caplen);
+    vpkt_hdr.orig_len = GUINT16_TO_LE(phdr->len);
+    vpkt_hdr.incl_len = GUINT16_TO_LE(phdr->caplen);
 
     /* Fill in the encapsulation hint for the file's media type. */
     switch (wdh->encap)
@@ -757,7 +757,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             ((pseudo_header->x25.flags & FROM_DCE) ? 0x00 : PS_SENT);
         break;
     }
-    vpkt_hdr.status = htolel(packet_status);
+    vpkt_hdr.status = GUINT32_TO_LE(packet_status);
 
     /* Write the packet header. */
     if (!wtap_dump_file_write(wdh, &vpkt_hdr, hdr_size, err))
@@ -775,7 +775,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         visual->index_table = (guint32 *)g_realloc(visual->index_table,
             visual->index_table_size * sizeof *visual->index_table);
     }
-    visual->index_table[visual->index_table_index] = htolel(visual->next_offset);
+    visual->index_table[visual->index_table_index] = GUINT32_TO_LE(visual->next_offset);
 
     /* Update the table index and offset for the next frame. */
     visual->index_table_index++;
@@ -825,36 +825,36 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 
     /* Initialize the file header with zeroes for the reserved fields. */
     memset(&vfile_hdr, '\0', sizeof vfile_hdr);
-    vfile_hdr.num_pkts = htolel(visual->index_table_index);
-    vfile_hdr.start_time = htolel(visual->start_time);
-    vfile_hdr.max_length = htoles(65535);
-    vfile_hdr.file_flags = htoles(1);  /* indexes are present */
-    vfile_hdr.file_version = htoles(1);
+    vfile_hdr.num_pkts = GUINT32_TO_LE(visual->index_table_index);
+    vfile_hdr.start_time = GUINT32_TO_LE(visual->start_time);
+    vfile_hdr.max_length = GUINT16_TO_LE(65535);
+    vfile_hdr.file_flags = GUINT16_TO_LE(1);  /* indexes are present */
+    vfile_hdr.file_version = GUINT16_TO_LE(1);
     g_strlcpy(vfile_hdr.description, "Wireshark file", 64);
 
     /* Translate the encapsulation type */
     switch (wdh->encap)
     {
     case WTAP_ENCAP_ETHERNET:
-        vfile_hdr.media_type = htoles(6);
+        vfile_hdr.media_type = GUINT16_TO_LE(6);
         break;
 
     case WTAP_ENCAP_TOKEN_RING:
-        vfile_hdr.media_type = htoles(9);
+        vfile_hdr.media_type = GUINT16_TO_LE(9);
         break;
 
     case WTAP_ENCAP_LAPB:
-        vfile_hdr.media_type = htoles(16);
+        vfile_hdr.media_type = GUINT16_TO_LE(16);
         break;
 
     case WTAP_ENCAP_PPP:        /* PPP is differentiated from CHDLC in PktHdr */
     case WTAP_ENCAP_PPP_WITH_PHDR:
     case WTAP_ENCAP_CHDLC_WITH_PHDR:
-        vfile_hdr.media_type = htoles(22);
+        vfile_hdr.media_type = GUINT16_TO_LE(22);
         break;
 
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
-        vfile_hdr.media_type = htoles(32);
+        vfile_hdr.media_type = GUINT16_TO_LE(32);
         break;
     }
 

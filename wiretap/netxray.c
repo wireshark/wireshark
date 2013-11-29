@@ -1540,11 +1540,11 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 	timestamp = ((guint64)phdr->ts.secs - (guint64)netxray->start.secs)*1000000
 		+ ((guint64)phdr->ts.nsecs)/1000;
 	t32 = (guint32)(timestamp%G_GINT64_CONSTANT(4294967296));
-	rec_hdr.timelo = htolel(t32);
+	rec_hdr.timelo = GUINT32_TO_LE(t32);
 	t32 = (guint32)(timestamp/G_GINT64_CONSTANT(4294967296));
-	rec_hdr.timehi = htolel(t32);
-	rec_hdr.orig_len = htoles(phdr->len);
-	rec_hdr.incl_len = htoles(phdr->caplen);
+	rec_hdr.timehi = GUINT32_TO_LE(t32);
+	rec_hdr.orig_len = GUINT16_TO_LE(phdr->len);
+	rec_hdr.incl_len = GUINT16_TO_LE(phdr->caplen);
 
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof(rec_hdr), err))
 		return FALSE;
@@ -1583,14 +1583,14 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 	/* "sniffer" version ? */
 	memset(&file_hdr, '\0', sizeof file_hdr);
 	memcpy(file_hdr.version, vers_1_1, sizeof vers_1_1);
-	file_hdr.start_time = htolel(netxray->start.secs);
-	file_hdr.nframes = htolel(netxray->nframes);
-	file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
+	file_hdr.start_time = GUINT32_TO_LE(netxray->start.secs);
+	file_hdr.nframes = GUINT32_TO_LE(netxray->nframes);
+	file_hdr.start_offset = GUINT32_TO_LE(CAPTUREFILE_HEADER_SIZE);
 	/* XXX - large files? */
-	file_hdr.end_offset = htolel((guint32)filelen);
+	file_hdr.end_offset = GUINT32_TO_LE((guint32)filelen);
 	file_hdr.network = wtap_encap_to_netxray_1_1_encap(wdh->encap);
-	file_hdr.timelo = htolel(0);
-	file_hdr.timehi = htolel(0);
+	file_hdr.timelo = GUINT32_TO_LE(0);
+	file_hdr.timehi = GUINT32_TO_LE(0);
 
 	memset(hdr_buf, '\0', sizeof hdr_buf);
 	memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
@@ -1702,11 +1702,11 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	timestamp = ((guint64)phdr->ts.secs - (guint64)netxray->start.secs)*1000000
 		+ ((guint64)phdr->ts.nsecs)/1000;
 	t32 = (guint32)(timestamp%G_GINT64_CONSTANT(4294967296));
-	rec_hdr.timelo = htolel(t32);
+	rec_hdr.timelo = GUINT32_TO_LE(t32);
 	t32 = (guint32)(timestamp/G_GINT64_CONSTANT(4294967296));
-	rec_hdr.timehi = htolel(t32);
-	rec_hdr.orig_len = htoles(phdr->len);
-	rec_hdr.incl_len = htoles(phdr->caplen);
+	rec_hdr.timehi = GUINT32_TO_LE(t32);
+	rec_hdr.orig_len = GUINT16_TO_LE(phdr->len);
+	rec_hdr.incl_len = GUINT16_TO_LE(phdr->caplen);
 
 	switch (phdr->pkt_encap) {
 
@@ -1763,14 +1763,14 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 	/* "sniffer" version ? */
 	memset(&file_hdr, '\0', sizeof file_hdr);
 	memcpy(file_hdr.version, vers_2_001, sizeof vers_2_001);
-	file_hdr.start_time = htolel(netxray->start.secs);
-	file_hdr.nframes = htolel(netxray->nframes);
-	file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
+	file_hdr.start_time = GUINT32_TO_LE(netxray->start.secs);
+	file_hdr.nframes = GUINT32_TO_LE(netxray->nframes);
+	file_hdr.start_offset = GUINT32_TO_LE(CAPTUREFILE_HEADER_SIZE);
 	/* XXX - large files? */
-	file_hdr.end_offset = htolel((guint32)filelen);
+	file_hdr.end_offset = GUINT32_TO_LE((guint32)filelen);
 	file_hdr.network = wtap_encap_to_netxray_2_0_encap(wdh->encap);
-	file_hdr.timelo = htolel(0);
-	file_hdr.timehi = htolel(0);
+	file_hdr.timelo = GUINT32_TO_LE(0);
+	file_hdr.timehi = GUINT32_TO_LE(0);
 	switch (wdh->encap) {
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:

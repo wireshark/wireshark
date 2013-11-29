@@ -2153,10 +2153,10 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		/* "sniffer" version ? */
 		maj_vers = 4;
 		min_vers = 0;
-		version.maj_vers = htoles(maj_vers);
-		version.min_vers = htoles(min_vers);
+		version.maj_vers = GUINT16_TO_LE(maj_vers);
+		version.min_vers = GUINT16_TO_LE(min_vers);
 		version.time = 0;
-		version.date = htoles(start_date);
+		version.date = GUINT16_TO_LE(start_date);
 		version.type = 4;
 		version.network = wtap_encap[wdh->encap];
 		version.format = 1;
@@ -2190,10 +2190,10 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	t_low = (guint16)((t >> 0) & 0xFFFF);
 	t_med = (guint16)((t >> 16) & 0xFFFF);
 	t_high = (guint8)((t >> 32) & 0xFF);
-	rec_hdr.time_low = htoles(t_low);
-	rec_hdr.time_med = htoles(t_med);
+	rec_hdr.time_low = GUINT16_TO_LE(t_low);
+	rec_hdr.time_med = GUINT16_TO_LE(t_med);
 	rec_hdr.time_high = t_high;
-	rec_hdr.size = htoles(phdr->caplen);
+	rec_hdr.size = GUINT16_TO_LE(phdr->caplen);
 	switch (wdh->encap) {
 
 	case WTAP_ENCAP_LAPB:
@@ -2229,7 +2229,7 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		break;
 	}
 	rec_hdr.flags = 0;
-	rec_hdr.true_size = phdr->len != phdr->caplen ? htoles(phdr->len) : 0;
+	rec_hdr.true_size = phdr->len != phdr->caplen ? GUINT16_TO_LE(phdr->len) : 0;
 	rec_hdr.rsvd = 0;
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 		return FALSE;

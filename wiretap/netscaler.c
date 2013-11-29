@@ -1352,9 +1352,9 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         nspr_signature_v10_t sig10;
 
         /* populate the record */
-        val16b = htoles(NSPR_SIGNATURE_V10);
+        val16b = GUINT16_TO_LE(NSPR_SIGNATURE_V10);
         memcpy(sig10.phd.ph_RecordType, &val16b, sizeof sig10.phd.ph_RecordType);
-        val16b = htoles(nspr_signature_v10_s);
+        val16b = GUINT16_TO_LE(nspr_signature_v10_s);
         memcpy(sig10.phd.ph_RecordSize, &val16b, sizeof sig10.phd.ph_RecordSize);
         memset(sig10.sig_Signature, 0, NSPR_SIGSIZE_V10);
         g_strlcpy(sig10.sig_Signature, NSPR_SIGSTR_V10, NSPR_SIGSIZE_V10);
@@ -1408,16 +1408,16 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         nspr_abstime_v10_t abs10;
 
         /* populate the record */
-        val16 = htoles(NSPR_ABSTIME_V10);
+        val16 = GUINT16_TO_LE(NSPR_ABSTIME_V10);
         memcpy(abs10.phd.ph_RecordType, &val16, sizeof abs10.phd.ph_RecordType);
-        val16 = htoles(nspr_abstime_v10_s);
+        val16 = GUINT16_TO_LE(nspr_abstime_v10_s);
         memcpy(abs10.phd.ph_RecordSize, &val16, sizeof abs10.phd.ph_RecordSize);
 
         memcpy(&reltime, ((const nspr_pktracefull_v10_t *)pd)->fp_RelTimeHr, sizeof reltime);
         nsg_creltime = ns_hrtime2nsec(reltime);
 
         memset(abs10.abs_RelTime, 0, sizeof abs10.abs_RelTime);
-        abstime = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+        abstime = GUINT32_TO_LE((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
         memcpy(abs10.abs_Time, &abstime, sizeof abs10.abs_Time);
 
         /* Write the record into the file */
@@ -1440,7 +1440,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         nsg_creltime = ns_hrtime2nsec(reltime);
 
         memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
-        abstime = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+        abstime = GUINT32_TO_LE((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
         memcpy(abs20.abs_RelTime, &abstime, sizeof abs20.abs_RelTime);
 
         /* Write the record into the file */

@@ -674,9 +674,9 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
 
       len = phdr->caplen + (phdr->caplen ? LA_PacketRecordSize : 0);
 
-      if (!s16write(wdh, htoles(0x1005), err))
+      if (!s16write(wdh, GUINT16_TO_LE(0x1005), err))
             return FALSE;
-      if (!s16write(wdh, htoles(len), err))
+      if (!s16write(wdh, GUINT16_TO_LE(len), err))
             return FALSE;
 
       tv.tv_sec  = (long int) phdr->ts.secs;
@@ -700,24 +700,24 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       x  += (double) td.tv_sec * 1000000;
       x  *= 2;
 
-      if (!s16write(wdh, htoles(0x0001), err))             /* pr.rx_channels */
+      if (!s16write(wdh, GUINT16_TO_LE(0x0001), err))             /* pr.rx_channels */
             return FALSE;
-      if (!s16write(wdh, htoles(0x0008), err))             /* pr.rx_errors   */
+      if (!s16write(wdh, GUINT16_TO_LE(0x0008), err))             /* pr.rx_errors   */
             return FALSE;
-      if (!s16write(wdh, htoles(phdr->len + 4), err))      /* pr.rx_frm_len  */
+      if (!s16write(wdh, GUINT16_TO_LE(phdr->len + 4), err))      /* pr.rx_frm_len  */
             return FALSE;
-      if (!s16write(wdh, htoles(phdr->caplen), err))       /* pr.rx_frm_sln  */
+      if (!s16write(wdh, GUINT16_TO_LE(phdr->caplen), err))       /* pr.rx_frm_sln  */
             return FALSE;
 
       for (i = 0; i < 3; i++) {
-            if (!s16write(wdh, htoles((guint16) x), err))  /* pr.rx_time[i]  */
+            if (!s16write(wdh, GUINT16_TO_LE((guint16) x), err))  /* pr.rx_time[i]  */
                   return FALSE;
             x /= 0xffff;
       }
 
-      if (!s32write(wdh, htolel(++itmp->pkts), err))       /* pr.pktno      */
+      if (!s32write(wdh, GUINT32_TO_LE(++itmp->pkts), err))       /* pr.pktno      */
             return FALSE;
-      if (!s16write(wdh, htoles(itmp->lastlen), err))      /* pr.prlen      */
+      if (!s16write(wdh, GUINT16_TO_LE(itmp->lastlen), err))      /* pr.prlen      */
             return FALSE;
       itmp->lastlen = len;
 
@@ -838,21 +838,21 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
                                 sizeof LA_DisplayOptionsFake, err))
 		return FALSE;
       /*-----------------------------------------------------------------*/
-      if (!s16write(wdh, htoles(RT_Summary), err))         /* rid */
+      if (!s16write(wdh, GUINT16_TO_LE(RT_Summary), err))         /* rid */
             return FALSE;
-      if (!s16write(wdh, htoles(SummarySize), err))        /* rlen */
+      if (!s16write(wdh, GUINT16_TO_LE(SummarySize), err))        /* rlen */
             return FALSE;
       if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.datcre.day */
             return FALSE;
       if (!s8write(wdh, (guint8) (fT->tm_mon+1), err))     /* s.datcre.mon */
             return FALSE;
-      if (!s16write(wdh, htoles(fT->tm_year + 1900), err)) /* s.datcre.year */
+      if (!s16write(wdh, GUINT16_TO_LE(fT->tm_year + 1900), err)) /* s.datcre.year */
             return FALSE;
       if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.datclo.day */
             return FALSE;
       if (!s8write(wdh, (guint8) (fT->tm_mon+1), err))     /* s.datclo.mon */
             return FALSE;
-      if (!s16write(wdh, htoles(fT->tm_year + 1900), err)) /* s.datclo.year */
+      if (!s16write(wdh, GUINT16_TO_LE(fT->tm_year + 1900), err)) /* s.datclo.year */
             return FALSE;
       if (!s8write(wdh, (guint8) fT->tm_sec, err))         /* s.timeopn.second */
             return FALSE;
@@ -876,13 +876,13 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
             return FALSE;
       if (!s0write(wdh, 6, err))                           /* EAddr  == 0      */
             return FALSE;
-      if (!s16write(wdh, htoles(1), err))                  /* s.mxseqno */
+      if (!s16write(wdh, GUINT16_TO_LE(1), err))                  /* s.mxseqno */
             return FALSE;
-      if (!s16write(wdh, htoles(0), err))                  /* s.slcoffo */
+      if (!s16write(wdh, GUINT16_TO_LE(0), err))                  /* s.slcoffo */
             return FALSE;
-      if (!s16write(wdh, htoles(1514), err))               /* s.mxslc */
+      if (!s16write(wdh, GUINT16_TO_LE(1514), err))               /* s.mxslc */
             return FALSE;
-      if (!s32write(wdh, htolel(itmp->pkts), err))         /* s.totpktt */
+      if (!s32write(wdh, GUINT32_TO_LE(itmp->pkts), err))         /* s.totpktt */
             return FALSE;
       /*
        * statrg == 0; ? -1
@@ -891,33 +891,33 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
        */
       if (!s0write(wdh, 12, err))
             return FALSE;
-      if (!s32write(wdh, htolel(itmp->pkts), err))         /* sr.s.mxpkta[1]  */
+      if (!s32write(wdh, GUINT32_TO_LE(itmp->pkts), err))         /* sr.s.mxpkta[1]  */
             return FALSE;
       if (!s0write(wdh, 34*4, err))                        /* s.mxpkta[2-33]=0  */
             return FALSE;
-      if (!s16write(wdh, htoles(board_type), err))
+      if (!s16write(wdh, GUINT16_TO_LE(board_type), err))
             return FALSE;
       if (!s0write(wdh, 20, err))                             /* board_version == 0 */
             return FALSE;
       /*-----------------------------------------------------------------*/
-      if (!s16write(wdh, htoles(RT_SubfileSummary), err))     /* ssr.rid */
+      if (!s16write(wdh, GUINT16_TO_LE(RT_SubfileSummary), err))     /* ssr.rid */
             return FALSE;
-      if (!s16write(wdh, htoles(LA_SubfileSummaryRecordSize-4), err)) /* ssr.rlen */
+      if (!s16write(wdh, GUINT16_TO_LE(LA_SubfileSummaryRecordSize-4), err)) /* ssr.rlen */
             return FALSE;
-      if (!s16write(wdh, htoles(1), err))                     /* ssr.seqno */
+      if (!s16write(wdh, GUINT16_TO_LE(1), err))                     /* ssr.seqno */
             return FALSE;
-      if (!s32write(wdh, htolel(itmp->pkts), err))            /* ssr.totpkts */
+      if (!s32write(wdh, GUINT32_TO_LE(itmp->pkts), err))            /* ssr.totpkts */
             return FALSE;
       /*-----------------------------------------------------------------*/
       if (!wtap_dump_file_write(wdh, &LA_CyclicInformationFake,
                                 sizeof LA_CyclicInformationFake, err))
             return FALSE;
       /*-----------------------------------------------------------------*/
-      if (!s16write(wdh, htoles(RT_Index), err))              /* rid */
+      if (!s16write(wdh, GUINT16_TO_LE(RT_Index), err))              /* rid */
             return FALSE;
-      if (!s16write(wdh, htoles(LA_IndexRecordSize -4), err)) /* rlen */
+      if (!s16write(wdh, GUINT16_TO_LE(LA_IndexRecordSize -4), err)) /* rlen */
             return FALSE;
-      if (!s16write(wdh, htoles(LA_IndexSize), err))          /* idxsp */
+      if (!s16write(wdh, GUINT16_TO_LE(LA_IndexSize), err))          /* idxsp */
             return FALSE;
       if (!s0write(wdh, LA_IndexRecordSize - 6, err))
             return FALSE;

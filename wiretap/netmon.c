@@ -1111,17 +1111,17 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	switch (wdh->file_type_subtype) {
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
-		rec_1_x_hdr.ts_delta = htolel(secs*1000 + (nsecs + 500000)/1000000);
-		rec_1_x_hdr.orig_len = htoles(phdr->len + atm_hdrsize);
-		rec_1_x_hdr.incl_len = htoles(phdr->caplen + atm_hdrsize);
+		rec_1_x_hdr.ts_delta = GUINT32_TO_LE(secs*1000 + (nsecs + 500000)/1000000);
+		rec_1_x_hdr.orig_len = GUINT16_TO_LE(phdr->len + atm_hdrsize);
+		rec_1_x_hdr.incl_len = GUINT16_TO_LE(phdr->caplen + atm_hdrsize);
 		hdrp = &rec_1_x_hdr;
 		hdr_size = sizeof rec_1_x_hdr;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
-		rec_2_x_hdr.ts_delta = htolell(secs*1000000 + (nsecs + 500)/1000);
-		rec_2_x_hdr.orig_len = htolel(phdr->len + atm_hdrsize);
-		rec_2_x_hdr.incl_len = htolel(phdr->caplen + atm_hdrsize);
+		rec_2_x_hdr.ts_delta = GUINT64_TO_LE(secs*1000000 + (nsecs + 500)/1000);
+		rec_2_x_hdr.orig_len = GUINT32_TO_LE(phdr->len + atm_hdrsize);
+		rec_2_x_hdr.incl_len = GUINT32_TO_LE(phdr->caplen + atm_hdrsize);
 		hdrp = &rec_2_x_hdr;
 		hdr_size = sizeof rec_2_x_hdr;
 		break;
@@ -1195,7 +1195,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	}
 
 	netmon->frame_table[netmon->frame_table_index] =
-	    htolel(netmon->frame_table_offset);
+	    GUINT32_TO_LE(netmon->frame_table_offset);
 
 	/*
 	 * Is this the last record we can write?
@@ -1294,31 +1294,31 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		 * type in the file header is irrelevant.  Set it
 		 * to 1, just as Network Monitor does.
 		 */
-		file_hdr.network = htoles(1);
+		file_hdr.network = GUINT16_TO_LE(1);
 	} else
-		file_hdr.network = htoles(wtap_encap[wdh->encap]);
+		file_hdr.network = GUINT16_TO_LE(wtap_encap[wdh->encap]);
 	tm = localtime(&netmon->first_record_time.secs);
 	if (tm != NULL) {
-		file_hdr.ts_year  = htoles(1900 + tm->tm_year);
-		file_hdr.ts_month = htoles(tm->tm_mon + 1);
-		file_hdr.ts_dow   = htoles(tm->tm_wday);
-		file_hdr.ts_day   = htoles(tm->tm_mday);
-		file_hdr.ts_hour  = htoles(tm->tm_hour);
-		file_hdr.ts_min   = htoles(tm->tm_min);
-		file_hdr.ts_sec   = htoles(tm->tm_sec);
+		file_hdr.ts_year  = GUINT16_TO_LE(1900 + tm->tm_year);
+		file_hdr.ts_month = GUINT16_TO_LE(tm->tm_mon + 1);
+		file_hdr.ts_dow   = GUINT16_TO_LE(tm->tm_wday);
+		file_hdr.ts_day   = GUINT16_TO_LE(tm->tm_mday);
+		file_hdr.ts_hour  = GUINT16_TO_LE(tm->tm_hour);
+		file_hdr.ts_min   = GUINT16_TO_LE(tm->tm_min);
+		file_hdr.ts_sec   = GUINT16_TO_LE(tm->tm_sec);
 	} else {
-		file_hdr.ts_year  = htoles(1900 + 0);
-		file_hdr.ts_month = htoles(0 + 1);
-		file_hdr.ts_dow   = htoles(0);
-		file_hdr.ts_day   = htoles(0);
-		file_hdr.ts_hour  = htoles(0);
-		file_hdr.ts_min   = htoles(0);
-		file_hdr.ts_sec   = htoles(0);
+		file_hdr.ts_year  = GUINT16_TO_LE(1900 + 0);
+		file_hdr.ts_month = GUINT16_TO_LE(0 + 1);
+		file_hdr.ts_dow   = GUINT16_TO_LE(0);
+		file_hdr.ts_day   = GUINT16_TO_LE(0);
+		file_hdr.ts_hour  = GUINT16_TO_LE(0);
+		file_hdr.ts_min   = GUINT16_TO_LE(0);
+		file_hdr.ts_sec   = GUINT16_TO_LE(0);
 	}
-	file_hdr.ts_msec = htoles(netmon->first_record_time.nsecs/1000000);
-	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
+	file_hdr.ts_msec = GUINT16_TO_LE(netmon->first_record_time.nsecs/1000000);
+	file_hdr.frametableoffset = GUINT32_TO_LE(netmon->frame_table_offset);
 	file_hdr.frametablelength =
-	    htolel(netmon->frame_table_index * sizeof *netmon->frame_table);
+	    GUINT32_TO_LE(netmon->frame_table_index * sizeof *netmon->frame_table);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
 

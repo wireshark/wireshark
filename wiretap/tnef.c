@@ -108,7 +108,7 @@ int tnef_open(wtap *wth, int *err, gchar **err_info)
     return (*err != 0) ? -1 : 0;
   }
 
-  if (htolel(magic) != TNEF_SIGNATURE)
+  if (GUINT32_TO_LE(magic) != TNEF_SIGNATURE)
      /* Not a tnef file */
      return 0;
 

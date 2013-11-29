@@ -177,11 +177,6 @@ extern gint wtap_num_file_types;
         (p)[0] = tmp;      \
     }
 
-/* Turn host-byte-order values into little-endian values. */
-#define htoles(s) GUINT16_TO_LE(s)
-#define htolel(l) GUINT32_TO_LE(l)
-#define htolell(ll) GUINT64_TO_LE(ll)
-
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
  * The pletoh[sl] versions return the little-endian representation.

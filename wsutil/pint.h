@@ -150,8 +150,4 @@
 	 ((((x)&0xFF00)>>8) | \
 	  (((x)&0x00FF)<<8))
 
-/* Turn host-byte-order values into little-endian values. */
-#define htoles(s) GUINT16_TO_LE(s)
-#define htolel(l) GUINT32_TO_LE(l)
-
 #endif /* PINT_H */

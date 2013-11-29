@@ -372,18 +372,18 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 
 	/* Frame Header */
 	/* constant fields */
-	HeaderFrame.Key = htolel(CST_5VW_RECORDS_HEADER_KEY);
-	HeaderFrame.HeaderSize = htoles(sizeof(t_5VW_TimeStamped_Header));
-	HeaderFrame.HeaderType = htoles(CST_5VW_TIMESTAMPED_HEADER_TYPE);
-	HeaderFrame.RecType = htolel(CST_5VW_CAPTURES_RECORD | CST_5VW_SYSTEM_RECORD);
-	HeaderFrame.RecSubType = htolel(CST_5VW_FRAME_RECORD);
-	HeaderFrame.RecNb = htolel(1);
+	HeaderFrame.Key = GUINT32_TO_LE(CST_5VW_RECORDS_HEADER_KEY);
+	HeaderFrame.HeaderSize = GUINT16_TO_LE(sizeof(t_5VW_TimeStamped_Header));
+	HeaderFrame.HeaderType = GUINT16_TO_LE(CST_5VW_TIMESTAMPED_HEADER_TYPE);
+	HeaderFrame.RecType = GUINT32_TO_LE(CST_5VW_CAPTURES_RECORD | CST_5VW_SYSTEM_RECORD);
+	HeaderFrame.RecSubType = GUINT32_TO_LE(CST_5VW_FRAME_RECORD);
+	HeaderFrame.RecNb = GUINT32_TO_LE(1);
 
 	/* record-dependent fields */
-	HeaderFrame.Utc = htolel(phdr->ts.secs);
-	HeaderFrame.NanoSecondes = htolel(phdr->ts.nsecs);
-	HeaderFrame.RecSize = htolel(phdr->len);
-	HeaderFrame.RecInfo = htolel(0);
+	HeaderFrame.Utc = GUINT32_TO_LE(phdr->ts.secs);
+	HeaderFrame.NanoSecondes = GUINT32_TO_LE(phdr->ts.nsecs);
+	HeaderFrame.RecSize = GUINT32_TO_LE(phdr->len);
+	HeaderFrame.RecInfo = GUINT32_TO_LE(0);
 
 	/* write the record header */
 	if (!wtap_dump_file_write(wdh, &HeaderFrame,
@@ -408,37 +408,37 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 		return FALSE;
 
 	/* fill in the Info_Header */
-	file_hdr.Info_Header.Signature = htolel(CST_5VW_INFO_HEADER_KEY);
-	file_hdr.Info_Header.Size = htolel(sizeof(t_5VW_Info_Header));	/* Total size of Header in bytes (included Signature) */
-	file_hdr.Info_Header.Version = htolel(CST_5VW_INFO_RECORD_VERSION); /* Identify version and so the format of this record */
-	file_hdr.Info_Header.DataSize = htolel(sizeof(t_5VW_Attributes_Header)
+	file_hdr.Info_Header.Signature = GUINT32_TO_LE(CST_5VW_INFO_HEADER_KEY);
+	file_hdr.Info_Header.Size = GUINT32_TO_LE(sizeof(t_5VW_Info_Header));	/* Total size of Header in bytes (included Signature) */
+	file_hdr.Info_Header.Version = GUINT32_TO_LE(CST_5VW_INFO_RECORD_VERSION); /* Identify version and so the format of this record */
+	file_hdr.Info_Header.DataSize = GUINT32_TO_LE(sizeof(t_5VW_Attributes_Header)
 					+ sizeof(guint32)
 					+ sizeof(t_5VW_Attributes_Header)
 					+ sizeof(guint32));
 					/* Total size of data included in the Info Record (except the header size) */
-	file_hdr.Info_Header.FileType = htolel(wtap_encap[wdh->encap]);	/* Type of the file */
+	file_hdr.Info_Header.FileType = GUINT32_TO_LE(wtap_encap[wdh->encap]);	/* Type of the file */
 	file_hdr.Info_Header.Reserved[0] = 0;	/* Reserved for future use */
 	file_hdr.Info_Header.Reserved[1] = 0;	/* Reserved for future use */
 	file_hdr.Info_Header.Reserved[2] = 0;	/* Reserved for future use */
 
 	/* fill in the HeaderDateCreation */
-	file_hdr.HeaderDateCreation.Type = htolel(CST_5VW_IA_DATE_CREATION);	/* Id of the attribute */
-	file_hdr.HeaderDateCreation.Size = htoles(sizeof(guint32));	/* Size of the data part of the attribute (not including header size) */
-	file_hdr.HeaderDateCreation.Nb = htoles(1);			/* Number of elements */
+	file_hdr.HeaderDateCreation.Type = GUINT32_TO_LE(CST_5VW_IA_DATE_CREATION);	/* Id of the attribute */
+	file_hdr.HeaderDateCreation.Size = GUINT16_TO_LE(sizeof(guint32));	/* Size of the data part of the attribute (not including header size) */
+	file_hdr.HeaderDateCreation.Nb = GUINT16_TO_LE(1);			/* Number of elements */
 
 	/* fill in the Time field */
 #ifdef _WIN32
 	_tzset();
 #endif
-	file_hdr.Time = htolel(time(NULL));
+	file_hdr.Time = GUINT32_TO_LE(time(NULL));
 
 	/* fill in the Time field */
-	file_hdr.HeaderNbFrames.Type = htolel(CST_5VW_IA_CAP_INF_NB_TRAMES_STOCKEES);	/* Id of the attribute */
-	file_hdr.HeaderNbFrames.Size = htoles(sizeof(guint32));	/* Size of the data part of the attribute (not including header size) */
-	file_hdr.HeaderNbFrames.Nb = htoles(1);			/* Number of elements */
+	file_hdr.HeaderNbFrames.Type = GUINT32_TO_LE(CST_5VW_IA_CAP_INF_NB_TRAMES_STOCKEES);	/* Id of the attribute */
+	file_hdr.HeaderNbFrames.Size = GUINT16_TO_LE(sizeof(guint32));	/* Size of the data part of the attribute (not including header size) */
+	file_hdr.HeaderNbFrames.Nb = GUINT16_TO_LE(1);			/* Number of elements */
 
 	/* fill in the number of frames saved */
-	file_hdr.TramesStockeesInFile = htolel(_5views->nframes);
+	file_hdr.TramesStockeesInFile = GUINT32_TO_LE(_5views->nframes);
 
 	/* Write the file header. */
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof(t_5VW_Capture_Header),
