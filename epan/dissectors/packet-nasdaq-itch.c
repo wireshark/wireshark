@@ -326,7 +326,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (nasdaq_itch_type) {
   case 'S': /* system event */
     proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_system_event, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    /*offset += 1;*/
     break;
 
   case 'R': /* Stock Directory */
