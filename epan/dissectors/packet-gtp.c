@@ -41,15 +41,15 @@
  *
  * GTP v0: 3GPP TS 09.60
  *
- *	http://www.3gpp.org/ftp/Specs/html-info/0960.htm
+ *    http://www.3gpp.org/ftp/Specs/html-info/0960.htm
  *
  * GTP v1: 3GPP TS 29.060
  *
- *	http://www.3gpp.org/ftp/Specs/html-info/29060.htm
+ *    http://www.3gpp.org/ftp/Specs/html-info/29060.htm
  *
  * GTP': 3GPP TS 32.295
  *
- *	http://www.3gpp.org/ftp/Specs/html-info/32295.htm
+ *    http://www.3gpp.org/ftp/Specs/html-info/32295.htm
  */
 
 #include "config.h"
@@ -336,10 +336,10 @@ static gboolean g_gtp_etsi_order = FALSE;
 
 static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU;
 static const enum_val_t gtp_decode_tpdu_as[] = {
-	{"none", "None",   GTP_TPDU_AS_NONE},
-	{"tpdu", "TPDU",   GTP_TPDU_AS_TPDU},
-	{"sync", "SYNC",   GTP_TPDU_AS_SYNC},
-	{NULL, NULL, 0}
+    {"none", "None",   GTP_TPDU_AS_NONE},
+    {"tpdu", "TPDU",   GTP_TPDU_AS_TPDU},
+    {"sync", "SYNC",   GTP_TPDU_AS_SYNC},
+    {NULL, NULL, 0}
 };
 
 
@@ -3461,7 +3461,7 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
         return 3;
     case 1:
         teid_data = tvb_get_ntohl(tvb, offset + 1);
-        proto_tree_add_uint(tree, hf_gtp_teid_data, tvb, offset, 5, teid_data);
+        proto_tree_add_uint(tree, hf_gtp_teid_data, tvb, offset, 4, teid_data);
 
         return 5;
     default:
@@ -4503,7 +4503,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
             proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
         } 
-		
+
 
         if(length > 14) {
             /* Octet 15 */
@@ -4602,13 +4602,13 @@ dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U
     return tvb_get_string(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
 }
 
-#define MAX_APN_LENGTH		100
+#define MAX_APN_LENGTH          100
 
 static void
 decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_item *item)
 {
-    guint8	str[MAX_APN_LENGTH+1];
-    guint	curr_len;
+    guint8   str[MAX_APN_LENGTH+1];
+    guint    curr_len;
 
     /* init buffer and copy it */
     memset(str, 0, MAX_APN_LENGTH);
@@ -4622,7 +4622,7 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
         curr_len     += step+1;
     }
 
-	/* High light bytes including the first lenght byte */
+    /* Highlight bytes including the first lenght byte */
     proto_tree_add_string(tree, hf_gtp_apn, tvb, offset, length, str+1);
     if(item){
         proto_item_append_text(item, ": %s", str+1);
@@ -5163,7 +5163,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  * There are several CRs to to this IE make sure to check with a recent spec if dissection is questioned.
  */
 static int
-decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length;
@@ -5178,30 +5178,30 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     /* Quote from specification:
-	 * The Target Identification information element contains the identification of a target RNC. Octets 4-n shall contain a
+     * The Target Identification information element contains the identification of a target RNC. Octets 4-n shall contain a
      * non-transparent copy of the corresponding IEs (see subclause 7.7.2) and be encoded as specified in Figure 51 below.
      * The "Target RNC-ID" part of the "Target ID" parameter is specified in 3GPP TS 25.413 [7].
      * NOTE 1: The ASN.1 parameter "Target ID" is forwarded non-transparently in order to maintain backward compatibility.
-	 * NOTE 2: The preamble of the "Target RNC-ID" (numerical value of e.g. 0x20) however shall not be included in
-	 *         octets 4-n. Also the optional "iE-Extensions" parameter shall not be included into the GTP IE.
+     * NOTE 2: The preamble of the "Target RNC-ID" (numerical value of e.g. 0x20) however shall not be included in
+     *         octets 4-n. Also the optional "iE-Extensions" parameter shall not be included into the GTP IE.
      */
-	/* Octet 4-6 MCC + MNC */
-	dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, TRUE);
-	offset+=3;
-	/* Octet 7-8 LAC */
+    /* Octet 4-6 MCC + MNC */
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, TRUE);
+    offset+=3;
+    /* Octet 7-8 LAC */
     proto_tree_add_item(ext_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
-	/* Octet 9 RAC */
+    offset+=2;
+    /* Octet 9 RAC */
     proto_tree_add_item(ext_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-	/* Octet 10-11 RNC-ID*/
+    offset++;
+    /* Octet 10-11 RNC-ID*/
     proto_tree_add_item(ext_tree, hf_gtp_target_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-	/* If the optional Extended RNC-ID is not included, then the length variable 'n' = 8 and the overall length of the IE is 11
-	 * octets. Otherwise, 'n' = 10 and the overall length of the IE is 13 octets
-	 */
-	if(length == 10){
-	    proto_tree_add_item(ext_tree, hf_gtp_target_ext_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-	}
+    /* If the optional Extended RNC-ID is not included, then the length variable 'n' = 8 and the overall length of the IE is 11
+     * octets. Otherwise, 'n' = 10 and the overall length of the IE is 13 octets
+     */
+    if(length == 10){
+        proto_tree_add_item(ext_tree, hf_gtp_target_ext_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
 
     return 3 + length;
 }
@@ -5388,7 +5388,7 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * RAN INFORMATION ACK or RAN INFORMATION ERROR messages respectively as specified in 3GPP TS 48.018
  */
 static int
-decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length;
@@ -5406,7 +5406,7 @@ decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     if (bssgp_handle) {
-        col_set_fence(pinfo->cinfo, COL_INFO);
+        //col_set_fence(pinfo->cinfo, COL_INFO);
         call_dissector(bssgp_handle, next_tvb, pinfo, ext_tree);
     }
 
@@ -5533,7 +5533,7 @@ decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * UMTS:        29.060 v6.11.0, chapter 7.7.49
  */
 static int
-decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length;
@@ -5565,7 +5565,7 @@ decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  */
 
 static int
-decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length;
@@ -5639,7 +5639,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
+            offset+=2;
             proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 128:
@@ -5740,7 +5740,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
             dissect_e212_mcc_mnc(tvb, pinfo, rai_tree, offset, TRUE);
             offset+=3;
             proto_tree_add_item(rai_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
+            offset+=2;
             proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
@@ -6083,7 +6083,7 @@ dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static int
-decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     tvbuff_t   *next_tvb;
@@ -6188,7 +6188,7 @@ decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * Selected PLMN ID
  */
 static int
-decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length;
@@ -6638,7 +6638,7 @@ decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
  * PS Handover XID Parameters   7.7.79
  */
 static int
-decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length;
@@ -6991,8 +6991,8 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-	proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
     proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_earp_pl,  tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7601,7 +7601,7 @@ static const value_string gtp_cdr_fmt_vals[] = {
     {0, NULL}
 };
 static int
-decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length, cdr_length;
@@ -7791,7 +7791,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     if (length >= 2) {
         ext_id = tvb_get_ntohs(tvb, offset);
         proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset, 2, ext_id);
-		proto_item_append_text(te, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
+        proto_item_append_text(te, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
         offset = offset + 2;
 
        if (length > 2) {
@@ -7859,7 +7859,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
      */
     gtp_hdr = wmem_new0(wmem_packet_scope(), gtp_hdr_t);
 
-	/* Setting the TEID to -1 to say that the TEID is not valid for this packet */
+    /* Setting the TEID to -1 to say that the TEID is not valid for this packet */
     gtp_hdr->teid = -1;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
@@ -7951,20 +7951,20 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_hdr->message = tvb_get_guint8(tvb, offset);
     /* Link direction is needed to properly dissect PCO */
     switch(gtp_hdr->message){
-	case GTP_MSG_DELETE_PDP_REQ:
-	case GTP_MSG_UPDATE_PDP_REQ:
-	case GTP_MSG_CREATE_PDP_REQ:
-	case GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ:
-	case GTP_MSG_PDU_NOTIFY_REQ:
-	case GTP_MSG_PDU_NOTIFY_REJ_REQ:
-        pinfo->link_dir = P2P_DIR_UL;
-        break;
-	case GTP_MSG_DELETE_PDP_RESP:
-	case GTP_MSG_UPDATE_PDP_RESP:
-	case GTP_MSG_CREATE_PDP_RESP:
-	case GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP:
-        pinfo->link_dir = P2P_DIR_DL;
-        break;
+        case GTP_MSG_DELETE_PDP_REQ:
+        case GTP_MSG_UPDATE_PDP_REQ:
+        case GTP_MSG_CREATE_PDP_REQ:
+        case GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ:
+        case GTP_MSG_PDU_NOTIFY_REQ:
+        case GTP_MSG_PDU_NOTIFY_REJ_REQ:
+            pinfo->link_dir = P2P_DIR_UL;
+            break;
+        case GTP_MSG_DELETE_PDP_RESP:
+        case GTP_MSG_UPDATE_PDP_RESP:
+        case GTP_MSG_CREATE_PDP_RESP:
+        case GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP:
+            pinfo->link_dir = P2P_DIR_DL;
+            break;
     default:
         break;
     }
@@ -8031,10 +8031,10 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             set_actual_length(tvb, offset + gtp_hdr->length);
 
             /* Are sequence number/N-PDU Number/extension header present?
-	       See NOTE 5 of Figure 2 of 3GPP TS 29.060 version 4.3.0
-	       Release 4 - the Sequence Number, N-PDU Number, and
-	       Next Extension Header fields are present if any of
-	       GTP_E_MASK, GTP_S_MASK, or GTP_PN_MASK are set. */
+               See NOTE 5 of Figure 2 of 3GPP TS 29.060 version 4.3.0
+               Release 4 - the Sequence Number, N-PDU Number, and
+               Next Extension Header fields are present if any of
+               GTP_E_MASK, GTP_S_MASK, or GTP_PN_MASK are set. */
             if (gtp_hdr->flags & (GTP_E_MASK|GTP_S_MASK|GTP_PN_MASK)) {
                 /* Those fields are only *interpreted* if the
                    particular flag for the field is set. */
@@ -8222,13 +8222,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
 
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
     else if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_SYNC) {
-	next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-	call_dissector(sync_handle, next_tvb, pinfo, tree);
-	col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-	col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+        next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+        call_dissector(sync_handle, next_tvb, pinfo, tree);
+        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
 
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
