@@ -32,6 +32,7 @@ typedef struct _e_udphdr {
   guint16 uh_ulen;
   guint16 uh_sum_cov;
   guint16 uh_sum;
+  guint32 uh_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
   address ip_src;
   address ip_dst;
 } e_udphdr;
@@ -68,6 +69,12 @@ struct udp_analysis {
 	 */
 	udp_flow_t	*fwd;
 	udp_flow_t	*rev;
+
+	/* Keep track of udp stream numbers instead of using the conversation
+	 * index (as how it was done before). This prevents gaps in the
+	 * stream index numbering
+	 */
+	guint32		stream;
 };
 
 /** Associate process information with a given flow
@@ -84,6 +91,11 @@ struct udp_analysis {
  */
 extern void add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_addr, guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid, gchar *username, gchar *command);
 
+/** Get the current number of UDP streams
+ *
+ * @return The number of UDP streams
+ */
+WS_DLL_PUBLIC guint32 get_udp_stream_count(void);
 
 extern void decode_udp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int, int);

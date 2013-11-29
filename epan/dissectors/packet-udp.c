@@ -75,6 +75,10 @@ static header_field_info hfi_udp_port UDP_HFI_INIT =
 { "Source or Destination Port", "udp.port", FT_UINT16, BASE_DEC,  NULL, 0x0,
   NULL, HFILL };
 
+static header_field_info hfi_udp_stream UDP_HFI_INIT =
+ { "Stream index", "udp.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
+  NULL, HFILL };
+
 static header_field_info hfi_udp_length UDP_HFI_INIT =
 { "Length", "udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
   NULL, HFILL };
@@ -161,6 +165,7 @@ static gboolean udplite_check_checksum = FALSE;
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
+static guint32 udp_stream_count;
 
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine so other protocol dissectors */
@@ -219,6 +224,8 @@ init_udp_conversation_data(void)
   udpd->flow2.username = NULL;
   udpd->flow2.command = NULL;
   */
+
+  udpd->stream = udp_stream_count++;
 
   return udpd;
 }
@@ -305,6 +312,11 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
 }
 
 
+/* Return the current stream count */
+guint32 get_udp_stream_count(void)
+{
+    return udp_stream_count;
+}
 
 void
 decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -684,6 +696,16 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     udpd=get_udp_conversation_data(conv,pinfo);
   }
 
+  if (udpd) {
+    item = proto_tree_add_uint(udp_tree, &hfi_udp_stream, tvb, offset, 0, udpd->stream);
+    PROTO_ITEM_SET_GENERATED(item);
+
+    /* Copy the stream index into the header as well to make it available
+    * to tap listeners.
+    */
+    udph->uh_stream = udpd->stream;
+  }
+
   if (udpd && ((udpd->fwd && udpd->fwd->command) || (udpd->rev && udpd->rev->command))) {
     ti = proto_tree_add_text(udp_tree, tvb, offset, 0, "Process Information");
     PROTO_ITEM_SET_GENERATED(ti);
@@ -739,6 +761,12 @@ dissect_udplite(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect(tvb, pinfo, tree, IP_PROTO_UDPLITE);
 }
 
+static void
+udp_init(void)
+{
+  udp_stream_count = 0;
+}
+
 void
 proto_register_udp(void)
 {
@@ -751,6 +779,7 @@ proto_register_udp(void)
     &hfi_udp_srcport,
     &hfi_udp_dstport,
     &hfi_udp_port,
+    &hfi_udp_stream,
     &hfi_udp_length,
     &hfi_udp_checksum,
     &hfi_udp_checksum_good,
@@ -847,6 +876,9 @@ proto_register_udp(void)
                                  &udplite_check_checksum);
 
   register_decode_as(&udp_da);
+
+  register_init_routine(udp_init);
+
 }
 
 void
