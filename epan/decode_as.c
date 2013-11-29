@@ -111,8 +111,8 @@ gboolean decode_as_default_change(const char *name, const gpointer pattern, gpoi
  * Data structure used as user data when iterating dissector handles
  */
 struct lookup_entry {
-  gchar*             dissector_short_name;
-  dissector_handle_t handle;
+    gchar*             dissector_short_name;
+    dissector_handle_t handle;
 };
 
 /*
@@ -141,11 +141,11 @@ typedef struct lookup_entry lookup_entry_t;
 static void
 change_dissector_if_matched(gpointer item, gpointer user_data)
 {
-  dissector_handle_t handle = (dissector_handle_t)item;
-  lookup_entry_t * lookup = (lookup_entry_t *)user_data;
-  if (strcmp(lookup->dissector_short_name, dissector_handle_get_short_name(handle)) == 0) {
-    lookup->handle = handle;
-  }
+    dissector_handle_t handle = (dissector_handle_t)item;
+    lookup_entry_t * lookup = (lookup_entry_t *)user_data;
+    if (strcmp(lookup->dissector_short_name, dissector_handle_get_short_name(handle)) == 0) {
+        lookup->handle = handle;
+    }
 }
 
 /*
@@ -156,72 +156,72 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
 			   void *user_data _U_,
 			   gboolean return_range_errors _U_)
 {
-  gchar *values[4] = {NULL, NULL, NULL, NULL};
-  gchar delimiter[4] = {',', ',', ',','\0'};
-  gchar *pch;
-  guint i, j;
-  dissector_table_t sub_dissectors;
-  prefs_set_pref_e retval = PREFS_SET_OK;
-  gboolean is_valid = FALSE;
+    gchar *values[4] = {NULL, NULL, NULL, NULL};
+    gchar delimiter[4] = {',', ',', ',','\0'};
+    gchar *pch;
+    guint i, j;
+    dissector_table_t sub_dissectors;
+    prefs_set_pref_e retval = PREFS_SET_OK;
+    gboolean is_valid = FALSE;
 
-  if (strcmp(key, DECODE_AS_ENTRY) == 0) {
-    /* Parse csv into table, selector, initial, current */
-    for (i = 0; i < 4; i++) {
-      pch = strchr(value, delimiter[i]);
-      if (pch == NULL) {
-	for (j = 0; j < i; j++) {
-	  g_free(values[j]);
-	}
-	return PREFS_SET_SYNTAX_ERR;
-      }
-      values[i] = g_strndup(value, pch - value);
-      value = pch + 1;
-    }
-    sub_dissectors = find_dissector_table(values[0]);
-    if (sub_dissectors != NULL) {
-      lookup_entry_t lookup;
-      lookup.dissector_short_name = values[3];
-      lookup.handle = NULL;
-      g_slist_foreach(dissector_table_get_dissector_handles(sub_dissectors),
-                      change_dissector_if_matched, &lookup);
-      if (lookup.handle != NULL || g_ascii_strcasecmp(values[3], DECODE_AS_NONE) == 0) {
-        is_valid = TRUE;
-      }
+    if (strcmp(key, DECODE_AS_ENTRY) == 0) {
+        /* Parse csv into table, selector, initial, current */
+        for (i = 0; i < 4; i++) {
+            pch = strchr(value, delimiter[i]);
+            if (pch == NULL) {
+                for (j = 0; j < i; j++) {
+                    g_free(values[j]);
+                }
+                return PREFS_SET_SYNTAX_ERR;
+            }
+            values[i] = g_strndup(value, pch - value);
+            value = pch + 1;
+        }
+        sub_dissectors = find_dissector_table(values[0]);
+        if (sub_dissectors != NULL) {
+            lookup_entry_t lookup;
+            lookup.dissector_short_name = values[3];
+            lookup.handle = NULL;
+            g_slist_foreach(dissector_table_get_dissector_handles(sub_dissectors),
+                    change_dissector_if_matched, &lookup);
+            if (lookup.handle != NULL || g_ascii_strcasecmp(values[3], DECODE_AS_NONE) == 0) {
+                is_valid = TRUE;
+            }
 
-      if (is_valid) {
-	dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
-	decode_build_reset_list(g_strdup(values[0]), dissector_table_get_type(sub_dissectors),
-                                g_strdup(values[1]), NULL, NULL);
-      }
+            if (is_valid) {
+                dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
+                decode_build_reset_list(g_strdup(values[0]), dissector_table_get_type(sub_dissectors),
+                        g_strdup(values[1]), NULL, NULL);
+            }
+        } else {
+            retval = PREFS_SET_SYNTAX_ERR;
+        }
+
     } else {
-      retval = PREFS_SET_SYNTAX_ERR;
+        retval = PREFS_SET_NO_SUCH_PREF;
     }
 
-  } else {
-    retval = PREFS_SET_NO_SUCH_PREF;
-  }
-
-  for (i = 0; i < 4; i++) {
-    g_free(values[i]);
-  }
-  return retval;
+    for (i = 0; i < 4; i++) {
+        g_free(values[i]);
+    }
+    return retval;
 }
 
 void load_decode_as_entries(void)
 {
-  char   *daf_path;
-  FILE   *daf;
+    char   *daf_path;
+    FILE   *daf;
 
-  if (dissector_reset_list) {
-    decode_clear_all();
-  }
+    if (dissector_reset_list) {
+        decode_clear_all();
+    }
 
-  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
-  if ((daf = ws_fopen(daf_path, "r")) != NULL) {
-    read_prefs_file(daf_path, daf, read_set_decode_as_entries, NULL);
-    fclose(daf);
-  }
-  g_free(daf_path);
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
+    if ((daf = ws_fopen(daf_path, "r")) != NULL) {
+        read_prefs_file(daf_path, daf, read_set_decode_as_entries, NULL);
+        fclose(daf);
+    }
+    g_free(daf_path);
 }
 
 /*
@@ -297,3 +297,16 @@ decode_clear_all(void)
 
     decode_dcerpc_reset_all();
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
