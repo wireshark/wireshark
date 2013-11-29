@@ -557,6 +557,9 @@ endif()
 # That's the name autofoo uses
 if(HAVE_LIBZLIB)
 	set(HAVE_LIBZ 1)
+	# Always include the "true" zlib includes first. This works around a
+	# bug in the Windows setup of GTK[23] which has a faulty zconf.h.
+	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
 endif()
 if (Qt5Widgets_FOUND)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
