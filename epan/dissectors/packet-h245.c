@@ -3739,7 +3739,7 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
-    phtons(buf, value);
+    phton16(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
     add_new_data_source(actx->pinfo, value_tvb, "unsignedMin");
@@ -3766,7 +3766,7 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
-    phtons(buf, value);
+    phton16(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
     add_new_data_source(actx->pinfo, value_tvb, "unsignedMax");
@@ -3793,7 +3793,7 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
-    phtonl(buf, value);
+    phton32(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
     add_new_data_source(actx->pinfo, value_tvb, "unsigned32Min");
@@ -3820,7 +3820,7 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
-    phtonl(buf, value);
+    phton32(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
     add_new_data_source(actx->pinfo, value_tvb, "unsigned32Max");

@@ -2501,32 +2501,32 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 	{
 		/* First we write the .au header. XXX Hope this is endian independent */
 		/* the magic word 0x2e736e64 == .snd */
-		phtonl(pd, 0x2e736e64);
+		phton32(pd, 0x2e736e64);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
 		/* header offset == 24 bytes */
-		phtonl(pd, 24);
+		phton32(pd, 24);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
 		/* total length; it is permitted to set this to 0xffffffff */
-		phtonl(pd, -1);
+		phton32(pd, -1);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
 		/* encoding format == 16-bit linear PCM */
-		phtonl(pd, 3);
+		phton32(pd, 3);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
 		/* sample rate == 8000 Hz */
-		phtonl(pd, 8000);
+		phton32(pd, 8000);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
 		/* channels == 1 */
-		phtonl(pd, 1);
+		phton32(pd, 1);
 		nchars = fwrite(pd, 1, 4, to_stream);
 		if (nchars != 4)
 			goto copy_file_err;
@@ -2549,11 +2549,11 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 
 					if (user_data->forward.statinfo.pt == PT_PCMU) {
 						sample = ulaw2linear((unsigned char)f_rawvalue);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else if (user_data->forward.statinfo.pt == PT_PCMA) {
 						sample = alaw2linear((unsigned char)f_rawvalue);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else{
 						goto copy_file_err;
@@ -2582,11 +2582,11 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 
 					if (user_data->reversed.statinfo.pt == PT_PCMU) {
 						sample = ulaw2linear((unsigned char)r_rawvalue);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else if (user_data->reversed.statinfo.pt == PT_PCMA) {
 						sample = alaw2linear((unsigned char)r_rawvalue);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else{
 						goto copy_file_err;
@@ -2668,13 +2668,13 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 					    && (user_data->reversed.statinfo.pt == PT_PCMU)) {
 						sample = (ulaw2linear((unsigned char)r_rawvalue)
 							  + ulaw2linear((unsigned char)f_rawvalue)) / 2;
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else if ((user_data->forward.statinfo.pt == PT_PCMA)
 						 && (user_data->reversed.statinfo.pt == PT_PCMA)) {
 						sample = (alaw2linear((unsigned char)r_rawvalue)
 							  + alaw2linear((unsigned char)f_rawvalue)) / 2;
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else
 					{

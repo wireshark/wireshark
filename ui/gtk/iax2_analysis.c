@@ -2384,7 +2384,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* First we write the .au header. XXX Hope this is endian independent */
 		/* the magic word 0x2e736e64 == .snd */
 		/* XXX: Should we be checking for write errors below ? */
-		phtonl(pd, 0x2e736e64);
+		phton32(pd, 0x2e736e64);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
@@ -2394,7 +2394,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			return FALSE;
 		}
 		/* header offset == 24 bytes */
-		phtonl(pd, 24);
+		phton32(pd, 24);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
@@ -2404,7 +2404,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			return FALSE;
 		}
 		/* total length, it is permited to set this to 0xffffffff */
-		phtonl(pd, -1);
+		phton32(pd, -1);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
@@ -2414,7 +2414,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			return FALSE;
 		}
 		/* encoding format == 16-bit linear PCM */
-		phtonl(pd, 3);
+		phton32(pd, 3);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
@@ -2424,7 +2424,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			return FALSE;
 		}
 		/* sample rate == 8000 Hz */
-		phtonl(pd, 8000);
+		phton32(pd, 8000);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
@@ -2434,7 +2434,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			return FALSE;
 		}
 		/* channels == 1 */
-		phtonl(pd, 1);
+		phton32(pd, 1);
 		fwritten = ws_write(to_fd, pd, 4);
 		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
@@ -2461,11 +2461,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 					if (user_data->forward.statinfo.pt == AST_FORMAT_ULAW) {
 						sample = ulaw2linear(*f_pd);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else if (user_data->forward.statinfo.pt == AST_FORMAT_ALAW) {
 						sample = alaw2linear(*f_pd);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else{
 						ws_close(forw_fd);
@@ -2502,11 +2502,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 					if (user_data->reversed.statinfo.pt == AST_FORMAT_ULAW) {
 						sample = ulaw2linear(*r_pd);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else if (user_data->reversed.statinfo.pt == AST_FORMAT_ALAW) {
 						sample = alaw2linear(*r_pd);
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else{
 						ws_close(forw_fd);
@@ -2587,12 +2587,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					if ((user_data->forward.statinfo.pt == AST_FORMAT_ULAW)
 					    && (user_data->reversed.statinfo.pt == AST_FORMAT_ULAW)) {
 						sample = (ulaw2linear(*r_pd) + ulaw2linear(*f_pd)) / 2;
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else if ((user_data->forward.statinfo.pt == AST_FORMAT_ALAW)
 						&& (user_data->reversed.statinfo.pt == AST_FORMAT_ALAW)) {
 						sample = (alaw2linear(*r_pd) + alaw2linear(*f_pd)) / 2;
-						phtons(pd, sample);
+						phton16(pd, sample);
 					}
 					else
 					{

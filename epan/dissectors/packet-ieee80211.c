@@ -4815,7 +4815,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
     return;
   }
 
-  fcf = pletohs (&pd[offset]);
+  fcf = pletoh16 (&pd[offset]);
 
   if (IS_PROTECTED(FCF_FLAGS(fcf)) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
     ld->other += 1;
@@ -4841,7 +4841,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
           guint8  mesh_flags = pd[hdr_length];
           guint16 qosoff     = hdr_length - 2;
           qosoff -= (is_ht ? 4 : 0);
-          if (has_mesh_control(fcf, pletohs(&pd[qosoff]), mesh_flags)) {
+          if (has_mesh_control(fcf, pletoh16(&pd[qosoff]), mesh_flags)) {
             hdr_length += find_mesh_control_length(mesh_flags);
           }
         }

@@ -1460,7 +1460,7 @@ static void
 dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int item_length, packet_info *pinfo)
 {
    int base_length, io_data_size;
-   gboolean multicast = (((pntohl(pinfo->dst.data)) & 0xf0000000) == 0xe0000000);
+   gboolean multicast = (((pntoh32(pinfo->dst.data)) & 0xf0000000) == 0xe0000000);
    gboolean server_dir = FALSE;
    enum enip_connid_type conn_type = ECIDT_UNKNOWN;
    enum cip_safety_format_type format = CIP_SAFETY_BASE_FORMAT;

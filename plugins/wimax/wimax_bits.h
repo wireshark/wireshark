@@ -59,10 +59,10 @@
 /* extract the byte at the given nibble address 'n' of buffer 'b' */
 #define NIB_BYTE(n,b) \
     (n) & 1 \
-    ? (pntohs( (b)+(n)/2 ) >> 4) & BYTE_MASK \
+    ? (pntoh16( (b)+(n)/2 ) >> 4) & BYTE_MASK \
     : (b)[(n)/2]
     /*
-    ? (pletohs((b)+(n)/2) >> 4) & BYTE_MASK \
+    ? (pletoh16((b)+(n)/2) >> 4) & BYTE_MASK \
     */
 
 /* extract 12 bits at the given nibble address */
@@ -72,21 +72,21 @@
 /* extract the word at the given nibble address 'n' of buffer 'b' */
 #define NIB_WORD(n,b) \
     (n) & 1 \
-    ? (gint)((pntohl(((b) + (n)/2)) >> 12) & 0x0000FFFF) \
-    : pntohs((b) + (n)/2)
+    ? (gint)((pntoh32(((b) + (n)/2)) >> 12) & 0x0000FFFF) \
+    : pntoh16((b) + (n)/2)
     /*
-    : pletohs((b) + (n)/2)
-    ? (pletohl((b)+(n)/2) >> 12) & 0x0000FFFF \
+    : pletoh16((b) + (n)/2)
+    ? (pletoh32((b)+(n)/2) >> 12) & 0x0000FFFF \
     */
 
 /* extract the word at the given nibble address 'n' of buffer 'b' */
 #define NIB_LONG(n,b) \
     (n) & 1 \
-    ? (pntohl(((b) + (n)/2)) << 4) | (((b)[(n)/2 + 4] >> 4) & NIBBLE_MASK) \
-    : pntohl((b) + (n)/2)
+    ? (pntoh32(((b) + (n)/2)) << 4) | (((b)[(n)/2 + 4] >> 4) & NIBBLE_MASK) \
+    : pntoh32((b) + (n)/2)
     /*
-    ? (pletohl((b) + (n)/2) << 4) | (((b)[(n)/2 + 4] >> 4) & NIBBLE_MASK) \
-    : pletohl((b) + (n)/2)
+    ? (pletoh32((b) + (n)/2) << 4) | (((b)[(n)/2 + 4] >> 4) & NIBBLE_MASK) \
+    : pletoh32((b) + (n)/2)
     */
 
 /* Only currently used with nib == 1 or 2 */
@@ -156,7 +156,7 @@
  * num ... length of bitfield
  */
 #define BIT_BITS16(bit, buf, num) \
-    (( pntohs(buf+ADDR16(bit)) >> SHIFT16(bit,num) ) & MASK16(num))
+    (( pntoh16(buf+ADDR16(bit)) >> SHIFT16(bit,num) ) & MASK16(num))
 
 /* extract bitfield up to 24 bits
  * bit ... bit address
@@ -165,14 +165,14 @@
  */
 
 #define BIT_BITS32(bit, buf, num) \
-      ((pntohl(buf+ADDR32(bit)) >> SHIFT32(bit,num) ) & MASK32(num))
+      ((pntoh32(buf+ADDR32(bit)) >> SHIFT32(bit,num) ) & MASK32(num))
 
 /* bitfield up to 32 bits */
 #define BIT_BITS64a(bit, buf, num) \
-      ((pntohl(buf+ADDR32(bit)) & MASK64a(bit)) << SHIFT64a(bit,num))
+      ((pntoh32(buf+ADDR32(bit)) & MASK64a(bit)) << SHIFT64a(bit,num))
 
 #define BIT_BITS64b(bit, buf, num) \
-      ((pntohl(buf+ADDR32(bit)+4) >> SHIFT64b(bit,num) ) & MASK64b(bit,num))
+      ((pntoh32(buf+ADDR32(bit)+4) >> SHIFT64b(bit,num) ) & MASK64b(bit,num))
 
 #define BIT_BITS64(bit, buf, num) \
       ( (OFFSET32(bit)+(num)) <= 32 \

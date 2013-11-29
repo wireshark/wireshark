@@ -522,7 +522,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 							 offset, 3, ENC_NA);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
-							 offset, 2, pntohs(src));
+							 offset, 2, pntoh16(src));
 
 						proto_tree_add_item( sub_tree, hf_wcp_long_len, src_tvb,
 							 offset+2, 1, ENC_BIG_ENDIAN);
@@ -537,7 +537,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 						proto_tree_add_uint( sub_tree, hf_wcp_short_len, src_tvb,
 							 offset, 1, *src);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
-							 offset, 2, pntohs(src));
+							 offset, 2, pntoh16(src));
 					}
 					src += 2;
 					offset += 2;

@@ -216,7 +216,7 @@ test(tvbuff_t *tvb, const gchar* name,
 			return FALSE;
 		}
 
-		expected32 = pntohl(expected_data);
+		expected32 = pntoh32(expected_data);
 		if (val32 != expected32) {
 			printf("08: Failed TVB=%s  guint32 @ 0 %u != expected %u\n",
 					name, val32, expected32);
@@ -243,7 +243,7 @@ test(tvbuff_t *tvb, const gchar* name,
 			return FALSE;
 		}
 
-		expected32 = pntohl(&expected_data[length-4]);
+		expected32 = pntoh32(&expected_data[length-4]);
 		if (val32 != expected32) {
 			printf("10: Failed TVB=%s guint32 @ -4 %u != expected %u\n",
 					name, val32, expected32);

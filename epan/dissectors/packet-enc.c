@@ -76,7 +76,7 @@ capture_enc(const guchar *pd, int len, packet_counts *ld)
     return;
   }
 
-  af = pntohl(pd + offsetof(struct enchdr, af));
+  af = pntoh32(pd + offsetof(struct enchdr, af));
   switch (af) {
 
   case BSD_AF_INET:

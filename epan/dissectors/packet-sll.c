@@ -146,7 +146,7 @@ capture_sll(const guchar *pd, int len, packet_counts *ld)
 		ld->other++;
 		return;
 	}
-	protocol = pntohs(&pd[14]);
+	protocol = pntoh16(&pd[14]);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
 		/*
 		 * "proto" is *not* a length field, it's a Linux internal

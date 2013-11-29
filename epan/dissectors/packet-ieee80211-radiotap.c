@@ -880,7 +880,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 		return;
 	}
 	hdr = (struct ieee80211_radiotap_header *)pd;
-	it_len = pletohs(&hdr->it_len);
+	it_len = pletoh16(&hdr->it_len);
 	if (!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
 		ld->other++;
 		return;
@@ -898,7 +898,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 		return;
 	}
 
-	present = pletohl(&hdr->it_present);
+	present = pletoh32(&hdr->it_present);
 	offset += (int)sizeof(struct ieee80211_radiotap_header);
 	it_len -= (int)sizeof(struct ieee80211_radiotap_header);
 
@@ -909,7 +909,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 			ld->other++;
 			return;
 		}
-		xpresent = pletohl(pd + offset);
+		xpresent = pletoh32(pd + offset);
 		offset += 4;
 		it_len -= 4;
 	}
@@ -1058,7 +1058,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					 ENC_NA);
 
 		for (i = 0; i < n_bitmaps; i++) {
-			guint32 bmap = pletohl(bmap_start + 4 * i);
+			guint32 bmap = pletoh32(bmap_start + 4 * i);
 
 			rtap_ns_offset = rtap_ns_offset_next;
 			rtap_ns_offset_next += 32;

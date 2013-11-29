@@ -350,10 +350,10 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     key_version = AIRPDCAP_EAP_KEY_DESCR_VER(pEAPKey->key_information[1]);
     if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
         /* TKIP */
-        key_len = pntohs(pEAPKey->key_length);
+        key_len = pntoh16(pEAPKey->key_length);
     }else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
         /* AES */
-        key_len = pntohs(pEAPKey->key_data_len);
+        key_len = pntoh16(pEAPKey->key_data_len);
     }
     if (key_len > sizeof(RSN_IE) || key_len == 0) { /* Don't read past the end of pEAPKey->ie */
         return;
@@ -512,7 +512,7 @@ static INT AirPDcapScanForGroupKey(
         }
 
         /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
-        bodyLength=pntohs(data+offset+2);
+        bodyLength=pntoh16(data+offset+2);
         if ((tot_len-offset-4) < bodyLength) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "EAPOL body too short", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
@@ -721,7 +721,7 @@ INT AirPDcapPacketProcess(
                 }
 
                 /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
-                bodyLength=pntohs(data+offset+2);
+                bodyLength=pntoh16(data+offset+2);
                 if ((tot_len-offset-4) < bodyLength) {
                     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body too short", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
@@ -1329,7 +1329,7 @@ AirPDcapRsna4WHandshake(
                                          sa->wpa.ptk);
 
                         /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
-                        eapol_len=pntohs(data+offset-3)+4;
+                        eapol_len=pntoh16(data+offset-3)+4;
                         memcpy(eapol, &data[offset-5], (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN));
                         ret_value=AirPDcapRsnaMicCheck(eapol,           /*      eapol frame (header also) */
                                                        eapol_len,       /*      eapol frame length        */

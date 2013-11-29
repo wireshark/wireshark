@@ -64,7 +64,7 @@ static void byteReverse(guint32 *buf, unsigned longs)
 {
     guint32 t;
     do {
-	t = pletohl(buf);
+	t = pletoh32(buf);
 	*buf = t;
 	buf++;
     } while (--longs);

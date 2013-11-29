@@ -1147,11 +1147,11 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             {
                 call_dissector(llc_handle, next_tvb, pinfo, tree);
             }
-            else if ((pntohs(octet) & 0xff) == PPP_IP)
+            else if ((pntoh16(octet) & 0xff) == PPP_IP)
             {
                 call_dissector(ppp_handle, next_tvb, pinfo, tree);
             }
-            else if (pntohs(octet) == 0x00)
+            else if (pntoh16(octet) == 0x00)
             {
                 /* assume vc muxed bridged ethernet */
                 proto_tree_add_text(tree, tvb, 0, 2, "Pad: 0x0000");

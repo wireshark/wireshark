@@ -60,7 +60,7 @@ capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld)
   /* Skip destination and source addresses */
   offset += 16;
 
-  etype = pntohs(&pd[offset]);
+  etype = pntoh16(&pd[offset]);
   offset += 2;
   capture_ethertype(etype, pd, offset, len, ld);
 }

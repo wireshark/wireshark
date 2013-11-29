@@ -2013,7 +2013,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
                         id = id & 0x3f;
                         if (id==0) id = tf->saved.d[1] + 64;
-                        else if (id==1) id = pletohs(tf->saved.d+1) + 64;
+                        else if (id==1) id = pletoh16(tf->saved.d+1) + 64;
                 }
 
                 /* Calculate header values, defaulting from previous packets with same id */
@@ -2021,7 +2021,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 if (id<=RTMPT_ID_MAX) ti = (rtmpt_id_t *)wmem_tree_lookup32(rconv->ids[cdir], id);
                 if (ti) tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(ti->packets, seq+offset-1);
 
-                if (header_type==0) src = tf ? pntohl(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
+                if (header_type==0) src = tf ? pntoh32(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
                 else if (ti) src = ti->src;
                 else src = 0;
 
@@ -2069,13 +2069,13 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         if (header_type==0) {
                                 ts = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
                                 if (ts==0xffffff) {
-                                        ts = tf ? pntohl(tf->saved.d+basic_hlen+11) : tvb_get_ntohl(tvb, offset+basic_hlen+11);
+                                        ts = tf ? pntoh32(tf->saved.d+basic_hlen+11) : tvb_get_ntohl(tvb, offset+basic_hlen+11);
                                 }
                                 tsd = ts - ti->ts;
                         } else if (header_type<3) {
                                 tsd = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
                                 if (tsd==0xffffff) {
-                                        ts = tf ? pntohl(tf->saved.d+basic_hlen+message_hlen-4) : tvb_get_ntohl(tvb, offset+basic_hlen+message_hlen-4);
+                                        ts = tf ? pntoh32(tf->saved.d+basic_hlen+message_hlen-4) : tvb_get_ntohl(tvb, offset+basic_hlen+message_hlen-4);
                                         tsd = ti->tsd; /* questionable */
                                 } else {
                                         ts = ti->ts + tsd;

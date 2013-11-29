@@ -275,7 +275,7 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
 gchar*
 ipxnet_to_string(const guint8 *ad)
 {
-    guint32 addr = pntohl(ad);
+    guint32 addr = pntoh32(ad);
     return ipxnet_to_str_punct(addr, ' ');
 }
 
@@ -296,9 +296,9 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
         return;
     }
 
-    buf = dword_to_hex(buf, pntohl(&addrp[0])); /* 8 bytes */
+    buf = dword_to_hex(buf, pntoh32(&addrp[0])); /* 8 bytes */
     *buf++ = '.'; /* 1 byte */
-    buf = word_to_hex(buf, pntohs(&addrp[4])); /* 4 bytes */
+    buf = word_to_hex(buf, pntoh16(&addrp[4])); /* 4 bytes */
     *buf = '\0'; /* 1 byte */
 }
 
@@ -347,10 +347,10 @@ tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding)
 static void
 usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
 {
-    if(pletohl(&addrp[0])==0xffffffff){
+    if(pletoh32(&addrp[0])==0xffffffff){
         g_snprintf(buf, buf_len, "host");
     } else {
-        g_snprintf(buf, buf_len, "%d.%d", pletohl(&addrp[0]), pletohl(&addrp[4]));
+        g_snprintf(buf, buf_len, "%d.%d", pletoh32(&addrp[0]), pletoh32(&addrp[4]));
     }
 }
 
@@ -621,7 +621,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
                 (addrdata[6] >> 1) & 0x0f );
         break;
     case AT_IEEE_802_15_4_SHORT:
-        ieee_802_15_4_short_addr = pletohs(addr->data);
+        ieee_802_15_4_short_addr = pletoh16(addr->data);
         if (ieee_802_15_4_short_addr == 0xffff)
             g_snprintf(buf, buf_len, "Broadcast");
         else

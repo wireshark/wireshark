@@ -75,7 +75,7 @@ capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld)
     return;
   }
 
-  length = pntohl(pd+sizeof(guint32));
+  length = pntoh32(pd+sizeof(guint32));
 
   if (!BYTES_ARE_IN_FRAME(offset, len, length)) {
     ld->other++;

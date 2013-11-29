@@ -392,18 +392,18 @@ capture_ppi(const guchar *pd, int len, packet_counts *ld)
     guint    offset = PPI_V0_HEADER_LEN;
     gboolean is_htc = FALSE;
 
-    ppi_len = pletohs(pd+2);
+    ppi_len = pletoh16(pd+2);
     if(ppi_len < PPI_V0_HEADER_LEN || !BYTES_ARE_IN_FRAME(0, len, ppi_len)) {
         ld->other++;
         return;
     }
 
-    dlt = pletohl(pd+4);
+    dlt = pletoh32(pd+4);
 
     /* Figure out if we're +HTC */
     while (offset < ppi_len) {
-        data_type = pletohs(pd+offset);
-        data_len = pletohs(pd+offset+2) + 4;
+        data_type = pletoh16(pd+offset);
+        data_len = pletoh16(pd+offset+2) + 4;
         offset += data_len;
 
         if (data_type == PPI_80211N_MAC || data_type == PPI_80211N_MAC_PHY) {

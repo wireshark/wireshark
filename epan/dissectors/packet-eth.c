@@ -133,7 +133,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
     return;
   }
 
-  etype = pntohs(&pd[offset+12]);
+  etype = pntoh16(&pd[offset+12]);
 
   if (etype <= IEEE_802_3_MAX_LEN) {
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the

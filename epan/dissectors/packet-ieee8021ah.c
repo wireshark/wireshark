@@ -86,7 +86,7 @@ capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld)
 	ld->other++;
 	return;
     }
-    encap_proto = pntohs( &pd[offset + IEEE8021AH_LEN - 2] );
+    encap_proto = pntoh16( &pd[offset + IEEE8021AH_LEN - 2] );
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
 	if ( pd[offset + IEEE8021AH_LEN] == 0xff
 	     && pd[offset + IEEE8021AH_LEN + 1] == 0xff ) {

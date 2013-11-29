@@ -353,7 +353,7 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld)
 	}
 
 	oui = pd[offset] << 16 | pd[offset+1] << 8 | pd[offset+2];
-	etype = pntohs(&pd[offset+3]);
+	etype = pntoh16(&pd[offset+3]);
 	switch (oui) {
 
 	case OUI_ENCAP_ETHER:

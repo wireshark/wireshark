@@ -31,10 +31,10 @@
 
 /* Pointer versions of g_ntohs and g_ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
- * The pletoh[sl] versions return the little-endian representation.
+ * The pletohXX versions return the little-endian representation.
  */
 
-#define pntohs(p)   ((guint16)                       \
+#define pntoh16(p)  ((guint16)                       \
                      ((guint16)*((const guint8 *)(p)+0)<<8|  \
                       (guint16)*((const guint8 *)(p)+1)<<0))
 
@@ -42,7 +42,7 @@
                      (guint32)*((const guint8 *)(p)+1)<<8|   \
                      (guint32)*((const guint8 *)(p)+2)<<0)
 
-#define pntohl(p)   ((guint32)*((const guint8 *)(p)+0)<<24|  \
+#define pntoh32(p)  ((guint32)*((const guint8 *)(p)+0)<<24|  \
                      (guint32)*((const guint8 *)(p)+1)<<16|  \
                      (guint32)*((const guint8 *)(p)+2)<<8|   \
                      (guint32)*((const guint8 *)(p)+3)<<0)
@@ -78,7 +78,7 @@
                      (guint64)*((const guint8 *)(p)+7)<<0)
 
 
-#define pletohs(p)  ((guint16)                       \
+#define pletoh16(p) ((guint16)                       \
                      ((guint16)*((const guint8 *)(p)+1)<<8|  \
                       (guint16)*((const guint8 *)(p)+0)<<0))
 
@@ -86,7 +86,7 @@
                      (guint32)*((const guint8 *)(p)+1)<<8|   \
                      (guint32)*((const guint8 *)(p)+0)<<0)
 
-#define pletohl(p)  ((guint32)*((const guint8 *)(p)+3)<<24|  \
+#define pletoh32(p) ((guint32)*((const guint8 *)(p)+3)<<24|  \
                      (guint32)*((const guint8 *)(p)+2)<<16|  \
                      (guint32)*((const guint8 *)(p)+1)<<8|   \
                      (guint32)*((const guint8 *)(p)+0)<<0)
@@ -125,13 +125,13 @@
  * These will work regardless of the byte alignment of the pointer.
  */
 
-#define phtons(p, v) \
+#define phton16(p, v) \
 	{ 				\
 	((guint8*)(p))[0] = (guint8)((v) >> 8);	\
 	((guint8*)(p))[1] = (guint8)((v) >> 0);	\
 	}
 
-#define phtonl(p, v) \
+#define phton32(p, v) \
 	{ 				\
 	((guint8*)(p))[0] = (guint8)((v) >> 24);	\
 	((guint8*)(p))[1] = (guint8)((v) >> 16);	\

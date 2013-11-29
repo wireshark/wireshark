@@ -1734,7 +1734,7 @@ capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld)
         ld->other++;
         return;
     }
-    switch (pntohs(&pd[offset + 2])) {
+    switch (pntoh16(&pd[offset + 2])) {
     case PPP_IP:
         capture_ip(pd, offset + 4, len, ld);
         break;

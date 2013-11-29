@@ -106,7 +106,7 @@ capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
     ld->other++;
     return;
   }
-  encap_proto = pntohs( &pd[offset+2] );
+  encap_proto = pntoh16( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
       capture_ipx(ld);

@@ -243,7 +243,7 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 		 */
 		if (!source_routed && trn_rif_bytes > 0) {
 			if (pd[offset + 0x0e] != pd[offset + 0x0f]) {
-				first2_sr = pntohs(&pd[offset + 0xe0 + trn_rif_bytes]);
+				first2_sr = pntoh16(&pd[offset + 0xe0 + trn_rif_bytes]);
 				if (
 					(first2_sr == 0xaaaa &&
 					pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||

@@ -741,7 +741,7 @@ draw_hostlist_table_data(hostlist_table *hl)
             /* Filled in from the GeoIP config, if any */
             for (j = 0; j < NUM_GEOIP_COLS; j++) {
                 if (host->myaddress.type == AT_IPv4 && j < geoip_db_num_dbs()) {
-                    const guchar *name = geoip_db_lookup_ipv4(j, pntohl(host->myaddress.data), "-");
+                    const guchar *name = geoip_db_lookup_ipv4(j, pntoh32(host->myaddress.data), "-");
                     geoip[j] = g_strdup(name);
                 } else if (host->myaddress.type == AT_IPv6 && j < geoip_db_num_dbs()) {
                     const guchar *name;

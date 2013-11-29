@@ -810,7 +810,7 @@ tvb_get_ntohs(tvbuff_t *tvb, const gint offset)
 	const guint8 *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint16));
-	return pntohs(ptr);
+	return pntoh16(ptr);
 }
 
 guint32
@@ -828,7 +828,7 @@ tvb_get_ntohl(tvbuff_t *tvb, const gint offset)
 	const guint8 *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
-	return pntohl(ptr);
+	return pntoh32(ptr);
 }
 
 guint64
@@ -1076,7 +1076,7 @@ tvb_get_letohs(tvbuff_t *tvb, const gint offset)
 	const guint8 *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint16));
-	return pletohs(ptr);
+	return pletoh16(ptr);
 }
 
 guint32
@@ -1094,7 +1094,7 @@ tvb_get_letohl(tvbuff_t *tvb, const gint offset)
 	const guint8 *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
-	return pletohl(ptr);
+	return pletoh32(ptr);
 }
 
 guint64
@@ -1220,9 +1220,9 @@ tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 {
 	const guint8 *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
 
-	guid->data1 = pntohl(ptr + 0);
-	guid->data2 = pntohs(ptr + 4);
-	guid->data3 = pntohs(ptr + 6);
+	guid->data1 = pntoh32(ptr + 0);
+	guid->data2 = pntoh16(ptr + 4);
+	guid->data3 = pntoh16(ptr + 6);
 	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 
@@ -1231,9 +1231,9 @@ tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 {
 	const guint8 *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
 
-	guid->data1 = pletohl(ptr + 0);
-	guid->data2 = pletohs(ptr + 4);
-	guid->data3 = pletohs(ptr + 6);
+	guid->data1 = pletoh32(ptr + 0);
+	guid->data2 = pletoh16(ptr + 4);
+	guid->data3 = pletoh16(ptr + 6);
 	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 

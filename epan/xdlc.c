@@ -147,7 +147,7 @@ get_xdlc_control(const guchar *pd, int offset, gboolean is_extended)
 	 * Supervisory or Information frame.
 	 */
 	if (is_extended)
-		control = pletohs(&pd[offset]);
+		control = pletoh16(&pd[offset]);
 	else
 		control = pd[offset];
 	break;
