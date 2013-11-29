@@ -132,6 +132,15 @@ endif()
 include(CMakeOptions.txt)
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	if (MSVC10)
+		set(MSC_VER_REQUIRED 1600)
+	elseif(MSVC11)
+		set(MSC_VER_REQUIRED 1700)
+	elseif(MSVC12)
+		set(MSC_VER_REQUIRED 1800)
+	else()
+		message(FATAL_ERROR "You are using an unsupported version of MSVC")
+	endif()
 	set(LOCAL_CFLAGS
 		/Zi
 		/W3
