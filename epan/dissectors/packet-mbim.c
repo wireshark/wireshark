@@ -567,6 +567,8 @@ struct mbim_info {
 
 struct mbim_conv_info {
     wmem_tree_t *trans;
+    wmem_tree_t *open;
+    guint32 open_count;
     guint32 cellular_class;
 };
 
@@ -3413,7 +3415,8 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_item *ti;
     proto_tree *mbim_tree, *header_tree, *subtree;
     gint offset = 0;
-    guint32 msg_type, msg_length, trans_id;
+    guint32 msg_type, msg_length, trans_id, open_count;
+    wmem_tree_key_t trans_id_key[3];
     conversation_t *conversation;
     struct mbim_conv_info *mbim_conv;
     struct mbim_info *mbim_info;
@@ -3430,7 +3433,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     if (!mbim_conv) {
         mbim_conv = wmem_new(wmem_file_scope(), struct mbim_conv_info);
         mbim_conv->trans = wmem_tree_new(wmem_file_scope());
+        mbim_conv->open = wmem_tree_new(wmem_file_scope());
         mbim_conv->cellular_class = 0;
+        mbim_conv->open_count = 0;
+        wmem_tree_insert32(mbim_conv->open, PINFO_FD_NUM(pinfo), GUINT_TO_POINTER(mbim_conv->open_count));
         conversation_add_proto_data(conversation, proto_mbim, mbim_conv);
     }
 
@@ -3457,6 +3463,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             {
                 guint32 max_ctrl_transfer;
 
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    mbim_conv->open_count++;
+                    wmem_tree_insert32(mbim_conv->open, PINFO_FD_NUM(pinfo), GUINT_TO_POINTER(mbim_conv->open_count));
+                }
                 max_ctrl_transfer = tvb_get_letohl(tvb, offset);
                 if (max_ctrl_transfer == 8) {
                     proto_tree_add_uint_format_value(mbim_tree, hf_mbim_max_ctrl_transfer, tvb, offset, 4, max_ctrl_transfer, "MBIM_ERROR_MAX_TRANSFER (%d)", max_ctrl_transfer);
@@ -3504,13 +3514,20 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     frag_tvb = tvb;
                 }
 
+                open_count = GPOINTER_TO_UINT(wmem_tree_lookup32_le(mbim_conv->open, PINFO_FD_NUM(pinfo)));
+                trans_id_key[0].length = 1;
+                trans_id_key[0].key = &open_count;
+                trans_id_key[1].length = 1;
+                trans_id_key[1].key = &trans_id;
+                trans_id_key[2].length = 0;
+                trans_id_key[2].key = NULL;
                 if (!PINFO_FD_VISITED(pinfo)) {
                     mbim_info = wmem_new(wmem_file_scope(), struct mbim_info);
                     mbim_info->req_frame = PINFO_FD_NUM(pinfo);
                     mbim_info->resp_frame = 0;
-                    wmem_tree_insert32(mbim_conv->trans, trans_id, mbim_info);
+                    wmem_tree_insert32_array(mbim_conv->trans, trans_id_key, mbim_info);
                 } else {
-                    mbim_info = (struct mbim_info *)wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                    mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                     if (mbim_info && mbim_info->resp_frame) {
                         proto_item *resp_it;
 
@@ -3985,13 +4002,20 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 }
 
                 if (msg_type == MBIM_COMMAND_DONE) {
+                    open_count = GPOINTER_TO_UINT(wmem_tree_lookup32_le(mbim_conv->open, PINFO_FD_NUM(pinfo)));
+                    trans_id_key[0].length = 1;
+                    trans_id_key[0].key = &open_count;
+                    trans_id_key[1].length = 1;
+                    trans_id_key[1].key = &trans_id;
+                    trans_id_key[2].length = 0;
+                    trans_id_key[2].key = NULL;
                     if (!PINFO_FD_VISITED(pinfo)) {
-                        mbim_info = (struct mbim_info *)wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                        mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                         if (mbim_info) {
                             mbim_info->resp_frame = PINFO_FD_NUM(pinfo);
                         }
                     } else {
-                        mbim_info = (struct mbim_info *)wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                        mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                         if (mbim_info && mbim_info->req_frame) {
                             proto_item *req_it;
 
