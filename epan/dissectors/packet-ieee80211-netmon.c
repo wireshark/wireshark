@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 /* protocol */
 static int proto_netmon_802_11 = -1;

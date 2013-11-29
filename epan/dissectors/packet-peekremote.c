@@ -52,7 +52,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 static int proto_peekremote = -1;
 static gint hf_peekremote_unknown1 = -1;

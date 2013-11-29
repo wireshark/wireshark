@@ -25,8 +25,10 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/aftypes.h>
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 static int proto_ipnet   = -1;
 static int hf_version    = -1;

@@ -26,7 +26,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include <epan/reassemble.h>
 #include <epan/crc8-tvb.h>
 #include <expert.h>

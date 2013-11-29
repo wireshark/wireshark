@@ -25,6 +25,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
+
 #include "packet-ieee80211.h"
 
 static dissector_handle_t ieee80211_handle;

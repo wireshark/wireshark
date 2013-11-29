@@ -31,9 +31,11 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include <epan/to_str.h>
 #include <epan/etypes.h>
 #include <epan/conversation.h>
+
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-ipfc.h"

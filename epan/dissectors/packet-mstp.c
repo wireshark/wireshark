@@ -36,6 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include <epan/oui.h>
 #include <epan/llcsaps.h>
 #include <epan/expert.h>

@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 #define PNAME  "PacketLogger"
 #define PSNAME "PKTLOG"

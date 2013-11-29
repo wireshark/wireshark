@@ -26,8 +26,10 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <wiretap/wtap.h>
 
 static int proto_ipoib = -1;
 static int hf_type     = -1;

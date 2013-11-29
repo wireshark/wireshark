@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include <epan/exceptions.h>
 
 void proto_register_docsis(void);

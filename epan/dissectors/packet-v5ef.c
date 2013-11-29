@@ -36,6 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
 #include <epan/crc16-tvb.h>

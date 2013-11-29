@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-
+#include <wiretap/wtap.h>
 #include <epan/etypes.h>
 
 static dissector_table_t ethertype_dissector_table;

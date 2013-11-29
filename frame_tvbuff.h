@@ -29,6 +29,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <wiretap/wtap.h>
+
 extern tvbuff_t *frame_tvbuff_new(const frame_data *fd, const guint8 *buf);
 
 extern tvbuff_t *frame_tvbuff_new_buffer(const frame_data *fd, Buffer *buf);

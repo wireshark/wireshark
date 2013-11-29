@@ -29,6 +29,7 @@
 
 #include <glib.h>
 
+#include <wiretap/wtap.h>
 #include <wsutil/filesystem.h>
 #include <epan/dfilter/dfilter.h>
 

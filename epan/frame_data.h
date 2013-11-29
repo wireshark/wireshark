@@ -28,8 +28,11 @@
 #include <epan/column-info.h>
 #include <epan/tvbuff.h>
 #include <wsutil/nstime.h>
-#include <wiretap/wtap.h>
 #include "ws_symbol_export.h"
+
+struct _packet_info;
+struct epan_session;
+struct wtap_pkthdr;
 
 #define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)
 #define PINFO_FD_VISITED(pinfo)   ((pinfo)->fd->flags.visited)
@@ -86,24 +89,11 @@ typedef struct _frame_data {
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
 } frame_data;
 
-#ifdef WANT_PACKET_EDITOR
-/* XXX, where this struct should go? */
-typedef struct {
-  struct wtap_pkthdr phdr; /**< Modified packet header */
-  char *pd;                /**< Modified packet data */
-} modified_frame_data;
-#endif
-
 /* Utility routines used by packet*.c */
-struct _packet_info;
-
 WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
 WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
 void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
 gchar *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index);
-
-/* no sense to include epan.h + dependencies for opaque epan session type */
-struct epan_session;
 
 /** compare two frame_datas */
 WS_DLL_PUBLIC gint frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);

@@ -24,7 +24,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 void proto_register_ascend(void);
 void proto_reg_handoff_acend(void);

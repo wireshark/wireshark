@@ -43,6 +43,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().

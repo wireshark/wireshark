@@ -39,6 +39,7 @@
 #include <errno.h>
 
 #include <epan/packet_info.h>
+#include <wiretap/wtap.h>
 #include <epan/tap.h>
 
 #include <wsutil/file_util.h>

@@ -30,7 +30,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 #define	SOH	(0x01)
 #define	STX	(0x02)

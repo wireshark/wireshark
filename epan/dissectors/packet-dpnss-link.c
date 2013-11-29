@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 
 void proto_register_dpnss_link(void);
 void proto_reg_handoff_dpnss_link(void);

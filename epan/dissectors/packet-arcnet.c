@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include "packet-arcnet.h"
 #include <epan/arcnet_pids.h>
 #include "packet-ip.h"

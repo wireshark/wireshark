@@ -59,7 +59,9 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
 #include <epan/wmem/wmem.h>
 #include <expert.h>
 

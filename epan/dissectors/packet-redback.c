@@ -28,7 +28,10 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <wiretap/wtap.h>
+
 #include "packet-ip.h"
 
 static dissector_handle_t redback_handle;

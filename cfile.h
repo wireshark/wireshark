@@ -28,6 +28,7 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/frame_data.h>
 #include <epan/frame_data_sequence.h>
+#include <wiretap/wtap.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,6 +54,14 @@ typedef enum {
   SD_FORWARD,
   SD_BACKWARD
 } search_direction;
+
+#ifdef WANT_PACKET_EDITOR
+/* XXX, where this struct should go? */
+typedef struct {
+  struct wtap_pkthdr phdr; /**< Modified packet header */
+  char *pd;                /**< Modified packet data */
+} modified_frame_data;
+#endif
 
 typedef struct _capture_file {
   epan_t      *epan;

@@ -25,7 +25,6 @@
 #ifndef __PACKET_H__
 #define __PACKET_H__
 
-#include "wiretap/wtap.h"
 #include "proto.h"
 #include "tvbuff.h"
 #include "value_string.h"
