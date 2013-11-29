@@ -546,7 +546,6 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     return tvb_length(tvb);
 }
 
-
 static guint get_http2_message_len( packet_info *pinfo _U_, tvbuff_t *tvb, int offset )
 {
         if ( tvb_memeql( tvb, offset, kMagicHello, MAGIC_FRAME_LENGTH ) == 0 ) {
@@ -580,6 +579,18 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      get_http2_message_len, dissect_http2_pdu, data);
 
     return tvb_length(tvb);
+}
+
+static gboolean
+dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    /* Check there is Magic Hello ( PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n ) or type is > 10 (May be leak) */
+    if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0 && tvb_get_guint8(tvb, 2) > 10)
+        return (FALSE);
+
+    dissect_http2(tvb, pinfo, tree, data);
+
+    return (TRUE);
 }
 
 void
@@ -851,6 +862,8 @@ void
 proto_reg_handoff_http2(void)
 {
     data_handle = find_dissector("data");
+
+    heur_dissector_add("ssl", dissect_http2_heur, proto_http2);
 }
 
 /*
