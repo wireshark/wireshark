@@ -31,9 +31,12 @@ endif
 noinst_LIBRARIES = libqtui.a
 
 CLEANFILES = \
-	libqtui.a		\
-	wireshark-tap-register.c-tmp		\
-	wireshark-tap-register-cache.pkl	\
+	libqtui.a \
+	wireshark-tap-register.c-tmp \
+	wireshark-tap-register-cache.pkl \
+	*.moc.cpp \
+	*.rrc.cpp \
+	ui_*.h
 	*~
 
 DISTCLEANFILES = \
