@@ -812,7 +812,7 @@ static const value_string zbee_zcl_ias_zone_server_cmd_names[] = {
 /* ZCL Identify Client Commands */
 static const value_string zbee_zcl_identify_client_cmd_names[] = {
     { ZBEE_ZCL_CSC_IDENTIFY_C_I, "Identify" },
-    { ZBEE_ZCL_CSC_IDENTIFY_C_IR, "Identify Query" },
+    { ZBEE_ZCL_CSC_IDENTIFY_C_IQ, "Identify Query" },
 
     { 0, NULL }
 };
@@ -845,10 +845,10 @@ static const value_string zbee_zcl_ota_upgrade_server_cmd_names[] = {
 
 /* ZCL OTA Upgrade Server Image Notify Payload Type */
 static const value_string zbee_zcl_ota_upgrade_server_in_pt[] = {
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_J, "Query jitter" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JM, "Query jitter and manufacturer code" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMI, "Query jitter, manufacturer code and image type" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMIN, "Query jitter, manufacturer code, image type and new file version" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_J, "Query jitter" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JM, "Query jitter and manufacturer code" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMI, "Query jitter, manufacturer code and image type" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMIN, "Query jitter, manufacturer code, image type and new file version" },
 
     { 0, NULL }
 };
@@ -897,23 +897,23 @@ static const value_string zbee_zcl_thermostat_client_cmd_names[] = {
 
 /* ZCL Thermostat Client Setpoint Raise/Lower Mode Fields */
 static const value_string zbee_zcl_thermostat_client_setpointrl_mf[] = {
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B, "Both (adjust Heat Setpoint and Cool Setpoint)" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP, "Cool (adjust Cool Setpoint)" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP, "Heat (adjust Heat Setpoint)" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_B, "Both (adjust Heat Setpoint and Cool Setpoint)" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C, "Cool (adjust Cool Setpoint)" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H, "Heat (adjust Heat Setpoint)" },
 
     { 0, NULL }
 };
 
 /* ZCL Thermostat Client Weekly Schedule Day of Week for Sequence */
 static const value_string zbee_zcl_thermostat_client_ws_dow[] = {
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_AV, "Away or Vacation" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_FR, "Friday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_MO, "Monday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_SA, "Saturday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_SU, "Sunday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_TH, "Thursday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_TU, "Tuesday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_WE, "Wednesday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_AV, "Away or Vacation" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_FR, "Friday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_MO, "Monday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_SA, "Saturday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_SU, "Sunday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_TH, "Thursday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_TU, "Tuesday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_WE, "Wednesday" },
 
     { 0, NULL }
 };
@@ -941,6 +941,9 @@ static const value_string zbee_zcl_thermostat_server_cmd_names[] = {
  */
 static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    tvbuff_t *payload_tvb;
+    dissector_handle_t cluster_handle;
+
     proto_tree *zcl_tree = NULL;
     proto_tree *sub_tree = NULL;
 
@@ -960,6 +963,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Fill the zcl cluster id */
     zcl_cluster_id = nwk->cluster_id;
+    cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, zcl_cluster_id);
 
     /* Create the protocol tree */
     if ( tree ) {
@@ -1057,6 +1061,12 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 field_control, ibr_status, image_notify_payload_type, mode_for_sequence, number_of_transitions,
             query_next_image_response;
 
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
+        if (cluster_handle != NULL) {
+            /* Call the specific cluster dissector registered. */
+            call_dissector_with_data(cluster_handle, payload_tvb, pinfo, zcl_tree, &packet);
+            return tvb_length(tvb);
+        }
         proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u", packet.cmd_id,
             packet.tran_seqno);
         switch (zcl_cluster_id) {
@@ -1317,17 +1327,17 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_qj, tvb, offset, 1,
                                     ENC_NA);
                                 offset += 1;
-                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_J) {
+                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_J) {
                                     proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_mc, tvb, offset, 2,
                                         ENC_LITTLE_ENDIAN);
                                     offset += 2;
                                 }
-                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JM) {
+                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JM) {
                                     proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_it, tvb, offset, 2,
                                         ENC_LITTLE_ENDIAN);
                                     offset += 2;
                                 }
-                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMI) {
+                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMI) {
                                     proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_nfv, tvb, offset, 4,
                                         ENC_LITTLE_ENDIAN);
                                     offset += 4;
@@ -1493,7 +1503,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset += 1;
                                 for (i = 1; i <= number_of_transitions; ++i) {
                                     switch (mode_for_sequence) {
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B:
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_B:
                                             /* Both Cool Set Point and Heat Set Point. */
                                             proto_tree_add_text(zcl_tree, tvb, offset, 2,
                                                 "Transition Time %d (minutes since midnight): %d", i,
@@ -1508,7 +1518,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 offset));
                                             offset += 2;
                                             break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP:
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C:
                                             /* Cool Set Point. */
                                             proto_tree_add_text(zcl_tree, tvb, offset, 2,
                                                 "Transition Time %d (minutes since midnight): %d", i,
@@ -1519,7 +1529,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 offset));
                                             offset += 2;
                                             break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP:
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H:
                                             /* Heat Set Point. */
                                             proto_tree_add_text(zcl_tree, tvb, offset, 2,
                                                 "Transition Time %d (minutes since midnight): %d", i,
@@ -1572,7 +1582,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset += 1;
                                 for (i = 1; i <= number_of_transitions; ++i) {
                                     switch (mode_for_sequence) {
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B:
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_B:
                                             /* Both Cool Set Point and Heat Set Point. */
                                             proto_tree_add_text(zcl_tree, tvb, offset, 2,
                                                 "Transition Time %d (minutes since midnight): %d", i,
@@ -1587,7 +1597,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 offset));
                                             offset += 2;
                                             break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP:
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C:
                                             /* Cool Set Point. */
                                             proto_tree_add_text(zcl_tree, tvb, offset, 2,
                                                 "Transition Time %d (minutes since midnight): %d", i,
@@ -1598,7 +1608,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 offset));
                                             offset += 2;
                                             break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP:
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H:
                                             /* Heat Set Point. */
                                             proto_tree_add_text(zcl_tree, tvb, offset, 2,
                                                 "Transition Time %d (minutes since midnight): %d", i,
@@ -1684,12 +1694,10 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case ZBEE_ZCL_CMD_READ_ATTR_STRUCT:
             case ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT:
             case ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP:
-            default:
-                zcl_dump_data(tvb, offset, pinfo, zcl_tree);
                 break;
         } /* switch */
     }
-
+    zcl_dump_data(tvb, offset, pinfo, zcl_tree);
     return tvb_length(tvb);
 } /* dissect_zbee_zcl */
 
