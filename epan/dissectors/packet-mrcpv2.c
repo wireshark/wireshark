@@ -130,38 +130,43 @@ typedef enum {
     PERSONAL_GRAMMAR_URI =                  57,
     PHRASE_ID =                             58,
     PHRASE_NL =                             59,
-    PROSODY_PARAMETER =                     60,
-    PROXY_SYNC_ID =                         61,
-    RECOGNITION_MODE =                      62,
-    RECOGNITION_TIMEOUT =                   63,
-    RECOGNIZER_CONTEXT_BLOCK =              64,
-    RECORD_URI =                            65,
-    REPOSITORY_URI =                        66,
-    SAVE_BEST_WAVEFORM =                    67,
-    SAVE_WAVEFORM =                         68,
-    SENSITIVITY_LEVEL =                     69,
-    SET_COOKIE =                            70,
-    SPEAK_LENGTH =                          71,
-    SPEAK_RESTART =                         72,
-    SPEAKER_PROFILE =                       73,
-    SPEECH_COMPLETE_TIMEOUT =               74,
-    SPEECH_INCOMPLETE_TIMEOUT =             75,
-    SPEECH_LANGUAGE =                       76,
-    SPEECH_MARKER =                         77,
-    SPEED_VS_ACCURACY =                     78,
-    START_INPUT_TIMERS =                    79,
-    TRIM_LENGTH =                           80,
-    VENDOR_SPECIFIC_PARAMETERS =            81,
-    VER_BUFFER_UTTERANCE =                  82,
-    VERIFICATION_MODE =                     83,
-    VOICE_AGE =                             84,
-    VOICE_GENDER =                          85,
-    VOICE_NAME =                            86,
-    VOICE_VARIANT =                         87,
-    VOICEPRINT_EXISTS =                     88,
-    VOICEPRINT_IDENTIFIER =                 89,
-    WAVEFORM_URI =                          90,
-    WEIGHT =                                91
+    PROSODY_CONTOUR =                       60,
+    PROSODY_DURATION =                      61,
+    PROSODY_PITCH =                         62,
+    PROSODY_RANGE =                         63,
+    PROSODY_RATE =                          64,
+    PROSODY_VOLUME =                        65,
+    PROXY_SYNC_ID =                         66,
+    RECOGNITION_MODE =                      67,
+    RECOGNITION_TIMEOUT =                   68,
+    RECOGNIZER_CONTEXT_BLOCK =              69,
+    RECORD_URI =                            70,
+    REPOSITORY_URI =                        71,
+    SAVE_BEST_WAVEFORM =                    72,
+    SAVE_WAVEFORM =                         73,
+    SENSITIVITY_LEVEL =                     74,
+    SET_COOKIE =                            75,
+    SPEAK_LENGTH =                          76,
+    SPEAK_RESTART =                         77,
+    SPEAKER_PROFILE =                       78,
+    SPEECH_COMPLETE_TIMEOUT =               79,
+    SPEECH_INCOMPLETE_TIMEOUT =             80,
+    SPEECH_LANGUAGE =                       81,
+    SPEECH_MARKER =                         82,
+    SPEED_VS_ACCURACY =                     83,
+    START_INPUT_TIMERS =                    84,
+    TRIM_LENGTH =                           85,
+    VENDOR_SPECIFIC_PARAMETERS =            86,
+    VER_BUFFER_UTTERANCE =                  87,
+    VERIFICATION_MODE =                     88,
+    VOICE_AGE =                             89,
+    VOICE_GENDER =                          90,
+    VOICE_NAME =                            91,
+    VOICE_VARIANT =                         92,
+    VOICEPRINT_EXISTS =                     93,
+    VOICEPRINT_IDENTIFIER =                 94,
+    WAVEFORM_URI =                          95,
+    WEIGHT =                                96
 } HEADER_TYPE;
 
 static const value_string header_type_vals[] = {
@@ -224,7 +229,12 @@ static const value_string header_type_vals[] = {
     { PERSONAL_GRAMMAR_URI,                 "personal-grammar-uri" },
     { PHRASE_ID,                            "phrase-id" },
     { PHRASE_NL,                            "phrase-nl" },
-    { PROSODY_PARAMETER,                    "prosody-" },
+    { PROSODY_CONTOUR,                      "prosody-contour" },
+    { PROSODY_DURATION,                     "prosody-duration" },
+    { PROSODY_PITCH,                        "prosody-pitch" },
+    { PROSODY_RANGE,                        "prosody-range" },
+    { PROSODY_RATE,                         "prosody-rate" },
+    { PROSODY_VOLUME,                       "prosody-volume" },
     { PROXY_SYNC_ID,                        "proxy-sync-id" },
     { RECOGNITION_MODE,                     "recognition-mode" },
     { RECOGNITION_TIMEOUT,                  "recognition-timeout" },
@@ -336,7 +346,12 @@ static int hf_mrcpv2_Num_Min_Verification_Phrases = -1;
 static int hf_mrcpv2_Personal_Grammar_URI = -1;
 static int hf_mrcpv2_Phrase_ID = -1;
 static int hf_mrcpv2_Phrase_NL = -1;
-static int hf_mrcpv2_Prosody_Parameter = -1;
+static int hf_mrcpv2_Prosody_Contour = -1;
+static int hf_mrcpv2_Prosody_Duration = -1;
+static int hf_mrcpv2_Prosody_Pitch = -1;
+static int hf_mrcpv2_Prosody_Range = -1;
+static int hf_mrcpv2_Prosody_Rate = -1;
+static int hf_mrcpv2_Prosody_Volume = -1;
 static int hf_mrcpv2_Proxy_Sync_Id = -1;
 static int hf_mrcpv2_Recognition_Mode = -1;
 static int hf_mrcpv2_Recognition_Timeout = -1;
@@ -824,8 +839,23 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case PHRASE_NL:
                     proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Phrase_NL, tvb, offset, linelen, header_value);
                     break;
-                case PROSODY_PARAMETER:
-                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Parameter, tvb, offset, linelen, header_value);
+                case PROSODY_CONTOUR:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Contour, tvb, offset, linelen, header_value);
+                    break;
+                case PROSODY_DURATION:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Duration, tvb, offset, linelen, header_value);
+                    break;
+                case PROSODY_PITCH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Pitch, tvb, offset, linelen, header_value);
+                    break;
+                case PROSODY_RANGE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Range, tvb, offset, linelen, header_value);
+                    break;
+                case PROSODY_RATE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Rate, tvb, offset, linelen, header_value);
+                    break;
+                case PROSODY_VOLUME:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Volume, tvb, offset, linelen, header_value);
                     break;
                 case PROXY_SYNC_ID:
                     proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Proxy_Sync_Id, tvb, offset, linelen, header_value);
@@ -1317,8 +1347,28 @@ proto_register_mrcpv2(void)
             { "Phrase-NL", "mrcpv2.Phrase-NL",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
         },
-        { &hf_mrcpv2_Prosody_Parameter,
-            { "Prosody-Parameter", "mrcpv2.Prosody-Parameter",
+        { &hf_mrcpv2_Prosody_Contour,
+            { "Prosody-Contour", "mrcpv2.Prosody-Contour",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Prosody_Duration,
+            { "Prosody-Duration", "mrcpv2.Prosody-Duration",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Prosody_Pitch,
+            { "Prosody-Pitch", "mrcpv2.Prosody-Pitch",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Prosody_Range,
+            { "Prosody-Range", "mrcpv2.Prosody-Range",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Prosody_Rate,
+            { "Prosody-Rate", "mrcpv2.Prosody-Rate",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Prosody_Volume,
+            { "Prosody-Volume", "mrcpv2.Prosody-Volume",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
         },
         { &hf_mrcpv2_Proxy_Sync_Id,
