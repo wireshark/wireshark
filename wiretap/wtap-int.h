@@ -121,25 +121,6 @@ gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
 extern gint wtap_num_file_types;
 
-/* Macros to byte-swap 64-bit, 32-bit and 16-bit quantities. */
-#define BSWAP64(x) \
-    ((((x)&G_GINT64_CONSTANT(0xFF00000000000000U))>>56) |    \
-         (((x)&G_GINT64_CONSTANT(0x00FF000000000000U))>>40) |    \
-     (((x)&G_GINT64_CONSTANT(0x0000FF0000000000U))>>24) |    \
-     (((x)&G_GINT64_CONSTANT(0x000000FF00000000U))>>8) |    \
-     (((x)&G_GINT64_CONSTANT(0x00000000FF000000U))<<8) |    \
-     (((x)&G_GINT64_CONSTANT(0x0000000000FF0000U))<<24) |    \
-     (((x)&G_GINT64_CONSTANT(0x000000000000FF00U))<<40) |    \
-     (((x)&G_GINT64_CONSTANT(0x00000000000000FFU))<<56))
-#define    BSWAP32(x) \
-    ((((x)&0xFF000000)>>24) | \
-     (((x)&0x00FF0000)>>8) | \
-     (((x)&0x0000FF00)<<8) | \
-     (((x)&0x000000FF)<<24))
-#define    BSWAP16(x) \
-     ((((x)&0xFF00)>>8) | \
-      (((x)&0x00FF)<<8))
-
 /* Macros to byte-swap possibly-unaligned 64-bit, 32-bit and 16-bit quantities;
  * they take a pointer to the quantity, and byte-swap it in place.
  */

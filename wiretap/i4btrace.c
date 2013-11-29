@@ -73,11 +73,11 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 		/*
 		 * OK, try byte-swapping the header fields.
 		 */
-		hdr.length = BSWAP32(hdr.length);
-		hdr.unit = BSWAP32(hdr.unit);
-		hdr.type = BSWAP32(hdr.type);
-		hdr.dir = BSWAP32(hdr.dir);
-		hdr.trunc = BSWAP32(hdr.trunc);
+		hdr.length = GUINT32_SWAP_LE_BE(hdr.length);
+		hdr.unit = GUINT32_SWAP_LE_BE(hdr.unit);
+		hdr.type = GUINT32_SWAP_LE_BE(hdr.type);
+		hdr.dir = GUINT32_SWAP_LE_BE(hdr.dir);
+		hdr.trunc = GUINT32_SWAP_LE_BE(hdr.trunc);
 		if (!I4B_HDR_IS_OK(hdr)) {
 			/*
 			 * It doesn't look valid in either byte order.
@@ -164,14 +164,14 @@ i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		/*
 		 * Byte-swap the header.
 		 */
-		hdr.length = BSWAP32(hdr.length);
-		hdr.unit = BSWAP32(hdr.unit);
-		hdr.type = BSWAP32(hdr.type);
-		hdr.dir = BSWAP32(hdr.dir);
-		hdr.trunc = BSWAP32(hdr.trunc);
-		hdr.count = BSWAP32(hdr.count);
-		hdr.ts_sec = BSWAP32(hdr.ts_sec);
-		hdr.ts_usec = BSWAP32(hdr.ts_usec);
+		hdr.length = GUINT32_SWAP_LE_BE(hdr.length);
+		hdr.unit = GUINT32_SWAP_LE_BE(hdr.unit);
+		hdr.type = GUINT32_SWAP_LE_BE(hdr.type);
+		hdr.dir = GUINT32_SWAP_LE_BE(hdr.dir);
+		hdr.trunc = GUINT32_SWAP_LE_BE(hdr.trunc);
+		hdr.count = GUINT32_SWAP_LE_BE(hdr.count);
+		hdr.ts_sec = GUINT32_SWAP_LE_BE(hdr.ts_sec);
+		hdr.ts_usec = GUINT32_SWAP_LE_BE(hdr.ts_usec);
 	}
 
 	if (hdr.length < sizeof(hdr)) {

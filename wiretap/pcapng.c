@@ -407,8 +407,8 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
         }
         block_read = sizeof (*oh);
         if (pn->byte_swapped) {
-                oh->option_code      = BSWAP16(oh->option_code);
-                oh->option_length    = BSWAP16(oh->option_length);
+                oh->option_code      = GUINT16_SWAP_LE_BE(oh->option_code);
+                oh->option_length    = GUINT16_SWAP_LE_BE(oh->option_length);
         }
 
         /* sanity check: don't run past the end of the block */
@@ -519,11 +519,11 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
             case(0x4D3C2B1A):
                 /* this seems pcapng with swapped byte order */
                 pn->byte_swapped                = TRUE;
-                pn->version_major               = BSWAP16(shb.version_major);
-                pn->version_minor               = BSWAP16(shb.version_minor);
+                pn->version_major               = GUINT16_SWAP_LE_BE(shb.version_major);
+                pn->version_minor               = GUINT16_SWAP_LE_BE(shb.version_minor);
 
                 /* tweak the block length to meet current swapping that we know now */
-                bh->block_total_length  = BSWAP32(bh->block_total_length);
+                bh->block_total_length  = GUINT32_SWAP_LE_BE(bh->block_total_length);
 
                 pcapng_debug3("pcapng_read_section_header_block: SHB (big endian) V%u.%u, len %u",
                                 pn->version_major, pn->version_minor, bh->block_total_length);
@@ -576,7 +576,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 
         /* 64bit section_length (currently unused) */
         if (pn->byte_swapped) {
-                wblock->data.section.section_length = BSWAP64(shb.section_length);
+                wblock->data.section.section_length = GUINT64_SWAP_LE_BE(shb.section_length);
         } else {
                 wblock->data.section.section_length = shb.section_length;
         }
@@ -717,8 +717,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
         /* mandatory values */
         if (pn->byte_swapped) {
-                wblock->data.if_descr.link_type = BSWAP16(idb.linktype);
-                wblock->data.if_descr.snap_len  = BSWAP32(idb.snaplen);
+                wblock->data.if_descr.link_type = GUINT16_SWAP_LE_BE(idb.linktype);
+                wblock->data.if_descr.snap_len  = GUINT32_SWAP_LE_BE(idb.snaplen);
         } else {
                 wblock->data.if_descr.link_type = idb.linktype;
                 wblock->data.if_descr.snap_len  = idb.snaplen;
@@ -828,7 +828,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                                  */
                                 memcpy(&wblock->data.if_descr.if_speed, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);
+                                        wblock->data.if_descr.if_speed = GUINT64_SWAP_LE_BE(wblock->data.if_descr.if_speed);
                                 pcapng_debug1("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
                         } else {
                                     pcapng_debug1("pcapng_read_if_descr_block: if_speed length %u not 8 as expected", oh.option_length);
@@ -993,12 +993,12 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 block_read = bytes_read;
 
                 if (pn->byte_swapped) {
-                        packet.interface_id        = BSWAP32(epb.interface_id);
+                        packet.interface_id        = GUINT32_SWAP_LE_BE(epb.interface_id);
                         packet.drops_count         = -1; /* invalid */
-                        packet.ts_high             = BSWAP32(epb.timestamp_high);
-                        packet.ts_low              = BSWAP32(epb.timestamp_low);
-                        packet.cap_len             = BSWAP32(epb.captured_len);
-                        packet.packet_len          = BSWAP32(epb.packet_len);
+                        packet.ts_high             = GUINT32_SWAP_LE_BE(epb.timestamp_high);
+                        packet.ts_low              = GUINT32_SWAP_LE_BE(epb.timestamp_low);
+                        packet.cap_len             = GUINT32_SWAP_LE_BE(epb.captured_len);
+                        packet.packet_len          = GUINT32_SWAP_LE_BE(epb.packet_len);
                 } else {
                         packet.interface_id        = epb.interface_id;
                         packet.drops_count         = -1; /* invalid */
@@ -1031,12 +1031,12 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 block_read = bytes_read;
 
                 if (pn->byte_swapped) {
-                        packet.interface_id        = BSWAP16(pb.interface_id);
-                        packet.drops_count         = BSWAP16(pb.drops_count);
-                        packet.ts_high             = BSWAP32(pb.timestamp_high);
-                        packet.ts_low              = BSWAP32(pb.timestamp_low);
-                        packet.cap_len             = BSWAP32(pb.captured_len);
-                        packet.packet_len          = BSWAP32(pb.packet_len);
+                        packet.interface_id        = GUINT16_SWAP_LE_BE(pb.interface_id);
+                        packet.drops_count         = GUINT16_SWAP_LE_BE(pb.drops_count);
+                        packet.ts_high             = GUINT32_SWAP_LE_BE(pb.timestamp_high);
+                        packet.ts_low              = GUINT32_SWAP_LE_BE(pb.timestamp_low);
+                        packet.cap_len             = GUINT32_SWAP_LE_BE(pb.captured_len);
+                        packet.packet_len          = GUINT32_SWAP_LE_BE(pb.packet_len);
                 } else {
                         packet.interface_id        = pb.interface_id;
                         packet.drops_count         = pb.drops_count;
@@ -1235,7 +1235,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                 wblock->packet_header->presence_flags |= WTAP_HAS_PACK_FLAGS;
                                 memcpy(&wblock->packet_header->pack_flags, option_content, sizeof(guint32));
                                 if (pn->byte_swapped)
-                                        wblock->packet_header->pack_flags = BSWAP32(wblock->packet_header->pack_flags);
+                                        wblock->packet_header->pack_flags = GUINT32_SWAP_LE_BE(wblock->packet_header->pack_flags);
                                 if (wblock->packet_header->pack_flags & 0x000001E0) {
                                         /* The FCS length is present */
                                         fcslen = (wblock->packet_header->pack_flags & 0x000001E0) >> 5;
@@ -1257,7 +1257,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                 wblock->packet_header->presence_flags |= WTAP_HAS_DROP_COUNT;
                                 memcpy(&wblock->packet_header->drop_count, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->packet_header->drop_count = BSWAP64(wblock->packet_header->drop_count);
+                                        wblock->packet_header->drop_count = GUINT64_SWAP_LE_BE(wblock->packet_header->drop_count);
 
                                 pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->packet_header->drop_count);
                         } else {
@@ -1340,7 +1340,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         int_data = g_array_index(pn->interface_data, interface_data_t, 0);
 
         if (pn->byte_swapped) {
-                simple_packet.packet_len   = BSWAP32(spb.packet_len);
+                simple_packet.packet_len   = GUINT32_SWAP_LE_BE(spb.packet_len);
         } else {
                 simple_packet.packet_len   = spb.packet_len;
         }
@@ -1577,8 +1577,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                 block_read += bytes_read;
 
                 if (pn->byte_swapped) {
-                        nrb.record_type = BSWAP16(nrb.record_type);
-                        nrb.record_len  = BSWAP16(nrb.record_len);
+                        nrb.record_type = GUINT16_SWAP_LE_BE(nrb.record_type);
+                        nrb.record_len  = GUINT16_SWAP_LE_BE(nrb.record_len);
                 }
 
                 if (to_read - block_read < nrb.record_len + PADDING4(nrb.record_len)) {
@@ -1635,7 +1635,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                                         memcpy(&v4_addr,
                                             buffer_start_ptr(&nrb_rec), 4);
                                         if (pn->byte_swapped)
-                                                v4_addr = BSWAP32(v4_addr);
+                                                v4_addr = GUINT32_SWAP_LE_BE(v4_addr);
                                         for (namep = (char *)buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
                                             record_len != 0;
                                             namep += namelen, record_len -= namelen) {
@@ -1793,9 +1793,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         block_read = bytes_read;
 
         if (pn->byte_swapped) {
-                wblock->data.if_stats.interface_id = BSWAP32(isb.interface_id);
-                wblock->data.if_stats.ts_high      = BSWAP32(isb.timestamp_high);
-                wblock->data.if_stats.ts_low       = BSWAP32(isb.timestamp_low);
+                wblock->data.if_stats.interface_id = GUINT32_SWAP_LE_BE(isb.interface_id);
+                wblock->data.if_stats.ts_high      = GUINT32_SWAP_LE_BE(isb.timestamp_high);
+                wblock->data.if_stats.ts_low       = GUINT32_SWAP_LE_BE(isb.timestamp_low);
         } else {
                 wblock->data.if_stats.interface_id = isb.interface_id;
                 wblock->data.if_stats.ts_high      = isb.timestamp_high;
@@ -1861,8 +1861,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                 memcpy(&high, option_content, sizeof(guint32));
                                 memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
                                 if (pn->byte_swapped) {
-                                        high = BSWAP32(high);
-                                        low = BSWAP32(low);
+                                        high = GUINT32_SWAP_LE_BE(high);
+                                        low = GUINT32_SWAP_LE_BE(low);
                                 }
                                 wblock->data.if_stats.isb_starttime = (guint64)high;
                                 wblock->data.if_stats.isb_starttime <<= 32;
@@ -1882,8 +1882,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                 memcpy(&high, option_content, sizeof(guint32));
                                 memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
                                 if (pn->byte_swapped) {
-                                        high = BSWAP32(high);
-                                        low = BSWAP32(low);
+                                        high = GUINT32_SWAP_LE_BE(high);
+                                        low = GUINT32_SWAP_LE_BE(low);
                                 }
                                 wblock->data.if_stats.isb_endtime = (guint64)high;
                                 wblock->data.if_stats.isb_endtime <<= 32;
@@ -1900,7 +1900,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                  */
                                 memcpy(&wblock->data.if_stats.isb_ifrecv, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_ifrecv = BSWAP64(wblock->data.if_stats.isb_ifrecv);
+                                        wblock->data.if_stats.isb_ifrecv = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_ifrecv);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifrecv);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv length %u not 8 as expected", oh.option_length);
@@ -1913,7 +1913,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                  */
                                 memcpy(&wblock->data.if_stats.isb_ifdrop, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_ifdrop);
+                                        wblock->data.if_stats.isb_ifdrop = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_ifdrop);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifdrop);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop length %u not 8 as expected", oh.option_length);
@@ -1926,7 +1926,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                  */
                                 memcpy(&wblock->data.if_stats.isb_filteraccept, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_filteraccept);
+                                        wblock->data.if_stats.isb_ifdrop = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_filteraccept);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_filteraccept);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept length %u not 8 as expected", oh.option_length);
@@ -1939,7 +1939,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                  */
                                 memcpy(&wblock->data.if_stats.isb_osdrop, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_osdrop = BSWAP64(wblock->data.if_stats.isb_osdrop);
+                                        wblock->data.if_stats.isb_osdrop = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_osdrop);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_osdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_osdrop);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_osdrop length %u not 8 as expected", oh.option_length);
@@ -1952,7 +1952,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                                  */
                                 memcpy(&wblock->data.if_stats.isb_usrdeliv, option_content, sizeof(guint64));
                                 if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_usrdeliv = BSWAP64(wblock->data.if_stats.isb_osdrop);
+                                        wblock->data.if_stats.isb_usrdeliv = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_osdrop);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_usrdeliv);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv length %u not 8 as expected", oh.option_length);
@@ -2028,8 +2028,8 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 
         block_read = bytes_read;
         if (pn->byte_swapped) {
-                bh.block_type         = BSWAP32(bh.block_type);
-                bh.block_total_length = BSWAP32(bh.block_total_length);
+                bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
+                bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
         }
 
         wblock->type = bh.block_type;
@@ -2095,7 +2095,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
         block_read += bytes_read;
 
         if (pn->byte_swapped)
-                block_total_length = BSWAP32(block_total_length);
+                block_total_length = GUINT32_SWAP_LE_BE(block_total_length);
 
         if (!(block_total_length == bh.block_total_length)) {
                 *err = WTAP_ERR_BAD_FILE;
@@ -2249,7 +2249,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 file_seek(wth->fh, saved_offset, SEEK_SET, err);
 
                 if (pn.byte_swapped) {
-                        bh.block_type         = BSWAP32(bh.block_type);
+                        bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
                 }
 
                 pcapng_debug1("pcapng_open: Check for more IDB:s block_type 0x%x", bh.block_type);

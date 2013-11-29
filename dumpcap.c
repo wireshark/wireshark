@@ -70,7 +70,6 @@
 #include <errno.h>
 
 #include <wsutil/crash_info.h>
-#include <wsutil/pint.h>
 
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
@@ -1694,10 +1693,10 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
 {
     if (byte_swapped) {
         /* Byte-swap the record header fields. */
-        rechdr->ts_sec = BSWAP32(rechdr->ts_sec);
-        rechdr->ts_usec = BSWAP32(rechdr->ts_usec);
-        rechdr->incl_len = BSWAP32(rechdr->incl_len);
-        rechdr->orig_len = BSWAP32(rechdr->orig_len);
+        rechdr->ts_sec = GUINT32_SWAP_LE_BE(rechdr->ts_sec);
+        rechdr->ts_usec = GUINT32_SWAP_LE_BE(rechdr->ts_usec);
+        rechdr->incl_len = GUINT32_SWAP_LE_BE(rechdr->incl_len);
+        rechdr->orig_len = GUINT32_SWAP_LE_BE(rechdr->orig_len);
     }
 
     /* In file format version 2.3, the "incl_len" and "orig_len" fields were
@@ -2278,10 +2277,10 @@ cap_pipe_open_live(char *pipename,
 
     if (pcap_opts->cap_pipe_byte_swapped) {
         /* Byte-swap the header fields about which we care. */
-        hdr->version_major = BSWAP16(hdr->version_major);
-        hdr->version_minor = BSWAP16(hdr->version_minor);
-        hdr->snaplen = BSWAP32(hdr->snaplen);
-        hdr->network = BSWAP32(hdr->network);
+        hdr->version_major = GUINT16_SWAP_LE_BE(hdr->version_major);
+        hdr->version_minor = GUINT16_SWAP_LE_BE(hdr->version_minor);
+        hdr->snaplen = GUINT32_SWAP_LE_BE(hdr->snaplen);
+        hdr->network = GUINT32_SWAP_LE_BE(hdr->network);
     }
     pcap_opts->linktype = hdr->network;
 

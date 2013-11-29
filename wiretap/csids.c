@@ -117,7 +117,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
     /* maybe this is just a byteswapped version. the iplen ipflags */
     /* and ipid are swapped. We cannot use the normal swaps because */
     /* we don't know the host */
-    iplen = BSWAP16(iplen);
+    iplen = GUINT16_SWAP_LE_BE(iplen);
     if( iplen <= hdr.caplen ) {
       /* we know this format */
       byteswap = TRUE;

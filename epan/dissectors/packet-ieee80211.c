@@ -251,7 +251,7 @@ typedef struct mimo_control
  * must be valid variables.
  */
 #define FETCH_FCF(off) (wlan_broken_fc ? \
-  BSWAP16(tvb_get_letohs(tvb, off)) : \
+  GUINT16_SWAP_LE_BE(tvb_get_letohs(tvb, off)) : \
   tvb_get_letohs(tvb, off))
 
 /*

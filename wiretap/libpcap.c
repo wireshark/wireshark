@@ -172,10 +172,10 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	if (byte_swapped) {
 		/* Byte-swap the header fields about which we care. */
-		hdr.version_major = BSWAP16(hdr.version_major);
-		hdr.version_minor = BSWAP16(hdr.version_minor);
-		hdr.snaplen = BSWAP32(hdr.snaplen);
-		hdr.network = BSWAP32(hdr.network);
+		hdr.version_major = GUINT16_SWAP_LE_BE(hdr.version_major);
+		hdr.version_minor = GUINT16_SWAP_LE_BE(hdr.version_minor);
+		hdr.snaplen = GUINT32_SWAP_LE_BE(hdr.snaplen);
+		hdr.network = GUINT32_SWAP_LE_BE(hdr.network);
 	}
 	if (hdr.version_major < 2) {
 		/* We only support version 2.0 and later. */
@@ -792,10 +792,10 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 	libpcap = (libpcap_t *)wth->priv;
 	if (libpcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
-		hdr->ts_sec = BSWAP32(hdr->ts_sec);
-		hdr->ts_usec = BSWAP32(hdr->ts_usec);
-		hdr->incl_len = BSWAP32(hdr->incl_len);
-		hdr->orig_len = BSWAP32(hdr->orig_len);
+		hdr->ts_sec = GUINT32_SWAP_LE_BE(hdr->ts_sec);
+		hdr->ts_usec = GUINT32_SWAP_LE_BE(hdr->ts_usec);
+		hdr->incl_len = GUINT32_SWAP_LE_BE(hdr->incl_len);
+		hdr->orig_len = GUINT32_SWAP_LE_BE(hdr->orig_len);
 	}
 
 	/* Swap the "incl_len" and "orig_len" fields, if necessary. */
