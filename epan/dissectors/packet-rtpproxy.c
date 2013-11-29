@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/rtp_pt.h>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -328,7 +329,8 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 				while(codecs[i]){
 					/* We assume strings < 2^32-1 bytes long. :-) */
 					codec_len = (guint)strlen(codecs[i]);
-					proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_codec, tvb, begin+offset, codec_len, ENC_ASCII | ENC_NA);
+					ti = proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_codec, tvb, begin+offset, codec_len, ENC_ASCII | ENC_NA);
+					proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(tvb,begin+offset,codec_len),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
 					offset += codec_len;
 					if(codecs[i+1])
 						offset++; /* skip comma */
@@ -378,7 +380,8 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 			case 't':
 				new_offset = (gint)strspn(rawstr+offset, "0123456789");
 				another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_transcode);
-				proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_transcode, tvb, begin+offset, new_offset, ENC_ASCII | ENC_NA);
+				ti = proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_transcode, tvb, begin+offset, new_offset, ENC_ASCII | ENC_NA);
+				proto_item_append_text(ti, " (%s)", val_to_str_ext((guint)strtoul(tvb_format_text(tvb,begin+offset, new_offset),NULL,10), &rtp_payload_type_vals_ext, "Unknown"));
 				offset += new_offset;
 				break;
 			case 'v':
