@@ -944,7 +944,7 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
 	stat_node *node = NULL;
 	stat_node *parent = NULL;
 	stat_node *child = NULL;
-	gint floor, ceil;
+	gint stat_floor, stat_ceil;
 
 	if (parent_id >= 0 && parent_id < (int) st->parents->len) {
 		parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
@@ -972,10 +972,10 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
 	node->st_flags |= ST_FLG_AVERAGE;
 
 	for ( child = node->children; child; child = child->next) {
-		floor =  child->rng->floor;
-		ceil = child->rng->ceil;
+		stat_floor =  child->rng->floor;
+		stat_ceil = child->rng->ceil;
 
-		if ( value_in_range >= floor && value_in_range <= ceil ) {
+		if ( value_in_range >= stat_floor && value_in_range <= stat_ceil ) {
 			child->counter++;
 			child->total += value_in_range;
 			if (child->minvalue > value_in_range) {
@@ -1077,9 +1077,9 @@ stats_tree_is_default_sort_DESC (stats_tree *st)
 }
 
 extern gchar*
-stats_tree_get_column_name (gint index)
+stats_tree_get_column_name (gint col_index)
 {
-	switch (index) {
+	switch (col_index) {
 		case COL_NAME:		return "Topic / Item";
 		case COL_COUNT:		return "Count";
 		case COL_AVERAGE:	return "Average";
@@ -1094,21 +1094,21 @@ stats_tree_get_column_name (gint index)
 }
 
 extern gint
-stats_tree_get_column_size (gint index)
+stats_tree_get_column_size (gint col_index)
 {
- if (index==COL_NAME) {
+ if (col_index==COL_NAME) {
 	return 36;		/* but caller should really call stats_tree_branch_max_namelen() */
  }
- if (index<N_COLUMNS) {
+ if (col_index<N_COLUMNS) {
 	return 12;		/* all numerica values this size */
  }
  return 0;			/* invalid column */
 }
 
 extern gboolean
-stats_tree_is_sortable_column (gint index)
+stats_tree_is_sortable_column (gint col_index)
 {
-	switch (index) {
+	switch (col_index) {
 		case COL_NAME:
 		case COL_COUNT:
 		case COL_AVERAGE:
@@ -1236,7 +1236,7 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 }
 
 extern GString*
-stats_tree_format_as_str(const stats_tree* st, guint format,
+stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
 					gint sort_column, gboolean sort_descending)
 {
 	int maxnamelen= stats_tree_branch_max_namelen(&st->root,0);
@@ -1245,17 +1245,17 @@ stats_tree_format_as_str(const stats_tree* st, guint format,
 	int count;
 	gchar *separator;
 
-	if (format==ST_FORMAT_XML) {
+	if (format_type==ST_FORMAT_XML) {
 		s = g_string_new("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
 	}
-	else if (format==ST_FORMAT_CSV) {
+	else if (format_type==ST_FORMAT_CSV) {
 		s = g_string_new("\"level\",\"parent\",");
 		for (count = 0; count<st->num_columns; count++) {
 			g_string_append_printf(s,"\"%s\",",stats_tree_get_column_name(count));
 		}
 		g_string_append (s,"\n");
 	}
-	else if (format==ST_FORMAT_PLAIN) {
+	else if (format_type==ST_FORMAT_PLAIN) {
 		char fmt[16];
 		int sep_length;
 
@@ -1284,11 +1284,11 @@ stats_tree_format_as_str(const stats_tree* st, guint format,
 	}
 
 	for (child = st->root.children; child; child = child->next ) {
-		stats_tree_format_node_as_str(child,s,format,0,"",maxnamelen,sort_column,sort_descending);
+		stats_tree_format_node_as_str(child,s,format_type,0,"",maxnamelen,sort_column,sort_descending);
 
 	}
 
-	if (format==ST_FORMAT_PLAIN) {
+	if (format_type==ST_FORMAT_PLAIN) {
 		g_string_append_printf(s,"\n%s\n",separator);
 		g_free(separator);
 	}
@@ -1348,7 +1348,7 @@ escape_xml_chars (gchar *str)
 }
 /** helper funcation to add note to formatted stats_tree */
 WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString *s,
-					guint format, guint indent, gchar *path, gint maxnamelen, gint sort_column,
+					st_format_type format_type, guint indent, gchar *path, gint maxnamelen, gint sort_column,
 					gboolean sort_descending)
 {
 	int count;
@@ -1357,7 +1357,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString 
 	stat_node *child;
 	sortinfo si;
 
-	if (format==ST_FORMAT_XML) {
+	if (format_type==ST_FORMAT_XML) {
 		GString *itemname= escape_xml_chars(values[0]);
 		g_string_append_printf(s,"<stat-node name=\"%s\"%s>\n",itemname->str,
 				node->rng?" isrange=\"true\"":"");
@@ -1370,14 +1370,14 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString 
 			g_free(colname);
 		}
 	}
-	else if (format==ST_FORMAT_CSV) {
+	else if (format_type==ST_FORMAT_CSV) {
 		g_string_append_printf(s,"%d,\"%s\",\"%s\"",indent,path,values[0]);
 		for (count = 1; count<num_columns; count++) {
 			g_string_append_printf(s,",%s",values[count]);
 		}
 		g_string_append (s,"\n");
 	}
-	else if (format==ST_FORMAT_PLAIN) {
+	else if (format_type==ST_FORMAT_PLAIN) {
 		char fmt[16];
 
 		g_sprintf (fmt,"%%%ds%%-%us",indent,maxnamelen-indent);
@@ -1407,14 +1407,14 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString 
 		si.sort_descending = sort_descending;
 		g_array_sort_with_data(Children,stat_node_array_sortcmp,&si);
 		for (count = 0; count<((int)Children->len); count++) {
-			stats_tree_format_node_as_str(g_array_index(Children,stat_node*,count), s, format,
+			stats_tree_format_node_as_str(g_array_index(Children,stat_node*,count), s, format_type,
 					indent, path, maxnamelen, sort_column, sort_descending);
 		}
 		g_array_free(Children,FALSE);
 	}
 	g_free(path);
 
-	if (format==ST_FORMAT_XML) {
+	if (format_type==ST_FORMAT_XML) {
 		g_string_append(s,"</stat-node>\n");
 	}
 }
