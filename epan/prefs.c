@@ -58,6 +58,7 @@
 #include "epan/filter_expressions.h"
 
 #include "epan/wmem/wmem.h"
+#include <epan/stats_tree.h>
 
 /* Internal functions */
 static module_t *find_subtree(module_t *parent, const char *tilte);
@@ -1256,6 +1257,16 @@ static const enum_val_t gui_qt_language[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t st_sort_col_vals[] = {
+    { "name",    "Node name (topic/item)", ST_SORT_COL_NAME },
+    { "count",   "Item count", ST_SORT_COL_COUNT },
+    { "average", "Average value of the node", ST_SORT_COL_AVG },
+    { "min",     "Minimum value of the node", ST_SORT_COL_MIN },
+    { "max",     "Maximum value of the node", ST_SORT_COL_MAX },
+    { "burst",   "Burst rate of the node", ST_SORT_COL_BURSTRATE },
+    { NULL,      NULL,         0 }
+};
+
 static void
 stats_callback(void)
 {
@@ -1269,6 +1280,22 @@ stats_callback(void)
         prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 #endif
 
+    /* burst resolution can't be less than 1 (ms) */
+    if (prefs.st_burst_resolution < 1) {
+        prefs.st_burst_resolution = 1;
+    }
+    else if (prefs.st_burst_resolution > ST_MAX_BURSTRES) {
+        prefs.st_burst_resolution = ST_MAX_BURSTRES;
+    }
+    /* make sure burst window value makes sense */
+    if (prefs.st_burst_windowlen < prefs.st_burst_resolution) {
+        prefs.st_burst_windowlen = prefs.st_burst_resolution;
+    }
+    /* round burst window down to multiple of resolution */
+    prefs.st_burst_windowlen -= prefs.st_burst_windowlen%prefs.st_burst_resolution;
+    if ((prefs.st_burst_windowlen/prefs.st_burst_resolution) > ST_MAX_BURSTBUCKETS) {
+        prefs.st_burst_windowlen = prefs.st_burst_resolution*ST_MAX_BURSTBUCKETS;
+    }
 }
 
 static void
@@ -2461,6 +2488,73 @@ prefs_register_modules(void)
                                    &prefs.rtp_player_max_visible);
 #endif
 
+    prefs_register_bool_preference(stats_module, "st_enable_burstinfo",
+            "Enable the calculation of burst information",
+            "If enabled burst rates will be calcuted for statistics that use the stats_tree system. "
+            "Burst rates are calculated over a much shorter time interval than the rate column.",
+            &prefs.st_enable_burstinfo);
+
+    prefs_register_bool_preference(stats_module, "st_burst_showcount",
+            "Show burst count for item rather than rate",
+            "If selected the stats_tree statistics nodes will show the count of events "
+            "within the burst window instead of a burst rate. Burst rate is calculated "
+            "as number of events within burst window divided by the burst windown length.",
+            &prefs.st_burst_showcount);
+
+    prefs_register_uint_preference(stats_module, "st_burst_resolution",
+            "Burst rate resolution (ms)",
+            "Sets the duration of the time interval into which events are grouped when calculating "
+            "the burst rate. Higher resolution (smaller number) increases processing overhead.",
+            10,&prefs.st_burst_resolution);
+
+    prefs_register_uint_preference(stats_module, "st_burst_windowlen",
+            "Burst rate window size (ms)",
+            "Sets the duration of the sliding window during which the burst rate is "
+            "measured. Longer window relative to burst rate resolution increases "
+            "processing overhead. Will be truncated to a multiple of burst resolution.",
+            10,&prefs.st_burst_windowlen);
+            
+    prefs_register_enum_preference(stats_module, "st_sort_defcolflag",
+            "Default sort column for stats_tree stats",
+            "Sets the default column by which stats based on the stats_tree "
+            "system is sorted.",
+            &prefs.st_sort_defcolflag, st_sort_col_vals, FALSE);
+
+     prefs_register_bool_preference(stats_module, "st_sort_defdescending",
+            "Default stats_tree sort order is descending",
+            "When selected, statistics based on the stats_tree system will by default "
+            "be sorted in descending order.",
+            &prefs.st_sort_defdescending);
+
+     prefs_register_bool_preference(stats_module, "st_sort_casesensitve",
+            "Case sensitive sort of stats_tree item names",
+            "When selected, the item/node names of statistics based on the stats_tree "
+            "system will be sorted taking case into account. Else the case of the name "
+            "will be ignored.",
+            &prefs.st_sort_casesensitve);
+            
+     prefs_register_bool_preference(stats_module, "st_sort_rng_nameonly",
+            "Always sort 'range' nodes by name",
+            "When selected, the stats_tree nodes representing a range of values "
+            "(0-49, 50-100, etc.) will always be sorted by name (the range of the "
+            "node). Else range nodes are sorted by the same column as the rest of "
+            " the tree.",
+            &prefs.st_sort_rng_nameonly);
+
+     prefs_register_bool_preference(stats_module, "st_sort_rng_fixorder",
+            "Always sort 'range' nodes in ascending order",
+            "When selected, the stats_tree nodes representing a range of values "
+            "(0-49, 50-100, etc.) will always be sorted ascending; else it follows "
+            "the sort direction of the tree. Only effective if \"Always sort "
+            "'range' nodes by name\" is also selected.",
+            &prefs.st_sort_rng_fixorder);
+            
+     prefs_register_bool_preference(stats_module, "st_sort_showfullname",
+            "Display the full stats_tree plug-in name",
+            "When selected, the full name (including menu path) of the stats_tree "
+            "plug-in is show in windows. If cleared the plug-in name is shown "
+            "without menu path (only the part of the name after last '/' character.)",
+            &prefs.st_sort_showfullname);
 
     /* Protocols */
     protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
@@ -2903,7 +2997,16 @@ pre_init_prefs(void)
 /* set the default values for the tap/statistics dialog box */
   prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
-
+  prefs.st_enable_burstinfo = TRUE;
+  prefs.st_burst_showcount = FALSE;
+  prefs.st_burst_resolution = ST_DEF_BURSTRES;
+  prefs.st_burst_windowlen = ST_DEF_BURSTLEN;
+  prefs.st_sort_casesensitve = TRUE;
+  prefs.st_sort_rng_fixorder = TRUE;
+  prefs.st_sort_rng_nameonly = TRUE;
+  prefs.st_sort_defcolflag = ST_SORT_COL_COUNT;
+  prefs.st_sort_defdescending = TRUE;
+  prefs.st_sort_showfullname = FALSE;
   prefs.display_hidden_proto_items = FALSE;
 
   prefs_pre_initialized = TRUE;

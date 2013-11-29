@@ -122,6 +122,17 @@ void win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list)
  */
 void win32_import_color_file(HWND h_wnd, gpointer color_filters);
 
+/** Open the "Save As" dialog box for stats_tree statistics window.
+ *
+ * @param h_wnd HWND of the parent window.
+ * @param file_name File name. May be empty.
+ * @param file_type stats_tree file type.
+ *
+ * @return FALSE if the dialog was cancelled
+ */
+gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name,
+							int *file_type);
+
 void file_set_save_marked_sensitive();
 
 /* Open dialog defines */

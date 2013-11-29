@@ -81,7 +81,7 @@ uat_plen_record_update_cb(void *r, const char **err)
 }
 
 static void uat_plen_record_free_cb(void*r) {
-    uat_plen_record_t* record = (uat_plen_record_t*)r;
+	uat_plen_record_t* record = (uat_plen_record_t*)r;
 
 	if (record->packet_range) 
 		g_free(record->packet_range);
@@ -108,7 +108,7 @@ UAT_RANGE_CB_DEF(uat_plen_records, packet_range, uat_plen_record_t)
 
 /* ip host stats_tree -- basic test */
 static int st_node_ip = -1;
-static const gchar* st_str_ip = "IP Addresses";
+static const gchar* st_str_ip = "IP Statistics/IP Addresses";
 
 static void ip_hosts_stats_tree_init(stats_tree* st) {
 	st_node_ip = stats_tree_create_node(st, st_str_ip, 0, TRUE);
@@ -122,9 +122,38 @@ static int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan
 	return 1;
 }
 
+/* ip host stats_tree -- separate source and dest, test stats_tree flags */
+static int st_node_ip_src = -1;
+static int st_node_ip_dst = -1;
+static const gchar* st_str_ip_srcdst = "IP Statistics/Source and Dest IP Addresses";
+static const gchar* st_str_ip_src = "Source IP Addresses";
+static const gchar* st_str_ip_dst = "Destination IP Addresses";
+
+static void ip_srcdst_stats_tree_init(stats_tree* st) {
+	/* create one tree branch for source */
+	st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, TRUE);
+	/* set flag so this branch will always be sorted to top of tree */
+	stat_node_set_flags(st, st_str_ip_src, 0, FALSE, ST_FLG_SORT_TOP);
+	/* creat another top level node for destination branch */
+	st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, TRUE);
+	/* set flag so this branch will not be expanded by default */
+	stat_node_set_flags(st, st_str_ip_dst, 0, FALSE, ST_FLG_DEF_NOEXPAND);
+}
+
+static int ip_srcdst_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+	/* update source branch */
+	tick_stat_node(st, st_str_ip_src, 0, FALSE);
+	tick_stat_node(st, ep_address_to_str(&pinfo->net_src), st_node_ip_src, FALSE);
+	/* update destination branch */
+	tick_stat_node(st, st_str_ip_dst, 0, FALSE);
+	tick_stat_node(st, ep_address_to_str(&pinfo->net_dst), st_node_ip_dst, FALSE);
+
+	return 1;
+}
+
 /* packet type stats_tree -- test pivot node */
 static int st_node_ptype = -1;
-static const gchar* st_str_ptype = "IP Protocol Types";
+static const gchar* st_str_ptype = "IP Statistics/IP Protocol Types";
 
 static void ptype_stats_tree_init(stats_tree* st) {
 	st_node_ptype = stats_tree_create_pivot(st, st_str_ptype, 0);
@@ -158,6 +187,11 @@ static void plen_stats_tree_init(stats_tree* st) {
 
 static int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	tick_stat_node(st, st_str_plen, 0, FALSE);
+	/* also add value for averages calculation. we call the notick version of  */
+	/* avg_stat_node_add_value and call tick_stat_node separately. this allows */
+	/* compatiblity with older wireshark versions with no average support.     */
+	avg_stat_node_add_value_notick(st, st_str_plen, 0, FALSE, pinfo->fd->pkt_len);
+
 	stats_tree_tick_range(st, st_str_plen, 0, pinfo->fd->pkt_len);
 
 	return 1;
@@ -170,7 +204,7 @@ static int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_disse
 
 */
 static int st_node_dsts = -1;
-static const gchar* st_str_dsts = "IP Destinations";
+static const gchar* st_str_dsts = "IP Statistics/IP Destinations";
 
 static void dsts_stats_tree_init(stats_tree* st) {
 	st_node_dsts = stats_tree_create_node(st, st_str_dsts, 0, TRUE);
@@ -203,6 +237,7 @@ void register_pinfo_stat_trees(void) {
 	};
 
     stats_tree_register_plugin("ip","ip_hosts",st_str_ip, 0, ip_hosts_stats_tree_packet, ip_hosts_stats_tree_init, NULL );
+    stats_tree_register_plugin("ip","ip_srcdst",st_str_ip_srcdst, 0, ip_srcdst_stats_tree_packet, ip_srcdst_stats_tree_init, NULL );
 	stats_tree_register_plugin("ip","ptype",st_str_ptype, 0, ptype_stats_tree_packet, ptype_stats_tree_init, NULL );
 	stats_tree_register_with_group("frame","plen",st_str_plen, 0, plen_stats_tree_packet, plen_stats_tree_init, NULL, REGISTER_STAT_GROUP_GENERIC );
 	stats_tree_register_plugin("ip","dests",st_str_dsts, 0, dsts_stats_tree_packet, dsts_stats_tree_init, NULL );

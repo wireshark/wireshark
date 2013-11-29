@@ -35,6 +35,24 @@
 
 #define STAT_TREE_ROOT "root"
 
+#define	ST_FLG_AVERAGE		0x10000000	/* Calculate overages for nodes, rather than totals */
+#define	ST_FLG_ROOTCHILD	0x20000000	/* This node is a direct child of the root node */
+#define	ST_FLG_DEF_NOEXPAND	0x01000000	/* This node should not be expanded by default */
+#define	ST_FLG_SORT_DESC	0x00800000	/* When sorting, sort ascending instead of decending */
+#define	ST_FLG_SORT_TOP		0x00400000	/* When sorting always keep these lines on of list */
+#define ST_FLG_SRTCOL_MASK	0x000F0000	/* Mask for sort column ID */
+#define	ST_FLG_SRTCOL_SHIFT	16			/* Number of bits to shift masked result */
+
+#define	ST_FLG_MASK			(ST_FLG_AVERAGE|ST_FLG_ROOTCHILD|ST_FLG_DEF_NOEXPAND|\
+							ST_FLG_SORT_TOP|ST_FLG_SORT_DESC|ST_FLG_SRTCOL_MASK)
+
+#define ST_SORT_COL_NAME	1		/* Sort nodes by node names */
+#define ST_SORT_COL_COUNT	2		/* Sort nodes by node count */
+#define ST_SORT_COL_AVG		3		/* Sort nodes by node average */
+#define ST_SORT_COL_MIN		4		/* Sort nodes by minimum node value */
+#define ST_SORT_COL_MAX		5		/* Sort nodes by maximum node value */
+#define ST_SORT_COL_BURSTRATE	6	/* Sort nodes by burst rate */
+
 /* obscure information regarding the stats_tree */
 typedef struct _stats_tree stats_tree;
 
@@ -168,7 +186,14 @@ WS_DLL_PUBLIC int stats_tree_tick_pivot(stats_tree *st,
  * using parent_name as parent node (NULL for root).
  * with_children=TRUE to indicate that the created node will be a parent
  */
-typedef enum _manip_node_mode { MN_INCREASE, MN_SET } manip_node_mode;
+typedef enum _manip_node_mode {
+	MN_INCREASE,
+	MN_SET,
+	MN_AVERAGE,
+	MN_AVERAGE_NOTICK,
+	MN_SET_FLAGS,
+	MN_CLEAR_FLAGS
+} manip_node_mode;
 WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 				 stats_tree *st,
 				 const gchar *name,
@@ -187,5 +212,27 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 
 #define zero_stat_node(st,name,parent_id,with_children) \
 (stats_tree_manip_node(MN_SET,(st),(name),(parent_id),(with_children),0))
+
+/*
+ * Add value to average calculation WITHOUT ticking node. Node MUST be ticked separately!
+ *
+ * Intention is to allow code to separately tick node (backward compatibility for plugin)
+ * and set value to use for averages. Older versions without average support will then at
+ * least show a count instead of 0.
+ */
+#define avg_stat_node_add_value_notick(st,name,parent_id,with_children,value) \
+(stats_tree_manip_node(MN_AVERAGE_NOTICK,(st),(name),(parent_id),(with_children),value))
+
+/* Tick node and add a new value to the average calculation for this stats node. */
+#define avg_stat_node_add_value(st,name,parent_id,with_children,value) \
+(stats_tree_manip_node(MN_AVERAGE,(st),(name),(parent_id),(with_children),value))
+
+/* Set flags for this node. Node created if it does not yet exist. */
+#define stat_node_set_flags(st,name,parent_id,with_children,flags) \
+(stats_tree_manip_node(MN_SET_FLAGS,(st),(name),(parent_id),(with_children),flags))
+
+/* Clear flags for this node. Node created if it does not yet exist. */
+#define stat_node_clear_flags(st,name,parent_id,with_children,flags) \
+(stats_tree_manip_node(MN_CLEAR_FLAGS,(st),(name),(parent_id),(with_children),flags))
 
 #endif /* __STATS_TREE_H */

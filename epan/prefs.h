@@ -50,6 +50,10 @@ extern "C" {
 
 #define RTP_PLAYER_DEFAULT_VISIBLE 4
 #define TAP_UPDATE_DEFAULT_INTERVAL 3000
+#define	ST_DEF_BURSTRES 5
+#define ST_DEF_BURSTLEN 100
+#define ST_MAX_BURSTRES 600000	/* somewhat arbirary limit of 10 minutes */
+#define ST_MAX_BURSTBUCKETS 100	/* somewhat arbirary limit - more buckets degrade performance */
 
 /*
  * Convert a string listing name resolution types to a bitmask of
@@ -208,6 +212,16 @@ typedef struct _e_prefs {
   gboolean     unknown_colorfilters;  /* unknown or obsolete color filter(s) */
   guint        gui_qt_language;       /* Qt Translation language selection */
   gboolean     gui_packet_editor;     /* Enable Packet Editor */
+  gboolean     st_enable_burstinfo;
+  gboolean     st_burst_showcount;
+  gint         st_burst_resolution;
+  gint         st_burst_windowlen;
+  gboolean     st_sort_casesensitve;
+  gboolean     st_sort_rng_fixorder;
+  gboolean     st_sort_rng_nameonly;
+  gint         st_sort_defcolflag;
+  gboolean     st_sort_defdescending;
+  gboolean     st_sort_showfullname;
 } e_prefs;
 
 WS_DLL_PUBLIC e_prefs prefs;

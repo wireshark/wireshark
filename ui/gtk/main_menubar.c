@@ -1253,6 +1253,7 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "      <menuitem name='UDPMulticastStreams' action='/Statistics/UDPMulticastStreams'/>\n"
 "      <menuitem name='WLANTraffic' action='/Statistics/WLANTraffic'/>\n"
+"      <separator/>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
 "      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
@@ -4221,6 +4222,11 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
     GList          *iter;
     gchar          *action_name;
 
+    gchar          *submenu_path;
+    gchar          *stat_name_buf;
+    gchar          *stat_name;
+    gchar          *sep;
+        
     action_group = gtk_action_group_new ("tap-plugins-group");
 
     submenu_statistics = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_STATISTICS_PATH);
@@ -4237,23 +4243,61 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
     while (iter) {
         stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
         if (cfg->plugin) {
-            action_name = g_strdup_printf(MENU_STATISTICS_PATH "/%s", cfg->abbr);
+            stat_name_buf = g_strdup(cfg->name);
+            submenu_path = g_malloc(strlen(MENU_STATISTICS_PATH)+strlen(cfg->name)+strlen(cfg->abbr)+1);   /* worst case length */
+            strcpy(submenu_path, MENU_STATISTICS_PATH);
+
+            sep= stat_name= stat_name_buf;
+            while (sep= strchr(sep,'/')) {
+                if (*(++sep)=='/') {  /* escapeded slash - two slash characters after each other */
+                    memmove(sep,sep+1,strlen(sep));
+                }
+                else {
+                    /* we got a new submenu name - ignore the edge case where there is no text following this slash */
+                    *(sep-1)= 0;
+                    action_name = g_strdup_printf("%s/%s", submenu_path,stat_name);
+                    if (!gtk_ui_manager_get_widget(ui_manager, action_name)) {
+                        action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
+                            "name", action_name,
+                            "label", stat_name,
+                            NULL);
+                        gtk_action_group_add_action (action_group, action);
+                        g_object_unref (action);
+
+                        gtk_ui_manager_add_ui (ui_manager, merge_id,
+                            submenu_path,
+                            stat_name,
+                            action_name,
+                            GTK_UI_MANAGER_MENU,
+                            FALSE);
+                    }
+                    g_free (action_name);
+
+                    strcat(submenu_path,"/");
+                    strcat(submenu_path,stat_name);
+                    stat_name= sep;
+                }
+            }
+        
+            action_name = g_strdup_printf("%s/%s", submenu_path, cfg->abbr);
             action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
-                 "label", cfg->name,
+                 "label", stat_name,
                  NULL);
             g_signal_connect (action, "activate", G_CALLBACK (gtk_stats_tree_cb), NULL);
             gtk_action_group_add_action (action_group, action);
             g_object_unref (action);
 
             gtk_ui_manager_add_ui (ui_manager, merge_id,
-                 MENU_STATISTICS_PATH,
+                 submenu_path,
                  action_name,
                  action_name,
                  GTK_UI_MANAGER_MENUITEM,
                 FALSE);
 
             g_free (action_name);
+            g_free (stat_name_buf);
+            g_free (submenu_path);
         }
         iter = g_list_next(iter);
     }

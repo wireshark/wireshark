@@ -54,23 +54,12 @@ draw_stats_tree(void *psp)
 {
 	stats_tree *st = (stats_tree *)psp;
 	GString *s;
-	gchar *fmt;
-	stat_node *child;
 	
-	s = g_string_new("\n===================================================================\n");
-	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_tree_branch_max_namelen(&st->root,0));
-	g_string_append_printf(s,fmt,"",st->cfg->name,"value","rate","percent");
-	g_free(fmt);
-	g_string_append_printf(s,"-------------------------------------------------------------------\n");
-	
-	for (child = st->root.children; child; child = child->next ) {
-		stats_tree_branch_to_str(child,s,0);
-	}
-	
-	s = g_string_append(s,"\n===================================================================\n");
-	
+	s= stats_tree_format_as_str(st, ST_FORMAT_PLAIN, stats_tree_get_default_sort_col(st),
+				stats_tree_is_default_sort_DESC(st));
+
 	printf("%s",s->str);
-	
+	g_string_free(s,TRUE);	
 }
 
 static void
