@@ -1375,11 +1375,7 @@ insert_new_rows(GList *list)
     device.selected = TRUE;
     global_capture_opts.num_selected++;
     g_array_append_val(global_capture_opts.all_ifaces, device);
-    if (device.has_snaplen) {
-      snaplen_string = g_strdup_printf("%d", device.snaplen);
-    } else {
-      snaplen_string = g_strdup("default");
-    }
+    snaplen_string = g_strdup_printf("%d", device.snaplen);
 
 #if defined(HAVE_PCAP_CREATE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, device.buffer, MONITOR, "no",FILTER, "",-1);
@@ -2430,11 +2426,7 @@ update_options_table(gint indx)
     }
     if (!linkname)
       linkname = g_strdup("unknown");
-    if (device.has_snaplen) {
-      snaplen_string = g_strdup_printf("%d", device.snaplen);
-    } else {
-      snaplen_string = g_strdup("default");
-    }
+    snaplen_string = g_strdup_printf("%d", device.snaplen);
     if (cap_open_w) {
       if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
       path_str = g_strdup_printf("%d", indx);
@@ -3364,11 +3356,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
           g_array_remove_index(global_capture_opts.all_ifaces, i);
           g_array_insert_val(global_capture_opts.all_ifaces, i, device);
           temp = g_strdup_printf("<b>%s</b>", device.display_name);
-          if (device.has_snaplen) {
-            snaplen_string = g_strdup_printf("%d", device.snaplen);
-          } else {
-            snaplen_string = g_strdup("default");
-          }
+          snaplen_string = g_strdup_printf("%d", device.snaplen);
           if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
           model = gtk_tree_view_get_model(if_cb);
           if (gtk_tree_model_get_iter_first (model, &iter)) {
@@ -3501,11 +3489,7 @@ add_pipe_cb(gpointer w _U_)
     indx = global_capture_opts.all_ifaces->len;
     temp = g_strdup_printf("<b>%s</b>", device.display_name);
 
-    if (device.has_snaplen) {
-      snaplen_string = g_strdup_printf("%d", device.snaplen);
-    } else {
-      snaplen_string = g_strdup("default");
-    }
+    snaplen_string = g_strdup_printf("%d", device.snaplen);
 
     if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
     path_str = g_strdup_printf("%d", indx);
@@ -5726,11 +5710,7 @@ create_and_fill_model(GtkTreeView *view)
         device.has_snaplen = FALSE;
       }
 
-      if (device.has_snaplen) {
-        snaplen_string = g_strdup_printf("%d", device.snaplen);
-      } else {
-        snaplen_string = g_strdup("default");
-      }
+      snaplen_string = g_strdup_printf("%d", device.snaplen);
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       if (capture_dev_user_buffersize_find(device.name) != -1) {
