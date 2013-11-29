@@ -1042,7 +1042,7 @@ stats_tree_get_displayname (gchar* fullname)
 	}
 
 	sep = buf;
-	while (sep= strchr(sep,'/')) {
+	while ((sep = strchr(sep,'/')) != NULL) {
 		if (*(++sep)=='/') {  /* escapeded slash - two slash characters after each other */
 			memmove(sep,sep+1,strlen(sep));
 		}
@@ -1096,13 +1096,13 @@ stats_tree_get_column_name (gint col_index)
 extern gint
 stats_tree_get_column_size (gint col_index)
 {
- if (col_index==COL_NAME) {
-	return 36;		/* but caller should really call stats_tree_branch_max_namelen() */
- }
- if (col_index<N_COLUMNS) {
-	return 12;		/* all numerica values this size */
- }
- return 0;			/* invalid column */
+	if (col_index==COL_NAME) {
+		return 36;		/* but caller should really call stats_tree_branch_max_namelen() */
+	}
+	if (col_index<N_COLUMNS) {
+		return 12;		/* all numerica values this size */
+	}
+	return 0;			/* invalid column */
 }
 
 extern gboolean
@@ -1306,8 +1306,8 @@ points to a st_flags value */
 extern gint
 stat_node_array_sortcmp (gconstpointer a, gconstpointer b, gpointer user_data)
 {
- /* user_data is *guint value to st_flags */
- return stats_tree_sort_compare (*(stat_node**)a,*(stat_node**)b,
+	/* user_data is *guint value to st_flags */
+	return stats_tree_sort_compare (*(stat_node**)a,*(stat_node**)b,
 					((sortinfo*)user_data)->sort_column,((sortinfo*)user_data)->sort_descending);
 };
 
@@ -1315,7 +1315,7 @@ static gchar*
 clean_for_xml_tag (gchar *str)
 {
 	gchar *s = str;
-	while (s=strpbrk(s,"!\"#$%%&'()*+,/;<=>?@[\\]^`{|}~ ")) {
+	while ((s=strpbrk(s,"!\"#$%%&'()*+,/;<=>?@[\\]^`{|}~ ")) != NULL) {
 		*(s++) = '-';
 	}
 	return str;
