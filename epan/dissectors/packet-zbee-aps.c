@@ -512,6 +512,8 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC,          "Multistate Value (Basic)"},
     { ZBEE_ZCL_CID_COMMISSIONING,                   "Commissioning"},
     { ZBEE_ZCL_CID_PARTITION,                       "Partition"},
+    { ZBEE_ZCL_CID_OTA_UPGRADE,                     "OTA Upgrade"},
+    { ZBEE_ZCL_CID_POLL_CONTROL,                    "Poll Control"},
     /* */
     { ZBEE_ZCL_CID_POWER_PROFILE,                    "Power Profile"},
     { ZBEE_ZCL_CID_APPLIANCE_CONTROL,                "Appliance Control"},

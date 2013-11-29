@@ -148,6 +148,8 @@
 #define ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC         0x0014
 #define ZBEE_ZCL_CID_COMMISSIONING                  0x0015
 #define ZBEE_ZCL_CID_PARTITION                      0x0016
+#define ZBEE_ZCL_CID_OTA_UPGRADE                    0x0019
+#define ZBEE_ZCL_CID_POLL_CONTROL                   0x0020
 /* */
 #define ZBEE_ZCL_CID_POWER_PROFILE                  0x001a
 #define ZBEE_ZCL_CID_APPLIANCE_CONTROL              0x001b

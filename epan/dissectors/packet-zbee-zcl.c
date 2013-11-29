@@ -131,11 +131,113 @@ static int hf_zbee_zcl_attr_ostr = -1;
 static int hf_zbee_zcl_attr_array_elements_type = -1;
 static int hf_zbee_zcl_attr_array_elements_num = -1;
 
+static int hf_zbee_zcl_ias_zone_client_cmd_id = -1;
+static int hf_zbee_zcl_ias_zone_client_zer_erc = -1;
+static int hf_zbee_zcl_ias_zone_client_zer_zone_id = -1;
+static int hf_zbee_zcl_ias_zone_server_cmd_id = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_ac_mains = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_alarm1 = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_alarm2 = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_battery = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_delay = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_ext_status = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_restore_reports = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_supervision_reports = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_tamper = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_trouble = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_zone_id = -1;
+static int hf_zbee_zcl_ias_zone_server_scn_zone_status = -1;
+static int hf_zbee_zcl_identify_client_cmd_id = -1;
+static int hf_zbee_zcl_identify_client_identify_time = -1;
+static int hf_zbee_zcl_identify_server_cmd_id = -1;
+static int hf_zbee_zcl_identify_server_iqr_timeout = -1;
+static int hf_zbee_zcl_ota_upgrade_client_cmd_id = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_brd = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_brdp = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_field_control = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_fo = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_fv = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_ieee = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_ieee_address = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_it = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_mc = -1;
+static int hf_zbee_zcl_ota_upgrade_client_ibr_mds = -1;
+static int hf_zbee_zcl_ota_upgrade_client_qnir_cfv = -1;
+static int hf_zbee_zcl_ota_upgrade_client_qnir_field_control = -1;
+static int hf_zbee_zcl_ota_upgrade_client_qnir_hv = -1;
+static int hf_zbee_zcl_ota_upgrade_client_qnir_hvp = -1;
+static int hf_zbee_zcl_ota_upgrade_client_qnir_image_type = -1;
+static int hf_zbee_zcl_ota_upgrade_client_qnir_manuf_code = -1;
+static int hf_zbee_zcl_ota_upgrade_client_uer_fv = -1;
+static int hf_zbee_zcl_ota_upgrade_client_uer_it = -1;
+static int hf_zbee_zcl_ota_upgrade_client_uer_mc = -1;
+static int hf_zbee_zcl_ota_upgrade_client_uer_status = -1;
+static int hf_zbee_zcl_ota_upgrade_server_cmd_id = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_ds = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_fo = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_fv = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_image_data = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_it = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_mc = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_status = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_wfd_brd = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_wfd_ct = -1;
+static int hf_zbee_zcl_ota_upgrade_server_ibr_wfd_rt = -1;
+static int hf_zbee_zcl_ota_upgrade_server_in_it = -1;
+static int hf_zbee_zcl_ota_upgrade_server_in_mc = -1;
+static int hf_zbee_zcl_ota_upgrade_server_in_nfv = -1;
+static int hf_zbee_zcl_ota_upgrade_server_in_pt = -1;
+static int hf_zbee_zcl_ota_upgrade_server_in_qj = -1;
+static int hf_zbee_zcl_ota_upgrade_server_qnir_fv = -1;
+static int hf_zbee_zcl_ota_upgrade_server_qnir_is = -1;
+static int hf_zbee_zcl_ota_upgrade_server_qnir_it = -1;
+static int hf_zbee_zcl_ota_upgrade_server_qnir_mc = -1;
+static int hf_zbee_zcl_ota_upgrade_server_qnir_status = -1;
+static int hf_zbee_zcl_ota_upgrade_server_uer_ct = -1;
+static int hf_zbee_zcl_ota_upgrade_server_uer_fv = -1;
+static int hf_zbee_zcl_ota_upgrade_server_uer_it = -1;
+static int hf_zbee_zcl_ota_upgrade_server_uer_mc = -1;
+static int hf_zbee_zcl_ota_upgrade_server_uer_ut = -1;
+static int hf_zbee_zcl_poll_control_client_cir_fpt = -1;
+static int hf_zbee_zcl_poll_control_client_cir_sfp = -1;
+static int hf_zbee_zcl_poll_control_client_cmd_id = -1;
+static int hf_zbee_zcl_poll_control_client_slpi_nlpi = -1;
+static int hf_zbee_zcl_poll_control_client_sspi_nspi = -1;
+static int hf_zbee_zcl_poll_control_server_cmd_id = -1;
+static int hf_zbee_zcl_thermostat_client_cmd_id = -1;
+static int hf_zbee_zcl_thermostat_client_gws_days_to_return = -1;
+static int hf_zbee_zcl_thermostat_client_gws_mtr = -1;
+static int hf_zbee_zcl_thermostat_client_gws_mtr_cool = -1;
+static int hf_zbee_zcl_thermostat_client_gws_mtr_heat = -1;
+static int hf_zbee_zcl_thermostat_client_setpointrl_amount_field = -1;
+static int hf_zbee_zcl_thermostat_client_setpointrl_modes = -1;
+static int hf_zbee_zcl_thermostat_client_sws_dow = -1;
+static int hf_zbee_zcl_thermostat_client_sws_mfs = -1;
+static int hf_zbee_zcl_thermostat_client_sws_mfs_cool = -1;
+static int hf_zbee_zcl_thermostat_client_sws_mfs_heat = -1;
+static int hf_zbee_zcl_thermostat_client_sws_n_trans = -1;
+static int hf_zbee_zcl_thermostat_server_cmd_id = -1;
+static int hf_zbee_zcl_thermostat_server_gwsr_dow = -1;
+static int hf_zbee_zcl_thermostat_server_gwsr_mfs = -1;
+static int hf_zbee_zcl_thermostat_server_gwsr_mfs_cool = -1;
+static int hf_zbee_zcl_thermostat_server_gwsr_mfs_heat = -1;
+static int hf_zbee_zcl_thermostat_server_gwsr_n_trans = -1;
+
 /* Subtree indices. */
 static gint ett_zbee_zcl = -1;
 static gint ett_zbee_zcl_fcf = -1;
 static gint ett_zbee_zcl_attr[ZBEE_ZCL_NUM_ATTR_ETT];
 static gint ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
+
+static gint ett_zbee_zcl_ias_zone_server_scn_zone_status = -1;
+static gint ett_zbee_zcl_ota_upgrade_client_ibr_field_control = -1;
+static gint ett_zbee_zcl_ota_upgrade_client_qnir_field_control = -1;
+static gint ett_zbee_zcl_thermostat_client_gws_days_to_return = -1;
+static gint ett_zbee_zcl_thermostat_client_gws_mtr = -1;
+static gint ett_zbee_zcl_thermostat_client_sws_dow_for_sequence = -1;
+static gint ett_zbee_zcl_thermostat_client_sws_mfs = -1;
+static gint ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence = -1;
+static gint ett_zbee_zcl_thermostat_server_gwsr_mfs = -1;
 
 /* Dissector Handles. */
 static dissector_handle_t   data_handle;
@@ -177,6 +279,8 @@ static const value_string zbee_zcl_cmd_names[] = {
     { ZBEE_ZCL_CMD_READ_ATTR_STRUCT,        "Read Attributes Structured" },
     { ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT,       "Write Attributes Structured" },
     { ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP,  "Write Attributes Structured Response" },
+    { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC,       "Discover Commands Received" },
+    { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC_RESP,  "Discover Commands Received Response" },
 
     { 0, NULL }
 };
@@ -666,8 +770,8 @@ static value_string_ext zbee_zcl_wd_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_w
 
 /* Attribute Direction Names */
 static const value_string zbee_zcl_dir_names[] = {
-    { 0,    "Reported" },
-    { 1,    "Received" },
+    { ZBEE_ZCL_DIR_RECEIVED, "Received" },
+    { ZBEE_ZCL_DIR_REPORTED, "Reported" },
 
     { 0, NULL }
 };
@@ -680,6 +784,147 @@ static const value_string zbee_zcl_dis_names[] = {
     { 0, NULL }
 };
 
+/* ZCL IAS Zone Client Commands */
+static const value_string zbee_zcl_ias_zone_client_cmd_names[] = {
+    { ZBEE_ZCL_CSC_IAS_ZONE_C_ZER, "Zone Enroll Response" },
+
+    { 0, NULL }
+};
+
+/* ZCL IAS Zone Client Enroll Response Code Commands */
+static const value_string zbee_zcl_ias_zone_client_erc[] = {
+    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NEP, "No enroll permit" },
+    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NS, "Not supported" },
+    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_S, "Success" },
+    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_TMZ, "Too many zones" },
+
+    { 0, NULL }
+};
+
+/* ZCL IAS Zone Server Commands */
+static const value_string zbee_zcl_ias_zone_server_cmd_names[] = {
+    { ZBEE_ZCL_CSC_IAS_ZONE_S_ZER, "Zone Enroll Request" },
+    { ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN, "Zone Status Change Notification" },
+
+    { 0, NULL }
+};
+
+/* ZCL Identify Client Commands */
+static const value_string zbee_zcl_identify_client_cmd_names[] = {
+    { ZBEE_ZCL_CSC_IDENTIFY_C_I, "Identify" },
+    { ZBEE_ZCL_CSC_IDENTIFY_C_IR, "Identify Query" },
+
+    { 0, NULL }
+};
+
+/* ZCL Identify Server Commands */
+static const value_string zbee_zcl_identify_server_cmd_names[] = {
+    { ZBEE_ZCL_CSC_IDENTIFY_S_IQR, "Identify Query Response" },
+
+    { 0, NULL }
+};
+
+/* ZCL OTA Upgrade Client Commands */
+static const value_string zbee_zcl_ota_upgrade_client_cmd_names[] = {
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR, "Image Block Request" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR, "Query Next Image Request" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER, "Upgrade End Request" },
+
+    { 0, NULL }
+};
+
+/* ZCL OTA Upgrade Server Commands */
+static const value_string zbee_zcl_ota_upgrade_server_cmd_names[] = {
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR, "Image Block Response" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN, "Image Notify" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_QNIR, "Query Next Image Response" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_UER, "Upgrade End Response" },
+
+    { 0, NULL }
+};
+
+/* ZCL OTA Upgrade Server Image Notify Payload Type */
+static const value_string zbee_zcl_ota_upgrade_server_in_pt[] = {
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_J, "Query jitter" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JM, "Query jitter and manufacturer code" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMI, "Query jitter, manufacturer code and image type" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMIN, "Query jitter, manufacturer code, image type and new file version" },
+
+    { 0, NULL }
+};
+
+/* ZCL OTA Upgrade Server Query Next Image Response Status */
+static const value_string zbee_zcl_ota_upgrade_server_qnir_status[] = {
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_A, "Abort" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_II, "Invalid Image" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_MC, "Malformed Command" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NA, "Not Authorised" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NIA, "No Image Available" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_RMI, "Require More Image" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_S, "Success" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_UCC, "Unsup Cluster Command" },
+    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_WFD, "Wait For Data" },
+
+    { 0, NULL }
+};
+
+/* ZCL Poll Control Client Commands */
+static const value_string zbee_zcl_poll_control_client_cmd_names[] = {
+    { ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR, "Check-in Response" },
+    { ZBEE_ZCL_CSC_POLL_CONTROL_C_FPS, "Fast Poll Stop" },
+    { ZBEE_ZCL_CSC_POLL_CONTROL_C_SLPI, "Set Long Poll Interval" },
+    { ZBEE_ZCL_CSC_POLL_CONTROL_C_SSPI, "Set Short Poll Interval" },
+
+    { 0, NULL }
+};
+
+/* ZCL Poll Control Server Commands */
+static const value_string zbee_zcl_poll_control_server_cmd_names[] = {
+    { ZBEE_ZCL_CSC_POLL_CONTROL_S_CI, "Check-in" },
+
+    { 0, NULL }
+};
+
+/* ZCL Thermostat Client Commands */
+static const value_string zbee_zcl_thermostat_client_cmd_names[] = {
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_CWS, "Clear Weekly Schedule" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_GWS, "Get Weekly Schedule" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SRL, "Setpoint Raise/Lower" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS, "Set Weekly Schedule" },
+
+    { 0, NULL }
+};
+
+/* ZCL Thermostat Client Setpoint Raise/Lower Mode Fields */
+static const value_string zbee_zcl_thermostat_client_setpointrl_mf[] = {
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B, "Both (adjust Heat Setpoint and Cool Setpoint)" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP, "Cool (adjust Cool Setpoint)" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP, "Heat (adjust Heat Setpoint)" },
+
+    { 0, NULL }
+};
+
+/* ZCL Thermostat Client Weekly Schedule Day of Week for Sequence */
+static const value_string zbee_zcl_thermostat_client_ws_dow[] = {
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_AV, "Away or Vacation" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_FR, "Friday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_MO, "Monday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_SA, "Saturday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_SU, "Sunday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_TH, "Thursday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_TU, "Tuesday" },
+    { ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_WE, "Wednesday" },
+
+    { 0, NULL }
+};
+
+/* ZCL Thermostat Server Commands */
+static const value_string zbee_zcl_thermostat_server_cmd_names[] = {
+    { ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR, "Get Weekly Schedule Response" },
+
+    { 0, NULL }
+};
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_zcl
@@ -687,17 +932,15 @@ static const value_string zbee_zcl_dis_names[] = {
  *      ZigBee Cluster Library dissector for wireshark.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
+ *      packet_into *pinfo  - pointer to packet information fields.
  *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
+ *      void *data          - raw packet private data.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tvbuff_t *payload_tvb = NULL;
-    dissector_handle_t  cluster_handle = NULL;
-
     proto_tree *zcl_tree = NULL;
     proto_tree *sub_tree = NULL;
 
@@ -710,13 +953,13 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     guint8  fcf;
     guint   offset = 0;
+    guint   i;
 
     /* Init. */
     memset(&packet, 0, sizeof(zbee_zcl_packet));
 
     /* Fill the zcl cluster id */
     zcl_cluster_id = nwk->cluster_id;
-    cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, zcl_cluster_id);
 
     /* Create the protocol tree */
     if ( tree ) {
@@ -809,29 +1052,581 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             packet.cmd_id);
         }
         offset += (int)1;
-    }
-    else {
-        /* Cluster Specific */
-        payload_tvb = tvb_new_subset_remaining(tvb, offset);
+    } else {
+        /* Cluster-specific. */
+        guint8 field_control, ibr_status, image_notify_payload_type, mode_for_sequence, number_of_transitions,
+            query_next_image_response;
 
-        if (cluster_handle != NULL) {
-            /* Call the specific cluster dissector registered */
-            call_dissector_with_data(cluster_handle, payload_tvb, pinfo, zcl_tree, &packet);
-        }
-        else {
-            proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u",
-                packet.cmd_id, packet.tran_seqno);
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Command: 0x%02x, Seq: %u",
-                packet.cmd_id, packet.tran_seqno);
-
-            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, (int)1,
+        proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u", packet.cmd_id,
+            packet.tran_seqno);
+        switch (zcl_cluster_id) {
+            case ZBEE_ZCL_CID_IAS_ZONE:
+                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
+                    /* We have a client. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_ias_zone_client_cmd_names, "Unknown IAS Zone Client Command"), packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ias_zone_client_cmd_id, tvb, offset, 1,
                             packet.cmd_id);
-            offset += (int)1;
-
-            /* Don't decode cluster-specific commands */
-            zcl_dump_data(tvb, offset, pinfo, zcl_tree);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_IAS_ZONE_C_ZER:
+                                /* Zone Enroll Response. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_client_zer_erc, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_client_zer_zone_id, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                break;
+                        }
+                    }
+                } else {
+                    /* We have a server. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_ias_zone_server_cmd_names, "Unknown IAS Zone Server Command"), packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ias_zone_server_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN:
+                                /* Zone Status Change Notification. */
+                                ti = proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_zone_status, tvb,
+                                    offset, 2, ENC_LITTLE_ENDIAN);
+                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ias_zone_server_scn_zone_status);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_alarm1, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_alarm2, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_tamper, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_battery, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_supervision_reports, tvb,
+                                    offset, 2, ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_restore_reports, tvb,
+                                    offset, 2, ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_trouble, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_ac_mains, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_ext_status, tvb, offset,
+                                    1, ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_zone_id, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_delay, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                break;
+                        }
+                    }
+                }
+                break;
+            case ZBEE_ZCL_CID_IDENTIFY:
+                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
+                    /* We have a client. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_identify_client_cmd_names, "Unknown Identify Client Command"), packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_identify_client_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_IDENTIFY_C_I:
+                                /* Identify. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_identify_client_identify_time, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                break;
+                        }
+                    }
+                } else {
+                    /* We have a server. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_identify_server_cmd_names, "Unknown Identify Server Command"), packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_identify_server_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_IDENTIFY_S_IQR:
+                                /* Identify Query Response. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_identify_server_iqr_timeout, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                break;
+                        }
+                    }
+                }
+                break;
+            case ZBEE_ZCL_CID_OTA_UPGRADE:
+                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
+                    /* We have a client. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_ota_upgrade_client_cmd_names, "Unknown OTA Upgrade Client Command"),
+                        packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ota_upgrade_client_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR:
+                                /* Image Block Request. */
+                                field_control = tvb_get_guint8(tvb, offset);
+                                ti = proto_tree_add_uint_format(zcl_tree,
+                                    hf_zbee_zcl_ota_upgrade_client_ibr_field_control, tvb, offset, 1, field_control,
+                                    "Field Control");
+                                sub_tree = proto_item_add_subtree(ti,
+                                    ett_zbee_zcl_ota_upgrade_client_ibr_field_control);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_upgrade_client_ibr_ieee, tvb, offset, 1,
+                                    ENC_NA);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_upgrade_client_ibr_brdp, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_mc, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_it, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_fv, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_fo, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_mds, tvb, offset, 1,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 1;
+                                if (field_control & 0x01) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_ieee_address, tvb,
+                                        offset, 8, ENC_LITTLE_ENDIAN);
+                                    offset += 8;
+                                }
+                                if (field_control & 0x02) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_brd, tvb, offset,
+                                        2, ENC_LITTLE_ENDIAN);
+                                    offset += 2;
+                                }
+                                break;
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR:
+                                /* Query Next Image Request. */
+                                field_control = tvb_get_guint8(tvb, offset);
+                                ti = proto_tree_add_uint_format(zcl_tree,
+                                    hf_zbee_zcl_ota_upgrade_client_qnir_field_control, tvb, offset, 1, field_control,
+                                    "Field Control");
+                                sub_tree = proto_item_add_subtree(ti,
+                                    ett_zbee_zcl_ota_upgrade_client_qnir_field_control);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_upgrade_client_qnir_hvp, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_manuf_code, tvb,
+                                    offset, 2, ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_image_type, tvb,
+                                    offset, 2, ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_cfv, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                if (field_control) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_hv, tvb, offset,
+                                        2, ENC_LITTLE_ENDIAN);
+                                    offset += 2;
+                                }
+                                break;
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER:
+                                /* Upgrade End Request. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_status, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_mc, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_it, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_fv, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                break;
+                        }
+                    }
+                } else {
+                    /* We have a server. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_ota_upgrade_server_cmd_names, "Unknown OTA Upgrade Server Command"),
+                        packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ota_upgrade_server_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR:
+                                /* Image Block Response. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_status, tvb, offset, 1,
+                                    ENC_NA);
+                                ibr_status = tvb_get_guint8(tvb, offset);
+                                offset += 1;
+                                switch (ibr_status) {
+                                    case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_S:
+                                        /* Success. */
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_mc, tvb,
+                                            offset, 2, ENC_LITTLE_ENDIAN);
+                                        offset += 2;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_it, tvb,
+                                            offset, 2, ENC_LITTLE_ENDIAN);
+                                        offset += 2;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_fv, tvb,
+                                            offset, 4, ENC_LITTLE_ENDIAN);
+                                        offset += 4;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_fo, tvb,
+                                            offset, 4, ENC_LITTLE_ENDIAN);
+                                        offset += 4;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_ds, tvb,
+                                            offset, 1, ENC_NA);
+                                        offset += 1;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_image_data,
+                                            tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+                                        offset += tvb_length_remaining(tvb, offset);
+                                        break;
+                                    case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_WFD:
+                                        /* Wait For Data. */
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_wfd_ct, tvb,
+                                            offset, 4, ENC_LITTLE_ENDIAN);
+                                        offset += 4;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_wfd_rt, tvb,
+                                            offset, 4, ENC_LITTLE_ENDIAN);
+                                        offset += 4;
+                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_wfd_brd, tvb,
+                                            offset, 2, ENC_LITTLE_ENDIAN);
+                                        offset += 2;
+                                        break;
+                                }
+                                break;
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN:
+                                /* Image Notify. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_pt, tvb, offset, 1,
+                                    ENC_NA);
+                                image_notify_payload_type = tvb_get_guint8(tvb, offset);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_qj, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_J) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_mc, tvb, offset, 2,
+                                        ENC_LITTLE_ENDIAN);
+                                    offset += 2;
+                                }
+                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JM) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_it, tvb, offset, 2,
+                                        ENC_LITTLE_ENDIAN);
+                                    offset += 2;
+                                }
+                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMI) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_nfv, tvb, offset, 4,
+                                        ENC_LITTLE_ENDIAN);
+                                    offset += 4;
+                                }
+                                break;
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_QNIR:
+                                /* Query Next Image Response. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_status, tvb, offset,
+                                    1, ENC_NA);
+                                query_next_image_response = tvb_get_guint8(tvb, offset);
+                                offset += 1;
+                                if (!query_next_image_response) {
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_mc, tvb, offset,
+                                        2, ENC_LITTLE_ENDIAN);
+                                    offset += 2;
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_it, tvb, offset,
+                                        2, ENC_LITTLE_ENDIAN);
+                                    offset += 2;
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_fv, tvb, offset,
+                                        4, ENC_LITTLE_ENDIAN);
+                                    offset += 4;
+                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_is, tvb, offset,
+                                        4, ENC_LITTLE_ENDIAN);
+                                    offset += 4;
+                                }
+                                break;
+                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_UER:
+                                /* Upgrade End Response. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_mc, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_it, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_fv, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_ct, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_ut, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                break;
+                        }
+                    }
+                }
+                break;
+            case ZBEE_ZCL_CID_POLL_CONTROL:
+                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
+                    /* We have a client. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_poll_control_client_cmd_names, "Unknown Poll Control Client Command"),
+                        packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_poll_control_client_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR:
+                                /* Check-in Response. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_cir_sfp, tvb, offset, 1,
+                                    ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_cir_fpt, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                break;
+                            case ZBEE_ZCL_CSC_POLL_CONTROL_C_SLPI:
+                                /* Set Long Poll Interval. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_slpi_nlpi, tvb, offset, 4,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 4;
+                                break;
+                            case ZBEE_ZCL_CSC_POLL_CONTROL_C_SSPI:
+                                /* Set Short Poll Interval. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_sspi_nspi, tvb, offset, 2,
+                                    ENC_LITTLE_ENDIAN);
+                                offset += 2;
+                                break;
+                          }
+                    }
+                } else {
+                    /* We have a server. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_poll_control_server_cmd_names, "Unknown Poll Control Server Command"),
+                        packet.tran_seqno);
+                    proto_tree_add_uint(zcl_tree, hf_zbee_zcl_poll_control_server_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                    offset += 1;
+                    /*  switch (packet.cmd_id) {
+                        }
+                     */
+                }
+                break;
+            case ZBEE_ZCL_CID_THERMOSTAT:
+                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
+                    /* We have a client. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_thermostat_client_cmd_names, "Unknown Thermostat Client Command"), packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_client_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_THERMOSTAT_C_GWS:
+                                /* Get Weekly Schedule. */
+                                ti = proto_tree_add_uint_format(zcl_tree,
+                                    hf_zbee_zcl_thermostat_client_gws_days_to_return, tvb, offset, 1,
+                                    tvb_get_guint8(tvb, offset), "Days To Return");
+                                sub_tree = proto_item_add_subtree(ti,
+                                    ett_zbee_zcl_thermostat_client_gws_days_to_return);
+                                for (i = 0; i < 8; ++i) {
+                                    if (tvb_get_guint8(tvb, offset) & (0x01 << i)) {
+                                        proto_tree_add_uint(sub_tree, hf_zbee_zcl_thermostat_client_gws_days_to_return,
+                                            tvb, offset, 1, tvb_get_guint8(tvb, offset) & (0x01 << i));
+                                    }
+                                }
+                                offset += 1;
+                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_client_gws_mtr, tvb,
+                                    offset, 1, tvb_get_guint8(tvb, offset), "Mode To Return");
+                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_thermostat_client_gws_mtr);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_thermostat_client_gws_mtr_heat, tvb, offset,
+                                    1, ENC_NA);
+                                proto_tree_add_item(sub_tree, hf_zbee_zcl_thermostat_client_gws_mtr_cool, tvb, offset,
+                                    1, ENC_NA);
+                                offset += 1;
+                                break;
+                            case ZBEE_ZCL_CSC_THERMOSTAT_C_SRL:
+                                /* Setpoint Raise/Lower. */
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_thermostat_client_setpointrl_modes, tvb,
+                                    offset, 1, ENC_NA);
+                                offset += 1;
+                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_thermostat_client_setpointrl_amount_field,
+                                    tvb, offset, 1, ENC_NA);
+                                offset += 1;
+                                break;
+                            case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS:
+                                /* Set Weekly Schedule. */
+                                number_of_transitions = tvb_get_guint8(tvb, offset);
+                                proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_client_sws_n_trans, tvb, offset, 1,
+                                    number_of_transitions);
+                                offset += 1;
+                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_client_sws_dow, tvb,
+                                    offset, 1, tvb_get_guint8(tvb, offset), "Day of Week for Sequence");
+                                sub_tree = proto_item_add_subtree(ti,
+                                    ett_zbee_zcl_thermostat_client_sws_dow_for_sequence);
+                                for (i = 0; i < 8; ++i) {
+                                    if (tvb_get_guint8(tvb, offset) & (0x01 << i)) {
+                                        proto_tree_add_uint(sub_tree, hf_zbee_zcl_thermostat_client_sws_dow, tvb,
+                                            offset, 1, tvb_get_guint8(tvb, offset) & (0x01 << i));
+                                    }
+                                }
+                                offset += 1;
+                                mode_for_sequence = tvb_get_guint8(tvb, offset);
+                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_client_sws_mfs, tvb,
+                                    offset, 1, mode_for_sequence, "Mode for Sequence");
+                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_thermostat_client_sws_mfs);
+                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_client_sws_mfs_heat, tvb,
+                                    offset, 1, mode_for_sequence);
+                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_client_sws_mfs_cool, tvb,
+                                    offset, 1, mode_for_sequence);
+                                offset += 1;
+                                for (i = 1; i <= number_of_transitions; ++i) {
+                                    switch (mode_for_sequence) {
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B:
+                                            /* Both Cool Set Point and Heat Set Point. */
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Transition Time %d (minutes since midnight): %d", i,
+                                                tvb_get_letohs(tvb, offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            break;
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP:
+                                            /* Cool Set Point. */
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Transition Time %d (minutes since midnight): %d", i,
+                                                tvb_get_letohs(tvb, offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            break;
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP:
+                                            /* Heat Set Point. */
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Transition Time %d (minutes since midnight): %d", i,
+                                                tvb_get_letohs(tvb, offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            break;
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                } else {
+                    /* We have a server. */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
+                        zbee_zcl_thermostat_server_cmd_names, "Unknown Thermostat Server Command"), packet.tran_seqno);
+                    if (zcl_tree) {
+                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_server_cmd_id, tvb, offset, 1,
+                            packet.cmd_id);
+                        offset += 1;
+                        switch (packet.cmd_id) {
+                            case ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR:
+                                /* Get Weekly Schedule Response. */
+                                number_of_transitions = tvb_get_guint8(tvb, offset);
+                                proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_n_trans, tvb, offset,
+                                    1, number_of_transitions);
+                                offset += 1;
+                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_dow, tvb,
+                                    offset, 1, tvb_get_guint8(tvb, offset), "Day of Week for Sequence");
+                                sub_tree = proto_item_add_subtree(ti,
+                                    ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence);
+                                for (i = 0; i < 8; ++i) {
+                                    if (tvb_get_guint8(tvb, offset) & (0x01 << i)) {
+                                        proto_tree_add_uint(sub_tree, hf_zbee_zcl_thermostat_server_gwsr_dow, tvb,
+                                            offset, 1, tvb_get_guint8(tvb, offset) & (0x01 << i));
+                                    }
+                                }
+                                offset += 1;
+                                mode_for_sequence = tvb_get_guint8(tvb, offset);
+                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_mfs, tvb,
+                                    offset, 1, mode_for_sequence, "Mode for Sequence");
+                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_thermostat_server_gwsr_mfs);
+                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_server_gwsr_mfs_heat, tvb,
+                                    offset, 1, mode_for_sequence);
+                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_server_gwsr_mfs_cool, tvb,
+                                    offset, 1, mode_for_sequence);
+                                offset += 1;
+                                for (i = 1; i <= number_of_transitions; ++i) {
+                                    switch (mode_for_sequence) {
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B:
+                                            /* Both Cool Set Point and Heat Set Point. */
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Transition Time %d (minutes since midnight): %d", i,
+                                                tvb_get_letohs(tvb, offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            break;
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP:
+                                            /* Cool Set Point. */
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Transition Time %d (minutes since midnight): %d", i,
+                                                tvb_get_letohs(tvb, offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            break;
+                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP:
+                                            /* Heat Set Point. */
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Transition Time %d (minutes since midnight): %d", i,
+                                                tvb_get_letohs(tvb, offset));
+                                            offset += 2;
+                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
+                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
+                                                offset));
+                                            offset += 2;
+                                            break;
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+                break;
+            default:
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown Command: 0x%02x, Seq: %u", packet.cmd_id,
+                    packet.tran_seqno);
+                if (zcl_tree) {
+                    proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, 1, packet.cmd_id);
+                    offset += 1;
+                }
+                break;
         }
+        /* Don't decode the tail. */
+        zcl_dump_data(tvb, offset, pinfo, zcl_tree);
         return tvb_length(tvb);
     }
 
@@ -2167,6 +2962,41 @@ void proto_register_zbee_zcl(void)
         "To Server"
     };
 
+    static const true_false_string tfs_ac_mains = {
+        "AC/Mains fault",
+        "AC/Mains OK"
+    };
+
+    static const true_false_string tfs_alarmed_or_not = {
+        "Opened or alarmed",
+        "Closed or not alarmed"
+    };
+
+    static const true_false_string tfs_battery = {
+        "Low battery",
+        "Battery OK"
+    };
+
+    static const true_false_string tfs_reports_or_not = {
+        "Reports",
+        "Does not report"
+    };
+
+    static const true_false_string tfs_reports_restore = {
+        "Reports restore",
+        "Does not report restore"
+    };
+
+    static const true_false_string tfs_tampered_or_not = {
+        "Tampered",
+        "Not tampered"
+    };
+
+    static const true_false_string tfs_trouble_failure = {
+        "Trouble/Failure",
+        "OK"
+    };
+
     static hf_register_info hf[] = {
         { &hf_zbee_zcl_fcf_frame_type,
             { "Frame Type", "zbee_zcl.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_frame_types),
@@ -2350,7 +3180,341 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_attr_array_elements_num,
             { "Elements Number",   "zbee_zcl.attr.array.elements_num", FT_UINT16, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }}
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_client_cmd_id,
+            { "Command", "zbee_zcl.ias_zone.client.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ias_zone_client_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_client_zer_erc,
+            { "Enroll response code", "zbee_zcl.ias_zone.client.zer.erc", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ias_zone_client_erc), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_client_zer_zone_id,
+            { "Zone ID", "zbee_zcl.ias_zone.client.zer.zone_id", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_cmd_id,
+            { "Command", "zbee_zcl.ias_zone.server.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ias_zone_server_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_ac_mains,
+            { "AC (mains)", "zbee_zcl.ias_zone.server.scn.ac_mains", FT_BOOLEAN, 16, TFS(&tfs_ac_mains), 0x80, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_alarm1,
+            { "Alarm 1", "zbee_zcl.ias_zone.server.scn.alarm_1", FT_BOOLEAN, 16, TFS(&tfs_alarmed_or_not), 0x01, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_alarm2,
+            { "Alarm 2", "zbee_zcl.ias_zone.server.scn.alarm_2", FT_BOOLEAN, 16, TFS(&tfs_alarmed_or_not), 0x02, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_battery,
+            { "Battery", "zbee_zcl.ias_zone.server.scn.battery", FT_BOOLEAN, 16, TFS(&tfs_battery), 0x08, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_delay,
+            { "Delay (in quarterseconds)", "zbee_zcl.ias_zone.server.scn.delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_ext_status,
+            { "Extended Status", "zbee_zcl.ias_zone.server.scn.ext_status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_restore_reports,
+            { "Restore Reports", "zbee_zcl.ias_zone.server.scn.restore_reports", FT_BOOLEAN, 16,
+                TFS(&tfs_reports_restore), 0x20, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_supervision_reports,
+            { "Supervision Reports", "zbee_zcl.ias_zone.server.scn.supervision_reports", FT_BOOLEAN, 16,
+                TFS(&tfs_reports_or_not), 0x10, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_tamper,
+            { "Tamper", "zbee_zcl.ias_zone.server.scn.tamper", FT_BOOLEAN, 16, TFS(&tfs_tampered_or_not), 0x04, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_trouble,
+            { "Trouble", "zbee_zcl.ias_zone.server.scn.trouble", FT_BOOLEAN, 16, TFS(&tfs_trouble_failure), 0x40, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_zone_id,
+            { "Zone ID", "zbee_zcl.ias_zone.server.scn.zone_id", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_server_scn_zone_status,
+            { "Zone Status", "zbee_zcl.ias_zone.server.scn.zone_status", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_identify_client_cmd_id,
+            { "Command", "zbee_zcl.identify.client.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_identify_client_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_identify_client_identify_time,
+            { "Identify Time (seconds)", "zbee_zcl.identify.client.identify.time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_identify_server_cmd_id,
+            { "Command", "zbee_zcl.identify.server.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_identify_server_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_identify_server_iqr_timeout,
+            { "Timeout (seconds)", "zbee_zcl.identify.server.iqr.timeout", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_cmd_id,
+            { "Command", "zbee_zcl.ota_upgrade.client.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ota_upgrade_client_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_brd,
+            { "Block Request Delay", "zbee_zcl.ota_upgrade.client.ibr.brd", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_brdp,
+            { "Block Request Delay Presents", "zbee_zcl.ota_upgrade.client.ibr.brdp", FT_BOOLEAN, 8, NULL, 0x02, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_field_control,
+            { "Field Control", "zbee_zcl.ota_upgrade.client.ibr.field_control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_fo,
+            { "File Offset (in bytes)", "zbee_zcl.ota_upgrade.client.ibr.fo", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_fv,
+            { "File Version", "zbee_zcl.ota_upgrade.client.ibr.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_ieee,
+            { "Request Node's IEEE Address Presents", "zbee_zcl.ota_upgrade.client.ibr.ieee", FT_BOOLEAN, 8, NULL, 0x01,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_ieee_address,
+            { "IEEE Address", "zbee_zcl.ota_upgrade.client.ibr.ieee_address", FT_EUI64, BASE_NONE, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_it,
+            { "Image Type", "zbee_zcl.ota_upgrade.client.ibr.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_mc,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.client.ibr.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_ibr_mds,
+            { "Maximum Data Size (in bytes)", "zbee_zcl.ota_upgrade.client.ibr.mds", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_qnir_cfv,
+            { "Current File Version", "zbee_zcl.ota_upgrade.client.qnir.cfv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_qnir_field_control,
+            { "Field Control", "zbee_zcl.ota_upgrade.client.qnir.field_control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_qnir_hv,
+            { "Hardware Version", "zbee_zcl.ota_upgrade.client.qnir.hardware_version", FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_qnir_hvp,
+            { "Hardware Version Present", "zbee_zcl.ota_upgrade.client.qnir.hvp", FT_BOOLEAN, 8, NULL, 0x01, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_qnir_image_type,
+            { "Image Type", "zbee_zcl.ota_upgrade.client.qnir.image_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_qnir_manuf_code,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.client.qnir.manufacturer_code", FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_uer_fv,
+            { "File Version", "zbee_zcl.ota_upgrade.client.uer.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_uer_it,
+            { "Image Type", "zbee_zcl.ota_upgrade.client.uer.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_uer_mc,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.client.uer.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_client_uer_status,
+            { "Status", "zbee_zcl.ota_upgrade.client.uer.status", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ota_upgrade_server_qnir_status), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_cmd_id,
+            { "Command", "zbee_zcl.ota_upgrade.server.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ota_upgrade_server_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_ds,
+            { "Data Size", "zbee_zcl.ota_upgrade.server.ibr.ds", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_fo,
+            { "File Offset", "zbee_zcl.ota_upgrade.server.ibr.fo", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_fv,
+            { "File Version", "zbee_zcl.ota_upgrade.server.ibr.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_image_data,
+            { "Image Data", "zbee_zcl.ota_upgrade.server.ibr.image_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_it,
+            { "Image Type", "zbee_zcl.ota_upgrade.server.ibr.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_mc,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.ibr.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_status,
+            { "Status", "zbee_zcl.ota_upgrade.server.ibr.status", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ota_upgrade_server_qnir_status), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_wfd_brd,
+            { "Block Request Delay", "zbee_zcl.ota_upgrade.server.ibr.wfd_brd", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_wfd_ct,
+            { "Current Time", "zbee_zcl.ota_upgrade.server.ibr.wfd_ct", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_ibr_wfd_rt,
+            { "Request Time", "zbee_zcl.ota_upgrade.server.ibr.wfd_rt", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_in_it,
+            { "Image Type", "zbee_zcl.ota_upgrade.server.in.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_in_mc,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.in.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_in_nfv,
+            { "New File Version", "zbee_zcl.ota_upgrade.server.in.nfv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_in_pt,
+            { "Payload Type", "zbee_zcl.ota_upgrade.server.in.pt", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ota_upgrade_server_in_pt), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_in_qj,
+            { "Query Jitter", "zbee_zcl.ota_upgrade.server.in.qj", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_qnir_fv,
+            { "File Version", "zbee_zcl.ota_upgrade.server.qnir.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_qnir_is,
+            { "Image Size (in bytes)", "zbee_zcl.ota_upgrade.server.qnir.is", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_qnir_it,
+            { "Image Type", "zbee_zcl.ota_upgrade.server.qnir.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_qnir_mc,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.qnir.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_qnir_status,
+            { "Status", "zbee_zcl.ota_upgrade.server.qnir.status", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_ota_upgrade_server_qnir_status), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_uer_ct,
+            { "Current Time", "zbee_zcl.ota_upgrade.server.uer.ct", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_uer_fv,
+            { "File Version", "zbee_zcl.ota_upgrade.server.uer.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_uer_it,
+            { "Image Type", "zbee_zcl.ota_upgrade.server.uer.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_uer_mc,
+            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.uer.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_server_uer_ut,
+            { "Upgrade Time", "zbee_zcl.ota_upgrade.server.uer.ut", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_poll_control_client_cir_fpt,
+            { "Fast Poll Timeout (quarterseconds)", "zbee_zcl.poll_control.client.cir.fpt", FT_UINT16, BASE_DEC, NULL,
+                0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_poll_control_client_cir_sfp,
+            { "Start Fast Polling", "zbee_zcl.poll_control.client.cir.sfp", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_poll_control_client_cmd_id,
+            { "Command", "zbee_zcl.poll_control.client.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_poll_control_client_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_poll_control_client_slpi_nlpi,
+            { "New Long Poll Interval", "zbee_zcl.poll_control.client.slpi_nlpi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_poll_control_client_sspi_nspi,
+            { "New Short Poll Interval", "zbee_zcl.poll_control.client.sspi.nspi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
+                HFILL }},
+
+        { &hf_zbee_zcl_poll_control_server_cmd_id,
+            { "Command", "zbee_zcl.poll_control.server.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_poll_control_server_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_cmd_id,
+            { "Command", "zbee_zcl.thermostat.client.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_thermostat_client_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_gws_days_to_return,
+            { "Days To Return", "zbee_zcl.thermostat.client.gws.days_to_return", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_thermostat_client_ws_dow), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_gws_mtr,
+            { "Mode to Return", "zbee_zcl.thermostat.client.gws.mtr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_gws_mtr_cool,
+            { "Cool Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.gws.mtr.cool", FT_BOOLEAN, 8, NULL,
+                0x02, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_gws_mtr_heat,
+            { "Heat Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.gws.mtr.heat", FT_BOOLEAN, 8, NULL,
+                0x01, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_setpointrl_amount_field,
+            { "Amount Field: increased/decreased by (in steps of 0.1 C)",
+                "zbee_zcl.thermostat.client.sprl.amount_field", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_setpointrl_modes,
+            { "Mode Field", "zbee_zcl.thermostat.client.sprl.mode_field", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_thermostat_client_setpointrl_mf), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_sws_dow,
+            { "Day of Week for Sequence", "zbee_zcl.thermostat.client.sws.dow", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_thermostat_client_ws_dow), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_sws_mfs,
+            { "Mode for Sequence", "zbee_zcl.thermostat.client.sws.mfs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_sws_mfs_cool,
+            { "Cool Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.sws.mfs.cool", FT_BOOLEAN, 8, NULL,
+                0x02, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_sws_mfs_heat,
+            { "Heat Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.sws.mfs.heat", FT_BOOLEAN, 8, NULL,
+                0x01, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_client_sws_n_trans,
+            { "Number of Transitions for Sequence", "zbee_zcl.thermostat.client.sws.n_trans", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_server_cmd_id,
+            { "Command", "zbee_zcl.thermostat.server.cmd_id", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_thermostat_server_cmd_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_server_gwsr_dow,
+            { "Day of Week for Sequence", "zbee_zcl.thermostat.server.gwsr.dow", FT_UINT8, BASE_HEX,
+                VALS(zbee_zcl_thermostat_client_ws_dow), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_server_gwsr_mfs,
+            { "Mode for Sequence", "zbee_zcl.thermostat.server.gwsr.mfs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_server_gwsr_mfs_cool,
+            { "Cool Setpoint Field Present in Payload", "zbee_zcl.thermostat.server.gwsr.mfs_cool", FT_BOOLEAN, 8, NULL,
+                0x02, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_server_gwsr_mfs_heat,
+            { "Heat Setpoint Field Present in Payload", "zbee_zcl.thermostat.server.gwsr.mfs_heat", FT_BOOLEAN, 8, NULL,
+                0x01, NULL, HFILL }},
+
+        { &hf_zbee_zcl_thermostat_server_gwsr_n_trans,
+            { "Number of Transitions for Sequence", "zbee_zcl.thermostat.server.gwsr.n_trans", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }}
     };
 
     /* ZCL subtrees */
@@ -2358,6 +3522,15 @@ void proto_register_zbee_zcl(void)
 
     ett[0] = &ett_zbee_zcl;
     ett[1] = &ett_zbee_zcl_fcf;
+    ett[2] = &ett_zbee_zcl_ias_zone_server_scn_zone_status;
+    ett[3] = &ett_zbee_zcl_ota_upgrade_client_ibr_field_control;
+    ett[4] = &ett_zbee_zcl_ota_upgrade_client_qnir_field_control;
+    ett[5] = &ett_zbee_zcl_thermostat_client_gws_days_to_return;
+    ett[6] = &ett_zbee_zcl_thermostat_client_gws_mtr;
+    ett[7] = &ett_zbee_zcl_thermostat_client_sws_dow_for_sequence;
+    ett[8] = &ett_zbee_zcl_thermostat_client_sws_mfs;
+    ett[9] = &ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence;
+    ett[10] = &ett_zbee_zcl_thermostat_server_gwsr_mfs;
 
     j = ZBEE_ZCL_NUM_INDIVIDUAL_ETT;
 

@@ -57,6 +57,8 @@ typedef struct{
 #define ZBEE_ZCL_CMD_READ_ATTR_STRUCT           0x0e
 #define ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT          0x0f
 #define ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP     0x10
+#define ZBEE_ZCL_CMD_DISCOVER_CMDS_REC          0x11
+#define ZBEE_ZCL_CMD_DISCOVER_CMDS_REC_RESP     0x12
 
 /* ZCL Data Types */
 #define ZBEE_ZCL_NO_DATA            0x00
@@ -133,7 +135,7 @@ typedef struct{
 /* ZCL Miscellaneous */
 #define ZBEE_ZCL_INVALID_STR_LENGTH             0xff
 #define ZBEE_ZCL_INVALID_LONG_STR_LENGTH        0xffff
-#define ZBEE_ZCL_NUM_INDIVIDUAL_ETT             2
+#define ZBEE_ZCL_NUM_INDIVIDUAL_ETT             11
 #define ZBEE_ZCL_NUM_ATTR_ETT                   64
 #define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT             16
 #define ZBEE_ZCL_NUM_TOTAL_ETT                  (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
@@ -201,5 +203,58 @@ void decode_zcl_time_in_minutes (gchar *s, guint16 value);
 void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
 void zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data);
 zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id);
+
+/* Cluster-specific commands and parameters */
+#define ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NEP             0x02
+#define ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NS              0x01
+#define ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_S               0x00
+#define ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_TMZ             0x03
+#define ZBEE_ZCL_CSC_IAS_ZONE_C_ZER                 0x00
+#define ZBEE_ZCL_CSC_IAS_ZONE_S_ZER                 0x01
+#define ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN                0x00
+#define ZBEE_ZCL_CSC_IDENTIFY_C_I                   0x00
+#define ZBEE_ZCL_CSC_IDENTIFY_C_IR                  0x01
+#define ZBEE_ZCL_CSC_IDENTIFY_S_IQR                 0x00
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR              0x03
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR             0x01
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER              0x06
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR              0x05
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_A            0x95
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_II           0x96
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_MC           0x80
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NA           0x7e
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NIA          0x98
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_RMI          0x99
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_S            0x00
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_UCC          0x81
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_WFD          0x97
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN               0x00
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_J           0x00
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JM          0x01
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMI         0x02
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_INPT_JMIN        0x03
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_QNIR             0x02
+#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_UER              0x07
+#define ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR             0x00
+#define ZBEE_ZCL_CSC_POLL_CONTROL_C_FPS             0x01
+#define ZBEE_ZCL_CSC_POLL_CONTROL_C_SLPI            0x02
+#define ZBEE_ZCL_CSC_POLL_CONTROL_C_SSPI            0x03
+#define ZBEE_ZCL_CSC_POLL_CONTROL_S_CI              0x00
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_CWS               0x03
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_GWS               0x02
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_SRL               0x00
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_SWS               0x01
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_B             0x03
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_CSP           0x02
+#define ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_HSP           0x01
+#define ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR              0x00
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_AV          0x80
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_FR          0x20
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_MO          0x02
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_SA          0x40
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_SU          0x01
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_TH          0x10
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_TU          0x04
+#define ZBEE_ZCL_CSC_THERMOSTAT_SWS_DOW_WE          0x08
 
 #endif /* PACKET_ZBEE_ZCL_H*/
