@@ -281,12 +281,12 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
 
     current = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current == NULL)
-        current_proto_name = "(none)";
+        current_proto_name = DECODE_AS_NONE;
     else
         current_proto_name = dissector_handle_get_short_name(current);
     initial = dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
     if (initial == NULL)
-        initial_proto_name = "(none)";
+        initial_proto_name = DECODE_AS_NONE;
     else
         initial_proto_name = dissector_handle_get_short_name(initial);
 
@@ -1185,7 +1185,7 @@ decode_list_menu_finish(GtkWidget *list)
     GtkTreeIter   iter;
 
     text[E_LIST_S_PROTO_NAME] = "(default)";
-    text[E_LIST_S_TABLE] = "(none)";
+    text[E_LIST_S_TABLE] = DECODE_AS_NONE;
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
     gtk_list_store_prepend(store, &iter);
     gtk_list_store_set(store, &iter,

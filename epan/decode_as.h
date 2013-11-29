@@ -39,6 +39,8 @@ extern "C" {
 
 #define MAX_DECODE_AS_PROMPT_LEN    200
 #define DECODE_AS_ENTRY "decode_as_entry"
+#define DECODE_AS_NONE "(none)"
+
 /*
  * Filename of the "decode as" entry preferences
  */

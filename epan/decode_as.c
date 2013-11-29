@@ -162,6 +162,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
   guint i, j;
   dissector_table_t sub_dissectors;
   prefs_set_pref_e retval = PREFS_SET_OK;
+  gboolean is_valid = FALSE;
 
   if (strcmp(key, DECODE_AS_ENTRY) == 0) {
     /* Parse csv into table, selector, initial, current */
@@ -183,7 +184,11 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
       lookup.handle = NULL;
       g_slist_foreach(dissector_table_get_dissector_handles(sub_dissectors),
                       change_dissector_if_matched, &lookup);
-      if (lookup.handle != NULL) {
+      if (lookup.handle != NULL || g_ascii_strcasecmp(values[3], DECODE_AS_NONE) == 0) {
+        is_valid = TRUE;
+      }
+
+      if (is_valid) {
 	dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
 	decode_build_reset_list(g_strdup(values[0]), dissector_table_get_type(sub_dissectors),
                                 g_strdup(values[1]), NULL, NULL);
