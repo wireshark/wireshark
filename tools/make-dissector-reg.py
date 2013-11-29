@@ -32,7 +32,7 @@ srcdir = sys.argv[1]
 # "dissectors", we build a register.c for libwireshark.
 #
 registertype = sys.argv[2]
-if registertype == "plugin" or registertype == "plugin_wtap":
+if registertype in ("plugin", "plugin_wtap"):
 	final_filename = "plugin.c"
 	cache_filename = None
 	preamble = """\
@@ -42,7 +42,7 @@ if registertype == "plugin" or registertype == "plugin_wtap":
  * Generated automatically from %s.
  */
 """ % (sys.argv[0])
-elif registertype == "dissectors":
+elif registertype in ("dissectors", "dissectorsinfile"):
 	final_filename = "register.c"
 	cache_filename = "register-cache.pkl"
 	preamble = """\
@@ -64,10 +64,19 @@ else:
 
 
 #
-# All subsequent arguments are the files to scan.
+# All subsequent arguments are the files to scan
+# or the name of a file containing the files to scan
 #
-files = sys.argv[3:]
-
+if registertype == "dissectorsinfile":
+	try:
+		with open(sys.argv[3]) as f:
+			files = [line.rstrip() for line in f]
+	except IOError:
+	    print(("Unable to open input file '%s'" % sys.argv[3]))
+	    sys.exit(1)
+else:
+	files = sys.argv[3:]
+	
 # Create the proper list of filenames
 filenames = []
 for file in files:
