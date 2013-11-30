@@ -4244,11 +4244,11 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
         stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
         if (cfg->plugin) {
             stat_name_buf = g_strdup(cfg->name);
-            submenu_path = g_malloc(strlen(MENU_STATISTICS_PATH)+strlen(cfg->name)+strlen(cfg->abbr)+1);   /* worst case length */
+            submenu_path = (gchar *)g_malloc(strlen(MENU_STATISTICS_PATH)+strlen(cfg->name)+strlen(cfg->abbr)+1);   /* worst case length */
             strcpy(submenu_path, MENU_STATISTICS_PATH);
 
-            sep= stat_name= stat_name_buf;
-            while (sep= strchr(sep,'/')) {
+            sep = stat_name= stat_name_buf;
+            while ((sep = strchr(sep,'/')) != NULL) {
                 if (*(++sep)=='/') {  /* escapeded slash - two slash characters after each other */
                     memmove(sep,sep+1,strlen(sep));
                 }
