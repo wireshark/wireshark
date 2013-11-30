@@ -104,6 +104,7 @@ typedef struct _rtpproxy_info {
 	guint32 req_frame;
 	guint32 resp_frame;
 	nstime_t req_time;
+	gchar* callid;
 } rtpproxy_info_t;
 
 static dissector_handle_t rtcp_handle;
@@ -395,7 +396,7 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 	}
 }
 
-void
+rtpproxy_info_t *
 rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, rtpproxy_conv_info_t *rtpproxy_conv, gchar* cookie)
 {
 	rtpproxy_info_t *rtpproxy_info;
@@ -407,6 +408,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 			rtpproxy_info->req_frame = PINFO_FD_NUM(pinfo);
 			rtpproxy_info->resp_frame = 0;
 			rtpproxy_info->req_time = pinfo->fd->abs_ts;
+			rtpproxy_info->callid = NULL;
 			wmem_tree_insert_string(rtpproxy_conv->trans, cookie, rtpproxy_info, 0);
 		} else {
 			rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
@@ -432,6 +434,8 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 			}
 		}
 	}
+	/* Could be NULL so we should check it before dereferencing */
+	return rtpproxy_info;
 }
 
 void
@@ -485,6 +489,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	address addr;
 	guint16 port;
 	guint32 ipaddr[4];
+	rtpproxy_info_t *rtpproxy_info = NULL;
 
 	/* If it does not start with a printable character it's not RTPProxy */
 	if(!isprint(tvb_get_guint8(tvb, 0)))
@@ -510,6 +515,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	/* Calculate size to prevent recalculation in the future */
 	realsize = tvb_reported_length(tvb);
 
+
 	/* Check for LF (required for TCP connection, optional for UDP) */
 	if (tvb_get_guint8(tvb, realsize - 1) == '\n'){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy");
@@ -519,6 +525,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	}
 	else
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy (no LF)");
+
 
 	/* Try to create conversation */
 	conversation = find_or_create_conversation(pinfo);
@@ -558,7 +565,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		case 'r':
 		case 'c':
 		case 'q':
-			rtpproxy_add_tid(TRUE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
+			rtpproxy_info = rtpproxy_add_tid(TRUE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", rawstr);
 			ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
 			rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_request);
@@ -605,6 +612,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			/* Extract Call-ID */
 			new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
 			proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_callid, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
+			if(rtpproxy_info && !rtpproxy_info->callid)
+				rtpproxy_info->callid = tvb_get_string(wmem_file_scope(), tvb, offset, new_offset - offset);
 			/* Skip whitespace */
 			offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
@@ -697,7 +706,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		case '7':
 		case '8':
 		case '9':
-			rtpproxy_add_tid(FALSE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
+			rtpproxy_info = rtpproxy_add_tid(FALSE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
 			if (tmp == 'e')
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Error reply: %s", rawstr);
 			else
@@ -705,6 +714,11 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 			ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_reply, tvb, offset, -1, ENC_NA);
 			rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_reply);
+
+			if(rtpproxy_info && rtpproxy_info->callid){
+				ti = proto_tree_add_string(rtpproxy_tree, hf_rtpproxy_callid, tvb, offset, 0, rtpproxy_info->callid);
+				PROTO_ITEM_SET_GENERATED(ti);
+			}
 
 			if (tmp == 'e'){
 				tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, FALSE);
