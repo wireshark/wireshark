@@ -101,6 +101,7 @@ QUIC (Quick UDP Internet Connections)
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
 Sippy RTPproxy
 STANAG 4607
+STANAG 5066 DTS
 STANAG 5066 SIS
 Tinkerforge
 UDT
@@ -120,6 +121,7 @@ Too many protocols have been updated to list here.
 
 Netscaler 2.6
 STANAG 4607
+STANAG 5066 Data Transfer Sublayer
 
 --sort-and-group--
 
