@@ -2302,6 +2302,7 @@ static const value_string mcsset_tx_max_spatial_streams_flags[] = {
   {0x01, "2 spatial streams"},
   {0x02, "3 spatial streams"},
   {0x03, "4 spatial streams"},
+  {0x04, "TX MCS Set Not Defined"},
   {0x00, NULL}
 };
 
@@ -9715,7 +9716,10 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
 {
   proto_item *ti;
   proto_tree *mcs_tree, *bit_tree;
-
+  guint8 rx_nss, tx_nss; /* 0-4 for HT and 0-8 for VHT*/
+  guint32 value_mcs_0_31, value_mcs_32_52, value_mcs_53_76;
+  guint16 tx_mcs_set;
+  rx_nss = tx_nss = 8;
   /* 16 byte Supported MCS set */
   if (vs)
   {
@@ -9733,31 +9737,81 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   bit_tree = proto_item_add_subtree(ti, ett_mcsbit_tree);
 
   /* Bits 0 - 31 */
+  value_mcs_0_31 = tvb_get_letohl(tvb, offset);
+
+  /* Handle all zeroes/ff's case..*/
+  if (value_mcs_0_31 != 0x0)
+  {
+    if (!(value_mcs_0_31 & (0xffffff00)))
+      rx_nss = 0 ; /* 1 spatial stream*/
+      else if (!(value_mcs_0_31 & (0xffff0000)))
+        rx_nss = 1 ; /*2 spatial streams*/
+      else if (!(value_mcs_0_31 & (0xff000000)))
+        rx_nss = 2 ;/*3 spatial streams*/
+      else
+        rx_nss = 3 ;/*4 spatial streams*/
+  }
+
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_0to7, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_8to15, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_16to23, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_24to31, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
+  /* Should be we check UEQM Supported?*/
   /* Bits 32 - 52 */
+  value_mcs_32_52 = tvb_get_letohl(tvb, offset); 
+  if (!(value_mcs_32_52 & ~(0x00000001)))
+    rx_nss = rx_nss ; /* 1 spatial stream*/
+  else if (!(value_mcs_32_52 & ~(0x00007e)))
+    rx_nss = MAX(1,rx_nss) ; /*2 spatial streams*/
+  else if (!(value_mcs_32_52 & ~(0x1ffff80)))
+    rx_nss = MAX(2,rx_nss); /*3 spatial streams*/
+
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_32, tvb, offset , 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_33to38, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_39to52, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   /* Bits 53 - 76 */
+  value_mcs_53_76 = tvb_get_letohl(tvb, offset); 
+  if ((value_mcs_53_76 & (0x1fffffe0)))
+    rx_nss = MAX(3,rx_nss) ; /* 4 spatial streams*/
+
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_53to76, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_highest_data_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
+  /* Follow table 8-126 from 802.11-2012 */
+  tx_mcs_set = tvb_get_letohs(tvb,offset);
+
+  if (!(tx_mcs_set & 0x0001) && !(tx_mcs_set & 0x0002))  
+  {
+    /* TX MCS Set is not defined
+     * so there is no interpretation for Max Tx Spatial Streams
+     */
+     tx_nss = 4; /* Not Defined*/
+  }
+
+  if ((tx_mcs_set & 0x0001) && !(tx_mcs_set & 0x0002))  
+  {
+    /* TX MCS Set is defined to be equal to Rx MCS Set
+     * So, get the Max Spatial Streams from Rx 
+     * MCS set
+     */
+     tx_nss = rx_nss;
+  }
+  proto_item_append_text(ti, ": %s",val_to_str(rx_nss,mcsset_tx_max_spatial_streams_flags,"Reserved:%d" ) );
+
   proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_mcs_set_defined, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
   proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_rx_mcs_set_not_equal, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_max_spatial_streams, tvb, offset, 1,
+  ti = proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_max_spatial_streams, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, ", %s",val_to_str(tx_nss,mcsset_tx_max_spatial_streams_flags,"Reserved:%d" ) );
   proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_unequal_modulation, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
   offset += 1;
@@ -18232,8 +18286,8 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_tx_max_spatial_streams,
-     {"Max Tximum Number of Spatial Streams Supported", "wlan_mgt.ht.mcsset.txmaxss",
-      FT_UINT16, BASE_HEX, VALS(mcsset_tx_max_spatial_streams_flags) , 0x000c,
+     {"Maximum Number of Tx Spatial Streams Supported", "wlan_mgt.ht.mcsset.txmaxss",
+      FT_UINT16, BASE_HEX, 0 , 0x000c,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_tx_unequal_modulation,
