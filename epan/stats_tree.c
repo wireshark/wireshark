@@ -1076,7 +1076,7 @@ stats_tree_is_default_sort_DESC (stats_tree *st)
 	return st->st_flags&ST_FLG_SORT_DESC;
 }
 
-extern gchar*
+extern const gchar*
 stats_tree_get_column_name (gint col_index)
 {
 	switch (col_index) {
@@ -1089,7 +1089,7 @@ stats_tree_get_column_name (gint col_index)
 		case COL_PERCENT:	return "Percent";
 		case COL_BURSTRATE:	return prefs.st_burst_showcount?"Burst count":"Burst rate";
 		case COL_BURSTTIME:	return "Burst start";
-		default:			return "(Unknown)";
+		default:		return "(Unknown)";
 	}
 }
 
@@ -1347,15 +1347,21 @@ escape_xml_chars (gchar *str)
 	return s;
 }
 /** helper funcation to add note to formatted stats_tree */
-WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString *s,
-					st_format_type format_type, guint indent, gchar *path, gint maxnamelen, gint sort_column,
-					gboolean sort_descending)
+WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
+						 GString *s,
+						 st_format_type format_type,
+						 guint indent,
+						 const gchar *path,
+						 gint maxnamelen,
+						 gint sort_column,
+						 gboolean sort_descending)
 {
 	int count;
 	int num_columns= node->st->num_columns;
 	gchar **values= stats_tree_get_values_from_node(node);
 	stat_node *child;
 	sortinfo si;
+	gchar *full_path;
 
 	if (format_type==ST_FORMAT_XML) {
 		GString *itemname= escape_xml_chars(values[0]);
@@ -1391,7 +1397,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString 
 
 	indent++;
 	indent = indent > INDENT_MAX ? INDENT_MAX : indent;
-    path= g_strdup_printf ("%s/%s",path,values[0]);
+	full_path= g_strdup_printf ("%s/%s",path,values[0]);
 
 	for (count = 0; count<num_columns; count++) {
 		g_free(values[count]);
@@ -1408,11 +1414,11 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,	GString 
 		g_array_sort_with_data(Children,stat_node_array_sortcmp,&si);
 		for (count = 0; count<((int)Children->len); count++) {
 			stats_tree_format_node_as_str(g_array_index(Children,stat_node*,count), s, format_type,
-					indent, path, maxnamelen, sort_column, sort_descending);
+					indent, full_path, maxnamelen, sort_column, sort_descending);
 		}
 		g_array_free(Children,FALSE);
 	}
-	g_free(path);
+	g_free(full_path);
 
 	if (format_type==ST_FORMAT_XML) {
 		g_string_append(s,"</stat-node>\n");
