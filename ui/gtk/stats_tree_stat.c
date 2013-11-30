@@ -261,7 +261,7 @@ save_as_dialog(GtkWidget *win _U_, stats_tree *st)
 	GString *file_name		= g_string_new("");
 	int file_type;
 	gchar *file_name_lower;
-	gchar *file_ext;
+	const gchar *file_ext;
 	FILE *f;
 	gboolean success= FALSE;
 	int last_errno;
@@ -275,7 +275,7 @@ save_as_dialog(GtkWidget *win _U_, stats_tree *st)
 
 		/* add file extension as required */
 		file_name_lower = g_utf8_strdown(file_name->str, -1);
-		file_ext= file_type==ST_FORMAT_XML?".xml":(file_type==ST_FORMAT_CSV?".csv":".txt");
+		file_ext = (file_type==ST_FORMAT_XML) ? ".xml" : ((file_type==ST_FORMAT_CSV) ? ".csv" : ".txt");
 		if (!g_str_has_suffix(file_name_lower, file_ext)) {
 			/* Must add extenstion */
 			g_string_append(file_name,file_ext);
