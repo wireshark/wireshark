@@ -22,6 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "config.h"
+
 #include <glib.h>
 #ifdef HAVE_SPANDSP
 #include "telephony.h"
@@ -49,8 +51,14 @@ void initG726_32(void)
 /* Packing should be user defined (via the decode dialog) since due to historical reasons two diverging
  * de facto standards are in use today (see RFC3551).
  */
+#ifdef HAVE_SPANDSP
+#define _U_NOSPANDSP_
+#else
+#define _U_NOSPANDSP_ _U_
+#endif
 int
-decodeG726_32(void *input, int inputSizeBytes, void *output, int *outputSizeBytes)
+decodeG726_32(void *input _U_NOSPANDSP_, int inputSizeBytes _U_NOSPANDSP_,
+              void *output _U_NOSPANDSP_, int *outputSizeBytes _U_NOSPANDSP_)
 {
 #ifdef HAVE_SPANDSP
     *outputSizeBytes = 2 * g726_decode(&state, output, (void*) input, inputSizeBytes);

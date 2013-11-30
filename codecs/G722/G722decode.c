@@ -22,6 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "config.h"
+
 #include <glib.h>
 
 #ifdef HAVE_SPANDSP
@@ -43,8 +45,14 @@ initG722(void)
 #endif
 }
 
+#ifdef HAVE_SPANDSP
+#define _U_NOSPANDSP_
+#else
+#define _U_NOSPANDSP_ _U_
+#endif
 int
-decodeG722(void *input, int inputSizeBytes, void *output, int *outputSizeBytes)
+decodeG722(void *input _U_NOSPANDSP_, int inputSizeBytes _U_NOSPANDSP_,
+           void *output _U_NOSPANDSP_, int *outputSizeBytes _U_NOSPANDSP_)
 {
 #ifdef HAVE_SPANDSP
     *outputSizeBytes = g722_decode(&state, output, input, inputSizeBytes);
