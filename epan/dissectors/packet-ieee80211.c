@@ -9742,14 +9742,31 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   /* Handle all zeroes/ff's case..*/
   if (value_mcs_0_31 != 0x0)
   {
-    if (!(value_mcs_0_31 & (0xffffff00)))
-      rx_nss = 0 ; /* 1 spatial stream*/
-      else if (!(value_mcs_0_31 & (0xffff0000)))
-        rx_nss = 1 ; /*2 spatial streams*/
-      else if (!(value_mcs_0_31 & (0xff000000)))
-        rx_nss = 2 ;/*3 spatial streams*/
-      else
-        rx_nss = 3 ;/*4 spatial streams*/
+    if (!(value_mcs_0_31 & (0xffffff00))) {
+      /*
+       * At least one MCS from 0-7 is supported, but no MCS from 8-31 are
+       * supported, so only 1 spatial stream is supported.
+       */
+      rx_nss = 0;
+    } else if (!(value_mcs_0_31 & (0xffff0000))) {
+      /*
+       * At least one MCS from 8-15 is supported, but no MCS from 16-31 are
+       * supported, so only 2 spatial streams are supported.
+       */
+      rx_nss = 1;
+    } else if (!(value_mcs_0_31 & (0xff000000))) {
+      /*
+       * At least one MCS from 16-23 is supported, but no MCS from 24-31 are
+       * supported, so only 3 spatial streams are supported.
+       */
+      rx_nss = 2;
+    } else {
+      /*
+       * At least one MCS from 24-31 is supported, so 4 spatial streams
+       * are supported.
+       */
+      rx_nss = 3;
+    }
   }
 
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_0to7, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -9760,13 +9777,28 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
 
   /* Should be we check UEQM Supported?*/
   /* Bits 32 - 52 */
-  value_mcs_32_52 = tvb_get_letohl(tvb, offset); 
-  if (!(value_mcs_32_52 & ~(0x00000001)))
-    rx_nss = rx_nss ; /* 1 spatial stream*/
-  else if (!(value_mcs_32_52 & ~(0x00007e)))
-    rx_nss = MAX(1,rx_nss) ; /*2 spatial streams*/
-  else if (!(value_mcs_32_52 & ~(0x1ffff80)))
-    rx_nss = MAX(2,rx_nss); /*3 spatial streams*/
+  value_mcs_32_52 = tvb_get_letohl(tvb, offset);
+  if (!(value_mcs_32_52 & (0x1ffffe))) {
+    /*
+     * MCS 33-52 aren't supported, so the number of spatial streams we get
+     * from whichever MCSes from 0-31 that we support is the total number
+     * of spatial streams we support.
+     */
+    ;
+  } else if (!(value_mcs_32_52 & (0x1fff80))) {
+    /*
+     * At least one MCS from 33-38 is supported, but no MCS from 39-52 is
+     * supported, so we have at least 2 spatial streams, but none of the
+     * MCSs in that range give us any more.
+     */
+    rx_nss = MAX(1,rx_nss);
+  } else {
+    /*
+     * At least one MCS from 39-52 is supported, so we have at least 3
+     * spatial streams.
+     */
+    rx_nss = MAX(2,rx_nss);
+  }
 
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_32, tvb, offset , 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_33to38, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -9775,8 +9807,13 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
 
   /* Bits 53 - 76 */
   value_mcs_53_76 = tvb_get_letohl(tvb, offset); 
-  if ((value_mcs_53_76 & (0x1fffffe0)))
-    rx_nss = MAX(3,rx_nss) ; /* 4 spatial streams*/
+  if ((value_mcs_53_76 & (0x1fffffe0))) {
+    /*
+     * At least one MCS from 53-76 is supported, so we have at least 4
+     * spatial streams.
+     */
+    rx_nss = MAX(3,rx_nss);
+  }
 
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_53to76, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
