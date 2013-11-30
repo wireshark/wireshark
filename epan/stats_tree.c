@@ -1163,7 +1163,7 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 		result = a->rng->floor - b->rng->floor;
 		if (sort_descending&&(!prefs.st_sort_rng_fixorder)) {
 			result= -result;
-		}		
+		}
 		return result;
 	}
 
@@ -1203,8 +1203,13 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 							break;
 
 		case COL_BURSTRATE:	result = a->max_burst - b->max_burst;
+							break;
+
+		default:
+					/* see stats_tree_is_sortable_column */
+					g_assert_not_reached();
 	}
- 	
+
 	/* break tie between items with same primary search result */
 	if (!result) {
 		if (sort_column==COL_NAME) {
