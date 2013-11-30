@@ -546,8 +546,11 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_DVBCI */
 	{ "DVB-CI (Common Interface)", "dvbci"},
 
- 	/* WTAP_ENCAP_MUX27010 */
+	/* WTAP_ENCAP_MUX27010 */
 	{ "MUX27010", "mux27010"},
+
+	/* WTAP_ENCAP_STANAG_5066_D_PDU */	
+	{ "STANAG5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"}, 
 
 	/* WTAP_ENCAP_MIME */
 	{ "MIME", "mime" },

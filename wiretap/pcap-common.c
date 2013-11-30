@@ -393,6 +393,8 @@ static const struct {
 	{ 235,		WTAP_ENCAP_DVBCI },
 	/* MUX27010 */
 	{ 236,		WTAP_ENCAP_MUX27010 },
+	/* STANAG 5066 - DTS(Data Transfer Sublayer) PDU */
+	{ 237,		WTAP_ENCAP_STANAG_5066_D_PDU },
 	/* NFLOG */
 	{ 239,		WTAP_ENCAP_NFLOG },
 	/* netANALYZER pseudo-header followed by Ethernet with CRC */

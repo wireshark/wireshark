@@ -1042,6 +1042,7 @@ DISSECTOR_SRC = \
 	packet-rwall.c		\
 	packet-rx.c		\
 	packet-s5066sis.c	\
+	packet-s5066dts.c	\
 	packet-sadmind.c	\
 	packet-sametime.c	\
 	packet-sap.c		\
