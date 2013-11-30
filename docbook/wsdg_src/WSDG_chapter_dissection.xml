@@ -978,17 +978,11 @@ static gint *ett[] =
 
 #define FRAME_HEADER_LEN 8
 
-/* The main dissecting routine */
-static void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-                     get_foo_message_len, dissect_foo_message);
-}
-
 /* This method dissects fully reassembled messages */
-static void dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* TODO: implement your dissecting code */
+    return tvb_length(tvb);
 }
 
 /* determine PDU length of protocol foo */
@@ -996,6 +990,14 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* TODO: change this to your needs */
     return (guint)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */
+}
+
+/* The main dissecting routine */
+static int dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+                     get_foo_message_len, dissect_foo_message, data);
+    return tvb_length(tvb);
 }
 
 ...]]>
@@ -1007,16 +1009,17 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			This function gets called whenever a message has been reassembled.
 		</para>
 		<para>
-			The parameters <parameter>tvb</parameter>, <parameter>pinfo</parameter> and <parameter>tree</parameter>
-			are just handed over to <function>tcp_dissect_pdus()</function>.
-			The 4th parameter is a flag to indicate if the data should be reassembled or not. This could be set
-			according to a dissector preference as well.
-			Parameter 5 indicates how much data has at least to be available to be able to determine the length
-			of the foo message.
-			Parameter 6 is a function pointer to a method that returns this length. It gets called when at least
-			the number of bytes given in the previous parameter is available.
-			Parameter 7 is a function pointer to your real message dissector.
-		</para>
+			The parameters <parameter>tvb</parameter>, <parameter>pinfo</parameter>, <parameter>tree</parameter>
+      and <parameter>data</parameter> are just handed over to <function>tcp_dissect_pdus()</function>.
+      The 4th parameter is a flag to indicate if the data should be reassembled or not. This could be set
+      according to a dissector preference as well.
+      Parameter 5 indicates how much data has at least to be available to be able to determine the length
+      of the foo message.
+      Parameter 6 is a function pointer to a method that returns this length. It gets called when at least
+      the number of bytes given in the previous parameter is available.
+      Parameter 7 is a function pointer to your real message dissector.
+      Parameter 8 is a the data passed in from parent dissector.
+    </para>
 	</section>
   </section>
   <section id="ChDissectTap">

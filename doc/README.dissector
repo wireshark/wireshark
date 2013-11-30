@@ -72,7 +72,7 @@ Usually, you will put your newly created dissector file into the directory
 epan/dissectors/, just like all the other packet-*.c files already in there.
 
 Also, please add your dissector file to the corresponding makefiles,
-described in section "1.9 Editing Makefile.common and CMakeLists.txt
+described in section "1.8 Editing Makefile.common and CMakeLists.txt
 to add your dissector" below.
 
 Dissectors that use the dissector registration API to register with a lower
@@ -2833,15 +2833,17 @@ dissect_PROTO_udp (or dissect_PROTO_other).
 To register the distinct dissector functions, consider the following
 example, stolen from packet-dns.c:
 
+    #include "packet-tcp.h"
+
     dissector_handle_t dns_udp_handle;
     dissector_handle_t dns_tcp_handle;
     dissector_handle_t mdns_udp_handle;
 
-    dns_udp_handle = create_dissector_handle(dissect_dns_udp,
+    dns_udp_handle = new_create_dissector_handle(dissect_dns_udp,
         proto_dns);
-    dns_tcp_handle = create_dissector_handle(dissect_dns_tcp,
+    dns_tcp_handle = new_create_dissector_handle(dissect_dns_tcp,
         proto_dns);
-    mdns_udp_handle = create_dissector_handle(dissect_mdns_udp,
+    mdns_udp_handle = new_create_dissector_handle(dissect_mdns_udp,
         proto_dns);
 
     dissector_add_uint("udp.port", UDP_PORT_DNS, dns_udp_handle);
@@ -2853,11 +2855,13 @@ The dissect_dns_udp function does very little work and calls
 dissect_dns_common, while dissect_dns_tcp calls tcp_dissect_pdus with a
 reference to a callback which will be called with reassembled data:
 
-    static void
-    dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+    static int
+    dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                    void *data _U_)
     {
         tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2,
-            get_dns_pdu_len, dissect_dns_tcp_pdu);
+            get_dns_pdu_len, dissect_dns_tcp_pdu, data);
+        return tvb_length(tvb);
     }
 
 (The dissect_dns_tcp_pdu function acts similarly to dissect_dns_udp.)
@@ -2880,10 +2884,13 @@ The arguments to tcp_dissect_pdus are:
     might not be available, so don't refer to any data past that) - the
     total length of the PDU, in bytes;
 
-    a routine to dissect the pdu that's passed a tvbuff pointer,
-    packet_info pointer, and proto_tree pointer, with the tvbuff
-    containing a possibly-reassembled PDU.  (The "reported_length"
-    of the tvbuff will be the length of the PDU).
+    a new_dissector_t routine to dissect the pdu that's passed a tvbuff
+    pointer, packet_info pointer, proto_tree pointer and a void pointer for
+    user data, with the tvbuff containing a possibly-reassembled PDU. (The
+    "reported_length" of the tvbuff will be the length of the PDU).
+
+    a void pointer to user data that is passed to the dissector routine
+    referenced in the previous parameter.
 
 2.7.2 Modifying the pinfo struct.
 
