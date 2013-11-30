@@ -103,17 +103,17 @@ draw_gtk_node(stat_node* node)
 	}
 
 	if (!node->pr) {
-	node->pr = (st_node_pres *)g_malloc(sizeof(st_node_pres));
+		node->pr = (st_node_pres *)g_malloc(sizeof(st_node_pres));
 
-	if (node->st->pr->store) {
-		node->pr->iter = (GtkTreeIter *)g_malloc0(sizeof(GtkTreeIter));
+		if (node->st->pr->store) {
+			node->pr->iter = (GtkTreeIter *)g_malloc0(sizeof(GtkTreeIter));
 
-		if ( node->parent && node->parent->pr ) {
-			parent = node->parent->pr->iter;
-		}
-		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
+			if ( node->parent && node->parent->pr ) {
+				parent = node->parent->pr->iter;
+			}
+			gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
 			gtk_tree_store_set_valuesv(node->st->pr->store, node->pr->iter,
-					   columns, values, num_columns);
+						   columns, values, num_columns);
 		}
 	}
 	if (node->st->pr->store && node->pr->iter) {
@@ -475,16 +475,16 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 
 	/* the columns */
 	for (count = 0; count<st->num_columns; count++) {
-	renderer = gtk_cell_renderer_text_new ();
+		renderer = gtk_cell_renderer_text_new ();
 		column = gtk_tree_view_column_new_with_attributes (stats_tree_get_column_name(count),
 									renderer, "text", count+N_RESERVED_COL, NULL);
 		if (stats_tree_is_sortable_column(count)) {
 			gtk_tree_view_column_set_sort_column_id(column, count+N_RESERVED_COL);
 			gtk_tree_sortable_set_sort_func(sortable,count+N_RESERVED_COL, st_sort_func, sortable, NULL);
 		}
-	gtk_tree_view_column_set_resizable (column,TRUE);
-	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
+		gtk_tree_view_column_set_resizable (column,TRUE);
+		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+		gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 	}
 
 	gtk_tree_sortable_set_default_sort_func (sortable, NULL, NULL, NULL);
