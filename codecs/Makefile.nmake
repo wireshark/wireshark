@@ -15,7 +15,10 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 
 CODEC_OBJECTS= \
 	G711udecode.obj \
-	G711adecode.obj
+	G711adecode.obj \
+	G722decode.obj \
+	G726decode.obj \
+	SBC.obj
 
 
 codecs.lib	:  $(CODEC_OBJECTS)
@@ -28,6 +31,15 @@ G711adecode.obj: G711a\G711adecode.c G711a\G711adecode.h G711a\G711atable.h
 G711udecode.obj: G711u\G711udecode.c G711u\G711udecode.h G711u\G711utable.h
 	$(CC) $(CFLAGS) -Fd.\ -c G711u\G711udecode.c /Fo%|fF.obj
 
+G722decode.obj: G722\G722decode.c G722\G722decode.h
+	$(CC) $(CFLAGS) -Fd.\ -c G722\G722decode.c /Fo%|fF.obj
+
+G726decode.obj: G726\G726decode.c G726\G726decode.h
+	$(CC) $(CFLAGS) -Fd.\ -c G726\G726decode.c /Fo%|fF.obj
+
+SBC.obj: SBC\SBC.c SBC\SBC.h
+	$(CC) $(CFLAGS) -Fd.\ -c SBC\SBC.c /Fo%|fF.obj
+
 clean:
 	rm -f $(CODEC_OBJECTS) codecs.lib *.pdb *.sbr
 
@@ -38,4 +50,7 @@ maintainer-clean: distclean
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
 	G711a/G711adecode.c \
-	G711u/G711udecode.c
+	G711u/G711udecode.c \
+	G722/G722decode.c \
+	G726/G726decode.c \
+	SBC/SBC.c

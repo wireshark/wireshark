@@ -36,7 +36,10 @@ MAINTAINERCLEANFILES =	\
 
 libcodec_a_SOURCES = \
        G711a/G711adecode.c G711a/G711adecode.h G711a/G711atable.h	\
-       G711u/G711udecode.c G711u/G711udecode.h G711u/G711utable.h 
+       G711u/G711udecode.c G711u/G711udecode.h G711u/G711utable.h	\
+       G722/G722decode.c G722/G722decode.h							\
+       G726/G726decode.c G726/G726decode.h							\
+       SBC/SBC.c SBC/SBC.h
 
 libcodec_a_DEPENDENCIES = 
 
@@ -47,4 +50,7 @@ EXTRA_DIST = \
 checkapi: 
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
 	G711a/G711adecode.c \
-	G711u/G711udecode.c
+	G711u/G711udecode.c \
+	G722/G722decode.c \
+	G726/G726decode.c \
+	SBC/SBC.c

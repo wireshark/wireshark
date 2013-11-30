@@ -24,6 +24,9 @@
 set(CODECS_FILES
   G711a/G711adecode.c
   G711u/G711udecode.c
+  G722/G722decode.c
+  G726/G726decode.c
+  SBC/SBC.c
 )
 
 add_library(codecs STATIC
