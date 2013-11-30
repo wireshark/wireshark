@@ -1155,7 +1155,7 @@ extern gint
 stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_column,
 					gboolean sort_descending)
 {
-	int	result;
+	int	result = 0;
 	float avg_a, avg_b;
 
 	if  (prefs.st_sort_rng_nameonly&&(a->rng&&b->rng)) {
@@ -1243,7 +1243,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
 	stat_node *child;
 	GString *s;
 	int count;
-	gchar *separator;
+	gchar *separator = NULL;
 
 	if (format_type==ST_FORMAT_XML) {
 		s = g_string_new("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
