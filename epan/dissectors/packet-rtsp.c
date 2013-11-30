@@ -243,11 +243,13 @@ static gboolean rtsp_desegment_headers = TRUE;
  */
 static gboolean rtsp_desegment_body = TRUE;
 
-/* http://www.iana.org/assignments/port-numberslists two rtsp ports */
-#define TCP_PORT_RTSP           554
-#define TCP_ALTERNATE_PORT_RTSP     8554
-static guint global_rtsp_tcp_port = TCP_PORT_RTSP;
-static guint global_rtsp_tcp_alternate_port = TCP_ALTERNATE_PORT_RTSP;
+/* http://www.iana.org/assignments/port-numbers lists two rtsp ports.
+ * In Addition RTSP uses display port over Wi-Fi Display: 7236.
+ */
+#define RTSP_TCP_PORT_RANGE           "554,8554,7236"
+
+static range_t *global_rtsp_tcp_port_range = NULL;
+static range_t *rtsp_tcp_port_range        = NULL;
 /*
  * Takes an array of bytes, assumed to contain a null-terminated
  * string, as an argument, and returns the length of the string -
@@ -1447,14 +1449,15 @@ proto_register_rtsp(void)
     /* Register our configuration options, particularly our ports */
 
     rtsp_module = prefs_register_protocol(proto_rtsp, proto_reg_handoff_rtsp);
-    prefs_register_uint_preference(rtsp_module, "tcp.port",
-        "RTSP TCP Port",
-        "Set the TCP port for RTSP messages",
-        10, &global_rtsp_tcp_port);
-    prefs_register_uint_preference(rtsp_module, "tcp.alternate_port",
-        "Alternate RTSP TCP Port",
-        "Set the alternate TCP port for RTSP messages",
-        10, &global_rtsp_tcp_alternate_port);
+
+    prefs_register_obsolete_preference(rtsp_module, "tcp.alternate_port");
+    prefs_register_obsolete_preference(rtsp_module, "tcp.port");
+
+    range_convert_str(&global_rtsp_tcp_port_range, RTSP_TCP_PORT_RANGE, 65535);
+    rtsp_tcp_port_range = range_empty();
+    prefs_register_range_preference(rtsp_module, "tcp.port_range", "RTSP TCP Ports",
+                                    "RTSP TCP Ports range",
+                                    &global_rtsp_tcp_port_range, 65535);
     prefs_register_bool_preference(rtsp_module, "desegment_headers",
         "Reassemble RTSP headers spanning multiple TCP segments",
         "Whether the RTSP dissector should reassemble headers "
@@ -1480,12 +1483,6 @@ proto_reg_handoff_rtsp(void)
 {
     static dissector_handle_t rtsp_handle;
     static gboolean rtsp_prefs_initialized = FALSE;
-    /*
-     * Variables to allow for proper deletion of dissector registration when
-     * the user changes port from the gui.
-     */
-    static guint saved_rtsp_tcp_port;
-    static guint saved_rtsp_tcp_alternate_port;
 
     if (!rtsp_prefs_initialized) {
         rtsp_handle = find_dissector("rtsp");
@@ -1497,15 +1494,12 @@ proto_reg_handoff_rtsp(void)
         rtsp_prefs_initialized = TRUE;
     }
     else {
-        dissector_delete_uint("tcp.port", saved_rtsp_tcp_port, rtsp_handle);
-        dissector_delete_uint("tcp.port", saved_rtsp_tcp_alternate_port, rtsp_handle);
+        dissector_delete_uint_range("tcp.port", rtsp_tcp_port_range, rtsp_handle);
+        g_free(rtsp_tcp_port_range);
     }
     /* Set our port number for future use */
-    dissector_add_uint("tcp.port", global_rtsp_tcp_port, rtsp_handle);
-    dissector_add_uint("tcp.port", global_rtsp_tcp_alternate_port, rtsp_handle);
-
-    saved_rtsp_tcp_port = global_rtsp_tcp_port;
-    saved_rtsp_tcp_alternate_port = global_rtsp_tcp_alternate_port;
+    rtsp_tcp_port_range = range_copy(global_rtsp_tcp_port_range);
+    dissector_add_uint_range("tcp.port", rtsp_tcp_port_range, rtsp_handle);
 
     /* XXX: Do the following only once ?? */
     stats_tree_register("rtsp","rtsp","RTSP/Packet Counter", 0, rtsp_stats_tree_packet, rtsp_stats_tree_init, NULL );
