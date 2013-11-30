@@ -1263,7 +1263,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
 		for (count = 1; count<st->num_columns; count++) {
 			sep_length += stats_tree_get_column_size(count)+2;
 		}
-		separator = g_malloc(sep_length+1);
+		separator = (gchar *)g_malloc(sep_length+1);
 		memset (separator, '=', sep_length);
 		separator[sep_length] = 0;
 
