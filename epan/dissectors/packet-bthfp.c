@@ -124,7 +124,6 @@ static gint ett_bthfp_brsf_ag = -1;
 static dissector_handle_t bthfp_handle;
 
 static wmem_tree_t *fragments = NULL;
-static wmem_tree_t *sdp_service_infos = NULL;
 
 #define ROLE_UNKNOWN  0
 #define ROLE_AG       1
@@ -1242,7 +1241,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[9].length = 0;
         key[9].key = NULL;
 
-        service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
+        service_info = btsdp_get_service_info(key);
         if (service_info && service_info->interface_id == rfcomm_data->interface_id &&
                 service_info->adapter_id == rfcomm_data->adapter_id &&
                 service_info->sdp_psm == SDP_PSM_DEFAULT &&
@@ -1527,18 +1526,6 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     return offset;
-}
-
-static int
-bthfp_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
-{
-    const sdp_package_t *sdp_package = (const sdp_package_t *) arg2;
-
-    if (sdp_service_infos == NULL) {
-        sdp_service_infos = sdp_package->service_infos;
-    }
-
-    return 0;
 }
 
 void
@@ -2048,8 +2035,6 @@ proto_reg_handoff_bthfp(void)
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthfp_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthfp_handle);
     dissector_add_handle("btrfcomm.channel", bthfp_handle);
-
-    register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, bthfp_sdp_tap_packet, NULL);
 }
 
 /*

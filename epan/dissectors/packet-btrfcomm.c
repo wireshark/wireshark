@@ -121,8 +121,6 @@ static gint ett_btgnss = -1;
 
 static expert_field ei_btrfcomm_mcc_length_bad = EI_INIT;
 
-static wmem_tree_t *sdp_service_infos = NULL;
-
 static dissector_table_t rfcomm_service_dissector_table;
 static dissector_table_t rfcomm_channel_dissector_table;
 
@@ -660,9 +658,8 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         key[9].length = 0;
         key[9].key = NULL;
 
-        if (sdp_service_infos) {
-            service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
-        }
+        service_info = btsdp_get_service_info(key);
+
         if (service_info && service_info->interface_id == l2cap_data->interface_id &&
                 service_info->adapter_id == l2cap_data->adapter_id &&
                 service_info->sdp_psm == SDP_PSM_DEFAULT &&
@@ -1104,18 +1101,6 @@ proto_register_btrfcomm(void)
     register_decode_as(&btrfcomm_chan_da);
 }
 
-static int
-btrfcomm_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
-{
-    const sdp_package_t *sdp_package = (const sdp_package_t *) arg2;
-
-    if (sdp_service_infos == NULL) {
-        sdp_service_infos = sdp_package->service_infos;
-    }
-
-    return 0;
-}
-
 void
 proto_reg_handoff_btrfcomm(void)
 {
@@ -1126,11 +1111,6 @@ proto_reg_handoff_btrfcomm(void)
     dissector_add_handle("btl2cap.cid", btrfcomm_handle);
 
     data_handle = find_dissector("data");
-
-    /* tap into the btsdp dissector to look for rfcomm channel infomation that
-       helps us determine the type of rfcomm payload, i.e. which service is
-       using the channels so we know which sub-dissector to call */
-    register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btrfcomm_sdp_tap_packet, NULL);
 }
 
 /* Bluetooth Dial-Up Networking (DUN) profile dissection */

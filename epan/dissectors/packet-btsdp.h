@@ -206,9 +206,7 @@ typedef struct _service_info_t {
 
 extern value_string_ext vs_service_classes_ext;
 
-typedef struct _sdp_package_t {
-    wmem_tree_t *service_infos;
-} sdp_package_t;
+extern service_info_t* btsdp_get_service_info(wmem_tree_key_t* key);
 
 #endif
 

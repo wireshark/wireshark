@@ -347,14 +347,10 @@ static expert_field ei_btsdp_continuation_state_none = EI_INIT;
 static expert_field ei_btsdp_continuation_state_large = EI_INIT;
 static expert_field ei_data_element_value_large = EI_INIT;
 
-static gint btsdp_tap = -1;
-
 static wmem_tree_t *tid_requests           = NULL;
 static wmem_tree_t *continuation_states    = NULL;
 static wmem_tree_t *record_handle_services = NULL;
 static wmem_tree_t *service_infos          = NULL;
-
-static sdp_package_t sdp_package;
 
 typedef struct _tid_request_t {
     guint32        interface_id;
@@ -970,6 +966,13 @@ extern value_string_ext usb_langid_vals_ext;
 void proto_register_btsdp(void);
 void proto_reg_handoff_btsdp(void);
 
+service_info_t* btsdp_get_service_info(wmem_tree_key_t* key)
+{
+    if (service_infos == NULL)
+        return NULL;
+
+    return (service_info_t *)wmem_tree_lookup32_array_le(service_infos, key);
+}
 
 static uuid_t
 get_most_specified_uuid(wmem_array_t  *uuid_array)
@@ -4263,8 +4266,6 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data = (btl2cap_data_t *) data;
     DISSECTOR_ASSERT(l2cap_data);
 
-    tap_queue_packet(btsdp_tap, NULL, (void *) &sdp_package);
-
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
             col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
@@ -5749,8 +5750,6 @@ proto_register_btsdp(void)
     record_handle_services = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     service_infos = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    sdp_package.service_infos = service_infos;
-    btsdp_tap = register_tap("btsdp");
 
     module = prefs_register_protocol(proto_btsdp, NULL);
     prefs_register_static_text_preference(module, "bnep.version",

@@ -150,7 +150,6 @@ static dissector_table_t l2cap_service_dissector_table;
  * For received CIDs we 'or' the cid with 0x80000000 in this table
  */
 static wmem_tree_t *cid_to_psm_table  = NULL;
-static wmem_tree_t *sdp_service_infos = NULL;
 
 typedef struct _config_data_t {
     guint8      mode;
@@ -473,10 +472,8 @@ get_service_uuid(packet_info *pinfo, btl2cap_data_t *l2cap_data, guint16 psm, gb
     key[9].length = 0;
     key[9].key = NULL;
 
-    if (sdp_service_infos)
-        service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
-    else
-        service_info = NULL;
+    service_info = btsdp_get_service_info(key);
+
     if (service_info && service_info->interface_id == interface_id &&
             service_info->adapter_id == adapter_id &&
             service_info->sdp_psm == SDP_PSM_DEFAULT &&
@@ -1935,19 +1932,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 
-static int
-btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
-{
-    const sdp_package_t *sdp_package = (const sdp_package_t *) arg2;
-
-    if (sdp_service_infos == NULL) {
-        sdp_service_infos = sdp_package->service_infos;
-    }
-
-    return 0;
-}
-
-
 /* Register the protocol with Wireshark */
 void
 proto_register_btl2cap(void)
@@ -2436,10 +2420,6 @@ proto_register_btl2cap(void)
 void
 proto_reg_handoff_btl2cap(void)
 {
-    /* tap into the btsdp dissector to look for l2cap PSM infomation that
-       helps us determine the type of l2cap payload, i.e. which service is
-       using the PSM channel so we know which sub-dissector to call */
-    register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btl2cap_sdp_tap_packet, NULL);
 }
 
 /*
