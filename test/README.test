@@ -47,11 +47,34 @@ What you'll need (to do):
 A Test Ride
 -----------
 
-Start test.sh which should provide a basic menu. Just press Enter to start 
-all tests.
+The default configuration might not be suitable for your set-up. Most settings
+can be adjusted by setting an environment variable matching or by editing the
+setting in config.sh.
+
+For instance, the first network interface might not be used for traffic (like an
+unconnected Ethernet port). In that case, you might want to set the environment
+variable TRAFFIC_CAPTURE_IFACE to pick another interface. Use `dumpcap -D` to
+get a list of devices.
+
+On Windows, it is assumed that the user is able to perform captures. On
+non-Windows platforms, the opposite is assumed. If your dumpcap executable
+allows you to perform captures (for example, when it has appropriate
+capabilities), then you can override the default with:
+
+    SKIP_CAPTURE=0
+
+If you do not want to test the binaries in the build directory, you can override
+it with:
+
+    WS_BIN_PATH=/usr/bin
+
+When your configuration is sane, you can start test.sh which should provide a
+basic menu. Just press Enter to start all tests.
 
 It should start all the available tests. Each test will throw out a line 
 which should end with a green "Ok". If one of the tests fail, the script
 will report it and stop at this test step.
 
-PLEASE REMEMBER TO HAVE SOME TRAFFIC ON YOUR NETWORK INTERFACE!!!
+Please remember to have some ICMP traffic on your network interface! The test
+suite will ping to www.wireshark.org while running capture tests, but this will
+slow down the tests.
