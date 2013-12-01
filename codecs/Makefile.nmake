@@ -19,7 +19,7 @@ CODEC_OBJECTS= \
 	G711adecode.obj \
 	G722decode.obj \
 	G726decode.obj \
-	SBC.obj
+	sbc.obj
 
 
 codecs.lib	:  $(CODEC_OBJECTS)
@@ -41,8 +41,8 @@ G722decode.obj: G722\G722decode.c G722\G722decode.h
 G726decode.obj: G726\G726decode.c G726\G726decode.h
 	$(CC) $(CFLAGS) -Fd.\ -c G726\G726decode.c /Fo%|fF.obj
 
-SBC.obj: SBC\SBC.c SBC\SBC.h
-	$(CC) $(CFLAGS) -Fd.\ -c SBC\SBC.c /Fo%|fF.obj
+sbc.obj: sbc\sbc.c sbc\sbc.h
+	$(CC) $(CFLAGS) -Fd.\ -c sbc\sbc.c /Fo%|fF.obj
 
 clean:
 	rm -f $(CODEC_OBJECTS) codecs.lib *.pdb *.sbr
@@ -58,4 +58,4 @@ checkapi:
 	G711u/G711udecode.c \
 	G722/G722decode.c \
 	G726/G726decode.c \
-	SBC/SBC.c
+	sbc/sbc.c

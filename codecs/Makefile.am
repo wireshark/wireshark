@@ -40,7 +40,7 @@ libcodec_a_SOURCES = \
        G711u/G711udecode.c G711u/G711udecode.h G711u/G711utable.h	\
        G722/G722decode.c G722/G722decode.h							\
        G726/G726decode.c G726/G726decode.h							\
-       SBC/SBC.c SBC/SBC.h
+       sbc/sbc.c sbc/sbc.h
 
 libcodec_a_DEPENDENCIES = 
 
@@ -55,4 +55,4 @@ checkapi:
 	G711u/G711udecode.c \
 	G722/G722decode.c \
 	G726/G726decode.c \
-	SBC/SBC.c
+	sbc/sbc.c
