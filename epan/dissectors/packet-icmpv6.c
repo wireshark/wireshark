@@ -459,6 +459,7 @@ static int icmpv6_tap = -1;
 /* Conversation related data */
 static int hf_icmpv6_resp_in = -1;
 static int hf_icmpv6_resp_to = -1;
+static int hf_icmpv6_no_resp = -1;
 static int hf_icmpv6_resptime = -1;
 
 typedef struct _icmpv6_conv_info_t {
@@ -513,6 +514,7 @@ static expert_field ei_icmpv6_undecoded_type = EI_INIT;
 static expert_field ei_icmpv6_rr_pco_mp_matchlen = EI_INIT;
 static expert_field ei_icmpv6_rr_pco_mp_matchedlen = EI_INIT;
 static expert_field ei_icmpv6_checksum = EI_INIT;
+static expert_field ei_icmpv6_resp_not_found = EI_INIT;
 
 static dissector_handle_t icmpv6_handle;
 
@@ -1182,6 +1184,21 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
     }
 
     if (icmpv6_trans == NULL)
+        if (PINFO_FD_VISITED(pinfo)) {
+                /* No response found - add field and expert info */
+                it = proto_tree_add_item(tree, hf_icmpv6_no_resp, NULL, 0, 0,
+                                         ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_GENERATED(it);
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
+
+                /* Expert info.  TODO: add to _icmp_transaction_t type and sequence number
+                   so can report here (and in taps) */
+                expert_add_info_format(pinfo, it, &ei_icmpv6_resp_not_found,
+                                       "No response seen to ICMPv6 request in frame %u",
+                                       pinfo->fd->num);
+        }
+
         return NULL;
 
     /* Print state tracking in the tree */
@@ -4872,6 +4889,9 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_resp_in,
             { "Response In", "icmpv6.resp_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               "The response to this request is in this frame", HFILL }},
+        {&hf_icmpv6_no_resp,
+            {"No response seen", "icmpv6.no_resp", FT_NONE, BASE_NONE, NULL, 0x0,
+             "No corresponding response frame was seen", HFILL}},
         { &hf_icmpv6_resp_to,
             { "Response To", "icmpv6.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               "This is the response to the request in this frame", HFILL }},
@@ -4927,6 +4947,7 @@ proto_register_icmpv6(void)
         { &ei_icmpv6_rr_pco_mp_matchlen, { "icmpv6.rr.pco.mp.matchlen.gt128", PI_PROTOCOL, PI_WARN, "MatchLen is greater than 128", EXPFILL }},
         { &ei_icmpv6_rr_pco_mp_matchedlen, { "icmpv6.rr.pco.mp.matchedlen.gt128", PI_PROTOCOL, PI_WARN, "MatchedLen is greater than 128", EXPFILL }},
         { &ei_icmpv6_checksum, { "icmpv6.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+        { &ei_icmpv6_resp_not_found, { "icmpv6.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
     };
 
     expert_module_t* expert_icmpv6;
