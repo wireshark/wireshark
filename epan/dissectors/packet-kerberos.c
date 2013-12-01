@@ -433,6 +433,8 @@ read_keytab_file_from_preferences(void)
 #ifdef _WIN32
 /* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
 #undef HAVE_STDARG_H
+#undef HAVE_STDLIB_H
+#undef HAVE_STRING_H
 #undef HAVE_SYS_TYPES_H
 #endif
 #include <krb5.h>
