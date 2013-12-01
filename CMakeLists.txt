@@ -101,10 +101,10 @@ message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PRO
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
-INCLUDE(UseLemon)
-INCLUDE(UseMakeDissectorReg)
-INCLUDE(UseMakeTapReg)
-INCLUDE(UseAsn2Wrs)
+include(UseLemon)
+include(UseMakeDissectorReg)
+include(UseMakeTapReg)
+include(UseAsn2Wrs)
 
 # Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 
@@ -303,7 +303,7 @@ endforeach()
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}\nCXX-Flags: ${CMAKE_CXX_FLAGS}")
 
 check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
-if((FVHIDDEN))
+if(FVHIDDEN)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 else() # TODO add alternate compiler flags for hiding symbols
 	message(WARNING "Hiding shared library symbols is not supported by the compiler."
@@ -598,7 +598,7 @@ test_big_endian(WORDS_BIGENDIAN)
 
 set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
 
-SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
