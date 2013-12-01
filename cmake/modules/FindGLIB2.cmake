@@ -16,11 +16,19 @@
 
 if( GLIB2_MAIN_INCLUDE_DIR AND GLIB2_LIBRARIES )
 	# Already in cache, be silent
-	set(GLIB2_FIND_QUIETLY TRUE)
+	set( GLIB2_FIND_QUIETLY TRUE )
 endif()
 
 include( FindWSWinLibs )
-FindWSWinLibs( "gtk[23]" "GLIB2_HINTS" )
+if( BUILD_wireshark )
+	if( ENABLE_GTK3 )
+		FindWSWinLibs( "gtk3" "GLIB2_HINTS" )
+	else()
+		FindWSWinLibs( "gtk2" "GLIB2_HINTS" )
+	endif()
+else()
+	message( ERROR "Unsupported build setup" )
+endif()
 
 find_package( PkgConfig )
 if( GLIB2_FIND_REQUIRED )
@@ -72,7 +80,7 @@ find_library( GLIB2_LIBRARY
 # search the glibconfig.h include dir under the same root where the library is found
 get_filename_component( glib2LibDir "${GLIB2_LIBRARY}" PATH)
 
-find_path(GLIB2_INTERNAL_INCLUDE_DIR
+find_path( GLIB2_INTERNAL_INCLUDE_DIR
 	NAMES
 		glibconfig.h
 	HINTS

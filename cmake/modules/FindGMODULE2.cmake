@@ -15,24 +15,32 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-INCLUDE( FindPkgConfig )
+include( FindPkgConfig )
 
-IF( GMODULE2_FIND_REQUIRED )
-	SET( _pkgconfig_REQUIRED "REQUIRED" )
-ELSE()
-	SET( _pkgconfig_REQUIRED "" )
-ENDIF()
+if( GMODULE2_FIND_REQUIRED )
+	set( _pkgconfig_REQUIRED "REQUIRED" )
+else()
+	set( _pkgconfig_REQUIRED "" )
+endif()
 
-IF( GMODULE2_MIN_VERSION )
-	PKG_SEARCH_MODULE( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0>=${GMODULE2_MIN_VERSION} )
-ELSE()
-	PKG_SEARCH_MODULE( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0 )
-ENDIF()
+if( GMODULE2_MIN_VERSION )
+	pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0>=${GMODULE2_MIN_VERSION} )
+else()
+	pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0 )
+endif()
 
-IF( NOT GMODULE2_FOUND  )
-	INCLUDE( FindWSWinLibs )
-	FindWSWinLibs( "gtk[23]" "GMODULE2_HINTS" )
-	FIND_PATH( GMODULE2_INCLUDE_DIRS
+if( NOT GMODULE2_FOUND  )
+	include( FindWSWinLibs )
+	if( BUILD_wireshark )
+		if( ENABLE_GTK3 )
+			FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
+		else()
+			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
+		endif()
+	else()
+		message( ERROR "Unsupported build setup" )
+	endif()
+	find_path( GMODULE2_INCLUDE_DIRS
 		NAMES
 			gmodule.h
 		PATH_SUFFIXES
@@ -40,13 +48,13 @@ IF( NOT GMODULE2_FOUND  )
 		HINTS
 			"${GMODULE2_HINTS}/include"
 	)
-	IF( APPLE )
-		FIND_LIBRARY( GMODULE2_LIBRARIES glib )
-	ELSE()
-		FIND_LIBRARY( GMODULE2_LIBRARIES NAMES gmodule-2.0 gmodule HINTS "${GMODULE2_HINTS}/lib" )
-	ENDIF()
-	INCLUDE( FindPackageHandleStandardArgs )
-	FIND_PACKAGE_HANDLE_STANDARD_ARGS( GMODULE2 DEFAULT_MSG GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
-ENDIF()
+	if( APPLE )
+		find_library( GMODULE2_LIBRARIES glib )
+	else()
+		find_library( GMODULE2_LIBRARIES NAMES gmodule-2.0 gmodule HINTS "${GMODULE2_HINTS}/lib" )
+	endif()
+	include( FindPackageHandleStandardArgs )
+	find_package_handle_standard_args( GMODULE2 DEFAULT_MSG GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
+endif()
 
-MARK_AS_ADVANCED( GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
+mark_as_advanced( GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
