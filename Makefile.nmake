@@ -913,7 +913,7 @@ install_qt:
 process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. WinPcap_$(PCAP_VERSION).exe
+		. WinPcap_$(WINPCAP_VERSION).exe
 !IFNDEF QT5_BASE_DIR
 !MESSAGE Can't find Qt. This will become a problem at some point.
 !ENDIF

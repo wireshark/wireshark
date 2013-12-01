@@ -89,7 +89,7 @@ appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
 	< appinfo.tmpl > appinfo.ini
 
 WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
-	sed -e 's/$$(PCAP_VERSION)/$(PCAP_VERSION)/g' \
+	sed -e 's/$$(WINPCAP_VERSION)/$(WINPCAP_VERSION)/g' \
 	    -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
 	< WiresharkPortable.tmpl > WiresharkPortable.ini
 
@@ -127,7 +127,7 @@ Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
-	/DDEFAULTWINPCAP=WinPcap_$(PCAP_VERSION).exe \
+	/DDEFAULTWINPCAP=WinPcap_$(WINPCAP_VERSION).exe \
 	/DDEFAULTMSVCREDIST=vcredist_$(TARGET_MACHINE).exe \
 	WiresharkPortable.nsi
 

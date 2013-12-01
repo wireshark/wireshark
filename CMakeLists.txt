@@ -164,10 +164,10 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	## 4295: array is too small to include a terminating null character
 	set(WARNINGS_CFLAGS "/w34295")
 
+	# FIXME: WINPCAP_VERSION cannot be determined from source or executable.
+	set(WINPCAP_VERSION "unknown")
 	set(WIRESHARK_C_FLAGS
-		# FIXME: This doen't work as PCAP_VERSION cannot be determined from
-		# source or executable.
-		"/DPCAP_VERSION=${PCAP_VERSION}"
+		"/DWINPCAP_VERSION=${WINPCAP_VERSION}"
 		${LOCAL_CFLAGS}
 		${WARNINGS_CFLAGS}
 	)

@@ -339,7 +339,7 @@ QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
 #
 PCAP_DIR=$(WIRESHARK_LIB_DIR)\WPdpack
 # This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
-PCAP_VERSION=4_1_3
+WINPCAP_VERSION=4_1_3
 WPD_VERSION=4_1_2
 
 #
@@ -584,7 +584,7 @@ QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
 #
 PCAP_DIR=$(WIRESHARK_LIB_DIR)\WPdpack
 # This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
-PCAP_VERSION=4_1_3
+WINPCAP_VERSION=4_1_3
 WPD_VERSION=4_1_2
 
 #
@@ -995,7 +995,7 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 !ENDIF
 
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
-STANDARD_CFLAGS=/DPCAP_VERSION=$(PCAP_VERSION) $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
+STANDARD_CFLAGS=/DWINPCAP_VERSION=$(WINPCAP_VERSION) $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
 
 # Optional: Define WIRESHARK_GENERATE_BSC_FILE to generate .sbr files for input to bscmake
 !IFDEF WIRESHARK_GENERATE_BSC_FILE

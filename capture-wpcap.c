@@ -903,7 +903,7 @@ cant_get_if_list_error_message(const char *err_str)
 void
 get_compiled_pcap_version(GString *str)
 {
-	g_string_append(str, "with WinPcap (" G_STRINGIFY(PCAP_VERSION) ")");
+	g_string_append(str, "with WinPcap (" G_STRINGIFY(WINPCAP_VERSION) ")");
 }
 
 /*
