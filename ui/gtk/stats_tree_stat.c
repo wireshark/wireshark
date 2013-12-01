@@ -225,7 +225,8 @@ gtk_save_as_statstree(GtkWidget *win, GString *file_name, int *file_type)
 	ft_combo_box = ws_combo_box_new_text_and_pointer();
 	ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(ft_combo_box), "Plain text file (.txt)", GINT_TO_POINTER(ST_FORMAT_PLAIN));
 	ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(ft_combo_box), "Comma separated values (.csv)", GINT_TO_POINTER(ST_FORMAT_CSV));
-		ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(ft_combo_box), "XML document (.xml)", GINT_TO_POINTER(ST_FORMAT_XML));
+	ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(ft_combo_box), "XML document (.xml)", GINT_TO_POINTER(ST_FORMAT_XML));
+	ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(ft_combo_box), "YAML document (.yaml)", GINT_TO_POINTER(ST_FORMAT_YAML));
 
 	gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
 	gtk_widget_show(ft_combo_box);
@@ -275,7 +276,16 @@ save_as_dialog(GtkWidget *win _U_, stats_tree *st)
 
 		/* add file extension as required */
 		file_name_lower = g_utf8_strdown(file_name->str, -1);
-		file_ext = (file_type==ST_FORMAT_XML) ? ".xml" : ((file_type==ST_FORMAT_CSV) ? ".csv" : ".txt");
+		switch (file_type) {
+			case ST_FORMAT_YAML:	file_ext = ".yaml";
+									break;
+			case ST_FORMAT_XML:		file_ext = ".xml";
+									break;
+			case ST_FORMAT_CSV:		file_ext = ".csv";
+									break;
+			default:				file_ext = ".txt";
+									break;
+		}
 		if (!g_str_has_suffix(file_name_lower, file_ext)) {
 			/* Must add extenstion */
 			g_string_append(file_name,file_ext);

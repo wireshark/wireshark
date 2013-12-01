@@ -1100,7 +1100,7 @@ stats_tree_get_column_size (gint col_index)
 		return 36;		/* but caller should really call stats_tree_branch_max_namelen() */
 	}
 	if (col_index<N_COLUMNS) {
-		return 12;		/* all numerica values this size */
+		return 12;		/* all numerical values are this size */
 	}
 	return 0;			/* invalid column */
 }
@@ -1250,17 +1250,23 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
 	int count;
 	gchar *separator = NULL;
 
-	if (format_type==ST_FORMAT_XML) {
+	switch(format_type)
+	{
+	case ST_FORMAT_YAML:
+		s = g_string_new("---\n");
+		break;
+	case ST_FORMAT_XML:
 		s = g_string_new("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
-	}
-	else if (format_type==ST_FORMAT_CSV) {
+		break;
+	case ST_FORMAT_CSV:
 		s = g_string_new("\"level\",\"parent\",");
 		for (count = 0; count<st->num_columns; count++) {
 			g_string_append_printf(s,"\"%s\",",stats_tree_get_column_name(count));
 		}
 		g_string_append (s,"\n");
-	}
-	else if (format_type==ST_FORMAT_PLAIN) {
+		break;
+	case ST_FORMAT_PLAIN:
+		{
 		char fmt[16];
 		int sep_length;
 
@@ -1283,8 +1289,9 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
 		}
 		memset (separator, '-', sep_length);
 		g_string_append_printf(s,"\n%s\n",separator);
-	}
-	else {
+		}
+		break;
+	default:
 		return g_string_new("unknown format for stats_tree\n");
 	}
 
@@ -1367,30 +1374,53 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 	stat_node *child;
 	sortinfo si;
 	gchar *full_path;
+	char fmt[16];
 
-	if (format_type==ST_FORMAT_XML) {
+	switch(format_type)
+	{
+	case ST_FORMAT_YAML:
+		if (indent) {
+			g_sprintf(fmt, "%%%ds%%s%%s", indent*4-2);
+		}
+		else {
+			strcpy(fmt, "%s%s%s");
+		}
+		g_string_append_printf(s, fmt, "", indent?"- ":"", "Description");
+		g_string_append_printf(s, ": \"%s\"\n", values[0]);
+
+		for (count = 1; count<num_columns; count++) {
+			if (*values[count]) {
+				g_string_append_printf(s, fmt, "", indent?"  ":"",
+										stats_tree_get_column_name(count));
+				g_string_append_printf(s, ": %s\n", values[count]);
+			}
+		}
+		if (node->children) {
+			g_string_append_printf(s, fmt, "", indent?"  ":"", "Items:\n");
+		}
+		break;
+	case ST_FORMAT_XML:
+		{
 		GString *itemname= escape_xml_chars(values[0]);
 		g_string_append_printf(s,"<stat-node name=\"%s\"%s>\n",itemname->str,
 				node->rng?" isrange=\"true\"":"");
 		g_string_free(itemname,TRUE);
-		g_string_append(s,"");
 		for (count = 1; count<num_columns; count++) {
 			gchar *colname= g_strdup(stats_tree_get_column_name(count));
 			g_string_append_printf(s,"<%s>",clean_for_xml_tag(colname));
 			g_string_append_printf(s,"%s</%s>\n",values[count],colname);
 			g_free(colname);
 		}
-	}
-	else if (format_type==ST_FORMAT_CSV) {
+		}
+		break;
+	case ST_FORMAT_CSV:
 		g_string_append_printf(s,"%d,\"%s\",\"%s\"",indent,path,values[0]);
 		for (count = 1; count<num_columns; count++) {
 			g_string_append_printf(s,",%s",values[count]);
 		}
 		g_string_append (s,"\n");
-	}
-	else if (format_type==ST_FORMAT_PLAIN) {
-		char fmt[16];
-
+		break;
+	case ST_FORMAT_PLAIN:
 		g_sprintf (fmt,"%%%ds%%-%us",indent,maxnamelen-indent);
 		g_string_append_printf(s,fmt,"",values[0]);
 		for (count = 1; count<num_columns; count++) {
@@ -1398,6 +1428,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 			g_string_append_printf(s,fmt,values[count]);
 		}
 		g_string_append (s,"\n");
+		break;
 	}
 
 	indent++;

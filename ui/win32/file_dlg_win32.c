@@ -462,7 +462,7 @@ gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-    ofn->lpstrFilter = _T("Plain text file (.txt)\0*.txt\0Comma separated values (.csv)\0*.csv\0XML document (.xml)\0*.xml\0");
+    ofn->lpstrFilter = _T("Plain text file (.txt)\0*.txt\0Comma separated values (.csv)\0*.csv\0XML document (.xml)\0*.xml\0YAML document (.yaml)\0*.yaml\0");
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */

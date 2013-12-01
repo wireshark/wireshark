@@ -243,10 +243,6 @@ WS_DLL_PUBLIC guint stats_tree_branch_max_namelen(const stat_node *node, guint i
 WS_DLL_PUBLIC gchar *stats_tree_node_to_str(const stat_node *node,
 				     gchar *buffer, guint len);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
 /** get the display name for the stats_tree (or node name) based on the
     st_sort_showfullname preference. If not set remove everything before
     last unescaped backslash. Caller must free the result */
@@ -283,7 +279,7 @@ WS_DLL_PUBLIC gint stat_node_array_sortcmp (gconstpointer a,
 					gpointer user_data);
 
 /** function to copy stats_tree into GString. format deternmines output format */
-typedef enum { ST_FORMAT_PLAIN, ST_FORMAT_CSV, ST_FORMAT_XML} st_format_type;
+typedef enum { ST_FORMAT_PLAIN, ST_FORMAT_CSV, ST_FORMAT_XML, ST_FORMAT_YAML} st_format_type;
 WS_DLL_PUBLIC GString* stats_tree_format_as_str(const stats_tree* st,
 					guint format,
 					gint sort_column,
@@ -298,5 +294,9 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 					gint maxnamelen,
 					gint sort_column,
 					gboolean sort_descending);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __STATS_TREE_PRIV_H */
