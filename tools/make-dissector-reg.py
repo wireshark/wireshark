@@ -33,9 +33,9 @@ srcdir = sys.argv[1]
 #
 registertype = sys.argv[2]
 if registertype in ("plugin", "plugin_wtap"):
-	final_filename = "plugin.c"
-	cache_filename = None
-	preamble = """\
+    final_filename = "plugin.c"
+    cache_filename = None
+    preamble = """\
 /*
  * Do not modify this file. Changes will be overwritten.
  *
@@ -43,9 +43,9 @@ if registertype in ("plugin", "plugin_wtap"):
  */
 """ % (sys.argv[0])
 elif registertype in ("dissectors", "dissectorsinfile"):
-	final_filename = "register.c"
-	cache_filename = "register-cache.pkl"
-	preamble = """\
+    final_filename = "register.c"
+    cache_filename = "register-cache.pkl"
+    preamble = """\
 /*
  * Do not modify this file. Changes will be overwritten.
  *
@@ -59,8 +59,8 @@ elif registertype in ("dissectors", "dissectorsinfile"):
  */
 """ % (sys.argv[0])
 else:
-	print(("Unknown output type '%s'" % registertype))
-	sys.exit(1)
+    print(("Unknown output type '%s'" % registertype))
+    sys.exit(1)
 
 
 #
@@ -68,37 +68,37 @@ else:
 # or the name of a file containing the files to scan
 #
 if registertype == "dissectorsinfile":
-	try:
-		dissector_f = open(sys.argv[3])
-	except IOError:
-	    print(("Unable to open input file '%s'" % sys.argv[3]))
-	    sys.exit(1)
+    try:
+        dissector_f = open(sys.argv[3])
+    except IOError:
+        print(("Unable to open input file '%s'" % sys.argv[3]))
+        sys.exit(1)
 
-	files = [line.rstrip() for line in dissector_f]
+    files = [line.rstrip() for line in dissector_f]
 else:
-	files = sys.argv[3:]
+    files = sys.argv[3:]
 
 # Create the proper list of filenames
 filenames = []
 for file in files:
-	if os.path.isfile(file):
-		filenames.append(file)
-	else:
-		filenames.append(os.path.join(srcdir, file))
+    if os.path.isfile(file):
+        filenames.append(file)
+    else:
+        filenames.append(os.path.join(srcdir, file))
 
 if len(filenames) < 1:
-	print("No files found")
-	sys.exit(1)
+    print("No files found")
+    sys.exit(1)
 
 
 # Look through all files, applying the regex to each line.
 # If the pattern matches, save the "symbol" section to the
 # appropriate set.
 regs = {
-	'proto_reg': set(),
-	'handoff_reg': set(),
-	'wtap_register': set(),
-	}
+        'proto_reg': set(),
+        'handoff_reg': set(),
+        'wtap_register': set(),
+        }
 
 # For those that don't know Python, r"" indicates a raw string,
 # devoid of Python escapes.
@@ -110,77 +110,77 @@ wtap_reg_regex = r"(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
 
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
-	( 'proto_reg', re.compile(proto_regex, re.MULTILINE) ),
-	( 'handoff_reg', re.compile(handoff_regex, re.MULTILINE) ),
-	( 'wtap_register', re.compile(wtap_reg_regex, re.MULTILINE) ),
-	]
+        ( 'proto_reg', re.compile(proto_regex, re.MULTILINE) ),
+        ( 'handoff_reg', re.compile(handoff_regex, re.MULTILINE) ),
+        ( 'wtap_register', re.compile(wtap_reg_regex, re.MULTILINE) ),
+        ]
 
 # Open our registration symbol cache
 cache = None
 if cache_filename:
-	try:
-		cache_file = open(cache_filename, 'rb')
-		cache = pickle.load(cache_file)
-		cache_file.close()
-		if VERSION_KEY not in cache or cache[VERSION_KEY] != CUR_VERSION:
-			cache = {VERSION_KEY: CUR_VERSION}
-	except:
-		cache = {VERSION_KEY: CUR_VERSION}
+    try:
+        cache_file = open(cache_filename, 'rb')
+        cache = pickle.load(cache_file)
+        cache_file.close()
+        if VERSION_KEY not in cache or cache[VERSION_KEY] != CUR_VERSION:
+            cache = {VERSION_KEY: CUR_VERSION}
+    except:
+        cache = {VERSION_KEY: CUR_VERSION}
 
-	print(("Registering %d files, %d cached" % (len(filenames), len(list(cache.keys()))-1)))
+    print(("Registering %d files, %d cached" % (len(filenames), len(list(cache.keys()))-1)))
 
 # Grep
 cache_hits = 0
 cache_misses = 0
 for filename in filenames:
-	file = open(filename)
-	cur_mtime = os.fstat(file.fileno())[ST_MTIME]
-	if cache and filename in cache:
-		cdict = cache[filename]
-		if cur_mtime == cdict['mtime']:
-			cache_hits += 1
-#			print "Pulling %s from cache" % (filename)
-			regs['proto_reg'] |= set(cdict['proto_reg'])
-			regs['handoff_reg'] |= set(cdict['handoff_reg'])
-			regs['wtap_register'] |= set(cdict['wtap_register'])
-			file.close()
-			continue
-	# We don't have a cache entry
-	if cache is not None:
-		cache_misses += 1
-		cache[filename] = {
-			'mtime': cur_mtime,
-			'proto_reg': [],
-			'handoff_reg': [],
-			'wtap_register': [],
-			}
-#	print "Searching %s" % (filename)
-	# Read the whole file into memory
-	contents = file.read()
-	for action in patterns:
-		regex = action[1]
-		for match in regex.finditer(contents):
-			symbol = match.group("symbol")
-			sym_type = action[0]
-			regs[sym_type].add(symbol)
-			if cache is not None:
-#				print "Caching %s for %s: %s" % (sym_type, filename, symbol)
-				cache[filename][sym_type].append(symbol)
-	# We're done with the file contents
-	contets = ""
-	file.close()
+    file = open(filename)
+    cur_mtime = os.fstat(file.fileno())[ST_MTIME]
+    if cache and filename in cache:
+        cdict = cache[filename]
+        if cur_mtime == cdict['mtime']:
+            cache_hits += 1
+#                       print "Pulling %s from cache" % (filename)
+            regs['proto_reg'] |= set(cdict['proto_reg'])
+            regs['handoff_reg'] |= set(cdict['handoff_reg'])
+            regs['wtap_register'] |= set(cdict['wtap_register'])
+            file.close()
+            continue
+    # We don't have a cache entry
+    if cache is not None:
+        cache_misses += 1
+        cache[filename] = {
+                'mtime': cur_mtime,
+                'proto_reg': [],
+                'handoff_reg': [],
+                'wtap_register': [],
+                }
+#       print "Searching %s" % (filename)
+    # Read the whole file into memory
+    contents = file.read()
+    for action in patterns:
+        regex = action[1]
+        for match in regex.finditer(contents):
+            symbol = match.group("symbol")
+            sym_type = action[0]
+            regs[sym_type].add(symbol)
+            if cache is not None:
+#                               print "Caching %s for %s: %s" % (sym_type, filename, symbol)
+                cache[filename][sym_type].append(symbol)
+    # We're done with the file contents
+    contets = ""
+    file.close()
 
 
 if cache is not None and cache_filename is not None:
-	cache_file = open(cache_filename, 'wb')
-	pickle.dump(cache, cache_file)
-	cache_file.close()
-	print(("Cache hits: %d, misses: %d" % (cache_hits, cache_misses)))
+    cache_file = open(cache_filename, 'wb')
+    pickle.dump(cache, cache_file)
+    cache_file.close()
+    print(("Cache hits: %d, misses: %d" % (cache_hits, cache_misses)))
 
 # Make sure we actually processed something
 if len(regs['proto_reg']) < 1:
-	print("No protocol registrations found")
-	sys.exit(1)
+    print("No protocol registrations found")
+    sys.exit(1)
 
 # Convert the sets into sorted lists to make the output pretty
 regs['proto_reg'] = sorted(regs['proto_reg'])
@@ -193,7 +193,7 @@ reg_code += preamble
 
 # Make the routine to register all protocols
 if registertype == "plugin" or registertype == "plugin_wtap":
-	reg_code += """
+    reg_code += """
 #include "config.h"
 
 #include <gmodule.h>
@@ -214,7 +214,7 @@ plugin_register (void)
 {
 """
 else:
-	reg_code += """
+    reg_code += """
 #include "register.h"
 void
 register_all_protocols(register_cb cb, gpointer client_data)
@@ -222,114 +222,113 @@ register_all_protocols(register_cb cb, gpointer client_data)
 """
 
 for symbol in regs['proto_reg']:
-	if registertype == "plugin" or registertype == "plugin_wtap":
-		reg_code += "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
-	else:
-		reg_code += "  {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
+    if registertype == "plugin" or registertype == "plugin_wtap":
+        reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
+    else:
+        reg_code += "    {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
 
 reg_code += "}\n"
 
 
 # Make the routine to register all protocol handoffs
 if registertype == "plugin" or registertype == "plugin_wtap":
-	reg_code += """
+    reg_code += """
 WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void)
 {
 """
 else:
-	reg_code += """
+    reg_code += """
 void
 register_all_protocol_handoffs(register_cb cb, gpointer client_data)
 {
 """
 
 for symbol in regs['handoff_reg']:
-	if registertype == "plugin" or registertype == "plugin_wtap":
-		reg_code += "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
-	else:
-		reg_code += "  {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
+    if registertype == "plugin" or registertype == "plugin_wtap":
+        reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
+    else:
+        reg_code += "    {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
 
 reg_code += "}\n"
 
 if registertype == "plugin":
-	reg_code += "#endif\n"
+    reg_code += "#endif\n"
 elif registertype == "plugin_wtap":
-	reg_code += """
+    reg_code += """
 WS_DLL_PUBLIC_DEF void
 register_wtap_module(void)
 {
 """
 
-	for symbol in regs['wtap_register']:
-		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
-		reg_code += line
+    for symbol in regs['wtap_register']:
+        line = "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
+        reg_code += line
 
-	reg_code += """
+    reg_code += """
 }
 #endif
 """
 
 else:
-	reg_code += """
+    reg_code += """
 static gulong proto_reg_count(void)
 {
-  return %(proto_reg_len)d;
+    return %(proto_reg_len)d;
 }
 
 static gulong handoff_reg_count(void)
 {
-  return %(handoff_reg_len)d;
+    return %(handoff_reg_len)d;
 }
 
 gulong register_count(void)
 {
-  return proto_reg_count() + handoff_reg_count();
+    return proto_reg_count() + handoff_reg_count();
 }
 
 """ % {
-	'proto_reg_len': len(regs['proto_reg']),
-	'handoff_reg_len': len(regs['handoff_reg'])
-      }
+    'proto_reg_len': len(regs['proto_reg']),
+    'handoff_reg_len': len(regs['handoff_reg'])
+  }
 
 
 # Compare current and new content and update the file if anything has changed.
 
-try:	# Python >= 2.6, >= 3.0
-	reg_code_bytes = bytes(reg_code.encode('utf-8'))
+try:    # Python >= 2.6, >= 3.0
+    reg_code_bytes = bytes(reg_code.encode('utf-8'))
 except:
-	reg_code_bytes = reg_code
+    reg_code_bytes = reg_code
 
 new_hash = hashlib.sha1(reg_code_bytes).hexdigest()
 
 try:
-	fh = open(final_filename, 'rb')
-	cur_hash = hashlib.sha1(fh.read()).hexdigest()
-	fh.close()
+    fh = open(final_filename, 'rb')
+    cur_hash = hashlib.sha1(fh.read()).hexdigest()
+    fh.close()
 except:
-	cur_hash = ''
+    cur_hash = ''
 
 try:
-	if new_hash != cur_hash:
-		print(('Updating ' + final_filename))
-		fh = open(final_filename, 'w')
-		fh.write(reg_code)
-		fh.close()
-	else:
-		print((final_filename + ' unchanged.'))
-		os.utime(final_filename, None)
+    if new_hash != cur_hash:
+        print(('Updating ' + final_filename))
+        fh = open(final_filename, 'w')
+        fh.write(reg_code)
+        fh.close()
+    else:
+        print((final_filename + ' unchanged.'))
+        os.utime(final_filename, None)
 except OSError:
-	sys.exit('Unable to write ' + final_filename + '.\n')
+    sys.exit('Unable to write ' + final_filename + '.\n')
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
-# c-basic-offset: 8
-# tab-width: 8
-# indent-tabs-mode: t
+# c-basic-offset: 4
+# indent-tabs-mode: nil
 # End:
 #
-# vi: set shiftwidth=8 tabstop=8 noexpandtab:
-# :indentSize=8:tabSize=8:noTabs=false:
+# vi: set shiftwidth=4 expandtab:
+# :indentSize=4:noTabs=true:
 #
