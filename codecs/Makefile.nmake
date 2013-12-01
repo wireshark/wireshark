@@ -7,7 +7,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+CFLAGS=/I.. $(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	$(GLIB_CFLAGS)
 
 .c.obj::
