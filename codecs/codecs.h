@@ -25,9 +25,6 @@
 #ifndef _CODECS_H_
 #define _CODECS_H_
 
-#include <epan/epan.h>
-#include "ws_symbol_export.h"
-
 struct codec_handle;
 typedef struct codec_handle *codec_handle_t;
 
@@ -35,10 +32,10 @@ typedef void *(*codec_init_fn)(void);
 typedef void (*codec_release_fn)(void *context);
 typedef int (*codec_decode_fn)(void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
 
-WS_DLL_PUBLIC void register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release_fn, codec_decode_fn decode_fn);
-WS_DLL_PUBLIC codec_handle_t find_codec(const char *name);
-WS_DLL_PUBLIC void *codec_init(codec_handle_t codec);
-WS_DLL_PUBLIC void codec_release(codec_handle_t codec, void *context);
-WS_DLL_PUBLIC int codec_decode(codec_handle_t codec, void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
+extern void register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release_fn, codec_decode_fn decode_fn);
+extern codec_handle_t find_codec(const char *name);
+extern void *codec_init(codec_handle_t codec);
+extern void codec_release(codec_handle_t codec, void *context);
+extern int codec_decode(codec_handle_t codec, void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
 
 #endif

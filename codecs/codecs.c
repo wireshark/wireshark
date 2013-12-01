@@ -22,9 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
-
-#include <epan/codecs.h>
+#include <glib.h>
+#include "codecs.h"
 
 struct codec_handle {
 	const char *name;

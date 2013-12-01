@@ -35,6 +35,7 @@ MAINTAINERCLEANFILES =	\
        Makefile.in
 
 libcodec_a_SOURCES = \
+       codecs.c codecs.h	\
        G711a/G711adecode.c G711a/G711adecode.h G711a/G711atable.h	\
        G711u/G711udecode.c G711u/G711udecode.h G711u/G711utable.h	\
        G722/G722decode.c G722/G722decode.h							\
@@ -49,6 +50,7 @@ EXTRA_DIST = \
 
 checkapi: 
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
+	codecs.c \
 	G711a/G711adecode.c \
 	G711u/G711udecode.c \
 	G722/G722decode.c \

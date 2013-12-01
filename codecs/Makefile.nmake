@@ -14,6 +14,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
 
 CODEC_OBJECTS= \
+    codecs.obj \
 	G711udecode.obj \
 	G711adecode.obj \
 	G722decode.obj \
@@ -24,6 +25,9 @@ CODEC_OBJECTS= \
 codecs.lib	:  $(CODEC_OBJECTS)
 	link /lib /out:codecs.lib $(CODEC_OBJECTS)
 
+
+codecs.obj: codecs.c codecs.h
+	$(CC) $(CFLAGS) -Fd.\ -c codecs.c /Fo%|fF.obj
 
 G711adecode.obj: G711a\G711adecode.c G711a\G711adecode.h G711a\G711atable.h
 	$(CC) $(CFLAGS) -Fd.\ -c G711a\G711adecode.c /Fo%|fF.obj
@@ -49,6 +53,7 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
+	codecs.c \
 	G711a/G711adecode.c \
 	G711u/G711udecode.c \
 	G722/G722decode.c \

@@ -22,6 +22,7 @@
 #
 
 set(CODECS_FILES
+  codecs.c
   G711a/G711adecode.c
   G711u/G711udecode.c
   G722/G722decode.c

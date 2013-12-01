@@ -1468,7 +1468,6 @@ set(LIBWIRESHARK_FILES
 	camel-persistentdata.c
 	charsets.c
 	circuit.c
-	codecs.c
 	column.c
 	column-utils.c
 	conversation.c

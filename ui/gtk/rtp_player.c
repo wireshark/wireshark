@@ -64,7 +64,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
-#include <epan/codecs.h>
+#include <../codecs/codecs.h>
 #include <epan/prefs.h>
 
 #include "../globals.h"
