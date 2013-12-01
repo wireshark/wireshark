@@ -3461,7 +3461,7 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
         return 3;
     case 1:
         teid_data = tvb_get_ntohl(tvb, offset + 1);
-        proto_tree_add_uint(tree, hf_gtp_teid_data, tvb, offset, 4, teid_data);
+        proto_tree_add_uint(tree, hf_gtp_teid_data, tvb, offset+1, 4, teid_data);
 
         return 5;
     default:
