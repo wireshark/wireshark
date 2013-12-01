@@ -8,7 +8,6 @@
 
 #.OMIT_ASSIGNMENT
 CalledNumber
-CallReference
 ChargeIndicator
 MscNo
 SystemType
