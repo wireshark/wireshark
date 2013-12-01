@@ -69,14 +69,15 @@ else:
 #
 if registertype == "dissectorsinfile":
 	try:
-		with open(sys.argv[3]) as f:
-			files = [line.rstrip() for line in f]
+		dissector_f = open(sys.argv[3])
 	except IOError:
 	    print(("Unable to open input file '%s'" % sys.argv[3]))
 	    sys.exit(1)
+
+	files = [line.rstrip() for line in dissector_f]
 else:
 	files = sys.argv[3:]
-	
+
 # Create the proper list of filenames
 filenames = []
 for file in files:
