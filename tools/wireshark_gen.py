@@ -75,7 +75,7 @@ import tempfile
 #
 # TODO -- FS
 #
-# 1. generate hf[] data for searchable fields (but what is searchable?) [done, could be improved] 
+# 1. generate hf[] data for searchable fields (but what is searchable?) [done, could be improved]
 # 2. add item instead of add_text() [done]
 # 3. sequence handling [done]
 # 4. User Exceptions [done]
@@ -217,7 +217,7 @@ class wireshark_gen_C:
 
         self.gen_proto_register(oplist, atlist, stlist, unlist)
         self.gen_proto_reg_handoff(oplist)
-	# All the dissectors are now built-in
+        # All the dissectors are now built-in
         #self.gen_plugin_register()
 
         #self.dumpvars()                 # debug
@@ -302,7 +302,7 @@ class wireshark_gen_C:
                 self.st.out(self.template_hf, name=sname + "_return")
 
         for p in op.parameters():
-             self.st.out(self.template_hf, name=sname + "_" + p.identifier())
+            self.st.out(self.template_hf, name=sname + "_" + p.identifier())
 
     #
     # genAtDeclares()
@@ -404,7 +404,7 @@ class wireshark_gen_C:
         if self.DEBUG:
             print "XXX genDeclares"
 
-        # prototype for operation filters 
+        # prototype for operation filters
         self.st.out(self.template_hf_operations)
 
         #operation specific filters
@@ -957,8 +957,8 @@ class wireshark_gen_C:
 
 
     def dumpCvars(self, sname):
-            for v in self.fn_hash[sname]:
-                self.st.out(v)
+        for v in self.fn_hash[sname]:
+            self.st.out(v)
 
 
     #
@@ -1211,7 +1211,7 @@ class wireshark_gen_C:
     # getCDR_hf()
     #
     # This takes a node, and tries to output the appropriate item for the
-    # hf array. 
+    # hf array.
     #
 
     def getCDR_hf(self,type,desc,filter,hf_name="fred"):
@@ -1788,7 +1788,7 @@ class wireshark_gen_C:
 
     def gen_proto_register(self, oplist, atlist, stlist, unlist):
         self.st.out(self.template_proto_register_start, dissector_name=self.dissname)
-        
+
         #operation specific filters
         self.st.out(self.template_proto_register_op_filter_comment)
         for op in oplist:
@@ -2001,7 +2001,7 @@ void proto_register_giop_@dissector_name@(void)
    /* setup list of header fields */
    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
+                {&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
 
     template_proto_register_end = """
    };
@@ -2079,7 +2079,7 @@ switch(header->message_type) {"""
 default:
     /* Unknown GIOP Message */
     expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
-    
+
     template_helper_switch_msgtype_default_end = """\
 break;"""
 
@@ -2111,10 +2111,10 @@ break;"""
 default:
     /* Unknown Exception */
     expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_exception, "Unknown exception %d", header->rep_status);"""
-    
+
     template_helper_switch_msgtype_reply_default_end = """\
     break;"""
-    
+
     template_helper_switch_msgtype_reply_end = """\
 break;"""
 
@@ -2122,10 +2122,10 @@ break;"""
 default:
     /* Unknown GIOP Message */
     expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
-    
+
     template_helper_switch_msgtype_default_end = """\
     break;"""
-    
+
     template_helper_switch_rep_status_start = """\
 switch(header->rep_status) {"""
 
@@ -2133,10 +2133,10 @@ switch(header->rep_status) {"""
 default:
     /* Unknown Reply Status */
     expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_reply_status, "Unknown reply status %d", header->rep_status);"""
-    
+
     template_helper_switch_rep_status_default_end = """\
     break;"""
-    
+
     template_helper_switch_rep_status_end = """\
 }   /* switch(header->rep_status) */
 
@@ -2853,3 +2853,14 @@ static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 decode_@name@_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 """
 
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=4 expandtab:
+# :indentSize=4:noTabs=true:
+#
