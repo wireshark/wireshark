@@ -4396,14 +4396,10 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	session = (struct SESSION_DATA_STRUCTURE*)data;
-
-	/* do we have spdu type from the session dissector?  */
-	if( !session ){
-		proto_tree_add_text(parent_tree, tvb, 0, -1,
-			"Internal error:can't get spdu type from session dissector.");
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
 		return 0;
-	}
+	session = (struct SESSION_DATA_STRUCTURE*)data;
 
 	if(session->spdu_type == 0 ) {
 		proto_tree_add_text(parent_tree, tvb, 0, -1,
@@ -5582,7 +5578,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 191 "../../asn1/cmip/packet-cmip-template.c"
+#line 187 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5714,7 +5710,7 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 197 "../../asn1/cmip/packet-cmip-template.c"
+#line 193 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* Register protocol */
@@ -5800,7 +5796,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 207 "../../asn1/cmip/packet-cmip-template.c"
+#line 203 "../../asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", FT_UINT32, BASE_DEC);

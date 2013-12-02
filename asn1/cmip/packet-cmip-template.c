@@ -106,14 +106,10 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	session = (struct SESSION_DATA_STRUCTURE*)data;
-
-	/* do we have spdu type from the session dissector?  */
-	if( !session ){
-		proto_tree_add_text(parent_tree, tvb, 0, -1,
-			"Internal error:can't get spdu type from session dissector.");
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
 		return 0;
-	}
+	session = (struct SESSION_DATA_STRUCTURE*)data;
 
 	if(session->spdu_type == 0 ) {
 		proto_tree_add_text(parent_tree, tvb, 0, -1,
