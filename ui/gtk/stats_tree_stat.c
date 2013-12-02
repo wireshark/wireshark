@@ -294,7 +294,7 @@ save_as_dialog(GtkWidget *win _U_, stats_tree *st)
 		g_free(file_name_lower);
 
 		gtk_tree_sortable_get_sort_column_id (GTK_TREE_SORTABLE (st->pr->store), &sort_column, &order);
-		str_tree=stats_tree_format_as_str(st,file_type,sort_column-N_RESERVED_COL,order==GTK_SORT_DESCENDING);
+		str_tree=stats_tree_format_as_str(st,(st_format_type)file_type,sort_column-N_RESERVED_COL,order==GTK_SORT_DESCENDING);
 
 		/* actually save the file */
 		f= ws_fopen (file_name->str,"w");
