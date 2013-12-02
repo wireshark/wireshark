@@ -50,7 +50,7 @@
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wunused-variable”
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
 /* Initialise the protocol and subtree pointers */
