@@ -70,11 +70,11 @@ typedef struct _address {
 
 /** Initialize an address with the given values.
  *
- * @param addr[in,out] The address to initialize.
- * @param addr_type[in] Address type.
- * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ * @param addr [in,out] The address to initialize.
+ * @param addr_type [in] Address type.
+ * @param addr_len [in] The length in bytes of the address data. For example, 4 for
  *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param addr_data[in] Pointer to the address data.
+ * @param addr_data [in] Pointer to the address data.
  */
 static inline void
 set_address(address *addr, address_type addr_type, int addr_len, const void * addr_data) {
@@ -94,11 +94,11 @@ set_address(address *addr, address_type addr_type, int addr_len, const void * ad
  * This calls tvb_get_ptr() (including throwing any exceptions) before
  * modifying the address.
  *
- * @param addr[in,out] The address to initialize.
- * @param addr_type[in] Address type.
- * @param tvb[in] Pointer to the TVB.
- * @param offset[in] Offset within the TVB.
- * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ * @param addr [in,out] The address to initialize.
+ * @param addr_type [in] Address type.
+ * @param tvb [in] Pointer to the TVB.
+ * @param offset [in] Offset within the TVB.
+ * @param addr_len [in] The length in bytes of the address data. For example, 4 for
  *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
  */
 #define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) \
@@ -109,12 +109,12 @@ set_address(address *addr, address_type addr_type, int addr_len, const void * ad
 
 /** Initialize an address with the given values including an associated field.
  *
- * @param addr[in,out] The address to initialize.
- * @param addr_type[in] Address type.
- * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ * @param addr [in,out] The address to initialize.
+ * @param addr_type [in] Address type.
+ * @param addr_len [in] The length in bytes of the address data. For example, 4 for
  *                 AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param addr_data[in] Pointer to the address data.
- * @param addr_hf[in] The header field index to associate with the address.
+ * @param addr_data [in] Pointer to the address data.
+ * @param addr_hf [in] The header field index to associate with the address.
  */
 static inline void
 set_address_hf(address *addr, address_type addr_type, int addr_len, const void * addr_data, int addr_hf) {
@@ -134,13 +134,13 @@ set_address_hf(address *addr, address_type addr_type, int addr_len, const void *
  * This calls tvb_get_ptr() (including throwing any exceptions) before
  * modifying the address.
  *
- * @param addr[in,out] The address to initialize.
- * @param addr_type[in] Address type.
- * @param tvb[in] Pointer to the TVB.
- * @param offset[in] Offset within the TVB.
- * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ * @param addr [in,out] The address to initialize.
+ * @param addr_type [in] Address type.
+ * @param tvb [in] Pointer to the TVB.
+ * @param offset [in] Offset within the TVB.
+ * @param addr_len [in] The length in bytes of the address data. For example, 4 for
  *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param addr_hf[in] The header field index to associate with the address.
+ * @param addr_hf [in] The header field index to associate with the address.
  */
 #define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) \
     do {                            \
@@ -150,8 +150,8 @@ set_address_hf(address *addr, address_type addr_type, int addr_len, const void *
 
 /** Compare two addresses.
  *
- * @param addr1[in] The first address to compare.
- * @param addr2[in] The second address to compare.
+ * @param addr1 [in] The first address to compare.
+ * @param addr2 [in] The second address to compare.
  * @return 0 if the addresses are equal,
  *  A positive number if addr1 > addr2 in some nondefined metric,
  *  A negative number if addr1 < addr2 in some nondefined metric.
@@ -173,8 +173,8 @@ cmp_address(const address *addr1, const address *addr2) {
  * AT_NONE, they are then equal, otherwise they must have the same
  * amount of data and the data must be the same.
  *
- * @param addr1[in] The first address to compare.
- * @param addr2[in] The second address to compare.
+ * @param addr1 [in] The first address to compare.
+ * @param addr2 [in] The second address to compare.
  * @return TRUE if the adresses are equal, FALSE otherwise.
  */
 static inline gboolean
@@ -192,8 +192,8 @@ addresses_equal(const address *addr1, const address *addr2) {
 
 /** Copy an address, allocating a new buffer for the address data.
  *
- * @param to[in,out] The destination address.
- * @param from[in] The source address.
+ * @param to [in,out] The destination address.
+ * @param from [in] The source address.
  */
 static inline void
 copy_address(address *to, const address *from) {
@@ -211,8 +211,8 @@ copy_address(address *to, const address *from) {
 /** Perform a shallow copy of the address (both addresses point to the same
  * memory location).
  *
- * @param to[in,out] The destination address.
- * @param from[in] The source address.
+ * @param to [in,out] The destination address.
+ * @param from [in] The source address.
  */
 static inline void
 copy_address_shallow(address *to, const address *from) {
