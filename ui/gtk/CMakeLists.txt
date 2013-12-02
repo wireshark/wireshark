@@ -121,6 +121,10 @@ set(WIRESHARK_GTK_SRC
 	webbrowser.c
 )
 
+set(WIRESHARK_DIRTY_TAP_SRC
+	stats_tree_stat.c
+)
+
 set(WIRESHARK_TAP_SRC
 	afp_stat.c
 	ansi_a_stat.c
@@ -196,7 +200,7 @@ set(WIRESHARK_TAP_SRC
 	sip_stat.c
 	smb_stat.c
 	smb2_stat.c
-	stats_tree_stat.c
+	# stats_tree_stat.c
 	tcp_graph.c
 	voip_calls_dlg.c
 	wlan_stat_dlg.c
@@ -260,6 +264,7 @@ register_tap_files(wireshark-tap-register.c
 add_library(gtkui STATIC
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}
+	${WIRESHARK_DIRTY_TAP_SRC}
 	${PLATFORM_UI_SRC}
 	wireshark-tap-register.c
 )
