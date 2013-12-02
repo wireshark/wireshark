@@ -34,9 +34,18 @@
 #include <math.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
-#include <epan/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+
+/* linked list of Lua plugins */
+typedef struct _wslua_plugin {
+    gchar       *name;            /**< plugin name */
+    gchar       *version;         /**< plugin version */
+    gchar       *filename;        /**< plugin filename */
+    struct _wslua_plugin *next;
+} wslua_plugin;
+
+static wslua_plugin *wslua_plugin_list = NULL;
 
 static lua_State* L = NULL;
 
@@ -358,6 +367,30 @@ int wslua_count_plugins(void) {
     plugins_counter += ex_opt_count("lua_script");
 
     return plugins_counter;
+}
+
+void wslua_plugins_get_descriptions(wslua_plugin_description_callback callback, void *user_data) {
+    wslua_plugin  *lua_plug;
+
+    for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
+    {
+        callback(lua_plug->name, lua_plug->version, "lua script",
+                 lua_plug->filename, user_data);
+    }
+}
+
+static void
+print_wslua_plugin_description(const char *name, const char *version,
+                               const char *description, const char *filename,
+                               void *user_data _U_)
+{
+    printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
+}
+
+void
+wslua_plugins_dump_all(void)
+{
+    wslua_plugins_get_descriptions(print_wslua_plugin_description, NULL);
 }
 
 int wslua_init(register_cb cb, gpointer client_data) {

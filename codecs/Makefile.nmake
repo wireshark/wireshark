@@ -4,6 +4,7 @@
 # $Id$
 
 include ..\config.nmake
+include ..\Makefile.nmake.inc
 
 ############### no need to modify below this line #########
 
@@ -11,9 +12,16 @@ CFLAGS=/I.. $(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	$(GLIB_CFLAGS)
 
 .c.obj::
-	$(CC) $(CFLAGS)  -Fd.\ -c $<
+	$(CC) $(CFLAGS) -Fd.\ -c $<
 
-CODEC_OBJECTS= \
+include Makefile.common
+
+# if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
+# XXX - if the codec files weren't in subdirectories, we could just do
+# LIBCODEC_OBJECTS = $(LIBCODEC_SRC:.c=.obj), and wouldn't need rules
+# for each of the codecs below
+#
+LIBCODEC_OBJECTS= \
     codecs.obj \
 	G711udecode.obj \
 	G711adecode.obj \
@@ -21,10 +29,8 @@ CODEC_OBJECTS= \
 	G726decode.obj \
 	sbc.obj
 
-
-codecs.lib	:  $(CODEC_OBJECTS)
-	link /lib /out:codecs.lib $(CODEC_OBJECTS)
-
+codecs.lib	:  $(LIBCODEC_OBJECTS)
+	link /lib /out:codecs.lib $(LIBCODEC_OBJECTS)
 
 codecs.obj: codecs.c codecs.h
 	$(CC) $(CFLAGS) -Fd.\ -c codecs.c /Fo%|fF.obj
@@ -45,7 +51,7 @@ sbc.obj: sbc\sbc.c sbc\sbc.h
 	$(CC) $(CFLAGS) -Fd.\ -c sbc\sbc.c /Fo%|fF.obj
 
 clean:
-	rm -f $(CODEC_OBJECTS) codecs.lib *.pdb *.sbr
+	rm -f $(LIBCODEC_OBJECTS) codecs.lib *.pdb *.sbr
 
 distclean: clean
 
@@ -53,9 +59,4 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
-	codecs.c \
-	G711a/G711adecode.c \
-	G711u/G711udecode.c \
-	G722/G722decode.c \
-	G726/G726decode.c \
-	sbc/sbc.c
+	$(LIBCODEC_SRC)

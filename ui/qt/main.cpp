@@ -40,6 +40,9 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
 #include <wsutil/u3.h>
 
 #include <wiretap/merge.h>
@@ -48,7 +51,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/timestamp.h>
 #include <epan/packet.h>
-#include <epan/plugins.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
@@ -65,6 +67,10 @@
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
 #include <epan/print.h>
+
+#ifdef HAVE_PLUGINS
+#include <codecs/codecs.h>
+#endif
 
 /* general (not Qt specific) */
 #include "file.h"
@@ -819,6 +825,23 @@ int main(int argc, char *argv[])
     capture_opts_init(&global_capture_opts);
 
     capture_session_init(&global_capture_session, (void *)&cfile);
+#endif
+
+#ifdef HAVE_PLUGINS
+    /* Register all the plugin types we have. */
+    epan_register_plugin_types(); /* Types known to libwireshark */
+    wtap_register_plugin_types(); /* Types known to libwiretap */
+    codec_register_plugin_types(); /* Types known to libcodec */
+
+    /* Scan for plugins.  This does *not* call their registration routines;
+       that's done later. */
+    scan_plugins();
+
+    /* Register all libwiretap plugin modules. */
+    register_all_wiretap_modules();
+
+    /* Register all audio codec plugins. */
+    register_all_codecs();
 #endif
 
     /* Register all dissectors; we must do this before checking for the

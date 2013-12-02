@@ -25,12 +25,12 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
-
 #include <string.h>
 
+#include <gtk/gtk.h>
+
 #include <wsutil/filesystem.h>
-#include <epan/plugins.h>
+#include <wsutil/plugins.h>
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif
@@ -43,6 +43,7 @@
 
 #include "../log.h"
 #include "../version_info.h"
+#include "../register.h"
 
 #include "ui/last_open_dir.h"
 

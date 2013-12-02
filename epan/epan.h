@@ -81,6 +81,16 @@ Ref2 for further edits - delete when done
 	- \ref airpcapdefs
 	- \ref radiotap
 */
+/*
+ * Register all the plugin types that are part of libwireshark.
+ *
+ * Must be called before init_plugins(), which must be called before
+ * any registration routines are called, i.e. before epan_init().
+ *
+ * Must be called only once in a program.
+ */
+WS_DLL_PUBLIC void epan_register_plugin_types(void);
+
 /** init the whole epan module, this is used to be called only once in a program */
 WS_DLL_PUBLIC
 void epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),

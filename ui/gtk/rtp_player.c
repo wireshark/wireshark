@@ -64,8 +64,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
-#include <../codecs/codecs.h>
 #include <epan/prefs.h>
+
+#include <codecs/codecs.h>
 
 #include "../globals.h"
 #include "../codecs/G711a/G711adecode.h"

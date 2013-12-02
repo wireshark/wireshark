@@ -58,6 +58,7 @@ set(WSUTIL_FILES
   md5.c
   mpeg-audio.c
   nstime.c
+  plugins.c
   privileges.c
   sha1.c
   strnatcmp.c

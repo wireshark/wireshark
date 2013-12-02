@@ -70,7 +70,6 @@ LIBWIRESHARK_SRC =		\
 	osi-utils.c		\
 	packet-range.c		\
 	packet.c		\
-	plugins.c		\
 	prefs.c			\
 	print.c			\
 	proto.c			\
@@ -218,7 +217,6 @@ LIBWIRESHARK_INCLUDES =		\
 	packet.h		\
 	packet_info.h		\
 	params.h		\
-	plugins.h		\
 	ppptypes.h		\
 	print.h			\
 	prefs.h			\

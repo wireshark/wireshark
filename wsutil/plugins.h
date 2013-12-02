@@ -32,37 +32,17 @@ extern "C" {
 #include <glib.h>
 #include <gmodule.h>
 
-#include "packet.h"
 #include "ws_symbol_export.h"
 
-typedef struct _plugin {
-    GModule	*handle;          /* handle returned by g_module_open */
-    gchar       *name;            /* plugin name */
-    gchar       *version;         /* plugin version */
-    void (*register_protoinfo)(void); /* routine to call to register protocol information */
-    void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
-    void (*register_tap_listener)(void);   /* routine to call to register tap listener */
-    void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
-    void (*register_codec_module)(void);  /* routine to call to register a codec */
-    struct _plugin *next;         /* forward link */
-} plugin;
+typedef gboolean (*plugin_callback)(GModule *handle);
 
-WS_DLL_PUBLIC plugin *plugin_list;
-
-extern void init_plugins(void);
-extern void register_all_plugin_registrations(void);
-extern void register_all_plugin_handoffs(void);
-WS_DLL_PUBLIC void register_all_plugin_tap_listeners(void);
+WS_DLL_PUBLIC void scan_plugins(void);
+WS_DLL_PUBLIC void add_plugin_type(const char *type, plugin_callback callback);
+typedef void (*plugin_description_callback)(const char *, const char *,
+                                            const char *, const char *,
+                                            void *);
+WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
 WS_DLL_PUBLIC void plugins_dump_all(void);
-
-typedef struct _wslua_plugin {
-    gchar       *name;            /**< plugin name */
-    gchar       *version;         /**< plugin version */
-    gchar       *filename;        /**< plugin filename */
-    struct _wslua_plugin *next;
-} wslua_plugin;
-
-WS_DLL_PUBLIC wslua_plugin *wslua_plugin_list;
 
 #ifdef __cplusplus
 }

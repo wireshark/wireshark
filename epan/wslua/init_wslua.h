@@ -25,6 +25,14 @@
 #ifndef __INIT_WSLUA_H__
 #define __INIT_WSLUA_H__
 
+#include "ws_symbol_export.h"
+
 WS_DLL_PUBLIC int wslua_count_plugins(void);
+
+typedef void (*wslua_plugin_description_callback)(const char *, const char *,
+                                                  const char *, const char *,
+                                                  void *);
+WS_DLL_PUBLIC void wslua_plugins_get_descriptions(wslua_plugin_description_callback callback, void *user_data);
+WS_DLL_PUBLIC void wslua_plugins_dump_all(void);
 
 #endif /* __INIT_WSLUA_H__ */

@@ -147,8 +147,7 @@ mergecap_SOURCES = \
 
 # editcap specifics
 editcap_SOURCES = \
-	editcap.c	\
-	$(WTAP_PLUGIN_SOURCES)
+	editcap.c
 
 # reordercap specifics
 reordercap_SOURCES = \
@@ -157,8 +156,7 @@ reordercap_SOURCES = \
 
 # capinfos specifics
 capinfos_SOURCES = \
-	capinfos.c \
-	$(WTAP_PLUGIN_SOURCES)
+	capinfos.c
 
 # dftest specifics
 dftest_SOURCES =	\

@@ -70,6 +70,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/plugins.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -85,7 +86,6 @@
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
-#include <epan/plugins.h>
 #include "register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"

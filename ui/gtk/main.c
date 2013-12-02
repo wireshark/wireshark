@@ -76,7 +76,6 @@
 #include <epan/disabled_protos.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
-#include <epan/plugins.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
@@ -91,6 +90,8 @@
 #include <epan/uat.h>
 #include <epan/print.h>
 #include <epan/timestamp.h>
+
+#include <wsutil/plugins.h>
 
 /* general (not GTK specific) */
 #include "../file.h"
@@ -123,6 +124,8 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #endif
+
+#include "codecs/codecs.h"
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"
@@ -2517,6 +2520,23 @@ main(int argc, char *argv[])
         init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   }
+
+#ifdef HAVE_PLUGINS
+  /* Register all the plugin types we have. */
+  epan_register_plugin_types(); /* Types known to libwireshark */
+  wtap_register_plugin_types(); /* Types known to libwiretap */
+  codec_register_plugin_types(); /* Types known to libcodec */
+
+  /* Scan for plugins.  This does *not* call their registration routines;
+     that's done later. */
+  scan_plugins();
+
+  /* Register all libwiretap plugin modules. */
+  register_all_wiretap_modules();
+
+  /* Register all audio codec plugins. */
+  register_all_codecs();
+#endif
 
   splash_update(RA_DISSECTORS, NULL, (gpointer)splash_win);
 

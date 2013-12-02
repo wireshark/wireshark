@@ -1394,6 +1394,10 @@ GSList *wtap_get_file_extension_type_extensions(guint extension_type);
 
 /*** dynamically register new file types and encapsulations ***/
 WS_DLL_PUBLIC
+void wtap_register_plugin_types(void);
+WS_DLL_PUBLIC
+void register_all_wiretap_modules(void);
+WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
 WS_DLL_PUBLIC
 void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);

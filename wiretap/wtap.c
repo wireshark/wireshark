@@ -43,6 +43,75 @@
 #include <wsutil/file_util.h>
 #include "buffer.h"
 
+#ifdef HAVE_PLUGINS
+
+#include <wsutil/plugins.h>
+
+/*
+ * List of wiretap plugins.
+ */
+typedef struct {
+	void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
+} wtap_plugin;
+
+static GSList *wtap_plugins = NULL;
+
+/*
+ * Callback for each plugin found.
+ */
+static gboolean
+check_for_wtap_plugin(GModule *handle)
+{
+	gpointer gp;
+	void (*register_wtap_module)(void);
+	wtap_plugin *plugin;
+
+	/*
+	 * Do we have a register_wtap_module routine?
+	 */
+	if (!g_module_symbol(handle, "register_wtap_module", &gp)) {
+		/* No, so this isn't a wiretap module plugin. */
+		return FALSE;
+	}
+
+	/*
+	 * Yes - this plugin includes one or more wiretap modules.
+	 */
+	register_wtap_module = (void (*)(void))gp;
+
+	/*
+	 * Add this one to the list of wiretap module plugins.
+	 */
+	plugin = (wtap_plugin *)g_malloc(sizeof (wtap_plugin));
+	plugin->register_wtap_module = register_wtap_module;
+	wtap_plugins = g_slist_append(wtap_plugins, plugin);
+	return TRUE;
+}
+
+void
+wtap_register_plugin_types(void)
+{
+	add_plugin_type("file format", check_for_wtap_plugin);
+}
+
+static void
+register_wtap_module_plugin(gpointer data, gpointer user_data _U_)
+{
+	wtap_plugin *plugin = (wtap_plugin *)data;
+
+	(plugin->register_wtap_module)();
+}
+
+/*
+ * For all wiretap module plugins, call their register routines.
+ */
+void
+register_all_wiretap_modules(void)
+{
+	g_slist_foreach(wtap_plugins, register_wtap_module_plugin, NULL);
+}
+#endif /* HAVE_PLUGINS */
+
 /*
  * Return the size of the file, as reported by the OS.
  * (gint64, in case that's 64 bits.)

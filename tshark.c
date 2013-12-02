@@ -70,6 +70,7 @@
 #include "globals.h"
 #include <epan/timestamp.h>
 #include <epan/packet.h>
+#include <epan/wslua/init_wslua.h>
 #include "file.h"
 #include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
@@ -81,7 +82,6 @@
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
-#include <epan/plugins.h>
 #include "register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
@@ -105,6 +105,10 @@
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 #include <epan/funnel.h>
+
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -1097,6 +1101,19 @@ main(int argc, char *argv[])
   timestamp_set_precision(TS_PREC_AUTO);
   timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
+#ifdef HAVE_PLUGINS
+  /* Register all the plugin types we have. */
+  epan_register_plugin_types(); /* Types known to libwireshark */
+  wtap_register_plugin_types(); /* Types known to libwiretap */
+
+  /* Scan for plugins.  This does *not* call their registration routines;
+     that's done later. */
+  scan_plugins();
+
+  /* Register all libwiretap plugin modules. */
+  register_all_wiretap_modules();
+#endif
+
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
@@ -1147,8 +1164,12 @@ main(int argc, char *argv[])
         proto_registrar_dump_ftypes();
       else if (strcmp(argv[2], "heuristic-decodes") == 0)
         dissector_dump_heur_decodes();
-      else if (strcmp(argv[2], "plugins") == 0)
+#ifdef HAVE_PLUGINS
+      else if (strcmp(argv[2], "plugins") == 0) {
         plugins_dump_all();
+        wslua_plugins_dump_all();
+      }
+#endif
       else if (strcmp(argv[2], "protocols") == 0)
         proto_registrar_dump_protocols();
       else if (strcmp(argv[2], "values") == 0)

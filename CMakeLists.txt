@@ -761,10 +761,6 @@ if(WIN32)
 	)
 endif()
 
-set(WTAP_PLUGIN_SOURCES
-	epan/plugins.c
-)
-
 set(SHARK_COMMON_CAPTURE_SRC
 	capture_ifinfo.c
 	capture_ui_utils.c
@@ -1071,7 +1067,6 @@ if(BUILD_mergecap)
 	set(mergecap_FILES
 		mergecap.c
 		svnversion.h
-		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(mergecap ${mergecap_FILES})
 	add_dependencies(mergecap svnversion)
@@ -1090,7 +1085,6 @@ if(BUILD_reordercap)
 	set(reordercap_FILES
 		reordercap.c
 		svnversion.h
-		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(reordercap ${reordercap_FILES})
 	add_dependencies(reordercap svnversion)
@@ -1110,7 +1104,6 @@ if(BUILD_capinfos)
 	)
 	set(capinfos_FILES
 		capinfos.c
-		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(capinfos ${capinfos_FILES})
 	add_dependencies(capinfos svnversion)
@@ -1128,7 +1121,6 @@ if(BUILD_editcap)
 	)
 	set(editcap_FILES
 		editcap.c
-		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(editcap ${editcap_FILES})
 	add_dependencies(editcap svnversion)

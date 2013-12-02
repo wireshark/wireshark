@@ -39,7 +39,6 @@
 #include <epan/etypes.h>
 #include <epan/dissector_filters.h>
 #include <epan/strutil.h>
-#include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>

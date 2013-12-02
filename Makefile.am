@@ -311,13 +311,9 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/wimax/wimax.la \
 	-dlopen plugins/wimaxmacphy/wimaxmacphy.la
 
-WTAP_PLUGIN_SOURCES = \
-       epan/plugins.c
-
 else		# HAVE_PLUGINS
 
 plugin_ldadd =
-WTAP_PLUGIN_SOURCES =
 
 endif		# HAVE_PLUGINS
 
@@ -389,7 +385,11 @@ if HAVE_Qt
 wireshark_qt_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_qt_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
-wireshark_qt_LDADD =  ui/qt/libqtui.a $(wireshark_ldadd) @Qt_LIBS@
+wireshark_qt_LDADD = \
+	ui/qt/libqtui.a \
+	$(wireshark_ldadd) \
+	@Qt_LIBS@
+
 #
 # XXX - this makes wireshark_qt_LDFLAGS not work; we should figure out
 # another way to get wireshark-qt linked as a C++ program, perhaps by
@@ -403,7 +403,10 @@ if HAVE_GTK
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
-wireshark_LDADD = ui/gtk/libgtkui.a $(wireshark_ldadd) @GTK_LIBS@
+wireshark_LDADD = \
+	ui/gtk/libgtkui.a \
+	$(wireshark_ldadd) \
+	@GTK_LIBS@
 endif
 
 # Ideally we could trigger automatic c++ linking here with

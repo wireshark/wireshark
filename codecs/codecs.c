@@ -22,8 +22,81 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
 #include <glib.h>
 #include "codecs.h"
+
+#ifdef HAVE_PLUGINS
+
+#include <gmodule.h>
+
+#include <wsutil/plugins.h>
+
+/*
+ * List of codec plugins.
+ */
+typedef struct {
+	void (*register_codec_module)(void);  /* routine to call to register a codec */
+} codec_plugin;
+
+static GSList *codec_plugins = NULL;
+
+/*
+ * Callback for each plugin found.
+ */
+static gboolean
+check_for_codec_plugin(GModule *handle)
+{
+	gpointer gp;
+	void (*register_codec_module)(void);
+	codec_plugin *plugin;
+
+	/*
+	 * Do we have a register_codec_module routine?
+	 */
+	if (!g_module_symbol(handle, "register_codec_module", &gp)) {
+		/* No, so this isn't a codec plugin. */
+		return FALSE;
+	}
+
+	/*
+	 * Yes - this plugin includes one or more codecs.
+	 */
+	register_codec_module = (void (*)(void))gp;
+
+	/*
+	 * Add this one to the list of codec plugins.
+	 */
+	plugin = (codec_plugin *)g_malloc(sizeof (codec_plugin));
+	plugin->register_codec_module = register_codec_module;
+	codec_plugins = g_slist_append(codec_plugins, plugin);
+	return TRUE;
+}
+
+void
+codec_register_plugin_types(void)
+{
+	add_plugin_type("codec", check_for_codec_plugin);
+}
+
+static void
+register_codec_plugin(gpointer data, gpointer user_data _U_)
+{
+	codec_plugin *plugin = (codec_plugin *)data;
+
+	(plugin->register_codec_module)();
+}
+
+/*
+ * For all codec plugins, call their register routines.
+ */
+void
+register_all_codecs(void)
+{
+	g_slist_foreach(codec_plugins, register_codec_plugin, NULL);
+}
+#endif /* HAVE_PLUGINS */
 
 struct codec_handle {
 	const char *name;

@@ -53,9 +53,6 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c capture_win_ifnames.c
 
-WTAP_PLUGIN_SOURCES = \
-	epan/plugins.c
-
 include Makefile.common
 
 wireshark_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj)

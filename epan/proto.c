@@ -41,7 +41,6 @@
 #include "strutil.h"
 #include "addr_resolv.h"
 #include "oids.h"
-#include "plugins.h"
 #include "proto.h"
 #include "epan_dissect.h"
 #include "tvbuff.h"
@@ -56,6 +55,8 @@
 #include "show_exception.h"
 
 #include "wspython/wspy_register.h"
+
+#include <wsutil/plugins.h>
 
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
@@ -324,6 +325,87 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	return g_ascii_strcasecmp(p1->short_name, p2->short_name);
 }
 
+#ifdef HAVE_PLUGINS
+/*
+ * List of dissector plugins.
+ */
+typedef struct {
+	void (*register_protoinfo)(void);	/* routine to call to register protocol information */
+	void (*reg_handoff)(void);		/* routine to call to register dissector handoff */
+} dissector_plugin;
+
+static GSList *dissector_plugins = NULL;
+
+/*
+ * Callback for each plugin found.
+ */
+static gboolean
+check_for_dissector_plugin(GModule *handle)
+{
+	gpointer gp;
+	void (*register_protoinfo)(void);
+	void (*reg_handoff)(void);
+	dissector_plugin *plugin;
+
+	/*
+	 * Do we have a register routine?
+	 */
+	if (g_module_symbol(handle, "plugin_register", &gp))
+		register_protoinfo = (void (*)(void))gp;
+	else
+                register_protoinfo = NULL;
+
+	/*
+	 * Do we have a reg_handoff routine?
+	 */
+	if (g_module_symbol(handle, "plugin_reg_handoff", &gp))
+		reg_handoff = (void (*)(void))gp;
+	else
+		reg_handoff = NULL;
+
+	/*
+	 * If we have neither, we're not a dissector plugin.
+	 */
+	if (register_protoinfo == NULL && reg_handoff == NULL)
+		return FALSE;
+
+	/*
+	 * Add this one to the list of dissector plugins.
+	 */
+	plugin = (dissector_plugin *)g_malloc(sizeof (dissector_plugin));
+	plugin->register_protoinfo = register_protoinfo;
+	plugin->reg_handoff = reg_handoff;
+	dissector_plugins = g_slist_append(dissector_plugins, plugin);
+	return TRUE;
+}
+
+static void
+register_dissector_plugin(gpointer data, gpointer user_data _U_)
+{
+	dissector_plugin *plugin = (dissector_plugin *)data;
+
+	if (plugin->register_protoinfo)
+		(plugin->register_protoinfo)();
+}
+
+static void
+reg_handoff_dissector_plugin(gpointer data, gpointer user_data _U_)
+{
+	dissector_plugin *plugin = (dissector_plugin *)data;
+
+	if (plugin->reg_handoff)
+		(plugin->reg_handoff)();
+}
+
+/*
+ * Register dissector plugin type.
+ */
+void
+register_dissector_plugin_type(void)
+{
+	add_plugin_type("dissector", check_for_dissector_plugin);
+}
+#endif /* HAVE_PLUGINS */
 
 /* initialize data structures and register protocols and fields */
 void
@@ -368,12 +450,11 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 #endif
 
 #ifdef HAVE_PLUGINS
-	/* Now scan for plugins and load all the ones we find, calling
-	   their register routines to do the stuff described above. */
+	/* Now call the registration routines for all disssector
+	   plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
-	init_plugins();
-	register_all_plugin_registrations();
+	g_slist_foreach(dissector_plugins, register_dissector_plugin, NULL);
 #endif
 
 	/* Now call the "handoff registration" routines of all built-in
@@ -393,7 +474,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	/* Now do the same with plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
-	register_all_plugin_handoffs();
+	g_slist_foreach(dissector_plugins, reg_handoff_dissector_plugin, NULL);
 #endif
 
 	/* sort the protocols by protocol name */

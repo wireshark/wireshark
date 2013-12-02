@@ -31,15 +31,17 @@
 #include <errno.h>
 
 #include <glib.h>
-#include <epan/epan.h>
 
+#include <epan/epan.h>
 #include <epan/timestamp.h>
-#include <epan/plugins.h>
+#include <epan/prefs.h>
+#include <epan/dfilter/dfilter.h>
+
+#include <wsutil/plugins.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
-#include <epan/prefs.h>
+
 #include "ui/util.h"
-#include "epan/dfilter/dfilter.h"
 #include "register.h"
 
 static void failure_message(const char *msg_format, va_list ap);

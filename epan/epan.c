@@ -74,6 +74,20 @@ epan_get_version(void) {
 	return VERSION;
 }
 
+/*
+ * Register all the plugin types that are part of libwireshark, namely
+ * dissector and tap plugins.
+ *
+ * Must be called before init_plugins(), which must be called before
+ * any registration routines are called.
+ */
+void
+epan_register_plugin_types(void)
+{
+	register_dissector_plugin_type();
+	register_tap_plugin_type();
+}
+
 void
 epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),

@@ -51,6 +51,7 @@ LIBWSUTIL_SRC = 	\
 	md5.c		\
 	mpeg-audio.c	\
 	nstime.c	\
+	plugins.c	\
 	privileges.c	\
 	sha1.c		\
 	strnatcmp.c	\
@@ -86,6 +87,7 @@ LIBWSUTIL_INCLUDES = 	\
 	md5.h		\
 	mpeg-audio.h	\
 	nstime.h	\
+	plugins.h	\
 	privileges.h	\
 	sha1.h		\
 	strnatcmp.h	\

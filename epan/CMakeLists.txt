@@ -1503,7 +1503,6 @@ set(LIBWIRESHARK_FILES
 	osi-utils.c
 	packet-range.c
 	packet.c
-	plugins.c
 	print.c
 	prefs.c
 	proto.c

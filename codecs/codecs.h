@@ -25,6 +25,20 @@
 #ifndef _CODECS_H_
 #define _CODECS_H_
 
+#include "config.h"
+
+#include <epan/epan.h>
+#include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#ifdef HAVE_PLUGINS
+extern void codec_register_plugin_types(void);
+extern void register_all_codecs(void);
+#endif
+
 struct codec_handle;
 typedef struct codec_handle *codec_handle_t;
 
@@ -38,4 +52,8 @@ extern void *codec_init(codec_handle_t codec);
 extern void codec_release(codec_handle_t codec, void *context);
 extern int codec_decode(codec_handle_t codec, void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _CODECS_H_ */

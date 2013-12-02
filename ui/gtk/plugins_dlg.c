@@ -26,7 +26,9 @@
 
 #include <gtk/gtk.h>
 
-#include "epan/plugins.h"
+#include <epan/wslua/init_wslua.h>
+
+#include <wsutil/plugins.h>
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
@@ -72,59 +74,24 @@ about_plugins_callback(GtkWidget *widget, GdkEventButton *event, gint id _U_)
  * XXX - We might want to combine this with plugins_dump_all().
  */
 static void
+plugins_add_description(const char *name, const char *version,
+                        const char *types, const char *filename,
+                        void *user_data)
+{
+    GtkWidget *list = (GtkWidget *)user_data;
+
+    simple_list_append(list, 0, name, 1, version,
+                       2, types, 3, filename, -1);
+}
+static void
 plugins_scan(GtkWidget *list)
 {
 #ifdef HAVE_PLUGINS
-    plugin     *pt_plug;
-    const char *sep;
-#endif
-#ifdef HAVE_LUA
-    wslua_plugin  *lua_plug;
-#endif
-    GString    *type;
-
-#ifdef HAVE_PLUGINS
-    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
-    {
-        type = g_string_new("");
-        sep = "";
-        if (pt_plug->register_protoinfo)
-        {
-            type = g_string_append(type, "dissector");
-            sep = ", ";
-        }
-        if (pt_plug->register_tap_listener)
-        {
-            type = g_string_append(type, sep);
-            type = g_string_append(type, "tap");
-            sep = ", ";
-        }
-        if (pt_plug->register_wtap_module)
-        {
-            type = g_string_append(type, sep);
-            type = g_string_append(type, "file format");
-            sep = ", ";
-        }
-        if (pt_plug->register_codec_module)
-        {
-            type = g_string_append(type, sep);
-            type = g_string_append(type, "codec");
-        }
-        simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version,
-                           2, type->str, 3, g_module_name(pt_plug->handle), -1);
-        g_string_free(type, TRUE);
-    }
+    plugins_get_descriptions(plugins_add_description, list);
 #endif
 
 #ifdef HAVE_LUA
-    for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
-    {
-        type = g_string_new("");
-        type = g_string_append(type, "lua script");
-
-        simple_list_append(list, 0, lua_plug->name, 1, lua_plug->version, 2, type->str, 3, lua_plug->filename, -1);
-        g_string_free(type, TRUE);
-    }
+    wslua_plugins_get_descriptions(plugins_add_description, list);
 #endif
 }
 

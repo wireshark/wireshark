@@ -47,7 +47,6 @@
 
 #include "addr_resolv.h"
 #include "tvbuff.h"
-#include "plugins.h"
 #include "epan_dissect.h"
 
 #include "emem.h"

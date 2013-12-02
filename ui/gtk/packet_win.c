@@ -47,7 +47,6 @@
 #include <epan/prefs.h>
 #include <epan/column.h>
 #include <epan/addr_resolv.h>
-#include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/strutil.h>
 #include <epan/tvbuff-int.h>

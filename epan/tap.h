@@ -46,6 +46,20 @@ typedef void (*tap_draw_cb)(void *tapdata);
 #define TL_IS_DISSECTOR_HELPER	0x00000004	/**< tap helps a dissector do work
 						 ** but does not, itself, require dissection */
 
+/** Register tap plugin type with the plugin system.
+    Called by epan_register_plugin_types(); do not call it yourself. */
+extern void register_tap_plugin_type(void);
+
+/*
+ * For all tap plugins, call their register routines.
+ * Must be called after init_plugins(), and must be called only once in
+ * a program.
+ *
+ * XXX - should probably be handled by epan_init(), as the tap mechanism
+ * is part of libwireshark.
+ */
+WS_DLL_PUBLIC void register_all_plugin_tap_listeners(void);
+
 extern void tap_init(void);
 
 /** This function registers that a dissector has the packet tap ability
