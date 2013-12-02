@@ -1183,7 +1183,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_trans = (icmp_transaction_t *)wmem_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
     }
 
-    if (icmpv6_trans == NULL)
+    if (icmpv6_trans == NULL) {
         if (PINFO_FD_VISITED(pinfo)) {
                 /* No response found - add field and expert info */
                 it = proto_tree_add_item(tree, hf_icmpv6_no_resp, NULL, 0, 0,
@@ -1200,6 +1200,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         }
 
         return NULL;
+    }
 
     /* Print state tracking in the tree */
     if (icmpv6_trans->resp_frame) {
