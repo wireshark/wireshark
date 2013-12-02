@@ -1621,6 +1621,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bthci_acl_data_t *acl_data;
     btl2cap_data_t   *l2cap_data;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    acl_data = (bthci_acl_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_btl2cap, tvb, offset, -1, ENC_NA);
     btl2cap_tree = proto_item_add_subtree(ti, ett_btl2cap);
 
@@ -1638,9 +1643,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 pinfo->p2p_dir);
             break;
     }
-
-    acl_data = (bthci_acl_data_t *) data;
-    DISSECTOR_ASSERT(acl_data);
 
     length  = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);

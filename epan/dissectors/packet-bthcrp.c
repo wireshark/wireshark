@@ -354,6 +354,11 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gint            offset = 0;
     gboolean        is_client_message;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    l2cap_data = (btl2cap_data_t *) data;
+
     main_item = proto_tree_add_item(tree, proto_bthcrp, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_bthcrp);
 
@@ -371,9 +376,6 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 pinfo->p2p_dir);
             break;
     }
-
-    l2cap_data = (btl2cap_data_t *) data;
-    DISSECTOR_ASSERT(l2cap_data);
 
 /* TODO: Implement streams reconizing by SDP
  * Server provide SDP record for Control and Data PSM

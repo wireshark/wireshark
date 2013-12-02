@@ -4258,13 +4258,15 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint16       tid;
     btl2cap_data_t   *l2cap_data;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    l2cap_data = (btl2cap_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_btsdp, tvb, 0, -1, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
-
-    l2cap_data = (btl2cap_data_t *) data;
-    DISSECTOR_ASSERT(l2cap_data);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:

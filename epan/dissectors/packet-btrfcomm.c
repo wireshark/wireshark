@@ -582,6 +582,11 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     btl2cap_data_t      *l2cap_data;
     service_info_t      *service_info = NULL;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    l2cap_data = (btl2cap_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
@@ -599,9 +604,6 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 pinfo->p2p_dir);
             break;
     }
-
-    l2cap_data = (btl2cap_data_t *) data;
-    DISSECTOR_ASSERT(l2cap_data);
 
     /* flags and dlci */
     offset = dissect_btrfcomm_address(tvb, pinfo, offset, rfcomm_tree, &ea_flag, &cr_flag, &dlci);

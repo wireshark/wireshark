@@ -663,6 +663,11 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint             reassemble_start_offset = 0;
     guint             reassemble_end_offset   = 0;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    rfcomm_data = (btrfcomm_data_t *) data;
+
     main_item = proto_tree_add_item(tree, proto_bthsp, tvb, 0, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_bthsp);
 
@@ -679,9 +684,6 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ", pinfo->p2p_dir);
             break;
     }
-
-    rfcomm_data = (btrfcomm_data_t *) data;
-    DISSECTOR_ASSERT(rfcomm_data);
 
     interface_id = rfcomm_data->interface_id;
     adapter_id   = rfcomm_data->adapter_id;

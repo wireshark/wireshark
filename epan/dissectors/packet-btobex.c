@@ -1411,6 +1411,11 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32                   k_direction;
     guint32                   length;
 
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+
     save_fragmented = pinfo->fragmented;
 
     is_obex_over_l2cap = (proto_btrfcomm == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(
@@ -1420,7 +1425,6 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         btl2cap_data_t      *l2cap_data;
 
         l2cap_data   = (btl2cap_data_t *) data;
-        DISSECTOR_ASSERT(l2cap_data);
 
         interface_id = l2cap_data->interface_id;
         adapter_id   = l2cap_data->adapter_id;
@@ -1430,7 +1434,6 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         btrfcomm_data_t      *rfcomm_data;
 
         rfcomm_data  = (btrfcomm_data_t *) data;
-        DISSECTOR_ASSERT(rfcomm_data);
 
         interface_id = rfcomm_data->interface_id;
         adapter_id   = rfcomm_data->adapter_id;
