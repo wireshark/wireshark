@@ -82,19 +82,19 @@ typedef struct _seq_analysis_info {
 /** Fill in the segment list for sequence analysis
  *
  * @param cf Capture file to scan
- * @param sai Sequence analysis information. A valid type must be set.
+ * @param sainfo Sequence analysis information. A valid type must be set.
  */
 void sequence_analysis_list_get(capture_file *cf, seq_analysis_info_t *sainfo);
 
 /** Free the segment list
  *
- * @param sai Sequence analysis information.
+ * @param sainfo Sequence analysis information.
  */
 void sequence_analysis_list_free(seq_analysis_info_t *sainfo);
 
 /** Fill in the node address list
  *
- * @param sai Sequence analysis information.
+ * @param sainfo Sequence analysis information.
  * @return The number of transaction items (not nodes) processed.
  */
 int sequence_analysis_get_nodes(seq_analysis_info_t *sainfo);
@@ -102,7 +102,7 @@ int sequence_analysis_get_nodes(seq_analysis_info_t *sainfo);
 /** Write an ASCII version of the sequence diagram to a file.
  *
  * @param pathname Pathname of the file to write.
- * @param sai Sequence analysis information.
+ * @param sainfo Sequence analysis information.
  * @param cf Capture file associated with the diagram.
  * @param first_node Start drawing at this node.
  * @return TRUE on success, FALSE on failure.
