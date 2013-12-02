@@ -118,6 +118,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    hci_data = (hci_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
     bthci_acl_tree = proto_item_add_subtree(ti, ett_bthci_acl);
 
@@ -135,9 +140,6 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
-
-    hci_data = (hci_data_t *) data;
-    DISSECTOR_ASSERT(hci_data);
 
     flags   = tvb_get_letohs(tvb, offset);
     pb_flag = (flags & 0x3000) >> 12;

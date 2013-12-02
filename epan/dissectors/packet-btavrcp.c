@@ -2095,6 +2095,11 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32         psm;
     btavctp_data_t  *avctp_data;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    avctp_data = (btavctp_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_btavrcp, tvb, offset, -1, ENC_NA);
     btavrcp_tree = proto_item_add_subtree(ti, ett_btavrcp);
 
@@ -2112,9 +2117,6 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 pinfo->p2p_dir);
             break;
     }
-
-    avctp_data = (btavctp_data_t *) data;
-    DISSECTOR_ASSERT(avctp_data);
 
     is_command = !avctp_data->cr;
 

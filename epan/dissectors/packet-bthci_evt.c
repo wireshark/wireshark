@@ -3647,6 +3647,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     gint        offset = 0;
     hci_data_t *hci_data;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    hci_data = (hci_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_bthci_evt, tvb, offset, -1, ENC_NA);
     bthci_evt_tree = proto_item_add_subtree(ti, ett_bthci_evt);
 
@@ -3665,9 +3670,6 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, 11, "controller");
     SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 5, "host");
-
-    hci_data = (hci_data_t *) data;
-    DISSECTOR_ASSERT(hci_data);
 
     evt_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
