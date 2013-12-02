@@ -691,7 +691,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "STANAG 4607", "s4607" },
 
 	/* WTAP_ENCAP_STANAG_5066_D_PDU */	
-	{ "STANAG5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"}, 
+	{ "STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"}, 
 };
 
 WS_DLL_LOCAL
