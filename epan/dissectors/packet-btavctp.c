@@ -132,6 +132,11 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint           length;
     guint           i_frame;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    l2cap_data = (btl2cap_data_t *) data;
+
     ti = proto_tree_add_item(tree, proto_btavctp, tvb, offset, -1, ENC_NA);
     btavctp_tree = proto_item_add_subtree(ti, ett_btavctp);
 
@@ -150,9 +155,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 pinfo->p2p_dir);
             break;
     }
-
-    l2cap_data = (btl2cap_data_t *) data;
-    DISSECTOR_ASSERT(l2cap_data);
 
     proto_tree_add_item(btavctp_tree, hf_btavctp_transaction,  tvb, offset, 1, ENC_BIG_ENDIAN);
     pitem = proto_tree_add_item(btavctp_tree, hf_btavctp_packet_type,  tvb, offset, 1, ENC_BIG_ENDIAN);
