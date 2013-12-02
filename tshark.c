@@ -70,7 +70,9 @@
 #include "globals.h"
 #include <epan/timestamp.h>
 #include <epan/packet.h>
+#ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
+#endif
 #include "file.h"
 #include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
@@ -1164,12 +1166,14 @@ main(int argc, char *argv[])
         proto_registrar_dump_ftypes();
       else if (strcmp(argv[2], "heuristic-decodes") == 0)
         dissector_dump_heur_decodes();
-#ifdef HAVE_PLUGINS
       else if (strcmp(argv[2], "plugins") == 0) {
+#ifdef HAVE_PLUGINS
         plugins_dump_all();
-        wslua_plugins_dump_all();
-      }
 #endif
+#ifdef HAVE_LUA
+        wslua_plugins_dump_all();
+#endif
+      }
       else if (strcmp(argv[2], "protocols") == 0)
         proto_registrar_dump_protocols();
       else if (strcmp(argv[2], "values") == 0)
