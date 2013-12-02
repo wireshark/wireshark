@@ -381,7 +381,7 @@ win32 {
     LIBS += \
         $${guilibsdll} $${HHC_LIBS} \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
-        -L.. -llibui \
+        -L.. -llibui -L../../codecs -lcodecs \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
         -L$${ZLIB_DIR}/lib -lzdll \
         -L$${WINSPARKLE_DIR} -lWinSparkle
