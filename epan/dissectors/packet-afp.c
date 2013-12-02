@@ -4827,9 +4827,13 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	afp_request_val *request_val;
 	guint8		afp_command;
 	nstime_t	delta_ts;
+	int		len;
 
-	int	len =  tvb_reported_length(tvb);
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
 
+	len = tvb_reported_length(tvb);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -4878,16 +4882,14 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				"Unknown error (%u)"), aspinfo->code);
 	}
 
-	if (tree)
-	{
+	if (tree) {
 		ti = proto_tree_add_item(tree, proto_afp, tvb, offset, -1, ENC_NA);
 		afp_tree = proto_item_add_subtree(ti, ett_afp);
 	}
 	if (!aspinfo->reply)  {
 
 		ti = proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);
-		if (afp_command != tvb_get_guint8(tvb, offset))
-		{
+		if (afp_command != tvb_get_guint8(tvb, offset)) {
 			/* we have the same conversation for different connections eg:
 			 * ip1:2048 --> ip2:548
 			 * ip1:2048 --> ip2:548 <RST>
@@ -4912,7 +4914,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		}
 
 		offset++;
-		switch(afp_command) {
+		switch (afp_command) {
 		case AFP_BYTELOCK:
 			offset = dissect_query_afp_byte_lock(tvb, pinfo, afp_tree, offset);
 			break;
@@ -5144,7 +5146,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			return tvb_length(tvb);
 		}
 
-		switch(afp_command) {
+		switch (afp_command) {
 		case AFP_BYTELOCK:
 			offset = dissect_reply_afp_byte_lock(tvb, pinfo, afp_tree, offset);
 			break;
