@@ -16255,16 +16255,14 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     ansi_map_sms_tele_id = -1;
     g_pinfo = pinfo;
     g_tree = tree;
+
+    /* The TCAP dissector should have provided data but didn't so reject it. */
+    if (data == NULL)
+        return 0;
     /*
      * Make entry in the Protocol column on summary display
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
-
-    /* Data from the TCAP dissector */
-    if (data == NULL){
-        proto_tree_add_text(tree, tvb, 0, -1, "Dissector ERROR this dissector relies on dissector data");
-        return 0;
-    }
 
     /*
      * create the ansi_map protocol tree
@@ -19346,7 +19344,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5279 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5277 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19607,7 +19605,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5312 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5310 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static const enum_val_t ansi_map_response_matching_type_values[] = {

@@ -4377,16 +4377,14 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     ansi_map_sms_tele_id = -1;
     g_pinfo = pinfo;
     g_tree = tree;
+
+    /* The TCAP dissector should have provided data but didn't so reject it. */
+    if (data == NULL)
+        return 0;
     /*
      * Make entry in the Protocol column on summary display
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
-
-    /* Data from the TCAP dissector */
-    if (data == NULL){
-        proto_tree_add_text(tree, tvb, 0, -1, "Dissector ERROR this dissector relies on dissector data");
-        return 0;
-    }
 
     /*
      * create the ansi_map protocol tree
