@@ -618,9 +618,6 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_MUX27010 */
 	{ "MUX27010", "mux27010"},
 
-	/* WTAP_ENCAP_STANAG_5066_D_PDU */	
-	{ "STANAG5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"}, 
-
 	/* WTAP_ENCAP_MIME */
 	{ "MIME", "mime" },
 
@@ -689,6 +686,12 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_WIRESHARK_UPPER_PDU */
 	{ "Wireshark Upper PDU export", "wireshark-upper-pdu" },
+
+	/* WTAP_ENCAP_STANAG_4607 */
+	{ "STANAG 4607", "s4607" },
+
+	/* WTAP_ENCAP_STANAG_5066_D_PDU */	
+	{ "STANAG5066 Data Transfer Sublayer PDUs(D_PDU)", "s5066-dpdu"}, 
 };
 
 WS_DLL_LOCAL
