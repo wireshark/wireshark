@@ -281,7 +281,7 @@ WS_DLL_PUBLIC gint stat_node_array_sortcmp (gconstpointer a,
 /** function to copy stats_tree into GString. format deternmines output format */
 typedef enum { ST_FORMAT_PLAIN, ST_FORMAT_CSV, ST_FORMAT_XML, ST_FORMAT_YAML} st_format_type;
 WS_DLL_PUBLIC GString* stats_tree_format_as_str(const stats_tree* st,
-					guint format,
+					st_format_type format_type,
 					gint sort_column,
 					gboolean sort_descending);
 
