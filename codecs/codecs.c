@@ -119,19 +119,18 @@ find_codec(const char *name)
 }
 
 /* Register a codec by name. */
-void
+gboolean
 register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release_fn, codec_decode_fn decode_fn)
 {
 	struct codec_handle *handle;
 
 	/* Create our hash table if it doesn't already exist */
-	if (registered_codecs == NULL) {
+	if (registered_codecs == NULL)
 		registered_codecs = g_hash_table_new(g_str_hash, g_str_equal);
-		g_assert(registered_codecs != NULL);
-	}
 
 	/* Make sure the registration is unique */
-	g_assert(g_hash_table_lookup(registered_codecs, name) == NULL);
+	if (g_hash_table_lookup(registered_codecs, name) != NULL)
+		return FALSE;	/* report an error, or have our caller do it? */
 
 	handle = (struct codec_handle *)g_malloc(sizeof (struct codec_handle));
 	handle->name = name;
@@ -140,6 +139,7 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
 	handle->decode_fn = decode_fn;
 
 	g_hash_table_insert(registered_codecs, (gpointer)name, (gpointer) handle);
+	return TRUE;
 }
 
 void *codec_init(codec_handle_t codec)
