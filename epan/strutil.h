@@ -92,7 +92,7 @@ gchar*     format_text_wsp(const guchar *line, size_t len);
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
  * which will be replaced by a space, and return a pointer to it.
  *
- * @param line A pointer to the input string
+ * @param string A pointer to the input string
  * @param len The length of the input string
  * @param chr The character to use to replace non-printable characters
  * @return A pointer to the formatted string
