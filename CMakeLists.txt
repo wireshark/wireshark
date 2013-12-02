@@ -410,7 +410,8 @@ if(BUILD_qtshark)
 		# somewhere. The if WIN32 in this place is annoying as well.
 		if( WIN32 )
 			set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
-			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}\\msvc2010" )
+			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
+			# Used for the creation of setpath.bat
 			set( QT5_DLL_PATH "${CMAKE_PREFIX_PATH}/bin/dummy" )
 			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()

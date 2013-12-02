@@ -62,7 +62,7 @@ How to do out of tree build (Win32/64):
 1a) Set WIRESHARK_BASE_DIR=c:\wireshark (the parent directory of the
    library directory).
 1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
-1c) set QT5_BASE_DIR=c:\Qt\Qt5.1.1\5.1.1 (or whatever)
+1c) set QT5_BASE_DIR=c:\Qt\Qt5.1.1\5.1.1\msvc2010 (or whatever)
 2) Install cmake
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
