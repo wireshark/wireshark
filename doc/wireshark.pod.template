@@ -232,7 +232,7 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
 elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
-I<value> KiB.  If this option is used together with the -b option, Wireshark
+I<value> kB.  If this option is used together with the -b option, Wireshark
 will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
 2 GiB.
@@ -264,7 +264,7 @@ B<duration>:I<value> switch to the next file after I<value> seconds have
 elapsed, even if the current file is not completely filled up.
 
 B<filesize>:I<value> switch to the next file after it reaches a size of
-I<value> KiB.  Note that the filesize is limited to a maximum value of 2 GiB.
+I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
 
 B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
@@ -275,16 +275,16 @@ go to the next file.  It should be noted that each B<-b> parameter takes exactly
 one criterion; to specify two criterion, each must be preceded by the B<-b>
 option.
 
-Example: B<-b filesize:1024 -b files:5> results in a ring buffer of five files
-of size one megabyte.
+Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
+of size one megabyte each.
 
 =item -B  E<lt>capture buffer sizeE<gt>
 
-Set capture buffer size (in MB, default is 2MB).  This is used by the
+Set capture buffer size (in MiB, default is 2 MiB).  This is used by
 the capture driver to buffer packet data until that data can be written
 to disk.  If you encounter packet drops while capturing, try to increase
 this size.  Note that, while B<Wireshark> attempts to set the buffer size
-to 2MB by default, and can be told to set it to a larger value, the
+to 2 MiB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
@@ -297,7 +297,7 @@ occurrence of the B<-i> option, it sets the default capture buffer size.
 If used after an B<-i> option, it sets the capture buffer size for
 the interface specified by the last B<-i> option occurring before
 this option.  If the capture buffer size is not set specifically,
-the default capture buffer size is used if provided.
+the default capture buffer size is used instead.
 
 =item -c  E<lt>capture packet countE<gt>
 
@@ -2380,8 +2380,8 @@ you specify that the switch to a next file should be done after the specified
 time has elapsed, even if the specified capture size is not reached.
 
 The I<Ring buffer with ... files> field lets you specify the number
-of files of a ring buffer.  This feature will capture into to the first file
-again, after the specified amount of files were used.
+of files of a ring buffer.  This feature will capture into the first file
+again, after the specified number of files have been used.
 
 The I<Stop capture after ... files> field lets you specify the number
 of capture files used, until the capture is stopped.
