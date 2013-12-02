@@ -313,7 +313,7 @@ unix {
         LIBS += -L../../lib -Wl,-rpath ../../lib
     }
 
-    LIBS += -lwireshark -lwiretap -lwsutil -lui \
+    LIBS += -lwireshark -lwiretap -lui -lcodecs -lwsutil \
     -lpcap
 
     exists(../libui_dirty.a) {
