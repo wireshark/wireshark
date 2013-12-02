@@ -1708,6 +1708,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
+	/* do we have spdu type from the session dissector?  */
+	if( data == NULL){
+		return 0;
+	}
 
 	/* first, try to check length   */
 	/* do we have at least 2 bytes  */
@@ -1716,13 +1720,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			tvb_reported_length_remaining(tvb,offset),
 			"User data");
 		return 0;  /* no, it isn't a ACSE PDU */
-	}
-	/* do we have spdu type from the session dissector?  */
-	if( data == NULL){
-		if(parent_tree){
-			REPORT_DISSECTOR_BUG("Can't get SPDU type from session dissector.");
-		}
-		return 0;
 	}
 
 	session  = ( (struct SESSION_DATA_STRUCTURE*)data);
@@ -1748,7 +1745,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	case SES_DISCONNECT:			/*   RLRQ   */
 	case SES_FINISH:			/*   RLRE   */
 	case SES_ABORT:				/*   ABRT   */
-	case CLSES_UNIT_DATA:		/* AARQ Connetctionless session */		
+	case CLSES_UNIT_DATA:		/* AARQ Connetctionless session */
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
@@ -1799,7 +1796,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			break;
 		}
 	}
-	
+
 	top_tree = NULL;
 	return tvb_length(tvb);
 }
@@ -2242,7 +2239,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 271 "../../asn1/acse/packet-acse-template.c"
+#line 268 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2288,7 +2285,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 277 "../../asn1/acse/packet-acse-template.c"
+#line 274 "../../asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {
