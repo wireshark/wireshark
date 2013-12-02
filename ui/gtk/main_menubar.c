@@ -4222,6 +4222,7 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
     gchar          *action_name;
 
     gchar          *submenu_path;
+    gsize           submenu_path_size;
     gchar          *stat_name_buf;
     gchar          *stat_name;
     gchar          *sep;
@@ -4243,8 +4244,9 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
         stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
         if (cfg->plugin) {
             stat_name_buf = g_strdup(cfg->name);
-            submenu_path = (gchar *)g_malloc(strlen(MENU_STATISTICS_PATH)+strlen(cfg->name)+strlen(cfg->abbr)+1);   /* worst case length */
-            strcpy(submenu_path, MENU_STATISTICS_PATH);
+            submenu_path_size = (gsize)(strlen(MENU_STATISTICS_PATH)+strlen(cfg->name)+strlen(cfg->abbr)+1);   /* worst case length */
+            submenu_path = (gchar *)g_malloc(submenu_path_size);
+            g_strlcpy(submenu_path, MENU_STATISTICS_PATH, submenu_path_size);
 
             sep = stat_name= stat_name_buf;
             while ((sep = strchr(sep,'/')) != NULL) {
@@ -4272,8 +4274,8 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
                     }
                     g_free (action_name);
 
-                    strcat(submenu_path,"/");
-                    strcat(submenu_path,stat_name);
+                    g_strlcat(submenu_path,"/",submenu_path_size);
+                    g_strlcat(submenu_path,stat_name,submenu_path_size);
                     stat_name= sep;
                 }
             }
