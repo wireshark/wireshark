@@ -37,6 +37,7 @@
 #include <gtk/gtk.h>
 
 #include <wsutil/report_err.h>
+#include <wsutil/file_util.h>
 
 #include <epan/stats_tree_priv.h>
 
@@ -296,7 +297,7 @@ save_as_dialog(GtkWidget *win _U_, stats_tree *st)
 		str_tree=stats_tree_format_as_str(st,file_type,sort_column-N_RESERVED_COL,order==GTK_SORT_DESCENDING);
 
 		/* actually save the file */
-		f= fopen (file_name->str,"w");
+		f= ws_fopen (file_name->str,"w");
 		last_errno= errno;
 		if (f) {
 			if (fputs(str_tree->str, f)!=EOF) {
