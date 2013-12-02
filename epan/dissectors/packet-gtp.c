@@ -5406,7 +5406,9 @@ decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
 
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     if (bssgp_handle) {
-        //col_set_fence(pinfo->cinfo, COL_INFO);
+#if 0
+        col_set_fence(pinfo->cinfo, COL_INFO);
+#endif
         call_dissector(bssgp_handle, next_tvb, pinfo, ext_tree);
     }
 
