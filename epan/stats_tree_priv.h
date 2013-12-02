@@ -288,7 +288,7 @@ WS_DLL_PUBLIC GString* stats_tree_format_as_str(const stats_tree* st,
 /** helper funcation to add note to formatted stats_tree */
 WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 					GString *s,
-					guint format,
+					st_format_type format_type,
 					guint indent,
 					const gchar *path,
 					gint maxnamelen,
