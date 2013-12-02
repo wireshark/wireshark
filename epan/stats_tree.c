@@ -1321,7 +1321,7 @@ stat_node_array_sortcmp (gconstpointer a, gconstpointer b, gpointer user_data)
 	/* user_data is *guint value to st_flags */
 	return stats_tree_sort_compare (*(stat_node**)a,*(stat_node**)b,
 					((sortinfo*)user_data)->sort_column,((sortinfo*)user_data)->sort_descending);
-};
+}
 
 static gchar*
 clean_for_xml_tag (gchar *str)
@@ -1337,9 +1337,8 @@ static GString*
 escape_xml_chars (gchar *str)
 {
 	GString *s= g_string_new("");
-	while (1) {
+	while (*str != '\0') {
 		switch (*str) {
-			case 0:		return s;
 			case '<':	g_string_append(s,"&lt;");
 						break;
 			case '>':	g_string_append(s,"&gt;");
