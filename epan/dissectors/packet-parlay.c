@@ -48,7 +48,10 @@
 #pragma warning(disable:4101)
 #endif
 
-
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-function”
+#endif
 /* Initialise the protocol and subtree pointers */
 static int proto_parlay = -1;
 static gint ett_parlay = -1;
