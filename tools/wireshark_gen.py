@@ -2395,7 +2395,11 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 /* disable warning: "unreference local variable" */
 #pragma warning(disable:4101)
 #endif
-"""
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif"""
 
 
 #
