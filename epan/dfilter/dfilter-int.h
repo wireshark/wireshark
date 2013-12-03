@@ -30,7 +30,7 @@
 #include <stdio.h>
 
 /* Passed back to user */
-struct _dfilter_t {
+struct epan_dfilter {
 	GPtrArray	*insns;
 	GPtrArray	*consts;
 	guint		num_registers;

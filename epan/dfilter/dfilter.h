@@ -27,7 +27,7 @@
 #include "ws_symbol_export.h"
 
 /* Passed back to user */
-typedef struct _dfilter_t dfilter_t;
+typedef struct epan_dfilter dfilter_t;
 
 #include <epan/proto.h>
 
