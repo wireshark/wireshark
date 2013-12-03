@@ -136,7 +136,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Check Version */
 	Capture_Header.Info_Header.Version =
-	    pletohl(&Capture_Header.Info_Header.Version);
+	    pletoh32(&Capture_Header.Info_Header.Version);
 	switch (Capture_Header.Info_Header.Version) {
 
 	case CST_5VW_INFO_RECORD_VERSION:
@@ -150,7 +150,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Check File Type */
 	Capture_Header.Info_Header.FileType =
-	    pletohl(&Capture_Header.Info_Header.FileType);
+	    pletoh32(&Capture_Header.Info_Header.FileType);
 	if((Capture_Header.Info_Header.FileType & CST_5VW_CAPTURE_FILE_TYPE_MASK) != CST_5VW_CAPTURE_FILEID)
 	{
 		*err = WTAP_ERR_UNSUPPORTED;
@@ -284,7 +284,7 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 		return FALSE;
 	}
 
-	hdr->Key = pletohl(&hdr->Key);
+	hdr->Key = pletoh32(&hdr->Key);
 	if (hdr->Key != CST_5VW_RECORDS_HEADER_KEY) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("5views: Time-stamped header has bad key value 0x%08X",
@@ -292,10 +292,10 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 		return FALSE;
 	}
 
-	hdr->RecSubType = pletohl(&hdr->RecSubType);
-	hdr->RecSize = pletohl(&hdr->RecSize);
-	hdr->Utc = pletohl(&hdr->Utc);
-	hdr->NanoSecondes = pletohl(&hdr->NanoSecondes);
+	hdr->RecSubType = pletoh32(&hdr->RecSubType);
+	hdr->RecSize = pletoh32(&hdr->RecSize);
+	hdr->Utc = pletoh32(&hdr->Utc);
+	hdr->NanoSecondes = pletoh32(&hdr->NanoSecondes);
 
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	phdr->ts.secs = hdr->Utc;

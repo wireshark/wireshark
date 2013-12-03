@@ -218,7 +218,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 
         channel = hdr[8];
         direction = hdr[9];
-        pkt_len = pntohs(&hdr[10]);
+        pkt_len = pntoh16(&hdr[10]);
 
 	switch(direction >> 1) {
 

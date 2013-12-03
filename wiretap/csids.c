@@ -89,8 +89,8 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
 	return 0;
   }
-  hdr.seconds = pntohl( &hdr.seconds );
-  hdr.caplen = pntohs( &hdr.caplen );
+  hdr.seconds = pntoh32( &hdr.seconds );
+  hdr.caplen = pntoh16( &hdr.caplen );
   bytesRead = file_read( &tmp, 2, wth->fh );
   if( bytesRead != 2 ) {
     *err = file_error( wth->fh, err_info );
@@ -107,7 +107,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
     }
     return 0;
   }
-  iplen = pntohs(&iplen);
+  iplen = pntoh16(&iplen);
 
   if ( iplen == 0 )
     return 0;
@@ -196,8 +196,8 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
-  hdr.seconds = pntohl(&hdr.seconds);
-  hdr.caplen = pntohs(&hdr.caplen);
+  hdr.seconds = pntoh32(&hdr.seconds);
+  hdr.caplen = pntoh16(&hdr.caplen);
 
   phdr->presence_flags = WTAP_HAS_TS;
   phdr->len = hdr.caplen;

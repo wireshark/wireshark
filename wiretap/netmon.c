@@ -249,7 +249,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	}
 
-	hdr.network = pletohs(&hdr.network);
+	hdr.network = pletoh16(&hdr.network);
 	if (hdr.network >= NUM_NETMON_ENCAPS
 	    || netmon_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -278,12 +278,12 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * Convert the time stamp to a "time_t" and a number of
 	 * milliseconds.
 	 */
-	tm.tm_year = pletohs(&hdr.ts_year) - 1900;
-	tm.tm_mon = pletohs(&hdr.ts_month) - 1;
-	tm.tm_mday = pletohs(&hdr.ts_day);
-	tm.tm_hour = pletohs(&hdr.ts_hour);
-	tm.tm_min = pletohs(&hdr.ts_min);
-	tm.tm_sec = pletohs(&hdr.ts_sec);
+	tm.tm_year = pletoh16(&hdr.ts_year) - 1900;
+	tm.tm_mon = pletoh16(&hdr.ts_month) - 1;
+	tm.tm_mday = pletoh16(&hdr.ts_day);
+	tm.tm_hour = pletoh16(&hdr.ts_hour);
+	tm.tm_min = pletoh16(&hdr.ts_min);
+	tm.tm_sec = pletoh16(&hdr.ts_sec);
 	tm.tm_isdst = -1;
 	netmon->start_secs = mktime(&tm);
 	/*
@@ -300,7 +300,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * intervals since 1601-01-01 00:00:00 "UTC", there, instead
 	 * of stuffing a SYSTEMTIME, which is time-zone-dependent, there?).
 	 */
-	netmon->start_nsecs = pletohs(&hdr.ts_msec)*1000000;
+	netmon->start_nsecs = pletoh16(&hdr.ts_msec)*1000000;
 
 	netmon->version_major = hdr.ver_major;
 	netmon->version_minor = hdr.ver_minor;
@@ -317,7 +317,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Get the offset of the frame index table.
 	 */
-	frame_table_offset = pletohl(&hdr.frametableoffset);
+	frame_table_offset = pletoh32(&hdr.frametableoffset);
 
 	/*
 	 * It appears that some NetMon 2.x files don't have the
@@ -330,7 +330,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * Therefore, we must read the frame table, and use the offsets
 	 * in it as the offsets of the frames.
 	 */
-	frame_table_length = pletohl(&hdr.frametablelength);
+	frame_table_length = pletoh32(&hdr.frametablelength);
 	frame_table_size = frame_table_length / (guint32)sizeof (guint32);
 	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
 		*err = WTAP_ERR_BAD_FILE;
@@ -388,7 +388,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * OK, now byte-swap the frame table.
 	 */
 	for (i = 0; i < frame_table_size; i++)
-		frame_table[i] = pletohl(&frame_table[i]);
+		frame_table[i] = pletoh32(&frame_table[i]);
 #endif
 
 	/* Set up to start reading at the first frame. */
@@ -521,13 +521,13 @@ static gboolean netmon_process_rec_header(wtap *wth, FILE_T fh,
 	switch (netmon->version_major) {
 
 	case 1:
-		orig_size = pletohs(&hdr.hdr_1_x.orig_len);
-		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
+		orig_size = pletoh16(&hdr.hdr_1_x.orig_len);
+		packet_size = pletoh16(&hdr.hdr_1_x.incl_len);
 		break;
 
 	case 2:
-		orig_size = pletohl(&hdr.hdr_2_x.orig_len);
-		packet_size = pletohl(&hdr.hdr_2_x.incl_len);
+		orig_size = pletoh32(&hdr.hdr_2_x.orig_len);
+		packet_size = pletoh32(&hdr.hdr_2_x.incl_len);
 		break;
 	}
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -585,11 +585,11 @@ static gboolean netmon_process_rec_header(wtap *wth, FILE_T fh,
 		 * a gint64 such as delta, even after multiplying
 		 * it by 1000000.
 		 *
-		 * pletohl() returns a guint32; we cast it to gint64
+		 * pletoh32() returns a guint32; we cast it to gint64
 		 * before multiplying, so that the product doesn't
 		 * overflow a guint32.
 		 */
-		delta = ((gint64)pletohl(&hdr.hdr_1_x.ts_delta))*1000000;
+		delta = ((gint64)pletoh32(&hdr.hdr_1_x.ts_delta))*1000000;
 		break;
 
 	case 2:
@@ -606,7 +606,7 @@ static gboolean netmon_process_rec_header(wtap *wth, FILE_T fh,
 		 * positive number-of-microseconds into a small
 		 * negative number-of-100-nanosecond-increments.
 		 */
-		delta = pletohll(&hdr.hdr_2_x.ts_delta)*10;
+		delta = pletoh64(&hdr.hdr_2_x.ts_delta)*10;
 
 		/*
 		 * OK, it's now a signed value in 100-nanosecond
@@ -858,7 +858,7 @@ netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err, gchar **err_info)
 		return -1;	/* error */
 	}
 
-	network = pletohs(trlr.trlr_2_1.network);
+	network = pletoh16(trlr.trlr_2_1.network);
 	if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
 		/*
 		 * Converted pcap file - the LINKTYPE_ value

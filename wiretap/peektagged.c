@@ -426,7 +426,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    return -1;
 	}
 	header_len += (int) sizeof(tag_value);
-	tag = pletohs(&tag_value[0]);
+	tag = pletoh16(&tag_value[0]);
 	switch (tag) {
 
 	case TAG_PEEKTAGGED_LENGTH:
@@ -435,7 +435,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err_info = g_strdup("peektagged: record has two length fields");
 		return -1;
 	    }
-	    hdr_info.length = pletohl(&tag_value[2]);
+	    hdr_info.length = pletoh32(&tag_value[2]);
 	    saw_length = TRUE;
 	    break;
 
@@ -445,7 +445,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err_info = g_strdup("peektagged: record has two timestamp-lower fields");
 		return -1;
 	    }
-	    hdr_info.timestamp.lower = pletohl(&tag_value[2]);
+	    hdr_info.timestamp.lower = pletoh32(&tag_value[2]);
 	    saw_timestamp_lower = TRUE;
 	    break;
 
@@ -455,7 +455,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err_info = g_strdup("peektagged: record has two timestamp-upper fields");
 		return -1;
 	    }
-	    hdr_info.timestamp.upper = pletohl(&tag_value[2]);
+	    hdr_info.timestamp.upper = pletoh32(&tag_value[2]);
 	    saw_timestamp_upper = TRUE;
 	    break;
 
@@ -464,15 +464,15 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    break;
 
 	case TAG_PEEKTAGGED_CHANNEL:
-	    hdr_info.ieee_802_11.channel = pletohl(&tag_value[2]);
+	    hdr_info.ieee_802_11.channel = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_RATE:
-	    hdr_info.ieee_802_11.data_rate = pletohl(&tag_value[2]);
+	    hdr_info.ieee_802_11.data_rate = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_SIGNAL_PERC:
-	    hdr_info.ieee_802_11.signal_level = pletohl(&tag_value[2]);
+	    hdr_info.ieee_802_11.signal_level = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_SIGNAL_DBM:
@@ -492,7 +492,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    break;
 
 	case TAG_PEEKTAGGED_SLICE_LENGTH:
-	    hdr_info.sliceLength = pletohl(&tag_value[2]);
+	    hdr_info.sliceLength = pletoh32(&tag_value[2]);
 	    break;
 
 	default:

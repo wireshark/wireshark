@@ -450,7 +450,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
         }
     }
 
-    left = pntohl(buffer + K12_RECORD_LEN);
+    left = pntoh32(buffer + K12_RECORD_LEN);
 #ifdef DEBUG_K12
     actual_len = left;
 #endif
@@ -557,15 +557,15 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
 
     phdr->presence_flags = WTAP_HAS_TS;
 
-    ts = pntohll(buffer + K12_PACKET_TIMESTAMP);
+    ts = pntoh64(buffer + K12_PACKET_TIMESTAMP);
 
     phdr->ts.secs = (guint32) ((ts / 2000000) + 631152000);
     phdr->ts.nsecs = (guint32) ( (ts % 2000000) * 500 );
 
-    length = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
+    length = pntoh32(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
     phdr->len = phdr->caplen = length;
 
-    type = pntohl(buffer + K12_RECORD_TYPE);
+    type = pntoh32(buffer + K12_RECORD_TYPE);
     buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
 
     buffer_assure_space(target, length);
@@ -579,7 +579,7 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     phdr->pseudo_header.k12.extra_info = (guint8*)buffer_start_ptr(&(k12->extra_info));
     phdr->pseudo_header.k12.extra_length = extra_len;
 
-    src_id = pntohl(buffer + K12_RECORD_SRC_ID);
+    src_id = pntoh32(buffer + K12_RECORD_SRC_ID);
     K12_DBG(5,("process_packet_data: src_id=%.8x",src_id));
     phdr->pseudo_header.k12.input = src_id;
 
@@ -603,8 +603,8 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
                 if ((long)(buffer_offset + length + K12_PACKET_OFFSET_CID) < len) {
-                    phdr->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
-                    phdr->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
+                    phdr->pseudo_header.k12.input_info.atm.vp =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
+                    phdr->pseudo_header.k12.input_info.atm.vc =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
                     phdr->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + buffer_offset + length + K12_PACKET_OFFSET_CID));
                     break;
                 }
@@ -660,8 +660,8 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
         buffer = k12->seq_read_buff;
 
-        type = pntohl(buffer + K12_RECORD_TYPE);
-        src_id = pntohl(buffer + K12_RECORD_SRC_ID);
+        type = pntoh32(buffer + K12_RECORD_TYPE);
+        src_id = pntoh32(buffer + K12_RECORD_SRC_ID);
 
 
         if ( ! (src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
@@ -817,8 +817,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 
     file_data = new_k12_file_data();
 
-    file_data->file_len = pntohl( header_buffer + 0x8);
-    file_data->num_of_records = pntohl( header_buffer + 0xC );
+    file_data->file_len = pntoh32( header_buffer + 0x8);
+    file_data->num_of_records = pntoh32( header_buffer + 0xC );
 
     K12_DBG(5,("k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
             offset,
@@ -850,7 +850,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 
         read_buffer = file_data->seq_read_buff;
 
-        rec_len = pntohl( read_buffer + K12_RECORD_LEN );
+        rec_len = pntoh32( read_buffer + K12_RECORD_LEN );
         if (rec_len < K12_RECORD_TYPE + 4) {
             /* Record isn't long enough to have a type field */
             *err = WTAP_ERR_BAD_FILE;
@@ -858,7 +858,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                         rec_len, K12_RECORD_TYPE + 4);
             return -1;
         }
-        type = pntohl( read_buffer + K12_RECORD_TYPE );
+        type = pntoh32( read_buffer + K12_RECORD_TYPE );
 
         if ( (type & K12_MASK_PACKET) == K12_REC_PACKET ||
              (type & K12_MASK_PACKET) == K12_REC_D0020) {
@@ -881,11 +881,11 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                             rec_len, K12_SRCDESC_STACKLEN + 2);
                 return -1;
             }
-            extra_len = pntohs( read_buffer + K12_SRCDESC_EXTRALEN );
-            name_len = pntohs( read_buffer + K12_SRCDESC_NAMELEN );
-            stack_len = pntohs( read_buffer + K12_SRCDESC_STACKLEN );
+            extra_len = pntoh16( read_buffer + K12_SRCDESC_EXTRALEN );
+            name_len = pntoh16( read_buffer + K12_SRCDESC_NAMELEN );
+            stack_len = pntoh16( read_buffer + K12_SRCDESC_STACKLEN );
 
-            rec->input = pntohl( read_buffer + K12_RECORD_SRC_ID );
+            rec->input = pntoh32( read_buffer + K12_RECORD_SRC_ID );
 
             K12_DBG(5,("k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input));
 
@@ -906,7 +906,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                                 rec_len, K12_SRCDESC_EXTRATYPE + 4);
                     return -1;
                 }
-                switch(( rec->input_type = pntohl( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
+                switch(( rec->input_type = pntoh32( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
                     case K12_PORT_DS0S:
                         if (rec_len < K12_SRCDESC_DS0_MASK + 32) {
                             /* Record isn't long enough to have a source descriptor extra type field */
@@ -932,8 +932,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                             return -1;
                         }
 
-                        rec->input_info.atm.vp = pntohs( read_buffer + K12_SRCDESC_ATM_VPI );
-                        rec->input_info.atm.vc = pntohs( read_buffer + K12_SRCDESC_ATM_VCI );
+                        rec->input_info.atm.vp = pntoh16( read_buffer + K12_SRCDESC_ATM_VPI );
+                        rec->input_info.atm.vc = pntoh16( read_buffer + K12_SRCDESC_ATM_VCI );
                         break;
                     default:
                         break;
@@ -982,8 +982,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             continue;
         } else if (type == K12_REC_STK_FILE) {
             K12_DBG(1,("k12_open: K12_REC_STK_FILE"));
-            K12_DBG(1,("Field 1: 0x%08x",pntohl( read_buffer + 0x08 )));
-            K12_DBG(1,("Field 2: 0x%08x",pntohl( read_buffer + 0x0c )));
+            K12_DBG(1,("Field 1: 0x%08x",pntoh32( read_buffer + 0x08 )));
+            K12_DBG(1,("Field 2: 0x%08x",pntoh32( read_buffer + 0x0c )));
             K12_ASCII_DUMP(1, read_buffer, rec_len, 0x10);
 
             offset += len;

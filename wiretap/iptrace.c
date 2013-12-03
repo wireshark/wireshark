@@ -153,7 +153,7 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	}
 
 	/* Read the packet metadata */
-	packet_size = pntohl(&header[0]);
+	packet_size = pntoh32(&header[0]);
 	if (packet_size < IPTRACE_1_0_PDATA_SIZE) {
 		/*
 		 * Uh-oh, the record isn't big enough to even have a
@@ -207,7 +207,7 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->len = packet_size;
 	phdr->caplen = packet_size;
-	phdr->ts.secs = pntohl(&header[4]);
+	phdr->ts.secs = pntoh32(&header[4]);
 	phdr->ts.nsecs = 0;
 
 	/* Fill in the pseudo-header. */
@@ -349,7 +349,7 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 #endif
 
 	/* Read the packet metadata */
-	packet_size = pntohl(&header[0]);
+	packet_size = pntoh32(&header[0]);
 	if (packet_size < IPTRACE_2_0_PDATA_SIZE) {
 		/*
 		 * Uh-oh, the record isn't big enough to even have a
@@ -403,8 +403,8 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->len = packet_size;
 	phdr->caplen = packet_size;
-	phdr->ts.secs = pntohl(&header[32]);
-	phdr->ts.nsecs = pntohl(&header[36]);
+	phdr->ts.secs = pntoh32(&header[32]);
+	phdr->ts.nsecs = pntoh32(&header[36]);
 
 	/* Fill in the pseudo_header. */
 	fill_in_pseudo_header(phdr->pkt_encap, &phdr->pseudo_header, header);

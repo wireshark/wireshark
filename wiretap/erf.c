@@ -178,7 +178,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
       return 0;
     }
 
-    if ((ts = pletohll(&header.ts)) < prevts) {
+    if ((ts = pletoh64(&header.ts)) < prevts) {
       /* reassembled AALx records may not be in time order, also records are not in strict time order between physical interfaces, so allow 1 sec fudge */
       if ( ((prevts-ts)>>32) > 1 ) {
         return 0;
@@ -375,7 +375,7 @@ static int erf_read_header(FILE_T fh,
   }
 
   {
-    guint64 ts = pletohll(&erf_header->ts);
+    guint64 ts = pletoh64(&erf_header->ts);
 
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
     phdr->ts.secs = (long) (ts >> 32);
@@ -391,7 +391,7 @@ static int erf_read_header(FILE_T fh,
 
   /* Copy the ERF pseudo header */
   memset(&pseudo_header->erf, 0, sizeof(pseudo_header->erf));
-  pseudo_header->erf.phdr.ts = pletohll(&erf_header->ts);
+  pseudo_header->erf.phdr.ts = pletoh64(&erf_header->ts);
   pseudo_header->erf.phdr.type = erf_header->type;
   pseudo_header->erf.phdr.flags = erf_header->flags;
   pseudo_header->erf.phdr.rlen = g_ntohs(erf_header->rlen);
@@ -407,7 +407,7 @@ static int erf_read_header(FILE_T fh,
       *bytes_read += (guint32)sizeof(erf_exhdr);
     *packet_size -=  (guint32)sizeof(erf_exhdr);
     skiplen += (guint32)sizeof(erf_exhdr);
-    erf_exhdr_sw = pntohll(erf_exhdr);
+    erf_exhdr_sw = pntoh64(erf_exhdr);
     if (i < max)
       memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
     type = erf_exhdr[0];

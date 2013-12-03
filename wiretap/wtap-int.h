@@ -121,6 +121,8 @@ gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
 extern gint wtap_num_file_types;
 
+#include <wsutil/pint.h>
+
 /* Macros to byte-swap possibly-unaligned 64-bit, 32-bit and 16-bit quantities;
  * they take a pointer to the quantity, and byte-swap it in place.
  */
@@ -158,77 +160,6 @@ extern gint wtap_num_file_types;
         (p)[0] = tmp;      \
     }
 
-/* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
- * byte array, returns the value of the two or four bytes at the pointer.
- * The pletoh[sl] versions return the little-endian representation.
- * We also provide pntohll and pletohll, which extract 64-bit integral
- * quantities.
- *
- * These will work regardless of the byte alignment of the pointer.
- */
-
-#ifndef pntohs
-#define pntohs(p)  ((guint16)                       \
-                    ((guint16)*((const guint8 *)(p)+0)<<8|  \
-                     (guint16)*((const guint8 *)(p)+1)<<0))
-#endif
-
-#ifndef pntoh24
-#define pntoh24(p)  ((guint32)*((const guint8 *)(p)+0)<<16| \
-                     (guint32)*((const guint8 *)(p)+1)<<8|  \
-                     (guint32)*((const guint8 *)(p)+2)<<0)
-#endif
-
-#ifndef pntohl
-#define pntohl(p)  ((guint32)*((const guint8 *)(p)+0)<<24|  \
-                    (guint32)*((const guint8 *)(p)+1)<<16|  \
-                    (guint32)*((const guint8 *)(p)+2)<<8|   \
-                    (guint32)*((const guint8 *)(p)+3)<<0)
-#endif
-
-#ifndef pntohll
-#define pntohll(p)  ((guint64)*((const guint8 *)(p)+0)<<56|  \
-                     (guint64)*((const guint8 *)(p)+1)<<48|  \
-                     (guint64)*((const guint8 *)(p)+2)<<40|  \
-                     (guint64)*((const guint8 *)(p)+3)<<32|  \
-                     (guint64)*((const guint8 *)(p)+4)<<24|  \
-                     (guint64)*((const guint8 *)(p)+5)<<16|  \
-                     (guint64)*((const guint8 *)(p)+6)<<8|   \
-                     (guint64)*((const guint8 *)(p)+7)<<0)
-#endif
-
-
-#ifndef pletohs
-#define pletohs(p) ((guint16)                       \
-                    ((guint16)*((const guint8 *)(p)+1)<<8|  \
-                     (guint16)*((const guint8 *)(p)+0)<<0))
-#endif
-
-#ifndef pletoh24
-#define pletoh24(p) ((guint32)*((const guint8 *)(p)+2)<<16|  \
-                     (guint32)*((const guint8 *)(p)+1)<<8|  \
-                     (guint32)*((const guint8 *)(p)+0)<<0)
-#endif
-
-
-#ifndef pletohl
-#define pletohl(p) ((guint32)*((const guint8 *)(p)+3)<<24|  \
-                    (guint32)*((const guint8 *)(p)+2)<<16|  \
-                    (guint32)*((const guint8 *)(p)+1)<<8|   \
-                    (guint32)*((const guint8 *)(p)+0)<<0)
-#endif
-
-
-#ifndef pletohll
-#define pletohll(p) ((guint64)*((const guint8 *)(p)+7)<<56|  \
-                     (guint64)*((const guint8 *)(p)+6)<<48|  \
-                     (guint64)*((const guint8 *)(p)+5)<<40|  \
-                     (guint64)*((const guint8 *)(p)+4)<<32|  \
-                     (guint64)*((const guint8 *)(p)+3)<<24|  \
-                     (guint64)*((const guint8 *)(p)+2)<<16|  \
-                     (guint64)*((const guint8 *)(p)+1)<<8|   \
-                     (guint64)*((const guint8 *)(p)+0)<<0)
-#endif
 
 /* Pointer routines to put items out in a particular byte order.
  * These will work regardless of the byte alignment of the pointer.

@@ -161,9 +161,9 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Convert the time stamp to a "time_t".
 	 */
-	tm.tm_year = pletohs(&hdr.start_year) - 1900;
-	tm.tm_mon = pletohs(&hdr.start_month) - 1;
-	tm.tm_mday = pletohs(&hdr.start_day);
+	tm.tm_year = pletoh16(&hdr.start_year) - 1900;
+	tm.tm_mon = pletoh16(&hdr.start_month) - 1;
+	tm.tm_mday = pletoh16(&hdr.start_day);
 	tm.tm_hour = hdr.start_hour;
 	tm.tm_min = hdr.start_min;
 	tm.tm_sec = hdr.start_sec;
@@ -317,7 +317,7 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 		return FALSE;
 	}
 
-	rec_size = pletohs(hdr->rec_size);
+	rec_size = pletoh16(hdr->rec_size);
 	if (rec_size < (sizeof *hdr - sizeof hdr->rec_size)) {
 		/* The record is shorter than a record header. */
 		*err = WTAP_ERR_BAD_FILE;
@@ -329,7 +329,7 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 
 	packet_size = rec_size - (guint32)(sizeof *hdr - sizeof hdr->rec_size);
 
-	msecs = pletohl(hdr->timestamp);
+	msecs = pletoh32(hdr->timestamp);
 	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->ts.secs = aethra->start + (msecs / 1000);
 	phdr->ts.nsecs = (msecs % 1000) * 1000000;

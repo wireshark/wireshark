@@ -487,8 +487,8 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Figure out the time stamp units and start time stamp.
 	 */
-	start_timestamp = (double)pletohl(&hdr.timelo)
-	    + (double)pletohl(&hdr.timehi)*4294967296.0;
+	start_timestamp = (double)pletoh32(&hdr.timelo)
+	    + (double)pletoh32(&hdr.timehi)*4294967296.0;
 	switch (file_type) {
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD:
@@ -542,7 +542,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					bug reports).
 				*/
 				if (hdr.timeunit == 2) {
-					ticks_per_sec = pletohl(hdr.realtick);
+					ticks_per_sec = pletoh32(hdr.realtick);
 				}
 				else {
 					ticks_per_sec = TpS[hdr.timeunit];
@@ -780,7 +780,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = netxray_seek_read;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
-	netxray->start_time = pletohl(&hdr.start_time);
+	netxray->start_time = pletoh32(&hdr.start_time);
 	netxray->ticks_per_sec = ticks_per_sec;
 	netxray->start_timestamp = start_timestamp;
 	netxray->version_major = version_major;
@@ -893,9 +893,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	 * XXX: Remember 'start_offset' to help testing for 'short file' at EOF
 	 */
 	netxray->wrapped      = FALSE;
-	netxray->nframes      = pletohl(&hdr.nframes);
-	netxray->start_offset = pletohl(&hdr.start_offset);
-	netxray->end_offset   = pletohl(&hdr.end_offset);
+	netxray->nframes      = pletoh32(&hdr.nframes);
+	netxray->start_offset = pletoh32(&hdr.start_offset);
+	netxray->end_offset   = pletoh32(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
 	if (file_seek(wth->fh, netxray->start_offset, SEEK_SET, err) == -1) {
@@ -983,9 +983,9 @@ reread:
 	 * Read the packet data.
 	 */
 	if (netxray->version_major == 0)
-		packet_size = pletohs(&hdr.old_hdr.len);
+		packet_size = pletoh16(&hdr.old_hdr.len);
 	else
-		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
+		packet_size = pletoh16(&hdr.hdr_1_x.incl_len);
 	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
 	    err, err_info))
 		return FALSE;
@@ -1324,7 +1324,7 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			if (hdr->hdr_2_x.xxx[9] & 0x04)
 				phdr->pseudo_header.atm.flags |= ATM_RAW_CELL;
 			phdr->pseudo_header.atm.vpi = hdr->hdr_2_x.xxx[11];
-			phdr->pseudo_header.atm.vci = pletohs(&hdr->hdr_2_x.xxx[12]);
+			phdr->pseudo_header.atm.vci = pletoh16(&hdr->hdr_2_x.xxx[12]);
 			phdr->pseudo_header.atm.channel =
 			    (hdr->hdr_2_x.xxx[15] & 0x10)? 1 : 0;
 			phdr->pseudo_header.atm.cells = 0;
@@ -1405,8 +1405,8 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 
 	if (netxray->version_major == 0) {
 		phdr->presence_flags = WTAP_HAS_TS;
-		t = (double)pletohl(&hdr->old_hdr.timelo)
-		    + (double)pletohl(&hdr->old_hdr.timehi)*4294967296.0;
+		t = (double)pletoh32(&hdr->old_hdr.timelo)
+		    + (double)pletoh32(&hdr->old_hdr.timehi)*4294967296.0;
 		t /= netxray->ticks_per_sec;
 		t -= netxray->start_timestamp;
 		phdr->ts.secs = netxray->start_time + (long)t;
@@ -1416,13 +1416,13 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
 		 */
-		packet_size = pletohs(&hdr->old_hdr.len);
+		packet_size = pletoh16(&hdr->old_hdr.len);
 		phdr->caplen = packet_size - padding;
 		phdr->len = phdr->caplen;
 	} else {
 		phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-		t = (double)pletohl(&hdr->hdr_1_x.timelo)
-		    + (double)pletohl(&hdr->hdr_1_x.timehi)*4294967296.0;
+		t = (double)pletoh32(&hdr->hdr_1_x.timelo)
+		    + (double)pletoh32(&hdr->hdr_1_x.timehi)*4294967296.0;
 		t /= netxray->ticks_per_sec;
 		t -= netxray->start_timestamp;
 		phdr->ts.secs = netxray->start_time + (time_t)t;
@@ -1432,9 +1432,9 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
 		 */
-		packet_size = pletohs(&hdr->hdr_1_x.incl_len);
+		packet_size = pletoh16(&hdr->hdr_1_x.incl_len);
 		phdr->caplen = packet_size - padding;
-		phdr->len = pletohs(&hdr->hdr_1_x.orig_len) - padding;
+		phdr->len = pletoh16(&hdr->hdr_1_x.orig_len) - padding;
 	}
 }
 

@@ -170,10 +170,10 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 #if 0
-	tm.tm_year = pletohs(&start_date.year)-1900;
+	tm.tm_year = pletoh16(&start_date.year)-1900;
 	tm.tm_mon = start_date.month-1;
 	tm.tm_mday = start_date.day;
-	sec = pletohl(&start_date.sec);
+	sec = pletoh32(&start_date.sec);
 	tm.tm_hour = sec/3600;
 	tm.tm_min = (sec%3600)/60;
 	tm.tm_sec = sec%60;
@@ -329,7 +329,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 
-	data_length = pletohs(&hdr.data_length);
+	data_length = pletoh16(&hdr.data_length);
 	if (data_length == 0) {
 		/*
 		 * The last record appears to have 0 in its "data_length"
@@ -339,21 +339,21 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		*err = 0;
 		return FALSE;
 	}
-	length = pletohs(&hdr.length);
-	real_length = pletohs(&hdr.real_length);
+	length = pletoh16(&hdr.length);
+	real_length = pletoh16(&hdr.real_length);
 
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-	tm.tm_year = pletohs(&hdr.date.year)-1900;
+	tm.tm_year = pletoh16(&hdr.date.year)-1900;
 	tm.tm_mon = (hdr.date.month&0x0f)-1;
 	tm.tm_mday = hdr.date.day;
-	sec = pletohl(&hdr.date.sec);
+	sec = pletoh32(&hdr.date.sec);
 	tm.tm_hour = sec/3600;
 	tm.tm_min = (sec%3600)/60;
 	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
 	phdr->ts.secs = mktime(&tm);
-	phdr->ts.nsecs = pletohl(&hdr.date.usec) * 1000;
+	phdr->ts.nsecs = pletoh32(&hdr.date.usec) * 1000;
 
 	switch (wth->file_encap) {
 

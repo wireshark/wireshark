@@ -288,7 +288,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 
 	state = (pppdump_t *)g_malloc(sizeof(pppdump_t));
 	wth->priv = (void *)state;
-	state->timestamp = pntohl(&buffer[1]);
+	state->timestamp = pntoh32(&buffer[1]);
 	state->tenths = 0;
 
 	init_state(state);
@@ -663,14 +663,14 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 			case PPPD_RESET_TIME:
 				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err, err_info);
 				state->offset += sizeof(guint32);
-				state->timestamp = pntohl(&time_long);
+				state->timestamp = pntoh32(&time_long);
 				state->tenths = 0;
 				break;
 
 			case PPPD_TIME_STEP_LONG:
 				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err, err_info);
 				state->offset += sizeof(guint32);
-				state->tenths += pntohl(&time_long);
+				state->tenths += pntoh32(&time_long);
 
 				if (state->tenths >= 10) {
 					state->timestamp += state->tenths / 10;

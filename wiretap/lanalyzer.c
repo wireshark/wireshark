@@ -301,8 +301,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	record_type = pletohs(rec_header.record_type);
-	record_length = pletohs(rec_header.record_length); /* make sure to do this for while() loop */
+	record_type = pletoh16(rec_header.record_type);
+	record_length = pletoh16(rec_header.record_length); /* make sure to do this for while() loop */
 
 	if (record_type != RT_HeaderRegular && record_type != RT_HeaderCyclic) {
 		return 0;
@@ -361,8 +361,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		}
 
-		record_type = pletohs(rec_header.record_type);
-		record_length = pletohs(rec_header.record_length);
+		record_type = pletoh16(rec_header.record_type);
+		record_length = pletoh16(rec_header.record_length);
 
 		/*g_message("Record 0x%04X Length %d", record_type, record_length);*/
 		switch (record_type) {
@@ -386,7 +386,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				 */
 				cr_day = summary[0];
 				cr_month = summary[1];
-				cr_year = pletohs(&summary[2]);
+				cr_year = pletoh16(&summary[2]);
 				/*g_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
 						cr_year, cr_year);*/
 
@@ -403,10 +403,10 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				lanalyzer->start = mktime(&tm);
 				/*g_message("Day %d Month %d Year %d", tm.tm_mday,
 						tm.tm_mon, tm.tm_year);*/
-				mxslc = pletohs(&summary[30]);
+				mxslc = pletoh16(&summary[30]);
 				wth->snapshot_length = mxslc;
 
-				board_type = pletohs(&summary[188]);
+				board_type = pletoh16(&summary[188]);
 				switch (board_type) {
 					case BOARD_325:
 						wth->file_encap = WTAP_ENCAP_ETHERNET;
@@ -475,8 +475,8 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 		return FALSE;
 	}
 
-	record_type = pletohs(LE_record_type);
-	record_length = pletohs(LE_record_length);
+	record_type = pletoh16(LE_record_type);
+	record_length = pletoh16(LE_record_length);
 
 	/* Only Trace Packet Data Records should occur now that we're in
 	 * the middle of reading packets.  If any other record type exists
@@ -510,8 +510,8 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 		return FALSE;
 	}
 
-	true_size = pletohs(&descriptor[4]);
-	packet_size = pletohs(&descriptor[6]);
+	true_size = pletoh16(&descriptor[4]);
+	packet_size = pletoh16(&descriptor[6]);
 
 	/*
 	 * OK, is the frame data size greater than than what's left of the
@@ -528,9 +528,9 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-	time_low = pletohs(&descriptor[8]);
-	time_med = pletohs(&descriptor[10]);
-	time_high = pletohs(&descriptor[12]);
+	time_low = pletoh16(&descriptor[8]);
+	time_med = pletoh16(&descriptor[10]);
+	time_high = pletoh16(&descriptor[12]);
 	t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
 	    (((guint64)time_high) << 32);
 	tsecs = (time_t) (t/2000000);

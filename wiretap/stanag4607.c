@@ -68,14 +68,14 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     goto fail;
   offset += bytes_read;
 
-  if (!is_valid_id(pntohs(&stanag_pkt_hdr[0]))) {
+  if (!is_valid_id(pntoh16(&stanag_pkt_hdr[0]))) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup("Bad version number");
     return FALSE;
   }
 
   /* The next 4 bytes are the packet length */
-  packet_size = pntohl(&stanag_pkt_hdr[2]);
+  packet_size = pntoh32(&stanag_pkt_hdr[2]);
   phdr->caplen = packet_size;
   phdr->len = packet_size;
 
@@ -101,7 +101,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
       goto fail;
     offset += bytes_read;
 
-    tm.tm_year = pntohs(&mseg[35]) - 1900;
+    tm.tm_year = pntoh16(&mseg[35]) - 1900;
     tm.tm_mon = mseg[37] - 1;
     tm.tm_mday = mseg[38];
     tm.tm_hour = 0;
@@ -124,7 +124,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     if (bytes_read != sizeof dseg)
       goto fail;
     offset += bytes_read;
-    millisecs = pntohl(&dseg[15]);
+    millisecs = pntoh32(&dseg[15]);
   }
   if (0 != millisecs) {
     secs = millisecs/1000;

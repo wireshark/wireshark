@@ -864,12 +864,12 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     s_510006_ptr = &(rec[rec_size - v22_W_STATS_LEN]);      /* point to 510006 WLAN */
                                                                             /* stats block */
 
-                    data_length = pntohs(&s_510006_ptr[v22_W_OCTET_OFF]);
+                    data_length = pntoh16(&s_510006_ptr[v22_W_OCTET_OFF]);
                     i = 0;
                     while (((data_length + i) % 4) != 0)
                         i = i + 1;
 
-                    frame_type = pntohl(&s_510006_ptr[v22_W_FRAME_TYPE_OFF]);
+                    frame_type = pntoh32(&s_510006_ptr[v22_W_FRAME_TYPE_OFF]);
 
                     if (rec_size == (data_length + v22_W_STATS_LEN + i) && (frame_type & v22_W_IS_80211) == 0x1000000) {
                         fpga_version = S1_W_FPGA;
@@ -880,7 +880,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 if ((rec_size > v22_E_STATS_LEN) && (fpga_version == 1000)) {
                     s_510012_ptr = &(rec[rec_size - v22_E_STATS_LEN]);      /* point to 510012 enet */
                                                                             /* stats block */
-                    data_length = pntohs(&s_510012_ptr[v22_E_OCTET_OFF]);
+                    data_length = pntoh16(&s_510012_ptr[v22_E_OCTET_OFF]);
                     i = 0;
                     while (((data_length + i) % 4) != 0)
                         i = i + 1;
@@ -908,7 +908,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 /* Finally the Series II Ethernet */
                 if ((rec_size > vVW510024_E_STATS_LEN) && (fpga_version == 1000)) {
                     s_510024_ptr = &(rec[rec_size - vVW510024_E_STATS_LEN]);    /* point to 510024 ENET */
-                    data_length = pntohs(&s_510024_ptr[vVW510024_E_MSDU_LENGTH_OFF]);
+                    data_length = pntoh16(&s_510024_ptr[vVW510024_E_MSDU_LENGTH_OFF]);
 
                     i = 0;
                     while (((data_length + i) % 4) != 0)
@@ -1081,8 +1081,8 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     s_ptr    = &(rec[rec_size - 64]); /* point to it */
     m_type   = s_ptr[1] & 0x7;
     f_tx     = !(s_ptr[1] & 0x8);
-    octets   = pntohs(&s_ptr[8]);
-    vc_id    = pntohs(&s_ptr[2]) & 0x3ff;
+    octets   = pntoh16(&s_ptr[8]);
+    vc_id    = pntoh16(&s_ptr[2]) & 0x3ff;
     flow_seq = s_ptr[4];
 
     /* XXX - this is 48 bits, in a weird byte order */
@@ -1090,10 +1090,10 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     for (i = 0; i < 4; i++)
         latency = (latency << 8) | s_ptr[40 + i];
 
-    flow_id = pntohs(&s_ptr[6]);  /* only 16 LSBs kept */
-    errors  = pntohs(&s_ptr[10]);
+    flow_id = pntoh16(&s_ptr[6]);  /* only 16 LSBs kept */
+    errors  = pntoh16(&s_ptr[10]);
 
-    info = pntohs(&s_ptr[54]);
+    info = pntoh16(&s_ptr[54]);
     rssi = (s_ptr[21] & 0x80) ? (-1 * (s_ptr[21] & 0x7f)) : s_ptr[21];
 
     /* Decode OFDM or CCK PLCP header and determine rate and short preamble flag. */
@@ -1268,7 +1268,7 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
         msdu_length = ((s_start_ptr[4] & 0x1f) << 8) + s_start_ptr[3];
         actual_octets = msdu_length;
 
-        vc_id = pntohs(&s_start_ptr[6]);
+        vc_id = pntoh16(&s_start_ptr[6]);
         if (IS_TX)
         {
             rssi[0] = (s_start_ptr[2] & 0x80) ? -1 * (s_start_ptr[2] & 0x7f) : s_start_ptr[2] & 0x7f;
@@ -1299,7 +1299,7 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
         }
         msdu_length = pntoh24(&s_start_ptr[9]);
         actual_octets = msdu_length;
-        vc_id = pntohs(&s_start_ptr[14]) & 0x3ff;
+        vc_id = pntoh16(&s_start_ptr[14]) & 0x3ff;
         for (i = 0; i < 4; i++)
         {
             if (IS_TX)
@@ -1327,11 +1327,11 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     for (i = 0; i < 4; i++)
         tsid = (tsid << 8) | s_trail_ptr[36 + i];
 
-    errors = pntohl(&s_trail_ptr[16]);
-    info = pntohs(&s_trail_ptr[22]);
+    errors = pntoh32(&s_trail_ptr[16]);
+    info = pntoh16(&s_trail_ptr[22]);
     if ((info & 0xFC00) != 0)
     /* this length includes the Start_Spacing + Delimiter + MPDU + Padding for each piece of the aggregate*/
-        ht_len = pletohs(&s_start_ptr[vwr->PLCP_LENGTH_OFF]);
+        ht_len = pletoh16(&s_start_ptr[vwr->PLCP_LENGTH_OFF]);
 
 
     /* decode OFDM or CCK PLCP header and determine rate and short preamble flag */
@@ -1527,7 +1527,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     m_ptr = &(rec[0]);                              /* point to the data block */
     s_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to the stats block */
 
-    msdu_length = pntohs(&s_ptr[vwr->OCTET_OFF]);
+    msdu_length = pntoh16(&s_ptr[vwr->OCTET_OFF]);
     actual_octets = msdu_length;
     /* Sanity check the msdu_length field to determine if it is OK (or segfaults result). */
     /* If it's greater, then truncate to the indicated message length.                    */
@@ -1535,18 +1535,18 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
         msdu_length = (rec_size - (int)vwr->STATS_LEN);
     }
 
-    vc_id = pntohs(&s_ptr[vwr->VCID_OFF]) & vwr->VCID_MASK;
+    vc_id = pntoh16(&s_ptr[vwr->VCID_OFF]) & vwr->VCID_MASK;
     flow_seq   = s_ptr[vwr->FLOWSEQ_OFF];
-    frame_type = pntohl(&s_ptr[vwr->FRAME_TYPE_OFF]);
+    frame_type = pntoh32(&s_ptr[vwr->FRAME_TYPE_OFF]);
 
     if (vwr->FPGA_VERSION == vVW510024_E_FPGA) {
-        validityBits = pntohs(&s_ptr[vwr->VALID_OFF]);
+        validityBits = pntoh16(&s_ptr[vwr->VALID_OFF]);
         f_flow = validityBits & vwr->FLOW_VALID;
 
         mac_len = (validityBits & vwr->IS_VLAN) ? 16 : 14;           /* MAC hdr length based on VLAN tag */
 
 
-        errors = pntohs(&s_ptr[vwr->ERRORS_OFF]);
+        errors = pntoh16(&s_ptr[vwr->ERRORS_OFF]);
     }
     else {
         f_flow  = s_ptr[vwr->VALID_OFF] & vwr->FLOW_VALID;
@@ -1554,10 +1554,10 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
 
 
         /* for older fpga errors is only represented by 16 bits) */
-        errors = pntohs(&s_ptr[vwr->ERRORS_OFF]);
+        errors = pntoh16(&s_ptr[vwr->ERRORS_OFF]);
     }
 
-    info = pntohs(&s_ptr[vwr->INFO_OFF]);
+    info = pntoh16(&s_ptr[vwr->INFO_OFF]);
     /*  24 LSBs */
     flow_id = pntoh24(&s_ptr[vwr->FLOWID_OFF]);
 
@@ -1568,7 +1568,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
         tsid = (tsid << 8) | s_ptr[vwr->LATVAL_OFF + i];
 
 
-    l4id = pntohs(&s_ptr[vwr->L4ID_OFF]);
+    l4id = pntoh16(&s_ptr[vwr->L4ID_OFF]);
 
     /* Calculate start & end times (in sec/usec), converting 64-bit times to usec. */
     /* 64-bit times are "Corey-endian"                                             */
@@ -1735,8 +1735,8 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX)
 
     /* break up the message record into its pieces */
     cmd = rec[0];
-    wd2 = pntohl(&rec[8]);
-    wd3 = pntohl(&rec[12]);
+    wd2 = pntoh32(&rec[8]);
+    wd3 = pntoh32(&rec[12]);
 
     if (vwr != NULL) {
         if ((cmd & vwr->HEADER_IS_TX) == vwr->HEADER_IS_TX)
@@ -2099,7 +2099,7 @@ guint64 get_signature_ts(guint8 *m_ptr,int sig_off)
     else
         ts_offset = 8;
 
-    sig_ts = pletohl(&m_ptr[sig_off + ts_offset]);
+    sig_ts = pletoh32(&m_ptr[sig_off + ts_offset]);
 
     return (sig_ts & 0xffffffff);
 }

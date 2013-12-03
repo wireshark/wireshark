@@ -808,7 +808,7 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 	}
 
 	vpi = atm_phdr[SUNATM_VPI];
-	vci = pntohs(&atm_phdr[SUNATM_VCI]);
+	vci = pntoh16(&atm_phdr[SUNATM_VCI]);
 
 	switch (atm_phdr[SUNATM_FLAGS] & 0x0F) {
 
@@ -896,7 +896,7 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 	}
 
 	vpi = atm_phdr[NOKIAATM_VPI];
-	vci = pntohs(&atm_phdr[NOKIAATM_VCI]);
+	vci = pntoh16(&atm_phdr[NOKIAATM_VCI]);
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
@@ -961,14 +961,14 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		return FALSE;
 	}
 
-	if (pntohs(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
+	if (pntoh16(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL)
 			*err_info = g_strdup("libpcap: IrDA capture has a packet with an invalid sll_protocol field");
 		return FALSE;
 	}
 
-	pseudo_header->irda.pkttype = pntohs(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
+	pseudo_header->irda.pkttype = pntoh16(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
 
 	return TRUE;
 }
@@ -990,7 +990,7 @@ pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 
 	pseudo_header->mtp2.sent         = mtp2_hdr[MTP2_SENT_OFFSET];
 	pseudo_header->mtp2.annex_a_used = mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET];
-	pseudo_header->mtp2.link_number  = pntohs(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
+	pseudo_header->mtp2.link_number  = pntoh16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
 
 	return TRUE;
 }
@@ -1011,14 +1011,14 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		return FALSE;
 	}
 
-	if (pntohs(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
+	if (pntoh16(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL)
 			*err_info = g_strdup("libpcap: LAPD capture has a packet with an invalid sll_protocol field");
 		return FALSE;
 	}
 
-	pseudo_header->lapd.pkttype = pntohs(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
+	pseudo_header->lapd.pkttype = pntoh16(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
 	pseudo_header->lapd.we_network = !!lapd_phdr[LAPD_SLL_ADDR_OFFSET+0];
 
 	return TRUE;
@@ -1369,12 +1369,12 @@ pcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
-  pseudo_header->erf.phdr.ts = pletohll(&erf_hdr[0]); /* timestamp */
+  pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
   pseudo_header->erf.phdr.type =  erf_hdr[8];
   pseudo_header->erf.phdr.flags = erf_hdr[9];
-  pseudo_header->erf.phdr.rlen = pntohs(&erf_hdr[10]);
-  pseudo_header->erf.phdr.lctr = pntohs(&erf_hdr[12]);
-  pseudo_header->erf.phdr.wlen = pntohs(&erf_hdr[14]);
+  pseudo_header->erf.phdr.rlen = pntoh16(&erf_hdr[10]);
+  pseudo_header->erf.phdr.lctr = pntoh16(&erf_hdr[12]);
+  pseudo_header->erf.phdr.wlen = pntoh16(&erf_hdr[14]);
 
   /* The high 32 bits of the timestamp contain the integer number of seconds
    * while the lower 32 bits contain the binary fraction of the second.
@@ -1418,7 +1418,7 @@ pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return FALSE;
       }
       type = erf_exhdr[0];
-      erf_exhdr_sw = pntohll(erf_exhdr);
+      erf_exhdr_sw = pntoh64(erf_exhdr);
       if (i < max)
 	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
       *psize += 8;
@@ -1457,7 +1457,7 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	*err = WTAP_ERR_SHORT_READ;
       return FALSE;
     }
-    pseudo_header->erf.subhdr.mc_hdr = pntohl(&erf_subhdr[0]);
+    pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
     *psize = sizeof(erf_mc_header_t);
     break;
   case ERF_TYPE_ETH:
@@ -1472,7 +1472,7 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	*err = WTAP_ERR_SHORT_READ;
       return FALSE;
     }
-    pseudo_header->erf.subhdr.eth_hdr = pntohs(&erf_subhdr[0]);
+    pseudo_header->erf.subhdr.eth_hdr = pntoh16(&erf_subhdr[0]);
     *psize = sizeof(erf_eth_header_t);
     break;
   default:
@@ -1499,7 +1499,7 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 
 	pseudo_header->i2c.is_event = i2c_hdr.bus & 0x80 ? 1 : 0;
 	pseudo_header->i2c.bus = i2c_hdr.bus & 0x7f;
-	pseudo_header->i2c.flags = pntohl(&i2c_hdr.flags);
+	pseudo_header->i2c.flags = pntoh32(&i2c_hdr.flags);
 
 	return TRUE;
 }
