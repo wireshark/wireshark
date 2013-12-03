@@ -61,7 +61,7 @@ col_setup(column_info *cinfo, const gint num_cols)
   cinfo->col_custom_field      = g_new(gchar*, num_cols);
   cinfo->col_custom_occurrence = g_new(gint, num_cols);
   cinfo->col_custom_field_id   = g_new(int, num_cols);
-  cinfo->col_custom_dfilter    = g_new(dfilter_t*, num_cols);
+  cinfo->col_custom_dfilter    = g_new(struct epan_dfilter*, num_cols);
   cinfo->col_data              = g_new(const gchar*, num_cols);
   cinfo->col_buf               = g_new(gchar*, num_cols);
   cinfo->col_fence             = g_new(int, num_cols);

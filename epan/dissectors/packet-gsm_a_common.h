@@ -51,6 +51,8 @@
 #ifndef __PACKET_GSM_A_COMMON_H__
 #define __PACKET_GSM_A_COMMON_H__
 
+#include <epan/proto.h>
+
 #include "packet-sccp.h"
 #include "ws_symbol_export.h"
 

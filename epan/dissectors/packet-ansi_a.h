@@ -24,6 +24,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <epan/proto.h>
+
 typedef struct _ansi_a_tap_rec_t {
     /*
      * value from packet-bssap.h

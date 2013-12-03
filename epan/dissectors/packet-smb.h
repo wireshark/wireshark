@@ -28,6 +28,7 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/proto.h>
 #include <epan/wmem/wmem.h>
 
 WS_DLL_PUBLIC gboolean sid_name_snooping;

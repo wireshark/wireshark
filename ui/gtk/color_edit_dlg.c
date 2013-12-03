@@ -26,7 +26,7 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/packet.h>
+#include <epan/dfilter/dfilter.h>
 
 #include "../color.h"
 #include "../color_filters.h"

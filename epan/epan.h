@@ -36,7 +36,7 @@ extern "C" {
 
 typedef struct _epan_dissect_t epan_dissect_t;
 
-#include "dfilter/dfilter.h"
+struct epan_dfilter;
 
 /**
 	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
@@ -185,7 +185,7 @@ epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 /** Prime a proto_tree using the fields/protocols used in a dfilter. */
 WS_DLL_PUBLIC
 void
-epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t *dfcode);
+epan_dissect_prime_dfilter(epan_dissect_t *edt, const struct epan_dfilter *dfcode);
 
 /** fill the dissect run output into the packet list columns */
 WS_DLL_PUBLIC

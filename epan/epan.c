@@ -36,8 +36,10 @@
 #endif /* HAVE_LIBGNUTLS */
 
 #include <glib.h>
+
 #include "epan-int.h"
 #include "epan.h"
+#include "dfilter/dfilter.h"
 #include "epan_dissect.h"
 #include "wsutil/report_err.h"
 

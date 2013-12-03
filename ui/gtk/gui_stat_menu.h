@@ -25,6 +25,8 @@
 #ifndef __GTK_STAT_MENU_H__
 #define __GTK_STAT_MENU_H__
 
+#include <epan/proto.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

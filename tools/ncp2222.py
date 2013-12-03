@@ -5737,6 +5737,7 @@ def produce_code():
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/dfilter/dfilter.h>
 #include <epan/exceptions.h>
 #include <ftypes/ftypes-int.h>
 #include <epan/to_str.h>

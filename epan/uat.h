@@ -32,6 +32,8 @@
 
 #include <stdlib.h>
 
+#include <epan/emem.h>
+
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

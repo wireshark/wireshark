@@ -43,7 +43,7 @@ typedef struct _color_filter {
     gboolean   selected;            /* set if the filter is selected in the color dialog box */
 
                                     /* only used inside of color_filters.c */
-    dfilter_t *c_colorfilter;       /* compiled filter expression */
+    struct epan_dfilter *c_colorfilter;  /* compiled filter expression */
 
                                     /* only used outside of color_filters.c (beside init) */
     void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info */

@@ -78,7 +78,7 @@ struct _sub_ptvc_record {
 
 typedef struct {
 	const char		*dfilter_text;
-	dfilter_t		*dfilter;
+	struct epan_dfilter	*dfilter;
 } conditional_record;
 
 typedef struct {

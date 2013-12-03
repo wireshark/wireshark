@@ -30,6 +30,7 @@
 #ifndef __PACKET_WSP_H__
 #define __PACKET_WSP_H__
 
+#include <epan/proto.h>
 #include "ws_symbol_export.h"
 
 /* These reason codes are used in the WTP dissector as the WTP user is

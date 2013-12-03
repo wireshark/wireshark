@@ -23,6 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <epan/proto.h>
+
 /* radius packet-type codes */
 /* 09/12/2011: Updated from IANA:
  * http://www.iana.org/assignments/radius-types/radius-types.xml#radius-types-27
