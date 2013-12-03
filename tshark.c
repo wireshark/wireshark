@@ -329,8 +329,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
-  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n";
-  fprintf(output, "                           _ws.col.Info);\n");
+  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n");
+  fprintf(output, "                           _ws.col.Info)\n");
   fprintf(output, "                           this option can be repeated to print multiple fields\n");
   fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
   fprintf(output, "     header=y|n            switch headers on and off\n");
