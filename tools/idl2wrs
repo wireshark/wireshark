@@ -2,7 +2,7 @@
 #
 #  $Id$
 #
-#  File : idl2wrs          
+#  File : idl2wrs
 #
 #  Author : Frank Singleton (frank.singleton@ericsson.com)
 #
@@ -103,4 +103,14 @@ echo
 exit 2
 
 
-
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=4 expandtab:
+# :indentSize=4:noTabs=true:
+#
