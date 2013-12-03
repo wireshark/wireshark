@@ -43,6 +43,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "packet-ber.h"

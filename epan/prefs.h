@@ -36,7 +36,6 @@ extern "C" {
 #include <epan/addr_resolv.h>
 #include <epan/params.h>
 #include <epan/range.h>
-#include <epan/uat.h>
 
 #include "ws_symbol_export.h"
 
@@ -54,6 +53,8 @@ extern "C" {
 #define ST_DEF_BURSTLEN 100
 #define ST_MAX_BURSTRES 600000	/* somewhat arbirary limit of 10 minutes */
 #define ST_MAX_BURSTBUCKETS 100	/* somewhat arbirary limit - more buckets degrade performance */
+
+struct epan_uat;
 
 /*
  * Convert a string listing name resolution types to a bitmask of
@@ -455,7 +456,7 @@ WS_DLL_PUBLIC void prefs_register_uat_preference(module_t *module,
 										  const char *name,
 										  const char* title,
 										  const char *description,
-										  uat_t* uat);
+										  struct epan_uat* uat);
 
 /*
  * Register a color preference.  Currently does not have any "GUI Dialog" support

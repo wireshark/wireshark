@@ -25,6 +25,8 @@
 
 #include "config.h"
 
+#include <stdlib.h>
+
 #include "globals.h"
 
 #include <gtk/gtk.h>

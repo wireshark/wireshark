@@ -121,7 +121,7 @@ struct preference {
         gint *enump;
         const char **string;
         range_t **range;
-        uat_t* uat;
+        struct epan_uat* uat;
         color_t *colorp;
         GList** list;
     } varp;                          /**< pointer to variable storing the value */

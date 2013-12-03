@@ -26,6 +26,7 @@
 
 #include <gtk/gtk.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 #include <epan/packet.h>

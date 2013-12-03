@@ -30,6 +30,7 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <glib.h>
 
