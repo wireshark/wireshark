@@ -1657,14 +1657,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     l2cap_data = wmem_new(wmem_packet_scope(), btl2cap_data_t);
 
-    l2cap_data->interface_id     = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
-    l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
-    l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
+    l2cap_data->interface_id     = acl_data->interface_id;
+    l2cap_data->adapter_id       = acl_data->adapter_id;
+    l2cap_data->chandle          = acl_data->chandle;
     l2cap_data->cid              = cid;
     l2cap_data->psm              = 0;
     l2cap_data->first_scid_frame = 0;
-    l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
-    l2cap_data->remote_bd_addr_id = (acl_data) ? acl_data->remote_bd_addr_id : 0;
+    l2cap_data->remote_bd_addr_oui = acl_data->remote_bd_addr_oui;
+    l2cap_data->remote_bd_addr_id = acl_data->remote_bd_addr_id;
 
     if (cid == BTL2CAP_FIXED_CID_SIGNAL || cid == BTL2CAP_FIXED_CID_LE_SIGNAL) {
         /* This is a command packet*/
@@ -1862,9 +1862,9 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint32            chandle;
         guint32            key_cid;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
-        adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
-        chandle      = (acl_data) ? acl_data->chandle : 0;
+        interface_id = acl_data->interface_id;
+        adapter_id   = acl_data->adapter_id;
+        chandle      = acl_data->chandle;
         key_cid      = cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
 
         k_interface_id = interface_id;
