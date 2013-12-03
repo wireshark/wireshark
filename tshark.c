@@ -304,7 +304,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "Processing:\n");
   fprintf(output, "  -2                       perform a two-pass analysis\n");
   fprintf(output, "  -R <read filter>         packet Read filter in Wireshark display filter syntax\n");
-  fprintf(output, "  -Y <display filter>      packet displaY filter in Wireshark display filter syntax\n");
+  fprintf(output, "  -Y <display filter>      packet displaY filter in Wireshark display filter\n");
+  fprintf(output, "                           syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
   fprintf(output, "  -d %s ...\n", decode_as_arg_template);
@@ -328,7 +329,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
-  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port, _ws.col.Info);\n");
+  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n";
+  fprintf(output, "                           _ws.col.Info);\n");
   fprintf(output, "                           this option can be repeated to print multiple fields\n");
   fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
   fprintf(output, "     header=y|n            switch headers on and off\n");
