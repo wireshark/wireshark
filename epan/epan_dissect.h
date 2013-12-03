@@ -38,7 +38,7 @@ extern "C" {
  * as the structures that the epan_dissect_t contains might have pointers
  * to addresses in your byte array.
  */
-struct _epan_dissect_t {
+struct epan_dissect {
 	struct epan_session *session;
 	tvbuff_t	*tvb;
 	proto_tree	*tree;

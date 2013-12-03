@@ -34,7 +34,7 @@ extern "C" {
 #include "register.h"
 #include "ws_symbol_export.h"
 
-typedef struct _epan_dissect_t epan_dissect_t;
+typedef struct epan_dissect epan_dissect_t;
 
 struct epan_dfilter;
 
