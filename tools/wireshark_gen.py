@@ -221,6 +221,7 @@ class wireshark_gen_C:
         #self.gen_plugin_register()
 
         #self.dumpvars()                 # debug
+        self.genModelines();
 
 
 
@@ -253,9 +254,23 @@ class wireshark_gen_C:
 
 
     #
+    # genModelines
+    #
+    # Modelines info
+    #
+    #
+
+    def genModelines(self):
+        if self.DEBUG:
+            print "XXX genModelines"
+
+        self.st.out(self.template_Modelines)
+
+
+    #
     # genGPL
     #
-    # GPL licencse
+    # GPL license
     #
     #
 
@@ -268,7 +283,7 @@ class wireshark_gen_C:
     #
     # genIncludes
     #
-    # GPL licencse
+    # GPL license
     #
     #
 
@@ -2375,6 +2390,25 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 """
+
+#
+# Modelines Template
+#
+
+
+    template_Modelines = """\
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */"""
 
 #
 # Includes template
