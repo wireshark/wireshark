@@ -124,9 +124,9 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
  */
 static const value_string CosNaming_BindingType[] = {
 
-   { 0, "nobject" },
-   { 1, "ncontext" },
-   { 0,       NULL },
+    { 0, "nobject" },
+    { 1, "ncontext" },
+    { 0,       NULL },
 };
 
 /*
@@ -134,10 +134,10 @@ static const value_string CosNaming_BindingType[] = {
  */
 static const value_string CosNaming_NamingContext_NotFoundReason[] = {
 
-   { 0, "missing_node" },
-   { 1, "not_context" },
-   { 2, "not_object" },
-   { 0,       NULL },
+    { 0, "missing_node" },
+    { 1, "not_context" },
+    { 2, "not_object" },
+    { 0,       NULL },
 };
 
 /*
@@ -222,15 +222,15 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
         return FALSE;
 
     if (strcmp(header->exception_id, "IDL:omg.org/CosNaming/NamingContext/NotFound:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_CosNaming_NamingContext_NotFound(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:omg.org/CosNaming/NamingContext/NotFound:1.0  */
-       return TRUE;
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_CosNaming_NamingContext_NotFound(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:omg.org/CosNaming/NamingContext/NotFound:1.0  */
+        return TRUE;
     }
 
     if (strcmp(header->exception_id, "IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_CosNaming_NamingContext_CannotProceed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0  */
-       return TRUE;
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_CosNaming_NamingContext_CannotProceed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0  */
+        return TRUE;
     }
 
 
@@ -921,106 +921,106 @@ dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *off
 
         if (strcmp(operation, "bind") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_bind(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_bind(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "rebind") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_rebind(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_rebind(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "bind_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_bind_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_bind_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "rebind_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_rebind_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_rebind_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "resolve") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_resolve(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_resolve(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "unbind") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_unbind(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_unbind(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "new_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_new_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_new_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "bind_new_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_bind_new_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_bind_new_context(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "destroy") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_destroy(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_destroy(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "list") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_NamingContext_list(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_NamingContext_list(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "next_one") == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_BindingIterator_next_one(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_BindingIterator_next_one(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "next_n") == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_BindingIterator_next_n(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_BindingIterator_next_n(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "destroy") == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosNaming_BindingIterator_destroy(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosNaming_BindingIterator_destroy(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         break;
@@ -1047,10 +1047,10 @@ dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *off
 /* Register the protocol with Wireshark */
 void proto_register_giop_cosnaming(void)
 {
-   /* setup list of header fields */
-   static hf_register_info hf[] = {
+    /* setup list of header fields */
+    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","giop-cosnaming.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+            {&hf_operationrequest, {"Request_Operation","giop-cosnaming.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Operation filters */
         {&hf_CosNaming_NamingContext_bind_n, {"Seq length of n","giop-cosnaming.NamingContext.bind.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_CosNaming_NamingContext_rebind_n, {"Seq length of n","giop-cosnaming.NamingContext.rebind.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -1077,43 +1077,55 @@ void proto_register_giop_cosnaming(void)
         {&hf_CosNaming_NamingContext_CannotProceed_rest_of_name, {"Seq length of CannotProceed_rest_of_name","giop-cosnaming.NamingContext.CannotProceed_rest_of_name",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Union filters */
 
-   };
+    };
 
-   static ei_register_info ei[] = {
-      { &ei_cosnaming_unknown_giop_msg, { "giop-cosnaming.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
-      { &ei_cosnaming_unknown_exception, { "giop-cosnaming.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
-      { &ei_cosnaming_unknown_reply_status, { "giop-cosnaming.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
-   };
+    static ei_register_info ei[] = {
+        { &ei_cosnaming_unknown_giop_msg, { "giop-cosnaming.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
+        { &ei_cosnaming_unknown_exception, { "giop-cosnaming.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
+        { &ei_cosnaming_unknown_reply_status, { "giop-cosnaming.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
+    };
 
-   /* setup protocol subtree array */
+    /* setup protocol subtree array */
 
-   static gint *ett[] = {
-      &ett_cosnaming,
-   };
+    static gint *ett[] = {
+        &ett_cosnaming,
+    };
 
-   expert_module_t* expert_cosnaming;
+    expert_module_t* expert_cosnaming;
 
 
-   /* Register the protocol name and description */
-   proto_cosnaming = proto_register_protocol("Cosnaming Dissector Using GIOP API" , "COSNAMING", "giop-cosnaming" );
-   proto_register_field_array(proto_cosnaming, hf, array_length(hf));
-   proto_register_subtree_array(ett, array_length(ett));
+    /* Register the protocol name and description */
+    proto_cosnaming = proto_register_protocol("Cosnaming Dissector Using GIOP API" , "COSNAMING", "giop-cosnaming" );
+    proto_register_field_array(proto_cosnaming, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-   expert_cosnaming = expert_register_protocol(proto_cosnaming);
-   expert_register_field_array(expert_cosnaming, ei, array_length(ei));
+    expert_cosnaming = expert_register_protocol(proto_cosnaming);
+    expert_register_field_array(expert_cosnaming, ei, array_length(ei));
 }
 
 /* register me as handler for these interfaces */
 void proto_reg_handoff_giop_cosnaming(void)
 {
-    
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_cosnaming, "COSNAMING", "CosNaming/BindingIterator", proto_cosnaming );     /* explicit dissector */
-    
+
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_cosnaming, "COSNAMING", "CosNaming/NamingContext", proto_cosnaming );     /* explicit dissector */
-    
+
     /* Register for Heuristic Dissection */
     register_giop_user(dissect_cosnaming, "COSNAMING" ,proto_cosnaming);     /* heuristic dissector */
+
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

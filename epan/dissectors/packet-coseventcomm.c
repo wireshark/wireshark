@@ -382,58 +382,58 @@ dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *
 
         if (strcmp(operation, "push") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "disconnect_push_consumer") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "disconnect_push_supplier") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushSupplier") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "pull") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "try_pull") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "disconnect_pull_supplier") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "disconnect_pull_consumer") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullConsumer") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         break;
@@ -460,10 +460,10 @@ dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *
 /* Register the protocol with Wireshark */
 void proto_register_giop_coseventcomm(void)
 {
-   /* setup list of header fields */
-   static hf_register_info hf[] = {
+    /* setup list of header fields */
+    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","giop-coseventcomm.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+            {&hf_operationrequest, {"Request_Operation","giop-coseventcomm.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Operation filters */
         {&hf_CosEventComm_PullSupplier_try_pull_has_event, {"has_event","giop-coseventcomm.PullSupplier.try_pull.has_event",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
         /* Attribute filters */
@@ -471,49 +471,61 @@ void proto_register_giop_coseventcomm(void)
         /* User exception filters */
         /* Union filters */
 
-   };
+    };
 
-   static ei_register_info ei[] = {
-      { &ei_coseventcomm_unknown_giop_msg, { "giop-coseventcomm.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
-      { &ei_coseventcomm_unknown_exception, { "giop-coseventcomm.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
-      { &ei_coseventcomm_unknown_reply_status, { "giop-coseventcomm.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
-   };
+    static ei_register_info ei[] = {
+        { &ei_coseventcomm_unknown_giop_msg, { "giop-coseventcomm.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
+        { &ei_coseventcomm_unknown_exception, { "giop-coseventcomm.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
+        { &ei_coseventcomm_unknown_reply_status, { "giop-coseventcomm.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
+    };
 
-   /* setup protocol subtree array */
+    /* setup protocol subtree array */
 
-   static gint *ett[] = {
-      &ett_coseventcomm,
-   };
+    static gint *ett[] = {
+        &ett_coseventcomm,
+    };
 
-   expert_module_t* expert_coseventcomm;
+    expert_module_t* expert_coseventcomm;
 
 
-   /* Register the protocol name and description */
-   proto_coseventcomm = proto_register_protocol("Coseventcomm Dissector Using GIOP API" , "COSEVENTCOMM", "giop-coseventcomm" );
-   proto_register_field_array(proto_coseventcomm, hf, array_length(hf));
-   proto_register_subtree_array(ett, array_length(ett));
+    /* Register the protocol name and description */
+    proto_coseventcomm = proto_register_protocol("Coseventcomm Dissector Using GIOP API" , "COSEVENTCOMM", "giop-coseventcomm" );
+    proto_register_field_array(proto_coseventcomm, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-   expert_coseventcomm = expert_register_protocol(proto_coseventcomm);
-   expert_register_field_array(expert_coseventcomm, ei, array_length(ei));
+    expert_coseventcomm = expert_register_protocol(proto_coseventcomm);
+    expert_register_field_array(expert_coseventcomm, ei, array_length(ei));
 }
 
 /* register me as handler for these interfaces */
 void proto_reg_handoff_giop_coseventcomm(void)
 {
-    
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PullConsumer", proto_coseventcomm );     /* explicit dissector */
-    
+
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PullSupplier", proto_coseventcomm );     /* explicit dissector */
-    
+
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PushConsumer", proto_coseventcomm );     /* explicit dissector */
-    
+
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_coseventcomm, "COSEVENTCOMM", "CosEventComm/PushSupplier", proto_coseventcomm );     /* explicit dissector */
-    
+
     /* Register for Heuristic Dissection */
     register_giop_user(dissect_coseventcomm, "COSEVENTCOMM" ,proto_coseventcomm);     /* heuristic dissector */
+
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

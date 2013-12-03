@@ -361,12 +361,12 @@ static const char get_Tango_Device_adm_name_at[] = "_get_adm_name" ;
  */
 static const value_string Tango_AttrQuality[] = {
 
-   { 0, "ATTR_VALID" },
-   { 1, "ATTR_INVALID" },
-   { 2, "ATTR_ALARM" },
-   { 3, "ATTR_CHANGING" },
-   { 4, "ATTR_WARNING" },
-   { 0,       NULL },
+    { 0, "ATTR_VALID" },
+    { 1, "ATTR_INVALID" },
+    { 2, "ATTR_ALARM" },
+    { 3, "ATTR_CHANGING" },
+    { 4, "ATTR_WARNING" },
+    { 0,       NULL },
 };
 
 /*
@@ -374,11 +374,11 @@ static const value_string Tango_AttrQuality[] = {
  */
 static const value_string Tango_AttrWriteType[] = {
 
-   { 0, "READ" },
-   { 1, "READ_WITH_WRITE" },
-   { 2, "WRITE" },
-   { 3, "READ_WRITE" },
-   { 0,       NULL },
+    { 0, "READ" },
+    { 1, "READ_WITH_WRITE" },
+    { 2, "WRITE" },
+    { 3, "READ_WRITE" },
+    { 0,       NULL },
 };
 
 /*
@@ -386,10 +386,10 @@ static const value_string Tango_AttrWriteType[] = {
  */
 static const value_string Tango_AttrDataFormat[] = {
 
-   { 0, "SCALAR" },
-   { 1, "SPECTRUM" },
-   { 2, "IMAGE" },
-   { 0,       NULL },
+    { 0, "SCALAR" },
+    { 1, "SPECTRUM" },
+    { 2, "IMAGE" },
+    { 0,       NULL },
 };
 
 /*
@@ -397,10 +397,10 @@ static const value_string Tango_AttrDataFormat[] = {
  */
 static const value_string Tango_DevSource[] = {
 
-   { 0, "DEV" },
-   { 1, "CACHE" },
-   { 2, "CACHE_DEV" },
-   { 0,       NULL },
+    { 0, "DEV" },
+    { 1, "CACHE" },
+    { 2, "CACHE_DEV" },
+    { 0,       NULL },
 };
 
 /*
@@ -408,10 +408,10 @@ static const value_string Tango_DevSource[] = {
  */
 static const value_string Tango_ErrSeverity[] = {
 
-   { 0, "WARN" },
-   { 1, "ERR" },
-   { 2, "PANIC" },
-   { 0,       NULL },
+    { 0, "WARN" },
+    { 1, "ERR" },
+    { 2, "PANIC" },
+    { 0,       NULL },
 };
 
 /*
@@ -419,21 +419,21 @@ static const value_string Tango_ErrSeverity[] = {
  */
 static const value_string Tango_DevState[] = {
 
-   { 0, "ON" },
-   { 1, "OFF" },
-   { 2, "CLOSE" },
-   { 3, "OPEN" },
-   { 4, "INSERT" },
-   { 5, "EXTRACT" },
-   { 6, "MOVING" },
-   { 7, "STANDBY" },
-   { 8, "FAULT" },
-   { 9, "INIT" },
-   { 10, "RUNNING" },
-   { 11, "ALARM" },
-   { 12, "DISABLE" },
-   { 13, "UNKNOWN" },
-   { 0,       NULL },
+    { 0, "ON" },
+    { 1, "OFF" },
+    { 2, "CLOSE" },
+    { 3, "OPEN" },
+    { 4, "INSERT" },
+    { 5, "EXTRACT" },
+    { 6, "MOVING" },
+    { 7, "STANDBY" },
+    { 8, "FAULT" },
+    { 9, "INIT" },
+    { 10, "RUNNING" },
+    { 11, "ALARM" },
+    { 12, "DISABLE" },
+    { 13, "UNKNOWN" },
+    { 0,       NULL },
 };
 
 /*
@@ -441,9 +441,9 @@ static const value_string Tango_DevState[] = {
  */
 static const value_string Tango_DispLevel[] = {
 
-   { 0, "OPERATOR" },
-   { 1, "EXPERT" },
-   { 0,       NULL },
+    { 0, "OPERATOR" },
+    { 1, "EXPERT" },
+    { 0,       NULL },
 };
 
 /*
@@ -521,15 +521,15 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
         return FALSE;
 
     if (strcmp(header->exception_id, "IDL:Tango/DevFailed:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_Tango_DevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/DevFailed:1.0  */
-       return TRUE;
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_Tango_DevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/DevFailed:1.0  */
+        return TRUE;
     }
 
     if (strcmp(header->exception_id, "IDL:Tango/MultiDevFailed:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_Tango_MultiDevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/MultiDevFailed:1.0  */
-       return TRUE;
+        tree = start_dissecting(tvb, pinfo, ptree, offset);
+        decode_ex_Tango_MultiDevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/MultiDevFailed:1.0  */
+        return TRUE;
     }
 
 
@@ -2487,216 +2487,216 @@ dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
 
         if (strcmp(operation, "command_inout") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_command_inout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_command_inout(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "get_attribute_config") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_get_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_get_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "set_attribute_config") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_set_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_set_attribute_config(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "read_attributes") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_read_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_read_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "write_attributes") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_write_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_write_attributes(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "ping") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_ping(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_ping(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "black_box") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_black_box(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_black_box(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "info") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_info(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_info(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "command_list_query") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_command_list_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_command_list_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "command_query") == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_command_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_command_query(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "command_inout_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_inout_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_inout_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "read_attributes_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_read_attributes_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_read_attributes_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "get_attribute_config_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_get_attribute_config_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_get_attribute_config_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "command_list_query_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_list_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_list_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "command_query_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_query_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "command_inout_history_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_inout_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_command_inout_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "read_attribute_history_2") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_read_attribute_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_2_read_attribute_history_2(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "read_attributes_3") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_read_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_read_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "write_attributes_3") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_write_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_write_attributes_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "read_attribute_history_3") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_read_attribute_history_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_read_attribute_history_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "info_3") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_info_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_info_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "get_attribute_config_3") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_get_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_get_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, "set_attribute_config_3") == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
-           item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_set_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_Tango_Device_3_set_attribute_config_3(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_name_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_get_Tango_Device_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_description_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_description_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_get_Tango_Device_description_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_state_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_state_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_get_Tango_Device_state_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_status_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_status_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_get_Tango_Device_status_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_adm_name_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
-           tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_adm_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-           return TRUE;
+            tree = start_dissecting(tvb, pinfo, ptree, offset);
+            decode_get_Tango_Device_adm_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+            return TRUE;
         }
 
         break;
@@ -2723,10 +2723,10 @@ dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
 /* Register the protocol with Wireshark */
 void proto_register_giop_tango(void)
 {
-   /* setup list of header fields */
-   static hf_register_info hf[] = {
+    /* setup list of header fields */
+    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","giop-tango.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+            {&hf_operationrequest, {"Request_Operation","giop-tango.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Operation filters */
         {&hf_Tango_Device_command_inout_command, {"command","giop-tango.Device.command_inout.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_get_attribute_config_return, {"Seq length of AttributeConfigList","giop-tango.Device.get_attribute_config.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2899,46 +2899,59 @@ void proto_register_giop_tango(void)
         {&hf_Tango_MultiDevFailed_errors, {"Seq length of MultiDevFailed_errors","giop-tango.MultiDevFaile.MultiDevFailed_errors",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Union filters */
 
-   };
+    };
 
-   static ei_register_info ei[] = {
-      { &ei_tango_unknown_giop_msg, { "giop-tango.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
-      { &ei_tango_unknown_exception, { "giop-tango.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
-      { &ei_tango_unknown_reply_status, { "giop-tango.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
-   };
+    static ei_register_info ei[] = {
+        { &ei_tango_unknown_giop_msg, { "giop-tango.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
+        { &ei_tango_unknown_exception, { "giop-tango.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
+        { &ei_tango_unknown_reply_status, { "giop-tango.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
+    };
 
-   /* setup protocol subtree array */
+    /* setup protocol subtree array */
 
-   static gint *ett[] = {
-      &ett_tango,
-   };
+    static gint *ett[] = {
+        &ett_tango,
+    };
 
-   expert_module_t* expert_tango;
+    expert_module_t* expert_tango;
 
 
-   /* Register the protocol name and description */
-   proto_tango = proto_register_protocol("Tango Dissector Using GIOP API" , "TANGO", "giop-tango" );
-   proto_register_field_array(proto_tango, hf, array_length(hf));
-   proto_register_subtree_array(ett, array_length(ett));
+    /* Register the protocol name and description */
+    proto_tango = proto_register_protocol("Tango Dissector Using GIOP API" , "TANGO", "giop-tango" );
+    proto_register_field_array(proto_tango, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-   expert_tango = expert_register_protocol(proto_tango);
-   expert_register_field_array(expert_tango, ei, array_length(ei));
+    expert_tango = expert_register_protocol(proto_tango);
+    expert_register_field_array(expert_tango, ei, array_length(ei));
 }
 
 /* register me as handler for these interfaces */
 void proto_reg_handoff_giop_tango(void)
 {
-    
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_tango, "TANGO", "Tango/Device", proto_tango );     /* explicit dissector */
-    
+
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_tango, "TANGO", "Tango/Device_2", proto_tango );     /* explicit dissector */
-    
+
     /* Register for Explicit Dissection */
     register_giop_user_module(dissect_tango, "TANGO", "Tango/Device_3", proto_tango );     /* explicit dissector */
-    
+
     /* Register for Heuristic Dissection */
     register_giop_user(dissect_tango, "TANGO" ,proto_tango);     /* heuristic dissector */
+
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
