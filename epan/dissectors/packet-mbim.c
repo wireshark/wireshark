@@ -3981,8 +3981,30 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 }
             }
             break;
-        case MBIM_HOST_ERROR_MSG:
         case MBIM_FUNCTION_ERROR_MSG:
+            open_count = GPOINTER_TO_UINT(wmem_tree_lookup32_le(mbim_conv->open, PINFO_FD_NUM(pinfo)));
+            trans_id_key[0].length = 1;
+            trans_id_key[0].key = &open_count;
+            trans_id_key[1].length = 1;
+            trans_id_key[1].key = &trans_id;
+            trans_id_key[2].length = 0;
+            trans_id_key[2].key = NULL;
+            if (!PINFO_FD_VISITED(pinfo)) {
+                mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
+                if (mbim_info) {
+                    mbim_info->resp_frame = PINFO_FD_NUM(pinfo);
+                }
+            } else {
+                mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
+                if (mbim_info && mbim_info->req_frame) {
+                    proto_item *req_it;
+
+                    req_it = proto_tree_add_uint(header_tree, hf_mbim_request_in, tvb, 0, 0, mbim_info->req_frame);
+                    PROTO_ITEM_SET_GENERATED(req_it);
+                }
+            }
+            /* FALLTHROUGH */
+        case MBIM_HOST_ERROR_MSG:
             proto_tree_add_item(mbim_tree, hf_mbim_error_status_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         case MBIM_OPEN_DONE:
