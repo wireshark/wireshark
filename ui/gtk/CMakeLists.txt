@@ -122,7 +122,6 @@ set(WIRESHARK_GTK_SRC
 )
 
 set(WIRESHARK_DIRTY_TAP_SRC
-	stats_tree_stat.c
 )
 
 set(WIRESHARK_TAP_SRC
@@ -200,7 +199,7 @@ set(WIRESHARK_TAP_SRC
 	sip_stat.c
 	smb_stat.c
 	smb2_stat.c
-	# stats_tree_stat.c
+	stats_tree_stat.c
 	tcp_graph.c
 	voip_calls_dlg.c
 	wlan_stat_dlg.c
