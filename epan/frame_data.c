@@ -27,6 +27,7 @@
 
 #include <glib.h>
 
+#include <epan/epan.h>
 #include <wiretap/wtap.h>
 #include <epan/frame_data.h>
 #include <epan/packet.h>

@@ -35,6 +35,8 @@ typedef struct epan_dfilter dfilter_t;
 extern "C" {
 #endif /* __cplusplus */
 
+struct epan_dissect;
+
 /* Module-level initialization */
 void
 dfilter_init(void);
@@ -80,7 +82,7 @@ WS_DLL_PUBLIC const gchar *dfilter_error_msg;
 /* Apply compiled dfilter */
 WS_DLL_PUBLIC
 gboolean
-dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt);
+dfilter_apply_edt(dfilter_t *df, struct epan_dissect *edt);
 
 /* Apply compiled dfilter */
 gboolean

@@ -33,6 +33,7 @@
 
 #include <wsutil/md5.h>
 
+#include <epan/epan.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>

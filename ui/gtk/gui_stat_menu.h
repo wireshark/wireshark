@@ -76,7 +76,7 @@ void register_menu_bar_menu_items(
     gpointer     callback,
     gpointer     callback_data,
     gboolean     enabled,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_packet_enabled)(frame_data *, struct epan_dissect *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data));
 
 void eth_endpoints_cb(GtkAction *action, gpointer user_data);

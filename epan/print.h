@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 
+#include <epan/epan.h>
 #include <epan/packet.h>
 
 #include <epan/packet-range.h>

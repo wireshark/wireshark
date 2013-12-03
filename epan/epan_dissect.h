@@ -28,6 +28,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "epan.h"
 #include "tvbuff.h"
 #include "proto.h"
 #include "packet_info.h"

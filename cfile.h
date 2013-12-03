@@ -25,6 +25,7 @@
 #ifndef __CFILE_H__
 #define __CFILE_H__
 
+#include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/frame_data.h>
 #include <epan/frame_data_sequence.h>

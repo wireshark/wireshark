@@ -28,6 +28,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+struct epan_dissect;
+
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
  *  Color filters.
@@ -98,7 +100,7 @@ color_filters_reset_tmp(void);
  *
  * @param the epan dissector details
  */
-void color_filters_prime_edt(epan_dissect_t *edt);
+void color_filters_prime_edt(struct epan_dissect *edt);
 
 /** Colorize a specific packet.
  *
@@ -106,7 +108,7 @@ void color_filters_prime_edt(epan_dissect_t *edt);
  * @return the matching color filter or NULL
  */
 const color_filter_t *
-color_filters_colorize_packet(epan_dissect_t *edt);
+color_filters_colorize_packet(struct epan_dissect *edt);
 
 /** Clone the currently active filter list.
  *

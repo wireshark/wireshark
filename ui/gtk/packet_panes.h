@@ -85,7 +85,7 @@ extern GtkWidget *add_byte_tab(GtkWidget *byte_nb, const char *name,
  * @param tree_view the corresponding packet tree
  * @param nb_ptr the byte view notebook
  */
-extern void add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
+extern void add_byte_views(struct epan_dissect *edt, GtkWidget *tree_view,
                            GtkWidget *nb_ptr);
 
 /** Gdk button click appeared, select the byte view from that position.

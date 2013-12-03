@@ -32,7 +32,6 @@
 #include "frame_data.h"
 #include "packet_info.h"
 #include "column-utils.h"
-#include "epan.h"
 #include "tfs.h"
 #include "ws_symbol_export.h"
 #include "range.h"
@@ -508,7 +507,7 @@ WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame
 /*
  * Dissectors should never modify the packet data.
  */
-extern void dissect_packet(epan_dissect_t *edt,
+extern void dissect_packet(struct epan_dissect *edt,
     struct wtap_pkthdr *phdr, tvbuff_t *tvb,
     frame_data *fd, column_info *cinfo);
 

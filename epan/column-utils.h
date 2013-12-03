@@ -29,12 +29,13 @@
 
 #include "column-info.h"
 #include "packet_info.h"
-#include <epan/epan.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+struct epan_dissect;
 
 /** @file
  *  Helper routines for column utility structures and routines.
@@ -154,11 +155,11 @@ WS_DLL_PUBLIC void	col_add_fstr(column_info *cinfo, const gint col, const gchar 
     G_GNUC_PRINTF(3, 4);
 
 /** For internal Wireshark use only.  Not to be called from dissectors. */
-void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo);
+void col_custom_set_edt(struct epan_dissect *edt, column_info *cinfo);
 
 /** For internal Wireshark use only.  Not to be called from dissectors. */
 WS_DLL_PUBLIC
-void col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo);
+void col_custom_prime_edt(struct epan_dissect *edt, column_info *cinfo);
 
 /** For internal Wireshark use only.  Not to be called from dissectors. */
 WS_DLL_PUBLIC

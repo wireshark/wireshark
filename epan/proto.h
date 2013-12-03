@@ -1888,21 +1888,21 @@ hfinfo_bitwidth(const header_field_info *hfinfo);
 WS_DLL_PUBLIC int
 hfinfo_bitshift(const header_field_info *hfinfo);
 
-#include "epan.h"
+struct epan_dissect;
 
 /** Can we do a "match selected" on this field.
  @param finfo field_info
  @param edt epan dissecting
  @return TRUE if we can do a "match selected" on the field, FALSE otherwise. */
 WS_DLL_PUBLIC gboolean
-proto_can_match_selected(field_info *finfo, epan_dissect_t *edt);
+proto_can_match_selected(field_info *finfo, struct epan_dissect *edt);
 
 /** Construct a "match selected" display filter string.
  @param finfo field_info
  @param edt epan dissecting
  @return the display filter string */
 WS_DLL_PUBLIC char*
-proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt);
+proto_construct_match_selected_string(field_info *finfo, struct epan_dissect *edt);
 
 /** Find field from offset in tvb.
  @param tree tree of interest
