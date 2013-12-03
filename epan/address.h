@@ -229,8 +229,8 @@ copy_address_shallow(address *to, const address *from) {
 /** Copy an address, allocating a new buffer for the address data
  *  using seasonal memory.
  *
- * @param to[in,out] The destination address.
- * @param from[in] The source address.
+ * @param to [in,out] The destination address.
+ * @param from [in] The source address.
  */
 #define SE_COPY_ADDRESS(to, from)     \
     do {                              \
