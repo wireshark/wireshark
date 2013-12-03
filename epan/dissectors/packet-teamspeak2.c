@@ -690,12 +690,11 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
 {
     conversation_t *conversation;
     ts2_conversation *conversation_data;
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    if(conversation)
-    {
-        conversation_data = (ts2_conversation*)conversation_get_proto_data(conversation, proto_ts2);
-    }
-    else
+    conversation = find_or_create_conversation(pinfo);
+
+    conversation_data = (ts2_conversation*)conversation_get_proto_data(conversation, proto_ts2);
+
+    if (conversation_data == NULL)
     {
         conversation_data = wmem_new(wmem_file_scope(), ts2_conversation);
         conversation_data->last_inorder_server_frame=0; /* sequence number should never be zero so we can use this as an initial number */
@@ -705,7 +704,7 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
         conversation_data->server_frag_num=0;
         conversation_data->client_frag_size=0;
         conversation_data->client_frag_num=0;
-        conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+
         conversation_add_proto_data(conversation, proto_ts2, (void *)conversation_data);
     }
     return conversation_data;
