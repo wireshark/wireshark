@@ -54103,7 +54103,7 @@ decode_org_csapi_fw_TpMigrationAdditionalInfo_un(tvbuff_t *tvb _U_, packet_info 
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
-    gint32    disc_s_TpMigrationAdditionalInfo;
+    /*gint32    disc_s_TpMigrationAdditionalInfo;*/
     /* Operation specific Variable declarations End */
 
     (void)item; /* Avoid coverity param_set_but_unused parse warning */
@@ -54120,7 +54120,7 @@ decode_org_csapi_fw_TpMigrationAdditionalInfo_un(tvbuff_t *tvb _U_, packet_info 
      * IDL Union - Discriminant - IDL:org/csapi/fw/TpMigrationAdditionalInfoType:1.0
      */
 
-    disc_s_TpMigrationAdditionalInfo = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    /*disc_s_TpMigrationAdditionalInfo = (gint32) u_octet4;*/     /* save Enum Value  discriminant and cast to gint32 */
 
     
     /* Default Union Case Start */
