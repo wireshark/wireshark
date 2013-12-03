@@ -50,7 +50,7 @@ typedef struct _fld_data_t {
     uat_rep_fld_free_cb_t free_rep;
 } fld_data_t;
 
-struct _uat_t {
+struct epan_uat {
     const char* name;
     size_t record_size;
     const char* filename;

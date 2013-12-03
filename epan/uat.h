@@ -62,7 +62,7 @@ extern "C" {
  */
 
 /* obscure data type to handle an uat */
-typedef struct _uat_t uat_t;
+typedef struct epan_uat uat_t;
 /********************************************
  * Callbacks:
  * these instruct uat on how to deal with user info and data in records
