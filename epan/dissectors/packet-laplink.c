@@ -33,6 +33,9 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
+void proto_register_laplink(void);
+void proto_reg_handoff_laplink(void);
+
 #define TCP_PORT_LAPLINK 1547
 #define UDP_PORT_LAPLINK 1547
 

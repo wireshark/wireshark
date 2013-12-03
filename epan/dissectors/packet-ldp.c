@@ -58,6 +58,8 @@
 #define TCP_PORT_LDP 646
 #define UDP_PORT_LDP 646
 
+
+void proto_register_ldp(void);
 void proto_reg_handoff_ldp(void);
 
 static int proto_ldp = -1;

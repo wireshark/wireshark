@@ -31,6 +31,9 @@
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
 
+void proto_register_sysex(void);
+void proto_reg_handoff_sysex(void);
+
 /* protocols and header fields */
 static int proto_sysex = -1;
 static int hf_sysex_message_start = -1;

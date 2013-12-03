@@ -50,6 +50,8 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_lapd(void);
+
 static int proto_lapd = -1;
 static int hf_lapd_direction = -1;
 static int hf_lapd_address = -1;

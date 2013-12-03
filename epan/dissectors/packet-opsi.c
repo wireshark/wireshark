@@ -33,6 +33,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_opsi(void);
+void proto_reg_handoff_opsi(void);
+
 /* TCP destination port dedicated to the OPSI protocol */
 #define TCP_PORT_OPSI		4002
 

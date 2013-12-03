@@ -59,6 +59,9 @@
 #include <epan/xdlc.h>
 #include <epan/reassemble.h>
 
+void proto_register_lapdm(void);
+void proto_reg_handoff_lapdm(void);
+
 static int proto_lapdm = -1;
 static int hf_lapdm_address = -1;
 static int hf_lapdm_ea = -1;

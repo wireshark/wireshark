@@ -68,7 +68,11 @@
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"
 
+void proto_register_x11(void);
+void proto_reg_handoff_x11(void);
+
 #define cVALS(x) (const value_string*)(x)
+
 
 /*
  * Data structure associated with a conversation; keeps track of the
