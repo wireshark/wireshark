@@ -196,6 +196,7 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* eiinde
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
  @param length length of data in tvb
+ @param format Printf-style format string for additional arguments
  @return the newly created item above expert info tree
  */
 WS_DLL_PUBLIC proto_item *
