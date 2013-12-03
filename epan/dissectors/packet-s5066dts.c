@@ -391,7 +391,6 @@ static void dissect_s5066dts_eow_alm_response(tvbuff_t *tvb, guint offset, proto
 static void dissect_s5066dts_eow_hdr_drc_request(tvbuff_t *tvb, packet_info * pinfo, guint offset,
         proto_tree *tree, guint pdu_type)
 {
-    guint num_channels;    
 
     if (pdu_type != S5066_DPDU_MANAGEMENT)
     {
@@ -402,9 +401,6 @@ static void dissect_s5066dts_eow_hdr_drc_request(tvbuff_t *tvb, packet_info * pi
     proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_waveform, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_num_channels, tvb, offset, 1, FALSE);
 
-    num_channels = tvb_get_guint8(tvb, offset) & 0x07;
-    if (num_channels == 0)
-        num_channels = 8;
 }
 
 /* {15, "HFTRP FRAME CONTROL"}, */
@@ -896,7 +892,7 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             segmented_cpdu_size = tvb_get_ntohs(tvb, 6 + address_size) & 0x03FF;
             proto_tree_add_item(s5066dts_tree, hf_s5066dts_segmented_cpdu, tvb, offset, segmented_cpdu_size, FALSE);
             offset += segmented_cpdu_size;
-            offset = dissect_s5066dts_cpdu_crc(tvb, offset, s5066dts_tree, address_size, header_size, segmented_cpdu_size);
+            /*offset = */dissect_s5066dts_cpdu_crc(tvb, offset, s5066dts_tree, address_size, header_size, segmented_cpdu_size);
         }
     }
 
