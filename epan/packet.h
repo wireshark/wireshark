@@ -170,7 +170,7 @@ WS_DLL_PUBLIC void dissector_table_foreach (const char *table_name, DATFunc func
  * any "decode as" entry that has been changed from its original state.
  *
  * @param[in] func The function to call for each dissector.
- * @param[in] data User data to pass to the function.
+ * @param[in] user_data User data to pass to the function.
  */
 WS_DLL_PUBLIC void dissector_all_tables_foreach_changed (DATFunc func,
     gpointer user_data);
