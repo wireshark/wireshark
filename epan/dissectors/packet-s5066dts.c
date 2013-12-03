@@ -254,10 +254,10 @@ static const value_string s5066dts_eow_data_rate[] = {
 };
 
 static const value_string s5066dts_eow_interleaving[] = {
-    { 0, "No interleaving"}, 
-    { 1, "Short interleaving"}, 
-    { 2, "Long interleaving"}, 
-    { 3, "Reserved"}, 
+    { 0, "No interleaving"},
+    { 1, "Short interleaving"},
+    { 2, "Long interleaving"},
+    { 3, "Reserved"},
     { 0, NULL},
 };
 
@@ -340,51 +340,51 @@ void proto_reg_handoff_s5066dts(void);
 /* { 1, "DRC_REQUEST"}, */
 static void dissect_s5066dts_eow_drc_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_eow_drc_request_data_rate, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_drc_request_interleaving, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_drc_request_others, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_drc_request_data_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_drc_request_interleaving, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_drc_request_others, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* { 2, "DRC_RESPONSE"}, */
 static void dissect_s5066dts_eow_drc_response(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_eow_drc_response_response, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_drc_response_reason, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_drc_response_response, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_drc_response_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* { 3, "UNRECOGNIZED_TYPE"}, */
 static void dissect_s5066dts_eow_unrec_type(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_eow_unrec_type_response, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_unrec_type_reason, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_unrec_type_response, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_unrec_type_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* { 4, "CAPABILITY"}, */
 static void dissect_s5066dts_eow_capability(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_adaptive, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_stanag_4529, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_mil_std_188_110a, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_extended, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_full_duplex, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_split_frequency, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_non_arcs_ale, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_capability_arcs, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_adaptive, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_stanag_4529, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_mil_std_188_110a, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_extended, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_full_duplex, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_split_frequency, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_non_arcs_ale, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_capability_arcs, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* { 5, "ALM_REQUEST"}, */
 static void dissect_s5066dts_eow_alm_request(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_eow_alm_request_data_rate, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_alm_request_interleaving, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_alm_request_others, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_alm_request_data_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_alm_request_interleaving, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_alm_request_others, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* { 6, "ALM_RESPONSE"}, */
 static void dissect_s5066dts_eow_alm_response(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_eow_alm_response_response, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_alm_response_reason, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_alm_response_response, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_alm_response_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* { 7, "HDR_DRC_REQUEST"}, */
@@ -394,12 +394,12 @@ static void dissect_s5066dts_eow_hdr_drc_request(tvbuff_t *tvb, packet_info * pi
 
     if (pdu_type != S5066_DPDU_MANAGEMENT)
     {
-    	expert_add_info(pinfo, tree, &ei_s5066dts_eow_hdr_drc_request_invalid);
+        expert_add_info(pinfo, tree, &ei_s5066dts_eow_hdr_drc_request_invalid);
         return;
     }
 
-    proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_waveform, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_num_channels, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_waveform, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_num_channels, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -409,11 +409,11 @@ static void dissect_s5066dts_eow_hftrp(tvbuff_t *tvb,  packet_info * pinfo, guin
 {
     if (pdu_type != S5066_DPDU_MANAGEMENT)
     {
-    	expert_add_info(pinfo, tree, &ei_s5066dts_eow_hftrp_invalid);
+        expert_add_info(pinfo, tree, &ei_s5066dts_eow_hftrp_invalid);
         return;
     }
 
-    proto_tree_add_item(tree, hf_s5066dts_eow_hftrp_hftrp_token, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_s5066dts_eow_hftrp_hftrp_token, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -429,12 +429,12 @@ static guint dissect_s5066dts_eow(tvbuff_t *tvb,  packet_info * pinfo, guint off
     eow_type = tvb_get_guint8(tvb, offset) & 0x0F;
     ti = proto_tree_add_text(tree, tvb, offset, 2, "EOW Field");
     eow_tree = proto_item_add_subtree(ti, ett_s5066dts_eow);
-    proto_tree_add_item(eow_tree, hf_s5066dts_eow_type, tvb, offset, 1, FALSE); offset++;
+    proto_tree_add_item(eow_tree, hf_s5066dts_eow_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
 
     switch (eow_type)
     {
         case  S5066_EOW_RESERVED:
-            proto_tree_add_item(eow_tree, hf_s5066dts_eow_data, tvb, offset, 1, FALSE); break;
+            proto_tree_add_item(eow_tree, hf_s5066dts_eow_data, tvb, offset, 1, ENC_BIG_ENDIAN); break;
         case  S5066_EOW_DRC_REQUEST:
             dissect_s5066dts_eow_drc_request(tvb, offset, eow_tree); break;
         case  S5066_EOW_DRC_RESPONSE:
@@ -462,7 +462,7 @@ static guint dissect_s5066dts_address(tvbuff_t *tvb, guint offset, proto_tree *t
     proto_item *ti;
     proto_tree *address_tree = NULL;
     unsigned int i;
-    
+
     for ( i = 0; i < addr_size; i++)
     {
         destination_address = (destination_address << 4) | ((!(i % 2)
@@ -498,13 +498,13 @@ static guint dissect_s5066dts_address(tvbuff_t *tvb, guint offset, proto_tree *t
             (source_address >> 16) & 0xFF,
             (source_address >> 8) & 0xFF,
             source_address & 0xFF);
-    
+
     col_add_fstr(pinfo->cinfo, COL_DEF_DST, "%d.%d.%d.%d",
             destination_address  >> 24,
             (destination_address >> 16) & 0xFF,
             (destination_address >> 8) & 0xFF,
             destination_address & 0xFF);
-    
+
     offset += addr_size;
     return offset;
 }
@@ -514,11 +514,11 @@ static guint dissect_s5066dts_header_crc(tvbuff_t *tvb, guint offset, proto_tree
 {
     guint16 header_crc;
     proto_item *ti;
-    
-    header_crc = crc16_0x9949_tvb_offset_seed(tvb, S5066_DPDU_SYNC_SEQUENCE_SIZE,
-    		header_size + address_size - S5066_DPDU_SYNC_SEQUENCE_SIZE, 0);
 
-    ti = proto_tree_add_item(tree, hf_s5066dts_header_crc, tvb, offset, 2, FALSE);
+    header_crc = crc16_0x9949_tvb_offset_seed(tvb, S5066_DPDU_SYNC_SEQUENCE_SIZE,
+                header_size + address_size - S5066_DPDU_SYNC_SEQUENCE_SIZE, 0);
+
+    ti = proto_tree_add_item(tree, hf_s5066dts_header_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (header_crc == tvb_get_letohs(tvb, offset))
         proto_item_append_text(ti, " (Correct)");
     else
@@ -533,11 +533,11 @@ static guint dissect_s5066dts_cpdu_crc(tvbuff_t *tvb, guint offset, proto_tree *
 {
     guint32 cpdu_crc;
     proto_item *ti;
-    
-    cpdu_crc = crc32_0x0AA725CF_tvb_offset_seed(tvb, header_size + address_size + S5066_DPDU_SYNC_SEQUENCE_SIZE,
-    		segmented_cpdu_size, 0);
 
-    ti = proto_tree_add_item(tree, hf_s5066dts_cpdu_crc, tvb, offset, 4, FALSE);
+    cpdu_crc = crc32_0x0AA725CF_tvb_offset_seed(tvb, header_size + address_size + S5066_DPDU_SYNC_SEQUENCE_SIZE,
+              segmented_cpdu_size, 0);
+
+    ti = proto_tree_add_item(tree, hf_s5066dts_cpdu_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
     if (cpdu_crc == tvb_get_letohl(tvb, offset))
         proto_item_append_text(ti, " (Correct)");
     else
@@ -549,15 +549,15 @@ static guint dissect_s5066dts_cpdu_crc(tvbuff_t *tvb, guint offset, proto_tree *
 
 /* { 0, "DATA_ONLY"}, */
 static guint dissect_s5066dts_data_only(tvbuff_t *tvb, guint offset, proto_tree *tree)
-{   
-    proto_tree_add_item(tree, hf_s5066dts_data_only_cpdu_start, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_only_cpdu_end, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_only_deliver_in_order, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_only_drop_cpdu, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_only_tx_win_uwe, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_only_tx_win_lwe, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_only_segmented_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_data_only_transmit_sequence_number, tvb, offset, 1, FALSE); offset++;
+{
+    proto_tree_add_item(tree, hf_s5066dts_data_only_cpdu_start, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_only_cpdu_end, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_only_deliver_in_order, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_only_drop_cpdu, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_only_tx_win_uwe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_only_tx_win_lwe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_only_segmented_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_data_only_transmit_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
 
     return offset;
 }
@@ -569,9 +569,9 @@ static guint dissect_s5066dts_ack_only(tvbuff_t *tvb, guint offset, proto_tree *
     guint ack_size;
     ack_size = header_size - 7;
 
-    proto_tree_add_item(tree, hf_s5066dts_ack_only_rx_lwe, tvb, offset, 1, FALSE); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_ack_only_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
     if (ack_size > 0)
-        proto_tree_add_item(tree, hf_s5066dts_ack_only_acks, tvb, offset, ack_size, FALSE); offset += ack_size;
+        proto_tree_add_item(tree, hf_s5066dts_ack_only_acks, tvb, offset, ack_size, ENC_NA); offset += ack_size;
 
     return offset;
 }
@@ -583,17 +583,17 @@ static guint dissect_s5066dts_data_ack(tvbuff_t *tvb, guint offset, proto_tree *
     guint ack_size;
     ack_size = header_size - 10;
 
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_cpdu_start, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_cpdu_end, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_deliver_in_order, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_drop_cpdu, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_tx_win_uwe, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_tx_win_lwe, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_segmented_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_transmit_sequence_number, tvb, offset, 1, FALSE); offset++;
-    proto_tree_add_item(tree, hf_s5066dts_data_ack_rx_lwe, tvb, offset, 1, FALSE); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_cpdu_start, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_cpdu_end, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_deliver_in_order, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_drop_cpdu, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_tx_win_uwe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_tx_win_lwe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_segmented_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_transmit_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_data_ack_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
     if (ack_size > 0)
-        proto_tree_add_item(tree, hf_s5066dts_data_ack_acks, tvb, offset, ack_size, FALSE); offset += ack_size;
+        proto_tree_add_item(tree, hf_s5066dts_data_ack_acks, tvb, offset, ack_size, ENC_NA); offset += ack_size;
 
     return offset;
 }
@@ -601,25 +601,25 @@ static guint dissect_s5066dts_data_ack(tvbuff_t *tvb, guint offset, proto_tree *
 /* { 3, "RESET_WIN_RESYNC"}, */
 static guint dissect_s5066dts_reset_win_resync(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_unused, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_full_reset_command, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_tx_win_rqst, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_rx_win_cmnd, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_ack, tvb, offset, 1, FALSE); offset++;
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_new_rx_lwe, tvb, offset, 1, FALSE); offset++;
-    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_frame_id_number, tvb, offset, 1, FALSE); offset++;
-    
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_full_reset_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_tx_win_rqst, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_rx_win_cmnd, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_ack, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_new_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_reset_win_resync_reset_frame_id_number, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+
     return offset;
 }
 
 /* { 4, "EXP_DATA_ONLY"}, */
 static guint dissect_s5066dts_exp_data_only(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_cpdu_start, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_cpdu_end, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_cpdu_id, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_segmented_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_transmit_sequence_number, tvb, offset, 1, FALSE); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_cpdu_start, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_cpdu_end, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_cpdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_segmented_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_exp_data_only_transmit_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
 
     return offset;
 }
@@ -630,10 +630,10 @@ static guint dissect_s5066dts_exp_ack_only(tvbuff_t *tvb, guint offset, proto_tr
 {
     guint ack_size;
     ack_size = header_size - 7;
-    
-    proto_tree_add_item(tree, hf_s5066dts_exp_ack_only_rx_lwe, tvb, offset, 1, FALSE); offset++;
+
+    proto_tree_add_item(tree, hf_s5066dts_exp_ack_only_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
     if (ack_size > 0)
-        proto_tree_add_item(tree, hf_s5066dts_exp_ack_only_acks, tvb, offset, ack_size, FALSE);
+        proto_tree_add_item(tree, hf_s5066dts_exp_ack_only_acks, tvb, offset, ack_size, ENC_NA);
     offset += ack_size;
 
     return offset;
@@ -647,24 +647,24 @@ static guint dissect_s5066dts_management(tvbuff_t *tvb, guint offset, proto_tree
     proto_tree *hftrp_token_tree = NULL;
     guint eow_type;  
     guint extended_message_size;
- 
+
     eow_type = tvb_get_guint8(tvb, offset) & 0x0F;
     eow_content = tvb_get_guint8(tvb, S5066_DPDU_EOW_CONTENT_INDEX);
     extended_message_size = header_size - 8;
- 
-    proto_tree_add_item(tree, hf_s5066dts_management_unused, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_management_extended_message_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_management_message, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_management_ack, tvb, offset, 1, FALSE); offset++;
-    proto_tree_add_item(tree, hf_s5066dts_management_management_frame_id, tvb, offset, 1, FALSE);
+
+    proto_tree_add_item(tree, hf_s5066dts_management_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_management_extended_message_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_management_message, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_management_ack, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_management_management_frame_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     if (eow_type == S5066_EOW_HDR_DRC_REQUEST)
     {
-        proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_data_rate, tvb, offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_data_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        
-        proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_interleaver_length, tvb, offset, 2, FALSE);
+
+        proto_tree_add_item(tree, hf_s5066dts_eow_hdr_drc_request_interleaver_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
     else if (extended_message_size > 0)
@@ -677,22 +677,22 @@ static guint dissect_s5066dts_management(tvbuff_t *tvb, guint offset, proto_tree
                     val_to_str_const(eow_content, s5066dts_eow_hftrp_frame_control, "UNKNOWN_HFTRP_TOKEN"));
             hftrp_token_tree = proto_item_add_subtree(hftrp_proto_item, ett_s5066dts_hftrp_token);
             proto_tree_add_item(hftrp_token_tree,
-                    hf_s5066dts_management_extended_message_hftrp_payload_size, tvb, offset, 2, FALSE); offset += 2;
+                    hf_s5066dts_management_extended_message_hftrp_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
             proto_tree_add_item(hftrp_token_tree,
-                    hf_s5066dts_management_extended_message_hftrp_ra, tvb, offset, 4, FALSE); offset += 4;
+                    hf_s5066dts_management_extended_message_hftrp_ra, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
             proto_tree_add_item(hftrp_token_tree,
-                    hf_s5066dts_management_extended_message_hftrp_seq_id, tvb, offset, 4, FALSE); offset += 4;
+                    hf_s5066dts_management_extended_message_hftrp_seq_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
             proto_tree_add_item(hftrp_token_tree,
-                    hf_s5066dts_management_extended_message_hftrp_gen_seq_id, tvb, offset, 4, FALSE); offset += 4;
+                    hf_s5066dts_management_extended_message_hftrp_gen_seq_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
             proto_tree_add_item(hftrp_token_tree,
-                    hf_s5066dts_management_extended_message_hftrp_new_successor_id, tvb, offset, 4, FALSE); offset += 4;
+                    hf_s5066dts_management_extended_message_hftrp_new_successor_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
             proto_tree_add_item(hftrp_token_tree,
-                    hf_s5066dts_management_extended_message_hftrp_number_of_nodes, tvb, offset, 2, FALSE); offset += 2;
+                    hf_s5066dts_management_extended_message_hftrp_number_of_nodes, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
         }
         /* otherwise just display it as a byte stream */
         else
         {
-            proto_tree_add_item(tree, hf_s5066dts_management_extended_message, tvb, offset, extended_message_size, FALSE);
+            proto_tree_add_item(tree, hf_s5066dts_management_extended_message, tvb, offset, extended_message_size, ENC_NA);
             offset += extended_message_size;
         }
     }
@@ -703,29 +703,29 @@ static guint dissect_s5066dts_management(tvbuff_t *tvb, guint offset, proto_tree
 /* { 7, "NON_ARQ_DATA"}, */
 static guint dissect_s5066dts_non_arq_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_id_1, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_deliver_in_order, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_group_address, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_segmented_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_id_2, tvb, offset, 1, FALSE); offset++;
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_segment_offset, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_reception_window, tvb, offset, 2, FALSE); offset +=2;
-    
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_id_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_deliver_in_order, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_group_address, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_segmented_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_id_2, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_segment_offset, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_non_arq_data_cpdu_reception_window, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+
     return offset;
 }
 
 /* { 8, "EXP_NON_ARQ_DATA"}, */
 static guint dissect_s5066dts_exp_non_arq_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_id_1, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_deliver_in_order, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_group_address, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_segmented_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_id_2, tvb, offset, 1, FALSE); offset++;
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_size, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_segment_offset, tvb, offset, 2, FALSE); offset +=2;
-    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_reception_window, tvb, offset, 2, FALSE); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_id_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_deliver_in_order, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_group_address, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_segmented_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_id_2, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_segment_offset, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_s5066dts_exp_non_arq_data_cpdu_reception_window, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
 
     return offset;
 }
@@ -733,8 +733,8 @@ static guint dissect_s5066dts_exp_non_arq_data(tvbuff_t *tvb, guint offset, prot
 /* {15, "WARNING"}, */
 static guint dissect_s5066dts_warning(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_s5066dts_warning_frame_type, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_s5066dts_warning_reason, tvb, offset, 1, FALSE); offset++;
+    proto_tree_add_item(tree, hf_s5066dts_warning_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s5066dts_warning_reason, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
 
     return offset;
 }
@@ -850,22 +850,22 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_append_fstr(pinfo->cinfo, COL_INFO, " FrameID=%d", tvb_get_guint8(tvb, 7 + address_size));
             break;
     }
-    
+
     if (tree)
     {
         ti = proto_tree_add_protocol_format(tree, proto_s5066dts, tvb, 0, -1, "STANAG 5066 (DTS Layer)");
         s5066dts_tree = proto_item_add_subtree(ti, ett_s5066dts);
-        proto_tree_add_item(s5066dts_tree, hf_s5066dts_sync_word, tvb, offset, 2, FALSE); offset += 2;
-        proto_tree_add_item(s5066dts_tree, hf_s5066dts_dpdu_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(s5066dts_tree, hf_s5066dts_sync_word, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(s5066dts_tree, hf_s5066dts_dpdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset = dissect_s5066dts_eow(tvb, pinfo, offset, s5066dts_tree, pdu_type);
 
         /*
          * Append DPDU type to the root
          */
         proto_item_append_text(ti, ", DPDU Type %s ", val_to_str_const(pdu_type, s5066dts_dpdu_type, "UNKNOWN_DPDU_TYPE"));
-        proto_tree_add_item(s5066dts_tree, hf_s5066dts_eot, tvb, offset, 1, FALSE); offset++;
-        proto_tree_add_item(s5066dts_tree, hf_s5066dts_address_size, tvb, offset, 1, FALSE);
-        proto_tree_add_item(s5066dts_tree, hf_s5066dts_header_size, tvb, offset, 1, FALSE); offset++;
+        proto_tree_add_item(s5066dts_tree, hf_s5066dts_eot, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+        proto_tree_add_item(s5066dts_tree, hf_s5066dts_address_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(s5066dts_tree, hf_s5066dts_header_size, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
         offset = dissect_s5066dts_address(tvb, offset, s5066dts_tree, pinfo, address_size);
         header_size = tvb_get_guint8(tvb, S5066_DPDU_SIZE_OF_HEADER_INDEX) & 0x1F;
         ti = proto_tree_add_text(s5066dts_tree, tvb, offset, header_size - 6, "D_PDU Type Specific Header");
@@ -890,7 +890,7 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 || pdu_type == S5066_DPDU_EXP_NON_ARQ_DATA)
         {
             segmented_cpdu_size = tvb_get_ntohs(tvb, 6 + address_size) & 0x03FF;
-            proto_tree_add_item(s5066dts_tree, hf_s5066dts_segmented_cpdu, tvb, offset, segmented_cpdu_size, FALSE);
+            proto_tree_add_item(s5066dts_tree, hf_s5066dts_segmented_cpdu, tvb, offset, segmented_cpdu_size, ENC_NA);
             offset += segmented_cpdu_size;
             /*offset = */dissect_s5066dts_cpdu_crc(tvb, offset, s5066dts_tree, address_size, header_size, segmented_cpdu_size);
         }
@@ -982,10 +982,10 @@ void proto_register_s5066dts (void)
             },
             { &hf_s5066dts_header_crc,
                 { "CRC on header", "s5066dts.header_crc", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-            },          
+            },
             { &hf_s5066dts_cpdu_crc,
                 { "CRC on C_PDU segment", "s5066dts.cpdu_crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
-            },          
+            },
             /* { 1, "DRC_REQUEST"}, */
             { &hf_s5066dts_eow_drc_request_data_rate,
                 { "Data Rate", "s5066dts.eow.drc_request.data_rate", FT_UINT8, BASE_DEC, VALS(s5066dts_eow_data_rate),
@@ -1239,7 +1239,7 @@ void proto_register_s5066dts (void)
             /* { 7, "NON_ARQ_DATA"}, */
             { &hf_s5066dts_non_arq_data_cpdu_id_1,
                 { "C_PDU ID number (field 1)", "s5066dts.non_arq_data.cpdu_id_1", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
-            },          
+            },
             { &hf_s5066dts_non_arq_data_deliver_in_order,
                 { "C_PDU Deliver-in-Order", "s5066dts.non_arq_data.deliver_in_order", FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }
             },
@@ -1248,7 +1248,7 @@ void proto_register_s5066dts (void)
             },
             { &hf_s5066dts_non_arq_data_cpdu_id_2,
                 { "C_PDU ID number (field 2)", "s5066dts.non_arq_data.cpdu_id_2", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
-            },          
+            },
             { &hf_s5066dts_non_arq_data_cpdu_size,
                 { "C_PDU size", "s5066dts.non_arq_data.cpdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
             },
@@ -1283,11 +1283,11 @@ void proto_register_s5066dts (void)
             { &hf_s5066dts_exp_non_arq_data_cpdu_segment_offset,
                 { "Offset of segmented C_PDU ", "s5066dts.exp_non_arq_data.cpdu_segment_offset", FT_UINT16, BASE_DEC,
                         NULL, 0x0, "", HFILL }
-            },          
+            },
             { &hf_s5066dts_exp_non_arq_data_cpdu_reception_window,
                 { "C_PDU reception window", "s5066dts.exp_non_arq_data.cpdu_reception_window", FT_UINT16, BASE_DEC,
                         NULL, 0x0, "", HFILL }
-            },          
+            },
             { &hf_s5066dts_exp_non_arq_data_segmented_cpdu_size,
                 { "Size of segmented C_PDU", "s5066dts.exp_non_arq_data.segmented_cpdu_size", FT_UINT16, BASE_DEC,
                         NULL, 0x03FF, "", HFILL }
@@ -1295,10 +1295,10 @@ void proto_register_s5066dts (void)
             /* {15, "WARNING"}, */
             { &hf_s5066dts_warning_frame_type,
                 { "Received frame type", "s5066dts.warning.frame_type", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
-            },          
+            },
             { &hf_s5066dts_warning_reason,
                 { "Reason warning sent", "s5066dts.warning.reason", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
-            },                      
+            },
     };
 
     static gint *ett[] = {
@@ -1314,7 +1314,7 @@ void proto_register_s5066dts (void)
             { &ei_s5066dts_eow_hdr_drc_request_invalid, { "s5066dts.eow_hdr_drc_request.invalid", PI_MALFORMED, PI_ERROR,
                     "High data rate change request can only be made in Management D_PDU", EXPFILL }},
             { &ei_s5066dts_eow_hftrp_invalid, { "s5066dts.eow_hftrp.invalid", PI_MALFORMED, PI_ERROR,
-            		"HFTRP tokens can only be carried with Management D_PDU", EXPFILL }},
+                    "HFTRP tokens can only be carried with Management D_PDU", EXPFILL }},
         };
 
     expert_module_t* expert_s5066dts;
@@ -1363,3 +1363,16 @@ void proto_reg_handoff_s5066dts(void)
     currentPort = config_s5066dts_port;
     dissector_add_uint("tcp.port", currentPort, s5066dts_over_tcp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
