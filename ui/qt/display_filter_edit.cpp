@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include <epan/proto.h>
+#include <epan/dfilter/dfilter.h>
 
 #include "display_filter_edit.h"
 #include "syntax_line_edit.h"
