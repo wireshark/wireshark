@@ -1940,13 +1940,15 @@ decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, 
 void proto_reg_handoff_giop_@dissector_name@(void)
 {"""
 
-    template_proto_reg_handoff_body = """
+    template_proto_reg_handoff_body = """\
 /* Register for Explicit Dissection */
-register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@interface@\", proto_@dissector_name@ );     /* explicit dissector */"""
+register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@interface@\", proto_@dissector_name@ );     /* explicit dissector */
+"""
 
-    template_proto_reg_handoff_heuristic = """
+    template_proto_reg_handoff_heuristic = """\
 /* Register for Heuristic Dissection */
-register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissector_name@);     /* heuristic dissector */"""
+register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissector_name@);     /* heuristic dissector */
+"""
 
     template_proto_reg_handoff_end = """\
 }
