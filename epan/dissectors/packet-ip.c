@@ -2995,7 +2995,7 @@ proto_register_ip(void)
   expert_register_field_array(expert_ip, ei, array_length(ei));
 
   /* subdissector code */
-  ip_dissector_table = register_dissector_table("ip.proto", "IPv4 protocol",
+  ip_dissector_table = register_dissector_table("ip.proto", "IP protocol",
                                                 FT_UINT8, BASE_DEC);
   register_heur_dissector_list("ip", &heur_subdissector_list);
 
