@@ -65,6 +65,7 @@ static int hf_mbim_uuid_dss_cid = -1;
 static int hf_mbim_uuid_multicarrier_cid = -1;
 static int hf_mbim_uuid_ms_hostshutdown_cid = -1;
 static int hf_mbim_uuid_msfwid_cid = -1;
+static int hf_mbim_uuid_ext_qmux_cid = -1;
 static int hf_mbim_cid = -1;
 static int hf_mbim_command_type = -1;
 static int hf_mbim_info_buffer_len = -1;
@@ -682,6 +683,7 @@ struct mbim_uuid {
 #define UUID_MULTICARRIER    7
 #define UUID_MS_HOSTSHUTDOWN 8
 #define UUID_MSFWID          9
+#define UUID_EXT_QMUX        10 /* Qualcomm proprietary UUID */
 
 static const struct mbim_uuid mbim_uuid_service_id_vals[] = {
     { UUID_BASIC_CONNECT, {0xa289cc33, 0xbcbb, 0x8b4f, { 0xb6, 0xb0, 0x13, 0x3e, 0xc2, 0xaa, 0xe6, 0xdf}}},
@@ -693,20 +695,22 @@ static const struct mbim_uuid mbim_uuid_service_id_vals[] = {
     { UUID_DSS, {0xc08a26dd, 0x7718, 0x4382, {0x84, 0x82, 0x6e, 0x0d, 0x58, 0x3c, 0x4d, 0x0e}}},
     { UUID_MULTICARRIER, {0x8b569648, 0x628d, 0x4653, {0x9b, 0x9f, 0x10, 0x25, 0x40, 0x44, 0x24, 0xe1}}},
     { UUID_MS_HOSTSHUTDOWN, {0x883b7c26, 0x985f, 0x43fa, {0x98, 0x04, 0x27, 0xd7, 0xfb, 0x80, 0x95, 0x9c}}},
-    { UUID_MSFWID, {0xe9f7dea2, 0xfeaf, 0x4009, {0x93, 0xce, 0x90, 0xa3, 0x69, 0x41, 0x03, 0xb6}}}
+    { UUID_MSFWID, {0xe9f7dea2, 0xfeaf, 0x4009, {0x93, 0xce, 0x90, 0xa3, 0x69, 0x41, 0x03, 0xb6}}},
+    { UUID_EXT_QMUX, {0xd1a30bc2, 0xf97a, 0x6e43, {0xbf, 0x65, 0xc7, 0xe2, 0x4f, 0xb0, 0xf0, 0xd3}}}
 };
 
 static const value_string mbim_service_id_vals[] = {
-    { 0, "UUID_BASIC_CONNECT"},
-    { 1, "UUID_SMS"},
-    { 2, "UUID_USSD"},
-    { 3, "UUID_PHONEBOOK"},
-    { 4, "UUID_STK"},
-    { 5, "UUID_AUTH"},
-    { 6, "UUID_DSS"},
-    { 7, "UUID_MULTICARRIER"},
-    { 8, "UUID_MS_HOSTSHUTDOWN"},
-    { 9, "UUID_MSFWID"},
+    { UUID_BASIC_CONNECT, "UUID_BASIC_CONNECT"},
+    { UUID_SMS, "UUID_SMS"},
+    { UUID_USSD, "UUID_USSD"},
+    { UUID_PHONEBOOK, "UUID_PHONEBOOK"},
+    { UUID_STK, "UUID_STK"},
+    { UUID_AUTH, "UUID_AUTH"},
+    { UUID_DSS, "UUID_DSS"},
+    { UUID_MULTICARRIER, "UUID_MULTICARRIER"},
+    { UUID_MS_HOSTSHUTDOWN, "UUID_MS_HOSTSHUTDOWN"},
+    { UUID_MSFWID, "UUID_MSFWID"},
+    { UUID_EXT_QMUX, "UUID_EXT_QMI"},
     { 0, NULL}
 };
 
@@ -846,6 +850,13 @@ static const value_string mbim_uuid_ms_hostshutdown_cid_vals[] = {
 
 static const value_string mbim_uuid_msfwid_cid_vals[] = {
     { MBIM_CID_MSFWID_FIRMWAREID, "MSFWID_FIRMWAREID"},
+    { 0, NULL}
+};
+
+#define MBIM_CID_QMI 1
+
+static const value_string mbim_uuid_ext_qmux_cid_vals[] = {
+    { MBIM_CID_QMI, "QMI"},
     { 0, NULL}
 };
 
@@ -1680,6 +1691,10 @@ mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offs
             proto_tree_add_uint(tree, hf_mbim_uuid_msfwid_cid, tvb, *offset, 4, cid);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_msfwid_cid_vals, "Unknown"));
             break;
+        case UUID_EXT_QMUX:
+            proto_tree_add_uint(tree, hf_mbim_uuid_ext_qmux_cid, tvb, *offset, 4, cid);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_ext_qmux_cid_vals, "Unknown"));
+            break;
         default:
             proto_tree_add_uint(tree, hf_mbim_cid, tvb, *offset, 4, cid);
             col_append_str(pinfo->cinfo, COL_INFO, ": Unknown");
@@ -2486,6 +2501,10 @@ mbim_dissect_device_service_element(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
                                                  val_to_str_const(cid, mbim_uuid_msfwid_cid_vals, "Unknown"), cid);
                 break;
+            case UUID_EXT_QMUX:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_ext_qmux_cid_vals, "Unknown"), cid);
+                break;
             default:
                 proto_tree_add_uint(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid);
                 break;
@@ -2586,6 +2605,10 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             case UUID_MSFWID:
                 proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
                                                  val_to_str_const(cid, mbim_uuid_msfwid_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_EXT_QMUX:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_ext_qmux_cid_vals, "Unknown"), cid);
                 break;
             default:
                 proto_tree_add_uint(tree, hf_mbim_event_entry_cid, tvb, offset, 4, cid);
@@ -4753,6 +4776,11 @@ proto_register_mbim(void)
         { &hf_mbim_uuid_msfwid_cid,
             { "CID", "mbim.control.cid",
                FT_UINT32, BASE_DEC, VALS(mbim_uuid_msfwid_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_uuid_ext_qmux_cid,
+            { "CID", "mbim.control.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_ext_qmux_cid_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_cid,
