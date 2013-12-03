@@ -1981,14 +1981,14 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */"""
 WS_DLL_PUBLIC_DEF void
 plugin_register(void)
 {
-   if (proto_@dissector_name@ == -1) {
-     proto_register_giop_@dissector_name@();
-   }
+    if (proto_@dissector_name@ == -1) {
+        proto_register_giop_@dissector_name@();
+    }
 }
 
 WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void){
-   proto_register_handoff_giop_@dissector_name@();
+    proto_register_handoff_giop_@dissector_name@();
 }
 #endif
 """
@@ -2000,36 +2000,36 @@ plugin_reg_handoff(void){
 /* Register the protocol with Wireshark */
 void proto_register_giop_@dissector_name@(void)
 {
-   /* setup list of header fields */
-   static hf_register_info hf[] = {
+    /* setup list of header fields */
+    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-                {&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
+            {&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
 
     template_proto_register_end = """
-   };
+    };
 
-   static ei_register_info ei[] = {
-      { &ei_@dissector_name@_unknown_giop_msg, { "giop-@dissector_name@.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
-      { &ei_@dissector_name@_unknown_exception, { "giop-@dissector_name@.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
-      { &ei_@dissector_name@_unknown_reply_status, { "giop-@dissector_name@.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
-   };
+    static ei_register_info ei[] = {
+        { &ei_@dissector_name@_unknown_giop_msg, { "giop-@dissector_name@.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
+        { &ei_@dissector_name@_unknown_exception, { "giop-@dissector_name@.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
+        { &ei_@dissector_name@_unknown_reply_status, { "giop-@dissector_name@.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
+    };
 
-   /* setup protocol subtree array */
+    /* setup protocol subtree array */
 
-   static gint *ett[] = {
-      &ett_@dissector_name@,
-   };
+    static gint *ett[] = {
+        &ett_@dissector_name@,
+    };
 
-   expert_module_t* expert_@dissector_name@;
+    expert_module_t* expert_@dissector_name@;
 
 
-   /* Register the protocol name and description */
-   proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"giop-@dissector_name@\" );
-   proto_register_field_array(proto_@dissector_name@, hf, array_length(hf));
-   proto_register_subtree_array(ett, array_length(ett));
+    /* Register the protocol name and description */
+    proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"giop-@dissector_name@\" );
+    proto_register_field_array(proto_@dissector_name@, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-   expert_@dissector_name@ = expert_register_protocol(proto_@dissector_name@);
-   expert_register_field_array(expert_@dissector_name@, ei, array_length(ei));
+    expert_@dissector_name@ = expert_register_protocol(proto_@dissector_name@);
+    expert_register_field_array(expert_@dissector_name@, ei, array_length(ei));
 }
 """
 
@@ -2062,10 +2062,10 @@ static expert_field ei_@dissector_name@_unknown_reply_status = EI_INIT;
     template_op_delegate_code = """\
 if (strcmp(operation, "@opname@") == 0
     && (!idlname || strcmp(idlname, \"@interface@\") == 0)) {
-   item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
-   tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_@sname@(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
-   return TRUE;
+    item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+    tree = start_dissecting(tvb, pinfo, ptree, offset);
+    decode_@sname@(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
+    return TRUE;
 }
 """
     #
@@ -2546,9 +2546,9 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
 #
     template_ex_delegate_code = """\
 if (strcmp(header->exception_id, "@exname@") == 0) {
-   tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  @exname@  */
-   return TRUE;
+    tree = start_dissecting(tvb, pinfo, ptree, offset);
+    decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  @exname@  */
+    return TRUE;
 }
 """
 
@@ -2623,10 +2623,10 @@ decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 static const value_string @valstringname@[] = {
 """
     template_value_string_entry = """\
-   { @intval@, \"@description@\" },"""
+    { @intval@, \"@description@\" },"""
 
     template_value_string_end = """\
-   { 0,       NULL },
+    { 0,       NULL },
 };
 """
 
@@ -2688,16 +2688,16 @@ static const value_string @valstringname@[] = {
 
     template_at_delegate_code_get = """\
 if (strcmp(operation, get_@sname@_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
-   tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-   return TRUE;
+    tree = start_dissecting(tvb, pinfo, ptree, offset);
+    decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    return TRUE;
 }
 """
     template_at_delegate_code_set = """\
 if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) ) {
-   tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-   return TRUE;
+    tree = start_dissecting(tvb, pinfo, ptree, offset);
+    decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+    return TRUE;
 }
 """
     template_attribute_helpers_start = """\
