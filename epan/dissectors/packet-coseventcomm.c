@@ -48,6 +48,10 @@
 #pragma warning(disable:4101)
 #endif
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 
 /* Initialise the protocol and subtree pointers */
 static int proto_coseventcomm = -1;
