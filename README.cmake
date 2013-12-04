@@ -64,6 +64,10 @@ How to do out of tree build (Win32/64):
 1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
 1c) set QT5_BASE_DIR=c:\Qt\Qt5.1.1\5.1.1\msvc2010 (or whatever)
 2) Install cmake
+2a) Build the zblib library, e.g.
+    cd %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs\zlib125
+    cmake -G "NMake Makefiles" . # msbuild will not do because of configuration path
+    cmake --build .
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
 5) cmake -G "NMake Makefiles" path\to\sources
@@ -71,6 +75,7 @@ How to do out of tree build (Win32/64):
 5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
 6) nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
 6a) Wireshark.sln (this will run up Visual Studio with the cmake built solution
+   (or use msbuild: cmake --build . -- /p:Configuration=RelWithDebInfo)
 7) In case you want to test the executable(s) inside the build tree:
    Run setpath.bat whenever it gets updated (there is a message in each cmake
    run whether it is necessary or not).
