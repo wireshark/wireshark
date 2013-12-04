@@ -485,7 +485,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	tvbuff_t *subtvb;
 	diam_vnd_t *vendor;
 	const char *code_str;
-	const char *avp_str;
+	const char *avp_str = NULL;
 	guint8 pad_len;
 
 	len &= 0x00ffffff;
