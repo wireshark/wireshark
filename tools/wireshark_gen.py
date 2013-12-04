@@ -195,6 +195,7 @@ class wireshark_gen_C:
         self.genEthCopyright()          # Wireshark Copyright comments.
         self.genGPL()                   # GPL license
         self.genIncludes()
+        self.genPrototype()
         self.genProtocol()
         self.genDeclares(oplist,atlist,enlist,stlist,unlist)
         if (len(atlist) > 0):
@@ -480,6 +481,14 @@ class wireshark_gen_C:
                 self.st.out(self.template_prototype_union_body, unname=un.repoId(),name=sname)
             self.st.out(self.template_prototype_union_end)
 
+
+    #
+    # genPrototype
+    #
+    #
+
+    def genPrototype(self):
+        self.st.out(self.template_prototype, dissector_name=self.dissname)
 
     #
     # genProtocol
@@ -1968,6 +1977,14 @@ register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissect
     template_proto_reg_handoff_end = """\
 }
 """
+
+    #
+    # Prototype
+    #
+
+    template_prototype = """
+void proto_register_giop_@dissector_name@(void);
+void proto_reg_handoff_giop_@dissector_name@(void);"""
 
     #
     # Initialize the protocol
