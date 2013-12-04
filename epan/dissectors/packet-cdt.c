@@ -353,6 +353,8 @@ void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (parent_tree) {
     cdt_item = proto_tree_add_item (parent_tree, proto_cdt, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree (cdt_item, ett_cdt_CompressedData);
+  } else {
+    cdt_item = NULL;
   }
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "CDT");
@@ -406,7 +408,7 @@ void proto_register_cdt (void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 100 "../../asn1/cdt/packet-cdt-template.c"
+#line 102 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -420,7 +422,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 105 "../../asn1/cdt/packet-cdt-template.c"
+#line 107 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -450,7 +452,7 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 128 "../../asn1/cdt/packet-cdt-template.c"
+#line 130 "../../asn1/cdt/packet-cdt-template.c"
 
   data_handle = find_dissector ("data");
 }
