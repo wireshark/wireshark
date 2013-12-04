@@ -122,9 +122,17 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/wiretap
 )
 
-#Where to put libraries
+#Where to put executables and libraries in the build tree
+if(NOT ARCHIVE_OUTPUT_PATH)
+	set(ARCHIVE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+		   "Single output directory for building all archives.")
+endif()
+if(NOT EXECUTABLE_OUTPUT_PATH)
+	set(EXECUTABLE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+		   "Single output directory for building all executables.")
+endif()
 if(NOT LIBRARY_OUTPUT_PATH)
-	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/lib CACHE INTERNAL
+	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all libraries.")
 endif()
 
