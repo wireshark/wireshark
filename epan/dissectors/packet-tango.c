@@ -53,6 +53,9 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
+void proto_register_giop_tango(void);
+void proto_reg_handoff_giop_tango(void);
+
 /* Initialise the protocol and subtree pointers */
 static int proto_tango = -1;
 static gint ett_tango = -1;
@@ -2954,4 +2957,3 @@ void proto_reg_handoff_giop_tango(void)
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

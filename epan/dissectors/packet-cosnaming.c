@@ -53,6 +53,9 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
+void proto_register_giop_cosnaming(void);
+void proto_reg_handoff_giop_cosnaming(void);
+
 /* Initialise the protocol and subtree pointers */
 static int proto_cosnaming = -1;
 static gint ett_cosnaming = -1;
