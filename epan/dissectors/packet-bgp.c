@@ -800,13 +800,15 @@ static int hf_bgp_cap_orf_sendreceive = -1;
 static int hf_bgp_update_withdrawn_routes_length = -1;
 static int hf_bgp_update_withdrawn_routes = -1;
 
-static int hf_bgp_update_community_as = -1;
-
 
 /* BGP update path attribute header field */
 static int hf_bgp_update_total_path_attribute_length = -1;
 static int hf_bgp_update_path_attributes = -1;
-
+static int hf_bgp_update_path_attribute_communities = -1;
+static int hf_bgp_update_path_attribute_community_well_known = -1;
+static int hf_bgp_update_path_attribute_community = -1;
+static int hf_bgp_update_path_attribute_community_as = -1;
+static int hf_bgp_update_path_attribute_community_value = -1;
 static int hf_bgp_update_path_attribute = -1;
 static int hf_bgp_update_path_attribute_flags = -1;
 static int hf_bgp_update_path_attribute_flags_optional = -1;
@@ -821,7 +823,6 @@ static int hf_bgp_update_path_attribute_as_path_segment_type = -1;
 static int hf_bgp_update_path_attribute_as_path_segment_length = -1;
 static int hf_bgp_update_path_attribute_as_path_segment_as2 = -1;
 static int hf_bgp_update_path_attribute_as_path_segment_as4 = -1;
-static int hf_bgp_update_path_attribute_community_value = -1;
 static int hf_bgp_update_path_attribute_origin = -1;
 static int hf_bgp_update_path_attribute_cluster_list = -1;
 static int hf_bgp_update_path_attribute_originator_id = -1;
@@ -984,6 +985,7 @@ static gint ett_bgp_capability = -1;
 static gint ett_bgp_as_path_segment = -1;
 static gint ett_bgp_as_path_segment_asn = -1;
 static gint ett_bgp_communities = -1;
+static gint ett_bgp_community = -1;
 static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
@@ -3183,6 +3185,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint16         len;                        /* tmp                      */
     int             advance;                    /* tmp                      */
     proto_item      *ti;                        /* tree item                */
+    proto_item      *ti_communities;            /* tree communities         */
+    proto_item      *ti_community;              /* tree for each community  */
     proto_item      *sub_ti;                    /* tree fir sub item        */
     proto_tree      *subtree;                   /* subtree for attributes   */
     proto_tree      *subtree2;                  /* subtree for attributes   */
@@ -3198,7 +3202,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     int             i, j, k;                    /* tmp                      */
     guint8          type=0;                     /* AS_PATH segment type     */
     guint8          length=0;                   /* AS_PATH segment length   */
-    wmem_strbuf_t   *communities_emstr = NULL;  /* COMMUNITIES              */
     wmem_strbuf_t   *cluster_list_emstr = NULL; /* CLUSTER_LIST             */
     wmem_strbuf_t   *junk_emstr;                /* tmp                      */
     guint32         ipaddr;                     /* IPv4 address             */
@@ -3491,44 +3494,14 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                         break;
                     }
 
-                    /* (o + i + aoff) =
-                       (o + current attribute + aoff bytes to first tuple) */
-                    q = o + i + aoff;
-                    end = q + tlen;
-                    /* must be freed by second switch!                          */
-                    /* "tlen * 12" (5 digits, a :, 5 digits + space ) should be
-                       a good estimate of how long the communities string could be  */
-                    if (communities_emstr == NULL)
-                        communities_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 12, 0);
-                    wmem_strbuf_truncate(communities_emstr, 0);
+                    proto_item_append_text(ti_pa, ": ");
 
-                    /* snarf each community */
-                    while (q < end) {
-                        /* check for well-known communities */
-                        if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT)
-                            wmem_strbuf_append(communities_emstr, "NO_EXPORT ");
-                        else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_ADVERTISE)
-                            wmem_strbuf_append(communities_emstr, "NO_ADVERTISE ");
-                        else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT_SUBCONFED)
-                            wmem_strbuf_append(communities_emstr, "NO_EXPORT_SUBCONFED ");
-                        else {
-                            wmem_strbuf_append_printf(communities_emstr, "%u:%u ",
-                                                      tvb_get_ntohs(tvb, q),
-                                                      tvb_get_ntohs(tvb, q + 2));
-                        }
-                        q += 4;
-                    }
-                    /* cleanup end of string */
-                    wmem_strbuf_truncate(communities_emstr, wmem_strbuf_get_len(communities_emstr) - 1);
+                    ti_communities = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_communities,
+                                            tvb, o + i + aoff, tlen, ENC_NA);
 
-                    proto_item_append_text(ti_pa,": %s", wmem_strbuf_get_str(communities_emstr));
-
-                    ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "Communities: %s", communities_emstr ?
-                                                 wmem_strbuf_get_str(communities_emstr) : "<none>");
-                    communities_tree = proto_item_add_subtree(ti,
+                    communities_tree = proto_item_add_subtree(ti_communities,
                                                               ett_bgp_communities);
-
+                    proto_item_append_text(ti_communities, ": ");
                     /* (o + i + aoff) =
                        (o + current attribute + aoff bytes to first tuple) */
                     q = o + i + aoff;
@@ -3540,26 +3513,31 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                         guint32 community = tvb_get_ntohl(tvb, q);
                         if ((community & 0xFFFF0000) == FOURHEX0 ||
                             (community & 0xFFFF0000) == FOURHEXF) {
-                            proto_tree_add_text(communities_tree, tvb,
-                                                q - 3 + aoff, 4,
-                                                "Community: %s (0x%08x)",
-                                                val_to_str_const(community, community_vals, "(reserved)"),
-                                                community);
+                            proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community_well_known,
+                                tvb, q - 3 + aoff, 4, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ti_pa, "%s ", val_to_str_const(community, community_vals, "Reserved"));
+                            proto_item_append_text(ti_communities, "%s ", val_to_str_const(community, community_vals, "Reserved"));
                         }
                         else {
-                            ti = proto_tree_add_text(communities_tree, tvb,
-                                                     q - 3 + aoff, 4, "Community: %u:%u",
-                                                     tvb_get_ntohs(tvb, q), tvb_get_ntohs(tvb, q + 2));
-                            community_tree = proto_item_add_subtree(ti,
-                                                                    ett_bgp_communities);
-                            proto_tree_add_item(community_tree, hf_bgp_update_community_as,
+                            ti_community = proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community, tvb,
+                                                     q - 3 + aoff, 4, ENC_NA);
+                            community_tree = proto_item_add_subtree(ti_community,
+                                                                    ett_bgp_community);
+                            proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_as,
                                                 tvb, q - 3 + aoff, 2, ENC_BIG_ENDIAN);
                             proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_value,
                                                 tvb, q - 1 + aoff, 2, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q - 3),
+                                                      tvb_get_ntohs(tvb, q -1));
+                            proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q - 3),
+                                                      tvb_get_ntohs(tvb, q -1));
+                            proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q - 3),
+                                                      tvb_get_ntohs(tvb, q -1));
                         }
 
                         q += 4;
                     }
+
 
                     break;
                 case BGPTYPE_ORIGINATOR_ID:
@@ -3918,7 +3896,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                         is_extended_type = TRUE;
                                         proto_tree_add_text(subtree3,tvb,q,2,"Flow Spec Traffic Rate Limit");
                                         /* the 2 first bytes are 2 bytes ASN or 2 least significant bytes of a 4 byte ASN */
-                                        proto_tree_add_item(subtree3, hf_bgp_update_community_as,
+                                        proto_tree_add_item(subtree3, hf_bgp_update_path_attribute_community_as,
                                                             tvb, q+2, 2, ENC_BIG_ENDIAN);
                                         /* remaining 4 bytes gives traffic rate in IEEE floating point */
                                         proto_tree_add_item(subtree3, hf_bgp_ext_com_flow_rate_float,tvb,q+4,4,ENC_BIG_ENDIAN);
@@ -4829,7 +4807,16 @@ proto_register_bgp(void)
       { &hf_bgp_update_path_attribute_as_path_segment_as4,
         { "AS4", "bgp.update.path_attribute.as_path_segment.as4", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_update_community_as,
+      { &hf_bgp_update_path_attribute_communities,
+        { "Communities", "bgp.update.path_attribute.communities", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_community,
+        { "Community", "bgp.update.path_attribute.community", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_community_well_known,
+        { "Community Well-known", "bgp.update.path_attribute.community_wellknown", FT_UINT32, BASE_HEX,
+          VALS(community_vals), 0x0, "Reserved", HFILL}},
+      { &hf_bgp_update_path_attribute_community_as,
         { "Community AS", "bgp.update.path_attribute.community_as", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_community_value,
@@ -5230,6 +5217,7 @@ proto_register_bgp(void)
       &ett_bgp_as_path_segment,
       &ett_bgp_as_path_segment_asn,
       &ett_bgp_communities,
+      &ett_bgp_community,
       &ett_bgp_cluster_list,
       &ett_bgp_options,
       &ett_bgp_option,
