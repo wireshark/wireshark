@@ -40,6 +40,8 @@
 
 #define IDRP_PROTO "ISO/IEC 10747 (1993): Inter Domain Routing Protocol "
 
+void proto_register_idrp(void);
+
 static int proto_idrp = -1;
 static gint ett_idrp = -1;
 static gint ett_idrp_sub = -1;
@@ -341,7 +343,7 @@ static const value_string idrp_rib_refresh_opcodes[] = {
 #endif
 
 
-int dissect_BISPDU_OPEN(tvbuff_t * tvb, int offset, proto_tree * tree)
+static int dissect_BISPDU_OPEN(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     guint8 rdi_len;
     guint8 number_of_non_empty_rib_attributes;
@@ -515,7 +517,7 @@ int dissect_BISPDU_OPEN(tvbuff_t * tvb, int offset, proto_tree * tree)
     return offset;
 }
 
-int dissect_BISPDU_UPDATE(tvbuff_t * tvb, int offset, proto_tree * tree)
+static int dissect_BISPDU_UPDATE(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     guint16 nb_unfeasible_routes;
     guint16 path_attrs_len;
@@ -935,7 +937,7 @@ int dissect_BISPDU_UPDATE(tvbuff_t * tvb, int offset, proto_tree * tree)
     return offset;
 }
 
-int dissect_BISPDU_ERROR(tvbuff_t * tvb, int offset, proto_tree * tree)
+static int dissect_BISPDU_ERROR(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     guint8 error_code = 0;
     gint data_length;
@@ -985,7 +987,7 @@ int dissect_BISPDU_ERROR(tvbuff_t * tvb, int offset, proto_tree * tree)
     return offset;
 }
 
-int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, int offset, proto_tree * tree)
+static int dissect_BISPDU_RIB_REFRESH(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     proto_tree *sub_tree;
     proto_item *ti;
