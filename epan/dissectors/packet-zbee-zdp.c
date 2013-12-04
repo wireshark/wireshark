@@ -37,6 +37,9 @@
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-zdp.h"
 
+void proto_reg_handoff_zbee_zdp(void);
+void proto_register_zbee_zdp(void);
+
 /*************************/
 /* Function Declarations */
 /*************************/
