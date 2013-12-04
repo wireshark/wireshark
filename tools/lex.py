@@ -31,10 +31,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-__version__    = "3.4"
-__tabversion__ = "3.2"       # Version of table file used
+__version__    = "3.5"
+__tabversion__ = "3.5"       # Version of table file used
 
-import re, sys, types, copy, os
+import re, sys, types, copy, os, inspect
 
 # This tuple contains known string types
 try:
@@ -175,7 +175,7 @@ class Lexer:
         filename = os.path.join(outputdir,basetabfilename)+".py"
         tf = open(filename,"w")
         tf.write("# %s.py. This file automatically created by PLY (version %s). Don't edit!\n" % (tabfile,__version__))
-        tf.write("_tabversion   = %s\n" % repr(__version__))
+        tf.write("_tabversion   = %s\n" % repr(__tabversion__))
         tf.write("_lextokens    = %s\n" % repr(self.lextokens))
         tf.write("_lexreflags   = %s\n" % repr(self.lexreflags))
         tf.write("_lexliterals  = %s\n" % repr(self.lexliterals))
@@ -222,7 +222,7 @@ class Lexer:
                 exec("import %s as lextab" % tabfile, env,env)
                 lextab = env['lextab']
 
-        if getattr(lextab,"_tabversion","0.0") != __version__:
+        if getattr(lextab,"_tabversion","0.0") != __tabversion__:
             raise ImportError("Inconsistent PLY version")
 
         self.lextokens      = lextab._lextokens
@@ -417,6 +417,16 @@ class Lexer:
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
+# _get_regex(func)
+#
+# Returns the regular expression assigned to a function either as a doc string
+# or as a .regex attribute attached by the @TOKEN decorator.
+# -----------------------------------------------------------------------------
+
+def _get_regex(func):
+    return getattr(func,"regex",func.__doc__)
+
+# -----------------------------------------------------------------------------
 # get_caller_module_dict()
 #
 # This function returns a dictionary containing all of the symbols defined within
@@ -548,7 +558,7 @@ class LexerReflect(object):
         self.tokens     = []
         self.reflags    = reflags
         self.stateinfo  = { 'INITIAL' : 'inclusive'}
-        self.files      = {}
+        self.modules    = {}
         self.error      = 0
 
         if log is None:
@@ -604,6 +614,8 @@ class LexerReflect(object):
     # Get the literals specifier
     def get_literals(self):
         self.literals = self.ldict.get("literals","")
+        if not self.literals:
+            self.literals = ""
 
     # Validate literals
     def validate_literals(self):
@@ -612,7 +624,6 @@ class LexerReflect(object):
                 if not isinstance(c,StringTypes) or len(c) > 1:
                     self.log.error("Invalid literal %s. Must be a single character", repr(c))
                     self.error = 1
-                    continue
 
         except TypeError:
             self.log.error("Invalid literals specification. literals must be a sequence of characters")
@@ -729,7 +740,8 @@ class LexerReflect(object):
             for fname, f in self.funcsym[state]:
                 line = func_code(f).co_firstlineno
                 file = func_code(f).co_filename
-                self.files[file] = 1
+                module = inspect.getmodule(f)
+                self.modules[module] = 1
 
                 tokname = self.toknames[fname]
                 if isinstance(f, types.MethodType):
@@ -747,20 +759,20 @@ class LexerReflect(object):
                     self.error = 1
                     continue
 
-                if not f.__doc__:
+                if not _get_regex(f):
                     self.log.error("%s:%d: No regular expression defined for rule '%s'",file,line,f.__name__)
                     self.error = 1
                     continue
 
                 try:
-                    c = re.compile("(?P<%s>%s)" % (fname,f.__doc__), re.VERBOSE | self.reflags)
+                    c = re.compile("(?P<%s>%s)" % (fname, _get_regex(f)), re.VERBOSE | self.reflags)
                     if c.match(""):
                         self.log.error("%s:%d: Regular expression for rule '%s' matches empty string", file,line,f.__name__)
                         self.error = 1
                 except re.error:
                     _etype, e, _etrace = sys.exc_info()
                     self.log.error("%s:%d: Invalid regular expression for rule '%s'. %s", file,line,f.__name__,e)
-                    if '#' in f.__doc__:
+                    if '#' in _get_regex(f):
                         self.log.error("%s:%d. Make sure '#' in rule '%s' is escaped with '\\#'",file,line, f.__name__)
                     self.error = 1
 
@@ -799,7 +811,8 @@ class LexerReflect(object):
                 f = efunc
                 line = func_code(f).co_firstlineno
                 file = func_code(f).co_filename
-                self.files[file] = 1
+                module = inspect.getmodule(f)
+                self.modules[module] = 1
 
                 if isinstance(f, types.MethodType):
                     reqargs = 2
@@ -814,35 +827,26 @@ class LexerReflect(object):
                     self.log.error("%s:%d: Rule '%s' requires an argument", file,line,f.__name__)
                     self.error = 1
 
-        for f in self.files:
-            self.validate_file(f)
+        for module in self.modules:
+            self.validate_module(module)
 
 
     # -----------------------------------------------------------------------------
-    # validate_file()
+    # validate_module()
     #
     # This checks to see if there are duplicated t_rulename() functions or strings
     # in the parser input file.  This is done using a simple regular expression
-    # match on each line in the given file.  
+    # match on each line in the source code of the given module.
     # -----------------------------------------------------------------------------
 
-    def validate_file(self,filename):
-        import os.path
-        base,ext = os.path.splitext(filename)
-        if ext != '.py': return         # No idea what the file is. Return OK
-
-        try:
-            f = open(filename)
-            lines = f.readlines()
-            f.close()
-        except IOError:
-            return                      # Couldn't find the file.  Don't worry about it
+    def validate_module(self, module):
+        lines, linen = inspect.getsourcelines(module)
 
         fre = re.compile(r'\s*def\s+(t_[a-zA-Z_0-9]*)\(')
         sre = re.compile(r'\s*(t_[a-zA-Z_0-9]*)\s*=')
 
         counthash = { }
-        linen = 1
+        linen += 1
         for l in lines:
             m = fre.match(l)
             if not m:
@@ -853,6 +857,7 @@ class LexerReflect(object):
                 if not prev:
                     counthash[name] = linen
                 else:
+                    filename = inspect.getsourcefile(module)
                     self.log.error("%s:%d: Rule %s redefined. Previously defined on line %d",filename,linen,name,prev)
                     self.error = 1
             linen += 1
@@ -933,9 +938,9 @@ def lex(module=None,object=None,debug=0,optimize=0,lextab="lextab",reflags=0,now
         for fname, f in linfo.funcsym[state]:
             line = func_code(f).co_firstlineno
             file = func_code(f).co_filename
-            regex_list.append("(?P<%s>%s)" % (fname,f.__doc__))
+            regex_list.append("(?P<%s>%s)" % (fname,_get_regex(f)))
             if debug:
-                debuglog.info("lex: Adding rule %s -> '%s' (state '%s')",fname,f.__doc__, state)
+                debuglog.info("lex: Adding rule %s -> '%s' (state '%s')",fname,_get_regex(f), state)
 
         # Now add all of the simple rules
         for name,r in linfo.strsym[state]:
@@ -1045,13 +1050,13 @@ def runmain(lexer=None,data=None):
 # -----------------------------------------------------------------------------
 
 def TOKEN(r):
-    def set_doc(f):
+    def set_regex(f):
         if hasattr(r,"__call__"):
-            f.__doc__ = r.__doc__
+            f.regex = _get_regex(r)
         else:
-            f.__doc__ = r
+            f.regex = r
         return f
-    return set_doc
+    return set_regex
 
 # Alternative spelling of the TOKEN decorator
 Token = TOKEN

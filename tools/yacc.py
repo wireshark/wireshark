@@ -59,7 +59,7 @@
 # own risk!
 # ----------------------------------------------------------------------------
 
-__version__    = "3.4"
+__version__    = "3.5"
 __tabversion__ = "3.2"       # Table version
 
 #-----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ resultlimit = 40               # Size limit of results when running in debug mod
 
 pickle_protocol = 0            # Protocol to use when writing pickle files
 
-import re, types, sys, os.path
+import re, types, sys, os.path, inspect
 
 # Compatibility function for python 2.6/3.0
 if sys.version_info[0] < 3:
@@ -93,6 +93,12 @@ if sys.version_info[0] < 3:
 else:
     def func_code(f):
         return f.__code__
+
+# String type-checking compatibility
+if sys.version_info[0] < 3:
+    string_types = basestring
+else:
+    string_types = str
 
 # Compatibility
 try:
@@ -158,6 +164,44 @@ def format_stack_entry(r):
     else:
         return "<%s @ 0x%x>" % (type(r).__name__,id(r))
 
+# Panic mode error recovery support.   This feature is being reworked--much of the
+# code here is to offer a deprecation/backwards compatible transition
+
+_errok = None
+_token = None
+_restart = None
+_warnmsg = """PLY: Don't use global functions errok(), token(), and restart() in p_error().
+Instead, invoke the methods on the associated parser instance:
+
+    def p_error(p):
+        ...
+        # Use parser.errok(), parser.token(), parser.restart()
+        ...
+
+    parser = yacc.yacc()
+"""
+import warnings
+def errok():
+    warnings.warn(_warnmsg)
+    return _errok()
+
+def restart():
+    warnings.warn(_warnmsg)
+    return _restart()
+
+def token():
+    warnings.warn(_warnmsg)
+    return _token()
+
+# Utility function to call the p_error() function with some deprecation hacks
+def call_errorfunc(errorfunc,token,parser):
+    global _errok, _token, _restart
+    _errok = parser.errok
+    _token = parser.token
+    _restart = parser.restart
+    r = errorfunc(token)
+    del _errok, _token, _restart
+
 #-----------------------------------------------------------------------------
 #                        ===  LR Parsing Engine ===
 #
@@ -195,8 +239,12 @@ class YaccProduction:
         self.lexer = None
         self.parser= None
     def __getitem__(self,n):
-        if n >= 0: return self.slice[n].value
-        else: return self.stack[n].value
+        if isinstance(n, slice):
+            return [s.value for s in self.slice[n]]
+        elif n >= 0: 
+            return self.slice[n].value
+        else: 
+            return self.stack[n].value
 
     def __setitem__(self,n,v):
         self.slice[n].value = v
@@ -310,6 +358,9 @@ class LRParser:
            get_token = lexer.token
         else:
            get_token = tokenfunc
+
+        # Set the parser() token method (sometimes used in error recovery)
+        self.token = get_token
 
         # Set up the state and symbol stacks
 
@@ -510,15 +561,9 @@ class LRParser:
                     if errtoken.type == "$end":
                         errtoken = None               # End of file!
                     if self.errorfunc:
-                        global errok,token,restart
-                        errok = self.errok        # Set some special functions available in error recovery
-                        token = get_token
-                        restart = self.restart
                         if errtoken and not hasattr(errtoken,'lexer'):
                             errtoken.lexer = lexer
-                        tok = self.errorfunc(errtoken)
-                        del errok, token, restart   # Delete special functions
-
+                        tok = call_errorfunc(self.errorfunc, errtoken, self)
                         if self.errorok:
                             # User must have done some kind of panic
                             # mode recovery on their own.  The
@@ -566,17 +611,25 @@ class LRParser:
                     if sym.type == 'error':
                         # Hmmm. Error is on top of stack, we'll just nuke input
                         # symbol and continue
+                        if tracking:
+                            sym.endlineno = getattr(lookahead,"lineno", sym.lineno)
+                            sym.endlexpos = getattr(lookahead,"lexpos", sym.lexpos)
                         lookahead = None
                         continue
                     t = YaccSymbol()
                     t.type = 'error'
                     if hasattr(lookahead,"lineno"):
                         t.lineno = lookahead.lineno
+                    if hasattr(lookahead,"lexpos"):
+                        t.lexpos = lookahead.lexpos
                     t.value = lookahead
                     lookaheadstack.append(lookahead)
                     lookahead = t
                 else:
-                    symstack.pop()
+                    sym = symstack.pop()
+                    if tracking:
+                        lookahead.lineno = sym.lineno
+                        lookahead.lexpos = sym.lexpos
                     statestack.pop()
                     state = statestack[-1]       # Potential bug fix
 
@@ -621,6 +674,9 @@ class LRParser:
            get_token = lexer.token
         else:
            get_token = tokenfunc
+
+        # Set the parser() token method (sometimes used in error recovery)
+        self.token = get_token
 
         # Set up the state and symbol stacks
 
@@ -783,14 +839,9 @@ class LRParser:
                     if errtoken.type == '$end':
                         errtoken = None               # End of file!
                     if self.errorfunc:
-                        global errok,token,restart
-                        errok = self.errok        # Set some special functions available in error recovery
-                        token = get_token
-                        restart = self.restart
                         if errtoken and not hasattr(errtoken,'lexer'):
                             errtoken.lexer = lexer
-                        tok = self.errorfunc(errtoken)
-                        del errok, token, restart   # Delete special functions
+                        tok = call_errorfunc(self.errorfunc, errtoken, self)
 
                         if self.errorok:
                             # User must have done some kind of panic
@@ -839,17 +890,25 @@ class LRParser:
                     if sym.type == 'error':
                         # Hmmm. Error is on top of stack, we'll just nuke input
                         # symbol and continue
+                        if tracking:
+                            sym.endlineno = getattr(lookahead,"lineno", sym.lineno)
+                            sym.endlexpos = getattr(lookahead,"lexpos", sym.lexpos)
                         lookahead = None
                         continue
                     t = YaccSymbol()
                     t.type = 'error'
                     if hasattr(lookahead,"lineno"):
                         t.lineno = lookahead.lineno
+                    if hasattr(lookahead,"lexpos"):
+                        t.lexpos = lookahead.lexpos
                     t.value = lookahead
                     lookaheadstack.append(lookahead)
                     lookahead = t
                 else:
-                    symstack.pop()
+                    sym = symstack.pop()
+                    if tracking:
+                        lookahead.lineno = sym.lineno
+                        lookahead.lexpos = sym.lexpos
                     statestack.pop()
                     state = statestack[-1]       # Potential bug fix
 
@@ -893,6 +952,9 @@ class LRParser:
            get_token = lexer.token
         else:
            get_token = tokenfunc
+
+        # Set the parser() token method (sometimes used in error recovery)
+        self.token = get_token
 
         # Set up the state and symbol stacks
 
@@ -1038,14 +1100,9 @@ class LRParser:
                     if errtoken.type == '$end':
                         errtoken = None               # End of file!
                     if self.errorfunc:
-                        global errok,token,restart
-                        errok = self.errok        # Set some special functions available in error recovery
-                        token = get_token
-                        restart = self.restart
                         if errtoken and not hasattr(errtoken,'lexer'):
                             errtoken.lexer = lexer
-                        tok = self.errorfunc(errtoken)
-                        del errok, token, restart   # Delete special functions
+                        tok = call_errorfunc(self.errorfunc, errtoken, self)
 
                         if self.errorok:
                             # User must have done some kind of panic
@@ -1100,6 +1157,8 @@ class LRParser:
                     t.type = 'error'
                     if hasattr(lookahead,"lineno"):
                         t.lineno = lookahead.lineno
+                    if hasattr(lookahead,"lexpos"):
+                        t.lexpos = lookahead.lexpos
                     t.value = lookahead
                     lookaheadstack.append(lookahead)
                     lookahead = t
@@ -1365,7 +1424,7 @@ class Grammar(object):
     def set_precedence(self,term,assoc,level):
         assert self.Productions == [None],"Must call set_precedence() before add_production()"
         if term in self.Precedence:
-            raise GrammarError("Precedence already specified for terminal '%s'" % term)
+            raise GrammarError("Precedence already specified for terminal %r" % term)
         if assoc not in ['left','right','nonassoc']:
             raise GrammarError("Associativity must be one of 'left','right', or 'nonassoc'")
         self.Precedence[term] = (assoc,level)
@@ -1390,11 +1449,11 @@ class Grammar(object):
     def add_production(self,prodname,syms,func=None,file='',line=0):
 
         if prodname in self.Terminals:
-            raise GrammarError("%s:%d: Illegal rule name '%s'. Already defined as a token" % (file,line,prodname))
+            raise GrammarError("%s:%d: Illegal rule name %r. Already defined as a token" % (file,line,prodname))
         if prodname == 'error':
-            raise GrammarError("%s:%d: Illegal rule name '%s'. error is a reserved word" % (file,line,prodname))
+            raise GrammarError("%s:%d: Illegal rule name %r. error is a reserved word" % (file,line,prodname))
         if not _is_identifier.match(prodname):
-            raise GrammarError("%s:%d: Illegal rule name '%s'" % (file,line,prodname))
+            raise GrammarError("%s:%d: Illegal rule name %r" % (file,line,prodname))
 
         # Look for literal tokens 
         for n,s in enumerate(syms):
@@ -1402,7 +1461,7 @@ class Grammar(object):
                  try:
                      c = eval(s)
                      if (len(c) > 1):
-                          raise GrammarError("%s:%d: Literal token %s in rule '%s' may only be a single character" % (file,line,s, prodname))
+                          raise GrammarError("%s:%d: Literal token %s in rule %r may only be a single character" % (file,line,s, prodname))
                      if not c in self.Terminals:
                           self.Terminals[c] = []
                      syms[n] = c
@@ -1410,7 +1469,7 @@ class Grammar(object):
                  except SyntaxError:
                      pass
             if not _is_identifier.match(s) and s != '%prec':
-                raise GrammarError("%s:%d: Illegal name '%s' in rule '%s'" % (file,line,s, prodname))
+                raise GrammarError("%s:%d: Illegal name %r in rule %r" % (file,line,s, prodname))
         
         # Determine the precedence level
         if '%prec' in syms:
@@ -1419,9 +1478,9 @@ class Grammar(object):
             if syms[-2] != '%prec':
                 raise GrammarError("%s:%d: Syntax error. %%prec can only appear at the end of a grammar rule" % (file,line))
             precname = syms[-1]
-            prodprec = self.Precedence.get(precname,None)
+            prodprec = self.Precedence.get(precname)
             if not prodprec:
-                raise GrammarError("%s:%d: Nothing known about the precedence of '%s'" % (file,line,precname))
+                raise GrammarError("%s:%d: Nothing known about the precedence of %r" % (file,line,precname))
             else:
                 self.UsedPrecedence[precname] = 1
             del syms[-2:]     # Drop %prec from the rule
@@ -2001,13 +2060,13 @@ class LRGeneratedTable(LRTable):
 
     def lr0_goto(self,I,x):
         # First we look for a previously cached entry
-        g = self.lr_goto_cache.get((id(I),x),None)
+        g = self.lr_goto_cache.get((id(I),x))
         if g: return g
 
         # Now we generate the goto set in a way that guarantees uniqueness
         # of the result
 
-        s = self.lr_goto_cache.get(x,None)
+        s = self.lr_goto_cache.get(x)
         if not s:
             s = { }
             self.lr_goto_cache[x] = s
@@ -2016,13 +2075,13 @@ class LRGeneratedTable(LRTable):
         for p in I:
             n = p.lr_next
             if n and n.lr_before == x:
-                s1 = s.get(id(n),None)
+                s1 = s.get(id(n))
                 if not s1:
                     s1 = { }
                     s[id(n)] = s1
                 gs.append(n)
                 s = s1
-        g = s.get('$end',None)
+        g = s.get('$end')
         if not g:
             if gs:
                 g = self.lr0_closure(gs)
@@ -2407,7 +2466,7 @@ class LRGeneratedTable(LRTable):
                                 laheads = self.grammar.Follow[p.name]
                             for a in laheads:
                                 actlist.append((a,p,"reduce using rule %d (%s)" % (p.number,p)))
-                                r = st_action.get(a,None)
+                                r = st_action.get(a)
                                 if r is not None:
                                     # Whoa. Have a shift/reduce or reduce/reduce conflict
                                     if r > 0:
@@ -2461,7 +2520,7 @@ class LRGeneratedTable(LRTable):
                             if j >= 0:
                                 # We are in a shift state
                                 actlist.append((a,p,"shift and go to state %d" % j))
-                                r = st_action.get(a,None)
+                                r = st_action.get(a)
                                 if r is not None:
                                     # Whoa have a shift/reduce or shift/shift conflict
                                     if r > 0:
@@ -2652,7 +2711,7 @@ del _lr_goto_items
 
         except IOError:
             e = sys.exc_info()[1]
-            sys.stderr.write("Unable to create '%s'\n" % filename)
+            sys.stderr.write("Unable to create %r\n" % filename)
             sys.stderr.write(str(e)+"\n")
             return
 
@@ -2748,7 +2807,7 @@ def parse_grammar(doc,file,line):
         except SyntaxError:
             raise
         except Exception:
-            raise SyntaxError("%s:%d: Syntax error in rule '%s'" % (file,dline,ps.strip()))
+            raise SyntaxError("%s:%d: Syntax error in rule %r" % (file,dline,ps.strip()))
 
     return grammar
 
@@ -2765,7 +2824,7 @@ class ParserReflect(object):
         self.start      = None
         self.error_func = None
         self.tokens     = None
-        self.files      = {}
+        self.modules    = {}
         self.grammar    = []
         self.error      = 0
 
@@ -2789,7 +2848,7 @@ class ParserReflect(object):
         self.validate_tokens()
         self.validate_precedence()
         self.validate_pfunctions()
-        self.validate_files()
+        self.validate_modules()
         return self.error
 
     # Compute a signature over the grammar
@@ -2814,7 +2873,7 @@ class ParserReflect(object):
         return sig.digest()
 
     # -----------------------------------------------------------------------------
-    # validate_file()
+    # validate_modules()
     #
     # This method checks to see if there are duplicated p_rulename() functions
     # in the parser module file.  Without this function, it is really easy for
@@ -2824,20 +2883,12 @@ class ParserReflect(object):
     # to try and detect duplicates.
     # -----------------------------------------------------------------------------
 
-    def validate_files(self):
+    def validate_modules(self):
         # Match def p_funcname(
         fre = re.compile(r'\s*def\s+(p_[a-zA-Z_0-9]*)\(')
 
-        for filename in self.files.keys():
-            base,ext = os.path.splitext(filename)
-            if ext != '.py': return 1          # No idea. Assume it's okay.
-
-            try:
-                f = open(filename)
-                lines = f.readlines()
-                f.close()
-            except IOError:
-                continue
+        for module in self.modules.keys():
+            lines, linen = inspect.getsourcelines(module)
 
             counthash = { }
             for linen,l in enumerate(lines):
@@ -2849,6 +2900,7 @@ class ParserReflect(object):
                     if not prev:
                         counthash[name] = linen
                     else:
+                        filename = inspect.getsourcefile(module)
                         self.log.warning("%s:%d: Function %s redefined. Previously defined on line %d", filename,linen,name,prev)
 
     # Get the start symbol
@@ -2858,7 +2910,7 @@ class ParserReflect(object):
     # Validate the start symbol
     def validate_start(self):
         if self.start is not None:
-            if not isinstance(self.start,str):
+            if not isinstance(self.start, string_types):
                 self.log.error("'start' must be a string")
 
     # Look for error handler
@@ -2879,15 +2931,17 @@ class ParserReflect(object):
 
             eline = func_code(self.error_func).co_firstlineno
             efile = func_code(self.error_func).co_filename
-            self.files[efile] = 1
+            module = inspect.getmodule(self.error_func)
+            self.modules[module] = 1
 
-            if (func_code(self.error_func).co_argcount != 1+ismethod):
+            argcount = func_code(self.error_func).co_argcount - ismethod
+            if argcount != 1:
                 self.log.error("%s:%d: p_error() requires 1 argument",efile,eline)
                 self.error = 1
 
     # Get the tokens map
     def get_tokens(self):
-        tokens = self.pdict.get("tokens",None)
+        tokens = self.pdict.get("tokens")
         if not tokens:
             self.log.error("No token list is defined")
             self.error = 1
@@ -2916,12 +2970,12 @@ class ParserReflect(object):
         terminals = {}
         for n in self.tokens:
             if n in terminals:
-                self.log.warning("Token '%s' multiply defined", n)
+                self.log.warning("Token %r multiply defined", n)
             terminals[n] = 1
 
     # Get the precedence map (if any)
     def get_precedence(self):
-        self.prec = self.pdict.get("precedence",None)
+        self.prec = self.pdict.get("precedence")
 
     # Validate and parse the precedence map
     def validate_precedence(self):
@@ -2942,28 +2996,28 @@ class ParserReflect(object):
                     self.error = 1
                     return
                 assoc = p[0]
-                if not isinstance(assoc,str):
+                if not isinstance(assoc, string_types):
                     self.log.error("precedence associativity must be a string")
                     self.error = 1
                     return
                 for term in p[1:]:
-                    if not isinstance(term,str):
+                    if not isinstance(term, string_types):
                         self.log.error("precedence items must be strings")
                         self.error = 1
                         return
-                    preclist.append((term,assoc,level+1))
+                    preclist.append((term, assoc, level+1))
         self.preclist = preclist
 
     # Get all p_functions from the grammar
     def get_pfunctions(self):
         p_functions = []
         for name, item in self.pdict.items():
-            if name[:2] != 'p_': continue
+            if not name.startswith('p_'): continue
             if name == 'p_error': continue
             if isinstance(item,(types.FunctionType,types.MethodType)):
                 line = func_code(item).co_firstlineno
-                file = func_code(item).co_filename
-                p_functions.append((line,file,name,item.__doc__))
+                module = inspect.getmodule(item)
+                p_functions.append((line,module,name,item.__doc__))
 
         # Sort all of the actions by line number
         p_functions.sort()
@@ -2977,22 +3031,23 @@ class ParserReflect(object):
         if len(self.pfuncs) == 0:
             self.log.error("no rules of the form p_rulename are defined")
             self.error = 1
-            return 
-        
-        for line, file, name, doc in self.pfuncs:
+            return
+
+        for line, module, name, doc in self.pfuncs:
+            file = inspect.getsourcefile(module)
             func = self.pdict[name]
             if isinstance(func, types.MethodType):
                 reqargs = 2
             else:
                 reqargs = 1
             if func_code(func).co_argcount > reqargs:
-                self.log.error("%s:%d: Rule '%s' has too many arguments",file,line,func.__name__)
+                self.log.error("%s:%d: Rule %r has too many arguments",file,line,func.__name__)
                 self.error = 1
             elif func_code(func).co_argcount < reqargs:
-                self.log.error("%s:%d: Rule '%s' requires an argument",file,line,func.__name__)
+                self.log.error("%s:%d: Rule %r requires an argument",file,line,func.__name__)
                 self.error = 1
             elif not func.__doc__:
-                self.log.warning("%s:%d: No documentation string specified in function '%s' (ignored)",file,line,func.__name__)
+                self.log.warning("%s:%d: No documentation string specified in function %r (ignored)",file,line,func.__name__)
             else:
                 try:
                     parsed_g = parse_grammar(doc,file,line)
@@ -3005,22 +3060,22 @@ class ParserReflect(object):
 
                 # Looks like a valid grammar rule
                 # Mark the file in which defined.
-                self.files[file] = 1
+                self.modules[module] = 1
 
         # Secondary validation step that looks for p_ definitions that are not functions
         # or functions that look like they might be grammar rules.
 
         for n,v in self.pdict.items():
-            if n[0:2] == 'p_' and isinstance(v, (types.FunctionType, types.MethodType)): continue
-            if n[0:2] == 't_': continue
-            if n[0:2] == 'p_' and n != 'p_error':
-                self.log.warning("'%s' not defined as a function", n)
+            if n.startswith('p_') and isinstance(v, (types.FunctionType, types.MethodType)): continue
+            if n.startswith('t_'): continue
+            if n.startswith('p_') and n != 'p_error':
+                self.log.warning("%r not defined as a function", n)
             if ((isinstance(v,types.FunctionType) and func_code(v).co_argcount == 1) or
                 (isinstance(v,types.MethodType) and func_code(v).co_argcount == 2)):
                 try:
                     doc = v.__doc__.split(" ")
                     if doc[1] == ':':
-                        self.log.warning("%s:%d: Possible grammar rule '%s' defined without p_ prefix",
+                        self.log.warning("%s:%d: Possible grammar rule %r defined without p_ prefix",
                                          func_code(v).co_filename, func_code(v).co_firstlineno,n)
                 except Exception:
                     pass
@@ -3142,7 +3197,7 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
     # Verify the grammar structure
     undefined_symbols = grammar.undefined_symbols()
     for sym, prod in undefined_symbols:
-        errorlog.error("%s:%d: Symbol '%s' used, but not defined as a token or a rule",prod.file,prod.line,sym)
+        errorlog.error("%s:%d: Symbol %r used, but not defined as a token or a rule",prod.file,prod.line,sym)
         errors = 1
 
     unused_terminals = grammar.unused_terminals()
@@ -3151,7 +3206,7 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
         debuglog.info("Unused terminals:")
         debuglog.info("")
         for term in unused_terminals:
-            errorlog.warning("Token '%s' defined, but not used", term)
+            errorlog.warning("Token %r defined, but not used", term)
             debuglog.info("    %s", term)
 
     # Print out all productions to the debug log
@@ -3165,7 +3220,7 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
     # Find unused non-terminals
     unused_rules = grammar.unused_rules()
     for prod in unused_rules:
-        errorlog.warning("%s:%d: Rule '%s' defined, but not used", prod.file, prod.line, prod.name)
+        errorlog.warning("%s:%d: Rule %r defined, but not used", prod.file, prod.line, prod.name)
 
     if len(unused_terminals) == 1:
         errorlog.warning("There is 1 unused token")
@@ -3198,16 +3253,16 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
     if check_recursion:
         unreachable = grammar.find_unreachable()
         for u in unreachable:
-            errorlog.warning("Symbol '%s' is unreachable",u)
+            errorlog.warning("Symbol %r is unreachable",u)
 
         infinite = grammar.infinite_cycles()
         for inf in infinite:
-            errorlog.error("Infinite recursion detected for symbol '%s'", inf)
+            errorlog.error("Infinite recursion detected for symbol %r", inf)
             errors = 1
         
     unused_prec = grammar.unused_precedence()
     for term, assoc in unused_prec:
-        errorlog.error("Precedence rule '%s' defined for unknown symbol '%s'", assoc, term)
+        errorlog.error("Precedence rule %r defined for unknown symbol %r", assoc, term)
         errors = 1
 
     if errors:
