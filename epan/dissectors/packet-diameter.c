@@ -271,6 +271,7 @@ static int hf_framed_ipv6_prefix_reserved = -1;
 static int hf_framed_ipv6_prefix_length = -1;
 static int hf_framed_ipv6_prefix_bytes = -1;
 static int hf_framed_ipv6_prefix_ipv6 = -1;
+static int hf_diameter_3gpp2_exp_res = -1;
 
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
@@ -311,6 +312,7 @@ static gboolean gbl_diameter_desegment = TRUE;
 static dissector_table_t diameter_dissector_table;
 static dissector_table_t diameter_3gpp_avp_dissector_table;
 static dissector_table_t diameter_ericsson_avp_dissector_table;
+static dissector_table_t diameter_expr_result_vnd_table;
 
 static const char *avpflags_str[] = {
 	"---",
@@ -382,6 +384,29 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	col_set_writable(pinfo->cinfo, save_writable);
 	return tvb_length(tvb);
 }
+
+/* http://www.3gpp2.org/public_html/X/VSA-VSE.cfm */
+static const value_string diameter_3gpp2_exp_res_vals[]= {
+	{ 5001,	"Diameter_Error_User_No_WLAN_Subscription"},
+	{ 5002,	"Diameter_Error_Roaming_Not_Allowed(Obsoleted)"},
+	{ 5003,	"Diameter_Error_User_No_FAP_Subscription"},
+	{0,NULL}
+};
+
+static int
+dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+	proto_item *pi;
+	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+	pi = proto_tree_add_item(tree, hf_diameter_3gpp2_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
+	diam_sub_dis->avp_str = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+	proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str);
+	diam_sub_dis->avp_str = strstr(diam_sub_dis->avp_str,": ")+2;
+
+
+	return 4;
+}
+
 
 /* From RFC 3162 section 2.3 */
 static int
@@ -560,13 +585,33 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		/* pad_len is always 0 in this case, but kept here for consistency */
 		return len+pad_len;
 	}
+	/* If we are dissecting a grouped AVP and find a Vendor Id AVP(266), save it */
+	if((diam_sub_dis_inf->dis_gouped)&&(!vendor_flag)&&(code==266)){
+		diam_sub_dis_inf->vendor_id = tvb_get_ntohl(tvb,offset);
+	}
 
 	subtvb = tvb_new_subset(tvb,offset,len-(8+(vendor_flag?4:0)),len-(8+(vendor_flag?4:0)));
 	offset += len-(8+(vendor_flag?4:0));
 
 	save_tree = c->tree;
 	c->tree = avp_tree;
-	if (c->version_rfc) {
+
+	/* If we are dissecting a grouped AVP and find Experimental-Result-Code AVP(298)
+	 * it might be Vendor defined e.g we can't use the enum from the .xml file.
+	 * Actually the xml enum is for 3GPP so let the AVP dissector handle that too
+	 */
+	if((diam_sub_dis_inf->dis_gouped)
+		&&(!vendor_flag)
+		&&(code==298)
+		&&(diam_sub_dis_inf->vendor_id != 0)
+		&&(diam_sub_dis_inf->vendor_id != VENDOR_THE3GPP))
+	{
+		/* call subdissector */
+		dissector_try_uint_new(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id, subtvb, c->pinfo, avp_tree, FALSE, diam_sub_dis_inf);
+		if(diam_sub_dis_inf->avp_str){
+			proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
+		}
+	}else if (c->version_rfc) {
 		avp_str = a->dissector_rfc(c,a,subtvb, diam_sub_dis_inf);
 	} else {
 		avp_str = a->dissector_v16(c,a,subtvb, diam_sub_dis_inf);
@@ -885,9 +930,15 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 
 	c->tree = proto_item_add_subtree(pi,a->ett);
 
+	/* Set the flag that we are dissecting a grouped AVP */
+	diam_sub_dis_inf->dis_gouped = TRUE;
 	while (offset < len) {
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf);
 	}
+	/* Clear info collected in grouped AVP */
+	diam_sub_dis_inf->vendor_id  = 0; 
+	diam_sub_dis_inf->dis_gouped = FALSE;
+	diam_sub_dis_inf->avp_str = NULL;
 
 	c->tree = pt;
 
@@ -1815,7 +1866,12 @@ real_proto_register_diameter(void)
 	    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_framed_ipv6_prefix_ipv6,
 	    { "Framed IPv6 Prefix as an IPv6 address", "diameter.framed_ipv6_prefix_ipv6",
-	    FT_IPv6, BASE_NONE, NULL, 0, "This field is present only if the prefix length is 128", HFILL }}
+	    FT_IPv6, BASE_NONE, NULL, 0, "This field is present only if the prefix length is 128", HFILL }},
+	{ &hf_diameter_3gpp2_exp_res,
+		{ "Experimental-Result-Code", "diameter.ericsson.exp_res",
+		FT_UINT32, BASE_DEC, VALS(diameter_3gpp2_exp_res_vals), 0x0,	NULL, HFILL }
+		},
+
 	};
 
 	gint *ett_base[] = {
@@ -1862,6 +1918,8 @@ real_proto_register_diameter(void)
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "DIAMETER_ERICSSON_AVPS", FT_UINT32, BASE_DEC);
+
+	diameter_expr_result_vnd_table = register_dissector_table("diameter.vnd_exp_res", "DIAMETER Experimental-Result-Code", FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
@@ -1958,6 +2016,10 @@ proto_reg_handoff_diameter(void)
 		/* AVP Code: 463 EAP-Reissued-Payload */
 		dissector_add_uint("diameter.base", 463,
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+
+		/* Register dissector for Experimental result code, with 3GPP2:s vendor Id */
+		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, 
+			new_create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
 
 		Initialized=TRUE;
 	} else {
