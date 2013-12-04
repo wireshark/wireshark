@@ -864,6 +864,7 @@ proto_reg_handoff_http2(void)
     data_handle = find_dissector("data");
 
     heur_dissector_add("ssl", dissect_http2_heur, proto_http2);
+    heur_dissector_add("http", dissect_http2_heur, proto_http2);
 }
 
 /*
