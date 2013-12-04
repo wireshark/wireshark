@@ -63,6 +63,8 @@ How to do out of tree build (Win32/64):
    library directory).
 1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
 1c) set QT5_BASE_DIR=c:\Qt\Qt5.1.1\5.1.1\msvc2010 (or whatever)
+1d) In case you want to use Visual Studio, make sure that the paths
+    to python and cygwin are available to GUI applications.
 2) Install cmake
 2a) Build the zblib library, e.g.
     cd %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs\zlib125
