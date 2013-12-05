@@ -44,6 +44,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/address.h>
+#include <epan/conv_id.h>
 
 #include "../../globals.h"
 #include "../../stat_menu.h"
@@ -632,7 +633,8 @@ void tcp_graph_cb(GtkAction *action, gpointer user_data _U_)
 }
 
 void tcp_graph_known_stream_launch(address *src_address, guint16 src_port,
-                                   address *dst_address, guint16 dst_port)
+                                   address *dst_address, guint16 dst_port,
+                                   conv_id_t stream)
 {
     struct gtk_graph *g;
 
@@ -648,6 +650,7 @@ void tcp_graph_known_stream_launch(address *src_address, guint16 src_port,
     g->tg.src_port = src_port;
     COPY_ADDRESS(&g->tg.dst_address, dst_address);
     g->tg.dst_port = dst_port;
+    g->tg.stream = stream;
 
     /* This graph type is arguably the most useful, so start there */
     g->tg.type = GRAPH_TSEQ_TCPTRACE;

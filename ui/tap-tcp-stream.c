@@ -142,6 +142,9 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
         tg->dst_port = current.th_dport;
         tg->stream = header->th_stream;
     }
+    else {
+            ts.direction = COMPARE_ANY_DIR;
+    }
 
     /* rescan all the packets and pick up all interesting tcp headers.
      * we only filter for TCP here for speed and do the actual compare

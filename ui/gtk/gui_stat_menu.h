@@ -157,7 +157,8 @@ void gtk_stats_tree_cb(GtkAction *action, gpointer user_data);
 
 void tcp_graph_cb(GtkAction *action, gpointer user_data);
 void tcp_graph_known_stream_launch(address *src_address, guint16 src_port,
-                                   address *dst_address, guint16 dst_port);
+                                   address *dst_address, guint16 dst_port,
+                                   conv_id_t stream);
 
 
 void gtk_rpcprogs_cb(GtkWidget *w, gpointer data);

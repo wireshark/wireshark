@@ -2511,11 +2511,13 @@ graph_cb(GtkWidget *follow_stream_bt, gboolean reverse_direction)
         /* Invoke the graph */
         if (!reverse_direction) {
             tcp_graph_known_stream_launch(&conv->src_address, conv->src_port,
-                                          &conv->dst_address, conv->dst_port);
+                                          &conv->dst_address, conv->dst_port,
+                                          conv->conv_id);
         }
         else {
             tcp_graph_known_stream_launch(&conv->dst_address, conv->dst_port,
-                                          &conv->src_address, conv->src_port);
+                                          &conv->src_address, conv->src_port,
+                                          conv->conv_id);
         }
     }
     else {
