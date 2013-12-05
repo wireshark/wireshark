@@ -2,6 +2,10 @@
  * Routines for disassembly of packets from SocketCAN
  * Felix Obenhuber <felix@obenhuber.de>
  *
+ * Added support for the DeviceNet Dissector
+ * Hans-Jörgen Gunnarsson <hag@hms.se>
+ * Copyright 2013
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -66,12 +70,23 @@ static dissector_handle_t canopen_handle;
 
 typedef enum {
 	CAN_DATA_DISSECTOR = 1,
-	CAN_CANOPEN_DISSECTOR = 2
+	CAN_CANOPEN_DISSECTOR = 2,
+	CAN_DEVICENET_DISSECTOR = 3
 } Dissector_Option;
+
+/* Structure that gets passed between dissectors.  Since it's just a simple 32-bit
+   value, no sense in creating a header file for it.  Just expect subdissectors
+   to provide their own.
+ */ 
+struct can_identifier
+{
+	guint32 id;
+};
 
 static const enum_val_t can_high_level_protocol_dissector_options[] = {
 	{ "raw",	"Raw data (no further dissection)",	CAN_DATA_DISSECTOR },
 	{ "CANopen",	"CANopen protocol",			CAN_CANOPEN_DISSECTOR },
+	{ "DeviceNet",	"DeviceNet protocol",			CAN_DEVICENET_DISSECTOR },
 	{ NULL,	NULL, 0 }
 };
 
@@ -93,23 +108,24 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	guint8      frame_type;
 	gint        frame_len;
-	guint32     id;
+	struct can_identifier can_id;
+	tvbuff_t*   next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
 	col_clear(pinfo->cinfo,COL_INFO);
 
 	frame_len  = tvb_get_guint8( tvb, CAN_LEN_OFFSET);
-	id         = tvb_get_ntohl(tvb, 0);
+	can_id.id  = tvb_get_ntohl(tvb, 0);
 
-	if (id & CAN_RTR_FLAG)
+	if (can_id.id & CAN_RTR_FLAG)
 	{
 		frame_type = LINUX_CAN_RTR;
 	}
-	else if (id & CAN_ERR_FLAG)
+	else if (can_id.id & CAN_ERR_FLAG)
 	{
 		frame_type = LINUX_CAN_ERR;
 	}
-	else if (id & CAN_EFF_FLAG)
+	else if (can_id.id & CAN_EFF_FLAG)
 	{
 		frame_type = LINUX_CAN_EXT;
 	}
@@ -118,10 +134,10 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		frame_type = LINUX_CAN_STD;
 	}
 
-	id &= CAN_EFF_MASK;
+	can_id.id &= CAN_EFF_MASK;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: 0x%08x",
-		     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), id);
+		     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), can_id.id);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
 			tvb_bytes_to_str_punct(tvb, CAN_DATA_OFFSET, frame_len, ' '));
 
@@ -135,18 +151,15 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(can_tree, hf_can_len,     tvb, CAN_LEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
+	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
+
 	switch (can_high_level_protocol_dissector)
 	{
 		case CAN_DATA_DISSECTOR:
-			call_dissector(data_handle,
-				       tvb_new_subset(tvb, CAN_DATA_OFFSET, frame_len, frame_len),
-				       pinfo, tree);
+			call_dissector(data_handle, next_tvb, pinfo, tree);
 			break;
 		case CAN_CANOPEN_DISSECTOR:
-			/* XXX: The canopen dissector *redissects in a different manner* */
-			/*      the same header bytes dissected above.                   */
-			/*      What's the right way to handle SocketCan dissection ?    */
-			call_dissector(canopen_handle, tvb, pinfo, tree);
+			call_dissector_with_data(canopen_handle, next_tvb, pinfo, tree, &can_id);
 			break;
 	}
 }
