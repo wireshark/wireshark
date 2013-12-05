@@ -41,9 +41,9 @@ pkg_check_modules( PC_GTK3 gtk+-3.0 QUIET )
 
 # Hack around broken .pc files in Windows GTK bundle
 if( DEFINED GTK3_HINTS )
-    string( REGEX REPLACE "/.*/include" "${GTK3_HINTS}/include" PC_GTK3_INCLUDEDIR "${PC_GTK3_INCLUDEDIR}" )
-    string( REGEX REPLACE "/.*/include" "${GTK3_HINTS}/include" PC_GTK3_INCLUDE_DIRS "${PC_GTK3_INCLUDE_DIRS}" )
-    string( REGEX REPLACE "/.*/lib" "${GTK3_HINTS}/lib" PC_GTK3_LIBRARY_DIRS "${PC_GTK3_LIBRARY_DIRS}" )
+    string( REGEX REPLACE "-I/.*/include" "-I${GTK3_HINTS}/include" PC_GTK3_INCLUDEDIR "${PC_GTK3_INCLUDEDIR}" )
+    string( REGEX REPLACE "-I/.*/include" "-I${GTK3_HINTS}/include" PC_GTK3_INCLUDE_DIRS "${PC_GTK3_INCLUDE_DIRS}" )
+    string( REGEX REPLACE "-L/.*/lib" "-L${GTK3_HINTS}/lib" PC_GTK3_LIBRARY_DIRS "${PC_GTK3_LIBRARY_DIRS}" )
     set( PC_GTK3_CFLAGS )
     set( PC_GTK3_CFLAGS_OTHER )
     file( GLOB _SUBDIRS "${PC_GTK3_INCLUDEDIR}/*" )
