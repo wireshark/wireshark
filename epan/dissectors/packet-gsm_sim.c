@@ -1136,7 +1136,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0xD1:	/* sms-pp download */
 		case 0xD6:	/* event download */
 		case 0xD7:	/* timer expiration */
-			call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(tag));
+			call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER((guint)tag));
 			break;
 		}
 
