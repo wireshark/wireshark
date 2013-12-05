@@ -41,7 +41,6 @@
 #include "epan.h"
 #include "dfilter/dfilter.h"
 #include "epan_dissect.h"
-#include "wsutil/report_err.h"
 
 #include "conversation.h"
 #include "circuit.h"
@@ -94,15 +93,8 @@ void
 epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	  register_cb cb,
-	  gpointer client_data,
-	  void (*report_failure_fcn_p)(const char *, va_list),
-	  void (*report_open_failure_fcn_p)(const char *, int, gboolean),
-	  void (*report_read_failure_fcn_p)(const char *, int),
-	  void (*report_write_failure_fcn_p)(const char *, int))
+	  gpointer client_data)
 {
-	init_report_err(report_failure_fcn_p, report_open_failure_fcn_p,
-	    report_read_failure_fcn_p, report_write_failure_fcn_p);
-
 	/* initialize memory allocation subsystems */
 	emem_init();
 	wmem_init();

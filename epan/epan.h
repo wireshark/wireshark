@@ -95,12 +95,7 @@ WS_DLL_PUBLIC void epan_register_plugin_types(void);
 WS_DLL_PUBLIC
 void epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	       void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
-	       register_cb cb,
-	       void *client_data,
-	       void (*report_failure_fcn_p)(const char *, va_list),
-	       void (*report_open_failure_fcn_p)(const char *, int, gboolean),
-	       void (*report_read_failure_fcn_p)(const char *, int),
-	       void (*report_write_failure_fcn_p)(const char *, int));
+	       register_cb cb, void *client_data);
 
 /** cleanup the whole epan module, this is used to be called only once in a program */
 WS_DLL_PUBLIC

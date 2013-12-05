@@ -71,6 +71,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/plugins.h>
+#include <wsutil/report_err.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -538,6 +539,9 @@ main(int argc, char *argv[])
                       (GLogLevelFlags)log_flags,
                       log_func_ignore, NULL /* user_data */);
 
+    init_report_err(failure_message, open_failure_message, read_failure_message,
+                    write_failure_message);
+
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);
     timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
@@ -546,9 +550,7 @@ main(int argc, char *argv[])
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
-    epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL,
-              failure_message, open_failure_message, read_failure_message,
-              write_failure_message);
+    epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL);
 
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");

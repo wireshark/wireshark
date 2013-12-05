@@ -66,6 +66,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/report_err.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -1096,6 +1097,9 @@ main(int argc, char *argv[])
 
   initialize_funnel_ops();
 
+  init_report_err(failure_message, open_failure_message, read_failure_message,
+                  write_failure_message);
+
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&global_capture_opts);
   capture_session_init(&global_capture_session, (void *)&cfile);
@@ -1122,9 +1126,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL,
-            failure_message, open_failure_message, read_failure_message,
-            write_failure_message);
+  epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */

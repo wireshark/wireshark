@@ -43,6 +43,7 @@
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
+#include <wsutil/report_err.h>
 #include <wsutil/u3.h>
 
 #include <wiretap/merge.h>
@@ -827,6 +828,9 @@ int main(int argc, char *argv[])
     capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
+    init_report_err(failure_alert_box, open_failure_alert_box,
+                    read_failure_alert_box, write_failure_alert_box);
+
 #ifdef HAVE_PLUGINS
     /* Register all the plugin types we have. */
     epan_register_plugin_types(); /* Types known to libwireshark */
@@ -849,10 +853,7 @@ int main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     epan_init(register_all_protocols,register_all_protocol_handoffs,
-              splash_update, NULL,
-              failure_alert_box,open_failure_alert_box,read_failure_alert_box,
-              write_failure_alert_box
-              );
+              splash_update, NULL);
 
     splash_update(RA_LISTENERS, NULL, NULL);
 

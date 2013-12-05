@@ -67,6 +67,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
+#include <wsutil/report_err.h>
 #include <wsutil/u3.h>
 
 #include <wiretap/merge.h>
@@ -2501,6 +2502,9 @@ main(int argc, char *argv[])
   capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
+  init_report_err(failure_alert_box, open_failure_alert_box,
+                  read_failure_alert_box, write_failure_alert_box);
+
   /* Initialize whatever we need to allocate colors for GTK+ */
   colors_init();
 
@@ -2545,9 +2549,7 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(register_all_protocols,register_all_protocol_handoffs,
-            splash_update, (gpointer) splash_win,
-            failure_alert_box,open_failure_alert_box,read_failure_alert_box,
-            write_failure_alert_box);
+            splash_update, (gpointer) splash_win);
 
   splash_update(RA_LISTENERS, NULL, (gpointer)splash_win);
 
