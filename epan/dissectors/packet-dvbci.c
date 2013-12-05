@@ -407,6 +407,11 @@
 #define OPP_REF_REG_FLG_URG   2
 #define OPP_REF_REG_FLG_SCHED 3
 
+#define OPP_ERR_FLG_OK          0
+#define OPP_ERR_FLG_PROF        1
+#define OPP_ERR_FLG_UNSUPPORTED 2
+#define OPP_ERR_FLG_CANCELLED   3
+
 /* EIT p/f, EIT schedule usage */
 #define OPP_EIT_ABSENT 0
 #define OPP_EIT_NOT_X  1
@@ -1570,6 +1575,13 @@ static const value_string dvbci_opp_ref_req_flag[] = {
     { OPP_REF_REG_FLG_ADV,   "advance warning" },
     { OPP_REF_REG_FLG_URG,   "urgent" },
     { OPP_REF_REG_FLG_SCHED, "scheduled" },
+    { 0, NULL }
+};
+static const value_string dvbci_opp_err_flag[] = {
+    { OPP_ERR_FLG_OK,          "no error" },
+    { OPP_ERR_FLG_PROF,        "CICAM can't acquire the profile" },
+    { OPP_ERR_FLG_UNSUPPORTED, "unsupported delivery system" },
+    { OPP_ERR_FLG_CANCELLED,   "operator search was cancelled" },
     { 0, NULL }
 };
 static const value_string dvbci_opp_eit_pf_usage[] = {
@@ -5643,7 +5655,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_err_flag,
           { "Error flag", "dvb-ci.opp.err_flag",
-            FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_opp_err_flag), 0xF0, NULL, HFILL }
         },
         { &hf_dvbci_dlv_sys_hint,
           { "Delivery system hint", "dvb-ci.opp.dlv_sys_hint",
