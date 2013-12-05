@@ -26,6 +26,7 @@
 #define __GTK_STAT_MENU_H__
 
 #include <epan/proto.h>
+#include <epan/conv_id.h>
 
 #ifdef __cplusplus
 extern "C" {
