@@ -3,7 +3,7 @@
  * Felix Obenhuber <felix@obenhuber.de>
  *
  * Added support for the DeviceNet Dissector
- * Hans-Jörgen Gunnarsson <hag@hms.se>
+ * Hans-Joergen Gunnarsson <hag@hms.se>
  * Copyright 2013
  *
  * $Id$
