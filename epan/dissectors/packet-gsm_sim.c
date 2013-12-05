@@ -1136,7 +1136,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0xD1:	/* sms-pp download */
 		case 0xD6:	/* event download */
 		case 0xD7:	/* timer expiration */
-			call_dissector(sub_handle_cap, subtvb, pinfo, tree);
+			call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(tag));
 			break;
 		}
 
@@ -1307,7 +1307,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		break;
 	case 0x14: /* TERMINAL RESPONSE */
 		subtvb = tvb_new_subset(tvb, offset+DATA_OFFS, p3, p3);
-		call_dissector(sub_handle_cap, subtvb, pinfo, tree);
+		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(0x14));
 		break;
 	case 0x70: /* MANAGE CHANNEL */
 		proto_tree_add_item(tree, hf_chan_op, tvb, offset-3, 1, ENC_BIG_ENDIAN);

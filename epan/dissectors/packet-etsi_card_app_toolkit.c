@@ -898,18 +898,20 @@ static const value_string aid_pix_app_code_3gpp2_vals[] = {
 	{ 0, NULL}
 };
 
-static void
-dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item *cat_ti;
 	proto_tree *cat_tree, *elem_tree;
 	unsigned int pos = 0;
 	tvbuff_t *new_tvb;
 	gboolean ims_event = FALSE;
+	guint length = tvb_length(tvb);
+	gsm_sms_data_t sms_data;
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);
 	cat_tree = proto_item_add_subtree(cat_ti, ett_cat);
-	while (pos < tvb_length(tvb)) {
+	while (pos < length) {
 		proto_item *ti;
 		guint8 g8;
 		guint16 tag;
@@ -966,6 +968,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			case 0x13:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_NA);
+				sms_data.stk_packing_required = tvb_get_guint8(tvb, pos+2) & 0x01 ? TRUE : FALSE;
 				break;
 			case 0x26:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_NA);
@@ -1031,7 +1034,17 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x0b:	/* sms tpdu */
 			new_tvb = tvb_new_subset(tvb, pos, len, len);
 			if (new_tvb) {
-				call_dissector_only(gsm_sms_handle, new_tvb, pinfo, elem_tree, NULL);
+				int p2p_dir_save = pinfo->p2p_dir;
+                if (data) {
+					if (GPOINTER_TO_INT(data) == 0xd0) {
+						/* Proactive command */
+						pinfo->p2p_dir = P2P_DIR_RECV;
+					} else {
+						pinfo->p2p_dir = P2P_DIR_SENT;
+					}
+				}
+				call_dissector_only(gsm_sms_handle, new_tvb, pinfo, elem_tree, &sms_data);
+				pinfo->p2p_dir = p2p_dir_save;
 			}
 			break;
 		case 0x0d:	/* text string */
@@ -1321,9 +1334,9 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		default:
 			break;
 		}
-
 		pos += len;
 	}
+	return length;
 }
 
 void
@@ -1783,7 +1796,7 @@ proto_register_card_app_toolkit(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("etsi_cat", dissect_cat, proto_cat);
+	new_register_dissector("etsi_cat", dissect_cat, proto_cat);
 }
 
 /* This function is called once at startup and every time the user hits

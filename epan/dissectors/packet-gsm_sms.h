@@ -57,3 +57,8 @@ enum character_set {
 
 void dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
                    guint8 *udl, enum character_set cset, guint8 *fill_bits);
+
+/* Data structure that can be optionally given to gsm_sms dissector */
+typedef struct _gsm_sms_data_t {
+    gboolean stk_packing_required;
+} gsm_sms_data_t;
