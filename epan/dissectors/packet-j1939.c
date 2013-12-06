@@ -255,7 +255,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_length(tvb);
 }
 
-void proto_register_devicenet(void)
+void proto_register_j1939(void)
 {
     static hf_register_info hf[] = {
         { &hf_j1939_can_id,
