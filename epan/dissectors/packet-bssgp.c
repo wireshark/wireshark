@@ -79,7 +79,6 @@ void proto_reg_handoff_bssgp(void);
 static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
-static packet_info *gpinfo;
 static guint8 g_pdu_type, g_rim_application_identity;
 static proto_tree *gparent_tree;
 static dissector_handle_t llc_handle;
@@ -898,7 +897,7 @@ de_bssgp_flush_action(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  */
 
 static guint16
-de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *next_tvb=NULL;
     guint32 curr_offset;
@@ -912,10 +911,10 @@ de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     if(next_tvb){
         if (llc_handle) {
-            call_dissector(llc_handle, next_tvb, gpinfo, gparent_tree);
+            call_dissector(llc_handle, next_tvb, pinfo, gparent_tree);
         }
         else if (data_handle) {
-            call_dissector(data_handle, next_tvb, gpinfo, gparent_tree);
+            call_dissector(data_handle, next_tvb, pinfo, gparent_tree);
         }
     }
 
@@ -1100,7 +1099,7 @@ static const value_string bssgp_precedence_dl[] = {
 };
 
 static guint16
-de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_item *pi, *pre_item;
     guint32 curr_offset;
@@ -1113,7 +1112,7 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     /* octet 3-4 Peak bit rate provided by the network (note)
      * NOTE: The bit rate 0 (zero) shall mean "best effort" in this IE.
      */
-    link_dir = gpinfo->link_dir;
+    link_dir = pinfo->link_dir;
 
     peak_bit_rate = tvb_get_ntohs(tvb, curr_offset);
     pi = proto_tree_add_text(tree, tvb, curr_offset, 1, "Peak bit rate: ");
@@ -1515,7 +1514,7 @@ de_bssgp_serv_utran_cco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 11.3.48  NSEI (Network Service Entity Identifier)
  */
 static guint16
-de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint16 nsei;
@@ -1526,7 +1525,7 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     proto_tree_add_item(tree, hf_bssgp_nsei, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
 
-    col_append_sep_fstr(gpinfo->cinfo, COL_INFO, BSSGP_SEP, "NSEI %u", nsei);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, BSSGP_SEP, "NSEI %u", nsei);
 
 
     return(curr_offset-offset);
@@ -1535,7 +1534,7 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  * 11.3.49  RRLP APDU
  */
 static guint16
-de_bssgp_rrlp_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_rrlp_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *next_tvb=NULL;
     guint32 curr_offset;
@@ -1555,9 +1554,9 @@ de_bssgp_rrlp_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     if(next_tvb){
         if (rrlp_handle) {
-            call_dissector(rrlp_handle, next_tvb, gpinfo, gparent_tree);
+            call_dissector(rrlp_handle, next_tvb, pinfo, gparent_tree);
         }else if (data_handle) {
-            call_dissector(data_handle, next_tvb, gpinfo, gparent_tree);
+            call_dissector(data_handle, next_tvb, pinfo, gparent_tree);
         }
     }
     return(len);
@@ -1748,7 +1747,7 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packe
             {
             asn1_ctx_t asn1_ctx;
 
-            asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, gpinfo);
+            asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
             /* 11.3.63.1.4  RAN-INFORMATION-REQUEST Application Container for the SON Transfer Application */
             /* Reporting Cell Identifier */
             /* convert to bit offset */
@@ -1765,7 +1764,7 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packe
              * 3GPP TS 25.413
              */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree, NULL);
+            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, pinfo, tree, NULL);
             break;
         default :
             proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identity");
@@ -1847,7 +1846,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                     if (msg_fcn_p == NULL){
                         proto_tree_add_text(si_tree, tvb, curr_offset, 21, "Unknown SI message");
                     }else{
-                        (*msg_fcn_p)(tvb, si_tree, gpinfo, curr_offset+1, 20);
+                        (*msg_fcn_p)(tvb, si_tree, pinfo, curr_offset+1, 20);
                     }
                     curr_offset+=21;
                 }
@@ -1895,14 +1894,14 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                      * Source Cell ID) as defined in 3GPP TS 25.413
                      */
                     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-                    curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree, NULL);
+                    curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, pinfo, tree, NULL);
                     break;
                 case 2:
                     /* If the RAT discriminator field indicates E-UTRAN, this field is encoded as the E-UTRAN CGI IE as
                      * defined in 3GPP TS 36.413
                      */
                     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-                    curr_offset = curr_offset + dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree, NULL);
+                    curr_offset = curr_offset + dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
                     break;
                 default:
                     break;
@@ -1916,7 +1915,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * (UTRAN Source Cell ID) as defined in 3GPP TS 25.413
              */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree, NULL);
+            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, pinfo, tree, NULL);
             /* Octet (m+1)-n UTRA SI Container
              * UTRA SI Container: This field contains System Information Container valid for the reporting cell
              * encoded as defined in TS 25.331
@@ -1972,7 +1971,7 @@ static const value_string bssgp_utra_si_cause_vals[] = {
 };
 
 static guint16
-de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb = NULL;
     guint32 curr_offset;
@@ -2018,7 +2017,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
              * The "SON Transfer Cause" field is encoded as the SON Transfer Cause IE as defined in 3GPP TS 36.413
              */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            curr_offset = curr_offset + dissect_s1ap_SONtransferCause_PDU(new_tvb, gpinfo, tree, NULL);
+            curr_offset = curr_offset + dissect_s1ap_SONtransferCause_PDU(new_tvb, pinfo, tree, NULL);
             /* Erroneous Application Container including IEI and LI */
             proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
             break;
@@ -2212,7 +2211,7 @@ static const value_string bssgp_ra_discriminator_vals[] = {
 };
 
 static guint16
-de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8 oct;
     guint16 rnc_id;
@@ -2261,7 +2260,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             curr_offset = curr_offset+ de_emm_trac_area_id(tvb, tree, pinfo, curr_offset, 5, add_string, string_len);
             /* Octets 9-n contain the Global eNB ID (see 3GPP TS 36.413 [36]) of the eNodeB. */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree, NULL);
+            dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
             break;
         default:
             proto_tree_add_text(tree, tvb, curr_offset, 3, "Unknown RIM Routing Address discriminator");
@@ -2301,7 +2300,7 @@ de_bssgp_mbms_session_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 11.3.72  MBMS Session Duration
  */
 static guint16
-de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb;
     guint32 curr_offset;
@@ -2310,7 +2309,7 @@ de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     /* AVP Code: 904 MBMS-Session-Duration Registered by packet-gtp.c */
     new_tvb =tvb_new_subset(tvb, offset, len, len);
-    dissector_try_uint(diameter_3gpp_avp_dissector_table, 904, new_tvb, gpinfo, tree);
+    dissector_try_uint(diameter_3gpp_avp_dissector_table, 904, new_tvb, pinfo, tree);
 
     return(curr_offset-offset);
 }
@@ -2322,7 +2321,7 @@ de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  *
  */
 static guint16
-de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb;
     guint32 curr_offset;
@@ -2331,7 +2330,7 @@ de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
     /* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
     new_tvb =tvb_new_subset(tvb, offset, len, len);
-    dissector_try_uint(diameter_3gpp_avp_dissector_table, 903, new_tvb, gpinfo, tree);
+    dissector_try_uint(diameter_3gpp_avp_dissector_table, 903, new_tvb, pinfo, tree);
 
     return(curr_offset-offset);
 }
@@ -2840,7 +2839,7 @@ de_bssgp_mbms_session_rep_no(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
  * 11.3.94  Inter RAT Handover Info
  */
 static guint16
-de_bssgp_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *new_tvb;
     guint32 curr_offset;
@@ -2852,7 +2851,7 @@ de_bssgp_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
      * Inter RAT Handover Information coded as specified in 3GPP
      * Technical Specification 25.331
      */
-    dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, gpinfo, tree, NULL);
+    dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, pinfo, tree, NULL);
 
     return(len);
 }
@@ -3096,7 +3095,7 @@ de_bssgp_enb_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
     /* Octets 8-n contain the Global eNB ID (see 3GPP TS 36.413) of the eNodeB. */
     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-    dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree, NULL);
+    dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
 
     return(len);
 }
@@ -3104,7 +3103,7 @@ de_bssgp_enb_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
  * 11.3.104     E-UTRAN Inter RAT Handover Info
  */
 static guint16
-de_bssgp_e_utran_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_e_utran_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *new_tvb;
     guint32 curr_offset;
@@ -3118,7 +3117,7 @@ de_bssgp_e_utran_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info 
      * significant bit of the first octet of the octet string contains bit 8 of
      * the first octet of the IE.
      */
-    dissect_lte_rrc_UE_EUTRA_Capability_PDU(new_tvb, gpinfo, tree, NULL);
+    dissect_lte_rrc_UE_EUTRA_Capability_PDU(new_tvb, pinfo, tree, NULL);
 
     return(len);
 }
@@ -3181,7 +3180,7 @@ de_bssgp_reliable_inter_rat_ho_inf(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 11.3.108     SON Transfer Application Identity
  */
 static guint16
-de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset _U_, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset _U_, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *next_tvb;
 
@@ -3190,7 +3189,7 @@ de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
      */
     if(len > 0){
         next_tvb = tvb_new_subset(tvb, offset, len, len);
-        dissect_s1ap_SONtransferApplicationIdentity_PDU(next_tvb, gpinfo, tree, NULL);
+        dissect_s1ap_SONtransferApplicationIdentity_PDU(next_tvb, pinfo, tree, NULL);
     }
 
     return(len);
@@ -6370,8 +6369,6 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int          hf_idx;
     void        (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
-    /* Save pinfo */
-    gpinfo = pinfo;
     g_rim_application_identity = 0;
     gparent_tree = tree;
     len = tvb_length(tvb);
