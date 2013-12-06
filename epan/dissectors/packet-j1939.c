@@ -4,7 +4,7 @@
  * Michael Mann
  * Copyright 2013
  *
- * $Id: $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
