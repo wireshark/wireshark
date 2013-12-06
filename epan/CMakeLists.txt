@@ -548,6 +548,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-dec-bpdu.c
 	dissectors/packet-dec-dnart.c
 	dissectors/packet-dect.c
+	dissectors/packet-devicenet.c
 	dissectors/packet-dhcp-failover.c
 	dissectors/packet-dhcpv6.c
 	dissectors/packet-diameter.c
@@ -825,6 +826,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-iwarp-mpa.c
 	dissectors/packet-ixiatrailer.c
 	dissectors/packet-ixveriwave.c
+	dissectors/packet-j1939.c
 	dissectors/packet-jmirror.c
 	dissectors/packet-jpeg.c
 	dissectors/packet-json.c

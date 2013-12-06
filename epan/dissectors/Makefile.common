@@ -469,6 +469,7 @@ DISSECTOR_SRC = \
 	packet-dec-bpdu.c	\
 	packet-dec-dnart.c	\
 	packet-dect.c		\
+	packet-devicenet.c	\
 	packet-dhcp-failover.c	\
 	packet-dhcpv6.c		\
 	packet-diameter.c	\
@@ -747,6 +748,7 @@ DISSECTOR_SRC = \
 	packet-iwarp-mpa.c	\
 	packet-ixiatrailer.c	\
 	packet-ixveriwave.c	\
+	packet-j1939.c		\
 	packet-jmirror.c	\
 	packet-jpeg.c		\
 	packet-json.c		\

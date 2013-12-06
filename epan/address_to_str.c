@@ -627,6 +627,14 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
         else
             g_snprintf(buf, buf_len, "0x%04x", ieee_802_15_4_short_addr);
         break;
+    case AT_J1939:
+        addrdata = (const guint8 *)addr->data;
+        g_snprintf(buf, buf_len, "%d", addrdata[0]);
+        break;
+    case AT_DEVICENET:
+        addrdata = (const guint8 *)addr->data;
+        g_snprintf(buf, buf_len, "%d", addrdata[0] & 0x3f);
+        break;
     default:
         g_assert_not_reached();
     }

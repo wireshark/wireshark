@@ -54,6 +54,9 @@
 #define SC_REMOVE_MEMBER         0x1B
 #define SC_GROUP_SYNC            0x1C
 
+#define CIP_SC_MASK              0x7F
+#define CIP_SC_RESPONSE_MASK     0x80
+
 /* Classes that have class-specfic dissectors */
 #define CI_CLS_MR   0x02    /* Message Router */
 #define CI_CLS_CM   0x06    /* Connection Manager */
@@ -311,6 +314,7 @@ typedef struct cip_req_info {
 extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length,
                           gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety);
 extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
+extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
 
 /*
 ** Exported variables

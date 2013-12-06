@@ -59,6 +59,8 @@ static int proto_can = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t canopen_handle;
+static dissector_handle_t devicenet_handle;
+static dissector_handle_t j1939_handle;
 
 #define LINUX_CAN_STD   0
 #define LINUX_CAN_EXT   1
@@ -71,7 +73,8 @@ static dissector_handle_t canopen_handle;
 typedef enum {
 	CAN_DATA_DISSECTOR = 1,
 	CAN_CANOPEN_DISSECTOR = 2,
-	CAN_DEVICENET_DISSECTOR = 3
+	CAN_DEVICENET_DISSECTOR = 3,
+	CAN_J1939_DISSECTOR = 4,
 } Dissector_Option;
 
 /* Structure that gets passed between dissectors.  Since it's just a simple 32-bit
@@ -84,9 +87,10 @@ struct can_identifier
 };
 
 static const enum_val_t can_high_level_protocol_dissector_options[] = {
-	{ "raw",	"Raw data (no further dissection)",	CAN_DATA_DISSECTOR },
+	{ "raw",		"Raw data (no further dissection)",	CAN_DATA_DISSECTOR },
 	{ "CANopen",	"CANopen protocol",			CAN_CANOPEN_DISSECTOR },
 	{ "DeviceNet",	"DeviceNet protocol",			CAN_DEVICENET_DISSECTOR },
+	{ "J1939",		"J1939 protocol",			CAN_J1939_DISSECTOR },
 	{ NULL,	NULL, 0 }
 };
 
@@ -160,6 +164,16 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case CAN_CANOPEN_DISSECTOR:
 			call_dissector_with_data(canopen_handle, next_tvb, pinfo, tree, &can_id);
+			break;
+		case CAN_DEVICENET_DISSECTOR:
+			/* XXX - Not sure this is correct.  But the capture provided in 
+             * bug 8564 provides CAN ID in little endian format, so this makes it work */
+			can_id.id = GUINT32_SWAP_LE_BE(can_id.id);
+
+			call_dissector_with_data(devicenet_handle, next_tvb, pinfo, tree, &can_id);
+			break;
+		case CAN_J1939_DISSECTOR:
+			call_dissector_with_data(j1939_handle, next_tvb, pinfo, tree, &can_id);
 			break;
 	}
 }
@@ -254,5 +268,7 @@ proto_reg_handoff_socketcan(void)
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
 
 	canopen_handle = find_dissector("canopen");
+	devicenet_handle = find_dissector("devicenet");
+	j1939_handle   = find_dissector("j1939");
 	data_handle    = find_dissector("data");
 }

@@ -2541,14 +2541,14 @@ static void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, c
    {
        /* Add service to info column */
        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
-               val_to_str( service & 0x7F,
+               val_to_str( service & CIP_SC_MASK,
                   service_vals, "Unknown Service (0x%02x)") );
        col_set_fence(pinfo->cinfo, COL_INFO);
    }
    else
    {
       col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str(service & 0x7F,
+               val_to_str(service & CIP_SC_MASK,
                   service_vals, "Unknown Service (0x%02x)") );
        col_set_fence(pinfo->cinfo, COL_INFO);
       /* Make sure it's only set once */
@@ -3120,7 +3120,7 @@ static attribute_val_array_t all_attribute_vals[] = {
 static void
 dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t *preq_info );
 
-static attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute)
+attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute)
 {
    size_t i, j;
    attribute_val_array_t* att_array;
@@ -4096,7 +4096,7 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
    unsigned char add_stat_size;
    guint8 service = tvb_get_guint8( tvb, offset );
 
-   if (service & 0x80)
+   if (service & CIP_SC_RESPONSE_MASK)
    {
       /* Response message */
       add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
@@ -4381,7 +4381,7 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    int req_path_size,
        offset = 0;
    proto_tree *cmd_data_tree;
-   guint8 service = tvb_get_guint8( tvb, offset ) & 0x7F;
+   guint8 service = tvb_get_guint8( tvb, offset ) & CIP_SC_MASK;
 
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
@@ -4728,7 +4728,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    cip_simple_request_info_t req_data;
    int offset = 0,
        item_length = tvb_length(tvb);
-   guint8 service = tvb_get_guint8( tvb, offset ) & 0x7F,
+   guint8 service = tvb_get_guint8( tvb, offset ) & CIP_SC_MASK,
           add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
 
    /* If there is any command specific data create a sub-tree for it */
@@ -5089,7 +5089,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    /* Special handling for Unconnected send response. If successful, embedded service code is sent.
     * If failed, it can be either an Unconnected send response or the embedded service code response. */
    preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
-   if (  preq_info != NULL && ( service & 0x80 )
+   if (  preq_info != NULL && ( service & CIP_SC_RESPONSE_MASK )
       && preq_info->bService == SC_CM_UNCON_SEND
       )
    {
@@ -5100,7 +5100,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       else
          add_status = 0;
       if(   gen_status == 0   /* success response ) */
-         || ( ( service & 0x7F ) != SC_CM_UNCON_SEND )
+         || ( ( service & CIP_SC_MASK ) != SC_CM_UNCON_SEND )
          || !(  ( gen_status == CI_GRC_FAILURE && (add_status == CM_ES_UNCONNECTED_REQUEST_TIMED_OUT ||
                                                    add_status == CM_ES_PORT_NOT_AVAILABLE ||
                                                    add_status == CM_ES_LINK_ADDRESS_NOT_VALID ||
@@ -5146,15 +5146,15 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
    /* watch for service collisions */
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( service & 0x7F ),
+               val_to_str( ( service & CIP_SC_MASK ),
                   cip_sc_vals_cm , "Unknown Service (0x%02x)"),
-               val_to_str_const( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_cm_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   if( service & 0x80 )
+   if( service & CIP_SC_RESPONSE_MASK )
    {
       /* Response message */
       gen_status = tvb_get_guint8( tvb, offset+2 );
@@ -5251,7 +5251,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
            /* Success responses */
-           switch (service & 0x7F)
+           switch (service & CIP_SC_MASK)
            {
            case SC_CM_FWD_OPEN:
            case SC_CM_LARGE_FWD_OPEN:
@@ -5315,7 +5315,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          else
          {
             /* Error responses */
-            switch (service & 0x7F)
+            switch (service & CIP_SC_MASK)
             {
             case SC_CM_FWD_OPEN:
             case SC_CM_LARGE_FWD_OPEN:
@@ -5525,15 +5525,15 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( service & 0x7F ),
+               val_to_str( ( service & CIP_SC_MASK ),
                   cip_sc_vals_mb , "Unknown Service (0x%02x)"),
-               val_to_str_const( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_mb_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   if( service & 0x80 )
+   if( service & CIP_SC_RESPONSE_MASK )
    {
       /* Response message */
       gen_status = tvb_get_guint8( tvb, offset+2 );
@@ -5548,7 +5548,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
             /* Success responses */
-            switch (service & 0x7F)
+            switch (service & CIP_SC_MASK)
             {
             case SC_MB_READ_DISCRETE_INPUTS:
                proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_discrete_inputs_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
@@ -5910,9 +5910,9 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( service & 0x7F ),
+               val_to_str( ( service & CIP_SC_MASK ),
                   cip_sc_vals_cco , "Unknown Service (0x%02x)"),
-               val_to_str_const( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -5932,7 +5932,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
       req_data.iMember = (guint32)-1;
    }
 
-   if(service & 0x80 )
+   if(service & CIP_SC_RESPONSE_MASK )
    {
       /* Response message */
 
@@ -5949,7 +5949,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
             /* Success responses */
-            if (((service & 0x7F) == SC_GET_ATT_ALL) &&
+            if (((service & CIP_SC_MASK) == SC_GET_ATT_ALL) &&
                 (req_data.iInstance != (guint32)-1))
             {
                if (req_data.iInstance == 0)
@@ -6070,13 +6070,13 @@ dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
    int offset = 0;
 
    service = tvb_get_guint8( tvb, offset );
-   service_code = service & 0x7F;
+   service_code = service & CIP_SC_MASK;
 
    /* Handle GetAttributeAll and SetAttributeAll in CCO class */
    if ((service_code == SC_GET_ATT_ALL) ||
        (service_code == SC_SET_ATT_ALL))
    {
-      if (service & 0x80)
+      if (service & CIP_SC_RESPONSE_MASK)
       {
          /* Service response */
          preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
@@ -6163,15 +6163,15 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    /* Add Service code & Request/Response tree */
    rrsc_item = proto_tree_add_uint_format_value(cip_tree, hf_cip_service,
                                tvb, offset, 1, service, "%s (%s)",
-                               val_to_str( ( service & 0x7F ), cip_sc_vals , "Unknown Service (0x%02x)"),
-                               val_to_str_const( ( service & 0x80 )>>7, cip_sc_rr, ""));
+                               val_to_str( ( service & CIP_SC_MASK ), cip_sc_vals , "Unknown Service (0x%02x)"),
+                               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7, cip_sc_rr, ""));
 
    rrsc_tree = proto_item_add_subtree( rrsc_item, ett_rrsc );
 
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(rrsc_tree, hf_cip_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-   if( service & 0x80 )
+   if( service & CIP_SC_RESPONSE_MASK )
    {
       /* Response message */
       status_item = proto_tree_add_text( cip_tree, tvb, offset+2, 1, "Status: " );
@@ -6207,7 +6207,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
 
       if(  preq_info
-        && !(  preq_info->bService == ( service & 0x7F )
+        && !(  preq_info->bService == ( service & CIP_SC_MASK )
             || ( preq_info->bService == SC_CM_UNCON_SEND && preq_info->dissector == cip_class_cm_handle )
             )
         )
@@ -6237,7 +6237,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       }
 
       /* Check to see if service is 'generic' */
-      try_val_to_str_idx((service & 0x7F), cip_sc_vals, &service_index);
+      try_val_to_str_idx((service & CIP_SC_MASK), cip_sc_vals, &service_index);
       if (service_index >= 0)
       {
           /* See if object dissector wants to override generic service handling */
@@ -6381,8 +6381,8 @@ proto_register_cip(void)
    static hf_register_info hf[] = {
 
       { &hf_cip_service, { "Service", "cip.service", FT_UINT8, BASE_HEX, NULL, 0, "Service Code + Request/Response", HFILL }},
-      { &hf_cip_reqrsp, { "Request/Response", "cip.rr", FT_UINT8, BASE_HEX, VALS(cip_sc_rr), 0x80, "Request or Response message", HFILL }},
-      { &hf_cip_service_code, { "Service", "cip.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals), 0x7F, "Service Code", HFILL }},
+      { &hf_cip_reqrsp, { "Request/Response", "cip.rr", FT_UINT8, BASE_HEX, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK, "Request or Response message", HFILL }},
+      { &hf_cip_service_code, { "Service", "cip.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals), CIP_SC_MASK, "Service Code", HFILL }},
       { &hf_cip_epath, { "EPath", "cip.epath", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_genstat, { "General Status", "cip.genstat", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_gs_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_addstat_size, { "Additional Status Size", "cip.addstat_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -6626,7 +6626,7 @@ proto_register_cip(void)
    };
 
    static hf_register_info hf_cm[] = {
-      { &hf_cip_cm_sc, { "Service", "cip.cm.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_cm), 0x7F, NULL, HFILL }},
+      { &hf_cip_cm_sc, { "Service", "cip.cm.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_cm), CIP_SC_MASK, NULL, HFILL }},
       { &hf_cip_cm_genstat, { "General Status", "cip.cm.genstat", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_gs_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_cm_addstat_size, { "Additional Status Size", "cip.cm.addstat_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_ext_status, { "Extended Status", "cip.cm.ext_status", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_cm_ext_st_vals_ext, 0, NULL, HFILL }},
@@ -6689,7 +6689,7 @@ proto_register_cip(void)
    };
 
    static hf_register_info hf_mb[] = {
-      { &hf_cip_mb_sc, { "Service", "cip.mb.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_mb), 0x7F, NULL, HFILL }},
+      { &hf_cip_mb_sc, { "Service", "cip.mb.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_mb), CIP_SC_MASK, NULL, HFILL }},
       { &hf_cip_mb_read_coils_start_addr, { "Starting Address", "cip.mb.read_coils.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_mb_read_coils_num_coils, { "Quantity of Coils", "cip.mb.read_coils.num_coils", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_mb_read_coils_data, { "Data", "cip.mb.read_coils.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -6714,7 +6714,7 @@ proto_register_cip(void)
    };
 
    static hf_register_info hf_cco[] = {
-      { &hf_cip_cco_sc, { "Service", "cip.cco.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_cco), 0x7F, NULL, HFILL }},
+      { &hf_cip_cco_sc, { "Service", "cip.cco.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_cco), CIP_SC_MASK, NULL, HFILL }},
       { &hf_cip_cco_format_number, { "Format Number", "cip.cco.format_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_edit_signature, { "Edit Signature", "cip.cco.edit_signature", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_con_flags, { "Connection Flags", "cip.cco.connflags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},

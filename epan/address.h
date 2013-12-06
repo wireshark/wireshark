@@ -57,8 +57,10 @@ typedef enum {
     AT_USB,                /* USB Device address
                             * (0xffffffff represents the host) */
     AT_AX25,               /* AX.25 */
-    AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
+    AT_IEEE_802_15_4_SHORT,/* IEEE 802.15.4 16-bit short address */
                            /* (the long addresses are EUI-64's */
+    AT_J1939,              /* J1939 */
+    AT_DEVICENET,          /* DeviceNet */
 } address_type;
 
 typedef struct _address {
