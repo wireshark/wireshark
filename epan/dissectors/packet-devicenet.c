@@ -154,7 +154,7 @@ static const enum_val_t bodytype_devicenet_protocol_options[] = {
 static const value_string devicenet_service_code_vals[] = {
     GENERIC_SC_LIST
 
-    { SC_OPEN_EXPLICIT_MESSAGE,	    "Open Explicit Message Connection Request" },
+    { SC_OPEN_EXPLICIT_MESSAGE,     "Open Explicit Message Connection Request" },
     { SC_CLOSE_EXPLICIT_MESSAGE,    "Close Connection Request" },
     { SC_DEVICE_HEARTBEAT_MESSAGE,  "Device Heartbeat Message" },
     { SC_DEVICE_SHUTOWN_MESSAGE,    "Device Shutdown Message" },
@@ -793,193 +793,193 @@ void proto_register_devicenet(void)
     module_t *devicenet_module;
     expert_module_t*expert_devicenet;
 
-	static hf_register_info hf[] = {
-		{ &hf_devicenet_can_id,
-			{"CAN Identifier", "devicenet.can_id",
-			FT_UINT16, BASE_HEX, NULL, DEVICENET_CANID_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_src_mac_id,
-			{ "Source MAC ID", "devicenet.src_mac_id",
-			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_connection_id,
-			{ "Connection ID", "devicenet.connection_id",
-			FT_UINT16, BASE_DEC, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_data,
-			{ "Data", "devicenet.data",
-			FT_BYTES, BASE_NONE, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg1_id,
-			{ "Group 1 message ID", "devicenet.grp_msg1.id",
-			FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_1_MSG_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg2_id,
-			{ "Group 2 message ID", "devicenet.grp_msg2.id",
-			FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_2_MSG_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg3_id,
-			{ "Group 3 message ID", "devicenet.grp_msg3.id",
-			FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_3_MSG_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg3_dest_mac_id,
-			{ "Destination MAC ID", "devicenet.dest_mac_id",
-			FT_UINT8, BASE_DEC, NULL, 0x3F,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg3_frag,
-			{ "Frag", "devicenet.grp_msg3.frag",
-			FT_BOOLEAN, 8, NULL, MESSAGE_GROUP_3_FRAG_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg3_xid,
-			{ "XID", "devicenet.grp_msg3.xid",
-			FT_BOOLEAN, 8, NULL, MESSAGE_GROUP_3_XID_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_grp_msg4_id,
-			{ "Group 4 message ID", "devicenet.grp_msg4.id",
-			FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_4_MSG_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_rr_bit,
-			{ "Request/Response", "devicenet.rr",
-			FT_UINT8, BASE_DEC, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK,
-			"Request or Response message", HFILL }
-		},
-		{ &hf_devicenet_service_code,
-			{ "Service Code", "devicenet.service",
-			FT_UINT8, BASE_DEC, &devicenet_service_code_vals, CIP_SC_MASK,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_open_exp_src_message_id,
-			{ "Source Message ID", "devicenet.open_message.src_message_id",
-			FT_UINT8, BASE_DEC, NULL, 0x0F,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_open_exp_dest_message_id,
-			{ "Destination Message ID", "devicenet.open_message.dest_message_id",
-			FT_UINT8, BASE_DEC, NULL, 0xF0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_open_exp_msg_reserved,
-			{ "Reserved", "devicenet.open_message.reserved",
-			FT_UINT8, BASE_DEC, NULL, 0xF0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_open_exp_msg_req_body_format,
-			{ "Requested Message Body Format", "devicenet.open_message.req_body_format",
-			FT_UINT8, BASE_DEC, VALS(devicenet_message_body_format_vals), 0x0F,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_open_exp_msg_actual_body_format,
-			{ "Actual Message Body Format", "devicenet.open_message.actual_body_format",
-			FT_UINT8, BASE_DEC, VALS(devicenet_message_body_format_vals), 0x0F,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_open_exp_group_select,
-			{ "Group Select", "devicenet.open_message.group_select",
-			FT_UINT8, BASE_DEC, VALS(devicenet_group_select_vals), 0xF0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_dup_mac_id_rr_bit,
-			{ "Request/Response", "devicenet.dup_mac_id.rr",
-			FT_UINT8, BASE_DEC, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK,
-			"Duplicate MAC ID Request or Response message", HFILL }
-		},
-		{ &hf_devicenet_dup_mac_id_physical_port_number,
-			{ "Physical port number", "devicenet.dup_mac_id.physical_port_number",
-			FT_UINT8, BASE_DEC, NULL, 0x7F,
-			"Duplicate MAC ID check message physical port number", HFILL }
-		},
-		{ &hf_devicenet_dup_mac_id_vendor, 
-			{ "Vendor ID", "devicenet.dup_mac_id.vendor", 
-			FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, 
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_dup_mac_id_serial_number, 
-			{ "Serial Number", "devicenet.dup_mac_id.serial_number", 
-			FT_UINT32, BASE_HEX, NULL, 0x00,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_vendor, 
-			{ "Vendor ID", "devicenet.vendor", 
-			FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, 
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_serial_number, 
-			{ "Serial Number", "devicenet.serial_number", 
-			FT_UINT32, BASE_HEX, NULL, 0x00,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_instance8, 
-			{ "Instance", "devicenet.instance", 
-			FT_UINT8, BASE_HEX, NULL, 0x00,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_instance16, 
-			{ "Instance", "devicenet.instance", 
-			FT_UINT16, BASE_HEX, NULL, 0x00,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_fragment_type, 
-			{ "Fragment Type", "devicenet.fragment_type", 
-			FT_UINT8, BASE_HEX, VALS(devicenet_fragmented_message_type_vals), 0xC0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_fragment_count, 
-			{ "Fragment Count", "devicenet.fragment_count", 
-			FT_UINT8, BASE_HEX_DEC, NULL, 0x3F,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_class8,
-			{ "Class",  "devicenet.class",
-			FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_class_names_vals_ext, 0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_class16,
-			{ "Class",  "devicenet.class",
-			FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_class_names_vals_ext, 0,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_comm_fault_rsv, 
-			{ "Reserved",  "devicenet.comm_fault.reserved", 
-			FT_UINT8, BASE_HEX, NULL, 0x80,
-			NULL, HFILL }
-		},
-		{ &hf_devicenet_comm_fault_match, 
-			{ "Match", "devicenet.comm_fault.match", 
-			FT_UINT8, BASE_HEX, NULL, 0x40,
-			NULL, HFILL }
-		},
-		{&hf_devicenet_comm_fault_value, 
-			{ "Value", "devicenet.comm_fault.value", 
-			FT_UINT8, BASE_HEX, NULL, 0x3F,
-			"Comm Fault Value", HFILL }
-		},
-		{&hf_devicenet_offline_ownership_reserved, 
-			{ "Reserved", "devicenet.offline_ownership.reserved", 
-			FT_UINT8, BASE_HEX, NULL, 0xC0,
-			"Offline ownership Response Message Reserved", HFILL }
-		},
-		{&hf_devicenet_offline_ownership_client_mac_id, 
-			{ "Client MAC ID", "devicenet.offline_ownership.client_mac_id", 
-			FT_UINT8, BASE_HEX, NULL, MESSAGE_GROUP_4_MSG_MASK,
-			"Offline ownership message client MAC ID", HFILL }
-		},
-		{&hf_devicenet_offline_ownership_allocate, 
-			{ "Allocate", "devicenet.offline_ownership.allocate", 
-			FT_UINT8, BASE_HEX, NULL, CIP_SC_MASK,
-			"Offline ownership response message allocate", HFILL }
-		},
-	};
+    static hf_register_info hf[] = {
+        { &hf_devicenet_can_id,
+            {"CAN Identifier", "devicenet.can_id",
+            FT_UINT16, BASE_HEX, NULL, DEVICENET_CANID_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_src_mac_id,
+            { "Source MAC ID", "devicenet.src_mac_id",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_connection_id,
+            { "Connection ID", "devicenet.connection_id",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_data,
+            { "Data", "devicenet.data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg1_id,
+            { "Group 1 message ID", "devicenet.grp_msg1.id",
+            FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_1_MSG_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg2_id,
+            { "Group 2 message ID", "devicenet.grp_msg2.id",
+            FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_2_MSG_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg3_id,
+            { "Group 3 message ID", "devicenet.grp_msg3.id",
+            FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_3_MSG_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg3_dest_mac_id,
+            { "Destination MAC ID", "devicenet.dest_mac_id",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg3_frag,
+            { "Frag", "devicenet.grp_msg3.frag",
+            FT_BOOLEAN, 8, NULL, MESSAGE_GROUP_3_FRAG_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg3_xid,
+            { "XID", "devicenet.grp_msg3.xid",
+            FT_BOOLEAN, 8, NULL, MESSAGE_GROUP_3_XID_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_grp_msg4_id,
+            { "Group 4 message ID", "devicenet.grp_msg4.id",
+            FT_UINT16, BASE_DEC, NULL, MESSAGE_GROUP_4_MSG_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_rr_bit,
+            { "Request/Response", "devicenet.rr",
+            FT_UINT8, BASE_DEC, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK,
+            "Request or Response message", HFILL }
+        },
+        { &hf_devicenet_service_code,
+            { "Service Code", "devicenet.service",
+            FT_UINT8, BASE_DEC, &devicenet_service_code_vals, CIP_SC_MASK,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_open_exp_src_message_id,
+            { "Source Message ID", "devicenet.open_message.src_message_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_open_exp_dest_message_id,
+            { "Destination Message ID", "devicenet.open_message.dest_message_id",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_open_exp_msg_reserved,
+            { "Reserved", "devicenet.open_message.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_open_exp_msg_req_body_format,
+            { "Requested Message Body Format", "devicenet.open_message.req_body_format",
+            FT_UINT8, BASE_DEC, VALS(devicenet_message_body_format_vals), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_open_exp_msg_actual_body_format,
+            { "Actual Message Body Format", "devicenet.open_message.actual_body_format",
+            FT_UINT8, BASE_DEC, VALS(devicenet_message_body_format_vals), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_open_exp_group_select,
+            { "Group Select", "devicenet.open_message.group_select",
+            FT_UINT8, BASE_DEC, VALS(devicenet_group_select_vals), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_dup_mac_id_rr_bit,
+            { "Request/Response", "devicenet.dup_mac_id.rr",
+            FT_UINT8, BASE_DEC, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK,
+            "Duplicate MAC ID Request or Response message", HFILL }
+        },
+        { &hf_devicenet_dup_mac_id_physical_port_number,
+            { "Physical port number", "devicenet.dup_mac_id.physical_port_number",
+            FT_UINT8, BASE_DEC, NULL, 0x7F,
+            "Duplicate MAC ID check message physical port number", HFILL }
+        },
+        { &hf_devicenet_dup_mac_id_vendor,
+            { "Vendor ID", "devicenet.dup_mac_id.vendor",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_dup_mac_id_serial_number,
+            { "Serial Number", "devicenet.dup_mac_id.serial_number",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_vendor,
+            { "Vendor ID", "devicenet.vendor",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_serial_number,
+            { "Serial Number", "devicenet.serial_number",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_instance8,
+            { "Instance", "devicenet.instance",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_instance16,
+            { "Instance", "devicenet.instance",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_fragment_type,
+            { "Fragment Type", "devicenet.fragment_type",
+            FT_UINT8, BASE_HEX, VALS(devicenet_fragmented_message_type_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_fragment_count,
+            { "Fragment Count", "devicenet.fragment_count",
+            FT_UINT8, BASE_HEX_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_class8,
+            { "Class",  "devicenet.class",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_class_names_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_class16,
+            { "Class",  "devicenet.class",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_class_names_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_comm_fault_rsv,
+            { "Reserved",  "devicenet.comm_fault.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_devicenet_comm_fault_match,
+            { "Match", "devicenet.comm_fault.match",
+            FT_UINT8, BASE_HEX, NULL, 0x40,
+            NULL, HFILL }
+        },
+        {&hf_devicenet_comm_fault_value,
+            { "Value", "devicenet.comm_fault.value",
+            FT_UINT8, BASE_HEX, NULL, 0x3F,
+            "Comm Fault Value", HFILL }
+        },
+        {&hf_devicenet_offline_ownership_reserved,
+            { "Reserved", "devicenet.offline_ownership.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            "Offline ownership Response Message Reserved", HFILL }
+        },
+        {&hf_devicenet_offline_ownership_client_mac_id,
+            { "Client MAC ID", "devicenet.offline_ownership.client_mac_id",
+            FT_UINT8, BASE_HEX, NULL, MESSAGE_GROUP_4_MSG_MASK,
+            "Offline ownership message client MAC ID", HFILL }
+        },
+        {&hf_devicenet_offline_ownership_allocate,
+            { "Allocate", "devicenet.offline_ownership.allocate",
+            FT_UINT8, BASE_HEX, NULL, CIP_SC_MASK,
+            "Offline ownership response message allocate", HFILL }
+        },
+    };
 
     static gint *ett[] = {
         &ett_devicenet,
@@ -1035,3 +1035,16 @@ void proto_register_devicenet(void)
                                       "Node bodytypes",
                                       devicenet_uat);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
