@@ -292,6 +292,8 @@ void CaptureInterfacesDialog::UpdateInterfaces()
 #if defined (HAVE_PCAP_CREATE)
             output = QString(device.monitor_mode_enabled ? "true" : "false");
             ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, MONITOR, new QTableWidgetItem(output));
+#else
+            ui->tbInterfaces->setColumnHidden(BUFFER+1, true);
 #endif
 
             if (strstr(prefs.capture_device, device.name) != NULL) {
