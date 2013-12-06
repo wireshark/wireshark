@@ -89,8 +89,8 @@ private slots:
     void on_bStop_clicked();
     void tableItemClicked(QTableWidgetItem * item);
     void updateStatistics(void);
-    void on_tbInterfaces_hideEvent(QHideEvent *evt);
-    void on_tbInterfaces_showEvent(QShowEvent *evt);
+    //void on_tbInterfaces_hideEvent(QHideEvent *evt);
+    //void on_tbInterfaces_showEvent(QShowEvent *evt);
 
 signals:
     void startCapture();

@@ -57,7 +57,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     stat_timer_ = NULL;
     stat_cache_ = NULL;
 
-    connect(ui->tbInterfaces,SIGNAL(itemPressed(QTableWidgetItem *)),this,SLOT(tableItemPressed(QTableWidgetItem *)));
+    //connect(ui->tbInterfaces,SIGNAL(itemPressed(QTableWidgetItem *)),this,SLOT(tableItemPressed(QTableWidgetItem *)));
     connect(ui->tbInterfaces,SIGNAL(itemClicked(QTableWidgetItem *)),this,SLOT(tableItemClicked(QTableWidgetItem *)));
 }
 
@@ -371,7 +371,7 @@ void CaptureInterfacesDialog::updateStatistics(void)
     }
 }
 
-
+/*
 void CaptureInterfacesDialog::on_tbInterfaces_hideEvent(QHideEvent *evt)
 {
     Q_UNUSED(evt);
@@ -387,6 +387,7 @@ void CaptureInterfacesDialog::on_tbInterfaces_showEvent(QShowEvent *evt)
     Q_UNUSED(evt);
     if (stat_timer_) stat_timer_->start(stat_update_interval_);
 }
+*/
 #endif /* HAVE_LIBPCAP */
 
 /*
