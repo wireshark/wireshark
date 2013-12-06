@@ -112,8 +112,8 @@ static SCS_collection* scs_init(void) {
 
 /**
  * subscribe:
- * @collection: the scs hash
- * @s: a string
+ * @param c the scs hash
+ * @param s a string
  *
  * Checks if the given string exists already and if so it increases the count of
  * subsscribers and returns a pointer to the stored string. If not It will copy
@@ -161,8 +161,8 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 
 /**
  * unsubscribe:
- * @collection: the scs hash
- * @s: a string.
+ * @param c the scs hash
+ * @param s a string.
  *
  * decreases the count of subscribers, if zero frees the internal copy of
  * the string.
@@ -203,7 +203,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 
 /**
  * scs_subscribe_printf:
- * @fmt: a format string ...
+ * @param fmt a format string ...
  *
  * Formats the input and subscribes it.
  *
@@ -264,12 +264,12 @@ static int* dbg_avpl_op = &dbg_avpl_op_level;
 
 /**
  * setup_avp_debug:
- * @fp: the file in which to send debugging output.
- * @general: a pointer to the level of debugging of facility "general"
- * @avp: a pointer to the level of debugging of facility "avp"
- * @avp_op: a pointer to the level of debugging of facility "avp_op"
- * @avpl: a pointer to the level of debugging of facility "avpl"
- * @avpl_op: a pointer to the level of debugging of facility "avpl_op"
+ * @param fp the file in which to send debugging output.
+ * @param general a pointer to the level of debugging of facility "general"
+ * @param avp a pointer to the level of debugging of facility "avp"
+ * @param avp_op a pointer to the level of debugging of facility "avp_op"
+ * @param avpl a pointer to the level of debugging of facility "avpl"
+ * @param avpl_op a pointer to the level of debugging of facility "avpl_op"
  *
  * If enabled sets up the debug facilities for the avp library.
  *
@@ -300,8 +300,8 @@ extern void avp_init(void) {
 
 /**
  * new_avp_from_finfo:
- * @name: the name the avp will have.
- * @finfo: the field_info from which to fetch the data.
+ * @param name the name the avp will have.
+ * @param finfo the field_info from which to fetch the data.
  *
  * Creates an avp from a field_info record.
  *
@@ -343,9 +343,9 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 
 /**
  * new_avp:
- * @name: the name the avp will have.
- * @value: the value the avp will have.
- * @o: the operator of this avp.
+ * @param name the name the avp will have.
+ * @param value the value the avp will have.
+ * @param o the operator of this avp.
  *
  * Creates an avp given every parameter.
  *
@@ -368,7 +368,7 @@ extern AVP* new_avp(const gchar* name, const gchar* value, gchar o) {
 
 /**
 * delete_avp:
- * @avp: the avp to delete.
+ * @param avp the avp to delete.
  *
  * Destroys an avp and releases the resources it uses.
  *
@@ -386,7 +386,7 @@ extern void delete_avp(AVP* avp) {
 
 /**
 * avp_copy:
- * @from: the avp to be copied.
+ * @param from the avp to be copied.
  *
  * Creates an avp whose name op and value are copies of the given one.
  *
@@ -409,7 +409,7 @@ extern AVP* avp_copy(AVP* from) {
 
 /**
  * new_avpl:
- * @name: the name the avpl will have.
+ * @param name the name the avpl will have.
  *
  * Creates an empty avpl.
  *
@@ -440,8 +440,8 @@ extern void rename_avpl(AVPL* avpl, gchar* name) {
 
 /**
  * insert_avp:
- * @avpl: the avpl in which to insert.
- * @avp: the avp to be inserted.
+ * @param avpl the avpl in which to insert.
+ * @param avp the avp to be inserted.
  *
  * Inserts the given AVP into the given AVPL if an identical one isn't yet there.
  *
@@ -506,9 +506,9 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
 
 /**
  * get_avp_by_name:
- * @avpl: the avpl from which to try to get the avp.
- * @name: the name of the avp we are looking for.
- * @cookie: variable in which to store the state between calls.
+ * @param avpl the avpl from which to try to get the avp.
+ * @param name the name of the avp we are looking for.
+ * @param cookie variable in which to store the state between calls.
  *
  * Gets  pointer to the next avp whose name is given; uses cookie to store its
  * state between calls.
@@ -547,8 +547,8 @@ extern AVP* get_avp_by_name(AVPL* avpl, gchar* name, void** cookie) {
 
 /**
  * extract_avp_by_name:
- * @avpl: the avpl from which to try to extract the avp.
- * @name: the name of the avp we are looking for.
+ * @param avpl the avpl from which to try to extract the avp.
+ * @param name the name of the avp we are looking for.
  *
  * Extracts from the avpl the next avp whose name is given;
  *
@@ -598,7 +598,7 @@ extern AVP* extract_avp_by_name(AVPL* avpl, gchar* name) {
 
 /**
  * extract_first_avp:
- * @avpl: the avpl from which to try to extract the avp.
+ * @param avpl the avpl from which to try to extract the avp.
  *
  * Extracts the fisrt avp from the avpl.
  *
@@ -639,7 +639,7 @@ extern AVP* extract_first_avp(AVPL* avpl) {
 
 /**
  * extract_last_avp:
- * @avpl: the avpl from which to try to extract the avp.
+ * @param avpl the avpl from which to try to extract the avp.
  *
  * Extracts the last avp from the avpl.
  *
@@ -676,8 +676,8 @@ extern AVP* extract_last_avp(AVPL* avpl) {
 
 /**
  * delete_avpl:
- * @avpl: the avpl from which to try to extract the avp.
- * @avps_too: whether or not it should delete the avps as well.
+ * @param avpl the avpl from which to try to extract the avp.
+ * @param avps_too whether or not it should delete the avps as well.
  *
  * Destroys an avpl and releases the resources it uses. If told to do
  * so releases the avps as well.
@@ -703,8 +703,8 @@ extern void delete_avpl(AVPL* avpl, gboolean avps_too) {
 
 /**
  * get_next_avp:
- * @avpl: the avpl from which to try to get the avps.
- * @cookie: variable in which to store the state between calls.
+ * @param avpl the avpl from which to try to get the avps.
+ * @param cookie variable in which to store the state between calls.
  *
  * Iterates on an avpl to get its avps.
  *
@@ -735,7 +735,7 @@ extern AVP* get_next_avp(AVPL* avpl, void** cookie) {
 
 /**
  * avpl_to_str:
- * @avpl: the avpl to represent.
+ * @param avpl the avpl to represent.
  *
  * Creates a newly allocated string containing a representation of an avpl.
  *
@@ -782,9 +782,9 @@ extern gchar* avpl_to_dotstr(AVPL* avpl) {
 
 /**
 * merge_avpl:
- * @dst: the avpl in which to merge the avps.
- * @src: the avpl from which to get the avps.
- * @copy: whether avps should be copied instead of referenced.
+ * @param dst the avpl in which to merge the avps.
+ * @param src the avpl from which to get the avps.
+ * @param copy_avps whether avps should be copied instead of referenced.
  *
  * Adds the avps of src that are not existent in dst into dst.
  *
@@ -891,8 +891,8 @@ extern AVPL* new_avpl_from_avpl(const gchar* name, AVPL* avpl, gboolean copy_avp
 
 /**
 * match_avp:
- * @src: an src to be compared agains an "op" avp
- * @op: the "op" avp that will be matched against the src avp
+ * @param src an src to be compared agains an "op" avp
+ * @param op the "op" avp that will be matched against the src avp
  *
  * Checks whether or not two avp's match.
  *
@@ -981,10 +981,10 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 /* TODO: rename me */
 /**
  * new_avpl_loose_match:
- * @name: the name of the resulting avpl
- * @src: avpl to be matched agains an "op" avpl
- * @op: the "op" avpl that will be matched against the src avpl
- * @copy_avps: whether the avps in the resulting avpl should be copied
+ * @param name the name of the resulting avpl
+ * @param src avpl to be matched agains an "op" avpl
+ * @param op the "op" avpl that will be matched against the src avpl
+ * @param copy_avps whether the avps in the resulting avpl should be copied
  *
  * creates an avp list containing any avps in src matching any avps in op
  * it will eventually create an empty list in none match
@@ -1059,10 +1059,10 @@ extern AVPL* new_avpl_loose_match(const gchar* name,
 /* TODO: rename me */
 /**
 * new_avpl_every_match:
- * @name: the name of the resulting avpl
- * @src: avpl to be matched agains an "op" avpl
- * @op: the "op" avpl that will be matched against the src avpl
- * @copy_avps: whether the avps in the resulting avpl should be copied
+ * @param name the name of the resulting avpl
+ * @param src avpl to be matched agains an "op" avpl
+ * @param op the "op" avpl that will be matched against the src avpl
+ * @param copy_avps whether the avps in the resulting avpl should be copied
  *
  * creates an avp list containing any avps in src matching every avp in op
  * it will not create a list if there is not a match for every attribute in op
@@ -1149,10 +1149,10 @@ extern AVPL* new_avpl_every_match(const gchar* name, AVPL* src, AVPL* op, gboole
 /* TODO: rename me */
 /**
  * new_avpl_exact_match:
- * @name: the name of the resulting avpl
- * @src: avpl to be matched agains an "op" avpl
- * @op: the "op" avpl that will be matched against the src avpl
- * @copy_avps: whether the avps in the resulting avpl should be copied
+ * @param name the name of the resulting avpl
+ * @param src avpl to be matched agains an "op" avpl
+ * @param op the "op" avpl that will be matched against the src avpl
+ * @param copy_avps whether the avps in the resulting avpl should be copied
  *
  * creates an avp list containing every avp in src matching every avp in op
  * it will not create a list unless every avp in op is matched only once
@@ -1256,7 +1256,7 @@ extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* s
 
 /**
  * delete_avpl_transform:
- * @it: a pointer to the avpl transformation object
+ * @param op a pointer to the avpl transformation object
  *
  * Destroys an avpl transformation object and releases all the resources it
  * uses.
@@ -1286,8 +1286,8 @@ extern void delete_avpl_transform(AVPL_Transf* op) {
 
 /**
  * avpl_transform:
- * @src: the source avpl for the transform operation.
- * @op: a pointer to the avpl transformation object to apply.
+ * @param src the source avpl for the transform operation.
+ * @param op a pointer to the avpl transformation object to apply.
  *
  * Applies the "op" transformation to an avpl, matches it and eventually
  * replaces or inserts the transformed avps.
@@ -1346,7 +1346,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 
 /**
  * new_loal:
- * @name: the name the loal will take.
+ * @param name the name the loal will take.
  *
  * Creates an empty list of avp lists.
  *
@@ -1373,8 +1373,8 @@ extern LoAL* new_loal(const gchar* name) {
 
 /**
  * loal_append:
- * @loal: the loal on which to operate.
- * @avpl: the avpl to append.
+ * @param loal the loal on which to operate.
+ * @param avpl the avpl to append.
  *
  * Appends an avpl to a loal.
  *
@@ -1398,7 +1398,7 @@ extern void loal_append(LoAL* loal, AVPL* avpl) {
 
 /**
  * extract_first_avpl:
- * @loal: the loal on which to operate.
+ * @param loal the loal on which to operate.
  *
  * Extracts the first avpl contained in a loal.
  *
@@ -1436,7 +1436,7 @@ extern AVPL* extract_first_avpl(LoAL* loal) {
 
 /**
 * extract_first_avpl:
- * @loal: the loal on which to operate.
+ * @param loal the loal on which to operate.
  *
  * Extracts the last avpl contained in a loal.
  *
@@ -1468,8 +1468,8 @@ extern AVPL* extract_last_avpl(LoAL* loal){
 
 /**
  * extract_first_avpl:
- * @loal: the loal on which to operate.
- * @cookie pointer to the pointer variable to contain the state between calls
+ * @param loal the loal on which to operate.
+ * @param cookie pointer to the pointer variable to contain the state between calls
  *
  * At each call will return the following avpl from a loal. The given cookie
  * will be used to manatain the state between calls.
@@ -1497,9 +1497,9 @@ extern AVPL* get_next_avpl(LoAL* loal,void** cookie) {
 
 /**
  * delete_loal:
- * @loal: the loal to be deleted.
- * @avpls_too: whether avpls contained by the loal should be deleted as well
- * @avps_too: whether avps contained by the avpls should be also deleted
+ * @param loal the loal to be deleted.
+ * @param avpls_too whether avpls contained by the loal should be deleted as well
+ * @param avps_too whether avps contained by the avpls should be also deleted
  *
  * Destroys a loal and eventually desstroys avpls and avps.
  *
@@ -1573,7 +1573,7 @@ case '7': case '8': case '9': case '.'
 
 /**
  * loal_from_file:
- * @filename: the file containing a loals text representation.
+ * @param filename the file containing a loals text representation.
  *
  * Given a filename it will attempt to load a loal containing a copy of
  * the avpls represented in the file.
