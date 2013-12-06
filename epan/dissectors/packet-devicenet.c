@@ -136,6 +136,7 @@ static void uat_devicenet_record_update_cb(void* r, const char** err) {
 UAT_DEC_CB_DEF(uat_devicenet_records, mac_id, uat_devicenet_record_t)
 UAT_VS_DEF(uat_devicenet_records, behavior, uat_devicenet_record_t, enum node_behavior, NODE_BEHAVIOR_8_8, "string")
 
+#if 0
 static const enum_val_t bodytype_devicenet_protocol_options[] = {
     { "eightovereight", "8/8", 0 },
     { "eightoversixten", "8/16", 1 },
@@ -143,6 +144,7 @@ static const enum_val_t bodytype_devicenet_protocol_options[] = {
     { "sixteenoversixteen", "16/16", 3 },
     { NULL, NULL, 0 }
 };
+#endif
 
 #define SC_OPEN_EXPLICIT_MESSAGE    0x4B
 #define SC_CLOSE_EXPLICIT_MESSAGE   0x4C
@@ -252,6 +254,7 @@ static const value_string devicenet_fragmented_message_type_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string devicenet_io_attribute_vals[] = {
     {0x01, "Vendor ID"},
     {0x02, "Device Type"},
@@ -262,6 +265,7 @@ static const value_string devicenet_io_attribute_vals[] = {
     {0x07, "Product Name"},
     { 0, NULL }
 };
+#endif
 
 static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *devicenet_tree,
                                           tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
