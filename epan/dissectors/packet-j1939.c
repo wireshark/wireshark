@@ -157,12 +157,12 @@ static const value_string j1939_address_vals[] = {
 value_string_ext j1939_address_vals_ext = VALUE_STRING_EXT_INIT(j1939_address_vals);
 
 static void
-j1939_fmt_address(gchar *result, guint32 address )
+j1939_fmt_address(gchar *result, guint32 addr )
 {
-    if ((address < 128) || (address > 247))
-        g_snprintf(result, ITEM_LABEL_LENGTH, "%d (%s)", address, val_to_str_ext_const(address, &j1939_address_vals_ext, "Reserved"));
+    if ((addr < 128) || (addr > 247))
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%d (%s)", addr, val_to_str_ext_const(addr, &j1939_address_vals_ext, "Reserved"));
     else
-        g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Arbitrary)", address);
+        g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Arbitrary)", addr);
 }
 
 struct can_identifier
