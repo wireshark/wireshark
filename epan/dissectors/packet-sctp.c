@@ -243,6 +243,8 @@ static int hf_sctp_ack_frame = -1;
 static int hf_sctp_acked = -1;
 static int hf_sctp_retransmitted_after_ack = -1;
 
+static int hf_sctp_assoc_index = -1;
+
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 static heur_dissector_list_t sctp_heur_subdissector_list;
@@ -451,6 +453,13 @@ static const value_string sctp_payload_proto_id_values[] = {
 #define SCTP_CHECKSUM_CRC32C    2
 #define SCTP_CHECKSUM_AUTOMATIC 3
 
+#define FORWARD_STREAM                     0
+#define BACKWARD_STREAM                    1
+#define FORWARD_ADD_FORWARD_VTAG           2
+#define BACKWARD_ADD_FORWARD_VTAG          3
+#define BACKWARD_ADD_BACKWARD_VTAG         4
+#define ASSOC_NOT_FOUND                    5
+
 /* Default values for preferences */
 static gboolean show_port_numbers          = TRUE;
 static gint sctp_checksum                  = SCTP_CHECKSUM_NONE;
@@ -462,7 +471,163 @@ static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
 
+typedef struct _assoc_info_t {
+  guint16 assoc_index;
+  guint16 direction;
+  gboolean vtag_reflected;
+  guint16 sport;
+  guint16 dport;
+  guint32 verification_tag1;
+  guint32 verification_tag2;
+  guint32 initiate_tag;
+} assoc_info_t;
+
+typedef struct _infodata_t {
+  guint16 assoc_index;
+  guint16 direction;
+} infodata_t;
+
+static GList *assoc_info_list = NULL;
+static guint num_assocs = 0;
+
 static struct _sctp_info sctp_info;
+
+static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
+{
+  if (a == NULL || b == NULL)
+    return ASSOC_NOT_FOUND;
+
+  if ((a->sport == b->sport) &&
+      (a->dport == b->dport) &&
+      (a->initiate_tag == b->verification_tag2) &&
+      (a->initiate_tag == b->initiate_tag))
+    return FORWARD_STREAM;
+
+  if ((a->sport == b->sport) &&
+      (a->dport == b->dport) &&
+      (a->verification_tag1 == b->verification_tag1) && a->verification_tag1==0 && a->initiate_tag != 0 &&
+      (a->initiate_tag != b->initiate_tag ))
+    return ASSOC_NOT_FOUND;   /* two INITs that belong to different assocs */
+
+  /* assoc known*/
+  if ((a->sport == b->sport) &&
+      (a->dport == b->dport) &&
+      (a->verification_tag1 == b->verification_tag1) &&
+      ((a->verification_tag1 != 0 ||
+      (b->verification_tag2 != 0))))
+    return FORWARD_STREAM;
+
+  /* ABORT, vtag reflected */
+  if ((a->sport == b->sport) &&
+      (a->dport == b->dport) &&
+      (a->verification_tag2 == b->verification_tag2) &&
+      (a->verification_tag1 == 0 && b->verification_tag1 != 0))
+    return FORWARD_STREAM;
+
+  if ((a->sport == b->dport) &&
+      (a->dport == b->sport) &&
+      (a->verification_tag1 == b->verification_tag2) &&
+      (a->verification_tag1 != 0))
+    return BACKWARD_STREAM;
+
+  if ((a->sport == b->dport) &&
+      (a->dport == b->sport) &&
+      (a->verification_tag2 == b->verification_tag1) &&
+      (a->verification_tag2 != 0))
+    return BACKWARD_STREAM;
+
+  if ((a->sport == b->dport) &&
+      (a->dport == b->sport) &&
+      (a->verification_tag1 == b->initiate_tag) &&
+      (a->verification_tag2 == 0))
+    return BACKWARD_ADD_BACKWARD_VTAG;
+
+  /* ABORT, vtag reflected */
+  if ((a->sport == b->dport) &&
+      (a->dport == b->sport) &&
+      (a->verification_tag2 == b->verification_tag1) &&
+      (a->verification_tag1 == 0 && b->verification_tag2 != 0))
+    return BACKWARD_STREAM;
+
+  /*forward stream verification tag can be added*/
+  if ((a->sport == b->sport) &&
+      (a->dport == b->dport) &&
+      (a->verification_tag1 != 0) &&
+      (b->verification_tag1 == 0) &&
+      (b->verification_tag2 !=0))
+    return FORWARD_ADD_FORWARD_VTAG;
+
+  if ((a->sport == b->dport) &&
+      (a->dport == b->sport) &&
+      (a->verification_tag1 == b->verification_tag2) &&
+      (b->verification_tag1 == 0)) 
+    return BACKWARD_ADD_FORWARD_VTAG;
+
+  /*backward stream verification tag can be added */
+  if ((a->sport == b->dport) &&
+      (a->dport == b->sport) &&
+      (a->verification_tag1 !=0) &&
+      (b->verification_tag1 != 0) &&
+      (b->verification_tag2 == 0)) 
+    return BACKWARD_ADD_BACKWARD_VTAG;
+
+  return ASSOC_NOT_FOUND;
+}
+
+static infodata_t
+find_assoc_index(assoc_info_t* tmpinfo)
+{
+  assoc_info_t *info = NULL;
+  GList* list;
+  gboolean cmp = FALSE;
+  gboolean found = FALSE;
+  infodata_t inf;
+
+  if ((list = g_list_last(assoc_info_list))!=NULL) {
+    while (list) {
+      cmp = sctp_assoc_vtag_cmp(tmpinfo, (assoc_info_t*)(list->data));
+      if (cmp < ASSOC_NOT_FOUND) {
+        found = TRUE;
+        info = (assoc_info_t *)(list->data);
+        switch (cmp)
+        {
+          case FORWARD_ADD_FORWARD_VTAG:
+          case BACKWARD_ADD_FORWARD_VTAG:
+            info->verification_tag1 = tmpinfo->verification_tag1;
+          case BACKWARD_ADD_BACKWARD_VTAG:
+            info->verification_tag2 = tmpinfo->verification_tag1;
+        }
+        if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
+          info->direction = 1;
+        } else {
+          info->direction = 2;
+        }
+        inf.assoc_index = info->assoc_index;
+        inf.direction = info->direction;
+        return inf;
+      }
+      list = g_list_previous(list);
+    }
+  }
+  if (!found) {
+    info = wmem_new0(wmem_file_scope(), assoc_info_t);
+    info->assoc_index = num_assocs;
+    info->sport = tmpinfo->sport;
+    info->dport = tmpinfo->dport;
+    info->verification_tag1 = tmpinfo->verification_tag1;
+    info->verification_tag2 = tmpinfo->verification_tag2;
+    info->initiate_tag = tmpinfo->initiate_tag;
+    num_assocs++;
+    assoc_info_list = g_list_append(assoc_info_list, info);
+    inf.assoc_index = info->assoc_index;
+    inf.direction = 1;
+    return inf;
+  }
+  inf.assoc_index = 0;
+  inf.direction = 0;
+  return inf;
+}
+
 
 static void sctp_src_prompt(packet_info *pinfo, gchar* result)
 {
@@ -2285,6 +2450,16 @@ frag_table_init(void)
   frag_table = g_hash_table_new(frag_hash, frag_equal);
 }
 
+static void
+sctp_init(void)
+{
+  frag_table_init();
+  if (num_assocs > 0) {  
+    num_assocs = 0;
+    assoc_info_list = NULL;
+  }
+}
+
 
 static sctp_frag_msg*
 find_message(guint16 stream_id, guint16 stream_seq_num)
@@ -3915,6 +4090,8 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
   guint16 length, total_length, remaining_length;
   gint last_offset, offset;
   gboolean sctp_item_length_set;
+  assoc_info_t tmpinfo;
+  infodata_t id_dir;
 
   /* the common header of the datagram is already handled */
   last_offset = 0;
@@ -3941,6 +4118,37 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       else
         sctp_info.incomplete = TRUE;
     }
+
+    tmpinfo.assoc_index = -1;
+    tmpinfo.sport = sctp_info.sport;
+    tmpinfo.dport = sctp_info.dport;
+    tmpinfo.vtag_reflected = FALSE;
+    if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_ABORT_CHUNK_ID) {
+      if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT) != 0) {
+        tmpinfo.vtag_reflected = TRUE;
+      }
+    }
+    if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_SHUTDOWN_COMPLETE_CHUNK_ID) {
+      if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT) != 0){
+        tmpinfo.vtag_reflected = TRUE;
+      }
+    }
+    if (tmpinfo.vtag_reflected) {
+      tmpinfo.verification_tag2 = sctp_info.verification_tag;
+      tmpinfo.verification_tag1 = 0;
+    } else {
+      tmpinfo.verification_tag1 = sctp_info.verification_tag;
+      tmpinfo.verification_tag2 = 0;
+    }
+    if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_INIT_CHUNK_ID) {
+      tmpinfo.initiate_tag = tvb_get_ntohl(sctp_info.tvb[0], 4);
+    } else {
+      tmpinfo.initiate_tag = 0;
+    }
+
+    id_dir = find_assoc_index(&tmpinfo);
+    sctp_info.assoc_index = id_dir.assoc_index;
+    sctp_info.direction = id_dir.direction;
 
     /* call dissect_sctp_chunk for the actual work */
     if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, ha, !encapsulated) && (tree)) {
@@ -3974,6 +4182,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_tree *sctp_tree;
   guint32 vtag;
   sctp_half_assoc_t *ha = NULL;
+  proto_item *pi, *vt = NULL;
 
   length          = tvb_length(tvb);
   reported_length = tvb_reported_length(tvb);
@@ -4035,7 +4244,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     /* add the components of the common header to the protocol tree */
     proto_tree_add_item(sctp_tree, hf_source_port,      tvb, SOURCE_PORT_OFFSET,      SOURCE_PORT_LENGTH,      ENC_BIG_ENDIAN);
     proto_tree_add_item(sctp_tree, hf_destination_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sctp_tree, hf_verification_tag, tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH, ENC_BIG_ENDIAN);
+    vt = proto_tree_add_item(sctp_tree, hf_verification_tag, tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH, ENC_BIG_ENDIAN);
     hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, SOURCE_PORT_OFFSET,      SOURCE_PORT_LENGTH,      ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, ENC_BIG_ENDIAN);
@@ -4106,6 +4315,11 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
   /* add all chunks of the sctp datagram to the protocol tree */
   dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, ha, encapsulated);
+
+  /* add assoc_index and move it behind the verification tag */
+  pi = proto_tree_add_uint(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index);
+  PROTO_ITEM_SET_GENERATED(pi);
+  proto_tree_move_item(sctp_tree, vt, pi);
 }
 
 static void
@@ -4308,7 +4522,8 @@ proto_register_sctp(void)
     { &hf_sctp_acked,                               { "This chunk is acked in frame",                   "sctp.acked",                                           FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
     { &hf_sctp_ack_tsn,                             { "Acknowledges TSN",                               "sctp.ack",                                             FT_UINT32, BASE_DEC, NULL,                                             0x0,                                NULL, HFILL } },
     { &hf_sctp_ack_frame,                           { "Chunk acknowledged in frame",                    "sctp.ack_frame",                                       FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
-    { &hf_sctp_retransmitted_after_ack,             { "Chunk was acked prior to retransmission",        "sctp.retransmitted_after_ack",                         FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } }
+    { &hf_sctp_retransmitted_after_ack,             { "Chunk was acked prior to retransmission",        "sctp.retransmitted_after_ack",                         FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
+    { &hf_sctp_assoc_index,                         { "Assocation index",                               "sctp.assoc_index",                                     FT_UINT16, BASE_DEC, NULL,                                             0x0,                                NULL, HFILL } }
 
  };
 
@@ -4439,7 +4654,7 @@ proto_register_sctp(void)
   register_dissector("sctp", dissect_sctp, proto_sctp);
   register_heur_dissector_list("sctp", &sctp_heur_subdissector_list);
 
-  register_init_routine(frag_table_init);
+  register_init_routine(sctp_init);
 
   dirs_by_ptvtag = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
   dirs_by_ptaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

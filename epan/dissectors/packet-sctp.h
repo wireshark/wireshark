@@ -42,6 +42,8 @@ struct _sctp_info {
   address ip_src;
   address ip_dst;
   guint32 verification_tag;
+  guint16 assoc_index;
+  guint16 direction;
   guint32 number_of_tvbs;
   tvbuff_t *tvb[MAXIMUM_NUMBER_OF_TVBS];
 };
