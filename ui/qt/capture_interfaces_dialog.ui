@@ -243,7 +243,7 @@
       <string>Reuse old files</string>
      </property>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_1">
      <property name="geometry">
       <rect>
        <x>50</x>
@@ -272,7 +272,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_2">
      <property name="geometry">
       <rect>
        <x>40</x>
@@ -305,7 +305,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_3">
      <property name="geometry">
       <rect>
        <x>84</x>
@@ -346,7 +346,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_4">
      <property name="geometry">
       <rect>
        <x>84</x>
@@ -387,10 +387,10 @@
       </item>
      </layout>
     </widget>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget_1</zorder>
+    <zorder>layoutWidget_2</zorder>
+    <zorder>layoutWidget_3</zorder>
+    <zorder>layoutWidget_4</zorder>
     <zorder>checkBox_3</zorder>
     <zorder>checkBox</zorder>
     <zorder>cbNewFileAuto</zorder>
@@ -565,7 +565,7 @@
      <property name="title">
       <string>Display Options</string>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget_8">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -647,7 +647,7 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="layoutWidget_10">
    <property name="geometry">
     <rect>
      <x>10</x>
