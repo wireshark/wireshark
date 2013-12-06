@@ -345,8 +345,7 @@ static gint                ssl_decrypted_data_avail = 0;
 
 static uat_t              *ssldecrypt_uat           = NULL;
 static const gchar        *ssl_keys_list            = NULL;
-static const gchar        *ssl_psk                  = NULL;
-static const gchar        *ssl_keylog_filename      = NULL;
+static ssl_common_options_t ssl_options = { NULL, NULL};
 
 /* List of dissectors to call for SSL data */
 static heur_dissector_list_t ssl_heur_subdissector_list;
@@ -2106,7 +2105,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 if (!ssl)
                     break;
 
-                if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, ssl_psk, ssl_keylog_filename) < 0) {
+                if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, ssl_options.psk, ssl_options.keylog_filename) < 0) {
                     ssl_debug_printf("dissect_ssl3_handshake can't generate pre master secret\n");
                     break;
                 }
@@ -2276,7 +2275,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
             if (!ssl_restore_session(ssl, ssl_session_hash)) {
                 /* If we failed to find the previous session, we may still have
                  * the master secret in the key log. */
-                if (ssl_keylog_lookup(ssl, ssl_keylog_filename, NULL)) {
+                if (ssl_keylog_lookup(ssl, ssl_options.keylog_filename, NULL)) {
                     ssl_debug_printf("  cannot find master secret in keylog file either\n");
                 } else {
                     ssl_debug_printf("  found master secret in keylog file\n");
@@ -5619,27 +5618,7 @@ proto_register_ssl(void)
              "For troubleshooting ignore the mac check result and decrypt also if the Message Authentication Code (MAC) fails.",
              &ssl_ignore_mac_failed);
 #ifdef HAVE_LIBGNUTLS
-        prefs_register_string_preference(ssl_module, "psk", "Pre-Shared-Key",
-             "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
-             &ssl_psk);
-
-        prefs_register_filename_preference(ssl_module, "keylog_file", "(Pre)-Master-Secret log filename",
-             "The filename of a file which contains a list of \n"
-             "(pre-)master secrets in one of the following formats:\n"
-             "\n"
-             "RSA <EPMS> <PMS>\n"
-             "RSA Session-ID:<SSLID> Master-Key:<MS>\n"
-             "CLIENT_RANDOM <CRAND> <MS>\n"
-             "\n"
-             "Where:\n"
-             "<EPMS> = First 8 bytes of the Encrypted PMS\n"
-             "<PMS> = The Pre-Master-Secret (PMS)\n"
-             "<SSLID> = The SSL Session ID\n"
-             "<MS> = The Master-Secret (MS)\n"
-             "<CRAND> = The Client's random number from the ClientHello message\n"
-             "\n"
-             "(All fields are in hex notation)",
-             &ssl_keylog_filename);
+        ssl_common_register_options(ssl_module, &ssl_options);
 #endif
     }
 

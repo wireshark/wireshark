@@ -5290,6 +5290,39 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     return offset;
 }
 
+#ifdef HAVE_LIBGNUTLS
+void
+ssl_common_register_options(module_t *module, ssl_common_options_t *options)
+{
+        prefs_register_string_preference(module, "psk", "Pre-Shared-Key",
+             "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
+             &(options->psk));
+
+        prefs_register_filename_preference(module, "keylog_file", "(Pre)-Master-Secret log filename",
+             "The filename of a file which contains a list of \n"
+             "(pre-)master secrets in one of the following formats:\n"
+             "\n"
+             "RSA <EPMS> <PMS>\n"
+             "RSA Session-ID:<SSLID> Master-Key:<MS>\n"
+             "CLIENT_RANDOM <CRAND> <MS>\n"
+             "\n"
+             "Where:\n"
+             "<EPMS> = First 8 bytes of the Encrypted PMS\n"
+             "<PMS> = The Pre-Master-Secret (PMS)\n"
+             "<SSLID> = The SSL Session ID\n"
+             "<MS> = The Master-Secret (MS)\n"
+             "<CRAND> = The Client's random number from the ClientHello message\n"
+             "\n"
+             "(All fields are in hex notation)",
+             &(options->keylog_filename));
+}
+#else
+void
+ssl_common_register_options(module_t *module _U_, ssl_common_options_t *options _U_)
+{
+}
+#endif
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

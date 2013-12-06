@@ -215,7 +215,7 @@ static gint                dtls_decrypted_data_avail = 0;
 
 static uat_t *dtlsdecrypt_uat      = NULL;
 static const gchar *dtls_keys_list = NULL;
-static const gchar *dtls_psk       = NULL;
+static ssl_common_options_t dtls_options = { NULL, NULL};
 #ifdef HAVE_LIBGNUTLS
 static const gchar *dtls_debug_file_name = NULL;
 #endif
@@ -1546,7 +1546,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (!ssl)
                 break;
 
-            if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, dtls_psk, NULL) < 0) {
+            if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, dtls_options.psk, dtls_options.keylog_filename) < 0) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
                 break;
             }
@@ -3396,10 +3396,7 @@ proto_register_dtls(void)
                                      "Semicolon-separated list of private RSA keys used for DTLS decryption. "
                                      "Used by versions of Wireshark prior to 1.6",
                                      &dtls_keys_list);
-
-        prefs_register_string_preference(dtls_module, "psk", "Pre-Shared-Key",
-             "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
-             &dtls_psk);
+    ssl_common_register_options(dtls_module, &dtls_options);
   }
 #endif
 

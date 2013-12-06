@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/tvbuff.h>
 #include <epan/proto.h>
@@ -868,6 +869,13 @@ ssl_common_dissect_t name = {   \
         { & name .ei.hs_ext_cert_status_undecoded, { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE,   \
           "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL }}
 
+typedef struct ssl_common_options {
+    const gchar        *psk;
+    const gchar        *keylog_filename;
+} ssl_common_options_t;
+
+extern void
+ssl_common_register_options(module_t *module, ssl_common_options_t *options);
 
 #ifdef SSL_DECRYPT_DEBUG
 extern void
