@@ -1534,6 +1534,7 @@ set(LIBWIRESHARK_FILES
 	tvbuff_composite.c
 	tvbuff_real.c
 	tvbuff_subset.c
+	tvbuff_zlib.c
 	uat.c
 	value_string.c
 	xdlc.c

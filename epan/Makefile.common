@@ -97,6 +97,7 @@ LIBWIRESHARK_SRC =		\
 	tvbuff_composite.c	\
 	tvbuff_real.c		\
 	tvbuff_subset.c		\
+	tvbuff_zlib.c		\
 	tvbuff.c		\
 	uat.c			\
 	value_string.c		\
