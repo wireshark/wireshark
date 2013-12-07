@@ -314,12 +314,12 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 
 /* Values for header_field_info.display */
 
-/* For integral types, the display format is a base_display_e value
- * possibly ORed with BASE_RANGE_STRING. */
+/* For integral types, the display format is a BASE_* field_display_e value
+ * possibly ORed with BASE_*_STRING */
 
-/** BASE_DISPLAY_E_MASK selects the base_display_e value.  Its current
- * value means that we may have at most 16 base_display_e values. */
-#define BASE_DISPLAY_E_MASK 0x0F
+/** FIELD_DISPLAY_E_MASK selects the field_display_e value.  Its current
+ * value means that we may have at most 16 field_display_e values. */
+#define FIELD_DISPLAY_E_MASK 0x0F
 
 typedef enum {
 	BASE_NONE,	/**< none */
@@ -329,9 +329,9 @@ typedef enum {
 	BASE_DEC_HEX,	/**< decimal (hexadecimal) */
 	BASE_HEX_DEC,	/**< hexadecimal (decimal) */
 	BASE_CUSTOM	/**< call custom routine (in ->strings) to format */
-} base_display_e;
+} field_display_e;
 
-/* Following constants have to be ORed with a base_display_e when dissector
+/* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
 #define BASE_RANGE_STRING 0x10
 #define BASE_EXT_STRING   0x20

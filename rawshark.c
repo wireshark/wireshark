@@ -1275,7 +1275,7 @@ static const char* absolute_time_display_e_to_string(absolute_time_display_e atd
     }
 }
 
-static const char* base_display_e_to_string(base_display_e bd)
+static const char* field_display_e_to_string(field_display_e bd)
 {
     switch(bd) {
         case BASE_NONE:
@@ -1493,7 +1493,7 @@ protocolinfo_init(char *field)
             printf("%u %s %s - ",
                    g_cmd_line_index,
                    ftenum_to_string(hfi),
-                   base_display_e_to_string((base_display_e)hfi->display));
+                   field_display_e_to_string((field_display_e)hfi->display));
             break;
     }
 

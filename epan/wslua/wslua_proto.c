@@ -484,12 +484,12 @@ static const gchar* ftenum_to_string(enum ftenum ft) {
     return NULL;
 }
 
-struct base_display_string_t {
+struct field_display_string_t {
     const gchar* str;
     unsigned base;
 };
 
-static const struct base_display_string_t base_displays[] = {
+static const struct field_display_string_t base_displays[] = {
     {"base.NONE", BASE_NONE},
     {"base.DEC", BASE_DEC},
     {"base.HEX", BASE_HEX},
@@ -509,7 +509,7 @@ static const struct base_display_string_t base_displays[] = {
 };
 
 static const gchar* base_to_string(unsigned base) {
-    const struct base_display_string_t* b;
+    const struct field_display_string_t* b;
     for (b=base_displays;b->str;b++) {
         if ( base == b->base)
             return b->str;
@@ -518,7 +518,7 @@ static const gchar* base_to_string(unsigned base) {
 }
 
 static unsigned string_to_base(const gchar* str) {
-    const struct base_display_string_t* b;
+    const struct field_display_string_t* b;
     for (b=base_displays;b->str;b++) {
         if ( g_str_equal(str,b->str))
             return b->base;

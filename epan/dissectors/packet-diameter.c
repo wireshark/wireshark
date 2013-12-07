@@ -1269,7 +1269,7 @@ alnumerize(char *name)
 
 static guint
 reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
-	enum ftenum ft, base_display_e base, const value_string_ext *vs_ext,
+	enum ftenum ft, field_display_e base, const value_string_ext *vs_ext,
 	guint32 mask)
 {
 	hf_register_info hf = { hf_ptr, {
@@ -1292,7 +1292,7 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 
 static void
 basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
-		  base_display_e base, const value_string_ext *vs_ext)
+		  field_display_e base, const value_string_ext *vs_ext)
 {
 	hf_register_info hf[] = { { &(a->hf_value),
 				  { NULL, NULL, ft, base, NULL, 0x0,
@@ -1366,7 +1366,7 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 
 	reginfo(&(t->hf_address_type), ep_strdup_printf("%s Address Family",name),
 		alnumerize(ep_strdup_printf("diameter.%s.addr_family",name)),
-		NULL, FT_UINT16, (base_display_e)(BASE_DEC|BASE_EXT_STRING), &diameter_avp_data_addrfamily_vals_ext, 0);
+		NULL, FT_UINT16, (field_display_e)(BASE_DEC|BASE_EXT_STRING), &diameter_avp_data_addrfamily_vals_ext, 0);
 
 	reginfo(&(t->hf_ipv4), ep_strdup_printf("%s Address",name),
 		alnumerize(ep_strdup_printf("diameter.%s.IPv4",name)),
@@ -1417,13 +1417,13 @@ build_simple_avp(const avp_type_t *type, guint32 code, const diam_vnd_t *vendor,
 {
 	diam_avp_t *a;
 	const value_string_ext *vs_ext = NULL;
-	base_display_e base;
+	field_display_e base;
 	guint i = 0;
 
 	/*
 	 * Only 32-bit or shorter integral types can have a list of values.
 	 */
-	base = (base_display_e)type->base;
+	base = (field_display_e)type->base;
 	if (vs != NULL) {
 		switch (type->ft) {
 
@@ -1444,7 +1444,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, const diam_vnd_t *vendor,
 		  i++;
 		}
 		vs_ext = value_string_ext_new((value_string *)vs, i+1, wmem_strdup_printf(wmem_epan_scope(), "%s_vals_ext",name));
-		base = (base_display_e)(base|BASE_EXT_STRING);
+		base = (field_display_e)(base|BASE_EXT_STRING);
 	}
 
 	a = (diam_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
