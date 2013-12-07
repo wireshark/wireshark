@@ -168,6 +168,12 @@ EBCDIC_to_ASCII1(guint8 c)
 	return EBCDIC_translate_ASCII[c];
 }
 
+/*
+ * Translation tables that map the upper 128 code points in single-byte
+ * "extended ASCII" character encodings to Unicode code points in the
+ * Basic Multilingual Plane.
+ */
+
 /* REPLACEMENT CHARACTER */
 #define UNREPL 0xFFFD
 
