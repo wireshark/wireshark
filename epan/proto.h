@@ -285,6 +285,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_UCS_2		0x00000006
 #define ENC_EBCDIC		0x00000008
 #define ENC_WINDOWS_1250	0x0000000A	/* http://en.wikipedia.org/wiki/Windows-1250 */
+#define ENC_ISO_8859_2		0x0000000C      /* http://en.wikipedia.org/wiki/ISO/IEC_8859-2#Code_page_layout */
 
 /*
  * TODO:

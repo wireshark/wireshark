@@ -1911,6 +1911,10 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
 		break;
 
+	case ENC_ISO_8859_2:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_2);
+		break;
+
 	case ENC_UTF_8:
 		/*
 		 * XXX - should map all invalid UTF-8 sequences
@@ -2024,6 +2028,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_WINDOWS_1250:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+		break;
+
+	case ENC_ISO_8859_2:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_2);
 		break;
 
 	case ENC_UTF_8:
