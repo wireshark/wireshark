@@ -284,6 +284,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_UTF_16		0x00000004
 #define ENC_UCS_2		0x00000006
 #define ENC_EBCDIC		0x00000008
+#define ENC_WINDOWS_1250	0x0000000A	/* http://en.wikipedia.org/wiki/Windows-1250 */
 
 /*
  * TODO:

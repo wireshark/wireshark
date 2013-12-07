@@ -1807,6 +1807,28 @@ tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const 
 	return strbuf;
 }
 
+static guint8 *
+tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[0x80])
+{
+	wmem_strbuf_t *str;
+
+	str = wmem_strbuf_new(scope, "");
+
+	while (length > 0) {
+		guint8 ch = tvb_get_guint8(tvb, offset);
+
+		if (ch < 0x80)
+			wmem_strbuf_append_c(str, ch);
+		else
+			wmem_strbuf_append_unichar(str, table[ch-0x80]);
+		offset++;
+		length--;
+	}
+
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
+	return (guint8 *) wmem_strbuf_get_str(str);
+}
+
 /*
  * Unicode (UTF-16) version of tvb_get_string()
  * XXX - this is UCS-2, not UTF-16, as it doesn't handle surrogate pairs
@@ -1885,6 +1907,10 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strbuf = tvb_get_string(scope, tvb, offset, length);
 		break;
 
+	case ENC_WINDOWS_1250:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
+		break;
+
 	case ENC_UTF_8:
 		/*
 		 * XXX - should map all invalid UTF-8 sequences
@@ -1960,6 +1986,17 @@ tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint 
 	return strptr;
 }
 
+static guint8 *
+tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp, const gunichar2 table[0x80])
+{
+	guint size;
+
+	/* XXX, convertion between signed/unsigned integer */
+	*lengthp = size = tvb_strsize(tvb, offset);
+
+	return tvb_get_string_unichar2(scope, tvb, offset, size, table);
+}
+
 guint8 *
 tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -1983,6 +2020,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		 * not set to a "substitute" UTF-8 character.
 		 */
 		strptr = tvb_get_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_WINDOWS_1250:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
 		break;
 
 	case ENC_UTF_8:
