@@ -32,7 +32,6 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
-#include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 
@@ -1658,6 +1657,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
     l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
+    l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
     l2cap_data->first_scid_frame = 0;
     l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
@@ -1904,6 +1904,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             psm = psm_data->psm;
             l2cap_data->psm = psm;
+            l2cap_data->is_local_psm = psm_data->local_service;
             l2cap_data->first_scid_frame = psm_data->first_scid_frame;
             l2cap_data->first_dcid_frame = psm_data->first_dcid_frame;
 

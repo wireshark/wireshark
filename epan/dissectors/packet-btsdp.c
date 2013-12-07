@@ -36,7 +36,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <epan/tap.h>
 #include <epan/ip_opts.h>
 #include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
@@ -1074,8 +1073,9 @@ get_uuids(packet_info *pinfo, guint32 record_handle, btl2cap_data_t *l2cap_data)
 }
 
 
-static void
-save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protocol_order, service_info_t *parent_service_info)
+static service_info_t *
+save_channel(packet_info *pinfo, guint32 type_protocol, guint32 channel,
+        gint protocol_order, service_info_t *parent_service_info)
 {
     wmem_tree_key_t  key[10];
     guint32          k_interface_id;
@@ -1097,11 +1097,12 @@ save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protoco
     service_info->bd_addr_oui    = parent_service_info->bd_addr_oui;
     service_info->bd_addr_id     = parent_service_info->bd_addr_id;
 
-    service_info->type           = protocol;
+    service_info->type           = type_protocol;
     service_info->channel        = channel;
 
     service_info->uuid           = parent_service_info->uuid;
 
+    service_info->protocol       = -1;
     service_info->protocol_order = protocol_order;
     service_info->parent_info    = parent_service_info;
     service_info->data           = parent_service_info->data;
@@ -1139,6 +1140,8 @@ save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protoco
     key[9].key = NULL;
 
     wmem_tree_insert32_array(service_infos, key, service_info);
+
+    return service_info;
 }
 
 
@@ -1880,25 +1883,26 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         packet_info *pinfo, gint offset, gint size, wmem_strbuf_t *info_buf,
         service_info_t  *service_info, gint *protocol_order)
 {
-    proto_tree    *feature_tree;
-    proto_item    *feature_item;
-    proto_tree    *entry_tree;
-    proto_item    *entry_item;
-    proto_tree    *sub_tree;
-    proto_tree    *last_tree;
-    gint           new_offset;
-    gint           list_offset;
-    gint           entry_offset;
-    gint           entry_length;
-    guint32        value;
-    gint           length;
-    guint32        i_protocol;
-    uuid_t         uuid;
+    proto_tree      *feature_tree;
+    proto_item      *feature_item;
+    proto_tree      *entry_tree;
+    proto_item      *entry_item;
+    proto_tree      *sub_tree;
+    proto_tree      *last_tree;
+    gint             new_offset;
+    gint             list_offset;
+    gint             entry_offset;
+    gint             entry_length;
+    guint32          value;
+    gint             length;
+    guint32          i_protocol;
+    uuid_t           uuid;
+    service_info_t  *record = NULL;
 
     list_offset = offset;
     i_protocol = 1;
     while (list_offset - offset < size) {
-        gchar *uuid_str;
+        gchar           *uuid_str;
 
         feature_item = proto_tree_add_none_format(next_tree, hf_sdp_protocol_item, tvb, list_offset, 0, "Protocol #%u", i_protocol);
         feature_tree = proto_item_add_subtree(feature_item, ett_btsdp_protocol);
@@ -1934,7 +1938,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 proto_item_append_text(entry_item, ", PSM: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_psm, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
                 if (!pinfo->fd->flags.visited && service_info)
-                    save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, value, *protocol_order, service_info);
+                    record = save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
             } else if (uuid.bt_uuid == BTSDP_RFCOMM_PROTOCOL_UUID) {
                 wmem_strbuf_append_printf(info_buf, ":%u", value);
@@ -1942,7 +1946,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 proto_item_append_text(entry_item, ", RFCOMM Channel: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_channel, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
                 if (!pinfo->fd->flags.visited && service_info)
-                    save_channel(pinfo, BTSDP_RFCOMM_PROTOCOL_UUID, value, *protocol_order, service_info);
+                    record = save_channel(pinfo, BTSDP_RFCOMM_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
             } else if (uuid.bt_uuid == BTSDP_ATT_PROTOCOL_UUID) {
                 proto_item_append_text(feature_item, ", GATT Handle Start: 0x%04x", value);
@@ -2006,6 +2010,9 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
         if (list_offset - offset < size)
             wmem_strbuf_append(info_buf, " -> ");
+
+        if (record)
+            record->protocol = uuid.bt_uuid;
     }
 
 }
@@ -3738,6 +3745,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
         service_info->type           = 0;
         service_info->channel        = 0;
         service_info->protocol_order = 0;
+        service_info->protocol       = -1;
         service_info->parent_info    = NULL;
     } else {
         service_info = NULL;

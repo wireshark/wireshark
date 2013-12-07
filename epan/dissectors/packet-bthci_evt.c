@@ -3443,17 +3443,23 @@ dissect_bthci_evt_read_remote_ext_features_complete(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
+        packet_info *pinfo, proto_tree *tree, hci_data_t *hci_data)
 {
     proto_item *item;
+    guint16     connection_handle;
+    guint8      bd_addr[6];
+    guint8      status;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    status = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
     offset += 2;
 
-    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_sync_link_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -3474,6 +3480,40 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset, packet_inf
 
     proto_tree_add_item(tree, hf_bthci_evt_air_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
+
+    if (!pinfo->fd->flags.visited && status == 0x00) {
+        wmem_tree_key_t  key[5];
+        guint32          k_interface_id;
+        guint32          k_adapter_id;
+        guint32          k_connection_handle;
+        guint32          k_frame_number;
+        remote_bdaddr_t  *remote_bdaddr;
+
+        k_interface_id = hci_data->interface_id;
+        k_adapter_id = hci_data->adapter_id;
+        k_connection_handle = connection_handle;
+        k_frame_number = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key    = &k_interface_id;
+        key[1].length = 1;
+        key[1].key    = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key    = &k_connection_handle;
+        key[3].length = 1;
+        key[3].key    = &k_frame_number;
+        key[4].length = 0;
+        key[4].key    = NULL;
+
+        remote_bdaddr = (remote_bdaddr_t *) wmem_new(wmem_file_scope(), remote_bdaddr_t);
+        remote_bdaddr->interface_id = hci_data->interface_id;
+        remote_bdaddr->adapter_id = hci_data->adapter_id;
+        remote_bdaddr->chandle = connection_handle;
+        memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
+
+        wmem_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
+    }
 
     return offset;
 }
@@ -3828,7 +3868,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x2c: /* Synchronous Connection Complete */
-            offset = dissect_bthci_evt_sync_connection_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_sync_connection_complete(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x2d: /* Synchronous Connection Changed */

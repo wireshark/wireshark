@@ -165,7 +165,7 @@ typedef struct _uuid_t {
     guint8   data[16];
 } uuid_t;
 
-/* This structure is passed to other dissectors through the tap interface
+/* This structure is passed to other dissectors
  * and contains information about the relation between service, PSM/server
  * channel, local/remote service. The btrfcomm and btl2cap dissectors
  * need this information to determine the kind of data transfered on
@@ -196,6 +196,7 @@ typedef struct _service_info_t {
 
     uuid_t   uuid;
     gint     protocol_order; /* main service protocol has 0, goep -1, additional protocol 1, 2... */
+    gint     protocol;
 
     void    *data;        /* Used to transfer service record data to profiles */
 
