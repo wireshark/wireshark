@@ -95,6 +95,26 @@
 #include <epan/llcsaps.h>
 #include <epan/to_str.h>
 
+void proto_register_vines_frp(void);
+void proto_reg_handoff_vines_frp(void);
+void proto_register_vines_llc(void);
+void proto_reg_handoff_vines_llc(void);
+void proto_register_vines_ip(void);
+void proto_reg_handoff_vines_ip(void);
+void proto_register_vines_echo(void);
+void proto_reg_handoff_vines_echo(void);
+void proto_register_vines_ipc(void);
+void proto_reg_handoff_vines_ipc(void);
+void proto_register_vines_spp(void);
+void proto_reg_handoff_vines_spp(void);
+void proto_register_vines_arp(void);
+void proto_reg_handoff_vines_arp(void);
+void proto_register_vines_rtp(void);
+void proto_reg_handoff_vines_rtp(void);
+void proto_register_vines_icp(void);
+void proto_reg_handoff_vines_icp(void);
+
+
 #define UDP_PORT_VINES	573
 
 static int proto_vines_frp = -1;

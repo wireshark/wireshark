@@ -37,6 +37,9 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 
+void proto_reg_handoff_zrtp(void);
+void proto_register_zrtp(void);
+
 /*
   RTP header
 */

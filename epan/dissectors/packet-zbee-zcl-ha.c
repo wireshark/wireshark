@@ -107,6 +107,15 @@
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_appl_idt(void);
+void proto_reg_handoff_zbee_zcl_appl_idt(void);
+void proto_register_zbee_zcl_met_idt(void);
+void proto_reg_handoff_zbee_zcl_met_idt(void);
+void proto_register_zbee_zcl_appl_evtalt(void);
+void proto_reg_handoff_zbee_zcl_appl_evtalt(void);
+void proto_register_zbee_zcl_appl_stats(void);
+void proto_reg_handoff_zbee_zcl_appl_stats(void);
+
 /* Command Dissector Helpers */
 
 /* Private functions prototype */

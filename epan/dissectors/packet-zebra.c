@@ -32,6 +32,10 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+/*  Function declarations */
+void proto_reg_handoff_zebra(void);
+void proto_register_zebra(void);
+
 static int proto_zebra = -1;
 static int hf_zebra_len = -1;
 static int hf_zebra_command = -1;

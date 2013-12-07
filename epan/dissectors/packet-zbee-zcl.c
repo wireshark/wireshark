@@ -42,6 +42,8 @@
  * Function Declarations *
  *************************
  */
+void proto_register_zbee_zcl(void);
+void proto_reg_handoff_zbee_zcl(void);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_read_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);

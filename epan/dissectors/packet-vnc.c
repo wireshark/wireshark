@@ -54,6 +54,8 @@
 #include "packet-x11.h" /* This contains the extern for the X11 value_string_ext
 			 * "x11_keysym_vals_source_ext" that VNC uses. */
 
+void proto_register_vnc(void);
+
 typedef enum {
 	VNC_SECURITY_TYPE_INVALID       =  0,
 	VNC_SECURITY_TYPE_NONE          =  1,

@@ -95,6 +95,17 @@
 /*************************/
 
 /* Command Dissector Helpers */
+void proto_register_zbee_zcl_basic(void);
+void proto_reg_handoff_zbee_zcl_basic(void);
+void proto_register_zbee_zcl_identify(void);
+void proto_reg_handoff_zbee_zcl_identify(void);
+void proto_register_zbee_zcl_on_off(void);
+void proto_register_zbee_zcl_part(void);
+void proto_reg_handoff_zbee_zcl_part(void);
+void proto_register_zbee_zcl_pwr_prof(void);
+void proto_reg_handoff_zbee_zcl_pwr_prof(void);
+void proto_register_zbee_zcl_appl_ctrl(void);
+void proto_reg_handoff_zbee_zcl_appl_ctrl(void);
 
 /* Private functions prototype */
 static void dissect_zcl_basic_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);

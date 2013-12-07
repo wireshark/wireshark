@@ -62,6 +62,7 @@
 
 /*  Function declarations */
 void proto_reg_handoff_zep(void);
+void proto_register_zep(void);
 
 /*  Initialize protocol and registered fields. */
 static int proto_zep = -1;

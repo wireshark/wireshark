@@ -78,6 +78,8 @@
 /*************************/
 /* Function Declarations */
 /*************************/
+void proto_register_zbee_zcl_msg(void);
+void proto_reg_handoff_zbee_zcl_msg(void);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_msg_display             (tvbuff_t *tvb, proto_tree *tree, guint *offset);

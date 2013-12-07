@@ -32,6 +32,9 @@
 #include <epan/wmem/wmem.h>
 #include <epan/uat.h>
 
+void proto_register_vcdu(void);
+void proto_reg_handoff_vcdu(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_vcdu = -1;
 

@@ -77,6 +77,13 @@
 /*************************/
 /* Function Declarations */
 /*************************/
+void proto_register_zbee_zcl_illum_meas(void);
+void proto_reg_handoff_zbee_zcl_illum_meas(void);
+void proto_reg_handoff_zbee_zcl_temp_meas(void);
+void proto_register_zbee_zcl_press_meas(void);
+void proto_reg_handoff_zbee_zcl_press_meas(void);
+void proto_register_zbee_zcl_relhum_meas(void);
+void proto_reg_handoff_zbee_zcl_relhum_meas(void);
 
 /* Command Dissector Helpers */
 

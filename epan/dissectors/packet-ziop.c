@@ -46,6 +46,9 @@
 
 #define DEBUG   0
 
+void proto_reg_handoff_ziop(void);
+void proto_register_ziop(void);
+
 /*
  * ------------------------------------------------------------------------------------------+
  *                                 Data/Variables/Structs

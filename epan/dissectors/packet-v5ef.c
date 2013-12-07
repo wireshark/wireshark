@@ -41,6 +41,8 @@
 #include <epan/xdlc.h>
 #include <epan/crc16-tvb.h>
 
+void proto_register_v5ef(void);
+
 static int proto_v5ef = -1;
 static int hf_v5ef_direction = -1;
 static int hf_v5ef_address = -1;

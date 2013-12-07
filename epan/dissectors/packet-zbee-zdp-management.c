@@ -52,7 +52,7 @@
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item      *ti = NULL;
@@ -120,7 +120,7 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 versio
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
     proto_item      *ti = NULL;
@@ -260,20 +260,6 @@ zdp_parse_routing_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset)
     *offset += len;
 } /* zdp_parse_routing_table_entry */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      zdp_parse_bind_table_entry
- *  DESCRIPTION
- *      Parses and displays a single binding table entry.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
-extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version);
 
 /**************************************
  * MANAGEMENT REQUESTS

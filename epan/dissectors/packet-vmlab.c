@@ -48,6 +48,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_vmlab(void);
+void proto_reg_handoff_vmlab(void);
+
 static dissector_handle_t ethertype_handle;
 
 static int proto_vmlab = -1;
