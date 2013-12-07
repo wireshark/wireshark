@@ -251,6 +251,7 @@ extern "C" {
 #define WTAP_ENCAP_WIRESHARK_UPPER_PDU          156
 #define WTAP_ENCAP_STANAG_4607                  157
 #define WTAP_ENCAP_STANAG_5066_D_PDU            158
+#define WTAP_ENCAP_NETLINK                      159
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()

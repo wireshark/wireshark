@@ -417,6 +417,8 @@ static const struct {
 	{ 251,		WTAP_ENCAP_BLUETOOTH_LE_LL},
 	/* Wireshark Upper PDU export */
 	{ 252,		WTAP_ENCAP_WIRESHARK_UPPER_PDU},
+	/* Netlink Protocol (nlmon devices) */
+	{ 253,		WTAP_ENCAP_NETLINK },
 
 	/*
 	 * To repeat:
