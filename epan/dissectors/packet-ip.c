@@ -2610,7 +2610,7 @@ proto_register_ip(void)
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_lat,
       { "Source or Destination GeoIP Latitude", "ip.geoip.lat",
-        FT_DOUBLE, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_lon,
       { "Source or Destination GeoIP Longitude", "ip.geoip.lon",
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},

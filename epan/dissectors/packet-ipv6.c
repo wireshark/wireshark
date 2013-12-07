@@ -2363,7 +2363,7 @@ proto_register_ipv6(void)
                                 NULL, HFILL }},
     { &hf_geoip_src_lon,
       { "Source GeoIP Longitude", "ipv6.geoip.src_lon",
-                                FT_DOUBLE, STR_UNICODE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_geoip_dst_country,
       { "Destination GeoIP Country", "ipv6.geoip.dst_country",
