@@ -64,7 +64,7 @@ static header_field_info hfi_json_member_key JSON_HFI_INIT =
 #endif
 
 static header_field_info hfi_json_value_string JSON_HFI_INIT = /* FT_STRINGZ? */
-	{ "String value", "json.value.string", FT_STRING, BASE_NONE, NULL, 0x00, "JSON string value", HFILL };
+	{ "String value", "json.value.string", FT_STRING, STR_UNICODE, NULL, 0x00, "JSON string value", HFILL };
 
 static header_field_info hfi_json_value_number JSON_HFI_INIT = /* FT_DOUBLE/ FT_INT64? */
 	{ "Number value", "json.value.number", FT_STRING, BASE_NONE, NULL, 0x00, "JSON number value", HFILL };
@@ -393,7 +393,7 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 	switch (value_id) {
 		case JSON_TOKEN_STRING:
 			if (tok->len >= 2)
-				proto_tree_add_unicode_string(tree, hfi_json_value_string.id, tok->tvb, tok->offset, tok->len, json_string_unescape(tok));
+				proto_tree_add_string(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, json_string_unescape(tok));
 			else
 				proto_tree_add_item(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
 			break;

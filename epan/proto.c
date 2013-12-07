@@ -2570,6 +2570,10 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 
+	if (hfinfo->display == STR_UNICODE) {
+		DISSECTOR_ASSERT(g_utf8_validate(value, -1, NULL));
+	}
+
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 	DISSECTOR_ASSERT(length >= 0);
 	proto_tree_set_string(PNODE_FINFO(pi), value);
