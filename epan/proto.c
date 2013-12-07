@@ -3668,6 +3668,24 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	}
 }
 
+static const char *
+hfinfo_format_text(const header_field_info *hfinfo, const guchar *string)
+{
+	switch (hfinfo->display) {
+		case STR_ASCII:
+			return format_text(string, strlen(string));
+/*
+		case STR_ASCII_WSP
+			return format_text_wsp(string, strlen(string));
+ */
+		case STR_UNICODE:
+			/* XXX, format_unicode_text() */
+			return string;
+	}
+
+	return format_text(string, strlen(string));
+}
+
 static int
 protoo_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
 {
@@ -3959,7 +3977,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_UINT_STRING:
 				bytes = (guint8 *)fvalue_get(&finfo->value);
 				offset_r += protoo_strlcpy(result+offset_r,
-							   format_text(bytes, strlen(bytes)),
+							   hfinfo_format_text(hfinfo, bytes),
 							   size-offset_r);
 				break;
 
@@ -4901,6 +4919,8 @@ static const value_string hf_display[] = {
 	{ BASE_DEC_HEX|BASE_VAL64_STRING, "BASE_DEC_HEX|BASE_VAL64_STRING" },
 	{ BASE_HEX_DEC|BASE_VAL64_STRING, "BASE_HEX_DEC|BASE_VAL64_STRING" },
 	{ BASE_CUSTOM|BASE_VAL64_STRING,  "BASE_CUSTOM|BASE_VAL64_STRING"  },
+	/* { STR_ASCII,			  "STR_ASCII" }, */
+	{ STR_UNICODE,			  "STR_UNICODE" },
 	{ ABSOLUTE_TIME_LOCAL,		  "ABSOLUTE_TIME_LOCAL"		   },
 	{ ABSOLUTE_TIME_UTC,		  "ABSOLUTE_TIME_UTC"		   },
 	{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
@@ -5079,6 +5099,32 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			break;
+
+		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
+			switch (hfinfo->display) {
+				case STR_ASCII:
+				case STR_UNICODE:
+					break;
+
+				default:
+					g_error("Field '%s' (%s) is an string value (%s)"
+						" but is being displayed as %s\n",
+						hfinfo->name, hfinfo->abbrev,
+						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
+			}
+
+			if (hfinfo->bitmask != 0)
+				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			if (hfinfo->strings != NULL)
+				g_error("Field '%s' (%s) is an %s but has a strings value\n",
 					hfinfo->name, hfinfo->abbrev,
 					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 			break;
@@ -5500,7 +5546,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill(label_str, 0, hfinfo, format_text(bytes, strlen(bytes)));
+			label_fill(label_str, 0, hfinfo, hfinfo_format_text(hfinfo, bytes));
 			break;
 
 		default:

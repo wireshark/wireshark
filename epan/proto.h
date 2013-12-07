@@ -322,13 +322,19 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define FIELD_DISPLAY_E_MASK 0x0F
 
 typedef enum {
-	BASE_NONE,	/**< none */
-	BASE_DEC,	/**< decimal */
-	BASE_HEX,	/**< hexadecimal */
-	BASE_OCT,	/**< octal */
-	BASE_DEC_HEX,	/**< decimal (hexadecimal) */
-	BASE_HEX_DEC,	/**< hexadecimal (decimal) */
-	BASE_CUSTOM	/**< call custom routine (in ->strings) to format */
+/* Integral types */
+	BASE_NONE    = 0,   /**< none */
+	BASE_DEC     = 1,   /**< decimal */
+	BASE_HEX     = 2,   /**< hexadecimal */
+	BASE_OCT     = 3,   /**< octal */
+	BASE_DEC_HEX = 4,   /**< decimal (hexadecimal) */
+	BASE_HEX_DEC = 5,   /**< hexadecimal (decimal) */
+	BASE_CUSTOM  = 6,   /**< call custom routine (in ->strings) to format */
+
+/* String types */
+	STR_ASCII    = BASE_NONE, /**< shows non-printable ASCII characters as C-style escapes */
+	/* XXX, support for format_text_wsp() ? */
+	STR_UNICODE  = 7          /**< shows non-printable UNICODE characters as \uXXXX (XXX for now non-printable characters display depends on UI) */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector
