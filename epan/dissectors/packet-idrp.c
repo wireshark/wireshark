@@ -977,8 +977,7 @@ static int dissect_BISPDU_ERROR(tvbuff_t * tvb, int offset, proto_tree * tree)
        for the IDRP ERROR PDU. The contents of the Data field depends upon the
        error code and error subcode. */
     data_length = tvb_reported_length_remaining(tvb, offset);
-    if (data_length>=0) {
-        offset++;
+    if (data_length>0) {
         proto_tree_add_item(tree, hf_idrp_error_data, tvb, offset, data_length,
                 ENC_ASCII | ENC_NA);
         offset += data_length;
