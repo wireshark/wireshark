@@ -998,6 +998,7 @@ static int hf_dvbci_sac_payload_enc = -1;
 static int hf_dvbci_sac_enc_cip = -1;
 static int hf_dvbci_sac_payload_len = -1;
 static int hf_dvbci_sac_enc_body = -1;
+static int hf_dvbci_sac_padding = -1;
 static int hf_dvbci_sac_signature = -1;
 static int hf_dvbci_rating = -1;
 static int hf_dvbci_capability_field = -1;
@@ -3196,10 +3197,9 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
         if (sac_payload_data_len < 0)
             return;
         if (sac_payload_len > sac_payload_data_len) {
-            proto_tree_add_text(sac_tree, clear_sac_body_tvb,
-                    sac_payload_data_len,
-                    sac_payload_len-sac_payload_data_len,
-                    "padding");
+            proto_tree_add_item(sac_tree, hf_dvbci_sac_padding,
+                    clear_sac_body_tvb, sac_payload_data_len,
+                    sac_payload_len-sac_payload_data_len, ENC_NA);
         }
     }
     proto_tree_add_item(tree, hf_dvbci_sac_signature,
@@ -5468,6 +5468,10 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_sac_enc_body,
           { "Encrypted SAC body", "dvb-ci.cc.sac.enc_body",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_sac_padding,
+          { "Padding", "dvb-ci.cc.sac.padding",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_sac_signature,
