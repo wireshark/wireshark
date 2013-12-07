@@ -47,6 +47,9 @@
 #define PSNAME "PKCS-1"
 #define PFNAME "pkcs-1"
 
+void proto_register_pkcs1(void);
+void proto_reg_handoff_pkcs1(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkcs1 = -1;
 
@@ -85,7 +88,7 @@ static int hf_pkcs1_r = -1;                       /* INTEGER */
 static int hf_pkcs1_s = -1;                       /* INTEGER */
 
 /*--- End of included file: packet-pkcs1-hf.c ---*/
-#line 45 "../../asn1/pkcs1/packet-pkcs1-template.c"
+#line 48 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -103,7 +106,7 @@ static gint ett_pkcs1_DSA_Sig_Value = -1;
 static gint ett_pkcs1_ECDSA_Sig_Value = -1;
 
 /*--- End of included file: packet-pkcs1-ett.c ---*/
-#line 48 "../../asn1/pkcs1/packet-pkcs1-template.c"
+#line 51 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
@@ -373,7 +376,7 @@ static void dissect_ECParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
-#line 50 "../../asn1/pkcs1/packet-pkcs1-template.c"
+#line 53 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
@@ -509,7 +512,7 @@ void proto_register_pkcs1(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/
-#line 57 "../../asn1/pkcs1/packet-pkcs1-template.c"
+#line 60 "../../asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
@@ -529,7 +532,7 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_ECDSA_Sig_Value,
 
 /*--- End of included file: packet-pkcs1-ettarr.c ---*/
-#line 62 "../../asn1/pkcs1/packet-pkcs1-template.c"
+#line 65 "../../asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* Register protocol */
@@ -558,7 +561,7 @@ void proto_reg_handoff_pkcs1(void) {
 
 
 /*--- End of included file: packet-pkcs1-dis-tab.c ---*/
-#line 77 "../../asn1/pkcs1/packet-pkcs1-template.c"
+#line 80 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2");
 	register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4");

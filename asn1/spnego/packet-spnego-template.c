@@ -55,6 +55,9 @@
 #define PSNAME "SPNEGO"
 #define PFNAME "spnego"
 
+void proto_register_spnego(void);
+void proto_reg_handoff_spnego(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_spnego = -1;
 static int proto_spnego_krb5 = -1;

@@ -50,6 +50,9 @@
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>      /* include V5UA payload protocol ID */
 
+void proto_register_v5ua(void);
+void proto_reg_handoff_v5ua(void);
+
 static int paddingl = 0;
 static int dlci_efa = -1;
 

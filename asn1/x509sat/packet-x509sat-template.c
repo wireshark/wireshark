@@ -39,6 +39,9 @@
 #define PSNAME "X509SAT"
 #define PFNAME "x509sat"
 
+void proto_register_x509sat(void);
+void proto_reg_handoff_x509sat(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_x509sat = -1;
 #include "packet-x509sat-hf.c"

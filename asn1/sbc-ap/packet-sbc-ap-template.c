@@ -43,6 +43,9 @@
 #define PSNAME "SBCAP"
 #define PFNAME "sbcap"
 
+void proto_register_sbc_ap(void);
+void proto_reg_handoff_sbc_ap(void);
+
 /* The registered port number for SBc-AP is 29168.
  * The registered payload protocol identifier for SBc-AP is 24.
  */

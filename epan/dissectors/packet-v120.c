@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include <epan/xdlc.h>
 
+void proto_register_v120(void);
+void proto_reg_handoff_v120(void);
+
 static int proto_v120 = -1;
 static int hf_v120_address = -1;
 static int hf_v120_rc = -1;

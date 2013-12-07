@@ -47,6 +47,10 @@
 #define PSNAME "PKIXQUALIFIED"
 #define PFNAME "pkixqualified"
 
+void proto_register_pkixqualified(void);
+void proto_reg_handoff_pkixqualified(void);
+
+
 /* Initialize the protocol and registered fields */
 static int proto_pkixqualified = -1;
 
@@ -74,7 +78,7 @@ static int hf_pkixqualified_nameRegistrationAuthorities = -1;  /* NameRegistrati
 static int hf_pkixqualified_NameRegistrationAuthorities_item = -1;  /* GeneralName */
 
 /*--- End of included file: packet-pkixqualified-hf.c ---*/
-#line 45 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 49 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -89,7 +93,7 @@ static gint ett_pkixqualified_SemanticsInformation = -1;
 static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
 
 /*--- End of included file: packet-pkixqualified-ett.c ---*/
-#line 48 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 52 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 
 static const char *object_identifier_id;
 
@@ -351,7 +355,7 @@ static void dissect_XmppAddr_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-pkixqualified-fn.c ---*/
-#line 52 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 56 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 
 
 /*--- proto_register_pkixqualified ----------------------------------------------*/
@@ -444,7 +448,7 @@ void proto_register_pkixqualified(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/
-#line 60 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 64 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
   };
 
   /* List of subtrees */
@@ -461,7 +465,7 @@ void proto_register_pkixqualified(void) {
     &ett_pkixqualified_NameRegistrationAuthorities,
 
 /*--- End of included file: packet-pkixqualified-ettarr.c ---*/
-#line 65 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 69 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
   };
 
   /* Register protocol */
@@ -492,6 +496,6 @@ void proto_reg_handoff_pkixqualified(void) {
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/
-#line 80 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 84 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 }
 

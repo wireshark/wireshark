@@ -65,7 +65,6 @@
 #include <epan/strutil.h>
 
 void proto_register_t38(void);
-void proto_reg_handoff_t38(void);
 
 #define PORT_T38 6004
 static guint global_t38_tcp_port = PORT_T38;
@@ -292,7 +291,7 @@ void t38_add_address(packet_info *pinfo,
 }
 
 
-fragment_head *
+static fragment_head *
 force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 {
 	fragment_head *fd_head;

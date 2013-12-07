@@ -34,6 +34,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_v150fw(void);
+
 /* Initialize the protocol & registered fields
  * Look familiar?  This is in the same format as an NTE (named telephone event) from RFC 2833:
  */

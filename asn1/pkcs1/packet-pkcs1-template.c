@@ -39,6 +39,9 @@
 #define PSNAME "PKCS-1"
 #define PFNAME "pkcs-1"
 
+void proto_register_pkcs1(void);
+void proto_reg_handoff_pkcs1(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkcs1 = -1;
 #include "packet-pkcs1-hf.c"

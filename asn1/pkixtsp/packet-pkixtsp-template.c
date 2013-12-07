@@ -39,6 +39,9 @@
 #define PSNAME "PKIXTSP"
 #define PFNAME "pkixtsp"
 
+void proto_register_pkixtsp(void);
+void proto_reg_handoff_pkixtsp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkixtsp = -1;
 #include "packet-pkixtsp-hf.c"

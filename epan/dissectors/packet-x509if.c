@@ -50,6 +50,9 @@
 #define PSNAME "X509IF"
 #define PFNAME "x509if"
 
+void proto_register_x509if(void);
+void proto_reg_handoff_x509if(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_x509if = -1;
 static int hf_x509if_object_identifier_id = -1;
@@ -214,7 +217,7 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 50 "../../asn1/x509if/packet-x509if-template.c"
+#line 53 "../../asn1/x509if/packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -295,7 +298,7 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 53 "../../asn1/x509if/packet-x509if-template.c"
+#line 56 "../../asn1/x509if/packet-x509if-template.c"
 
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;
@@ -2096,7 +2099,7 @@ static void dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 89 "../../asn1/x509if/packet-x509if-template.c"
+#line 92 "../../asn1/x509if/packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2762,7 +2765,7 @@ void proto_register_x509if(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 134 "../../asn1/x509if/packet-x509if-template.c"
+#line 137 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2845,7 +2848,7 @@ void proto_register_x509if(void) {
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 139 "../../asn1/x509if/packet-x509if-template.c"
+#line 142 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2903,6 +2906,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 158 "../../asn1/x509if/packet-x509if-template.c"
+#line 161 "../../asn1/x509if/packet-x509if-template.c"
 }
 

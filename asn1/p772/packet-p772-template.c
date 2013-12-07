@@ -41,6 +41,10 @@
 #define PSNAME "P772"
 #define PFNAME "p772"
 
+void proto_register_p772(void);
+void proto_reg_handoff_p772(void);
+
+
 /* Initialize the protocol and registered fields */
 static int proto_p772 = -1;
 

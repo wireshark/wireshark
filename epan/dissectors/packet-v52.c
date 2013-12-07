@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_v52(void);
+void proto_reg_handoff_v52(void);
+
 static int proto_v52                           = -1;
 static int hf_v52_discriminator                = -1;
 

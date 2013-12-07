@@ -52,6 +52,8 @@
  *     for channels that doesn't have the C/T flag! This should be based
  * on the RRC message RadioBearerSetup.
  */
+void proto_register_umts_fp(void);
+void proto_reg_handoff_umts_fp(void);
 
 /* Initialize the protocol and registered fields. */
 

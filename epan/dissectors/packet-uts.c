@@ -49,6 +49,8 @@
 
 #define MAX_POLL_TYPE_MSG_SIZE	(50)
 
+void proto_register_uts(void);
+
 static int	proto_uts	= -1;
 static gint	ett_uts		= -1;
 static gint	ett_header_uts	= -1;

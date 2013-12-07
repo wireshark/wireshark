@@ -37,6 +37,8 @@
 #define PSNAME "PKIXPROXY"
 #define PFNAME "pkixproxy"
 
+void proto_register_pkixproxy(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkixproxy = -1;
 #include "packet-pkixproxy-hf.c"

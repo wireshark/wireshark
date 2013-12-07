@@ -37,6 +37,9 @@
 #include "packet-rlc.h"
 #include "packet-nbap.h"
 
+void proto_register_umts_mac(void);
+void proto_reg_handoff_umts_mac(void);
+
 int proto_umts_mac = -1;
 extern int proto_fp;
 extern int proto_rlc;
@@ -797,7 +800,7 @@ static body_parts ** get_body_parts(mac_is_channel * ch)
     return bpa;
 }
 
-tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, proto_tree * tree _U_, guint8 lchid, guint ueid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength)
+static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, proto_tree * tree _U_, guint8 lchid, guint ueid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength)
 {
     mac_is_channel ch; /* Channel for looking up in hash tables. */
     ch.lchid = lchid;

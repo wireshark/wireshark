@@ -37,6 +37,9 @@
 #define PSNAME "Q932.ROS"
 #define PFNAME "q932.ros"
 
+void proto_register_q932_ros(void);
+void proto_reg_handoff_q932_ros(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_q932_ros = -1;
 #include "packet-q932-ros-hf.c" 

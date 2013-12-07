@@ -51,6 +51,9 @@
 #define PSNAME "SBCAP"
 #define PFNAME "sbcap"
 
+void proto_register_sbc_ap(void);
+void proto_reg_handoff_sbc_ap(void);
+
 /* The registered port number for SBc-AP is 29168.
  * The registered payload protocol identifier for SBc-AP is 24.
  */
@@ -101,7 +104,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sbc-ap-val.h ---*/
-#line 54 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 57 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sbc_ap = -1;
@@ -166,7 +169,7 @@ static int hf_sbc_ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value *
 static int hf_sbc_ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sbc-ap-hf.c ---*/
-#line 59 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 62 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sbc_ap = -1;
@@ -199,7 +202,7 @@ static gint ett_sbc_ap_SuccessfulOutcome = -1;
 static gint ett_sbc_ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sbc-ap-ett.c ---*/
-#line 64 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 67 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -1128,7 +1131,7 @@ static int dissect_SBC_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-sbc-ap-fn.c ---*/
-#line 91 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 94 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1415,7 +1418,7 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 153 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 156 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -1449,7 +1452,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 159 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 162 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1507,7 +1510,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 192 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 195 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);
