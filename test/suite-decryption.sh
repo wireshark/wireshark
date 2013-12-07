@@ -24,7 +24,6 @@
 #
 
 # To do:
-#   DVB-CI
 #   IEEE 802.15.4
 #   IPsec / ESP
 #   ISAKMP / IKEv2
@@ -138,12 +137,32 @@ decryption_step_c1222() {
 	test_step_ok
 }
 
+# DVB-CI
+# simplified version of the sample capture in
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6700
+decryption_step_dvb_ci() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		 -o "dvb-ci.sek: 00000000000000000000000000000000" \
+		 -o "dvb-ci.siv: 00000000000000000000000000000000" \
+		-Tfields -e dvb-ci.cc.sac.padding \
+		-r "$CAPTURE_DIR/dvb-ci_UV1_0000.pcap" \
+		| grep "80:00:00:00:00:00:00:00:00:00:00:00" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt DVB_CI"
+		return
+	fi
+	test_step_ok
+}
+
+
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption" decryption_step_ssl
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
+	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
 }
 
 decryption_cleanup_step() {
