@@ -419,7 +419,7 @@ static header_field_info hfi_gadu_gadu_msg_class GADU_GADU_HFI_INIT =
 	{ "Message class", "gadu-gadu.msg.class", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_msg_text GADU_GADU_HFI_INIT =
-	{ "Message text", "gadu-gadu.msg.text", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL };
+	{ "Message text", "gadu-gadu.msg.text", FT_STRINGZ, STR_UNICODE, NULL, 0x0, NULL, HFILL };
 
 /* GG_RECV_MSG80, GG_SEND_MSG80 (gadu-gadu.msg80.*) */
 static header_field_info hfi_gadu_gadu_msg80_offset_plain GADU_GADU_HFI_INIT =
@@ -458,7 +458,7 @@ static header_field_info hfi_gadu_gadu_status_img_size GADU_GADU_HFI_INIT =
 	{ "Image size", "gadu-gadu.status.image_size", FT_UINT8, BASE_DEC, NULL, 0x00, "Maximum image size in KB", HFILL };
 
 static header_field_info hfi_gadu_gadu_status_descr GADU_GADU_HFI_INIT =
-	{ "Description", "gadu-gadu.status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
+	{ "Description", "gadu-gadu.status.description", FT_STRINGZ, STR_UNICODE, NULL, 0x00, NULL, HFILL };
 
 /* Direct Connection (gadu-gadu.dcc.*) */
 static header_field_info hfi_dcc_type GADU_GADU_HFI_INIT =
@@ -481,7 +481,7 @@ static header_field_info hfi_gadu_gadu_new_status_status GADU_GADU_HFI_INIT =
 	{ "Status", "gadu-gadu.new_status.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_new_status_desc GADU_GADU_HFI_INIT =
-	{ "Description", "gadu-gadu.new_status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
+	{ "Description", "gadu-gadu.new_status.description", FT_STRINGZ, STR_UNICODE, NULL, 0x00, NULL, HFILL };
 
 /* Userlist (gadu-gadu.userlist.*) */
 static header_field_info hfi_gadu_gadu_userlist_request_type GADU_GADU_HFI_INIT =
@@ -581,46 +581,43 @@ gadu_gadu_status_has_descr(int status)
 		(status == GG_STATUS_INVISIBLE_DESCR);
 }
 
+/* like tvb_strsize() but return maximum length instead of throwing exception */
 static int
-dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, const header_field_info *hfi, proto_tree *tree, const int offset)
+gadu_gadu_strsize(tvbuff_t *tvb, const gint abs_offset)
 {
-	const char *str;
-	int len;
+	int nul_offset;
 
-	/* XXX, new code is throwing exception if string is not NUL terminated */
-	str = (const char *) tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_NA | ENC_WINDOWS_1250);
+	nul_offset = tvb_find_guint8(tvb, abs_offset, -1, 0);
+	if (nul_offset == -1)
+		nul_offset = tvb_length(tvb) - 1;
 
-	proto_tree_add_unicode_string(tree, hfi->id, tvb, offset, len, str);
+	return (nul_offset - abs_offset) + 1;
+}
 
+static int
+dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, header_field_info *hfi, proto_tree *tree, const int offset)
+{
+	int len = gadu_gadu_strsize(tvb, offset);
+
+	proto_tree_add_item(tree, hfi, tvb, offset, len, ENC_WINDOWS_1250 | ENC_NA);
+ 
 	return offset + len;
 }
 
 static int
-dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, const header_field_info *hfi, proto_tree *tree, int offset)
+dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, header_field_info *hfi, proto_tree *tree, int offset)
 {
 	const int org_offset = offset;
 
-	const char *str;
 	guint32 len;
 
 	len = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
-	if (len > 0) {
-		/* proto_item_fill_label() is broken for UTF-8 strings.
-		 * It's using internally format_text() which doesn't support UTF-8
-		 */
-		/* proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_UTF_8|ENC_NA); */
-
-		/* Use workaround */
-		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
-
-	} else
-		str = "";
-
 	offset += len;
 
-	proto_tree_add_unicode_string(tree, hfi->id, tvb, org_offset, offset - org_offset, str);
+	proto_tree_add_item(tree, hfi, tvb, org_offset, offset - org_offset, ENC_UTF_8 | ENC_NA);
+
 	return offset;
 }
 
@@ -1656,7 +1653,7 @@ dissect_gadu_gadu_pubdir50_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	while ((pos = tvb_find_guint8(tvb, offset, -1, '\0')) > 0) {
 		/* XXX, display it better, field=value */
-		dissect_gadu_gadu_stringz_cp1250(tvb, &hfi_gadu_gadu_pubdir_request_str, tree, offset);
+		proto_tree_add_item(tree, &hfi_gadu_gadu_pubdir_request_str, tvb, offset, (pos - offset) + 1, ENC_NA | ENC_WINDOWS_1250);
 		offset = pos + 1;
 	}
 
@@ -1679,7 +1676,7 @@ dissect_gadu_gadu_pubdir50_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	while ((pos = tvb_find_guint8(tvb, offset, -1, '\0')) > 0) {
 		/* XXX, display it better, field=value */
-		dissect_gadu_gadu_stringz_cp1250(tvb, &hfi_gadu_gadu_pubdir_reply_str, tree, offset);
+		proto_tree_add_item(tree, &hfi_gadu_gadu_pubdir_reply_str, tvb, offset, (pos - offset) + 1, ENC_NA | ENC_WINDOWS_1250);
 		offset = pos + 1;
 	}
 
