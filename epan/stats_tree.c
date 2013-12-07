@@ -43,6 +43,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "strutil.h"
 #include "stats_tree.h"
 
 enum _stat_tree_columns {
@@ -1333,30 +1334,6 @@ clean_for_xml_tag (gchar *str)
 	return str;
 }
 
-static GString*
-escape_xml_chars (gchar *str)
-{
-	GString *s= g_string_new("");
-	while (*str != '\0') {
-		switch (*str) {
-			case '<':	g_string_append(s,"&lt;");
-						break;
-			case '>':	g_string_append(s,"&gt;");
-						break;
-			case '&':	g_string_append(s,"&amp;");
-						break;
-			case '\'':	g_string_append(s,"&apos;");
-						break;
-			case '"':	g_string_append(s,"&quot;");
-						break;
-			default:	g_string_append_c(s,*str);
-						break;
-		}
-		str++;
-	}
-
-	return s;
-}
 /** helper funcation to add note to formatted stats_tree */
 WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 						 GString *s,
@@ -1400,10 +1377,10 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 		break;
 	case ST_FORMAT_XML:
 		{
-		GString *itemname= escape_xml_chars(values[0]);
-		g_string_append_printf(s,"<stat-node name=\"%s\"%s>\n",itemname->str,
+		char *itemname = xml_escape(values[0]);
+		g_string_append_printf(s,"<stat-node name=\"%s\"%s>\n",itemname,
 				node->rng?" isrange=\"true\"":"");
-		g_string_free(itemname,TRUE);
+		g_free(itemname);
 		for (count = 1; count<num_columns; count++) {
 			gchar *colname= g_strdup(stats_tree_get_column_name(count));
 			g_string_append_printf(s,"<%s>",clean_for_xml_tag(colname));
