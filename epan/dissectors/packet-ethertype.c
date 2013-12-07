@@ -190,13 +190,13 @@ const value_string etype_vals[] = {
 
 static void eth_prompt(packet_info *pinfo, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as", 
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ethertype, 0)));
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as",
+		GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ethertype, 0)));
 }
 
 static gpointer eth_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_ethertype, 0);
+	return p_get_proto_data(pinfo->pool, pinfo, proto_ethertype, 0);
 }
 
 static void add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
@@ -256,7 +256,12 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	volatile gboolean	dissector_found = FALSE;
 	const char		*volatile saved_proto;
 	void			*pd_save;
-	ethertype_data_t* ethertype_data = (ethertype_data_t*)data;
+	ethertype_data_t* ethertype_data;
+
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	ethertype_data = (ethertype_data_t*)data;
 
 	/* Add the Ethernet type to the protocol tree */
 	proto_tree_add_uint(ethertype_data->fh_tree, ethertype_data->etype_id, tvb,
