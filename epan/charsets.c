@@ -178,6 +178,7 @@ EBCDIC_to_ASCII1(guint8 c)
 #define UNREPL 0xFFFD
 
 /* ISO-8859-2 */
+/* http://en.wikipedia.org/wiki/ISO/IEC_8859-2#Code_page_layout */
 const gunichar2 charset_table_iso_8859_2[0x80] = {
 	UNREPL, UNREPL, UNREPL, UNREPL, UNREPL, UNREPL, UNREPL, UNREPL,		/* 0x80 -      */
 	UNREPL, UNREPL, UNREPL, UNREPL, UNREPL, UNREPL, UNREPL, UNREPL,		/*      - 0x8F */
@@ -198,6 +199,7 @@ const gunichar2 charset_table_iso_8859_2[0x80] = {
 };
 
 /* Windows-1250 */
+/* http://en.wikipedia.org/wiki/Windows-1250 */
 const gunichar2 charset_table_cp1250[0x80] = {
 	0x20ac, UNREPL, 0x201a, UNREPL, 0x201e, 0x2026, 0x2020, 0x2021,		/* 0x80 -      */
 	UNREPL, 0x2030, 0x0160, 0x2039, 0x015a, 0x0164, 0x017d, 0x0179,		/*      - 0x8F */
