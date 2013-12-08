@@ -301,7 +301,8 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  *	    (see packet-ansi_337.c, packet-gsm_a_dtap.c, packet-gsm_map.c,
  *	    packet-gsm_sms.c)?
  *
- * See also packet-bacapp.c.
+ * As those are added, change code such as fCharacterString() in
+ * packet-bacapp.c to use them.
  */
 
 /*
