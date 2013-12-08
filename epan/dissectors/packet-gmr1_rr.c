@@ -663,8 +663,8 @@ GMR1_IE_FUNC(gmr1_ie_rr_pos_display)
 	out_len = gsm_sms_char_7bit_unpack(0, 11, 12, txt_packed, txt_unpacked);
 
 	/* Display it */
-	proto_tree_add_unicode_string(tree, hf_rr_pos_display_text,
-	                              tvb, offset, 11, gsm_sms_chars_to_utf8(txt_unpacked, out_len));
+	proto_tree_add_string(tree, hf_rr_pos_display_text, tvb, offset, 11,
+	                      gsm_sms_chars_to_utf8(txt_unpacked, out_len));
 
 	return 11;
 }
@@ -2082,7 +2082,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_pos_display_text,
 		  { "Country and Region name", "gmr1.rr.pos_display.text",
-		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    FT_STRING, STR_UNICODE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_pos_upd_info_v,

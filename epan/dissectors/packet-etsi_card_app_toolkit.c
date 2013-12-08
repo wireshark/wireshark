@@ -1071,7 +1071,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 					out_len = gsm_sms_char_7bit_unpack(0, len-1, sizeof(msgbuf), tvb_get_ptr(tvb, pos+1, len-1), msgbuf);
 					msgbuf[out_len] = '\0';
-					proto_tree_add_unicode_string(elem_tree, hf_ctlv_text_string, tvb, pos+1,
+					proto_tree_add_string(elem_tree, hf_ctlv_text_string, tvb, pos+1,
 						len-1, gsm_sms_chars_to_utf8(msgbuf, out_len));
 				}
 				break;
@@ -1087,7 +1087,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 					if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1) {
 						utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb, pos+1, len-1), len-1, cd, NULL, NULL, &l_conv_error);
 						if(!l_conv_error) {
-							proto_tree_add_unicode_string(elem_tree, hf_ctlv_text_string, tvb,
+							proto_tree_add_string(elem_tree, hf_ctlv_text_string, tvb,
 									pos+1, len-1, utf8_text);
 						} else {
 							proto_tree_add_text(elem_tree, tvb, pos+1, len-1, "Failed to decode UCS2");
@@ -1294,8 +1294,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x76:	/* Geographical Location Parameters / IARI */
 			if (ims_event) {
-				proto_tree_add_unicode_string(elem_tree, hf_ctlv_iari, tvb, pos, len,
-					tvb_get_string_enc(wmem_packet_scope(), tvb, pos, len, ENC_UTF_8 | ENC_NA));
+				proto_tree_add_item(elem_tree, hf_ctlv_iari, tvb, pos, len, ENC_UTF_8 | ENC_NA);
 			}
 			break;
 		case 0x77:	/* GAD Shapes / IMPU list */
@@ -1304,8 +1303,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				while (i < len) {
 					if (tvb_get_guint8(tvb, pos+i) == 0x80) {
 						g8 = tvb_get_guint8(tvb, pos+i+1);
-						proto_tree_add_unicode_string(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8,
-							tvb_get_string_enc(wmem_packet_scope(), tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA));
+						proto_tree_add_item(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA);
 						i += 2+g8;
 					} else {
 						break;
@@ -1450,7 +1448,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_text_string,
 			{ "Text String", "etsi_cat.comp_tlv.text",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_event,
@@ -1770,12 +1768,12 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_iari,
 			{ "IARI", "etsi_cat.comp_tlv.iari",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_impu,
 			{ "IMPU", "etsi_cat.comp_tlv.impu",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_ims_status_code,

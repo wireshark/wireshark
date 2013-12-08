@@ -866,7 +866,7 @@ void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     nameLen = tvb_unicode_strsize(tvb, *offset);
     name = tvb_get_unicode_string(wmem_packet_scope(), tvb, *offset, nameLen, ENC_LITTLE_ENDIAN);
-    proto_tree_add_unicode_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, name);
+    proto_tree_add_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, name);
     *offset += nameLen;
     col_append_fstr(
         pinfo->cinfo,
@@ -925,7 +925,7 @@ void proto_register_ptpip( void )
             "GUID", "ptpip.guid", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_ptpIP_name, {
-            "Host Name", "ptpip.name", FT_STRINGZ, BASE_NONE,
+            "Host Name", "ptpip.name", FT_STRINGZ, STR_UNICODE,
             NULL, 0, NULL, HFILL }},
         { &hf_ptpIP_version, {
             "Version", "ptpip.version", FT_STRING, BASE_NONE,

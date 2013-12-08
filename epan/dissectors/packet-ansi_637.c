@@ -597,8 +597,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
         decode_7_bits(tvb_out, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
 
-        proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, saved_offset,
-                                      offset - saved_offset, ansi_637_bigbuf);
+        proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, saved_offset,
+                              offset - saved_offset, ansi_637_bigbuf);
 
         switch (bit)
         {
@@ -658,8 +658,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         out_len = decode_7_bits(tvb_out, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
         IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
 
-        proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, saved_offset,
-                                      offset - saved_offset, ia5_637_bigbuf);
+        proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out,
+                              saved_offset, offset - saved_offset, ia5_637_bigbuf);
 
     }
     else if (encoding == 0x04)/* UCS-2 (not UTF-16?) */
@@ -686,8 +686,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, required_octs), required_octs , cd , NULL , NULL , &l_conv_error);
             if (!l_conv_error)
             {
-                proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
-                                              required_octs, utf8_text);
+                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
+                                      tvb_out, offset, required_octs, utf8_text);
             }
             else
             {
@@ -722,8 +722,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, num_fields), num_fields , cd , NULL , NULL , &l_conv_error);
             if (!l_conv_error)
             {
-                proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
-                                              num_fields, utf8_text);
+                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
+                                      tvb_out, offset, num_fields, utf8_text);
             }
             else
             {
@@ -758,8 +758,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, num_fields) , num_fields , cd , NULL , NULL , &l_conv_error);
             if (!l_conv_error)
             {
-                proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
-                                              num_fields, utf8_text);
+                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
+                                      tvb_out, offset, num_fields, utf8_text);
             }
             else
             {
@@ -807,8 +807,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                                            tvb_get_ptr(tvb_out, offset, required_octs), gsm_637_bigbuf);
         gsm_637_bigbuf[out_len] = '\0';
 
-        proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
-                                      required_octs, gsm_sms_chars_to_utf8(gsm_637_bigbuf, num_fields));
+        proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
+                              required_octs, gsm_sms_chars_to_utf8(gsm_637_bigbuf, num_fields));
     }
     else if (encoding == 0x10)/* KSC5601 (Korean) */
     {
@@ -834,8 +834,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, num_fields), num_fields , cd , NULL , NULL , &l_conv_error);
             if (!l_conv_error)
             {
-                proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
-                                              num_fields, utf8_text);
+                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
+                                      tvb_out, offset, num_fields, utf8_text);
             }
             else
             {
@@ -2324,7 +2324,7 @@ proto_register_ansi_637(void)
             NULL, HFILL }},
         { &hf_ansi_637_tele_user_data_text,
             { "Encoded user data", "ansi_637_tele.user_data.text",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_STRING, STR_UNICODE, NULL, 0,
             NULL, HFILL }},
     };
 

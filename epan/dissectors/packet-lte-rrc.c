@@ -9359,8 +9359,7 @@ dissect_lte_rrc_T_hnb_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        1, 48, FALSE, &hnb_name_tvb);
 
-  actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
-                                tvb_get_string_enc(wmem_packet_scope(), hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
+  actx->created_item = proto_tree_add_item(tree, hf_index, hnb_name_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
 
   return offset;
@@ -38485,7 +38484,7 @@ void proto_register_lte_rrc(void) {
         "T_csfb_DualRxTxSupport_r11", HFILL }},
     { &hf_lte_rrc_hnb_Name,
       { "hnb-Name", "lte-rrc.hnb_Name",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_STRING, STR_UNICODE, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_messageIdentifier,
       { "messageIdentifier", "lte-rrc.messageIdentifier",

@@ -482,14 +482,13 @@ NeighCellConfig TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_neighCellCon
   }
 
 #.TYPE_ATTR
-SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
+SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=STR_UNICODE
 
 #.FN_BODY SystemInformationBlockType9/hnb-Name VAL_PTR=&hnb_name_tvb HF_INDEX=-1
   tvbuff_t *hnb_name_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
-                                tvb_get_string_enc(wmem_packet_scope(), hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
+  actx->created_item = proto_tree_add_item(tree, hf_index, hnb_name_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
 #.TYPE_ATTR
 SystemInformationBlockType10/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
