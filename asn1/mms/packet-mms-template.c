@@ -39,6 +39,9 @@
 #define PSNAME "MMS"
 #define PFNAME "mms"
 
+void proto_register_mms(void);
+void proto_reg_handoff_mms(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_mms = -1;
 

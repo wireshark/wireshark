@@ -38,6 +38,9 @@
 #define PSNAME "LPPa"
 #define PFNAME "lppa"
 
+void proto_register_lppa(void);
+void proto_reg_handoff_lppa(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_lppa = -1;
 

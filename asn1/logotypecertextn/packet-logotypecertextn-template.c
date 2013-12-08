@@ -36,6 +36,9 @@
 #define PSNAME "LogotypeCertExtn"
 #define PFNAME "logotypecertextn"
 
+void proto_register_logotypecertextn(void);
+void proto_reg_handoff_logotypecertextn(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_logotypecertextn = -1;
 #include "packet-logotypecertextn-hf.c"

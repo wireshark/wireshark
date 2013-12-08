@@ -45,6 +45,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
+#include "packet-lcsap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -54,6 +55,9 @@
 #define PNAME  "LCS Application Protocol"
 #define PSNAME "LCSAP"
 #define PFNAME "lcsap"
+
+void proto_register_lcsap(void);
+void proto_reg_handoff_lcsap(void);
 
 static dissector_handle_t lpp_handle;
 static dissector_handle_t lppa_handle;

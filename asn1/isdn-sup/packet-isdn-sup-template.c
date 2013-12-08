@@ -37,6 +37,9 @@
 #define PSNAME "ISDN_SUP"
 #define PFNAME "isdn_sup"
 
+void proto_register_isdn_sup(void);
+void proto_reg_handoff_isdn_sup(void);
+
 #include "packet-isdn-sup-val.h"
 
 /* Initialize the protocol and registered fields */
