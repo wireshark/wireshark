@@ -145,8 +145,7 @@ decryption_step_dvb_ci() {
 		 -o "dvb-ci.sek: 00000000000000000000000000000000" \
 		 -o "dvb-ci.siv: 00000000000000000000000000000000" \
 		-Tfields -e dvb-ci.cc.sac.padding \
-		-r "$CAPTURE_DIR/dvb-ci_UV1_0000.pcap" \
-		| grep "80:00:00:00:00:00:00:00:00:00:00:00" > /dev/null 2>&1
+		-r "$CAPTURE_DIR/dvb-ci_UV1_0000.pcap"
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt DVB_CI"
