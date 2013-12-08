@@ -43,6 +43,9 @@
 #define PSNAME "RTSE"
 #define PFNAME "rtse"
 
+void proto_register_rtse(void);
+void proto_reg_handoff_rtse(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_rtse = -1;
 

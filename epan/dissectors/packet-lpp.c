@@ -42,10 +42,14 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-lpp.h"
 
 #define PNAME  "LTE Positioning Protocol (LLP)"
 #define PSNAME "LPP"
 #define PFNAME "lpp"
+
+void proto_register_lpp(void);
+void proto_reg_handoff_lpp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_lpp = -1;
@@ -904,7 +908,7 @@ static int hf_lpp_T_ecid_MeasSupported_ueRxTxSup = -1;
 static int hf_lpp_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lpp-hf.c ---*/
-#line 46 "../../asn1/lpp/packet-lpp-template.c"
+#line 50 "../../asn1/lpp/packet-lpp-template.c"
 
 static dissector_handle_t lppe_handle = NULL;
 
@@ -1212,7 +1216,7 @@ static gint ett_lpp_ECID_LocationServerErrorCauses = -1;
 static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 
 /*--- End of included file: packet-lpp-ett.c ---*/
-#line 55 "../../asn1/lpp/packet-lpp-template.c"
+#line 59 "../../asn1/lpp/packet-lpp-template.c"
 
 /* Include constants */
 
@@ -1229,7 +1233,7 @@ static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 #define maxFBI2                        256
 
 /*--- End of included file: packet-lpp-val.h ---*/
-#line 58 "../../asn1/lpp/packet-lpp-template.c"
+#line 62 "../../asn1/lpp/packet-lpp-template.c"
 
 static const value_string lpp_ePDU_ID_vals[] = {
   { 1, "OMA LPP extensions (LPPe)"},
@@ -10550,7 +10554,7 @@ int dissect_lpp_Polygon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-lpp-fn.c ---*/
-#line 1344 "../../asn1/lpp/packet-lpp-template.c"
+#line 1348 "../../asn1/lpp/packet-lpp-template.c"
 
 static int dissect_lpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_tree *subtree;
@@ -13962,7 +13966,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lpp-hfarr.c ---*/
-#line 1363 "../../asn1/lpp/packet-lpp-template.c"
+#line 1367 "../../asn1/lpp/packet-lpp-template.c"
   };
 
   /* List of subtrees */
@@ -14268,7 +14272,7 @@ void proto_register_lpp(void) {
     &ett_lpp_ECID_TargetDeviceErrorCauses,
 
 /*--- End of included file: packet-lpp-ettarr.c ---*/
-#line 1370 "../../asn1/lpp/packet-lpp-template.c"
+#line 1374 "../../asn1/lpp/packet-lpp-template.c"
   };
 
 

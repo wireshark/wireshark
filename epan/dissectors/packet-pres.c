@@ -61,6 +61,9 @@
 #define CLPSNAME "CLPRES"
 #define CLPFNAME "clpres"
 
+void proto_register_pres(void);
+void proto_reg_handoff_pres(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pres = -1;
 
@@ -179,7 +182,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 92 "../../asn1/pres/packet-pres-template.c"
+#line 95 "../../asn1/pres/packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -225,7 +228,7 @@ static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 97 "../../asn1/pres/packet-pres-template.c"
+#line 100 "../../asn1/pres/packet-pres-template.c"
 
 static expert_field ei_pres_dissector_not_available = EI_INIT;
 
@@ -1357,7 +1360,7 @@ static void dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 224 "../../asn1/pres/packet-pres-template.c"
+#line 227 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1843,7 +1846,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 397 "../../asn1/pres/packet-pres-template.c"
+#line 400 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1890,7 +1893,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 403 "../../asn1/pres/packet-pres-template.c"
+#line 406 "../../asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {

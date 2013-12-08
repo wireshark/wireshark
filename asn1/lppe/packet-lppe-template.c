@@ -43,6 +43,9 @@
 #pragma warning(disable:4146)
 #endif
 
+void proto_register_lppe(void);
+void proto_reg_handoff_lppe(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_lppe = -1;
 

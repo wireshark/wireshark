@@ -37,6 +37,8 @@
 #define PSNAME "Q932"
 #define PFNAME "q932"
 
+void proto_register_q932(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_q932 = -1;
 static int hf_q932_ie_type = -1;

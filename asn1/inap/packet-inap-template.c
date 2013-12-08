@@ -47,6 +47,10 @@
 #define PSNAME "INAP"
 #define PFNAME "inap"
 
+void proto_register_inap(void);
+void proto_reg_handoff_inap(void);
+
+
 /* Initialize the protocol and registered fields */
 static int proto_inap = -1;
 

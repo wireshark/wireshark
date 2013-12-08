@@ -53,6 +53,9 @@
 #define CLPSNAME "CLPRES"
 #define CLPFNAME "clpres"
 
+void proto_register_pres(void);
+void proto_reg_handoff_pres(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pres = -1;
 

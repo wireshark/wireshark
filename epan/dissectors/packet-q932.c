@@ -45,6 +45,8 @@
 #define PSNAME "Q932"
 #define PFNAME "q932"
 
+void proto_register_q932(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_q932 = -1;
 static int hf_q932_ie_type = -1;
@@ -94,7 +96,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 48 "../../asn1/q932/packet-q932-template.c"
+#line 50 "../../asn1/q932/packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -117,7 +119,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 53 "../../asn1/q932/packet-q932-template.c"
+#line 55 "../../asn1/q932/packet-q932-template.c"
 
 /* Preferences */
 
@@ -644,7 +646,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 134 "../../asn1/q932/packet-q932-template.c"
+#line 136 "../../asn1/q932/packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
@@ -965,7 +967,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 302 "../../asn1/q932/packet-q932-template.c"
+#line 304 "../../asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -990,7 +992,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 309 "../../asn1/q932/packet-q932-template.c"
+#line 311 "../../asn1/q932/packet-q932-template.c"
   };
 
    module_t *q932_module;

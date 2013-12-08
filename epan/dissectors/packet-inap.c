@@ -55,6 +55,10 @@
 #define PSNAME "INAP"
 #define PFNAME "inap"
 
+void proto_register_inap(void);
+void proto_reg_handoff_inap(void);
+
+
 /* Initialize the protocol and registered fields */
 static int proto_inap = -1;
 
@@ -457,7 +461,7 @@ static int proto_inap = -1;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-inap-val.h ---*/
-#line 55 "../../asn1/inap/packet-inap-template.c"
+#line 59 "../../asn1/inap/packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-hf.c ---*/
@@ -1024,7 +1028,7 @@ static int hf_inap_present = -1;                  /* INTEGER */
 static int hf_inap_InvokeId_present = -1;         /* InvokeId_present */
 
 /*--- End of included file: packet-inap-hf.c ---*/
-#line 57 "../../asn1/inap/packet-inap-template.c"
+#line 61 "../../asn1/inap/packet-inap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -1288,7 +1292,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 80 "../../asn1/inap/packet-inap-template.c"
+#line 84 "../../asn1/inap/packet-inap-template.c"
 
 static expert_field ei_inap_unknown_invokeData = EI_INIT;
 static expert_field ei_inap_unknown_returnResultData = EI_INIT;
@@ -1418,7 +1422,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 86 "../../asn1/inap/packet-inap-template.c"
+#line 90 "../../asn1/inap/packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -8986,7 +8990,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 100 "../../asn1/inap/packet-inap-template.c"
+#line 104 "../../asn1/inap/packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9336,7 +9340,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 121 "../../asn1/inap/packet-inap-template.c"
+#line 125 "../../asn1/inap/packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -11662,7 +11666,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 202 "../../asn1/inap/packet-inap-template.c"
+#line 206 "../../asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11916,7 +11920,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 215 "../../asn1/inap/packet-inap-template.c"
+#line 219 "../../asn1/inap/packet-inap-template.c"
   };
 
   static ei_register_info ei[] = {

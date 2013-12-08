@@ -34,10 +34,14 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-lpp.h"
 
 #define PNAME  "LTE Positioning Protocol (LLP)"
 #define PSNAME "LPP"
 #define PFNAME "lpp"
+
+void proto_register_lpp(void);
+void proto_reg_handoff_lpp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_lpp = -1;

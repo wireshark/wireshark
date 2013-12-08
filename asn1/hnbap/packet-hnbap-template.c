@@ -48,6 +48,8 @@
 /* Dissector will use SCTP PPID 20 or SCTP port. IANA assigned port = 29169*/
 #define SCTP_PORT_HNBAP              29169
 
+void proto_register_hnbap(void);
+
 #include "packet-hnbap-val.h"
 
 /* Initialize the protocol and registered fields */
