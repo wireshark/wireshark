@@ -3526,20 +3526,20 @@ BACnetBinaryPV [] = {
 };
 
 
-#define ANSI_X34 0
-#define IBM_MS_DBCS 1
-#define JIS_C_6226 2
-#define ISO_10646_UCS4 3
-#define ISO_10646_UCS2 4
-#define ISO_18859_1 5
+#define ANSI_X3_4      0 /* ANSI X3.4, a/k/a "ASCII"; full UTF-8 since 2010? */
+#define IBM_MS_DBCS    1 /* "IBM/Microsoft DBCS"; was there only one such DBCS? */
+#define JIS_C_6226     2 /* JIS C 6226 */
+#define ISO_10646_UCS4 3 /* ISO 10646 (UCS-4) - 4-byte Unicode */
+#define ISO_10646_UCS2 4 /* ISO 10646 (UCS-2) - 2-byte Unicode Basic Multilingual Plane (not UTF-16, presumably) */
+#define ISO_8859_1     5 /* ISO 8859-1 */
 static const value_string
 BACnetCharacterSet [] = {
-    { ANSI_X34,      "ANSI X3.4 / UTF-8 (since 2010)"},
-    { IBM_MS_DBCS,   "IBM/Microsoft DBCS"},
-    { JIS_C_6226,    "JIS C 6226"},
-    { ISO_10646_UCS4, "ISO 10646(UCS-4)"},
-    { ISO_10646_UCS2, "ISO 10646(UCS-2)"},
-    { ISO_18859_1,    "ISO 18859-1"},
+    { ANSI_X3_4,      "ANSI X3.4 / UTF-8 (since 2010)"},
+    { IBM_MS_DBCS,    "IBM/Microsoft DBCS"},
+    { JIS_C_6226,     "JIS C 6226"},
+    { ISO_10646_UCS4, "ISO 10646 (UCS-4)"},
+    { ISO_10646_UCS2, "ISO 10646 (UCS-2)"},
+    { ISO_8859_1,     "ISO 8859-1"},
     { 0,     NULL}
 };
 
@@ -6282,35 +6282,36 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
              * other dissectors need to handle various
              * character encodings.
              */
-            str_val = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
             /** this decoding may be not correct for multi-byte characters, Lka */
             switch (character_set) {
-            case ANSI_X34:
-                fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "UTF-8");
+            case ANSI_X3_4:
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UTF_8);
                 coding = "UTF-8";
                 break;
             case IBM_MS_DBCS:
-                out = str_val;
+                out = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
                 coding = "IBM MS DBCS";
                 break;
             case JIS_C_6226:
-                out = str_val;
+                out = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
                 coding = "JIS C 6226";
                 break;
             case ISO_10646_UCS4:
+                str_val = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
                 fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "UCS-4BE");
                 coding = "ISO 10646 UCS-4";
                 break;
             case ISO_10646_UCS2:
-                fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "UCS-2BE");
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UCS_2|ENC_BIG_ENDIAN);
                 coding = "ISO 10646 UCS-2";
                 break;
-            case ISO_18859_1:
-                fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "ISO8859-1");
+            case ISO_8859_1:
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ISO_8859_1);
                 coding = "ISO 8859-1";
                 break;
             default:
-                out = str_val;
+                /* Assume this is some form of extended ASCII, with one-byte code points for ASCII characters */
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
                 coding = "unknown";
                 break;
             }
