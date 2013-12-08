@@ -147,10 +147,11 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_AUTH_HMAC_MD5_96 6
 #define IPSEC_AUTH_HMAC_RIPEMD160_96 7
 /* define IPSEC_AUTH_AES_XCBC_MAC_96 6 */
-#define IPSEC_AUTH_ANY_96BIT 8
-#define IPSEC_AUTH_ANY_128BIT 9
-#define IPSEC_AUTH_ANY_192BIT 10
-#define IPSEC_AUTH_ANY_256BIT 11
+#define IPSEC_AUTH_ANY_64BIT 8
+#define IPSEC_AUTH_ANY_96BIT 9
+#define IPSEC_AUTH_ANY_128BIT 10
+#define IPSEC_AUTH_ANY_192BIT 11
+#define IPSEC_AUTH_ANY_256BIT 12
 
 #define IPSEC_IPV6_ADDR_LEN 128
 #define IPSEC_IPV4_ADDR_LEN 32
@@ -1195,6 +1196,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     esp_auth_len = 0;
                     break;
 
+                case IPSEC_AUTH_ANY_64BIT:
+                    esp_auth_len = 8;
+                    break;
+
                 case IPSEC_AUTH_HMAC_SHA256_128:
                 case IPSEC_AUTH_ANY_128BIT:
                     esp_auth_len = 16;
@@ -1302,6 +1307,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         authentication_check_using_hmac_libgcrypt = TRUE;
                         break;
 
+                    case IPSEC_AUTH_ANY_64BIT:
                     case IPSEC_AUTH_ANY_96BIT:
                     case IPSEC_AUTH_ANY_128BIT:
                     case IPSEC_AUTH_ANY_192BIT:
@@ -2140,6 +2146,7 @@ proto_register_ipsec(void)
     { IPSEC_AUTH_HMAC_MD5_96, "HMAC-MD5-96 [RFC2403]" },
     { IPSEC_AUTH_HMAC_RIPEMD160_96, "MAC-RIPEMD-160-96 [RFC2857]" },
 /*    { IPSEC_AUTH_AES_XCBC_MAC_96, "AES-XCBC-MAC-96 [RFC3566]" }, */
+    { IPSEC_AUTH_ANY_64BIT, "ANY 64 bit authentication [no checking]" },
     { IPSEC_AUTH_ANY_96BIT, "ANY 96 bit authentication [no checking]" },
     { IPSEC_AUTH_ANY_128BIT, "ANY 128 bit authentication [no checking]" },
     { IPSEC_AUTH_ANY_192BIT, "ANY 192 bit authentication [no checking]" },
