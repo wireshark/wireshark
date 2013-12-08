@@ -1465,6 +1465,7 @@ set(LIBWIRESHARK_FILES
 	addr_resolv.c
 	address_to_str.c
 	afn.c
+	aftypes.c
 	app_mem_usage.c
 	asn1.c
 	atalk-utils.c

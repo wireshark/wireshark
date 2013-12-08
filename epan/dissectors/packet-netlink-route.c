@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/aftypes.h>
 
 #include "packet-arp.h"
 #include "packet-netlink.h"
@@ -481,9 +482,8 @@ dissect_netlink_route_if_attrs(tvbuff_t *tvb, struct netlink_route_info *info, p
 
 /* IP address */
 static header_field_info hfi_netlink_route_ifa_family NETLINK_ROUTE_HFI_INIT =
-	{ "Address type", "netlink-route.ifa_family", FT_UINT8, BASE_DEC,
-	/* XXX .strings = _linux_family_vals (nflog) */
-	 NULL, 0x00, NULL, HFILL };
+	{ "Address type", "netlink-route.ifa_family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+	  &linux_af_vals_ext, 0x00, NULL, HFILL };
 
 static int
 dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int offset)
@@ -496,9 +496,8 @@ dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info _
 
 /* Route */
 static header_field_info hfi_netlink_route_rt_family NETLINK_ROUTE_HFI_INIT =
-	{ "Address family", "netlink-route.rt_family", FT_UINT8, BASE_DEC,
-	/* XXX .strings = _linux_family_vals (nflog) */
-	  NULL, 0x00, NULL, HFILL };
+	{ "Address family", "netlink-route.rt_family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+	  &linux_af_vals_ext, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_rt_dst_len NETLINK_ROUTE_HFI_INIT =
 	{ "Length of destination", "netlink-route.rt_dst_len", FT_UINT8, BASE_DEC,

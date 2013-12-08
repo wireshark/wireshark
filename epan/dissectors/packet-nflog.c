@@ -67,12 +67,6 @@ static const enum_val_t byte_order_types[] = {
     { NULL, NULL, 0 }
 };
 
-static const value_string _linux_family_vals[] = {
-	{ LINUX_AF_INET,  "IP" },
-	{ LINUX_AF_INET6, "IPv6" },
-	{ 0, NULL }
-};
-
 static const value_string _encoding_vals[] = {
 	{ ENC_BIG_ENDIAN,    "Big Endian" },
 	{ ENC_LITTLE_ENDIAN, "Little Endian" },
@@ -113,7 +107,7 @@ static header_field_info *hfi_nflog = NULL;
 
 /* Header */
 static header_field_info hfi_nflog_family NFLOG_HFI_INIT =
-	{ "Family", "nflog.family", FT_UINT8, BASE_DEC, VALS(_linux_family_vals), 0x00, NULL, HFILL };
+	{ "Family", "nflog.family", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &linux_af_vals_ext, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nflog_version NFLOG_HFI_INIT =
 	{ "Version", "nflog.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL };
