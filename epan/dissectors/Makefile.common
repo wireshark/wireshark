@@ -889,6 +889,8 @@ DISSECTOR_SRC = \
 	packet-netbios.c	\
 	packet-netdump.c	\
 	packet-netflow.c	\
+	packet-netlink.c	\
+	packet-netlink-route.c	\
 	packet-netperfmeter.c	\
 	packet-netrom.c		\
 	packet-netsync.c	\

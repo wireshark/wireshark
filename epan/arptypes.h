@@ -78,6 +78,7 @@ extern "C" {
 
 /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
 #define ARPHRD_IPGRE	778		/* GRE over IP */
+#define ARPHRD_NETLINK  824		/* netlink */
 
 #ifdef __cplusplus
 }

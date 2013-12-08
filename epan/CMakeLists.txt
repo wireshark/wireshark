@@ -967,6 +967,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
 	dissectors/packet-netflow.c
+	dissectors/packet-netlink.c
+	dissectors/packet-netlink-route.c
 	dissectors/packet-netperfmeter.c
 	dissectors/packet-netrom.c
 	dissectors/packet-netsync.c
