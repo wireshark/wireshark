@@ -508,18 +508,29 @@ rlc_cmp_seq(gconstpointer a, gconstpointer b)
             0;
 }
 
-static int
-special_cmp(gconstpointer a, gconstpointer b)
+static int moduloCompare(guint16 a, guint16 b, guint16 modulus)
 {
-    const gint16 p = GPOINTER_TO_INT(a), q = GPOINTER_TO_INT(b);
-    if (ABS(p-q) < 2048) {
-        return (p < q)? -1 : (p > q)? 1 : 0;
+	int ret;
+	a = a % modulus; 
+	b = b % modulus;
+
+	if( a <= b ){
+		ret = a - b;
     } else {
-        if (p+2048 < q) {
-            return 1;
+		ret = a - (b + modulus);
+	}
+	if( ret == (1 - modulus) ){
+		ret = 1;
+	}
+	return ret;
+}
+
+static guint16 getChannelSNModulus(struct rlc_channel * ch_lookup)
+{
+	if( RLC_UM == ch_lookup->mode){ /*FIXME: This is a very heuristic way to detemine SN bitwidth. */
+		return 128;
         } else {
-            return -1;
-        }
+		return 4096;
     }
 }
 
@@ -929,8 +940,10 @@ reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
     GList * element = NULL;
     struct rlc_sdu * sdu = rlc_sdu_create();
 
+	guint16 snmod = getChannelSNModulus(ch_lookup);
+
     /* Insert fragments into SDU. */
-    for (; special_cmp(GINT_TO_POINTER((gint)start), GINT_TO_POINTER((gint)end)) <= 0; start = (start+1)%4096)
+    for (; moduloCompare(start,end,snmod ) <= 0; start = (start+1)%snmod)
     {
         struct rlc_frag * tempfrag = NULL;
         tempfrag = frags[start]->next;
@@ -945,7 +958,7 @@ reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
         endlist->list = g_list_remove_link(endlist->list, element);
         if (frags[end] != NULL) {
             if (endlist->list) {
-                endlist->list->data = GINT_TO_POINTER((GPOINTER_TO_INT(endlist->list->data) - 1 + 4096) % 4096);
+                endlist->list->data = GINT_TO_POINTER((GPOINTER_TO_INT(endlist->list->data) - 1 + snmod) % snmod);
             }
         }
     }
@@ -994,6 +1007,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     struct rlc_frag ** frags = NULL;
     struct rlc_seqlist * endlist = NULL;
     GList * element = NULL;
+	int snmod;
 
     if (rlc_channel_assign(&ch_lookup, mode, pinfo) == -1) {
         return NULL;
@@ -1002,6 +1016,9 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     #if RLC_ADD_FRAGMENT_DEBUG_PRINT
         g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.urnti, seq, num_li, offset);
     #endif
+
+	snmod = getChannelSNModulus(&ch_lookup);
+
     /* look for an already assembled SDU */
     if (g_hash_table_lookup_extended(reassembled_table, &frag_lookup, &orig_key, &value)) {
         /* this fragment is already reassembled somewhere */
@@ -1024,12 +1041,12 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     if (pinfo->fd->flags.visited) {
         if (tree && len > 0) {
             if (endlist->list && endlist->list->next) {
-                gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % 4096;
+                gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % snmod;
                 gint16 end = GPOINTER_TO_INT(endlist->list->next->data);
                 gint16 missing = start;
                 gboolean wecanreasmmore = TRUE;
 
-                for (; special_cmp(GINT_TO_POINTER((gint)missing), GINT_TO_POINTER((gint)end)) <= 0; missing = (missing+1)%4096)
+                for (; moduloCompare(missing,end,snmod ) <= 0; missing = (missing+1)%snmod)
                 {
                     if (frags[missing] == NULL) {
                         wecanreasmmore = FALSE;
@@ -1040,7 +1057,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                 if (wecanreasmmore) {
                     reassemble_sequence(frags, endlist, &ch_lookup, start, end);
                 } else {
-                    if (end >= 0 && end < 4096 && frags[end]) {
+                    if (end >= 0 && end < snmod && frags[end]) {
                         proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_fail_unfinished_sequence, tvb, 0, 0,
                                         "Did not perform reassembly because of unfinished sequence (%d->%d [packet %u]), could not find %d.", start, end, frags[end]->frame_num, missing);
                     } else {
@@ -1053,7 +1070,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_fail_flag_set, tvb, 0, 0, "Did not perform reassembly because fail flag was set in packet %u.", endlist->fail_packet);
                 } else {
                     gint16 end = GPOINTER_TO_INT(endlist->list->data);
-                    if (end >= 0 && end < 4096 && frags[end]) {
+                    if (end >= 0 && end < snmod && frags[end]) {
                         proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_lingering_endpoint, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [packet %d]).", end, frags[end]->frame_num);
                     } else {
                         proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_lingering_endpoint, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [could not determine packet]).", end);
@@ -1101,7 +1118,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 
     /* If this is an endpoint */
     if (final) {
-        endlist->list = g_list_insert_sorted(endlist->list, GINT_TO_POINTER((gint)seq), special_cmp);
+        endlist->list = g_list_append(endlist->list, GINT_TO_POINTER((gint)seq));
     }
 
     #if RLC_ADD_FRAGMENT_DEBUG_PRINT
@@ -1110,7 +1127,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 
     /* Try to reassemble SDU. */
     if (endlist->list && endlist->list->next) {
-        gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % 4096;
+        gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % snmod;
         gint16 end = GPOINTER_TO_INT(endlist->list->next->data);
         if (frags[end] == NULL) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
@@ -1143,10 +1160,10 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         g_print("start: %d, end: %d\n",start, end);
         #endif
 
-        for (; special_cmp(GINT_TO_POINTER((gint)start), GINT_TO_POINTER((gint)end)) == -1; start = (start+1)%4096)
+        for (;  moduloCompare(start,end,snmod ) < 0; start = (start+1)%snmod)
         {
             if (frags[start] == NULL) {
-                if (MIN((start-seq+4096)%4096, (seq-start+4096)%4096) >= 1028) {
+                if (MIN((start-seq+snmod)%snmod, (seq-start+snmod)%snmod) >= snmod/4) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
                     g_warning(
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
@@ -1159,13 +1176,13 @@ is %u. The most recently complete sequence ended in packet %u.", pinfo->fd->num,
                 return frag;
             }
         }
-        start = (GPOINTER_TO_INT(endlist->list->data) + 1) % 4096;
+        start = (GPOINTER_TO_INT(endlist->list->data) + 1) % snmod;
         reassemble_sequence(frags, endlist, &ch_lookup, start, end);
     } else if (endlist->list) {
-        gint16 first = (GPOINTER_TO_INT(endlist->list->data) + 1) % 4096;
+        gint16 first = (GPOINTER_TO_INT(endlist->list->data) + 1) % snmod;
         /* If the distance between the oldest stored endpoint in endlist and
          * this endpoint is too large, set fail flag. */
-        if (MIN((first-seq+4096)%4096, (seq-first+4096)%4096) >= 1028) {
+        if (MIN((first-seq+snmod)%snmod, (seq-first+snmod)%snmod) >= snmod/4) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
             g_warning(
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
@@ -1238,6 +1255,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     GList              *element;
     struct rlc_seqlist  lookup, *list;
     struct rlc_seq      seq_item, *seq_new;
+	guint16 snmod;
 
     rlc_channel_assign(&lookup.ch, mode, pinfo);
     list = (struct rlc_seqlist *)g_hash_table_lookup(sequence_table, &lookup.ch);
@@ -1250,13 +1268,14 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     seq_item.seq = seq;
     seq_item.frame_num = pinfo->fd->num;
 
-    /* seq is 12 bit (in RLC protocol) so it will wrap around after 4096. */
+    /* When seq is 12 bit (in RLC protocol), it will wrap around after 4096. */
     /* Window size is at most 4095 so we remove packets further away than that */
     element = g_list_first(list->list);
+	snmod = getChannelSNModulus(&lookup.ch);
     if (element) {
         seq_new = (struct rlc_seq *)element->data;
-        /* Add 4096 because %-operation for negative values in C is not equal to mathematical modulus */
-        if (MIN((seq_new->seq-seq+4096)%4096, (seq-seq_new->seq+4096)%4096) >= 1028) {
+        /* Add SN modulus because %-operation for negative values in C is not equal to mathematical modulus */
+        if (MIN((seq_new->seq-seq+snmod)%snmod, (seq-seq_new->seq+snmod)%snmod) >= snmod/4) {
             list->list = g_list_remove_link(list->list, element);
         }
     }
@@ -1623,7 +1642,15 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
             }
             offs += tvb_length_remaining(tvb, offs);
         } else if ((!li_is_on_2_bytes && (li[i].li == 0x7c)) || (li[i].li == 0x7ffc)) {
-            /* a new SDU starts here, nothing to do */
+            /* a new SDU starts here, mark this seq as the first PDU. */
+			struct rlc_channel  ch_lookup;
+			struct rlc_seqlist * endlist = NULL;
+			if( -1 != rlc_channel_assign(&ch_lookup, RLC_UM, pinfo ) ){
+				endlist = get_endlist(pinfo, &ch_lookup);
+				endlist->list->data = GINT_TO_POINTER(seq);
+				endlist->fail_packet=0;
+			}
+
         } else if (li[i].li == 0x7ffa) {
             /* the first data octet in this RLC PDU is the first octet of an RLC SDU
                and the second last octet in this RLC PDU is the last octet of the same RLC SDU */
@@ -2138,6 +2165,15 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
     guint8    i;
     gboolean  piggyback = FALSE, dissected = FALSE;
     tvbuff_t *next_tvb  = NULL;
+
+	struct rlc_channel  ch_lookup;
+	struct rlc_seqlist * endlist = NULL;
+	if( 0 == seq ){ /* assuming that a new RRC Connection is established when 0==seq.  */
+		if( -1 != rlc_channel_assign(&ch_lookup, RLC_AM, pinfo ) ){
+			endlist = get_endlist(pinfo, &ch_lookup);
+			endlist->list->data = GINT_TO_POINTER( -1);
+		}
+	}
 
     /* perform reassembly now */
     for (i = 0; i < num_li; i++) {
