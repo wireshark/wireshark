@@ -129,6 +129,18 @@ enum ws_ifla_attr_type {
 	WS_IFLA_CARRIER   = 33
 };
 
+/* values for rta_type (ip address) from <linux/if_addr.h> */
+enum ws_ifa_attr_type { 
+	WS_IFA_UNSPEC     = 0,
+	WS_IFA_ADDRESS    = 1,
+	WS_IFA_LOCAL      = 2,
+	WS_IFA_LABEL       = 3,
+	WS_IFA_BROADCAST   = 4,
+	WS_IFA_ANYCAST     = 5,
+	WS_IFA_CACHEINFO   = 6,
+	WS_IFA_MULTICAST   = 7,
+};
+
 /* values for rta_type (route) from <linux/rtnetlink.h> */
 enum ws_rta_attr_type {
 	WS_RTA_UNSPEC    =  0,
@@ -459,7 +471,7 @@ static header_field_info hfi_netlink_route_ifla_mtu NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_netlink_route_if_attrs(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int rta_type, int offset, int len)
+dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int rta_type, int offset, int len)
 {
 	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
 
@@ -485,13 +497,78 @@ static header_field_info hfi_netlink_route_ifa_family NETLINK_ROUTE_HFI_INIT =
 	{ "Address type", "netlink-route.ifa_family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
 	  &linux_af_vals_ext, 0x00, NULL, HFILL };
 
+static header_field_info hfi_netlink_route_ifa_prefixlen NETLINK_ROUTE_HFI_INIT =
+	{ "Address prefixlength", "netlink-route.ifa_prefixlen", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifa_flags NETLINK_ROUTE_HFI_INIT =
+	{ "Address flags", "netlink-route.ifa_flags", FT_UINT8, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifa_scope NETLINK_ROUTE_HFI_INIT =
+	{ "Address scope", "netlink-route.ifa_scope", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifa_index NETLINK_ROUTE_HFI_INIT =
+	{ "Inteface index", "netlink-route.ifa_index", FT_INT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
 static int
-dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int offset)
+dissect_netlink_route_ifaddrmsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_ifa_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
+	proto_tree_add_item(tree, &hfi_netlink_route_ifa_prefixlen, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_ifa_flags, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_ifa_scope, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_ifa_index, tvb, offset, 4, info->encoding);
+	offset += 4;
+
 	return offset;
+}
+
+/* IP address attributes */
+
+static const value_string netlink_route_ifa_attr_vals[] = {
+	{ WS_IFA_UNSPEC,	"Unspecified" },
+	{ WS_IFA_ADDRESS,	"Interface address" },
+	{ WS_IFA_LOCAL,		"Local address" },
+	{ WS_IFA_LABEL,		"Name of interface" },
+	{ WS_IFA_BROADCAST,	"Broadcast address" },
+	{ WS_IFA_ANYCAST,	"Anycast address" },
+	{ WS_IFA_CACHEINFO,	"Address information" },
+	{ WS_IFA_MULTICAST,	"Multicast address" },
+	{ 0, NULL }
+};
+
+static header_field_info hfi_netlink_route_ifa_attr_type NETLINK_ROUTE_HFI_INIT =
+	{ "Attribute type", "netlink-route.ifa_attr_type", FT_UINT16, BASE_DEC,
+	  VALS(netlink_route_ifa_attr_vals), 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifa_label NETLINK_ROUTE_HFI_INIT =
+	{ "Interface name", "netlink-route.ifa_label", FT_STRINGZ, STR_ASCII,
+	  NULL, 0x00, NULL, HFILL };
+
+static int
+dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int rta_type, int offset, int len)
+{
+	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) rta_type;
+
+	switch (type) {
+		case WS_IFA_LABEL:
+			proto_tree_add_item(tree, &hfi_netlink_route_ifa_label, tvb, offset, len, ENC_ASCII | ENC_NA);
+			return 1;
+
+		default:
+			return 0;
+	}
 }
 
 /* Route */
@@ -696,13 +773,15 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_GETLINK:
 			offset = dissect_netlink_route_ifinfomsg(tvb, &info, tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, tree, offset, dissect_netlink_route_if_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, tree, offset, dissect_netlink_route_ifla_attrs);
 			break;
 
 		case WS_RTM_NEWADDR:
 		case WS_RTM_DELADDR:
 		case WS_RTM_GETADDR:
 			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, tree, offset);
+			/* Optional attributes */
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, tree, offset, dissect_netlink_route_ifa_attrs);
 			break;
 
 		case WS_RTM_NEWROUTE:
@@ -739,6 +818,13 @@ proto_register_netlink_route(void)
 
 	/* IP address */
 		&hfi_netlink_route_ifa_family,
+		&hfi_netlink_route_ifa_prefixlen,
+		&hfi_netlink_route_ifa_flags,
+		&hfi_netlink_route_ifa_scope,
+		&hfi_netlink_route_ifa_index,
+	/* IP address Attributes */
+		&hfi_netlink_route_ifa_attr_type,
+		&hfi_netlink_route_ifa_label,
 
 	/* Network Route */
 		&hfi_netlink_route_rt_family,
