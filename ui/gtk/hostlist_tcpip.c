@@ -42,7 +42,7 @@ static int
 tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	const struct tcpheader *tcphdr=(struct tcpheader *)vip;
+	const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)

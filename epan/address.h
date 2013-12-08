@@ -105,7 +105,7 @@ set_address(address *addr, address_type addr_type, int addr_len, const void * ad
  */
 #define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) \
     do {                            \
-        const void *TVB_SET_ADDRESS_data = (void *)tvb_get_ptr(tvb, offset, addr_len); \
+        const void *TVB_SET_ADDRESS_data = (const void *)tvb_get_ptr(tvb, offset, addr_len); \
         set_address((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data); \
     } while (0)
 

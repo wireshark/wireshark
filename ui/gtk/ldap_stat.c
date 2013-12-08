@@ -71,7 +71,7 @@ ldapstat_reset(void *pldap)
 static int
 ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
-	const ldap_call_response_t *ldap=(ldap_call_response_t *)psi;
+	const ldap_call_response_t *ldap=(const ldap_call_response_t *)psi;
 	ldapstat_t *fs=(ldapstat_t *)pldap;
 
 	/* we are only interested in reply packets */

@@ -517,7 +517,7 @@ lowpan_pfxcpy(void *dst, const void *src, size_t bits)
     memcpy(dst, src, bits>>3);
     if (bits & 0x7) {
         guint8 mask = ((0xff00) >> (bits & 0x7));
-        guint8 last = ((guint8 *)src)[bits>>3] & mask;
+        guint8 last = ((const guint8 *)src)[bits>>3] & mask;
         ((guint8 *)dst)[bits>>3] &= ~mask;
         ((guint8 *)dst)[bits>>3] |= last;
     }
@@ -537,7 +537,7 @@ lowpan_pfxcpy(void *dst, const void *src, size_t bits)
 static guint
 lowpan_context_hash(gconstpointer key)
 {
-    return (((lowpan_context_key *)key)->cid) | (((lowpan_context_key *)key)->pan << 8);
+    return (((const lowpan_context_key *)key)->cid) | (((const lowpan_context_key *)key)->pan << 8);
 } /* lowpan_context_hash */
 
 /*FUNCTION:------------------------------------------------------
@@ -554,8 +554,8 @@ lowpan_context_hash(gconstpointer key)
 static gboolean
 lowpan_context_equal(gconstpointer a, gconstpointer b)
 {
-    return (((lowpan_context_key *)a)->pan == ((lowpan_context_key *)b)->pan) &&
-           (((lowpan_context_key *)a)->cid == ((lowpan_context_key *)b)->cid);
+    return (((const lowpan_context_key *)a)->pan == ((const lowpan_context_key *)b)->pan) &&
+           (((const lowpan_context_key *)a)->cid == ((const lowpan_context_key *)b)->cid);
 } /* lowpan_context_equal */
 
 /*FUNCTION:------------------------------------------------------

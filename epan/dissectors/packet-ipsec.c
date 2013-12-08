@@ -230,7 +230,7 @@ static guint num_sa_uat = 0;
 
 static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_esp_sa_record_t* new_rec = (uat_esp_sa_record_t *)n;
-    const uat_esp_sa_record_t* old_rec = (uat_esp_sa_record_t *)o;
+    const uat_esp_sa_record_t* old_rec = (const uat_esp_sa_record_t *)o;
 
     new_rec->srcIP = (old_rec->srcIP) ? g_strdup(old_rec->srcIP) : NULL;
     new_rec->dstIP = (old_rec->dstIP) ? g_strdup(old_rec->dstIP) : NULL;

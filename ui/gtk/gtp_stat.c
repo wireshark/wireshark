@@ -72,7 +72,7 @@ gtpstat_reset(void *pgtp)
 static int
 gtpstat_packet(void *pgtp, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
-	const gtp_msg_hash_t *gtp=(gtp_msg_hash_t *)psi;
+	const gtp_msg_hash_t *gtp=(const gtp_msg_hash_t *)psi;
 	gtpstat_t *fs=(gtpstat_t *)pgtp;
 	int idx=0;
 

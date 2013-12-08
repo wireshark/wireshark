@@ -73,7 +73,7 @@ fcstat_reset(void *pfc)
 static int
 fcstat_packet(void *pfc, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
-	const fc_hdr *fc=(fc_hdr *)psi;
+	const fc_hdr *fc=(const fc_hdr *)psi;
 	fcstat_t *fs=(fcstat_t *)pfc;
 
 	/* we are only interested in reply packets */

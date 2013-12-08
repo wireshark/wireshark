@@ -500,16 +500,16 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
-	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
+	for(i=0; ( cstr = ((const value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
-			((rec_t*)rec)->field_name = (default_t)((value_string*)vs)[i].value; return; } } } \
+			((rec_t*)rec)->field_name = (default_t)((const value_string*)vs)[i].value; return; } } } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	*out_ptr = ep_strdup(default_str); \
 	*out_len = (unsigned)strlen(default_str);\
-	for(i=0;((value_string*)vs)[i].strptr;i++) { \
-		if ( ((value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
-			*out_ptr = ep_strdup(((value_string*)vs)[i].strptr); \
+	for(i=0;((const value_string*)vs)[i].strptr;i++) { \
+		if ( ((const value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
+			*out_ptr = ep_strdup(((const value_string*)vs)[i].strptr); \
 			*out_len = (unsigned)strlen(*out_ptr); return; } } }
 
 #define UAT_VS_CSTRING_DEF(basename,field_name,rec_t,default_val,default_str) \
@@ -517,9 +517,9 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
-	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
+	for(i=0; ( cstr = ((const value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
-		  ((rec_t*)rec)->field_name = g_strdup(((value_string*)vs)[i].strptr); return; } } } \
+		  ((rec_t*)rec)->field_name = g_strdup(((const value_string*)vs)[i].strptr); return; } } } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs _U_, const void* u2 _U_) {\
 		if (((rec_t*)rec)->field_name ) { \
 			*out_ptr = (((rec_t*)rec)->field_name); \

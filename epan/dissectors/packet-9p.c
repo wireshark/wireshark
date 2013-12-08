@@ -996,7 +996,7 @@ struct _9p_taginfo {
 };
 
 static gint _9p_hash_equal(gconstpointer k1, gconstpointer k2) {
-	const struct _9p_hashkey *key1 = (struct _9p_hashkey *)k1, *key2 = (struct _9p_hashkey *)k2;
+	const struct _9p_hashkey *key1 = (const struct _9p_hashkey *)k1, *key2 = (const struct _9p_hashkey *)k2;
 
 	return ((key1->conv_index == key2->conv_index) && (key1->tag == key2->tag) && (key1->fid == key2->fid));
 }
