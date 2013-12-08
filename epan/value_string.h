@@ -171,7 +171,7 @@ typedef struct _value_string_ext {
 WS_DLL_PUBLIC
 const value_string*
 _try_val_to_str_ext_init(const guint32 val, const value_string_ext *vse);
-#define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, array_length(x)-1, x, #x }
+#define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
 
 WS_DLL_PUBLIC
 const value_string_ext *
