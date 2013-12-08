@@ -80,8 +80,7 @@ decryption_step_80211_wpa_psk() {
 decryption_step_dtls() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-Tfields -e data.data \
-		-r "$CAPTURE_DIR/snakeoil-dtls.pcap" -Y http \
-		| grep "69:74:20:77:6f:72:6b:20:21:0a" > /dev/null 2>&1
+		-r "$CAPTURE_DIR/snakeoil-dtls.pcap" -Y http
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt DTLS"
@@ -145,7 +144,8 @@ decryption_step_dvb_ci() {
 		 -o "dvb-ci.sek: 00000000000000000000000000000000" \
 		 -o "dvb-ci.siv: 00000000000000000000000000000000" \
 		-Tfields -e dvb-ci.cc.sac.padding \
-		-r "$CAPTURE_DIR/dvb-ci_UV1_0000.pcap"
+		-r "$CAPTURE_DIR/dvb-ci_UV1_0000.pcap" \
+		| grep "80:00:00:00:00:00:00:00:00:00:00:00" > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt DVB_CI"
