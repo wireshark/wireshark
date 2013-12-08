@@ -27,6 +27,8 @@
 #include "file.h"
 
 #include "epan/stats_tree_priv.h"
+#include "wsutil/file_util.h"
+#include "ui/last_open_dir.h"
 
 #include "wireshark_application.h"
 
@@ -34,6 +36,7 @@
 #include <QMessageBox>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
+#include <QFileDialog>
 
 // The GTK+ counterpart uses tap_param_dlg, which we don't use. If we
 // need tap parameters we should probably create a TapParameterDialog
@@ -45,11 +48,28 @@
 #include <QDebug>
 
 const int item_col_     = 0;
-const int count_col_    = 1;
-const int rate_col_     = 2;
-const int percent_col_  = 3;
 
 Q_DECLARE_METATYPE(stat_node *);
+
+class StatsTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    StatsTreeWidgetItem(int type = Type) : QTreeWidgetItem (type) {}
+    bool operator< (const QTreeWidgetItem &other) const
+    {
+        stat_node *thisnode = data(item_col_, Qt::UserRole).value<stat_node *>();
+        stat_node *othernode = other.data(item_col_, Qt::UserRole).value<stat_node *>();
+        Qt::SortOrder order = treeWidget()->header()->sortIndicatorOrder();
+        int result;
+
+        result = stats_tree_sort_compare(thisnode, othernode, treeWidget()->sortColumn(),
+                                         order==Qt::DescendingOrder);
+        if (order==Qt::DescendingOrder) {
+            result= -result;
+        }
+        return result < 0;
+    }
+};
 
 StatsTreeDialog::StatsTreeDialog(QWidget *parent, capture_file *cf, const char *cfg_abbr) :
     QDialog(parent),
@@ -67,16 +87,16 @@ StatsTreeDialog::StatsTreeDialog(QWidget *parent, capture_file *cf, const char *
         QMetaObject::invokeMethod(this, "reject", Qt::QueuedConnection);
     }
 
-    ui->statsTreeWidget->addAction(ui->actionCopyAsCSV);
-    ui->statsTreeWidget->addAction(ui->actionCopyAsYAML);
+    ui->statsTreeWidget->addAction(ui->actionCopyToClipboard);
+    ui->statsTreeWidget->addAction(ui->actionSaveAs);
     ui->statsTreeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    QPushButton *copy_as_bt;
-    copy_as_bt = ui->buttonBox->addButton(tr("Copy as CSV"), QDialogButtonBox::ActionRole);
-    connect(copy_as_bt, SIGNAL(clicked()), this, SLOT(on_actionCopyAsCSV_triggered()));
+    QPushButton *button;
+    button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    connect(button, SIGNAL(clicked()), this, SLOT(on_actionCopyToClipboard_triggered()));
 
-    copy_as_bt = ui->buttonBox->addButton(tr("Copy as YAML"), QDialogButtonBox::ActionRole);
-    connect(copy_as_bt, SIGNAL(clicked()), this, SLOT(on_actionCopyAsYAML_triggered()));
+    button = ui->buttonBox->addButton(tr("Save as..."), QDialogButtonBox::ActionRole);
+    connect(button, SIGNAL(clicked()), this, SLOT(on_actionSaveAs_triggered()));
 
     fillTree();
 }
@@ -103,12 +123,16 @@ void StatsTreeDialog::fillTree()
     GString *error_string;
     if (!st_cfg_) return;
 
-    setWindowTitle(st_cfg_->name + tr(" Stats Tree"));
+    gchar* display_name_temp = stats_tree_get_displayname(st_cfg_->name);
+    QString display_name(display_name_temp);
+    g_free(display_name_temp);
+
+    setWindowTitle(display_name + tr(" Stats Tree"));
 
     if (!cap_file_) return;
 
     if (st_cfg_->in_use) {
-        QMessageBox::warning(this, tr("%1 already open").arg(st_cfg_->name),
+        QMessageBox::warning(this, tr("%1 already open").arg(display_name),
                              tr("Each type of tree can only be generated one at at time."));
         reject();
     }
@@ -117,7 +141,23 @@ void StatsTreeDialog::fillTree()
     st_cfg_->pr = &cfg_pr_;
     cfg_pr_.st_dlg = this;
 
+    if (st_) {
+        stats_tree_free(st_);
+    }
     st_ = stats_tree_new(st_cfg_, NULL, ui->displayFilterLineEdit->text().toUtf8().constData());
+
+    // Add number of columns for this stats_tree
+    QStringList headerLabels;
+    for (int count = 0; count<st_->num_columns; count++) {
+        headerLabels.push_back(stats_tree_get_column_name(count));
+    }
+    ui->statsTreeWidget->setColumnCount(headerLabels.count());
+    ui->statsTreeWidget->setHeaderLabels(headerLabels);
+    resize(st_->num_columns*80+80, height());
+    for (int count = 0; count<st_->num_columns; count++) {
+        headerLabels.push_back(stats_tree_get_column_name(count));
+    }
+    ui->statsTreeWidget->setSortingEnabled(false);
 
     error_string = register_tap_listener(st_cfg_->tapname,
                           st_,
@@ -127,7 +167,7 @@ void StatsTreeDialog::fillTree()
                           stats_tree_packet,
                           drawTreeItems);
     if (error_string) {
-        QMessageBox::critical(this, tr("%1 failed to attach to tap").arg(st_cfg_->name),
+        QMessageBox::critical(this, tr("%1 failed to attach to tap").arg(display_name),
                              error_string->str);
         g_string_free(error_string, TRUE);
         reject();
@@ -135,10 +175,10 @@ void StatsTreeDialog::fillTree()
 
     cf_retap_packets(cap_file_);
     drawTreeItems(st_);
+
+    ui->statsTreeWidget->setSortingEnabled(true);
     remove_tap_listener(st_);
 
-    stats_tree_free(st_);
-    st_ = NULL;
     st_cfg_->in_use = FALSE;
     st_cfg_->pr = NULL;
 }
@@ -160,7 +200,7 @@ void StatsTreeDialog::setupNode(stat_node* node)
             || !node->st->cfg->pr->st_dlg) return;
     StatsTreeDialog *st_dlg = node->st->cfg->pr->st_dlg;
 
-    QTreeWidgetItem *ti = new QTreeWidgetItem(), *parent = NULL;
+    QTreeWidgetItem *ti = new StatsTreeWidgetItem(), *parent = NULL;
 
     ti->setText(item_col_, node->name);
     ti->setData(item_col_, Qt::UserRole, qVariantFromValue(node));
@@ -185,22 +225,23 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
     QTreeWidgetItemIterator iter(st_dlg->ui->statsTreeWidget);
 
     while (*iter) {
-        gchar value[NUM_BUF_SIZE];
-        gchar rate[NUM_BUF_SIZE];
-        gchar percent[NUM_BUF_SIZE];
         stat_node *node = (*iter)->data(item_col_, Qt::UserRole).value<stat_node *>();
         if (node) {
-            stats_tree_get_strs_from_node(node, value, rate,
-                              percent);
-            (*iter)->setText(count_col_, value);
-            (*iter)->setText(rate_col_, rate);
-            (*iter)->setText(percent_col_, percent);
+            gchar    **valstrs = stats_tree_get_values_from_node(node);
+            for (int count = 0; count<st->num_columns; count++) {
+                (*iter)->setText(count,valstrs[count]);
+                g_free(valstrs[count]);
+            }
+            if (node->parent==(&st->root)) {
+                (*iter)->setExpanded(!(node->st_flags&ST_FLG_DEF_NOEXPAND));
+            }
+            g_free(valstrs);
         }
         ++iter;
     }
-    st_dlg->ui->statsTreeWidget->resizeColumnToContents(count_col_);
-    st_dlg->ui->statsTreeWidget->resizeColumnToContents(rate_col_);
-    st_dlg->ui->statsTreeWidget->resizeColumnToContents(percent_col_);
+    for (int count = 0; count<st->num_columns; count++) {
+        st_dlg->ui->statsTreeWidget->resizeColumnToContents(count);
+    }
 }
 
 void StatsTreeDialog::on_applyFilterButton_clicked()
@@ -208,56 +249,78 @@ void StatsTreeDialog::on_applyFilterButton_clicked()
     fillTree();
 }
 
-void StatsTreeDialog::on_actionCopyAsCSV_triggered()
+void StatsTreeDialog::on_actionCopyToClipboard_triggered()
 {
-    QTreeWidgetItemIterator iter(ui->statsTreeWidget);
-    QString clip = QString("%1,%2,%3,%4\n")
-            .arg(ui->statsTreeWidget->headerItem()->text(item_col_))
-            .arg(ui->statsTreeWidget->headerItem()->text(count_col_))
-            .arg(ui->statsTreeWidget->headerItem()->text(rate_col_))
-            .arg(ui->statsTreeWidget->headerItem()->text(percent_col_));
-
-    while (*iter) {
-        clip += QString("\"%1\",\"%2\",\"%3\",\"%4\"\n")
-                .arg((*iter)->text(item_col_))
-                .arg((*iter)->text(count_col_))
-                .arg((*iter)->text(rate_col_))
-                .arg((*iter)->text(percent_col_));
-        ++iter;
-    }
-    wsApp->clipboard()->setText(clip);
+    GString* s= stats_tree_format_as_str(st_ ,ST_FORMAT_PLAIN, ui->statsTreeWidget->sortColumn(),
+                ui->statsTreeWidget->header()->sortIndicatorOrder()==Qt::DescendingOrder);
+    wsApp->clipboard()->setText(s->str);
+    g_string_free(s,TRUE);
 }
 
-void StatsTreeDialog::on_actionCopyAsYAML_triggered()
+void StatsTreeDialog::on_actionSaveAs_triggered()
 {
-    QTreeWidgetItemIterator iter(ui->statsTreeWidget);
-    QString clip;
+    QString selectedFilter;
+    st_format_type file_type;
+    const char *file_ext;
+    FILE *f;
+    GString *str_tree;
+    bool success= false;
+    int last_errno;
 
-    while (*iter) {
-        QString indent;
-        if ((*iter)->parent()) {
-            QTreeWidgetItem *parent = (*iter)->parent();
-            while (parent) {
-                indent += "  ";
-                parent = parent->parent();
-            }
-            clip += indent + "- description: \"" + (*iter)->text(item_col_) + "\"\n";
-            indent += "  ";
-            clip += indent + "count: " + (*iter)->text(count_col_) + "\n";
-            clip += indent + "rate_ms: " + (*iter)->text(rate_col_) + "\n";
-            clip += indent + "percent: " + (*iter)->text(percent_col_) + "\n";
-        } else {
-            // Top level
-            clip += "description: \"" + (*iter)->text(item_col_) + "\"\n";
-            clip += "count: " + (*iter)->text(count_col_) + "\n";
-            clip += "rate_ms: " + (*iter)->text(rate_col_) + "\n";
-        }
-        if ((*iter)->childCount() > 0) {
-            clip += indent + "items:\n";
-        }
-        ++iter;
+    QFileDialog SaveAsDialog(this, tr("Wireshark: Save stats tree as ..."), get_last_open_dir());
+    SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
+                                    "Comma separated values (*.csv);;"
+                                    "XML document (*.xml);;"
+                                    "YAML document (*.yaml)"));
+    SaveAsDialog.selectNameFilter(tr("Plain text file (*.txt)"));
+    SaveAsDialog.setAcceptMode(QFileDialog::AcceptSave);
+    if (!SaveAsDialog.exec()) {
+        return;
     }
-    wsApp->clipboard()->setText(clip);
+    selectedFilter= SaveAsDialog.selectedNameFilter();
+    if (selectedFilter.contains("*.yaml", Qt::CaseInsensitive)) {
+        file_type= ST_FORMAT_YAML;
+        file_ext = ".yaml";
+    }
+    else if (selectedFilter.contains("*.xml", Qt::CaseInsensitive)) {
+        file_type= ST_FORMAT_XML;
+        file_ext = ".xml";
+    }
+    else if (selectedFilter.contains("*.csv", Qt::CaseInsensitive)) {
+        file_type= ST_FORMAT_CSV;
+        file_ext = ".csv";
+    }
+    else {
+        file_type= ST_FORMAT_PLAIN;
+        file_ext = ".txt";
+    }
+
+    // Get selected filename and add extension of necessary
+    QString file_name = SaveAsDialog.selectedFiles()[0];
+    if (!file_name.endsWith(file_ext, Qt::CaseInsensitive)) {
+        file_name.append(file_ext);
+    }
+
+    // produce output in selected format using current sort information
+    str_tree=stats_tree_format_as_str(st_ ,file_type, ui->statsTreeWidget->sortColumn(),
+                ui->statsTreeWidget->header()->sortIndicatorOrder()==Qt::DescendingOrder);
+
+    // actually save the file
+    f= ws_fopen (file_name.toUtf8().constData(),"w");
+    last_errno= errno;
+    if (f) {
+        if (fputs(str_tree->str, f)!=EOF) {
+            success= true;
+        }
+        last_errno= errno;
+        fclose(f);
+    }
+    if (!success) {
+        QMessageBox::warning(this, tr("Error saving file %1").arg(file_name),
+                             g_strerror (last_errno));
+    }
+
+    g_string_free(str_tree, TRUE);
 }
 
 extern "C" {

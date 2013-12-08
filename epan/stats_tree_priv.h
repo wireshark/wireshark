@@ -219,29 +219,13 @@ WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(const char *abbr);
     caller should free returned list with  g_list_free() */
 WS_DLL_PUBLIC GList *stats_tree_get_cfg_list(void);
 
-/** extracts node data as strings from a stat_node into
-   the buffers given by value, rate and precent
-   if NULL they are ignored
-
-   DO NOT USE FOR NEW CODE. Use stats_tree_get_values_from_node() instead */
-WS_DLL_PUBLIC void stats_tree_get_strs_from_node(const stat_node *node,
-					  gchar *value,
-					  gchar *rate,
-					  gchar *percent);
-
-/** populates the given GString with a tree representation of a branch given by node,
-   using indent spaces as indentation */
-WS_DLL_PUBLIC void stats_tree_branch_to_str(const stat_node *node,
-				     GString *s,
-				     guint indent);
-
 /** used to calcuate the size of the indentation and the longest string */
 WS_DLL_PUBLIC guint stats_tree_branch_max_namelen(const stat_node *node, guint indent);
 
 /** a text representation of a node,
    if buffer is NULL returns a newly allocated string */
 WS_DLL_PUBLIC gchar *stats_tree_node_to_str(const stat_node *node,
-				     gchar *buffer, guint len);
+					gchar *buffer, guint len);
 
 /** get the display name for the stats_tree (or node name) based on the
     st_sort_showfullname preference. If not set remove everything before
@@ -259,9 +243,6 @@ WS_DLL_PUBLIC const gchar* stats_tree_get_column_name (gint index);
 
 /** returns the maximum number of characters in the value of a column */
 WS_DLL_PUBLIC gint stats_tree_get_column_size (gint index);
-
-/** returns TRUE is the the column name for a given column index can be sorted*/
-WS_DLL_PUBLIC gboolean stats_tree_is_sortable_column (gint index);
 
 /** returns the formatted column values for the current node
   as array of gchar*. Caller must free entries and free array */

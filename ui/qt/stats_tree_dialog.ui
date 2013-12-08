@@ -21,21 +21,6 @@
        <string notr="true">Item</string>
       </property>
      </column>
-     <column>
-      <property name="text">
-       <string>Count</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Rate (ms)</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Percent</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -73,26 +58,26 @@
     </widget>
    </item>
   </layout>
-  <action name="actionCopyAsCSV">
+  <action name="actionCopyToClipboard">
    <property name="text">
-    <string>Copy as CSV</string>
+    <string>Copy</string>
    </property>
    <property name="toolTip">
-    <string>Copy the tree as CSV</string>
+    <string>Copy a text representation of the tree to the clipboard</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
   </action>
-  <action name="actionCopyAsYAML">
+  <action name="actionSaveAs">
    <property name="text">
-    <string>Copy as YAML</string>
+    <string>Save as...</string>
    </property>
    <property name="toolTip">
-    <string>Copy the tree as YAML</string>
+    <string>Save the stats_tree data in various formats</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Y</string>
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

@@ -36,6 +36,7 @@
 
 namespace Ui {
 class StatsTreeDialog;
+class StatsTreeWidgetItem;
 }
 
 struct _tree_cfg_pres {
@@ -68,8 +69,8 @@ private:
 
 private slots:
     void on_applyFilterButton_clicked();
-    void on_actionCopyAsCSV_triggered();
-    void on_actionCopyAsYAML_triggered();
+    void on_actionCopyToClipboard_triggered();
+    void on_actionSaveAs_triggered();
 };
 
 #endif // STATS_TREE_DIALOG_H

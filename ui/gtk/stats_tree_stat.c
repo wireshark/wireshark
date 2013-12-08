@@ -489,10 +489,8 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 		renderer = gtk_cell_renderer_text_new ();
 		column = gtk_tree_view_column_new_with_attributes (stats_tree_get_column_name(count),
 									renderer, "text", count+N_RESERVED_COL, NULL);
-		if (stats_tree_is_sortable_column(count)) {
-			gtk_tree_view_column_set_sort_column_id(column, count+N_RESERVED_COL);
-			gtk_tree_sortable_set_sort_func(sortable,count+N_RESERVED_COL, st_sort_func, sortable, NULL);
-		}
+		gtk_tree_view_column_set_sort_column_id(column, count+N_RESERVED_COL);
+		gtk_tree_sortable_set_sort_func(sortable,count+N_RESERVED_COL, st_sort_func, sortable, NULL);
 		gtk_tree_view_column_set_resizable (column,TRUE);
 		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);

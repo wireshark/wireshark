@@ -62,34 +62,6 @@ enum _stat_tree_columns {
 /* used to contain the registered stat trees */
 static GHashTable *registry = NULL;
 
-/* writes into the buffers pointed by value, rate and percent
-   the string representations of a node*/
-/*** DEPRECIATED ***/
-extern void
-stats_tree_get_strs_from_node(const stat_node *node, gchar *value, gchar *rate, gchar *percent)
-{
-	float f;
-
-	if (value) g_snprintf(value,NUM_BUF_SIZE,"%u",node->counter);
-
-	if (rate) {
-		*rate = '\0';
-		if (node->st->elapsed > 0.0) {
-			f = ((float)node->counter) / (float)node->st->elapsed;
-			g_snprintf(rate,NUM_BUF_SIZE,"%f",f);
-		}
-	}
-
-	if (percent) {
-		*percent = '\0';
-		if (node->parent->counter > 0) {
-			f = (float)(((float)node->counter * 100.0) / node->parent->counter);
-			g_snprintf(percent,NUM_BUF_SIZE,"%.2f%%",f);
-		}
-	}
-}
-
-
 /* a text representation of a node
 if buffer is NULL returns a newly allocated string */
 extern gchar*
@@ -131,53 +103,6 @@ stats_tree_branch_max_namelen(const stat_node *node, guint indent)
 
 	return maxlen;
 }
-
-static gchar *format;
-
-/* populates the given GString with a tree representation of a branch given by node,
-using indent spaces as initial indentation */
-/*** DEPRECIATED ***/
-extern void
-stats_tree_branch_to_str(const stat_node *node, GString *s, guint indent)
-{
-	stat_node *child;
-	static gchar indentation[INDENT_MAX+1];
-	static gchar value[NUM_BUF_SIZE];
-	static gchar rate[NUM_BUF_SIZE];
-	static gchar percent[NUM_BUF_SIZE];
-
-	guint i = 0;
-
-	if (indent == 0) {
-		format = g_strdup_printf(" %%s%%-%us%%12s   %%12s    %%12s\n",stats_tree_branch_max_namelen(node,0));
-	}
-
-	stats_tree_get_strs_from_node(node, value, rate, percent);
-
-	indent = indent > INDENT_MAX ? INDENT_MAX : indent;
-
-	/* fill indentation with indent spaces */
-	if (indent > 0) {
-		while(i<indent)
-			indentation[i++] = ' ';
-	}
-
-	indentation[i] = '\0';
-
-	g_string_append_printf(s,format,
-					  indentation,node->name,value,rate,percent);
-
-	if (node->children) {
-		for (child = node->children; child; child = child->next ) {
-			stats_tree_branch_to_str(child,s,indent+1);
-		}
-	}
-
-	if (indent == 0) {
-		g_free(format);
-	}
-}
-
 
 /* frees the resources allocated by a stat_tree node */
 static void
@@ -567,7 +492,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id,
 	node->bt = node->bh;
 	node->bcount = 0;
 	node->max_burst = 0;
-	node->burst_time = -1;
+	node->burst_time = -1.0;
 
 	node->name = g_strdup(name);
 	node->children = NULL;
@@ -1106,20 +1031,6 @@ stats_tree_get_column_size (gint col_index)
 	return 0;			/* invalid column */
 }
 
-extern gboolean
-stats_tree_is_sortable_column (gint col_index)
-{
-	switch (col_index) {
-		case COL_NAME:
-		case COL_COUNT:
-		case COL_AVERAGE:
-		case COL_MIN:
-		case COL_MAX:
-		case COL_BURSTRATE:	return TRUE;
-		default:			return FALSE;
-	}
-}
-
 extern gchar**
 stats_tree_get_values_from_node (const stat_node* node)
 {
@@ -1181,6 +1092,8 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 							}
 							break;
 
+		case COL_RATE:
+		case COL_PERCENT:
 		case COL_COUNT:		result = a->counter - b->counter;
 							break;
 
@@ -1206,8 +1119,11 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 		case COL_BURSTRATE:	result = a->max_burst - b->max_burst;
 							break;
 
+		case COL_BURSTTIME:	result = (a->burst_time>b->burst_time)?1:((a->burst_time<b->burst_time)?-1:0);
+							break;
+
 		default:
-					/* see stats_tree_is_sortable_column */
+					/* no sort comparison found for column - must update this switch statement */
 					g_assert_not_reached();
 	}
 
