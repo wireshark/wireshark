@@ -59,6 +59,10 @@
 #define PFNAME "pcap"
 
 #define MAX_SSN 254
+
+void proto_register_pcap(void);
+void proto_reg_handoff_pcap(void);
+
 static range_t *global_ssn_range;
 
 static dissector_table_t sccp_ssn_table;
@@ -251,7 +255,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-pcap-val.h ---*/
-#line 59 "../../asn1/pcap/packet-pcap-template.c"
+#line 63 "../../asn1/pcap/packet-pcap-template.c"
 
 static dissector_handle_t pcap_handle = NULL;
 
@@ -1404,7 +1408,7 @@ static int hf_pcap_AvailableSubChannelNumbers_subCh1 = -1;
 static int hf_pcap_AvailableSubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-pcap-hf.c ---*/
-#line 66 "../../asn1/pcap/packet-pcap-template.c"
+#line 70 "../../asn1/pcap/packet-pcap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_pcap = -1;
@@ -1807,7 +1811,7 @@ static gint ett_pcap_UnsuccessfulOutcome = -1;
 static gint ett_pcap_Outcome = -1;
 
 /*--- End of included file: packet-pcap-ett.c ---*/
-#line 71 "../../asn1/pcap/packet-pcap-template.c"
+#line 75 "../../asn1/pcap/packet-pcap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -13517,7 +13521,7 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pcap-fn.c ---*/
-#line 95 "../../asn1/pcap/packet-pcap-template.c"
+#line 99 "../../asn1/pcap/packet-pcap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -13710,7 +13714,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 154 "../../asn1/pcap/packet-pcap-template.c"
+#line 158 "../../asn1/pcap/packet-pcap-template.c"
     } else {
         dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
         g_free(ssn_range);
@@ -18291,7 +18295,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 170 "../../asn1/pcap/packet-pcap-template.c"
+#line 174 "../../asn1/pcap/packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -18695,7 +18699,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 176 "../../asn1/pcap/packet-pcap-template.c"
+#line 180 "../../asn1/pcap/packet-pcap-template.c"
   };
 
   module_t *pcap_module;

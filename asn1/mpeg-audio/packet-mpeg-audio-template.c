@@ -37,6 +37,9 @@
 #include "packet-mpeg-audio-ett.c"
 #include "packet-mpeg-audio-fn.c"
 
+void proto_register_mpeg_audio(void);
+void proto_reg_handoff_mpeg_audio(void);
+
 static int proto_mpeg_audio = -1;
 
 static int hf_mpeg_audio_data = -1;

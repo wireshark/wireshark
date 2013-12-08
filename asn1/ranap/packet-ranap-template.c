@@ -60,6 +60,9 @@
 
 #include "packet-ranap-val.h"
 
+void proto_register_ranap(void);
+void proto_reg_handoff_ranap(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ranap = -1;
 

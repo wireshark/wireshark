@@ -41,6 +41,9 @@
 #define PSNAME "OCSP"
 #define PFNAME "ocsp"
 
+void proto_register_ocsp(void);
+void proto_reg_handoff_ocsp(void);
+
 /* Initialize the protocol and registered fields */
 int proto_ocsp = -1;
 static int hf_ocsp_responseType_id = -1;

@@ -49,6 +49,9 @@
 #define PSNAME "PKIXAC"
 #define PFNAME "pkixac"
 
+void proto_register_pkixac(void);
+void proto_reg_handoff_pkixac(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkixac = -1;
 
@@ -107,7 +110,7 @@ static int hf_pkixac_ClassList_secret = -1;
 static int hf_pkixac_ClassList_topSecret = -1;
 
 /*--- End of included file: packet-pkixac-hf.c ---*/
-#line 47 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 50 "../../asn1/pkixac/packet-pkixac-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixac = -1;
@@ -134,7 +137,7 @@ static gint ett_pkixac_AttrSpec = -1;
 static gint ett_pkixac_ProxyInfo = -1;
 
 /*--- End of included file: packet-pkixac-ett.c ---*/
-#line 51 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 54 "../../asn1/pkixac/packet-pkixac-template.c"
 
 static const char *object_identifier_id;
 
@@ -582,7 +585,7 @@ static void dissect_ProxyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-pkixac-fn.c ---*/
-#line 55 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 58 "../../asn1/pkixac/packet-pkixac-template.c"
 
 /*--- proto_register_pkixac ----------------------------------------------*/
 void proto_register_pkixac(void) {
@@ -794,7 +797,7 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixac-hfarr.c ---*/
-#line 62 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 65 "../../asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* List of subtrees */
@@ -823,7 +826,7 @@ void proto_register_pkixac(void) {
     &ett_pkixac_ProxyInfo,
 
 /*--- End of included file: packet-pkixac-ettarr.c ---*/
-#line 68 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 71 "../../asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* Register protocol */
@@ -841,7 +844,7 @@ void proto_register_pkixac(void) {
   register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
 
 /*--- End of included file: packet-pkixac-syn-reg.c ---*/
-#line 78 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 81 "../../asn1/pkixac/packet-pkixac-template.c"
 
 }
 
@@ -864,6 +867,6 @@ void proto_reg_handoff_pkixac(void) {
 
 
 /*--- End of included file: packet-pkixac-dis-tab.c ---*/
-#line 85 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 88 "../../asn1/pkixac/packet-pkixac-template.c"
 }
 

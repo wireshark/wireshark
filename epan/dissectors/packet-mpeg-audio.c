@@ -449,6 +449,9 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 /*--- End of included file: packet-mpeg-audio-fn.c ---*/
 #line 39 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
+void proto_register_mpeg_audio(void);
+void proto_reg_handoff_mpeg_audio(void);
+
 static int proto_mpeg_audio = -1;
 
 static int hf_mpeg_audio_data = -1;
@@ -653,7 +656,7 @@ proto_register_mpeg_audio(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 152 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 155 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg-audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -677,7 +680,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 169 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 172 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(

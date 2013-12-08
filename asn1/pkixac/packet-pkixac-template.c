@@ -41,6 +41,9 @@
 #define PSNAME "PKIXAC"
 #define PFNAME "pkixac"
 
+void proto_register_pkixac(void);
+void proto_reg_handoff_pkixac(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkixac = -1;
 #include "packet-pkixac-hf.c"

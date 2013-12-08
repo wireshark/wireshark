@@ -51,6 +51,10 @@
 #define PFNAME "pcap"
 
 #define MAX_SSN 254
+
+void proto_register_pcap(void);
+void proto_reg_handoff_pcap(void);
+
 static range_t *global_ssn_range;
 
 static dissector_table_t sccp_ssn_table;

@@ -37,6 +37,9 @@
 #define PSNAME "PKIX1IMPLICIT"
 #define PFNAME "pkix1implicit"
 
+void proto_register_pkix1implicit(void);
+void proto_reg_handoff_pkix1implicit(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkix1implicit = -1;
 #include "packet-pkix1implicit-hf.c"

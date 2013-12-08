@@ -34,6 +34,9 @@
 #define PSNAME "NS_CERT_EXTS"
 #define PFNAME "ns_cert_exts"
 
+void proto_register_ns_cert_exts(void);
+void proto_reg_handoff_ns_cert_exts(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ns_cert_exts = -1;
 #include "packet-ns_cert_exts-hf.c"

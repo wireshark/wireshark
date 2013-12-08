@@ -52,6 +52,9 @@
 
 #include "packet-rnsap-val.h"
 
+void proto_register_rnsap(void);
+void proto_reg_handoff_rnsap(void);
+
 static dissector_handle_t rrc_dl_dcch_handle = NULL;
 
 /* Initialize the protocol and registered fields */

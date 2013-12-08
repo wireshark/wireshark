@@ -38,6 +38,7 @@
 #define PFNAME "pkixproxy"
 
 void proto_register_pkixproxy(void);
+void proto_reg_handoff_pkixproxy(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_pkixproxy = -1;

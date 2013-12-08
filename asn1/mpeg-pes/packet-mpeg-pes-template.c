@@ -37,6 +37,9 @@
 #include "packet-mpeg-pes-ett.c"
 #include "packet-mpeg-pes-fn.c"
 
+void proto_register_mpeg_pes(void);
+void proto_reg_handoff_mpeg_pes(void);
+
 static int proto_mpeg = -1;
 static int proto_mpeg_pes = -1;
 
