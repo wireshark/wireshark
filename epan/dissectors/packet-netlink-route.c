@@ -668,7 +668,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
 	if (_data) {
 		if (((struct packet_netlink_data *) _data)->magic == PACKET_NETLINK_MAGIC)
-			data = _data;
+			data = (struct packet_netlink_data *) _data;
 	}
 
 	DISSECTOR_ASSERT(data);
