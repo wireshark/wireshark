@@ -1647,7 +1647,7 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
             struct rlc_seqlist * endlist = NULL;
             if( -1 != rlc_channel_assign(&ch_lookup, RLC_UM, pinfo ) ){
                 endlist = get_endlist(pinfo, &ch_lookup);
-                endlist->list->data = GINT_TO_POINTER(seq);
+                endlist->list->data = GINT_TO_POINTER((gint)seq);
                 endlist->fail_packet=0;
             }
 
