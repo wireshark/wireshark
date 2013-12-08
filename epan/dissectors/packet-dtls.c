@@ -2,6 +2,7 @@
  * Routines for dtls dissection
  * Copyright (c) 2006, Authesserre Samuel <sauthess@gmail.com>
  * Copyright (c) 2007, Mikael Magnusson <mikma@users.sourceforge.net>
+ * Copyright (c) 2013, Hauke Mehrtens <hauke@hauke-m.de>
  *
  * $Id$
  *
@@ -227,6 +228,7 @@ static gint                dtls_decrypted_data_avail = 0;
 
 static uat_t *dtlsdecrypt_uat      = NULL;
 static const gchar *dtls_keys_list = NULL;
+static const gchar *dtls_psk       = NULL;
 #ifdef HAVE_LIBGNUTLS
 static const gchar *dtls_debug_file_name = NULL;
 #endif
@@ -374,6 +376,7 @@ static void dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
+                                       packet_info *pinfo,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
                                        SslDecryptSession* ssl);
@@ -1443,7 +1446,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CLIENT_HELLO:
-            dissect_dtls_hnd_cli_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
+            dissect_dtls_hnd_cli_hello(sub_tvb, pinfo, ssl_hand_tree, 0, length, ssl);
             break;
 
           case SSL_HND_SERVER_HELLO:
@@ -1514,62 +1517,21 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             default:
                     break;
             }
-            {
-              /* here we can have all the data to build session key */
-              StringInfo encrypted_pre_master;
-              gint ret;
-              guint encrlen = length, skip;
-              skip = 0;
-
-              if (!ssl)
+            /* here we can have all the data to build session key */
+            if (!ssl)
                 break;
 
-              /* check for required session data */
-              ssl_debug_printf("dissect_dtls_handshake found SSL_HND_CLIENT_KEY_EXCHG, state %X\n",
-                               ssl->state);
-              if ((ssl->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
-                  (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
-                ssl_debug_printf("dissect_dtls_handshake not enough data to generate key (required state %X)\n",
-                                 (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
+            if (ssl_generate_pre_master_secret(ssl, length, tvb, offset, dtls_psk, NULL) < 0) {
+                ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
                 break;
-              }
-
-              /* Skip leading two bytes length field. Older openssl's DTLS implementation seems not to have this field.
-               * See implementation note in RFC 4346 section 7.4.7.1
-               */
-              if (ssl->cipher_suite.kex==KEX_RSA && ssl->version_netorder != DTLSV1DOT0_VERSION_NOT) {
-                encrlen = tvb_get_ntohs(tvb, offset);
-                skip = 2;
-                if (encrlen > length - 2) {
-                  ssl_debug_printf("dissect_dtls_handshake wrong encrypted length (%d max %d)\n", encrlen, length);
-                  break;
-                }
-              }
-
-              encrypted_pre_master.data = (guchar *)wmem_alloc(wmem_file_scope(), encrlen);
-              encrypted_pre_master.data_len = encrlen;
-              tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
-
-              if (!ssl->private_key) {
-                ssl_debug_printf("dissect_dtls_handshake can't find private key\n");
-                break;
-              }
-
-              /* go with ssl key processing; encrypted_pre_master
-               * will be used for master secret store*/
-              ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
-              if (ret < 0) {
-                ssl_debug_printf("dissect_dtls_handshake can't decrypt pre master secret\n");
-                break;
-              }
-              if (ssl_generate_keyring_material(ssl)<0) {
+            }
+            if (ssl_generate_keyring_material(ssl) < 0) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate keyring material\n");
                 break;
-              }
-              ssl->state |= SSL_HAVE_SESSION_KEY;
-              ssl_save_session(ssl, dtls_session_hash);
-              ssl_debug_printf("dissect_dtls_handshake session keys successfully generated\n");
             }
+
+            ssl_save_session(ssl, dtls_session_hash);
+            ssl_debug_printf("dissect_dtls_handshake session keys successfully generated\n");
             break;
 
           case SSL_HND_FINISHED:
@@ -1798,7 +1760,7 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
 }
 
 static void
-dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
+dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                            proto_tree *tree, guint32 offset, guint32 length,
                            SslDecryptSession*ssl)
 {
@@ -1821,6 +1783,11 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
   guint8      compression_method;
   guint16     start_offset   = offset;
   guint8      cookie_length;
+
+    if (ssl) {
+        ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+        ssl_find_private_key(ssl, dtls_key_hash, dtls_associations, pinfo);
+    }
 
   if (tree || ssl)
     {
@@ -3527,6 +3494,9 @@ proto_register_dtls(void)
                                      "Used by versions of Wireshark prior to 1.6",
                                      &dtls_keys_list);
 
+        prefs_register_string_preference(dtls_module, "psk", "Pre-Shared-Key",
+             "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
+             &dtls_psk);
   }
 #endif
 

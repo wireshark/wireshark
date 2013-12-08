@@ -233,6 +233,8 @@ typedef struct _StringInfo {
 #define SSL_CIPHER_MODE_STREAM  0 /* GenericStreamCipher */
 #define SSL_CIPHER_MODE_CBC     1 /* GenericBlockCipher */
 #define SSL_CIPHER_MODE_GCM     2 /* GenericAEADCipher */
+#define SSL_CIPHER_MODE_CCM     3 /* AEAD_AES_{128,256}_CCM with 16 byte auth tag */
+#define SSL_CIPHER_MODE_CCM_8   4 /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
 
 /* Explicit nonce length */
 #define SSL_EX_NONCE_LEN_GCM    8 /* RFC 5288 - section 3 */
@@ -300,6 +302,7 @@ typedef struct _SslDecoder {
 #define DIG_SHA         0x41
 #define DIG_SHA256      0x42
 #define DIG_SHA384      0x43
+#define DIG_NA          0x44 /* Not Applicable */
 
 typedef struct {
     const gchar *name;
@@ -446,6 +449,11 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
  @return 0 if the cipher suite is found, -1 elsewhere */
 extern gint
 ssl_find_cipher(int num,SslCipherSuite* cs);
+
+int
+ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
+                               guint32 length, tvbuff_t *tvb, guint32 offset,
+                               const gchar *ssl_psk, const gchar *keylog_filename);
 
 /** Expand the pre_master_secret to generate all the session information
  * (master secret, session keys, ivs)

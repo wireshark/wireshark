@@ -2,6 +2,8 @@
  * ssl manipulation functions
  * By Paolo Abeni <paolo.abeni@email.com>
  *
+ * Copyright (c) 2013, Hauke Mehrtens <hauke@hauke-m.de>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -1513,7 +1515,7 @@ static gint
 ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
         guchar* iv, gint mode)
 {
-    gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC,GCRY_CIPHER_MODE_CTR};
+    gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC,GCRY_CIPHER_MODE_CTR,GCRY_CIPHER_MODE_CTR,GCRY_CIPHER_MODE_CTR};
     gint err;
     if (algo == -1) {
         /* NULL mode */
@@ -1753,6 +1755,7 @@ static const SslDigestAlgo digests[]={
     {"SHA1",    20},
     {"SHA256",  32},
     {"SHA384",  48},
+    {"Not Applicable",  0},
 };
 
 /* get index digest index */
@@ -1921,6 +1924,18 @@ static SslCipherSuite cipher_suites[]={
     {49200,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 */
     {49201,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 */
     {49202,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 */
+    {0xC09C,KEX_RSA,SIG_RSA,ENC_AES,4,128,128,DIG_NA, SSL_CIPHER_MODE_CCM},   /* TLS_RSA_WITH_AES_128_CCM */
+    {0xC09D,KEX_RSA,SIG_RSA,ENC_AES256,4,256,256,DIG_NA, SSL_CIPHER_MODE_CCM},   /* TLS_RSA_WITH_AES_256_CCM */
+    {0xC09E,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_NA, SSL_CIPHER_MODE_CCM},   /* TLS_DHE_RSA_WITH_AES_128_CCM */
+    {0xC09F,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_NA, SSL_CIPHER_MODE_CCM},   /* TLS_DHE_RSA_WITH_AES_256_CCM */
+    {0xC0A0,KEX_RSA,SIG_RSA,ENC_AES,4,128,128,DIG_NA, SSL_CIPHER_MODE_CCM_8},   /* TLS_RSA_WITH_AES_128_CCM_8 */
+    {0xC0A1,KEX_RSA,SIG_RSA,ENC_AES256,4,256,256,DIG_NA, SSL_CIPHER_MODE_CCM_8},   /* TLS_RSA_WITH_AES_256_CCM_8 */
+    {0xC0A2,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_NA, SSL_CIPHER_MODE_CCM_8},   /* TLS_DHE_RSA_WITH_AES_128_CCM_8 */
+    {0xC0A3,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_NA, SSL_CIPHER_MODE_CCM_8},   /* TLS_DHE_RSA_WITH_AES_256_CCM_8 */
+    {0xC0A4,KEX_PSK,SIG_NONE,ENC_AES,4,128,128,DIG_NA, SSL_CIPHER_MODE_CCM},   /* TLS_PSK_WITH_AES_128_CCM */
+    {0xC0A5,KEX_PSK,SIG_NONE,ENC_AES256,4,256,256,DIG_NA, SSL_CIPHER_MODE_CCM},   /* TLS_PSK_WITH_AES_256_CCM */
+    {0xC0A8,KEX_PSK,SIG_NONE,ENC_AES,4,128,128,DIG_NA, SSL_CIPHER_MODE_CCM_8},   /* TLS_PSK_WITH_AES_128_CCM_8 */
+    {0xC0A9,KEX_PSK,SIG_NONE,ENC_AES256,4,256,256,DIG_NA, SSL_CIPHER_MODE_CCM_8},   /* TLS_PSK_WITH_AES_256_CCM_8 */
     {-1, 0,0,0,0,0,0,0, 0}
 };
 
@@ -2287,6 +2302,135 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
 }
 
 int
+ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
+                               guint32 length, tvbuff_t *tvb, guint32 offset,
+                               const gchar *ssl_psk, const gchar *keylog_filename)
+{
+    /* check for required session data */
+    ssl_debug_printf("ssl_generate_pre_master_secret: found SSL_HND_CLIENT_KEY_EXCHG, state %X\n",
+                     ssl_session->state);
+    if ((ssl_session->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
+        (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
+        ssl_debug_printf("ssl_generate_pre_master_secret: not enough data to generate key (required state %X)\n",
+                         (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
+        return -1;
+    }
+
+    if (ssl_session->cipher_suite.kex == KEX_PSK)
+    {
+        /* calculate pre master secret*/
+        StringInfo pre_master_secret;
+        guint psk_len, pre_master_len;
+
+        int size;
+        unsigned char *out;
+        int i,j = 0;
+        char input[2];
+
+        if (!ssl_psk || (ssl_psk[0] == 0)) {
+            ssl_debug_printf("ssl_generate_pre_master_secret: can't find pre-shared-key\n");
+            return -1;
+        }
+
+        size = (int)strlen(ssl_psk);
+
+        /* The length of PSK ranges from 0..2^16-1 octets (times two for hex string) */
+        if (size < 0 || size % 2 != 0 || size >= (2 << 16))
+        {
+            ssl_debug_printf("ssl_generate_pre_master_secret: length of ssl.psk must be multiple of two");
+            return -1;
+        }
+
+        /* convert hex string into char*/
+        out = (unsigned char*) wmem_alloc(wmem_packet_scope(), size / 2);
+
+        for (i = 0; i < size; i+=2)
+        {
+            input[0] = ssl_psk[0 + i];
+            input[1] = ssl_psk[1 + i];
+            out[j++] = (unsigned int) strtoul((const char*)&input, NULL, 16);
+        }
+
+        ssl_session->psk = (guchar*) out;
+
+        psk_len = size / 2;
+        pre_master_len = psk_len * 2 + 4;
+
+        pre_master_secret.data = (guchar *)wmem_alloc(wmem_file_scope(), pre_master_len);
+        pre_master_secret.data_len = pre_master_len;
+        /* 2 bytes psk_len*/
+        pre_master_secret.data[0] = psk_len >> 8;
+        pre_master_secret.data[1] = psk_len & 0xFF;
+        /* psk_len bytes times 0*/
+        memset(&pre_master_secret.data[2], 0, psk_len);
+        /* 2 bytes psk_len*/
+        pre_master_secret.data[psk_len + 2] = psk_len >> 8;
+        pre_master_secret.data[psk_len + 3] = psk_len & 0xFF;
+        /* psk*/
+        memcpy(&pre_master_secret.data[psk_len + 4], ssl_session->psk, psk_len);
+
+        ssl_session->pre_master_secret.data = pre_master_secret.data;
+        ssl_session->pre_master_secret.data_len = pre_master_len;
+        /*ssl_debug_printf("pre master secret",&ssl->pre_master_secret);*/
+
+        /* Remove the master secret if it was there.
+           This forces keying material regeneration in
+           case we're renegotiating */
+        ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
+        ssl_session->state |= SSL_PRE_MASTER_SECRET;
+        return 0;
+    }
+    else
+    {
+        StringInfo encrypted_pre_master;
+        gint ret;
+        guint encrlen, skip;
+        encrlen = length;
+        skip = 0;
+
+        /* get encrypted data, on tls1 we have to skip two bytes
+         * (it's the encrypted len and should be equal to record len - 2)
+         * in case of rsa1024 that would be 128 + 2 = 130; for psk not necessary
+         */
+        if (ssl_session->cipher_suite.kex == KEX_RSA &&
+           (ssl_session->version == SSL_VER_TLS || ssl_session->version == SSL_VER_TLSv1DOT1 ||
+            ssl_session->version == SSL_VER_TLSv1DOT2 || ssl_session->version == SSL_VER_DTLS ||
+            ssl_session->version == SSL_VER_DTLS1DOT2))
+        {
+            encrlen  = tvb_get_ntohs(tvb, offset);
+            skip = 2;
+            if (encrlen > length - 2)
+            {
+                ssl_debug_printf("ssl_generate_pre_master_secret: wrong encrypted length (%d max %d)\n",
+                    encrlen, length);
+                return -1;
+            }
+        }
+        encrypted_pre_master.data = (guchar *)wmem_alloc(wmem_file_scope(), encrlen);
+        encrypted_pre_master.data_len = encrlen;
+        tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
+
+        if (ssl_session->private_key) {
+            /* go with ssl key processessing; encrypted_pre_master
+             * will be used for master secret store*/
+            ret = ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, ssl_session->private_key);
+            if (ret < 0) {
+                ssl_debug_printf("ssl_generate_pre_master_secret: can't decrypt pre master secret\n");
+                return -1;
+            }
+            return 0;
+        } else if (keylog_filename != NULL) {
+            /* try to find the key in the key log */
+            if (ssl_keylog_lookup(ssl_session, keylog_filename, &encrypted_pre_master) < 0) {
+                return -1;
+            }
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int
 ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 {
     StringInfo  key_block;
@@ -2343,7 +2487,9 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     ptr=key_block.data;
     /* AEAD ciphers do not have a separate MAC */
-    if (ssl_session->cipher_suite.mode == SSL_CIPHER_MODE_GCM) {
+    if (ssl_session->cipher_suite.mode == SSL_CIPHER_MODE_GCM ||
+        ssl_session->cipher_suite.mode == SSL_CIPHER_MODE_CCM ||
+        ssl_session->cipher_suite.mode == SSL_CIPHER_MODE_CCM_8) {
         c_mk = s_mk = NULL;
     } else {
         c_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
@@ -2844,7 +2990,9 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     }
 
     /* Nonce for GenericAEADCipher */
-    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM) {
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM ||
+        decoder->cipher_suite->mode == SSL_CIPHER_MODE_CCM ||
+        decoder->cipher_suite->mode == SSL_CIPHER_MODE_CCM_8) {
         /* 4 bytes write_iv, 8 bytes explicit_nonce, 4 bytes counter */
         guchar gcm_nonce[16] = { 0 };
 
@@ -2853,11 +3001,25 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
                 inl, SSL_EX_NONCE_LEN_GCM);
             return -1;
         }
-        memcpy(gcm_nonce, decoder->write_iv.data, decoder->write_iv.data_len); /* salt */
-        memcpy(gcm_nonce + decoder->write_iv.data_len, in, SSL_EX_NONCE_LEN_GCM);
-        /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
-         * at 1, and gets incremented before passing to the block cipher. */
-        gcm_nonce[4 + SSL_EX_NONCE_LEN_GCM + 3] = 2;
+
+        if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM) {
+            memcpy(gcm_nonce, decoder->write_iv.data, decoder->write_iv.data_len); /* salt */
+            memcpy(gcm_nonce + decoder->write_iv.data_len, in, SSL_EX_NONCE_LEN_GCM);
+            /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
+             * at 1, and gets incremented before passing to the block cipher. */
+            gcm_nonce[4 + SSL_EX_NONCE_LEN_GCM + 3] = 2;
+        } else { /* SSL_CIPHER_MODE_CCM and SSL_CIPHER_MODE_CCM_8 */
+            /* The nonce for CCM and GCM are the same, but the nonce is used as input
+             * in the CCM algorithm described in RFC 3610. The nonce generated here is
+             * the one from RFC 3610 sect 2.3. Encryption. */
+            /* Flags: (L-1) ; L = 16 - 1 - nonceSize */
+            gcm_nonce[0] = 3 - 1;
+
+            memcpy(gcm_nonce + 1, decoder->write_iv.data, decoder->write_iv.data_len); /* salt */
+            memcpy(gcm_nonce + 1 + decoder->write_iv.data_len, in, SSL_EX_NONCE_LEN_GCM);
+            gcm_nonce[4 + SSL_EX_NONCE_LEN_GCM + 3] = 1;
+        }
+
         pad = gcry_cipher_setctr (decoder->evp, gcm_nonce, sizeof (gcm_nonce));
         if (pad != 0) {
             ssl_debug_printf("ssl_decrypt_record failed: failed to set CTR: %s %s\n",
@@ -2878,14 +3040,25 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     ssl_print_data("Plaintext", out_str->data, inl);
     worklen=inl;
 
-    /* RFC 5116 sect 5.1/5.3: AES128/256 GCM/CCM uses 16 bytes for auth tag */
-    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM) {
+    /* RFC 5116 sect 5.1/5.3: AES128/256 GCM/CCM uses 16 bytes for auth tag
+     * RFC 6655 sect 6.1: AEAD_AES_128_CCM uses 16 bytes for auth tag */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM ||
+        decoder->cipher_suite->mode == SSL_CIPHER_MODE_CCM) {
         if (worklen < 16) {
             ssl_debug_printf("ssl_decrypt_record failed: missing tag, work %d\n", worklen);
             return -1;
         }
         /* XXX - validate auth tag */
         worklen -= 16;
+    }
+    /* RFC 6655 sect 6.1: AEAD_AES_128_CCM_8 uses 8 bytes for auth tag */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_CCM_8) {
+        if (worklen < 8) {
+            ssl_debug_printf("ssl_decrypt_record failed: missing tag, work %d\n", worklen);
+            return -1;
+        }
+        /* XXX - validate auth tag */
+        worklen -= 8;
     }
 
     /* strip padding for GenericBlockCipher */
