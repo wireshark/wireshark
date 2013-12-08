@@ -31,6 +31,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_yhoo(void);
+void proto_reg_handoff_yhoo(void);
+
 static int proto_yhoo = -1;
 static int hf_yhoo_version = -1;
 static int hf_yhoo_len = -1;

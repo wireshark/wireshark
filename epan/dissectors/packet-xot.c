@@ -45,6 +45,9 @@
 #define X25_MBIT_MOD8			0x10
 #define X25_MBIT_MOD128			0x01
 
+void proto_register_xot(void);
+void proto_reg_handoff_xot(void);
+
 static const value_string vals_x25_type[] = {
    { XOT_PVC_SETUP, "PVC Setup" },
    { 0,   NULL}

@@ -40,6 +40,8 @@
 #define PSNAME "H.501"
 #define PFNAME "h501"
 
+void proto_register_h501(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h501 = -1;
 #include "packet-h501-hf.c"

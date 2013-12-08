@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
+void proto_register_xyplex(void);
+void proto_reg_handoff_xyplex(void);
+
 static int proto_xyplex = -1;
 static int hf_xyplex_type = -1;
 static int hf_xyplex_pad = -1;
