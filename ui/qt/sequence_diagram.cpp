@@ -118,7 +118,7 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
         key_ticks.append(cur_key);
         key_labels.append(sai->time_str);
 
-        com_labels.append(com_fm.elidedText(sai->frame_label, Qt::ElideRight, elide_w));
+        com_labels.append(com_fm.elidedText(sai->comment, Qt::ElideRight, elide_w));
 
         cur_key++;
     }
