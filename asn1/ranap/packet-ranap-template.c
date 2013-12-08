@@ -141,7 +141,6 @@ static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-void proto_reg_handoff_ranap(void);
 
 #include "packet-ranap-fn.c"
 

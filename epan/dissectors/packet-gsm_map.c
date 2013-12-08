@@ -1865,7 +1865,7 @@ static int hf_NokiaMAP_Extensions_ClassOfServiceID_idHighBit = -1;
 static int hf_NokiaMAP_Extensions_ClassOfServiceID_idLowBit = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 156 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 157 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -2563,7 +2563,7 @@ static gint ett_NokiaMAP_Extensions_AnyTimePO_BarringArg = -1;
 static gint ett_NokiaMAP_Extensions_AnyTimePO_BarringRes = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 185 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 186 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
@@ -16322,7 +16322,7 @@ static const value_string gsm_old_GSMMAPOperationLocalvalue_vals[] = {
   {  33, "processAccessSignalling" },
   {  34, "forwardAccessSignalling" },
   {  35, "noteInternalHandover" },
-  {  36, "unAllocated" },
+  {  36, "cancelVcsgLocation" },
   {  37, "reset" },
   {  38, "forwardCheckSS" },
   {  39, "prepareGroupCall" },
@@ -16339,7 +16339,7 @@ static const value_string gsm_old_GSMMAPOperationLocalvalue_vals[] = {
   {  50, "activateTraceMode" },
   {  51, "deactivateTraceMode" },
   {  52, "traceSubscriberActivity" },
-  {  53, "unAllocated" },
+  {  53, "updateVcsgLocation" },
   {  54, "beginSubscriberActivity" },
   {  55, "sendIdentification" },
   {  56, "sendAuthenticationInfo" },
@@ -19882,7 +19882,7 @@ dissect_NokiaMAP_Extensions_AnyTimePO_BarringRes(gboolean implicit_tag _U_, tvbu
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 846 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 847 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -20104,7 +20104,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 857 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 858 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -20319,7 +20319,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 861 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 862 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -20577,7 +20577,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 			      TRUE , dissect_gsm_map_ms_ForwardAccessSignalling_Arg, -1);
     break;
     /* reserved noteInternalHandover (35) */
-    /* undefined 36 */
+  case 36: /*cancelVcsgLocation*/
+    offset=dissect_gsm_map_ms_CancelVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 37: /*reset*/
     offset=dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -20645,7 +20647,10 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_om_DeactivateTraceModeArg(FALSE, tvb, offset, actx, tree, -1);
     break;
     /* reserved traceSubscriberActivity (52) */
-    /* undefined 53 */
+    
+  case 53: /* UpdateVcsgLocation 53 */
+    offset=dissect_gsm_map_ms_UpdateVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 54: /*beginSubscriberActivity*/
     offset=dissect_gsm_old_BeginSubscriberActivityArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -20930,6 +20935,9 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 32: /*provideSIWFSSignallingModify*/
     offset=dissect_gsm_old_SIWFSSignallingModifyRes(FALSE, tvb, offset, actx, tree, -1);
     break;
+  case 36: /*cancelVcsgLocation*/
+    offset=dissect_gsm_map_ms_CancelVcsgLocationRes(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 39: /*prepareGroupCall*/
     offset=dissect_gsm_map_gr_PrepareGroupCallRes(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -20965,6 +20973,9 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
   case 51: /*deactivateTraceMode*/
     offset=dissect_gsm_map_om_DeactivateTraceModeRes(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case 53: /* UpdateVcsgLocation 53 */
+    offset=dissect_gsm_map_ms_UpdateVcsgLocationRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 55: /*sendIdentification */
     offset=dissect_mc_message(tvb, offset, actx, tree,
@@ -28790,7 +28801,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2694 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2706 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -29490,7 +29501,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AnyTimePO_BarringRes,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2725 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2737 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -29592,7 +29603,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2761 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2773 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

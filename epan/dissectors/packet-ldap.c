@@ -127,6 +127,9 @@
 #define PSNAME "LDAP"
 #define PFNAME "ldap"
 
+void proto_register_ldap(void);
+void proto_reg_handoff_ldap(void);
+
 /* Initialize the protocol and registered fields */
 static int ldap_tap = -1;
 static int proto_ldap = -1;
@@ -342,7 +345,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 190 "../../asn1/ldap/packet-ldap-template.c"
+#line 193 "../../asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -415,7 +418,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 201 "../../asn1/ldap/packet-ldap-template.c"
+#line 204 "../../asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -3835,7 +3838,7 @@ static void dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 883 "../../asn1/ldap/packet-ldap-template.c"
+#line 886 "../../asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -5778,7 +5781,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2249 "../../asn1/ldap/packet-ldap-template.c"
+#line 2252 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5853,7 +5856,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2262 "../../asn1/ldap/packet-ldap-template.c"
+#line 2265 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -6019,7 +6022,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2411 "../../asn1/ldap/packet-ldap-template.c"
+#line 2414 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

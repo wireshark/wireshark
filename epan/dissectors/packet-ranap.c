@@ -1544,7 +1544,6 @@ static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-void proto_reg_handoff_ranap(void);
 
 
 /*--- Included file: packet-ranap-fn.c ---*/
@@ -13072,7 +13071,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 147 "../../asn1/ranap/packet-ranap-template.c"
+#line 146 "../../asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -16116,7 +16115,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 322 "../../asn1/ranap/packet-ranap-template.c"
+#line 321 "../../asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -16453,7 +16452,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 330 "../../asn1/ranap/packet-ranap-template.c"
+#line 329 "../../asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -16836,7 +16835,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 380 "../../asn1/ranap/packet-ranap-template.c"
+#line 379 "../../asn1/ranap/packet-ranap-template.c"
 	} else {
 		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}

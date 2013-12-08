@@ -119,6 +119,9 @@
 #define PSNAME "LDAP"
 #define PFNAME "ldap"
 
+void proto_register_ldap(void);
+void proto_reg_handoff_ldap(void);
+
 /* Initialize the protocol and registered fields */
 static int ldap_tap = -1;
 static int proto_ldap = -1;

@@ -37,6 +37,9 @@
 #define PSNAME "H450.ROS"
 #define PFNAME "h450.ros"
 
+void proto_register_h450_ros(void);
+void proto_reg_handoff_h450_ros(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h450_ros = -1;
 #include "packet-h450-ros-hf.c" 

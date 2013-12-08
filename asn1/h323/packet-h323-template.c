@@ -39,6 +39,8 @@
 #define PSNAME "H.323"
 #define PFNAME "h323"
 
+void proto_register_h323(void);
+void proto_reg_handoff_h323(void);
 
 /* Generic Extensible Framework */
 gef_ctx_t* gef_ctx_alloc(gef_ctx_t *parent, const gchar *type) {

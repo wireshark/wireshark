@@ -46,6 +46,9 @@
 #define OID_TG            "0.0.8.235.0.3.70"
 #define OID_SG            "0.0.8.235.0.3.71"
 
+void proto_register_h235(void);
+void proto_reg_handoff_h235(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h235 = -1;
 #include "packet-h235-hf.c"

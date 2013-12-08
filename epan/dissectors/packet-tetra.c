@@ -54,6 +54,9 @@
 
 #define PROTO_TAG_tetra	"TETRA"
 
+void proto_register_tetra(void);
+void proto_reg_handoff_ldap(void);
+
 /* Wireshark ID of the tetra protocol */
 static int proto_tetra = -1;
 
@@ -687,7 +690,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 86 "../../asn1/tetra/packet-tetra-template.c"
+#line 89 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -972,7 +975,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 96 "../../asn1/tetra/packet-tetra-template.c"
+#line 99 "../../asn1/tetra/packet-tetra-template.c"
 
 static expert_field ei_tetra_channels_incorrect = EI_INIT;
 
@@ -8776,7 +8779,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 100 "../../asn1/tetra/packet-tetra-template.c"
+#line 103 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -11675,7 +11678,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 626 "../../asn1/tetra/packet-tetra-template.c"
+#line 629 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11960,7 +11963,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 636 "../../asn1/tetra/packet-tetra-template.c"
+#line 639 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {

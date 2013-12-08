@@ -38,6 +38,9 @@
 #define PSNAME "GOOSE"
 #define PFNAME "goose"
 
+void proto_register_goose(void);
+void proto_reg_handoff_goose(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_goose = -1;
 static int hf_goose_appid = -1;

@@ -1116,7 +1116,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 			      TRUE , dissect_gsm_map_ms_ForwardAccessSignalling_Arg, -1);
     break;
     /* reserved noteInternalHandover (35) */
-    /* undefined 36 */
+  case 36: /*cancelVcsgLocation*/
+    offset=dissect_gsm_map_ms_CancelVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 37: /*reset*/
     offset=dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -1184,7 +1186,10 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_om_DeactivateTraceModeArg(FALSE, tvb, offset, actx, tree, -1);
     break;
     /* reserved traceSubscriberActivity (52) */
-    /* undefined 53 */
+    
+  case 53: /* UpdateVcsgLocation 53 */
+    offset=dissect_gsm_map_ms_UpdateVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 54: /*beginSubscriberActivity*/
     offset=dissect_gsm_old_BeginSubscriberActivityArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -1469,6 +1474,9 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 32: /*provideSIWFSSignallingModify*/
     offset=dissect_gsm_old_SIWFSSignallingModifyRes(FALSE, tvb, offset, actx, tree, -1);
     break;
+  case 36: /*cancelVcsgLocation*/
+    offset=dissect_gsm_map_ms_CancelVcsgLocationRes(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 39: /*prepareGroupCall*/
     offset=dissect_gsm_map_gr_PrepareGroupCallRes(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -1504,6 +1512,9 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
   case 51: /*deactivateTraceMode*/
     offset=dissect_gsm_map_om_DeactivateTraceModeRes(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case 53: /* UpdateVcsgLocation 53 */
+    offset=dissect_gsm_map_ms_UpdateVcsgLocationRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 55: /*sendIdentification */
     offset=dissect_mc_message(tvb, offset, actx, tree,

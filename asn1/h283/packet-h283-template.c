@@ -36,6 +36,9 @@
 #define PSNAME "LCT"
 #define PFNAME "lct"
 
+void proto_register_h283(void);
+void proto_reg_handoff_h283(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h283 = -1;
 #include "packet-h283-hf.c"

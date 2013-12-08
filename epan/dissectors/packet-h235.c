@@ -54,6 +54,9 @@
 #define OID_TG            "0.0.8.235.0.3.70"
 #define OID_SG            "0.0.8.235.0.3.71"
 
+void proto_register_h235(void);
+void proto_reg_handoff_h235(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h235 = -1;
 
@@ -162,7 +165,7 @@ static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
 static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
 /*--- End of included file: packet-h235-hf.c ---*/
-#line 52 "../../asn1/h235/packet-h235-template.c"
+#line 55 "../../asn1/h235/packet-h235-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -202,7 +205,7 @@ static gint ett_h235_SEQUENCE_OF_GenericData = -1;
 static gint ett_h235_FecOrder = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
-#line 55 "../../asn1/h235/packet-h235-template.c"
+#line 58 "../../asn1/h235/packet-h235-template.c"
 
 
 static int
@@ -1048,7 +1051,7 @@ static int dissect_SrtpCryptoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 64 "../../asn1/h235/packet-h235-template.c"
+#line 67 "../../asn1/h235/packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1465,7 +1468,7 @@ void proto_register_h235(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 72 "../../asn1/h235/packet-h235-template.c"
+#line 75 "../../asn1/h235/packet-h235-template.c"
   };
 
   /* List of subtrees */
@@ -1507,7 +1510,7 @@ void proto_register_h235(void) {
     &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 77 "../../asn1/h235/packet-h235-template.c"
+#line 80 "../../asn1/h235/packet-h235-template.c"
   };
 
   /* Register protocol */

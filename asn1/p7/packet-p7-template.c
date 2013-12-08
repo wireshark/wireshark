@@ -43,6 +43,9 @@
 #define PSNAME "P7"
 #define PFNAME "p7"
 
+void proto_register_p7(void);
+void proto_reg_handoff_p7(void);
+
 static guint global_p7_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
 static int seqno = 0;
