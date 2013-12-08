@@ -2306,6 +2306,39 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     return dec;
 }
 
+
+static guint8
+from_hex_char(gchar c) {
+    if ((c >= '0') && (c <= '9'))
+        return c - '0';
+    if ((c >= 'A') && (c <= 'F'))
+        return c - 'A' + 10;
+    if ((c >= 'a') && (c <= 'f'))
+        return c - 'a' + 10;
+    return 16;
+}
+
+/* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
+ * the result. |out->data| will be allocated using se_alloc. Returns TRUE on
+ * success. */
+static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
+    gsize i;
+
+    if (hex_len & 1)
+        return FALSE;
+
+    out->data_len = (guint)hex_len/2;
+    out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
+    for (i = 0; i < out->data_len; i++) {
+        guint8 a = from_hex_char(in[i*2]);
+        guint8 b = from_hex_char(in[i*2 + 1]);
+        if (a == 16 || b == 16)
+            return FALSE;
+        out->data[i] = a << 4 | b;
+    }
+    return TRUE;
+}
+
 int
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
@@ -2327,38 +2360,24 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         StringInfo pre_master_secret;
         guint psk_len, pre_master_len;
 
-        int size;
-        unsigned char *out;
-        int i,j = 0;
-        char input[2];
-
         if (!ssl_psk || (ssl_psk[0] == 0)) {
             ssl_debug_printf("ssl_generate_pre_master_secret: can't find pre-shared-key\n");
             return -1;
         }
 
-        size = (int)strlen(ssl_psk);
-
-        /* The length of PSK ranges from 0..2^16-1 octets (times two for hex string) */
-        if (size < 0 || size % 2 != 0 || size >= (2 << 16))
-        {
-            ssl_debug_printf("ssl_generate_pre_master_secret: length of ssl.psk must be multiple of two");
+        /* convert hex string into char*/
+        if (!from_hex(&ssl_session->psk, ssl_psk, strlen(ssl_psk))) {
+            ssl_debug_printf("ssl_generate_pre_master_secret: ssl.psk/dtls.psk contains invalid hex\n");
             return -1;
         }
 
-        /* convert hex string into char*/
-        out = (unsigned char*) wmem_alloc(wmem_packet_scope(), size / 2);
-
-        for (i = 0; i < size; i+=2)
-        {
-            input[0] = ssl_psk[0 + i];
-            input[1] = ssl_psk[1 + i];
-            out[j++] = (unsigned int) strtoul((const char*)&input, NULL, 16);
+        psk_len = ssl_session->psk.data_len;
+        if (psk_len >= (2 << 15)) {
+            ssl_debug_printf("ssl_generate_pre_master_secret: ssl.psk/dtls.psk must not be larger than 2^15 - 1\n");
+            return -1;
         }
 
-        ssl_session->psk = (guchar*) out;
 
-        psk_len = size / 2;
         pre_master_len = psk_len * 2 + 4;
 
         pre_master_secret.data = (guchar *)wmem_alloc(wmem_file_scope(), pre_master_len);
@@ -2372,7 +2391,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         pre_master_secret.data[psk_len + 2] = psk_len >> 8;
         pre_master_secret.data[psk_len + 3] = psk_len & 0xFF;
         /* psk*/
-        memcpy(&pre_master_secret.data[psk_len + 4], ssl_session->psk, psk_len);
+        memcpy(&pre_master_secret.data[psk_len + 4], ssl_session->psk.data, psk_len);
 
         ssl_session->pre_master_secret.data = pre_master_secret.data;
         ssl_session->pre_master_secret.data_len = pre_master_len;
@@ -4151,38 +4170,6 @@ ssl_is_valid_content_type(guint8 type)
     }
 
     return 0;
-}
-
-static guint8
-from_hex_char(gchar c) {
-    if ((c >= '0') && (c <= '9'))
-        return c - '0';
-    if ((c >= 'A') && (c <= 'F'))
-        return c - 'A' + 10;
-    if ((c >= 'a') && (c <= 'f'))
-        return c - 'a' + 10;
-    return 16;
-}
-
-/* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
- * the result. |out->data| will be allocated using se_alloc. Returns TRUE on
- * success. */
-static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
-    gsize i;
-
-    if (hex_len & 1)
-        return FALSE;
-
-    out->data_len = (guint)hex_len/2;
-    out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
-    for (i = 0; i < out->data_len; i++) {
-        guint8 a = from_hex_char(in[i*2]);
-        guint8 b = from_hex_char(in[i*2 + 1]);
-        if (a == 16 || b == 16)
-            return FALSE;
-        out->data[i] = a << 4 | b;
-    }
-    return TRUE;
 }
 
 static const unsigned int kRSAMasterSecretLength = 48; /* RFC5246 8.1 */
