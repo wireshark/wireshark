@@ -44,6 +44,9 @@
 #define PSNAME "ESS"
 #define PFNAME "ess"
 
+void proto_register_ess(void);
+void proto_reg_handoff_ess(void);
+
 typedef struct _ess_category_attributes_t {
    char *oid;
    guint lacv;

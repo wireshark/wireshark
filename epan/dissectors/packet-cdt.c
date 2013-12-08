@@ -57,6 +57,9 @@
 #define PSNAME "CDT"
 #define PFNAME "cdt"
 
+void proto_register_cdt(void);
+void proto_reg_handoff_cdt(void);
+
 static proto_tree *top_tree = NULL;
 static proto_item *cdt_item = NULL;
 
@@ -78,7 +81,7 @@ static int hf_cdt_contentType_OID = -1;           /* T_contentType_OID */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
-#line 60 "../../asn1/cdt/packet-cdt-template.c"
+#line 63 "../../asn1/cdt/packet-cdt-template.c"
 
 static dissector_handle_t data_handle = NULL;
 
@@ -92,7 +95,7 @@ static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-#line 65 "../../asn1/cdt/packet-cdt-template.c"
+#line 68 "../../asn1/cdt/packet-cdt-template.c"
 
 static expert_field ei_cdt_unable_compress_content = EI_INIT;
 static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
@@ -335,7 +338,7 @@ static void dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 70 "../../asn1/cdt/packet-cdt-template.c"
+#line 73 "../../asn1/cdt/packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -408,7 +411,7 @@ void proto_register_cdt (void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 102 "../../asn1/cdt/packet-cdt-template.c"
+#line 105 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -422,7 +425,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 107 "../../asn1/cdt/packet-cdt-template.c"
+#line 110 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -452,7 +455,7 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 130 "../../asn1/cdt/packet-cdt-template.c"
+#line 133 "../../asn1/cdt/packet-cdt-template.c"
 
   data_handle = find_dissector ("data");
 }

@@ -47,6 +47,9 @@
 #define PSNAME "DSP"
 #define PFNAME "dsp"
 
+void proto_register_dsp(void);
+void proto_reg_handoff_dsp(void);
+
 static guint global_dsp_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
 static void prefs_register_dsp(void); /* forward declaration for use in preferences registration */

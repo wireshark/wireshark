@@ -53,6 +53,9 @@
 #define PSNAME "DISP"
 #define PFNAME "disp"
 
+void proto_register_disp(void);
+void proto_reg_handoff_disp(void);
+
 static guint global_disp_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
 static void prefs_register_disp(void); /* forward declaration for use in preferences registration */

@@ -51,6 +51,9 @@
 #define PSNAME "DOP"
 #define PFNAME "dop"
 
+void proto_register_dop(void);
+void proto_reg_handoff_dop(void);
+
 static guint global_dop_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
 static void prefs_register_dop(void); /* forward declaration for use in preferences registration */

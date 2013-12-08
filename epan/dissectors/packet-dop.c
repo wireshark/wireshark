@@ -59,6 +59,9 @@
 #define PSNAME "DOP"
 #define PFNAME "dop"
 
+void proto_register_dop(void);
+void proto_reg_handoff_dop(void);
+
 static guint global_dop_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
 static void prefs_register_dop(void); /* forward declaration for use in preferences registration */
@@ -266,7 +269,7 @@ static int hf_dop_GrantsAndDenials_grantInvoke = -1;
 static int hf_dop_GrantsAndDenials_denyInvoke = -1;
 
 /*--- End of included file: packet-dop-hf.c ---*/
-#line 66 "../../asn1/dop/packet-dop-template.c"
+#line 69 "../../asn1/dop/packet-dop-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
@@ -343,7 +346,7 @@ static gint ett_dop_T_basicLevels = -1;
 static gint ett_dop_GrantsAndDenials = -1;
 
 /*--- End of included file: packet-dop-ett.c ---*/
-#line 71 "../../asn1/dop/packet-dop-template.c"
+#line 74 "../../asn1/dop/packet-dop-template.c"
 
 static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
 
@@ -2044,7 +2047,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 86 "../../asn1/dop/packet-dop-template.c"
+#line 89 "../../asn1/dop/packet-dop-template.c"
 
 static int
 call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data)
@@ -2968,7 +2971,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 245 "../../asn1/dop/packet-dop-template.c"
+#line 248 "../../asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3047,7 +3050,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 252 "../../asn1/dop/packet-dop-template.c"
+#line 255 "../../asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -3110,7 +3113,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 292 "../../asn1/dop/packet-dop-template.c"
+#line 295 "../../asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

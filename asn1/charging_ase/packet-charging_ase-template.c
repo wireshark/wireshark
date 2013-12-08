@@ -36,6 +36,9 @@
 #define PSNAME "ChargingASE"
 #define PFNAME "chargingase"
 
+void proto_register_charging_ase(void);
+void proto_reg_handoff_charging_ase(void);
+
 /* Define the Charging ASE proto */
 static int proto_charging_ase = -1;
 

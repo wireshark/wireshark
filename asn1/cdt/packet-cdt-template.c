@@ -49,6 +49,9 @@
 #define PSNAME "CDT"
 #define PFNAME "cdt"
 
+void proto_register_cdt(void);
+void proto_reg_handoff_cdt(void);
+
 static proto_tree *top_tree = NULL;
 static proto_item *cdt_item = NULL;
 
