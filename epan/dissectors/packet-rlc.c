@@ -510,27 +510,27 @@ rlc_cmp_seq(gconstpointer a, gconstpointer b)
 
 static int moduloCompare(guint16 a, guint16 b, guint16 modulus)
 {
-	int ret;
-	a = a % modulus; 
-	b = b % modulus;
+    int ret;
+    a = a % modulus;
+    b = b % modulus;
 
-	if( a <= b ){
-		ret = a - b;
+    if( a <= b ){
+        ret = a - b;
     } else {
-		ret = a - (b + modulus);
-	}
-	if( ret == (1 - modulus) ){
-		ret = 1;
-	}
-	return ret;
+        ret = a - (b + modulus);
+    }
+    if( ret == (1 - modulus) ){
+        ret = 1;
+    }
+    return ret;
 }
 
 static guint16 getChannelSNModulus(struct rlc_channel * ch_lookup)
 {
-	if( RLC_UM == ch_lookup->mode){ /*FIXME: This is a very heuristic way to detemine SN bitwidth. */
-		return 128;
-        } else {
-		return 4096;
+    if( RLC_UM == ch_lookup->mode){ /*FIXME: This is a very heuristic way to detemine SN bitwidth. */
+        return 128;
+    } else {
+        return 4096;
     }
 }
 
@@ -940,7 +940,7 @@ reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
     GList * element = NULL;
     struct rlc_sdu * sdu = rlc_sdu_create();
 
-	guint16 snmod = getChannelSNModulus(ch_lookup);
+    guint16 snmod = getChannelSNModulus(ch_lookup);
 
     /* Insert fragments into SDU. */
     for (; moduloCompare(start,end,snmod ) <= 0; start = (start+1)%snmod)
@@ -1007,7 +1007,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     struct rlc_frag ** frags = NULL;
     struct rlc_seqlist * endlist = NULL;
     GList * element = NULL;
-	int snmod;
+    int snmod;
 
     if (rlc_channel_assign(&ch_lookup, mode, pinfo) == -1) {
         return NULL;
@@ -1017,7 +1017,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.urnti, seq, num_li, offset);
     #endif
 
-	snmod = getChannelSNModulus(&ch_lookup);
+    snmod = getChannelSNModulus(&ch_lookup);
 
     /* look for an already assembled SDU */
     if (g_hash_table_lookup_extended(reassembled_table, &frag_lookup, &orig_key, &value)) {
@@ -1255,7 +1255,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     GList              *element;
     struct rlc_seqlist  lookup, *list;
     struct rlc_seq      seq_item, *seq_new;
-	guint16 snmod;
+    guint16 snmod;
 
     rlc_channel_assign(&lookup.ch, mode, pinfo);
     list = (struct rlc_seqlist *)g_hash_table_lookup(sequence_table, &lookup.ch);
@@ -1271,7 +1271,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     /* When seq is 12 bit (in RLC protocol), it will wrap around after 4096. */
     /* Window size is at most 4095 so we remove packets further away than that */
     element = g_list_first(list->list);
-	snmod = getChannelSNModulus(&lookup.ch);
+    snmod = getChannelSNModulus(&lookup.ch);
     if (element) {
         seq_new = (struct rlc_seq *)element->data;
         /* Add SN modulus because %-operation for negative values in C is not equal to mathematical modulus */
@@ -1643,13 +1643,13 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
             offs += tvb_length_remaining(tvb, offs);
         } else if ((!li_is_on_2_bytes && (li[i].li == 0x7c)) || (li[i].li == 0x7ffc)) {
             /* a new SDU starts here, mark this seq as the first PDU. */
-			struct rlc_channel  ch_lookup;
-			struct rlc_seqlist * endlist = NULL;
-			if( -1 != rlc_channel_assign(&ch_lookup, RLC_UM, pinfo ) ){
-				endlist = get_endlist(pinfo, &ch_lookup);
-				endlist->list->data = GINT_TO_POINTER(seq);
-				endlist->fail_packet=0;
-			}
+            struct rlc_channel  ch_lookup;
+            struct rlc_seqlist * endlist = NULL;
+            if( -1 != rlc_channel_assign(&ch_lookup, RLC_UM, pinfo ) ){
+                endlist = get_endlist(pinfo, &ch_lookup);
+                endlist->list->data = GINT_TO_POINTER(seq);
+                endlist->fail_packet=0;
+            }
 
         } else if (li[i].li == 0x7ffa) {
             /* the first data octet in this RLC PDU is the first octet of an RLC SDU
@@ -2166,14 +2166,14 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
     gboolean  piggyback = FALSE, dissected = FALSE;
     tvbuff_t *next_tvb  = NULL;
 
-	struct rlc_channel  ch_lookup;
-	struct rlc_seqlist * endlist = NULL;
-	if( 0 == seq ){ /* assuming that a new RRC Connection is established when 0==seq.  */
-		if( -1 != rlc_channel_assign(&ch_lookup, RLC_AM, pinfo ) ){
-			endlist = get_endlist(pinfo, &ch_lookup);
-			endlist->list->data = GINT_TO_POINTER( -1);
-		}
-	}
+    struct rlc_channel  ch_lookup;
+    struct rlc_seqlist * endlist = NULL;
+    if( 0 == seq ){ /* assuming that a new RRC Connection is established when 0==seq.  */
+        if( -1 != rlc_channel_assign(&ch_lookup, RLC_AM, pinfo ) ){
+            endlist = get_endlist(pinfo, &ch_lookup);
+            endlist->list->data = GINT_TO_POINTER( -1);
+        }
+    }
 
     /* perform reassembly now */
     for (i = 0; i < num_li; i++) {
@@ -2632,51 +2632,51 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rlcInfoAlreadySet = TRUE;
     }
 
-	/* Read conditional/optional fields */
-	while (tag != RLC_PAYLOAD_TAG) {
-		/* Process next tag */
-		tag = tvb_get_guint8(tvb, offset++);
-		switch (tag) {
-			case RLC_CHANNEL_TYPE_TAG:
-				channelType = tvb_get_guint8(tvb, offset);
-				offset++;
-				channelTypePresent = TRUE;
-				break;
-			case RLC_MODE_TAG:
-				rlci->mode[fpi->cur_tb] = tvb_get_guint8(tvb, offset);
-				offset++;
-				rlcModePresent = TRUE;
-				break;
-			case RLC_DIRECTION_TAG:
-				if (tvb_get_guint8(tvb, offset) == DIRECTION_UPLINK) {
-					fpi->is_uplink = TRUE;
-					pinfo->p2p_dir = P2P_DIR_UL;
-				} else {
-					fpi->is_uplink = FALSE;
-					pinfo->p2p_dir = P2P_DIR_DL;
-				}
-				offset++;
-				break;
-			case RLC_URNTI_TAG:
-				rlci->urnti[fpi->cur_tb] = tvb_get_ntohl(tvb, offset);
-				offset += 4;
-				break;
-			case RLC_RADIO_BEARER_ID_TAG:
-				rlci->rbid[fpi->cur_tb] = tvb_get_guint8(tvb, offset);
-				offset++;
-				break;
-			case RLC_LI_SIZE_TAG:
-				rlci->li_size[fpi->cur_tb] = (enum rlc_li_size) tvb_get_guint8(tvb, offset);
-				offset++;
-				break;
-			case RLC_PAYLOAD_TAG:
-				/* Have reached data, so get out of loop */
-				continue;
-			default:
-				/* It must be a recognised tag */
-				return FALSE;
-		}
-	}
+    /* Read conditional/optional fields */
+    while (tag != RLC_PAYLOAD_TAG) {
+        /* Process next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+        switch (tag) {
+            case RLC_CHANNEL_TYPE_TAG:
+                channelType = tvb_get_guint8(tvb, offset);
+                offset++;
+                channelTypePresent = TRUE;
+                break;
+            case RLC_MODE_TAG:
+                rlci->mode[fpi->cur_tb] = tvb_get_guint8(tvb, offset);
+                offset++;
+                rlcModePresent = TRUE;
+                break;
+            case RLC_DIRECTION_TAG:
+                if (tvb_get_guint8(tvb, offset) == DIRECTION_UPLINK) {
+                    fpi->is_uplink = TRUE;
+                    pinfo->p2p_dir = P2P_DIR_UL;
+                } else {
+                    fpi->is_uplink = FALSE;
+                    pinfo->p2p_dir = P2P_DIR_DL;
+                }
+                offset++;
+                break;
+            case RLC_URNTI_TAG:
+                rlci->urnti[fpi->cur_tb] = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                break;
+            case RLC_RADIO_BEARER_ID_TAG:
+                rlci->rbid[fpi->cur_tb] = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case RLC_LI_SIZE_TAG:
+                rlci->li_size[fpi->cur_tb] = (enum rlc_li_size) tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case RLC_PAYLOAD_TAG:
+                /* Have reached data, so get out of loop */
+                continue;
+            default:
+                /* It must be a recognised tag */
+                return FALSE;
+        }
+    }
 
     if ((channelTypePresent == FALSE) && (rlcModePresent == FALSE)) {
         /* Conditional fields are missing */
@@ -2765,200 +2765,200 @@ proto_register_rlc(void)
 {
     module_t *rlc_module;
     expert_module_t* expert_rlc;
-	static hf_register_info hf[] = {
-		{ &hf_rlc_dc,
-		  { "D/C Bit", "rlc.dc",
-		    FT_BOOLEAN, BASE_NONE, TFS(&rlc_dc_val), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_ctrl_type,
-		  { "Control PDU Type", "rlc.ctrl_pdu_type",
-		    FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0, "PDU Type", HFILL }
-		},
-		{ &hf_rlc_r1,
-		  { "Reserved 1", "rlc.r1",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_rsn,
-		  { "Reset Sequence Number", "rlc.rsn",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_hfni,
-		  { "Hyper Frame Number Indicator", "rlc.hfni",
-		    FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_seq,
-		  { "Sequence Number", "rlc.seq",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_ext,
-		  { "Extension Bit", "rlc.ext",
-		    FT_BOOLEAN, BASE_NONE, TFS(&rlc_ext_val), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_he,
-		  { "Header Extension Type", "rlc.he",
-		    FT_UINT8, BASE_DEC, VALS(rlc_he_vals), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_p,
-		  { "Polling Bit", "rlc.p",
-		    FT_BOOLEAN, BASE_NONE, TFS(&rlc_p_val), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_pad,
-		  { "Padding", "rlc.padding",
-		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_frags,
-		  { "Reassembled Fragments", "rlc.fragments",
-		    FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL }
-		},
-		{ &hf_rlc_frag,
-		  { "RLC Fragment", "rlc.fragment",
-		    FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_duplicate_of,
-		  { "Duplicate of", "rlc.duplicate_of",
-		    FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_reassembled_in,
-		  { "Reassembled Message in frame", "rlc.reassembled_in",
-		    FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_data,
-		  { "Data", "rlc.data",
-		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		/* LI information */
-		{ &hf_rlc_li,
-		  { "LI", "rlc.li",
-		    FT_NONE, BASE_NONE, NULL, 0, "Length Indicator", HFILL }
-		},
-		{ &hf_rlc_li_value,
-		  { "LI value", "rlc.li.value",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_li_ext,
-		  { "LI extension bit", "rlc.li.ext",
-		    FT_BOOLEAN, BASE_NONE, TFS(&rlc_ext_val), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_li_data,
-		  { "LI Data", "rlc.li.data",
-		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		/* SUFI information */
-		{ &hf_rlc_sufi,
-		  { "SUFI", "rlc.sufi",
-		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_type,
-		  { "SUFI Type", "rlc.sufi.type",
-		    FT_UINT8, BASE_DEC, VALS(rlc_sufi_vals), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_lsn,
-		  { "Last Sequence Number", "rlc.sufi.lsn",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_wsn,
-		  { "Window Size Number", "rlc.sufi.wsn",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_sn,
-		  { "Sequence Number", "rlc.sufi.sn",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_l,
-		  { "Length", "rlc.sufi.l",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_len,
-		  { "Length", "rlc.sufi.len",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_fsn,
-		  { "First Sequence Number", "rlc.sufi.fsn",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_bitmap,
-		  { "Bitmap", "rlc.sufi.bitmap",
-		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_cw,
-		  { "Codeword", "rlc.sufi.cw",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_n,
-		  { "Nlength", "rlc.sufi.n",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_sn_ack,
-		  { "SN ACK", "rlc.sufi.sn_ack",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_sn_mrw,
-		  { "SN MRW", "rlc.sufi.sn_mrw",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_sufi_poll_sn,
-		  { "Poll SN", "rlc.sufi.poll_sn",
-		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		/* Other information */
-		{ &hf_rlc_header_only,
-		  { "RLC PDU header only", "rlc.header_only",
-		    FT_BOOLEAN, BASE_NONE, TFS(&rlc_header_only_val), 0 ,NULL, HFILL }
-		},
-		{ &hf_rlc_channel,
-		  { "Channel", "rlc.channel",
-		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_channel_rbid,
-		  { "Radio Bearer ID", "rlc.channel.rbid",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_rlc_channel_dir,
-		  { "Direction", "rlc.channel.dir",
-		    FT_UINT8, BASE_DEC, VALS(rlc_dir_vals), 0, NULL, HFILL }
-		},
-		{ &hf_rlc_channel_ueid,
-		  { "User Equipment ID", "rlc.channel.ueid",
-		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
-		}
- 	};
-	static gint *ett[] = {
-		&ett_rlc,
-		&ett_rlc_frag,
-		&ett_rlc_fragments,
-		&ett_rlc_sdu,
-		&ett_rlc_sufi,
-		&ett_rlc_bitmap,
-		&ett_rlc_rlist,
-		&ett_rlc_channel
-	};
-	static ei_register_info ei[] = {
-		{ &ei_rlc_reassembly_fail_unfinished_sequence, { "rlc.reassembly.fail.unfinished_sequence", PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.", EXPFILL }},
-		{ &ei_rlc_reassembly_fail_flag_set, { "rlc.reassembly.fail.flag_set", PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because fail flag was set previously.", EXPFILL }},
-		{ &ei_rlc_reassembly_lingering_endpoint, { "rlc.lingering_endpoint", PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.", EXPFILL }},
-		{ &ei_rlc_reassembly_unknown_error, { "rlc.reassembly.unknown_error", PI_REASSEMBLE, PI_ERROR, "Unknown error.", EXPFILL }},
-		{ &ei_rlc_kasumi_implementation_missing, { "rlc.kasumi_implementation_missing", PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.", EXPFILL }},
-		{ &ei_rlc_li_reserved, { "rlc.li.reserved", PI_PROTOCOL, PI_WARN, "Uses reserved LI", EXPFILL }},
-		{ &ei_rlc_li_incorrect_warn, { "rlc.li.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect LI value", EXPFILL }},
-		{ &ei_rlc_li_incorrect_mal, { "rlc.li.incorrect", PI_MALFORMED, PI_ERROR, "Incorrect LI value 0x%x", EXPFILL }},
-		{ &ei_rlc_li_too_many, { "rlc.li.too_many", PI_MALFORMED, PI_ERROR, "Too many LI entries", EXPFILL }},
-		{ &ei_rlc_header_only, { "rlc.header_only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
-		{ &ei_rlc_sufi_len, { "rlc.sufi.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
-		{ &ei_rlc_sufi_cw, { "rlc.sufi.cw.invalid", PI_PROTOCOL, PI_WARN, "Invalid last codeword", EXPFILL }},
-		{ &ei_rlc_sufi_type, { "rlc.sufi.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid SUFI type", EXPFILL }},
-		{ &ei_rlc_reserved_bits_not_zero, { "rlc.reserved_bits_not_zero", PI_PROTOCOL, PI_WARN, "reserved bits not zero", EXPFILL }},
-		{ &ei_rlc_ctrl_type, { "rlc.ctrl_pdu_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid RLC AM control type %u", EXPFILL }},
-		{ &ei_rlc_he, { "rlc.he.invalid", PI_PROTOCOL, PI_WARN, "Incorrect HE value", EXPFILL }},
-	};
+    static hf_register_info hf[] = {
+        { &hf_rlc_dc,
+          { "D/C Bit", "rlc.dc",
+            FT_BOOLEAN, BASE_NONE, TFS(&rlc_dc_val), 0, NULL, HFILL }
+        },
+        { &hf_rlc_ctrl_type,
+          { "Control PDU Type", "rlc.ctrl_pdu_type",
+            FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0, "PDU Type", HFILL }
+        },
+        { &hf_rlc_r1,
+          { "Reserved 1", "rlc.r1",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_rsn,
+          { "Reset Sequence Number", "rlc.rsn",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_hfni,
+          { "Hyper Frame Number Indicator", "rlc.hfni",
+            FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_seq,
+          { "Sequence Number", "rlc.seq",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_ext,
+          { "Extension Bit", "rlc.ext",
+            FT_BOOLEAN, BASE_NONE, TFS(&rlc_ext_val), 0, NULL, HFILL }
+        },
+        { &hf_rlc_he,
+          { "Header Extension Type", "rlc.he",
+            FT_UINT8, BASE_DEC, VALS(rlc_he_vals), 0, NULL, HFILL }
+        },
+        { &hf_rlc_p,
+          { "Polling Bit", "rlc.p",
+            FT_BOOLEAN, BASE_NONE, TFS(&rlc_p_val), 0, NULL, HFILL }
+        },
+        { &hf_rlc_pad,
+          { "Padding", "rlc.padding",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_frags,
+          { "Reassembled Fragments", "rlc.fragments",
+            FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL }
+        },
+        { &hf_rlc_frag,
+          { "RLC Fragment", "rlc.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_duplicate_of,
+          { "Duplicate of", "rlc.duplicate_of",
+            FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_reassembled_in,
+          { "Reassembled Message in frame", "rlc.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_data,
+          { "Data", "rlc.data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        /* LI information */
+        { &hf_rlc_li,
+          { "LI", "rlc.li",
+            FT_NONE, BASE_NONE, NULL, 0, "Length Indicator", HFILL }
+        },
+        { &hf_rlc_li_value,
+          { "LI value", "rlc.li.value",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_li_ext,
+          { "LI extension bit", "rlc.li.ext",
+            FT_BOOLEAN, BASE_NONE, TFS(&rlc_ext_val), 0, NULL, HFILL }
+        },
+        { &hf_rlc_li_data,
+          { "LI Data", "rlc.li.data",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        /* SUFI information */
+        { &hf_rlc_sufi,
+          { "SUFI", "rlc.sufi",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_type,
+          { "SUFI Type", "rlc.sufi.type",
+            FT_UINT8, BASE_DEC, VALS(rlc_sufi_vals), 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_lsn,
+          { "Last Sequence Number", "rlc.sufi.lsn",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_wsn,
+          { "Window Size Number", "rlc.sufi.wsn",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_sn,
+          { "Sequence Number", "rlc.sufi.sn",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_l,
+          { "Length", "rlc.sufi.l",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_len,
+          { "Length", "rlc.sufi.len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_fsn,
+          { "First Sequence Number", "rlc.sufi.fsn",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_bitmap,
+          { "Bitmap", "rlc.sufi.bitmap",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_cw,
+          { "Codeword", "rlc.sufi.cw",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_n,
+          { "Nlength", "rlc.sufi.n",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_sn_ack,
+          { "SN ACK", "rlc.sufi.sn_ack",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_sn_mrw,
+          { "SN MRW", "rlc.sufi.sn_mrw",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_sufi_poll_sn,
+          { "Poll SN", "rlc.sufi.poll_sn",
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        /* Other information */
+        { &hf_rlc_header_only,
+          { "RLC PDU header only", "rlc.header_only",
+            FT_BOOLEAN, BASE_NONE, TFS(&rlc_header_only_val), 0 ,NULL, HFILL }
+        },
+        { &hf_rlc_channel,
+          { "Channel", "rlc.channel",
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_channel_rbid,
+          { "Radio Bearer ID", "rlc.channel.rbid",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_channel_dir,
+          { "Direction", "rlc.channel.dir",
+            FT_UINT8, BASE_DEC, VALS(rlc_dir_vals), 0, NULL, HFILL }
+        },
+        { &hf_rlc_channel_ueid,
+          { "User Equipment ID", "rlc.channel.ueid",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        }
+    };
+    static gint *ett[] = {
+        &ett_rlc,
+        &ett_rlc_frag,
+        &ett_rlc_fragments,
+        &ett_rlc_sdu,
+        &ett_rlc_sufi,
+        &ett_rlc_bitmap,
+        &ett_rlc_rlist,
+        &ett_rlc_channel
+    };
+    static ei_register_info ei[] = {
+        { &ei_rlc_reassembly_fail_unfinished_sequence, { "rlc.reassembly.fail.unfinished_sequence", PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.", EXPFILL }},
+        { &ei_rlc_reassembly_fail_flag_set, { "rlc.reassembly.fail.flag_set", PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because fail flag was set previously.", EXPFILL }},
+        { &ei_rlc_reassembly_lingering_endpoint, { "rlc.lingering_endpoint", PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.", EXPFILL }},
+        { &ei_rlc_reassembly_unknown_error, { "rlc.reassembly.unknown_error", PI_REASSEMBLE, PI_ERROR, "Unknown error.", EXPFILL }},
+        { &ei_rlc_kasumi_implementation_missing, { "rlc.kasumi_implementation_missing", PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.", EXPFILL }},
+        { &ei_rlc_li_reserved, { "rlc.li.reserved", PI_PROTOCOL, PI_WARN, "Uses reserved LI", EXPFILL }},
+        { &ei_rlc_li_incorrect_warn, { "rlc.li.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect LI value", EXPFILL }},
+        { &ei_rlc_li_incorrect_mal, { "rlc.li.incorrect", PI_MALFORMED, PI_ERROR, "Incorrect LI value 0x%x", EXPFILL }},
+        { &ei_rlc_li_too_many, { "rlc.li.too_many", PI_MALFORMED, PI_ERROR, "Too many LI entries", EXPFILL }},
+        { &ei_rlc_header_only, { "rlc.header_only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
+        { &ei_rlc_sufi_len, { "rlc.sufi.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+        { &ei_rlc_sufi_cw, { "rlc.sufi.cw.invalid", PI_PROTOCOL, PI_WARN, "Invalid last codeword", EXPFILL }},
+        { &ei_rlc_sufi_type, { "rlc.sufi.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid SUFI type", EXPFILL }},
+        { &ei_rlc_reserved_bits_not_zero, { "rlc.reserved_bits_not_zero", PI_PROTOCOL, PI_WARN, "reserved bits not zero", EXPFILL }},
+        { &ei_rlc_ctrl_type, { "rlc.ctrl_pdu_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid RLC AM control type %u", EXPFILL }},
+        { &ei_rlc_he, { "rlc.he.invalid", PI_PROTOCOL, PI_WARN, "Incorrect HE value", EXPFILL }},
+    };
 
-	proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
-	register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
-	register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
-	register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
-	register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
-	register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
-	register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
-	register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
+    proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
+    register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
+    register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
+    register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
+    register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
+    register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
+    register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
+    register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
 
     proto_register_field_array(proto_rlc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -3002,7 +3002,7 @@ proto_register_rlc(void)
 
 #ifdef HAVE_UMTS_KASUMI
     prefs_register_string_preference(rlc_module, "kasumi_key",
-	    "KASUMI key", "Key for kasumi 32 characters long hex-string", &global_rlc_kasumi_key);
+        "KASUMI key", "Key for kasumi 32 characters long hex-string", &global_rlc_kasumi_key);
 #endif /* HAVE_UMTS_KASUMI */
 
     register_init_routine(fragment_table_init);
@@ -3017,3 +3017,16 @@ proto_reg_handoff_rlc(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_heur, proto_rlc);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
