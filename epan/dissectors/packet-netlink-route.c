@@ -188,10 +188,10 @@ enum {
 /* values for rtmsg.rtm_scope from <linux/rtnetlink.h> */
 enum {
 	WS_RT_SCOPE_UNIVERSE = 0,
-/* user defined */
-	WS_RT_SCOPE_SITE = 200,
-	WS_RT_SCOPE_LINK = 253,
-	WS_RT_SCOPE_HOST = 254,
+/* ... user defined (/etc/iproute2/rt_scopes) ... */
+	WS_RT_SCOPE_SITE    = 200,
+	WS_RT_SCOPE_LINK    = 253,
+	WS_RT_SCOPE_HOST    = 254,
 	WS_RT_SCOPE_NOWHERE = 255
 };
 
@@ -232,6 +232,31 @@ enum {
 	WS_IFF_LOWER_UP    = 0x10000,
 	WS_IFF_DORMANT     = 0x20000,
 	WS_IFF_ECHO        = 0x40000,
+};
+
+/* values for ifaddrmsg.ifa_flags <linux/if_addr.h> */
+enum {
+	WS_IFA_F_SECONDARY    = 0x01,
+	WS_IFA_F_NODAD        = 0x02,
+	WS_IFA_F_OPTIMISTIC   = 0x04,
+	WS_IFA_F_DADFAILED    = 0x08,
+	WS_IFA_F_HOMEADDRESS  = 0x10,
+	WS_IFA_F_DEPRECATED   = 0x20,
+	WS_IFA_F_TENTATIVE    = 0x40,
+	WS_IFA_F_PERMANENT    = 0x80
+};
+
+/* values for ndmsg.ndm_state <linux/neighbour.h> */
+enum {
+	WS_NUD_INCOMPLETE	= 0x01,
+	WS_NUD_REACHABLE	= 0x02,
+	WS_NUD_STALE		= 0x04,
+	WS_NUD_DELAY		= 0x08,
+	WS_NUD_PROBE		= 0x10,
+	WS_NUD_FAILED		= 0x20,
+/* Dummy states */
+	WS_NUD_NOARP		= 0x40,
+	WS_NUD_PERMANENT	= 0x80
 };
 
 static dissector_handle_t netlink_route_handle;
@@ -286,6 +311,33 @@ static gint ett_netlink_route_attr = -1;
 static gint ett_netlink_route_if_flags = -1;
 
 typedef int netlink_route_attributes_cb_t(tvbuff_t *, struct netlink_route_info *, proto_tree *, int rta_type, int offset, int len);
+
+static void
+_fill_label_value_string_bitmask(char *label, guint32 value, const value_string *vals)
+{
+	char tmp[16];
+
+	label[0] = '\0';
+
+	while (vals->strptr) {
+		if (value & vals->value) {
+			value &= ~(vals->value);
+			if (label[0])
+				g_strlcat(label, ", ", ITEM_LABEL_LENGTH);
+
+			g_strlcat(label, vals->strptr, ITEM_LABEL_LENGTH);
+		}
+
+		vals++;
+	}
+
+	if (value) {
+		if (label[0])
+			g_strlcat(label, ", ", ITEM_LABEL_LENGTH);
+		g_snprintf(tmp, sizeof(tmp), "0x%x", value);
+		g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+	}
+}
 
 static int
 dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, struct netlink_route_info *info, proto_tree *tree, int offset, netlink_route_attributes_cb_t cb)
@@ -348,9 +400,43 @@ static header_field_info hfi_netlink_route_ifi_index NETLINK_ROUTE_HFI_INIT =
 	{ "Interface index", "netlink-route.ifi_index", FT_INT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
+static void
+hfi_netlink_route_ifi_flags_label(char *label, guint32 value)
+{
+	static const value_string iff_vals[] = {
+		{ WS_IFF_UP, "UP" },
+		{ WS_IFF_BROADCAST, "BROADCAST" },
+		{ WS_IFF_DEBUG, "DEBUG" },
+		{ WS_IFF_LOOPBACK, "LOOPBACK" },
+		{ WS_IFF_POINTOPOINT, "POINTOPOINT" },
+		{ WS_IFF_NOTRAILERS, "NOTRAILERS" },
+		{ WS_IFF_RUNNING, "RUNNING" },
+		{ WS_IFF_NOARP, "NOARP" },
+		{ WS_IFF_PROMISC, "PROMISC" },
+		{ WS_IFF_ALLMULTI, "ALLMULTI" },
+		{ WS_IFF_MASTER, "MASTER" },
+		{ WS_IFF_SLAVE, "SLAVE" },
+		{ WS_IFF_MULTICAST, "MULTICAST" },
+		{ WS_IFF_PORTSEL, "PORTSEL" },
+		{ WS_IFF_AUTOMEDIA, "AUTOMEDIA" },
+		{ WS_IFF_DYNAMIC, "DYNAMIC" },
+		{ WS_IFF_LOWER_UP, "LOWER_UP" },
+		{ WS_IFF_DORMANT, "DORMANT" },
+		{ WS_IFF_ECHO, "ECHO" },
+		{ 0x00, NULL }
+	};
+
+	char tmp[16];
+
+	_fill_label_value_string_bitmask(label, value, iff_vals);
+
+	g_snprintf(tmp, sizeof(tmp), " (0x%.8x)", value);
+	g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+}
+
 static header_field_info hfi_netlink_route_ifi_flags NETLINK_ROUTE_HFI_INIT =
-	{ "Device flags", "netlink-route.ifi_flags", FT_UINT32, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
+	{ "Device flags", "netlink-route.ifi_flags", FT_UINT32, BASE_CUSTOM,
+	  &hfi_netlink_route_ifi_flags_label, 0x00, NULL, HFILL };
 
 static const true_false_string hfi_netlink_route_ifi_flags_iff_up_tfs = { "Up", "Down" };
 
@@ -388,47 +474,6 @@ dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 	if_flags_tree = proto_item_add_subtree(ti, ett_netlink_route_if_flags);
 
 	if (if_flags_tree) {
-		guint32 if_flags = tvb_get_letohl(tvb, offset);
-
-		if (if_flags & WS_IFF_UP)
-			proto_item_append_text(ti, " UP");
-		if (if_flags & WS_IFF_BROADCAST)
-			proto_item_append_text(ti, " BROADCAST");
-		if (if_flags & WS_IFF_DEBUG)
-			proto_item_append_text(ti, " DEBUG");
-		if (if_flags & WS_IFF_LOOPBACK)
-			proto_item_append_text(ti, " LOOPBACK");
-		if (if_flags & WS_IFF_POINTOPOINT)
-			proto_item_append_text(ti, " POINTOPOINT");
-		if (if_flags & WS_IFF_NOTRAILERS)
-			proto_item_append_text(ti, " NOTRAILERS");
-		if (if_flags & WS_IFF_RUNNING)
-			proto_item_append_text(ti, " RUNNING");
-		if (if_flags & WS_IFF_NOARP)
-			proto_item_append_text(ti, " NOARP");
-		if (if_flags & WS_IFF_PROMISC)
-			proto_item_append_text(ti, " PROMISC");
-		if (if_flags & WS_IFF_ALLMULTI)
-			proto_item_append_text(ti, " ALLMULTI");
-		if (if_flags & WS_IFF_MASTER)
-			proto_item_append_text(ti, " MASTER");
-		if (if_flags & WS_IFF_SLAVE)
-			proto_item_append_text(ti, " SLAVE");
-		if (if_flags & WS_IFF_MULTICAST)
-			proto_item_append_text(ti, " MULTICAST");
-		if (if_flags & WS_IFF_PORTSEL)
-			proto_item_append_text(ti, " PORTSEL");
-		if (if_flags & WS_IFF_AUTOMEDIA)
-			proto_item_append_text(ti, " AUTOMEDIA");
-		if (if_flags & WS_IFF_DYNAMIC)
-			proto_item_append_text(ti, " DYNAMIC");
-		if (if_flags & WS_IFF_LOWER_UP)
-			proto_item_append_text(ti, " LOWER_UP");
-		if (if_flags & WS_IFF_DORMANT)
-			proto_item_append_text(ti, " DORMANT");
-		if (if_flags & WS_IFF_ECHO)
-			proto_item_append_text(ti, " ECHO");
-
 		proto_tree_add_item(if_flags_tree, &hfi_netlink_route_ifi_flags_iff_up, tvb, offset, 4, info->encoding);
 		proto_tree_add_item(if_flags_tree, &hfi_netlink_route_ifi_flags_iff_broadcast, tvb, offset, 4, info->encoding);
 		/* XXX */
@@ -477,11 +522,13 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 
 	switch (type) {
 		case WS_IFLA_IFNAME:
+			proto_item_append_text(tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA));
 			proto_tree_add_item(tree, &hfi_netlink_route_ifla_ifname, tvb, offset, len, ENC_ASCII | ENC_NA);
 			return 1;
 
 		case WS_IFLA_MTU:
 			if (len == 4) {
+				proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
 				proto_tree_add_item(tree, &hfi_netlink_route_ifla_mtu, tvb, offset, len, info->encoding);
 				return 1;
 			}
@@ -501,9 +548,32 @@ static header_field_info hfi_netlink_route_ifa_prefixlen NETLINK_ROUTE_HFI_INIT 
 	{ "Address prefixlength", "netlink-route.ifa_prefixlen", FT_UINT8, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
+static void
+hfi_netlink_route_ifa_flags_label(char *label, guint32 value)
+{
+	static const value_string iff_vals[] = {
+		{ WS_IFA_F_SECONDARY,	"secondary/temporary" },
+		{ WS_IFA_F_NODAD,	"nodad" },
+		{ WS_IFA_F_OPTIMISTIC,	"optimistic" },
+		{ WS_IFA_F_DADFAILED,	"dadfailed" },
+		{ WS_IFA_F_HOMEADDRESS,	"homeaddress" },
+		{ WS_IFA_F_DEPRECATED,	"deprecated" },
+		{ WS_IFA_F_TENTATIVE,	"tentative" },
+		{ WS_IFA_F_PERMANENT,	"permanent" },
+		{ 0x00, NULL }
+	};
+
+	char tmp[16];
+
+	_fill_label_value_string_bitmask(label, value, iff_vals);
+
+	g_snprintf(tmp, sizeof(tmp), " (0x%.8x)", value);
+	g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+}
+
 static header_field_info hfi_netlink_route_ifa_flags NETLINK_ROUTE_HFI_INIT =
-	{ "Address flags", "netlink-route.ifa_flags", FT_UINT8, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
+	{ "Address flags", "netlink-route.ifa_flags", FT_UINT8, BASE_CUSTOM,
+	  &hfi_netlink_route_ifa_flags_label, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_scope NETLINK_ROUTE_HFI_INIT =
 	{ "Address scope", "netlink-route.ifa_scope", FT_UINT8, BASE_DEC,
@@ -563,6 +633,7 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _
 
 	switch (type) {
 		case WS_IFA_LABEL:
+			proto_item_append_text(tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA));
 			proto_tree_add_item(tree, &hfi_netlink_route_ifa_label, tvb, offset, len, ENC_ASCII | ENC_NA);
 			return 1;
 
@@ -718,6 +789,7 @@ dissect_netlink_route_route_attrs(tvbuff_t *tvb, struct netlink_route_info *info
 	switch (type) {
 		case WS_RTA_IIF:
 			if (len == 4) {
+				proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
 				proto_tree_add_item(tree, &hfi_netlink_route_rta_iif, tvb, offset, 4, info->encoding);
 				return 1;
 			}
@@ -725,6 +797,7 @@ dissect_netlink_route_route_attrs(tvbuff_t *tvb, struct netlink_route_info *info
 
 		case WS_RTA_OIF:
 			if (len == 4) {
+				proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
 				proto_tree_add_item(tree, &hfi_netlink_route_rta_oif, tvb, offset, 4, info->encoding);
 				return 1;
 			}
@@ -733,6 +806,73 @@ dissect_netlink_route_route_attrs(tvbuff_t *tvb, struct netlink_route_info *info
 		default:
 			return 0;
 	}
+}
+
+static header_field_info hfi_netlink_route_nd_family NETLINK_ROUTE_HFI_INIT =
+	{ "Family", "netlink-route.nd_family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+	  &linux_af_vals_ext, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_nd_index NETLINK_ROUTE_HFI_INIT =
+	{ "Interface index", "netlink-route.nd_index", FT_INT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static void
+hfi_netlink_route_nd_states_label(char *label, guint32 value)
+{
+	static const value_string flags_vals[] = {
+		{ WS_NUD_INCOMPLETE,	"INCOMPLETE" },
+		{ WS_NUD_REACHABLE,	"REACHABLE" },
+		{ WS_NUD_STALE,		"STALE" },
+		{ WS_NUD_DELAY,		"DELAY" },
+		{ WS_NUD_PROBE,		"PROBE" },
+		{ WS_NUD_FAILED,	"FAILED" },
+		{ WS_NUD_NOARP,		"NOARP" },
+		{ WS_NUD_PERMANENT,	"PERMAMENT" },
+		{ 0x00, NULL }
+	};
+
+	char tmp[16];
+
+	_fill_label_value_string_bitmask(label, value, flags_vals);
+
+	g_snprintf(tmp, sizeof(tmp), " (0x%.4x)", value);
+	g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+}
+
+static header_field_info hfi_netlink_route_nd_state NETLINK_ROUTE_HFI_INIT =
+	{ "State", "netlink-route.nd_state", FT_UINT16, BASE_CUSTOM,
+	  &hfi_netlink_route_nd_states_label, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_nd_flags NETLINK_ROUTE_HFI_INIT =
+	{ "Flags", "netlink-route.nd_flags", FT_UINT8, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_nd_type NETLINK_ROUTE_HFI_INIT =
+	{ "Type", "netlink-route.nd_type", FT_UINT8, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static int
+dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
+{
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_family, tvb, offset, 1, ENC_NA);
+	offset += 1;
+	
+	/* XXX, 3B padding */
+	offset += 3;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_index, tvb, offset, 4, info->encoding);
+	offset += 4;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_state, tvb, offset, 2, info->encoding);
+	offset += 2;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_flags, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(tree, &hfi_netlink_route_nd_type, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	return offset;
 }
 
 static int
@@ -791,6 +931,12 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			/* Optional attributes */
 			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, tree, offset, dissect_netlink_route_route_attrs);
 			break;
+
+		case WS_RTM_NEWNEIGH:
+		case WS_RTM_DELNEIGH:
+		case WS_RTM_GETNEIGH:
+			offset = dissect_netlink_route_ndmsg(tvb, &info, tree, offset);
+			break;
 	}
 
 	return offset;
@@ -840,6 +986,13 @@ proto_register_netlink_route(void)
 		&hfi_netlink_route_rta_attr_type,
 		&hfi_netlink_route_rta_iif,
 		&hfi_netlink_route_rta_oif,
+
+	/* Neighbor */
+		&hfi_netlink_route_nd_family,
+		&hfi_netlink_route_nd_index,
+		&hfi_netlink_route_nd_state,
+		&hfi_netlink_route_nd_flags,
+		&hfi_netlink_route_nd_type,
 	};
 #endif
 

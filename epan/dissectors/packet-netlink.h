@@ -50,6 +50,13 @@ enum {
 	WS_NETLINK_CRYPTO = 21
 };
 
+enum {
+	WS_NLMSG_NOOP     = 0x01,
+	WS_NLMSG_ERROR    = 0x02,
+	WS_NLMSG_DONE     = 0x03,
+	WS_NLMSG_OVERRUN  = 0x04
+};
+
 #define PACKET_NETLINK_MAGIC 0x4A5ACCCE
 
 struct packet_netlink_data {

@@ -40,7 +40,7 @@
  */
 #define SLL_HEADER_SIZE	16		/* total header length */
 
-static const value_string ltype_vals[] = {
+static const value_string family_vals[] = {
 	{ WS_NETLINK_ROUTE,       "Route" },
 	{ WS_NETLINK_UNUSED,      "Unused" },
 	{ WS_NETLINK_USERSOCK,    "user-mode" },
@@ -65,6 +65,13 @@ static const value_string ltype_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string type_vals[] = {
+	{ WS_NLMSG_NOOP,	"nothing" },
+	{ WS_NLMSG_ERROR,	"error" },
+	{ WS_NLMSG_DONE,	"end of a dump" },
+	{ WS_NLMSG_OVERRUN,	"data lost" },
+	{ 0, NULL }
+};
 
 static dissector_handle_t netlink_handle;
 
@@ -79,7 +86,7 @@ static header_field_info hfi_netlink_hatype NETLINK_HFI_INIT =
 /* Linux netlink protocol type */
 static header_field_info hfi_netlink_family NETLINK_HFI_INIT =
 	{ "Family",	"netlink.family", FT_UINT16, BASE_HEX,
-	  VALS(ltype_vals), 0x00, NULL, HFILL };
+	  VALS(family_vals), 0x00, NULL, HFILL };
 
 
 static header_field_info hfi_netlink_hdr_len NETLINK_HFI_INIT =
@@ -88,7 +95,7 @@ static header_field_info hfi_netlink_hdr_len NETLINK_HFI_INIT =
 
 static header_field_info hfi_netlink_hdr_type NETLINK_HFI_INIT =
 	{ "Type", "netlink.hdr_type", FT_UINT16, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
+	  VALS(type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_hdr_flags NETLINK_HFI_INIT =
 	{ "Flags", "netlink.hdr_flags", FT_UINT16, BASE_HEX,
