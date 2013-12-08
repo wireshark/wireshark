@@ -560,7 +560,7 @@ static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
       (a->verification_tag1 == b->verification_tag2) &&
-      (b->verification_tag1 == 0)) 
+      (b->verification_tag1 == 0))
     return BACKWARD_ADD_FORWARD_VTAG;
 
   /*backward stream verification tag can be added */
@@ -568,7 +568,7 @@ static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
       (a->dport == b->sport) &&
       (a->verification_tag1 !=0) &&
       (b->verification_tag1 != 0) &&
-      (b->verification_tag2 == 0)) 
+      (b->verification_tag2 == 0))
     return BACKWARD_ADD_BACKWARD_VTAG;
 
   return ASSOC_NOT_FOUND;
@@ -2454,7 +2454,7 @@ static void
 sctp_init(void)
 {
   frag_table_init();
-  if (num_assocs > 0) {  
+  if (num_assocs > 0) {
     num_assocs = 0;
     assoc_info_list = NULL;
   }
