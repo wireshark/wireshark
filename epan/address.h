@@ -60,7 +60,7 @@ typedef enum {
     AT_IEEE_802_15_4_SHORT,/* IEEE 802.15.4 16-bit short address */
                            /* (the long addresses are EUI-64's */
     AT_J1939,              /* J1939 */
-    AT_DEVICENET,          /* DeviceNet */
+    AT_DEVICENET           /* DeviceNet */
 } address_type;
 
 typedef struct _address {
