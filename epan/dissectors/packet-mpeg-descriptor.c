@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <epan/charsets.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
@@ -1190,6 +1191,7 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
 /* 0x4D Short Event Descriptor */
 static int hf_mpeg_descr_short_event_lang_code = -1;
 static int hf_mpeg_descr_short_event_name_length = -1;
+static int hf_mpeg_descr_short_event_name_encoding = -1;
 static int hf_mpeg_descr_short_event_name = -1;
 static int hf_mpeg_descr_short_event_text_length = -1;
 static int hf_mpeg_descr_short_event_text = -1;
@@ -1197,7 +1199,9 @@ static int hf_mpeg_descr_short_event_text = -1;
 static void
 proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    guint8 name_len, text_len;
+    guint8          name_len, text_len;
+    guint           enc_len;
+    dvb_encoding_e  encoding;
 
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_lang_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
     offset += 3;
@@ -1206,7 +1210,10 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_mpeg_descr_short_event_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
+    enc_len = dvb_analyze_string_charset(tvb, offset, name_len, &encoding);
+    proto_tree_add_int(tree, hf_mpeg_descr_short_event_name_encoding, tvb, offset, enc_len, encoding);
+    proto_tree_add_item(tree, hf_mpeg_descr_short_event_name,
+            tvb, offset+enc_len, name_len-enc_len, dvb_enc_to_item_enc(encoding));
     offset += name_len;
 
     text_len = tvb_get_guint8(tvb, offset);
@@ -1214,7 +1221,6 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
     offset += 1;
 
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_text, tvb, offset, text_len, ENC_ASCII|ENC_NA);
-
 }
 
 /* 0x4E Extended Event Descriptor */
@@ -3502,6 +3508,11 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_short_event_name_length, {
             "Event Name Length", "mpeg_descr.short_evt.name_len",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_short_event_name_encoding, {
+            "Event Name Encoding", "mpeg_descr.short_evt.name_enc",
+            FT_INT32, BASE_DEC, VALS(dvb_string_encoding_vals), 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_short_event_name, {
