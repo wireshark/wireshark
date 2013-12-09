@@ -580,14 +580,12 @@ find_assoc_index(assoc_info_t* tmpinfo)
   assoc_info_t *info = NULL;
   GList* list;
   gboolean cmp = FALSE;
-  gboolean found = FALSE;
   infodata_t inf;
 
   if ((list = g_list_last(assoc_info_list))!=NULL) {
     while (list) {
       cmp = sctp_assoc_vtag_cmp(tmpinfo, (assoc_info_t*)(list->data));
       if (cmp < ASSOC_NOT_FOUND) {
-        found = TRUE;
         info = (assoc_info_t *)(list->data);
         switch (cmp)
         {
@@ -609,22 +607,17 @@ find_assoc_index(assoc_info_t* tmpinfo)
       list = g_list_previous(list);
     }
   }
-  if (!found) {
-    info = wmem_new0(wmem_file_scope(), assoc_info_t);
-    info->assoc_index = num_assocs;
-    info->sport = tmpinfo->sport;
-    info->dport = tmpinfo->dport;
-    info->verification_tag1 = tmpinfo->verification_tag1;
-    info->verification_tag2 = tmpinfo->verification_tag2;
-    info->initiate_tag = tmpinfo->initiate_tag;
-    num_assocs++;
-    assoc_info_list = g_list_append(assoc_info_list, info);
-    inf.assoc_index = info->assoc_index;
-    inf.direction = 1;
-    return inf;
-  }
-  inf.assoc_index = 0;
-  inf.direction = 0;
+  info = wmem_new0(wmem_file_scope(), assoc_info_t);
+  info->assoc_index = num_assocs;
+  info->sport = tmpinfo->sport;
+  info->dport = tmpinfo->dport;
+  info->verification_tag1 = tmpinfo->verification_tag1;
+  info->verification_tag2 = tmpinfo->verification_tag2;
+  info->initiate_tag = tmpinfo->initiate_tag;
+  num_assocs++;
+  assoc_info_list = g_list_append(assoc_info_list, info);
+  inf.assoc_index = info->assoc_index;
+  inf.direction = 1;
   return inf;
 }
 
