@@ -108,6 +108,12 @@ typedef enum {
     PREF_DIRNAME
 } pref_type_t;
 
+typedef enum {
+	GUI_ALL,
+	GUI_GTK,
+	GUI_QT
+} gui_type_t;
+
 /** Struct to hold preference data */
 struct preference {
     const char *name;                /**< name of preference */
@@ -115,6 +121,7 @@ struct preference {
     const char *description;         /**< human-readable description of preference */
     int ordinal;                     /**< ordinal number of this preference */
     pref_type_t type;                /**< type of that preference */
+    gui_type_t gui;                  /**< type of the GUI (QT, GTK or both) the preference is registered for */
     union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
         guint *uint;
         gboolean *boolp;

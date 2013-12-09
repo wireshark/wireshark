@@ -459,6 +459,17 @@ WS_DLL_PUBLIC void prefs_register_uat_preference(module_t *module,
 										  struct epan_uat* uat);
 
 /*
+ * Register a uat 'preference' for QT only. It adds a button that opens the uat's window in the
+ * preferences tab of the module.
+ */
+WS_DLL_PUBLIC void prefs_register_uat_preference_qt(module_t *module,
+										  const char *name,
+										  const char* title,
+										  const char *description,
+										  struct epan_uat* uat);
+
+
+/*
  * Register a color preference.  Currently does not have any "GUI Dialog" support
  * so the color data needs to be managed independently.  Currently used by the 
  * "GUI preferences" to aid in reading/writing the preferences file, but the 

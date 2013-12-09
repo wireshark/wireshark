@@ -1104,6 +1104,23 @@ prefs_register_uat_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a uat 'preference' for QT only. It adds a button that opens the uat's window in the
+ * preferences tab of the module.
+ */
+extern void
+prefs_register_uat_preference_qt(module_t *module, const char *name,
+                              const char *title, const char *description,
+                              uat_t* uat)
+{
+
+    pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
+
+    preference->varp.uat = uat;
+    
+    preference->gui = GUI_QT;
+}
+
+/*
  * Register a color preference.
  */
 void
