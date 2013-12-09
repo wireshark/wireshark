@@ -143,7 +143,7 @@ static void uadecode(e_ua_direction  direction,
             call_dissector_with_data(ua3g_handle,
                        tvb_new_subset(tvb, offset, length, length),
                        pinfo,
-                       tree, (void*)direction);
+                       tree, &direction);
             break;
         }
     default:

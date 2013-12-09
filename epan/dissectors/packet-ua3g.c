@@ -3697,7 +3697,12 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gint              length;
     guint8            opcode;
     const gchar*      opcode_str;
-    e_ua_direction message_direction = (e_ua_direction)data;
+    e_ua_direction   *message_direction;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    message_direction = (e_ua_direction *)data;
 
     ua3g_item = proto_tree_add_item(tree, proto_ua3g, tvb, 0, -1, ENC_NA);
     ua3g_tree = proto_item_add_subtree(ua3g_item, ett_ua3g);
@@ -3717,7 +3722,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         opcode = (opcode & 0x7f);
 
     /* Useful for a research in wireshark */
-    if (message_direction == SYS_TO_TERM) {
+    if (*message_direction == SYS_TO_TERM) {
         proto_tree_add_uint(ua3g_tree, hf_ua3g_opcode_sys, tvb, offset, 1, opcode);
         opcode_str = val_to_str_ext_const(opcode, &opcodes_vals_sys_ext, "Unknown");
     } else {
@@ -3736,7 +3741,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ua3g_body_item = proto_tree_add_text(ua3g_tree, tvb, offset, length, "UA3G Body");
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    if (message_direction == SYS_TO_TERM) {
+    if (*message_direction == SYS_TO_TERM) {
         switch (opcode) {
         case SC_PRODUCTION_TEST: /* 0x01 */
             {
@@ -3967,7 +3972,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
     }
-    if (message_direction == TERM_TO_SYS) {
+    if (*message_direction == TERM_TO_SYS) {
         switch (opcode) {
         case CS_DIGIT_DIALED: /* 0x03 */
             {
