@@ -116,7 +116,7 @@ static const value_string y1711_defect_type_vals[] = {
 static int
 dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    struct mplsinfo *mplsinfo        = (struct mplsinfo *)data;
+    struct mplsinfo *mplsinfo;
     int              offset          = 0;
     proto_item      *ti;
     proto_tree      *mpls_y1711_tree;
@@ -128,6 +128,11 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00 };
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    mplsinfo = (struct mplsinfo *)data;
 
     functype = tvb_get_guint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
