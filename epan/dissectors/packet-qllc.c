@@ -76,9 +76,14 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree	*qllc_tree;
     proto_item	*qllc_ti;
-    gboolean	*q_bit_set = (gboolean *)data;
+    gboolean    *q_bit_set;
     guint8	addr, ctrl;
     gboolean	command = FALSE;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    q_bit_set = (gboolean *)data;
 
     /*
      * If the Q bit isn't set, this is just SNA data.
