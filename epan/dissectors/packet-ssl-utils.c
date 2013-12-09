@@ -1351,6 +1351,40 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
     str->data_len = len;
 }
 
+
+static guint8
+from_hex_char(gchar c) {
+    if ((c >= '0') && (c <= '9'))
+        return c - '0';
+    if ((c >= 'A') && (c <= 'F'))
+        return c - 'A' + 10;
+    if ((c >= 'a') && (c <= 'f'))
+        return c - 'a' + 10;
+    return 16;
+}
+
+/* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
+ * the result. |out->data| will be allocated using se_alloc. Returns TRUE on
+ * success. */
+static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
+    gsize i;
+
+    if (hex_len & 1)
+        return FALSE;
+
+    out->data_len = (guint)hex_len/2;
+    out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
+    for (i = 0; i < out->data_len; i++) {
+        guint8 a = from_hex_char(in[i*2]);
+        guint8 b = from_hex_char(in[i*2 + 1]);
+        if (a == 16 || b == 16)
+            return FALSE;
+        out->data[i] = a << 4 | b;
+    }
+    return TRUE;
+}
+
+
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 
 /* hmac abstraction layer */
@@ -2306,38 +2340,6 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     return dec;
 }
 
-
-static guint8
-from_hex_char(gchar c) {
-    if ((c >= '0') && (c <= '9'))
-        return c - '0';
-    if ((c >= 'A') && (c <= 'F'))
-        return c - 'A' + 10;
-    if ((c >= 'a') && (c <= 'f'))
-        return c - 'a' + 10;
-    return 16;
-}
-
-/* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
- * the result. |out->data| will be allocated using se_alloc. Returns TRUE on
- * success. */
-static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
-    gsize i;
-
-    if (hex_len & 1)
-        return FALSE;
-
-    out->data_len = (guint)hex_len/2;
-    out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
-    for (i = 0; i < out->data_len; i++) {
-        guint8 a = from_hex_char(in[i*2]);
-        guint8 b = from_hex_char(in[i*2 + 1]);
-        if (a == 16 || b == 16)
-            return FALSE;
-        out->data[i] = a << 4 | b;
-    }
-    return TRUE;
-}
 
 int
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
@@ -3659,6 +3661,14 @@ ssl_find_cipher(int num,SslCipherSuite* cs)
 {
     ssl_debug_printf("ssl_find_cipher: dummy without gnutls. num %d cs %p\n",
         num,cs);
+    return 0;
+}
+int
+ssl_generate_pre_master_secret(SslDecryptSession *ssl_session _U_,
+        guint32 length _U_, tvbuff_t *tvb _U_, guint32 offset _U_,
+        const gchar *ssl_psk _U_, const gchar *keylog_filename _U_)
+{
+    ssl_debug_printf("ssl_generate_pre_master_secret: impossible without gnutls.\n");
     return 0;
 }
 int
