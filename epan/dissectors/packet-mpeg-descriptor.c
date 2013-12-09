@@ -1210,17 +1210,20 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    enc_len = dvb_analyze_string_charset(tvb, offset, name_len, &encoding);
-    proto_tree_add_int(tree, hf_mpeg_descr_short_event_name_encoding, tvb, offset, enc_len, encoding);
-    proto_tree_add_item(tree, hf_mpeg_descr_short_event_name,
-            tvb, offset+enc_len, name_len-enc_len, dvb_enc_to_item_enc(encoding));
+    if (name_len>0) {
+        enc_len = dvb_analyze_string_charset(tvb, offset, name_len, &encoding);
+        proto_tree_add_int(tree, hf_mpeg_descr_short_event_name_encoding, tvb, offset, enc_len, encoding);
+        proto_tree_add_item(tree, hf_mpeg_descr_short_event_name,
+                tvb, offset+enc_len, name_len-enc_len, dvb_enc_to_item_enc(encoding));
+    }
     offset += name_len;
 
     text_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_mpeg_descr_short_event_text, tvb, offset, text_len, ENC_ASCII|ENC_NA);
+    if (text_len>0)
+        proto_tree_add_item(tree, hf_mpeg_descr_short_event_text, tvb, offset, text_len, ENC_ASCII|ENC_NA);
 }
 
 /* 0x4E Extended Event Descriptor */
