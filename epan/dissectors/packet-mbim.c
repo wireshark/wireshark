@@ -375,6 +375,7 @@ static int hf_mbim_set_ussd_ussd_data_coding_scheme = -1;
 static int hf_mbim_set_ussd_ussd_ussd_payload_offset = -1;
 static int hf_mbim_set_ussd_ussd_ussd_payload_length = -1;
 static int hf_mbim_set_ussd_ussd_ussd_payload = -1;
+static int hf_mbim_set_ussd_ussd_ussd_payload_text = -1;
 static int hf_mbim_ussd_info_ussd_response = -1;
 static int hf_mbim_ussd_info_ussd_session_state = -1;
 static int hf_mbim_ussd_info_ussd_data_coding_scheme = -1;
@@ -3058,11 +3059,12 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
                                                    tvb_get_ptr(ussd_tvb, 0, ussd_payload_length), ussd);
                 ussd[out_len] = '\0';
                 utf8_text = gsm_sms_chars_to_utf8(ussd, out_len);
-                proto_tree_add_text(subtree, ussd_tvb, 0, ussd_payload_length, "%s", utf8_text);
+                proto_tree_add_string(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                                      ussd_tvb, 0, ussd_payload_length, utf8_text);
                 break;
             case SMS_ENCODING_8BIT:
-                proto_tree_add_text(subtree, ussd_tvb , 0, ussd_payload_length, "%s",
-                                    tvb_get_string(wmem_packet_scope(), ussd_tvb, 0, ussd_payload_length));
+                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
@@ -3070,7 +3072,8 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
                     utf8_text = g_convert_with_iconv(tvb_get_ptr(ussd_tvb, 0, ussd_payload_length),
                                                      ussd_payload_length, cd, NULL, NULL, &l_conv_error);
                     if (!l_conv_error) {
-                        proto_tree_add_text(subtree, ussd_tvb, 0, ussd_payload_length, "%s", utf8_text);
+                        proto_tree_add_string(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                                              ussd_tvb, 0, ussd_payload_length, utf8_text);
                     }
                     g_free(utf8_text);
                     g_iconv_close(cd);
@@ -6348,6 +6351,11 @@ proto_register_mbim(void)
         { &hf_mbim_set_ussd_ussd_ussd_payload,
             { "USSD Payload", "mbim.control.set_ussd.ussd_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_ussd_ussd_ussd_payload_text,
+            { "USSD Payload Text", "mbim.control.set_ussd.ussd_payload.text",
+               FT_STRING, STR_UNICODE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_ussd_info_ussd_response,
