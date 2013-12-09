@@ -41,7 +41,7 @@
 static int
 wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const wlan_hdr *whdr=(wlan_hdr *)vip;
+	const wlan_hdr *whdr=(const wlan_hdr *)vip;
 
 	add_conversation_table_data((conversations_table *)pct, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_WLAN, PT_NONE);
 

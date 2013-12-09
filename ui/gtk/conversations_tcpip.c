@@ -41,7 +41,7 @@
 static int
 tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const struct tcpheader *tcphdr=(struct tcpheader *)vip;
+	const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
 	add_conversation_table_data_with_conv_id((conversations_table *)pct, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_TCP);
 

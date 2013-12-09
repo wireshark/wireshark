@@ -41,7 +41,7 @@
 static int
 udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const e_udphdr *udphdr=(e_udphdr *)vip;
+	const e_udphdr *udphdr=(const e_udphdr *)vip;
 
 	add_conversation_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_UDP);
 

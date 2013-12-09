@@ -42,7 +42,7 @@ static int
 udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	const e_udphdr *udphdr=(e_udphdr *)vip;
+	const e_udphdr *udphdr=(const e_udphdr *)vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)

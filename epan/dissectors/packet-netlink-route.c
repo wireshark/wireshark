@@ -88,7 +88,7 @@ enum {
 	WS_RTM_GETNETCONF = 82,
 	WS_RTM_NEWMDB = 84,
 	WS_RTM_DELMDB = 85,
-	WS_RTM_GETMDB = 86,
+	WS_RTM_GETMDB = 86
 };
 
 /* values for rta_type (network interface) from <linux/if_link.h> */
@@ -138,7 +138,7 @@ enum ws_ifa_attr_type {
 	WS_IFA_BROADCAST   = 4,
 	WS_IFA_ANYCAST     = 5,
 	WS_IFA_CACHEINFO   = 6,
-	WS_IFA_MULTICAST   = 7,
+	WS_IFA_MULTICAST   = 7
 };
 
 /* values for rta_type (route) from <linux/rtnetlink.h> */
@@ -231,7 +231,7 @@ enum {
 	WS_IFF_DYNAMIC     =  0x8000,
 	WS_IFF_LOWER_UP    = 0x10000,
 	WS_IFF_DORMANT     = 0x20000,
-	WS_IFF_ECHO        = 0x40000,
+	WS_IFF_ECHO        = 0x40000
 };
 
 /* values for ifaddrmsg.ifa_flags <linux/if_addr.h> */

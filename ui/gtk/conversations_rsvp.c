@@ -41,7 +41,7 @@
 static int
 rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const rsvp_conversation_info *rsvph = (rsvp_conversation_info *)vip;
+	const rsvp_conversation_info *rsvph = (const rsvp_conversation_info *)vip;
 
 	add_conversation_table_data((conversations_table *)pct,
 				    &rsvph->source, &rsvph->destination, 0, 0, 1,

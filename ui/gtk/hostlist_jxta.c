@@ -42,7 +42,7 @@ static int
 jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts = (hostlist_table *) pit;
-	const jxta_tap_header *jxtahdr = (jxta_tap_header *)vip;
+	const jxta_tap_header *jxtahdr = (const jxta_tap_header *)vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)

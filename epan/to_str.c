@@ -297,8 +297,6 @@ static const char fast_strings[][4] = {
 "248", "249", "250", "251", "252", "253", "254", "255"
 };
 
-char *uint_to_str_back(char *ptr, guint32 value);
-
 void
 guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
   int str_len = guint32_to_str_buf_len(u)+1;

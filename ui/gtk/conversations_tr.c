@@ -41,7 +41,7 @@
 static int
 tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const tr_hdr *trhdr=(tr_hdr *)vip;
+	const tr_hdr *trhdr=(const tr_hdr *)vip;
 
 	add_conversation_table_data((conversations_table *)pct, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_TOKENRING, PT_NONE);
 

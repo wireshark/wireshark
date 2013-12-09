@@ -41,7 +41,7 @@
 static int
 ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const ws_ip *iph=(ws_ip *)vip;
+	const ws_ip *iph=(const ws_ip *)vip;
 
 	add_conversation_table_data((conversations_table *)pct, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
 

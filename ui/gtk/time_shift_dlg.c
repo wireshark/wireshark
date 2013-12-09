@@ -430,7 +430,7 @@ time_shift_apply_cb(GtkWidget *ok_bt _U_, GtkWindow *parent_w)
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(flag_rb)) == TRUE) {
     packetnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
             E_SETTIME_PACKETNUMBER_KEY);
-    packet_num = (guint)strtol((char *)gtk_entry_get_text(GTK_ENTRY(packetnumber_te)), NULL, 10);
+    packet_num = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(packetnumber_te)), NULL, 10);
     time_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
             E_SETTIME_TIME_KEY);
     time_text = gtk_entry_get_text(GTK_ENTRY(time_te));
@@ -443,14 +443,14 @@ time_shift_apply_cb(GtkWidget *ok_bt _U_, GtkWindow *parent_w)
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(flag_rb)) == TRUE) {
     packetnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
             E_ADJTIME_PACKETNUMBER1_KEY);
-    packet_num = (guint)strtol((char *)gtk_entry_get_text(GTK_ENTRY(packetnumber_te)), NULL, 10);
+    packet_num = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(packetnumber_te)), NULL, 10);
     time_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
             E_ADJTIME_TIME1_KEY);
     time_text = gtk_entry_get_text(GTK_ENTRY(time_te));
 
     packetnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
             E_ADJTIME_PACKETNUMBER2_KEY);
-    packet2_num = (guint)strtol((char *)gtk_entry_get_text(GTK_ENTRY(packetnumber_te)), NULL, 10);
+    packet2_num = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(packetnumber_te)), NULL, 10);
     time_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
             E_ADJTIME_TIME2_KEY);
     time2_text = gtk_entry_get_text(GTK_ENTRY(time_te));

@@ -44,7 +44,7 @@
 static int
 fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const fc_hdr *fchdr=(fc_hdr *)vip;
+	const fc_hdr *fchdr=(const fc_hdr *)vip;
 
 	add_conversation_table_data((conversations_table *)pct, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
 

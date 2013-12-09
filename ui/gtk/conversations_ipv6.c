@@ -41,7 +41,7 @@
 static int
 ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-    const struct ip6_hdr *ip6h = (struct ip6_hdr *)vip;
+    const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
     address src;
     address dst;
 

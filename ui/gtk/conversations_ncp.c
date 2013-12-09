@@ -41,7 +41,7 @@
 static int
 ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const struct ncp_common_header *ncph=(struct ncp_common_header *)vip;
+	const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
     guint32 connection;
 
     connection = (ncph->conn_high * 256)+ncph->conn_low;

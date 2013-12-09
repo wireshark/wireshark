@@ -93,8 +93,6 @@ static struct tcaphash_context_t *tcaphash_end_matching(tvbuff_t *tvb, packet_in
 static struct tcaphash_context_t *tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							 struct tcapsrt_info_t *p_tcapsrt_info);
 
-struct tcapsrt_info_t *tcapsrt_razinfo(void);
-
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
    because else this data are erased during TAP dissector call */

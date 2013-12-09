@@ -10052,9 +10052,6 @@ static int dissect_bss_max_idle_period(proto_tree *tree, tvbuff_t *tvb,
   return offset;
 }
 
-static int add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                            int offset, int ftype);
-
 enum tfs_request_subelem_id {
   TFS_REQ_SUBELEM_TFS = 1,
   TFS_REQ_SUBELEM_VENDOR_SPECIFIC = 221

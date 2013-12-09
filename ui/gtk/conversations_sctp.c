@@ -41,7 +41,7 @@
 static int
 sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const struct _sctp_info *sctphdr=(struct _sctp_info *)vip;
+	const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;
 
 	add_conversation_table_data((conversations_table *)pct,
 		&sctphdr->ip_src,
