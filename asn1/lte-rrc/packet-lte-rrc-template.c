@@ -48,10 +48,14 @@
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
+#include "packet-lte-rrc.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
 #define PFNAME "lte_rrc"
+
+void proto_register_lte_rrc(void);
+void proto_reg_handoff_lte_rrc(void);
 
 static dissector_handle_t nas_eps_handle = NULL;
 static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;

@@ -36,6 +36,9 @@
 #define PSNAME "RDC"
 #define PFNAME "rdc"
 
+void proto_register_h282(void);
+void proto_reg_handoff_h282(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h282 = -1;
 #include "packet-h282-hf.c"

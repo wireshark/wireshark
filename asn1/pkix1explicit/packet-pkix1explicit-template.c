@@ -42,6 +42,9 @@
 #define PSNAME "PKIX1EXPLICIT"
 #define PFNAME "pkix1explicit"
 
+void proto_register_pkix1explicit(void);
+void proto_reg_handoff_pkix1explicit(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkix1explicit = -1;
 static int hf_pkix1explicit_object_identifier_id = -1;

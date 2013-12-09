@@ -47,6 +47,9 @@
 #define PSNAME "IDMP"
 #define PFNAME "idmp"
 
+void proto_register_idmp(void);
+void proto_reg_handoff_idm(void);
+
 static gboolean           idmp_desegment       = TRUE;
 static guint              global_idmp_tcp_port = 1102; /* made up for now */
 static gboolean           idmp_reassemble      = TRUE;

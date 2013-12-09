@@ -73,6 +73,9 @@
 #define nbap_debug4(str,p1,p2,p3,p4)
 #endif
 
+void proto_register_nbap(void);
+void proto_reg_handoff_nbap(void);
+
 /* Global variables */
 static dissector_handle_t fp_handle;
 static guint32	transportLayerAddress_ipv4;

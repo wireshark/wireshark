@@ -47,7 +47,7 @@
 #define PROTO_TAG_tetra	"TETRA"
 
 void proto_register_tetra(void);
-void proto_reg_handoff_ldap(void);
+void proto_reg_handoff_tetra(void);
 
 /* Wireshark ID of the tetra protocol */
 static int proto_tetra = -1;
