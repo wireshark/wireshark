@@ -37,6 +37,9 @@
 #define PSNAME "HI2OPERATIONS"
 #define PFNAME "hi2operations"
 
+void proto_register_hi2operations(void);
+void proto_reg_handoff_hi2operations(void);
+
 /* Initialize the protocol and registered fields */
 int proto_HI2Operations = -1;
 #include "packet-HI2Operations-hf.c"

@@ -60,6 +60,8 @@
 #define PSNAME "H.245"
 #define PFNAME "h245"
 
+void proto_register_h245(void);
+void proto_reg_handoff_h245(void);
 
 static dissector_handle_t rtcp_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;

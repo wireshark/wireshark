@@ -43,6 +43,9 @@
 #define PSNAME "FTAM"
 #define PFNAME "ftam"
 
+void proto_register_ftam(void);
+void proto_reg_handoff_ftam(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ftam = -1;
 

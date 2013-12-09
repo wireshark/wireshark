@@ -52,6 +52,9 @@
 #define PSNAME "DAP"
 #define PFNAME "dap"
 
+void proto_register_dap(void);
+void proto_reg_handoff_dap(void);
+
 static guint global_dap_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
 static void prefs_register_dap(void); /* forward declaration for use in preferences registration */

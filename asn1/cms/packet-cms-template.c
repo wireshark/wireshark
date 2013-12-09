@@ -49,6 +49,9 @@
 #define PSNAME "CMS"
 #define PFNAME "cms"
 
+void proto_register_cms(void);
+void proto_reg_handoff_cms(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_cms = -1;
 static int hf_cms_ci_contentType = -1;

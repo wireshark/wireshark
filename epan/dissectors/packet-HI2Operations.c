@@ -45,6 +45,9 @@
 #define PSNAME "HI2OPERATIONS"
 #define PFNAME "hi2operations"
 
+void proto_register_hi2operations(void);
+void proto_reg_handoff_hi2operations(void);
+
 /* Initialize the protocol and registered fields */
 int proto_HI2Operations = -1;
 
@@ -366,7 +369,7 @@ static int hf_HI2Operations_cI = -1;              /* CellIdType */
 static int hf_HI2Operations_ssi = -1;             /* SSIType */
 
 /*--- End of included file: packet-HI2Operations-hf.c ---*/
-#line 43 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 46 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -476,7 +479,7 @@ static gint ett_HI2Operations_TETRACGIType = -1;
 static gint ett_HI2Operations_TSIType = -1;
 
 /*--- End of included file: packet-HI2Operations-ett.c ---*/
-#line 46 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 49 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- Included file: packet-HI2Operations-fn.c ---*/
@@ -3765,7 +3768,7 @@ static void dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-HI2Operations-fn.c ---*/
-#line 48 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 51 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- proto_register_HI2Operations ----------------------------------------------*/
@@ -5034,7 +5037,7 @@ void proto_register_HI2Operations(void) {
         "SSIType", HFILL }},
 
 /*--- End of included file: packet-HI2Operations-hfarr.c ---*/
-#line 56 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 59 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* List of subtrees */
@@ -5146,7 +5149,7 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_TSIType,
 
 /*--- End of included file: packet-HI2Operations-ettarr.c ---*/
-#line 61 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 64 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* Register protocol */
