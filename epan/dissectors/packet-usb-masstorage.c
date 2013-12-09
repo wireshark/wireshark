@@ -174,7 +174,7 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    usb_conv_info_t *usb_conv_info;
     usb_ms_conv_info_t *usb_ms_conv_info;
     proto_tree *tree=NULL;
     guint32 signature=0;
@@ -182,6 +182,11 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
     gboolean is_request;
     itl_nexus_t *itl;
     itlq_nexus_t *itlq;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
 
     /* verify that we do have a usb_ms_conv_info */
     usb_ms_conv_info=(usb_ms_conv_info_t *)usb_conv_info->class_data;

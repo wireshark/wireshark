@@ -278,10 +278,16 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int
 dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    usb_conv_info_t *usb_conv_info;
     proto_tree *tree = NULL;
     guint offset;
     guint length = tvb_length(tvb);
+
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBAUDIO");
 
