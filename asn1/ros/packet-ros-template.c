@@ -384,19 +384,14 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
+	/* do we have application context from the acse dissector? */
+	if (data == NULL)
+		return 0;
+	asn1_ctx.private_data = data;
+
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
 
-	/* do we have application context from the acse dissector?  */
-	if( !data){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error:can't get application context from ACSE dissector.");
-		}
-		return 0;
-	}
-
-    asn1_ctx.private_data = data;
 	conversation = find_or_create_conversation(pinfo);
 
 	/*

@@ -1803,18 +1803,12 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	const char *dsp_op_name;
 	asn1_ctx_t asn1_ctx;
 
+	/* do we have operation information from the ROS dissector? */
+	if (data == NULL)
+		return 0;
+	session  = (struct SESSION_DATA_STRUCTURE*)data;
+
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-	/* do we have operation information from the ROS dissector?  */
-	if( data == NULL ){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error: can't get operation information from ROS dissector.");
-		}
-		return  0;
-	}
-
-	session  = ( (struct SESSION_DATA_STRUCTURE*)data);
 
 	item = proto_tree_add_item(parent_tree, proto_dsp, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_dsp);
@@ -2548,7 +2542,7 @@ void proto_register_dsp(void) {
         "EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 277 "../../asn1/dsp/packet-dsp-template.c"
+#line 271 "../../asn1/dsp/packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2630,7 +2624,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 283 "../../asn1/dsp/packet-dsp-template.c"
+#line 277 "../../asn1/dsp/packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2671,7 +2665,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 313 "../../asn1/dsp/packet-dsp-template.c"
+#line 307 "../../asn1/dsp/packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

@@ -87,18 +87,12 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	const char *disp_op_name;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-	/* do we have operation information from the ROS dissector?  */
-	if( data == NULL ){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error: can't get operation information from ROS dissector.");
-		}
+	/* do we have operation information from the ROS dissector */
+	if (data == NULL)
 		return 0;
-	}
+	session  = (struct SESSION_DATA_STRUCTURE*)data;
 
-	session  = ((struct SESSION_DATA_STRUCTURE*)data);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	asn1_ctx.private_data = session;
 

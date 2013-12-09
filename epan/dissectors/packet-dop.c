@@ -2091,18 +2091,12 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	const char *dop_op_name;
 	asn1_ctx_t asn1_ctx;
 
+	/* do we have operation information from the ROS dissector? */
+	if (data == NULL)
+		return 0;
+	session = (struct SESSION_DATA_STRUCTURE*)data;
+
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-	/* do we have operation information from the ROS dissector?  */
-	if( data == NULL ){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error: can't get operation information from ROS dissector.");
-		}
-		return  0;
-	}
-
-	session = ( (struct SESSION_DATA_STRUCTURE*)data );
 
 	item = proto_tree_add_item(parent_tree, proto_dop, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_dop);
@@ -2971,7 +2965,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 248 "../../asn1/dop/packet-dop-template.c"
+#line 242 "../../asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3050,7 +3044,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 255 "../../asn1/dop/packet-dop-template.c"
+#line 249 "../../asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -3113,7 +3107,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 295 "../../asn1/dop/packet-dop-template.c"
+#line 289 "../../asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

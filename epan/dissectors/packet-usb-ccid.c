@@ -350,9 +350,12 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree *ccid_tree;
     guint8      cmd;
     tvbuff_t   *next_tvb;
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    usb_conv_info_t  *usb_conv_info;
 
-    DISSECTOR_ASSERT(usb_conv_info);
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCCID");
     col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");

@@ -1,5 +1,5 @@
 /* packet-pn532_hci.c
- * Routines for NXP PN532 HCI Protocol 
+ * Routines for NXP PN532 HCI Protocol
  *
  * http://www.nxp.com/documents/user_manual/141520.pdf
  *
@@ -76,9 +76,12 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint16          packet_code;
     guint16          length;
     guint8           checksum;
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    usb_conv_info_t *usb_conv_info;
 
-    DISSECTOR_ASSERT(usb_conv_info);
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
 
     length = tvb_length_remaining(tvb, offset);
     if (length < 6) return offset;

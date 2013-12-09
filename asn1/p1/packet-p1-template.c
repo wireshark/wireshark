@@ -235,19 +235,13 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
+	/* do we have operation information from the ROS dissector? */
+	if (data == NULL)
+		return 0;
+	session  = (struct SESSION_DATA_STRUCTURE*)data;
+
 	/* save parent_tree so subdissectors can create new top nodes */
 	p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
-
-	/* do we have operation information from the ROS dissector?  */
-	if( data == NULL ){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error: can't get operation information from ROS dissector.");
-		}
-		return 0;
-	}
-
-	session  = ( (struct SESSION_DATA_STRUCTURE*)data );
 
 	asn1_ctx.private_data = session;
 

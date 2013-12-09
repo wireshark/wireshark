@@ -106,12 +106,17 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree     *titem = NULL;
     proto_item     *pitem = NULL;
     gint            offset = 0;
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    usb_conv_info_t *usb_conv_info;
     tvbuff_t       *next_tvb = NULL;
     hci_data_t     *hci_data;
     gint            p2p_dir_save;
     guint32         session_id;
     fragment_head  *reassembled;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
 
     if (tvb_length_remaining(tvb, offset) <= 0)
         return 0;
@@ -120,8 +125,6 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ttree = proto_item_add_subtree(titem, ett_hci_usb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_USB");
-
-    DISSECTOR_ASSERT(usb_conv_info);
 
     p2p_dir_save = pinfo->p2p_dir;
     pinfo->p2p_dir = usb_conv_info->direction;

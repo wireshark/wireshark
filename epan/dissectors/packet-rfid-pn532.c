@@ -633,7 +633,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tvbuff_t   *next_tvb;
     gint        offset = 0;
     command_data_t  *command_data = NULL;
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
+    usb_conv_info_t *usb_conv_info;
     wmem_tree_key_t  key[5];
     guint32          bus_id;
     guint32          device_address;
@@ -642,6 +642,11 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32          k_device_address;
     guint32          k_endpoint;
     guint32          k_frame_number;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN532");
 
@@ -656,8 +661,6 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     offset += 1;
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(cmd, &pn532_commands_ext, "Unknown command"));
-
-    DISSECTOR_ASSERT(usb_conv_info);
 
     bus_id = usb_conv_info->bus_id;
     device_address = usb_conv_info->device_address;
