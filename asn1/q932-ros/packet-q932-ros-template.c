@@ -42,17 +42,17 @@ void proto_reg_handoff_q932_ros(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_q932_ros = -1;
-#include "packet-q932-ros-hf.c" 
+#include "packet-q932-ros-hf.c"
 
 /* Initialize the subtree pointers */
-#include "packet-q932-ros-ett.c" 
+#include "packet-q932-ros-ett.c"
 
 static expert_field ei_ros_undecoded = EI_INIT;
 
 /* Preferences */
 
 /* Subdissectors */
-static dissector_handle_t data_handle = NULL; 
+static dissector_handle_t data_handle = NULL;
 
 /* Gloabl variables */
 static rose_ctx_t *rose_ctx_tmp;
@@ -62,10 +62,13 @@ static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 
 
-#include "packet-q932-ros-fn.c" 
+#include "packet-q932-ros-fn.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
   rose_ctx_tmp = get_rose_ctx(data);
   DISSECTOR_ASSERT(rose_ctx_tmp);
   return dissect_ROS_PDU(tvb, pinfo, tree, NULL);
@@ -76,12 +79,12 @@ void proto_register_q932_ros(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-#include "packet-q932-ros-hfarr.c" 
+#include "packet-q932-ros-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-#include "packet-q932-ros-ettarr.c" 
+#include "packet-q932-ros-ettarr.c"
   };
 
   static ei_register_info ei[] = {

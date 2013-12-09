@@ -104,7 +104,7 @@ static expert_field ei_ros_undecoded = EI_INIT;
 /* Preferences */
 
 /* Subdissectors */
-static dissector_handle_t data_handle = NULL; 
+static dissector_handle_t data_handle = NULL;
 
 /* Gloabl variables */
 static rose_ctx_t *rose_ctx_tmp;
@@ -684,6 +684,9 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
   rose_ctx_tmp = get_rose_ctx(data);
   DISSECTOR_ASSERT(rose_ctx_tmp);
   return dissect_ROS_PDU(tvb, pinfo, tree, NULL);
@@ -795,7 +798,7 @@ void proto_register_q932_ros(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 80 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 83 "../../asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -815,7 +818,7 @@ void proto_register_q932_ros(void) {
     &ett_q932_ros_InvokeId,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 85 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 88 "../../asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   static ei_register_info ei[] = {
