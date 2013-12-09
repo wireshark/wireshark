@@ -213,16 +213,17 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data) {
-
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) != 0) {
-
-      if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER) {
-         dissect_giop(tvb, pinfo, tree);
-	     return tvb_length(tvb);
-      }
+dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
+{
+  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
+    {
+      if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
+        {
+          dissect_giop(tvb, pinfo, tree);
+          return tvb_length(tvb);
+        }
       return 0;
-  }
+    }
 
   tcp_dissect_pdus(tvb, pinfo, tree, ziop_desegment, ZIOP_HEADER_SIZE,
                    get_ziop_pdu_len, dissect_ziop, data);
@@ -231,16 +232,14 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 
 
 gboolean
-dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data) {
-
+dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
+{
   guint tot_len;
 
   conversation_t *conversation;
   /* check magic number and version */
 
-
   tot_len = tvb_length(tvb);
-
 
   if (tot_len < ZIOP_HEADER_SIZE) /* tot_len < 12 */
     {
@@ -248,9 +247,10 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
          to interpret it as GIOP. */
       return FALSE;
     }
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0) {
-    return FALSE;
-  }
+  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
+    {
+      return FALSE;
+    }
 
   if ( pinfo->ptype == PT_TCP )
     {
@@ -275,12 +275,11 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
       dissect_ziop (tvb, pinfo, tree, data);
     }
   return TRUE;
-
 }
 
-void proto_register_ziop (void) {
-
-
+void
+proto_register_ziop (void)
+{
   /* A header field is something you can search/filter on.
    *
    * We create a structure to register our fields. It consists of an
@@ -311,12 +310,11 @@ void proto_register_ziop (void) {
         "ZIOPHeader compressor_id", HFILL }},
     { &hf_ziop_original_length,
       { "Header original length", "ziop.original_length", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "ZIOP original_length", HFILL }},
+        "ZIOP original_length", HFILL }}
   };
 
-
   static gint *ett[] = {
-    &ett_ziop,
+    &ett_ziop
   };
 
   proto_ziop = proto_register_protocol("Zipped Inter-ORB Protocol", "ZIOP",
@@ -325,12 +323,12 @@ void proto_register_ziop (void) {
   proto_register_subtree_array (ett, array_length (ett));
 
   new_register_dissector("ziop", dissect_ziop, proto_ziop);
-
 }
 
 
-void proto_reg_handoff_ziop (void) {
-
+void
+proto_reg_handoff_ziop (void)
+{
   ziop_tcp_handle = new_create_dissector_handle(dissect_ziop_tcp, proto_ziop);
   dissector_add_handle("udp.port", ziop_tcp_handle);  /* For 'Decode As' */
 
