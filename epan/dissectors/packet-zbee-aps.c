@@ -611,10 +611,15 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item      *ti;
 
     zbee_aps_packet packet;
-    zbee_nwk_packet *nwk = (zbee_nwk_packet *)data;
+    zbee_nwk_packet *nwk;
 
     guint8          fcf;
     guint8          offset = 0;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    nwk = (zbee_nwk_packet *)data;
 
     /* Init. */
     memset(&packet, 0, sizeof(zbee_aps_packet));

@@ -952,13 +952,18 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item  *proto_root = NULL;
     proto_item  *ti;
 
-    zbee_nwk_packet *nwk = (zbee_nwk_packet *)data;
+    zbee_nwk_packet *nwk;
     zbee_zcl_packet packet;
     zbee_zcl_cluster_desc *desc;
 
     guint8  fcf;
     guint   offset = 0;
     guint   i;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    nwk = (zbee_nwk_packet *)data;
 
     /* Init. */
     memset(&packet, 0, sizeof(zbee_zcl_packet));

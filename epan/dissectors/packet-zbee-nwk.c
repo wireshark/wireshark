@@ -352,7 +352,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree          *field_tree = NULL;
 
     zbee_nwk_packet     packet;
-    ieee802154_packet   *ieee_packet = (ieee802154_packet *)data;
+    ieee802154_packet   *ieee_packet;
 
     guint               offset = 0;
     static gchar        src_addr[32], dst_addr[32]; /* has to be static due to SET_ADDRESS */
@@ -365,6 +365,11 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     zbee_nwk_hints_t       *nwk_hints;
     gboolean                unicast_src;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    ieee_packet = (ieee802154_packet *)data;
 
     memset(&packet, 0, sizeof(packet));
 
@@ -1391,7 +1396,7 @@ dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  */
 static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    ieee802154_packet   *packet = (ieee802154_packet *)data;
+    ieee802154_packet   *packet;
 
     proto_item  *beacon_root = NULL;
     proto_tree  *beacon_tree = NULL;
@@ -1401,6 +1406,11 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint8      version;
     guint64     epid;
     guint32     tx_offset;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    packet = (ieee802154_packet *)data;
 
     /* Add ourself to the protocol column. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");

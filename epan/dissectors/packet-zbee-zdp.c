@@ -999,7 +999,12 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     guint8          seqno;
     guint16         cluster;
     guint           offset = 0;
-    zbee_nwk_packet *nwk = (zbee_nwk_packet *)data;
+    zbee_nwk_packet *nwk;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    nwk = (zbee_nwk_packet *)data;
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zdp, tvb, offset, tvb_length(tvb), "ZigBee Device Profile");

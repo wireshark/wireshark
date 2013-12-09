@@ -167,10 +167,16 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet   *zcl;
     guint             offset = 0;
-    guint8            cmd_id = zcl->cmd_id;
+    guint8            cmd_id;
     gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {

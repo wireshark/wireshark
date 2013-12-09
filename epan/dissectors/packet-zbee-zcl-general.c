@@ -196,9 +196,15 @@ static const value_string zbee_zcl_basic_dev_en_names[] = {
 static int
 dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet   *zcl;
     guint             offset = 0;
-    guint8            cmd_id = zcl->cmd_id;
+    guint8            cmd_id;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
@@ -521,10 +527,16 @@ dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet   *zcl;
     guint             offset = 0;
-    guint8            cmd_id = zcl->cmd_id;
+    guint8            cmd_id;
     gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
@@ -856,9 +868,15 @@ static const value_string zbee_zcl_on_off_onoff_names[] = {
 static int
 dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet  *zcl;
     guint   offset = 0;
-    guint8  cmd_id = zcl->cmd_id;
+    guint8  cmd_id;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
@@ -1146,10 +1164,16 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
     proto_item  *payload_root;
     proto_tree  *payload_tree;
-    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet  *zcl;
     guint       offset = 0;
-    guint8      cmd_id = zcl->cmd_id;
+    guint8      cmd_id;
     gint        rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
@@ -1837,10 +1861,16 @@ dissect_zbee_zcl_pwr_prof (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet   *zcl;
     guint             offset = 0;
-    guint8            cmd_id = zcl->cmd_id;
+    guint8            cmd_id;
     gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
@@ -3012,10 +3042,16 @@ dissect_zbee_zcl_appl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_item        *payload_root;
     proto_tree        *payload_tree;
-    zbee_zcl_packet   *zcl = (zbee_zcl_packet *)data;
+    zbee_zcl_packet   *zcl;
     guint             offset = 0;
-    guint8            cmd_id = zcl->cmd_id;
+    guint8            cmd_id;
     gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
