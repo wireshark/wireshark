@@ -80,7 +80,7 @@ test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, vo
 }
 
 static int
-dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset = 0;
     gint carp_len;
