@@ -1,4 +1,4 @@
-/* capture_prefs.c
+/* prefs_capture.c
  * Dialog box for capture preferences
  *
  * $Id$
