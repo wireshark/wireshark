@@ -44,6 +44,9 @@
 
 #define XMPP_PORT 5222
 
+void proto_register_xmpp(void);
+void proto_reg_handoff_xmpp(void);
+
 int proto_xmpp = -1;
 
 static gboolean xmpp_desegment = TRUE;

@@ -65,6 +65,9 @@
 
 #define ATN_CPDLC_PROTO "ICAO Doc9705 CPDLC"
 
+void proto_register_atn_cpdlc(void);
+void proto_reg_handoff_atn_cpdlc(void);
+
 static const char *object_identifier_id;
 
 /* forward declarations */

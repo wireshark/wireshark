@@ -33,6 +33,9 @@
 #include "packet-rpc.h"
 #include "packet-ypbind.h"
 
+void proto_register_ypbind(void);
+void proto_reg_handoff_ypbind(void);
+
 static int proto_ypbind = -1;
 static int hf_ypbind_procedure_v1 = -1;
 static int hf_ypbind_procedure_v2 = -1;

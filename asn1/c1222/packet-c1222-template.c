@@ -81,6 +81,8 @@
 #define C1222_CMD_WAIT 0x70
 #define C1222_CMD_TIMING_SETUP 0x71
 
+void proto_register_c1222(void); 
+
 static dissector_handle_t c1222_handle=NULL;
 static dissector_handle_t c1222_udp_handle=NULL;
 

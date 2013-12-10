@@ -140,6 +140,9 @@ which ATN standard is supported ?
 #define ATN_ACSE_PROTO "ICAO Doc9705 ULCS ACSE (ISO 8649/8650-1:1996)"
 #define ATN_ULCS_PROTO "ICAO Doc9705 ULCS"
 
+void proto_register_atn_ulcs(void);
+void proto_reg_handoff_atn_ulcs(void);
+
 static heur_dissector_list_t atn_ulcs_heur_subdissector_list;
 
 /* presentation subdissectors i.e. CM, CPDLC */
@@ -276,7 +279,7 @@ static int hf_atn_ulcs_ACSE_requirements_authentication = -1;
 static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation = -1;
 
 /*--- End of included file: packet-atn-ulcs-hf.c ---*/
-#line 194 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 197 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 
 /*--- Included file: packet-atn-ulcs-ett.c ---*/
@@ -308,7 +311,7 @@ static gint ett_atn_ulcs_RelativeDistinguishedName = -1;
 static gint ett_atn_ulcs_AttributeTypeAndValue = -1;
 
 /*--- End of included file: packet-atn-ulcs-ett.c ---*/
-#line 196 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 199 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 static gint ett_atn_ulcs = -1;
 static gint ett_atn_acse = -1;
 
@@ -1592,7 +1595,7 @@ static void dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-atn-ulcs-fn.c ---*/
-#line 200 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 203 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 #if 0
 /* re-implementing external data: packet-per.c */
@@ -1739,7 +1742,7 @@ static int	atn_ulcs_Externalt_encoding(
 }
 
 /* re-implementing external data: packet-per.c */
-guint32	atn_per_external_type(
+static guint32	atn_per_external_type(
 		tvbuff_t *tvb _U_,
 		guint32 offset,
 		asn1_ctx_t *actx,
@@ -2495,7 +2498,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 810 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 813 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2575,7 +2578,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 860 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 863 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,

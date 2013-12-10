@@ -63,6 +63,9 @@
 
 #define ATN_CM_PROTO "ICAO Doc9705 CM"
 
+void proto_register_atn_cm(void);
+void proto_reg_handoff_atn_cm(void);
+
 #include "packet-atn-cm-hf.c"
 
 #include "packet-atn-cm-ett.c"

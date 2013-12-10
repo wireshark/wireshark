@@ -86,6 +86,9 @@
 
 #define XTP_KEY_RTN			((guint64)1<<63)
 
+void proto_register_xtp(void);
+void proto_reg_handoff_xtp(void);
+
 /** packet structures definition **/
 struct xtp_cntl {
 	guint64		rseq;

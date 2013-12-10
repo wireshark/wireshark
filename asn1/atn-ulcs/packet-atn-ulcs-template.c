@@ -132,6 +132,9 @@ which ATN standard is supported ?
 #define ATN_ACSE_PROTO "ICAO Doc9705 ULCS ACSE (ISO 8649/8650-1:1996)"
 #define ATN_ULCS_PROTO "ICAO Doc9705 ULCS"
 
+void proto_register_atn_ulcs(void);
+void proto_reg_handoff_atn_ulcs(void);
+
 static heur_dissector_list_t atn_ulcs_heur_subdissector_list;
 
 /* presentation subdissectors i.e. CM, CPDLC */
@@ -343,7 +346,7 @@ static int	atn_ulcs_Externalt_encoding(
 }
 
 /* re-implementing external data: packet-per.c */
-guint32	atn_per_external_type(
+static guint32	atn_per_external_type(
 		tvbuff_t *tvb _U_,
 		guint32 offset,
 		asn1_ctx_t *actx,

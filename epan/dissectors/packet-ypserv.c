@@ -34,6 +34,9 @@
 #include "packet-rpc.h"
 #include "packet-ypserv.h"
 
+void proto_register_ypserv(void);
+void proto_reg_handoff_ypserv(void);
+
 static int proto_ypserv = -1;
 static int hf_ypserv_procedure_v1 = -1;
 static int hf_ypserv_procedure_v2 = -1;

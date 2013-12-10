@@ -32,6 +32,9 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
+void proto_register_ymsg(void);
+void proto_reg_handoff_ymsg(void);
+
 static int proto_ymsg = -1;
 static int hf_ymsg_version = -1;
 static int hf_ymsg_vendor = -1;

@@ -48,6 +48,8 @@
 
 #define TCP_PORT_CMP 829
 
+void proto_register_cmp(void);
+
 /* desegmentation of CMP over TCP */
 static gboolean cmp_desegment = TRUE;
 
