@@ -25,8 +25,6 @@
 #ifndef __TAP_H__
 #define __TAP_H__
 
-#include "config.h"
-
 #include <epan/epan.h>
 #include "ws_symbol_export.h"
 
@@ -130,7 +128,7 @@ WS_DLL_PUBLIC void reset_tap_listeners(void);
 
 /** This function is called when we need to redraw all tap listeners, for example
  * when we open/start a new capture or if we need to rescan the packet list.
- * It should be called from a low priority thread say once every 3 seconds 
+ * It should be called from a low priority thread say once every 3 seconds
  *
  * If draw_all is true, redraw all aplications regardless if they have
  * changed or not.
@@ -156,7 +154,7 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   to apply this string to the packet and then only pass those packets that
  *                   matched the filter to your listener.
  *                   The syntax for the filter string is identical to normal display filters.
- *                
+ *
  *                   NOTE: Specifying filter strings will have a significant performance impact
  *                   on your application and Wireshark. If possible it is MUCH better to take
  *                   unfiltered data and just filter it yourself in the packet-callback than
@@ -166,7 +164,7 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  * @param flags      is a set of flags for the tap listener.  The flags that can be set are:
  *
  *                      TL_REQUIRES_PROTO_TREE
- *                   
+ *
  *                   	set if your tap listener "packet" routine requires a protocol
  *                   	tree to be built.  It will require a protocol tree to be
  *                   	built if either
@@ -174,7 +172,7 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   		1) it looks at the protocol tree in edt->tree
  *
  *                   	or
- *                   
+ *
  *                   		2) the tap-specific data passed to it is constructed only if
  *                   		   the protocol tree is being built.
  *
@@ -184,7 +182,7 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   	strings to be constructed.
  *
  *                       If no flags are needed, use TL_REQUIRES_NOTHING.
- * 
+ *
  * @param tap_reset  void (*reset)(void *tapdata)
  *                   This callback is called whenever Wireshark wants to inform your
  *                   listener that it is about to start [re]reading a capture file or a new capture

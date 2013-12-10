@@ -37,8 +37,6 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
-#include "config.h"
-
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
@@ -773,7 +771,7 @@ WS_DLL_PUBLIC void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint
 /** Add an item to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
  @param tree the tree to append this item to
- @param hfinfo field 
+ @param hfinfo field
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
  @param length length of data in tvb
