@@ -25,6 +25,8 @@
 #ifndef __TAP_H__
 #define __TAP_H__
 
+#include "config.h"
+
 #include <epan/epan.h>
 #include "ws_symbol_export.h"
 
@@ -46,9 +48,11 @@ typedef void (*tap_draw_cb)(void *tapdata);
 #define TL_IS_DISSECTOR_HELPER	0x00000004	/**< tap helps a dissector do work
 						 ** but does not, itself, require dissection */
 
+#ifdef HAVE_PLUGINS
 /** Register tap plugin type with the plugin system.
     Called by epan_register_plugin_types(); do not call it yourself. */
 extern void register_tap_plugin_type(void);
+#endif
 
 /*
  * For all tap plugins, call their register routines.

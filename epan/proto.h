@@ -37,6 +37,8 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
+#include "config.h"
+
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
@@ -612,9 +614,11 @@ WS_DLL_PUBLIC void proto_tree_children_foreach(proto_tree *tree,
 /** Retrieve the wmem_allocator_t from a proto_node */
 #define PNODE_POOL(proto_node)   ((proto_node)->tree_data->pinfo->pool)
 
+#ifdef HAVE_PLUGINS
 /** Register dissector plugin type with the plugin system.
     Called by epan_register_plugin_types(); do not call it yourself. */
 extern void register_dissector_plugin_type(void);
+#endif
 
 /** Sets up memory used by proto routines. Called at program startup */
 void proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_data),

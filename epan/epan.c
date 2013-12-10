@@ -85,8 +85,10 @@ epan_get_version(void) {
 void
 epan_register_plugin_types(void)
 {
+#ifdef HAVE_PLUGINS
 	register_dissector_plugin_type();
 	register_tap_plugin_type();
+#endif
 }
 
 void
