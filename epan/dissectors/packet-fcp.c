@@ -732,13 +732,18 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item      *ti            = NULL;
     proto_tree      *fcp_tree      = NULL;
-    fc_hdr          *fchdr = (fc_hdr *)data;
+    fc_hdr          *fchdr;
     guint8           r_ctl;
     conversation_t  *fc_conv;
     fcp_conv_data_t *fcp_conv_data = NULL;
     fcp_request_data_t *request_data = NULL;
     gboolean         els;
     fcp_proto_data_t *proto_data;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");

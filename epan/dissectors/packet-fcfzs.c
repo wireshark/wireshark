@@ -593,7 +593,12 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     fcfzs_conv_data_t *cdata;
     fcfzs_conv_key_t   ckey, *req_key;
     gboolean           isreq         = TRUE;
-    fc_hdr *fchdr = (fc_hdr *)data;
+    fc_hdr *fchdr;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Zone Server");

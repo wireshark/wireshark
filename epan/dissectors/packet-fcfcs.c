@@ -778,7 +778,12 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     fcfcs_conv_key_t ckey, *req_key;
     int opcode,
         failed_opcode = 0;
-    fc_hdr *fchdr = (fc_hdr *)data;
+    fc_hdr *fchdr;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-FCS");

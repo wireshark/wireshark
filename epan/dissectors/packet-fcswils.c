@@ -1771,7 +1771,12 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree          *swils_tree    = NULL;
     guint8               isreq         = FC_SWILS_REQ;
     tvbuff_t            *next_tvb;
-    fc_hdr *fchdr = (fc_hdr *)data;
+    fc_hdr *fchdr;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    fchdr = (fc_hdr *)data;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SW_ILS");
