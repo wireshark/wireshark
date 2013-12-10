@@ -256,10 +256,25 @@ WS_DLL_PUBLIC gboolean dissector_try_uint(dissector_table_t sub_dissectors,
 WS_DLL_PUBLIC gboolean dissector_try_uint_new(dissector_table_t sub_dissectors,
     const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
 
-/* Look for a given value in a given uint dissector table and, if found,
-   return the dissector handle for that value. */
+/** Look for a given value in a given uint dissector table and, if found,
+ * return the current dissector handle for that value.
+ *
+ * @param[in] sub_dissectors Dissector table to search.
+ * @param[in] uint_val Value to match, e.g. the port number for the TCP dissector.
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
 WS_DLL_PUBLIC dissector_handle_t dissector_get_uint_handle(
     dissector_table_t const sub_dissectors, const guint32 uint_val);
+
+/** Look for a given value in a given uint dissector table and, if found,
+ * return the default dissector handle for that value.
+ *
+ * @param[in] name Dissector table name.
+ * @param[in] uint_val Value to match, e.g. the port number for the TCP dissector.
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
+WS_DLL_PUBLIC dissector_handle_t dissector_get_default_uint_handle(
+    const char *name, const guint32 uint_val);
 
 /* Add an entry to a string dissector table. */
 WS_DLL_PUBLIC void dissector_add_string(const char *name, const gchar *pattern,
@@ -284,10 +299,25 @@ WS_DLL_PUBLIC void dissector_reset_string(const char *name, const gchar *pattern
 WS_DLL_PUBLIC gboolean dissector_try_string(dissector_table_t sub_dissectors,
     const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
-/* Look for a given value in a given string dissector table and, if found,
-   return the dissector handle for that value. */
+/** Look for a given value in a given string dissector table and, if found,
+ * return the current dissector handle for that value.
+ *
+ * @param[in] sub_dissectors Dissector table to search.
+ * @param[in] string Value to match, e.g. the OID for the BER dissector.
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
 WS_DLL_PUBLIC dissector_handle_t dissector_get_string_handle(
     dissector_table_t sub_dissectors, const gchar *string);
+
+/** Look for a given value in a given string dissector table and, if found,
+ * return the default dissector handle for that value.
+ *
+ * @param[in] name Dissector table name.
+ * @param[in] string Value to match, e.g. the OID for the BER dissector.
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
+WS_DLL_PUBLIC dissector_handle_t dissector_get_default_string_handle(
+    const char *name, const gchar *string);
 
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by code in the UI. */

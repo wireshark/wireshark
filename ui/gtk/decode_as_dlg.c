@@ -22,7 +22,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "config.h"
-#include <string.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -32,11 +31,10 @@
 
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
-#include <wsutil/filesystem.h>
 #include <epan/decode_as.h>
 #include <epan/dissectors/packet-dcerpc.h>
-#include <wsutil/file_util.h>
 
+#include "ui/decode_as_utils.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 
@@ -162,7 +160,10 @@ write_da_entry(gpointer item, gpointer user_data)
 {
   da_entry_t *entry = (da_entry_t *)item;
   FILE *daf = (FILE *)user_data;
-  fprintf (daf, DECODE_AS_ENTRY ": %s,%d,%s,%s\n", entry->table, entry->selector, entry->initial, entry->current);
+  gchar *selector_str = g_strdup_printf("%d", entry->selector);
+  
+  decode_as_write_entry(daf, entry->table, selector_str, entry->initial, entry->current);
+  g_free(selector_str);
 }
 
 /*
@@ -452,35 +453,10 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 static void
 decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
-  char        *pf_dir_path;
-  char        *daf_path;
-  FILE        *daf;
+  FILE        *daf = decode_as_open();
 
-  if (create_persconffile_dir(&pf_dir_path) == -1) {
-     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
-      g_strerror(errno));
-     g_free(pf_dir_path);
-     return;
-  }
-
-  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
-  if ((daf = ws_fopen(daf_path, "w")) == NULL) {
-     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "Can't open decode_as_entries file\n\"%s\": %s.", daf_path,
-      g_strerror(errno));
-    g_free(daf_path);
-    return;
-  }
-
-  fputs("# \"Decode As\" entries file for Wireshark " VERSION ".\n"
-    "#\n"
-    "# This file is regenerated when saving the \"Decode As...\" list.\n"
-    "# So be careful, if you want to make manual changes here.\n"
-    "\n"
-    "######## Decode As table entries, can be altered through command line ########\n"
-    "\n", daf);
-
+  if (!daf) return;
+  
   g_slist_foreach(da_entries, write_da_entry, daf);
 
   fclose(daf);

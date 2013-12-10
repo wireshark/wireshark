@@ -1070,6 +1070,19 @@ dissector_get_uint_handle(dissector_table_t const sub_dissectors, const guint32 
 		return NULL;
 }
 
+dissector_handle_t
+dissector_get_default_uint_handle(const char *name, const guint32 uint_val)
+{
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+
+	if (sub_dissectors != NULL) {
+		dtbl_entry_t *dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
+		if (dtbl_entry != NULL)
+			return dtbl_entry->initial;
+	}
+	return NULL;
+}
+
 /* Find an entry in a string dissector table. */
 static dtbl_entry_t *
 find_string_dtbl_entry(dissector_table_t const sub_dissectors, const gchar *pattern)
@@ -1320,6 +1333,19 @@ dissector_get_string_handle(dissector_table_t sub_dissectors,
 		return dtbl_entry->current;
 	else
 		return NULL;
+}
+
+dissector_handle_t
+dissector_get_default_string_handle(const char *name, const gchar *string)
+{
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+
+	if (sub_dissectors != NULL) {
+		dtbl_entry_t *dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
+		if (dtbl_entry != NULL)
+			return dtbl_entry->initial;
+	}
+	return NULL;
 }
 
 dissector_handle_t
@@ -1691,7 +1717,8 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 const char *
 get_dissector_table_ui_name(const char *name)
 {
-	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+	if (!sub_dissectors) return NULL;
 
 	return sub_dissectors->ui_name;
 }
@@ -1699,7 +1726,8 @@ get_dissector_table_ui_name(const char *name)
 ftenum_t
 get_dissector_table_selector_type(const char *name)
 {
-	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+	if (!sub_dissectors) return FT_NONE;
 
 	return sub_dissectors->type;
 }
@@ -1707,7 +1735,8 @@ get_dissector_table_selector_type(const char *name)
 int
 get_dissector_table_base(const char *name)
 {
-	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+	if (!sub_dissectors) return 0;
 
 	return sub_dissectors->base;
 }

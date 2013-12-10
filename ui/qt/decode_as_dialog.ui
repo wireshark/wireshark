@@ -7,33 +7,56 @@
     <x>0</x>
     <y>0</y>
     <width>750</width>
-    <height>600</height>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Wireshark: Decode As</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTreeWidget" name="decodeAsTreeWidget">
+     <property name="indentation">
+      <number>0</number>
+     </property>
+     <property name="uniformRowHeights">
+      <bool>true</bool>
+     </property>
      <column>
       <property name="text">
        <string>Field</string>
+      </property>
+      <property name="toolTip">
+       <string>Match using this field</string>
       </property>
      </column>
      <column>
       <property name="text">
        <string>Value</string>
       </property>
+      <property name="toolTip">
+       <string>Current &quot;Decode As&quot; behavior</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Type</string>
+      </property>
      </column>
      <column>
       <property name="text">
        <string>Default</string>
       </property>
+      <property name="toolTip">
+       <string>Default &quot;Decode As&quot; behavior</string>
+      </property>
      </column>
      <column>
       <property name="text">
        <string>Current</string>
+      </property>
+      <property name="toolTip">
+       <string>Change behavior when the protocol field matches this value</string>
       </property>
      </column>
     </widget>
@@ -43,13 +66,13 @@
      <item>
       <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
-        <string>Create a new profile using default settings.</string>
+        <string>Change the dissection behavior for a protocol.</string>
        </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../image/toolbar.qrc">
          <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
        </property>
       </widget>
@@ -57,10 +80,10 @@
      <item>
       <widget class="QToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Remove this profile.</string>
+        <string>Remove this dissection behavior.</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../image/toolbar.qrc">
          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
        </property>
       </widget>
@@ -68,13 +91,13 @@
      <item>
       <widget class="QToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Copy this profile.</string>
+        <string>Copy this dissection behavior.</string>
        </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../image/toolbar.qrc">
          <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
        </property>
       </widget>
@@ -132,7 +155,9 @@
    <header>elided_label.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../image/toolbar.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

@@ -24,6 +24,7 @@
 
 set(COMMON_UI_SRC
 	alert_box.c
+	decode_as_utils.c
 	export_object.c
 	export_object_dicom.c
 	export_object_http.c

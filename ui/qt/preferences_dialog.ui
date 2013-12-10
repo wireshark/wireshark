@@ -81,7 +81,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>6</number>
       </property>
       <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
       <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
@@ -120,6 +120,9 @@
         </item>
         <item>
          <widget class="QTreeWidget" name="advancedTree">
+          <property name="indentation">
+           <number>0</number>
+          </property>
           <property name="uniformRowHeights">
            <bool>true</bool>
           </property>

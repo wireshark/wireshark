@@ -39,7 +39,6 @@
 #include <wsutil/filesystem.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
-#include <epan/decode_as.h>
 #include <epan/oids.h>
 #ifdef HAVE_GEOIP
 #include <epan/geoip_db.h>
@@ -3270,9 +3269,6 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   /* load SMI modules if needed */
   oids_init();
 
-  /* load the decode as entries of this profile */
-  load_decode_as_entries();
-
   return &prefs;
 }
 
@@ -4795,7 +4791,7 @@ write_prefs(char **pf_path_return)
   fputs("# Configuration file for Wireshark " VERSION ".\n"
         "#\n"
         "# This file is regenerated each time preferences are saved within\n"
-        "# Wireshark.  Making manual changes should be safe, however.\n"
+        "# Wireshark. Making manual changes should be safe, however.\n"
         "# Preferences that have been commented out have not been\n"
         "# changed from their default value.\n", pf);
 

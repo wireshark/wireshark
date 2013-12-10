@@ -6322,7 +6322,7 @@ proto_register_dcerpc(void)
     static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC", 
                                     /* XXX - DCE/RPC doesn't have a true (sub)dissector table, so 
                                      provide a "fake" one to fit the Decode As algorithm */
-                                    "ethertype", 
+                                    "dcerpc.fake",
                                     1, 0, &dcerpc_da_values, NULL, NULL,
                                     dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free};
 

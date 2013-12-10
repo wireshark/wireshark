@@ -112,6 +112,7 @@
 #include "gtk_iface_monitor.h"
 
 #include "ui/alert_box.h"
+#include "ui/decode_as_utils.h"
 #include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/preference_utils.h"
@@ -1972,6 +1973,9 @@ read_configuration_files(char **gdp_path, char **dp_path)
   char                *cf_path, *df_path;
   int                  pf_open_errno, pf_read_errno;
   e_prefs             *prefs_p;
+
+  /* load the decode as entries of this profile */
+  load_decode_as_entries();
 
   /* Read the preference files. */
   prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,

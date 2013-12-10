@@ -44,6 +44,7 @@
 
 // To do:
 // - Add help
+// - Update to match bug 9452 / r53657
 
 #include <QDebug>
 

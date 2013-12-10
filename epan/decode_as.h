@@ -94,43 +94,10 @@ WS_DLL_PUBLIC gboolean decode_as_default_reset(const char *name, const gpointer 
 /* Add a FT_UINT32 value to dissector table list */
 WS_DLL_PUBLIC gboolean decode_as_default_change(const char *name, const gpointer pattern, gpointer handle, gchar* list_name);
 
-/*** THE FOLLOWING SHOULD NOT BE USED BY ANY DISSECTORS!!! ***/
-
+/** List of registered decode_as_t structs.
+ * For UI code only. Should not be directly accessed by dissectors.
+ */
 WS_DLL_PUBLIC GList *decode_as_list;
-
-/** Reset the "decode as" entries and reload ones of the current profile.
- */
-WS_DLL_PUBLIC void load_decode_as_entries(void);
-
-/*
- * This routine creates one entry in the list of protocol dissector
- * that need to be reset. It is called by the g_hash_table_foreach
- * routine once for each changed entry in a dissector table.
- * Unfortunately it cannot delete the entry immediately as this screws
- * up the foreach function, so it builds a list of dissectors to be
- * reset once the foreach routine finishes.
- *
- * @param table_name The table name in which this dissector is found.
- *
- * @param key A pointer to the key for this entry in the dissector
- * hash table.  This is generally the numeric selector of the
- * protocol, i.e. the ethernet type code, IP port number, TCP port
- * number, etc.
- *
- * @param value A pointer to the value for this entry in the dissector
- * hash table.  This is an opaque pointer that can only be handed back
- * to routine in the file packet.c - but it's unused.
- *
- * @param user_data Unused.
- */
-WS_DLL_PUBLIC void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
-                         gpointer user_data _U_);
-
-/** Clear all "decode as" settings
- */
-WS_DLL_PUBLIC void decode_clear_all(void);
-
 
 #ifdef __cplusplus
 }

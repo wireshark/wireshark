@@ -30,7 +30,10 @@
 
 #include "cfile.h"
 
+#include <QComboBox>
 #include <QDialog>
+#include <QMap>
+#include <QTreeWidgetItem>
 
 namespace Ui {
 class DecodeAsDialog;
@@ -51,13 +54,38 @@ private:
     Ui::DecodeAsDialog *ui;
 
     capture_file *cap_file_;
+    QComboBox *table_names_combo_box_;
+    QComboBox *selector_combo_box_;
+    QComboBox *cur_proto_combo_box_;
+    QMap<QString, const char *> ui_name_to_name_;
 
+    QString entryString(const gchar *table_name, gpointer value);
     static void buildChangedList(const gchar *table_name, ftenum_t selector_type,
                           gpointer key, gpointer value, gpointer user_data);
     static void buildDceRpcChangedList(gpointer data, gpointer user_data);
+    static void decodeAddProtocol(const gchar *table_name, const gchar *proto_name, gpointer value, gpointer user_data);
+    void addRecord(bool copy_from_current = false);
+    void fillTypeColumn(QTreeWidgetItem *item);
 
 private slots:
     void fillTable();
+    void activateLastItem();
+
+    void on_decodeAsTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, int column = 0);
+    void on_decodeAsTreeWidget_itemSelectionChanged();
+    void on_newToolButton_clicked();
+    void on_deleteToolButton_clicked();
+    void on_copyToolButton_clicked();
+
+    void tableNamesDestroyed();
+    void tableNamesCurrentIndexChanged(const QString & text);
+    void selectorDestroyed();
+    void selectorEditTextChanged(const QString & text);
+    void curProtoCurrentIndexChanged(const QString & text);
+    void curProtoDestroyed();
+    void on_buttonBox_accepted();
+    void on_buttonBox_helpRequested();
 };
 
 #endif // DECODE_AS_DIALOG_H

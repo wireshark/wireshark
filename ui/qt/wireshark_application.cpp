@@ -25,11 +25,11 @@
 
 #include "wsutil/filesystem.h"
 
-#include "epan/decode_as.h"
 #include "epan/disabled_protos.h"
 #include "epan/tap.h"
 #include "epan/timestamp.h"
 
+#include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
