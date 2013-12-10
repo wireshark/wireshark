@@ -468,7 +468,7 @@ void PreferencesDialog::updateItem(QTreeWidgetItem &item)
     bool is_changed = false;
     QFont font = item.font(0);
 
-    if (pref->type == PREF_UAT || pref->type == PREF_CUSTOM) {
+    if ((pref->type == PREF_UAT && (pref->gui == GUI_ALL || pref->gui == GUI_QT))|| pref->type == PREF_CUSTOM) {
         item.setText(1, tr("Unknown"));
     } else if (stashedPrefIsDefault(pref)) {
         item.setText(1, tr("Default"));
@@ -649,8 +649,10 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         }
         case PREF_UAT:
         {
-            UatDialog uat_dlg(this, pref->varp.uat);
-            uat_dlg.exec();
+            if (pref->gui == GUI_ALL || pref->gui == GUI_QT) {
+                UatDialog uat_dlg(this, pref->varp.uat);
+                uat_dlg.exec();
+            }
             break;
         }
         default:

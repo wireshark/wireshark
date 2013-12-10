@@ -249,9 +249,10 @@ pref_show(pref_t *pref, gpointer user_data)
 
   case PREF_UAT:
   {
-    pref->control = create_preference_uat(main_grid, pref->ordinal,
-                                          label_string, tooltip_txt,
-                                          pref->varp.uat);
+    if (pref->gui == GUI_ALL || pref->gui == GUI_GTK)
+        pref->control = create_preference_uat(main_grid, pref->ordinal,
+                                              label_string, tooltip_txt,
+                                              pref->varp.uat);
     break;
   }
 
