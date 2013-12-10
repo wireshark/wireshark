@@ -244,7 +244,7 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
 
     selector_combo_box_ = new QComboBox();
     selector_combo_box_->setEditable(true);
-    selector_combo_box_->setCurrentText(item->text(selector_col_));
+    selector_combo_box_->lineEdit()->setText(item->text(selector_col_));
 
     connect(selector_combo_box_, SIGNAL(destroyed()), this, SLOT(selectorDestroyed()));
     connect(selector_combo_box_, SIGNAL(editTextChanged(QString)), this, SLOT(selectorEditTextChanged(QString)));
@@ -258,7 +258,7 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
             this, SLOT(curProtoCurrentIndexChanged(const QString &)));
     connect(cur_proto_combo_box_, SIGNAL(destroyed()), this, SLOT(curProtoDestroyed()));
 
-    table_names_combo_box_->setCurrentText(current_text);
+    table_names_combo_box_->setCurrentIndex(table_names_combo_box_->findText(current_text));
     tableNamesCurrentIndexChanged(current_text);
 
     connect(table_names_combo_box_, SIGNAL(currentIndexChanged(const QString &)),
@@ -450,7 +450,7 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
     cur_proto_combo_box_->addItem(DECODE_AS_NONE);
     cur_proto_combo_box_->insertSeparator(cur_proto_combo_box_->count());
     cur_proto_combo_box_->addItems(proto_list);
-    cur_proto_combo_box_->setCurrentText(current_text);
+    cur_proto_combo_box_->setCurrentIndex(cur_proto_combo_box_->findText(current_text));
 }
 
 void DecodeAsDialog::selectorDestroyed()
