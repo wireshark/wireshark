@@ -79,14 +79,19 @@ static int
 dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	int offset = 0;
-        proto_tree *x29_tree;
-        proto_item *ti;
-	gboolean *q_bit_set = (gboolean *)data;
+	proto_tree *x29_tree;
+	proto_item *ti;
+	gboolean *q_bit_set;
 	guint8 msg_code;
 	guint8 error_type;
 	guint8 type_ref;
 	gint next_offset;
 	int linelen;
+
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	q_bit_set = (gboolean *)data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.29");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -253,12 +258,12 @@ proto_register_x29(void)
 		{ "Invalid message code", "x29.inv_msg_code", FT_UINT8, BASE_HEX,
 		  VALS(message_code_vals), 0x0, "X.29 Error PAD message invalid message code",
 		  HFILL }},
-        };
+	};
 	static gint *ett[] = {
 		&ett_x29,
 	};
 
-        proto_x29 = proto_register_protocol("X.29", "X.29", "x29");
+	proto_x29 = proto_register_protocol("X.29", "X.29", "x29");
 	proto_register_field_array(proto_x29, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
