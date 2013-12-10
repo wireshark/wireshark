@@ -85,7 +85,7 @@
 
 /* Forward declarations         */
 void proto_register_smpp(void);
-void proto_reg_handoff_smpp(void)
+void proto_reg_handoff_smpp(void);
 static int dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static guint get_smpp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static int dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
