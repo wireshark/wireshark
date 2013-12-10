@@ -24,7 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* LDSS is a protocol for peers on a LAN to co-operatively download
+/* LDSS is a protocol for peers on a LAN to cooperatively download
  * files from a WAN. The peers ask each other about files and can
  * send files to each other, thus WAN use is minimized. However
  * if no peer possesses a file, a peer can download it via the WAN.
@@ -445,7 +445,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Transfers happen in response to broadcasts, they are always TCP and are
  * used to send the file to the port mentioned in the broadcast. There are
  * 2 types of transfers: Pushes, which are direct responses to searches,
- * in which the peer that has the file connects to the peer that doesnt and
+ * in which the peer that has the file connects to the peer that doesn't and
  * sends it, then disconnects. The other type of transfer is a pull, where
  * the peer that doesn't have the file connects to the peer that does and
  * requests it be sent.
@@ -459,16 +459,19 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
 	conversation_t *transfer_conv;
 	ldss_transfer_info_t *transfer_info;
-	struct tcpinfo *transfer_tcpinfo = (struct tcpinfo *)data;
-
+	struct tcpinfo *transfer_tcpinfo;
 	proto_tree	*ti, *line_tree = NULL, *ldss_tree = NULL;
-
 	nstime_t broadcast_response_time;
+
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	transfer_tcpinfo = (struct tcpinfo *)data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 
 	/* Look for the transfer conversation; this was created during
-	 * earlier broadcast dissection (see prepate_ldss_transfer_conv) */
+	 * earlier broadcast dissection (see prepare_ldss_transfer_conv) */
 	transfer_conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					   PT_TCP, pinfo->srcport, pinfo->destport, 0);
 	transfer_info = (ldss_transfer_info_t *)conversation_get_proto_data(transfer_conv, proto_ldss);
@@ -999,7 +1002,7 @@ proto_reg_handoff_ldss (void)
 
 	if (!ldss_initialized) {
 		ldss_udp_handle = new_create_dissector_handle(dissect_ldss, proto_ldss);
-		ldss_tcp_handle = new_create_dissector_handle(dissect_ldss_transfer, proto_ldss);        
+		ldss_tcp_handle = new_create_dissector_handle(dissect_ldss_transfer, proto_ldss);
 		ldss_initialized = TRUE;
 	}
 	else {
