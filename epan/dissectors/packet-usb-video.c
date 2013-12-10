@@ -214,6 +214,9 @@
 #define USB_SETUP_GET_RES_ALL       0x94    /* UVC 1.5 */
 #define USB_SETUP_GET_DEF_ALL       0x97    /* UVC 1.5 */
 
+void proto_reg_handoff_usb_vid(void);
+void proto_reg_handoff_usb_vid(void);
+
 /* protocols and header fields */
 static int proto_usb_vid = -1;
 

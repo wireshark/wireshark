@@ -97,6 +97,13 @@
 #define VXI11_CORE_PROGRAM 0x0607AF
 #define VXI11_CORE_VERSION 1
 
+void proto_register_vxi11_core(void);
+void proto_reg_handoff_vxi11_core(void);
+void proto_register_vxi11_async(void);
+void proto_reg_handoff_vxi11_async(void);
+void proto_register_vxi11_intr(void);
+void proto_reg_handoff_vxi11_intr(void);
+
 static int proto_vxi11_core = -1;
 
 static gint ett_vxi11_core = -1;

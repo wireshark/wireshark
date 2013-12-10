@@ -35,6 +35,9 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 
+void proto_register_vrrp(void);
+void proto_reg_handoff_vrrp(void);
+
 static gint proto_vrrp = -1;
 static gint ett_vrrp = -1;
 static gint ett_vrrp_ver_type = -1;

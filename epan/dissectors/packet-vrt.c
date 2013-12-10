@@ -32,6 +32,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_vrt(void);
+
 static gint dissector_port_pref = 4991;
 
 static int proto_vrt = -1;

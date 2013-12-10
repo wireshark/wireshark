@@ -61,6 +61,9 @@
 #define FLAG_BIT6       0x40
 #define FLAG_BIT7       0x80
 
+void proto_register_wai(void);
+void proto_reg_handoff_wai(void);
+
 static reassembly_table wai_reassembly_table;
 
 static dissector_handle_t wai_handle;

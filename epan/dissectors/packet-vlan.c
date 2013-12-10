@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 
 void proto_reg_handoff_vlan(void);
+void proto_reg_handoff_vlan(void);
 
 static unsigned int q_in_q_ethertype = 0x9100;
 

@@ -43,6 +43,9 @@
 
 #define UDP_PORT_TZSP   0x9090
 
+void proto_register_tzsp(void);
+void proto_reg_handoff_tzsp(void);
+
 static int proto_tzsp = -1;
 static int hf_tzsp_version = -1;
 static int hf_tzsp_type = -1;

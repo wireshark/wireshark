@@ -48,6 +48,7 @@
 
 #include "packet-uaudp.h"
 
+void proto_register_uasip(void);
 void proto_reg_handoff_uasip(void);
 
 static tap_struct_uaudp ua_tap_info;

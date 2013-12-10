@@ -70,6 +70,9 @@
 #include "packet-tcp.h"
 #include "packet-rrc.h"
 
+void proto_register_uma(void);
+void proto_reg_handoff_uma(void);
+
 /* Length field is 2 bytes and comes first */
 #define UMA_HEADER_SIZE 2
 static gboolean uma_desegment = TRUE;

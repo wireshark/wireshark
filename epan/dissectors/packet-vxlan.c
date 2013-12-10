@@ -31,7 +31,8 @@
 
 #include <epan/packet.h>
 
-
+void proto_register_vxlan(void);
+void proto_reg_handoff_vxlan(void);
 
 static int proto_vxlan = -1;
 

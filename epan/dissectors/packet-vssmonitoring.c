@@ -48,6 +48,8 @@ static const value_string clksrc_vals[] = {
   { 0,                  NULL }
 };
 
+void proto_register_vssmonitoring(void);
+void proto_reg_handoff_vssmonitoring(void);
 
 static int proto_vssmonitoring = -1;
 

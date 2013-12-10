@@ -33,6 +33,8 @@
 
 #include "packet-uaudp.h"
 
+void proto_register_uaudp(void);
+
 /* GLOBALS */
 
 #if 0

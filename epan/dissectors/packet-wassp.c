@@ -51,6 +51,9 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 
+void proto_register_wassp(void);
+void proto_reg_handoff_wassp(void);
+
 /* protocol handles */
 static int proto_wassp = -1;
 

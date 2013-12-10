@@ -51,6 +51,9 @@
 #define UDT_HANDSHAKE_TYPE_STREAM	0
 #define UDT_HANDSHAKE_TYPE_DGRAM	1
 
+void proto_register_udt(void);
+void proto_reg_handoff_udt(void);
+
 static const value_string udt_packet_types[] = {
 	{UDT_PACKET_TYPE_HANDSHAKE, "handshake"},
 	{UDT_PACKET_TYPE_KEEPALIVE, "keepalive"},

@@ -37,6 +37,9 @@
 #pragma warning(disable:4090)
 #endif
 
+void proto_register_user_encap(void);
+void proto_reg_handoff_user_encap(void);
+
 typedef struct _user_encap_t {
     guint encap;
     char* payload_proto_name;

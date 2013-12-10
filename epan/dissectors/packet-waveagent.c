@@ -43,6 +43,9 @@
 #define WA_V2_PAYLOAD_OFFSET    40
 #define WA_V3_PAYLOAD_OFFSET    44
 
+void proto_register_waveagent(void);
+void proto_reg_handoff_waveagent(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_waveagent = -1;
 static int hf_waveagent_controlword = -1;

@@ -45,6 +45,9 @@
 #define	TLV_TYPE	0
 #define	TLV_LENGTH	2
 
+void proto_register_udld(void);
+void proto_reg_handoff_udld(void);
+
 static int proto_udld = -1;
 static int hf_udld_version = -1;
 static int hf_udld_opcode = -1;

@@ -29,6 +29,8 @@
 
 #define DEFAULT_UDP_PORT 11273
 
+void proto_register_vuze_dht(void);
+
 /* --- protocol specification:
  * http://wiki.vuze.com/w/Distributed_hash_table
  */

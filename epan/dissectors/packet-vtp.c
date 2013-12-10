@@ -36,6 +36,8 @@
  *
  * for some information on VTP.
  */
+void proto_register_vtp(void);
+void proto_reg_handoff_vtp(void);
 
 static int proto_vtp = -1;
 static int hf_vtp_version = -1;

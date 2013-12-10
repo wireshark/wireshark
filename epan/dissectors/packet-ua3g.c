@@ -33,7 +33,8 @@
 #include "epan/wmem/wmem.h"
 #include "packet-uaudp.h"
 
-
+void proto_register_ua3g(void);
+void proto_reg_handoff_ua3g(void);
 /*-----------------------------------------------------------------------------
     Globals
     ---------------------------------------------------------------------------*/
