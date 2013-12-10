@@ -1490,13 +1490,13 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
     else if (descriptor_type == CS_INTERFACE)
     {
-        if (usb_conv_info->interfaceSubclass == SC_VIDEOCONTROL)
+        if (usb_conv_info && usb_conv_info->interfaceSubclass == SC_VIDEOCONTROL)
         {
             offset = dissect_usb_video_control_interface_descriptor(tree, desc_tvb,
                                                                     descriptor_len,
                                                                     pinfo, usb_conv_info);
         }
-        else if (usb_conv_info->interfaceSubclass == SC_VIDEOSTREAMING)
+        else if (usb_conv_info && usb_conv_info->interfaceSubclass == SC_VIDEOSTREAMING)
         {
             offset = dissect_usb_video_streaming_interface_descriptor(tree, desc_tvb,
                                                                       descriptor_len);
@@ -1601,6 +1601,9 @@ get_control_selector_values(guint8 entity_id, usb_conv_info_t *usb_conv_info)
     video_conv_info_t      *video_conv_info;
     video_entity_t         *entity = NULL;
     const value_string_ext *selectors = NULL;
+
+    if (usb_conv_info == NULL)
+        return NULL;
 
     video_conv_info = (video_conv_info_t *)usb_conv_info->class_data;
     if (video_conv_info)
@@ -1994,11 +1997,17 @@ static int
 dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gboolean is_request = (pinfo->srcport == NO_ENDPOINT);
-    usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
-    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_conv_info_t  *usb_conv_info;
+    usb_trans_info_t *usb_trans_info;
     int offset = 0;
     usb_setup_dissector dissector = NULL;
     const usb_setup_dissector_table_t *tmp;
+
+    /* Reject the packet if data or usb_trans_info are NULL */
+    if (data == NULL || ((usb_conv_info_t *)data)->usb_trans_info == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     /* See if we can find a class specific dissector for this request */
     for (tmp=setup_dissectors; tmp->dissector; tmp++)
