@@ -216,7 +216,7 @@ add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
 		rtr_offset = offset + (i << 2);
 		tvb_memcpy(tvb, (guint8 *)&router, rtr_offset, 4);
 		if (router != 0) {
-            /* XXX - proto_tree_add_item with FT_IPXNET type? */
+			/* XXX - proto_tree_add_item with FT_IPXNET type? */
 			proto_tree_add_text(tree, tvb, rtr_offset, 4,
 			    "IPX Network: %s",
 			    ipxnet_to_string((guint8*)&router));
@@ -238,7 +238,12 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	int		name_type;
 	gboolean	has_payload;
 	tvbuff_t	*next_tvb;
-	ipxhdr_t *ipxh = (ipxhdr_t*)data;
+	ipxhdr_t *ipxh;
+
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	ipxh = (ipxhdr_t*)data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBIPX");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -560,7 +565,7 @@ proto_register_nbipx(void)
 			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-    };
+	};
 
 	static gint *ett[] = {
 		&ett_nbipx,
@@ -814,18 +819,19 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_nmpi(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "nmpi.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+/*
+	static hf_register_info hf[] = {
+		{ &variable,
+		{ "Name",           "nmpi.abbreviation", TYPE, VALS_POINTER }},
+	}; */
 	static gint *ett[] = {
 		&ett_nmpi,
 		&ett_nmpi_name_type_flags,
 	};
 
-        proto_nmpi = proto_register_protocol("Name Management Protocol over IPX",
+	proto_nmpi = proto_register_protocol("Name Management Protocol over IPX",
 	    "NMPI", "nmpi");
- /*       proto_register_field_array(proto_nmpi, hf, array_length(hf));*/
+	/*       proto_register_field_array(proto_nmpi, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

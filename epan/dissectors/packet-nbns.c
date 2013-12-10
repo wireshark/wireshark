@@ -1644,7 +1644,7 @@ dissect_continuation_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
+    struct tcpinfo *tcpinfo;
     int             offset  = 0;
     int             max_data;
     guint8	    msg_type;
@@ -1652,6 +1652,11 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     guint32	    length;
     int             len;
     gboolean        is_cifs;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    tcpinfo = (struct tcpinfo *)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
     col_clear(pinfo->cinfo, COL_INFO);

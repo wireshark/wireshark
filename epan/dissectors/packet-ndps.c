@@ -4516,6 +4516,10 @@ dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree      *ndps_tree;
     proto_item      *ti;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
     col_clear(pinfo->cinfo, COL_INFO);
