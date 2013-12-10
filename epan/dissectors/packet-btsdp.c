@@ -3344,7 +3344,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 first = 0;
             }
 
-            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, uuid, service_did_vendor_id, service_did_vendor_id_source, service_info, &substr);
+            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid, service_did_vendor_id, service_did_vendor_id_source, service_info, &substr);
             if (size < 1) {
                 break;
             }
