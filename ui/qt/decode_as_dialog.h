@@ -44,7 +44,7 @@ class DecodeAsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DecodeAsDialog(QWidget *parent = 0, capture_file *cf = NULL);
+    explicit DecodeAsDialog(QWidget *parent = 0, capture_file *cf = NULL, bool create_new = false);
     ~DecodeAsDialog();
 
 public slots:

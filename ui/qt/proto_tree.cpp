@@ -157,7 +157,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 }
 
 ProtoTree::ProtoTree(QWidget *parent) :
-    QTreeWidget(parent)
+    QTreeWidget(parent),
+    decode_as_(NULL)
 {
     QMenu *submenu, *subsubmenu;
 
@@ -232,7 +233,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
 //    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"
 //    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
     ctx_menu_.addSeparator();
-//    "     <menuitem name='DecodeAs' action='/DecodeAs'/>\n"
+    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+    ctx_menu_.addAction(decode_as_);
 //    "     <menuitem name='DisableProtocol' action='/DisableProtocol'/>\n"
 //    "     <menuitem name='ResolveName' action='/ResolveName'/>\n"
 //    "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
@@ -252,7 +254,9 @@ void ProtoTree::clear() {
 
 void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 {
+    decode_as_->setData(qVariantFromValue(true));
     ctx_menu_.exec(event->globalPos());
+    decode_as_->setData(QVariant());
 }
 
 void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {

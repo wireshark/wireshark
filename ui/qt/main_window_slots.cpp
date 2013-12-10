@@ -886,8 +886,6 @@ void MainWindow::setMenusForSelectedPacket()
 //                         frame_selected ? is_udp : FALSE);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/PN-CBA",
 //                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
-//                         frame_selected && decode_as_ok());
 
 //    if (properties) {
 //        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev");
@@ -903,8 +901,6 @@ void MainWindow::setMenusForSelectedPacket()
 
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences",
 //                             properties);
-//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DecodeAs",
-//                         frame_selected && decode_as_ok());
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
 //                         frame_selected);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ApplyAsFilter",
@@ -920,8 +916,6 @@ void MainWindow::setMenusForSelectedPacket()
 //                         frame_selected ? is_udp : FALSE);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
 //                         frame_selected ? is_ssl : FALSE);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
-//                         frame_selected && decode_as_ok());
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
@@ -1713,7 +1707,13 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()
 {
-    DecodeAsDialog da_dialog(this, cap_file_);
+    QAction *da_action = qobject_cast<QAction*>(sender());
+    bool create_new = false;
+    if (da_action && da_action->data().toBool() == true) {
+        create_new = true;
+    }
+
+    DecodeAsDialog da_dialog(this, cap_file_, create_new);
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             &da_dialog, SLOT(setCaptureFile(capture_file*)));
     da_dialog.exec();

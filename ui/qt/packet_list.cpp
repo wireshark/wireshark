@@ -224,6 +224,7 @@ PacketList::PacketList(QWidget *parent) :
     proto_tree_(NULL),
     byte_view_tab_(NULL),
     cap_file_(NULL),
+    decode_as_(NULL),
     ctx_column_(-1)
 {
     QMenu *submenu, *subsubmenu;
@@ -372,7 +373,8 @@ PacketList::PacketList(QWidget *parent) :
 //    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
     ctx_menu_.addSeparator();
 //    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
-//    "     <menuitem name='DecodeAs' action='/DecodeAs'/>\n"
+    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+    ctx_menu_.addAction(decode_as_);
 //    "     <menuitem name='Print' action='/Print'/>\n"
 //    "     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
 
@@ -497,9 +499,11 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
             }
         }
     }
+    decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;
+    decode_as_->setData(QVariant());
     foreach (act, filter_actions_) {
         act->setEnabled(fa_enabled);
     }

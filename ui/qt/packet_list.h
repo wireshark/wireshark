@@ -67,6 +67,7 @@ private:
     QMenu ctx_menu_;
     QList<QMenu *> submenus_;
     QList<QAction *> filter_actions_;
+    QAction *decode_as_;
     int ctx_column_;
     RelatedPacketDelegate related_packet_delegate_;
 

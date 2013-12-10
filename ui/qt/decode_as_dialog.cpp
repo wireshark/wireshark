@@ -54,7 +54,7 @@ const char *default_int_selector_ = "0"; // Arbitrary
 const char *default_str_selector_ = "foo"; // Arbitrary
 const int max_name_em_width_ = 10; // Some table names are a tad long.
 
-DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf) :
+DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_new) :
     QDialog(parent),
     ui(new Ui::DecodeAsDialog),
     cap_file_(cf),
@@ -75,6 +75,8 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf) :
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(fillTable()));
     fillTable();
+
+    if (create_new) on_newToolButton_clicked();
 }
 
 DecodeAsDialog::~DecodeAsDialog()

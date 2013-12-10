@@ -47,6 +47,7 @@ protected:
 
 private:
      QMenu ctx_menu_;
+     QAction *decode_as_;
 
 signals:
     void protoItemSelected(QString &);
