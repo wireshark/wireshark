@@ -70,13 +70,13 @@ void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 void decode_clear_all(void);
 
 /** Open the "decode_as_entries" configuration file and write its header.
- * 
+ *
  * Entries should be written with decode_as_write_entry(). The file should
  * be closed with fclose().
  *
  * @return A valid FILE pointer on success, NULL on failure.
  */
-FILE *decode_as_open();
+FILE *decode_as_open(void);
 
 /** Write an entry to the "decode_as_entries" file.
  *

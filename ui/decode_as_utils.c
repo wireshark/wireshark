@@ -242,11 +242,11 @@ decode_clear_all(void)
 
 /* XXX - We might want to switch this to a UAT */
 FILE *
-decode_as_open() {
+decode_as_open(void) {
     char *pf_dir_path;
     char *daf_path;
     FILE *da_file;
-    
+
     if (create_persconffile_dir(&pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
