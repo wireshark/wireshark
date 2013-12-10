@@ -324,6 +324,7 @@ const value_string atn_pres_err[] =
 		{ 0,					NULL }
 };
 
+#if 0
 /* re-implementing external data: packet-per.c */
 static int	atn_ulcs_Externalt_encoding(
 		tvbuff_t *tvb _U_,
@@ -376,6 +377,7 @@ static guint32	atn_per_external_type(
 
 		return offset;
 }
+#endif
 
 /* determine 24-bit aircraft address(ARS) */
 /* from 20-byte ATN NSAP. */

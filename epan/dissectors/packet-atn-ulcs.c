@@ -1720,6 +1720,7 @@ const value_string atn_pres_err[] =
 		{ 0,					NULL }
 };
 
+#if 0
 /* re-implementing external data: packet-per.c */
 static int	atn_ulcs_Externalt_encoding(
 		tvbuff_t *tvb _U_,
@@ -1772,6 +1773,7 @@ static guint32	atn_per_external_type(
 
 		return offset;
 }
+#endif
 
 /* determine 24-bit aircraft address(ARS) */
 /* from 20-byte ATN NSAP. */
@@ -2498,7 +2500,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 813 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 815 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2578,7 +2580,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 863 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 865 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,
