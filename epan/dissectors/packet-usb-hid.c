@@ -762,18 +762,24 @@ static const value_string usb_hid_report_type_vals[] = {
 
 /* Dissector for HID class-specific control request as defined in
  * USBHID 1.11, Chapter 7.2.
- * Returns TRUE if a class specific dissector was found
- * and FALSE otherwise.
+ * Returns tvb_length(tvb) if a class specific dissector was found
+ * and 0 otherwise.
  */
 static gint
 dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gboolean is_request;
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
-    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_conv_info_t *usb_conv_info;
+    usb_trans_info_t *usb_trans_info;
     int offset = 0;
     usb_setup_dissector dissector;
     const usb_setup_dissector_table_t *tmp;
+
+    /* Reject the packet if data or usb_trans_info are NULL */
+    if (data == NULL || ((usb_conv_info_t *)data)->usb_trans_info == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     is_request = (pinfo->srcport==NO_ENDPOINT);
 
@@ -791,10 +797,10 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         }
     }
     /* No, we could not find any class specific dissector for this request
-     * return FALSE and let USB try any of the standard requests.
+     * return 0 and let USB try any of the standard requests.
      */
     if (!dissector) {
-        return FALSE;
+        return 0;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
@@ -809,7 +815,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
 
     dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
-    return TRUE;
+    return tvb_length(tvb);
 }
 
 /* dissect a descriptor that is specific to the HID class */

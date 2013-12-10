@@ -123,19 +123,24 @@ static const value_string setup_request_names_vals[] = {
 };
 
 /* Dissector for mass storage control .
- * Returns TRUE if a class specific dissector was found
- * and FALSE othervise.
+ * Returns tvb_length(tvb) if a class specific dissector was found
+ * and 0 othervise.
  */
 static gint
 dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gboolean is_request;
-    usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
-    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
+    usb_conv_info_t *usb_conv_info;
+    usb_trans_info_t *usb_trans_info;
     int offset=0;
     usb_setup_dissector dissector = NULL;
     const usb_setup_dissector_table_t *tmp;
 
+    /* Reject the packet if data or usb_trans_info are NULL */
+    if (data == NULL || ((usb_conv_info_t *)data)->usb_trans_info == NULL)
+        return 0;
+    usb_conv_info = (usb_conv_info_t *)data;
+    usb_trans_info = usb_conv_info->usb_trans_info;
 
     is_request=(pinfo->srcport==NO_ENDPOINT);
 
@@ -147,12 +152,11 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         }
     }
     /* No we could not find any class specific dissector for this request
-     * return FALSE and let USB try any of the standard requests.
+     * return 0 and let USB try any of the standard requests.
      */
     if(!dissector){
-        return FALSE;
+        return 0;
     }
-
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBMS");
 
@@ -166,7 +170,7 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
-    return TRUE;
+    return tvb_length(tvb);
 }
 
 
