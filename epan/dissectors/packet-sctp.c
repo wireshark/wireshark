@@ -62,6 +62,7 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/sctpppids.h>
+#include <epan/uat.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
@@ -471,6 +472,22 @@ static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
 
+/* Data types and functions for generation/handling of chunk types for chunk statistics */
+
+static const value_string chunk_enabled[] = {
+  {0,"Show"},
+  {1,"Hide"},
+  {0, NULL}
+};
+typedef struct _type_field_t {
+  guint type_id;
+  gchar* type_name;
+  guint type_enable;
+} type_field_t;
+
+static type_field_t* type_fields = NULL;
+static guint num_type_fields = 0;
+
 typedef struct _assoc_info_t {
   guint16 assoc_index;
   guint16 direction;
@@ -489,6 +506,58 @@ typedef struct _infodata_t {
 
 static GList *assoc_info_list = NULL;
 static guint num_assocs = 0;
+
+UAT_CSTRING_CB_DEF(type_fields, type_name, type_field_t)
+UAT_VS_DEF(type_fields, type_enable, type_field_t, guint, 0, "Show")
+UAT_DEC_CB_DEF(type_fields, type_id, type_field_t)
+
+static void *sctp_chunk_type_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+  type_field_t* new_rec = (type_field_t*)n;
+  const type_field_t* old_rec = (const type_field_t*)o;
+  if (old_rec->type_name) {
+    new_rec->type_name = g_strdup(old_rec->type_name);
+  } else {
+    new_rec->type_name = NULL;
+  }
+
+  return new_rec;
+}
+
+static void
+sctp_chunk_type_free_cb(void* r)
+{
+  type_field_t* rec = (type_field_t*)r;
+  if (rec->type_name) g_free(rec->type_name);
+}
+
+static void
+sctp_chunk_type_update_cb(void *r, const char **err)
+{
+  type_field_t *rec = (type_field_t *)r;
+  char c;
+  if (rec->type_name == NULL) {
+    *err = g_strdup("Header name can't be empty");
+    return;
+  }
+
+  g_strstrip(rec->type_name);
+  if (rec->type_name[0] == 0) {
+    *err = g_strdup("Header name can't be empty");
+    return;
+  }
+
+  /* Check for invalid characters (to avoid asserting out when
+  * registering the field).
+  */
+  c = proto_check_field_name(rec->type_name);
+  if (c) {
+    *err = g_strdup_printf("Header name can't contain '%c'", c);
+    return;
+  }
+
+  *err = NULL;
+}
 
 static struct _sctp_info sctp_info;
 
@@ -4592,9 +4661,33 @@ proto_register_sctp(void)
   static decode_as_t sctp_da_ppi = {"sctp", "Transport", "sctp.ppi", 2, 0, sctp_da_ppi_values, "SCTP", NULL,
                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-
+  /* UAT for header fields */
+  static uat_field_t custom_types_uat_fields[] = {
+    UAT_FLD_NONE(type_fields, type_id, "Chunk ID", "IANA chunk type ID"),
+    UAT_FLD_CSTRING(type_fields, type_name, "Type name", "Chunk Type name"),
+    UAT_FLD_VS(type_fields, type_enable, "Visibility", chunk_enabled, "Hide or show the type in the chunk statistics"),
+    UAT_END_FIELDS
+  };
+  
   module_t *sctp_module;
   expert_module_t* expert_sctp;
+  uat_t* chunk_types_uat;
+  
+  chunk_types_uat = uat_new("Chunk types for the statistics dialog",
+                            sizeof(type_field_t),
+                            "statistics_chunk_types",
+                            TRUE,
+                            (void**) &type_fields,
+                            &num_type_fields,
+                            0,
+                            NULL,
+                            sctp_chunk_type_copy_cb,
+                            sctp_chunk_type_update_cb,
+                            sctp_chunk_type_free_cb,
+                            NULL,
+                            custom_types_uat_fields
+  );
+                            
 
   /* Register the protocol name and description */
   proto_sctp = proto_register_protocol("Stream Control Transmission Protocol", "SCTP", "sctp");
@@ -4632,6 +4725,10 @@ proto_register_sctp(void)
                          "Dissect upper layer protocols",
                          "Dissect upper layer protocols",
                          &enable_ulp_dissection);
+  prefs_register_uat_preference_qt(sctp_module, "statistics_chunk_types",
+                         "Select the chunk types for the statistics dialog",
+                         "Select the chunk types for the statistics dialog",
+                         chunk_types_uat);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
