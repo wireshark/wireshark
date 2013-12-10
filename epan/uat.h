@@ -472,6 +472,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 #define UAT_FLD_DEC(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
+#define UAT_FLD_NONE(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_NONE,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
 
 /*
  * HEX Macros,

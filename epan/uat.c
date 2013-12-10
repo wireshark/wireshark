@@ -232,6 +232,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     f->cb.tostr(rec,&fld_ptr,&fld_len,f->cbdata.tostr,f->fld_data);
 
     switch(f->mode){
+        case PT_TXTMOD_NONE:
         case PT_TXTMOD_ENUM:
         case PT_TXTMOD_FILENAME:
         case PT_TXTMOD_DIRECTORYNAME:

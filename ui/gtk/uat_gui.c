@@ -180,6 +180,7 @@ static char *fld_tostr(void *rec, uat_field_t *f) {
 	f->cb.tostr(rec, &ptr, &len, f->cbdata.tostr, f->fld_data);
 
 	switch(f->mode) {
+	    case PT_TXTMOD_NONE:
 		case PT_TXTMOD_STRING:
 		case PT_TXTMOD_ENUM:
 		case PT_TXTMOD_FILENAME:
@@ -352,6 +353,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				len = (unsigned) strlen(text);
 				break;
 			}
+			case PT_TXTMOD_NONE: break;
 			default:
 				g_assert_not_reached();
 				return FALSE;
@@ -526,6 +528,7 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 				ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, colnum, 1, 1);
 				break;
 
+			case PT_TXTMOD_NONE:
 			case PT_TXTMOD_STRING:
 			case PT_TXTMOD_HEXBYTES:
 				entry = gtk_entry_new();
@@ -534,7 +537,10 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 				}
 				g_ptr_array_add(dd->entries, entry);
 				ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, colnum, 1, 1);
-				dlg_set_activate(entry, bt_ok);
+				if (f[colnum].mode != PT_TXTMOD_NONE)
+					dlg_set_activate(entry, bt_ok);
+				else
+					gtk_editable_set_editable(GTK_EDITABLE(entry), FALSE);
 				break;
 
 			case PT_TXTMOD_ENUM: {

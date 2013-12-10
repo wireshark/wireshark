@@ -164,6 +164,7 @@ QString UatDialog::fieldString(guint row, guint column)
     field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
 
     switch(field->mode) {
+    case PT_TXTMOD_NONE:
     case PT_TXTMOD_STRING:
     case PT_TXTMOD_ENUM:
     case PT_TXTMOD_FILENAME:
@@ -291,6 +292,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
         saved_combo_idx_ = cur_combo_box_->currentIndex();
         break;
     }
+    case PT_TXTMOD_NONE: break;
     default:
         g_assert_not_reached();
         break;
