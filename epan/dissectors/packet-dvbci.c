@@ -35,6 +35,7 @@
 
 #include <glib.h>
 #include <epan/addr_resolv.h>
+#include <epan/charsets.h>
 #include <epan/circuit.h>
 #include <epan/packet.h>
 #include <epan/exported_pdu.h>
@@ -253,26 +254,6 @@
 
 /* used for answer_text_length, choice_nb and item_nb */
 #define NB_UNKNOWN 0xFF
-
-/* character tables, DVB-SI spec annex A.2 */
-#define CHAR_TBL_8859_5      0x01
-#define CHAR_TBL_8859_6      0x02
-#define CHAR_TBL_8859_7      0x03
-#define CHAR_TBL_8859_8      0x04
-#define CHAR_TBL_8859_9      0x05
-#define CHAR_TBL_8859_10     0x06
-#define CHAR_TBL_8859_11     0x07
-#define CHAR_TBL_8859_13     0x09
-#define CHAR_TBL_8859_14     0x0A
-#define CHAR_TBL_8859_15     0x0B
-#define CHAR_TBL_MULTI_BYTE  0x10
-#define CHAR_TBL_ENC_TYPE_ID 0x1F
-
-/* control codes for texts, DVB-SI spec annex A.1 */
-#define TEXT_CTRL_EMPH_ON   0x86
-#define TEXT_CTRL_EMPH_OFF  0x87
-#define TEXT_CTRL_CRLF      0x8A
-
 
 /* cam upgrade resource */
 #define CUP_DELAYED   0x0
@@ -963,10 +944,9 @@ static int hf_dvbci_close_mmi_delay = -1;
 static int hf_dvbci_disp_ctl_cmd = -1;
 static int hf_dvbci_mmi_mode = -1;
 static int hf_dvbci_disp_rep_id = -1;
-static int hf_dvbci_char_tbl = -1;
+static int hf_dvbci_mmi_char_tbl = -1;
 static int hf_dvbci_blind_ans = -1;
 static int hf_dvbci_ans_txt_len = -1;
-static int hf_dvbci_text_ctrl = -1;
 static int hf_dvbci_ans_id = -1;
 static int hf_dvbci_choice_nb = -1;
 static int hf_dvbci_choice_ref = -1;
@@ -1056,9 +1036,7 @@ static int hf_dvbci_info_valid = -1;
 static int hf_dvbci_info_ver_op_info = -1;
 static int hf_dvbci_cicam_onid = -1;
 static int hf_dvbci_cicam_id = -1;
-static int hf_dvbci_opp_char_tbl_multi = -1;
 static int hf_dvbci_opp_char_tbl = -1;
-static int hf_dvbci_enc_type_id = -1;
 static int hf_dvbci_sdt_rst_trusted = -1;
 static int hf_dvbci_eit_rst_trusted = -1;
 static int hf_dvbci_eit_pf_usage = -1;
@@ -1107,7 +1085,7 @@ static expert_field ei_dvbci_sb_value = EI_INIT;
 static expert_field ei_dvbci_spdu_cam_to_host = EI_INIT;
 static expert_field ei_dvbci_spdu_host_to_cam = EI_INIT;
 static expert_field ei_dvbci_network_id = EI_INIT;
-static expert_field ei_dvbci_dvbci_char_tbl = EI_INIT;
+static expert_field ei_dvbci_invalid_char_tbl = EI_INIT;
 static expert_field ei_dvbci_t_c_id = EI_INIT;
 static expert_field ei_dvbci_tpdu_status_tag = EI_INIT;
 static expert_field ei_dvbci_r_tpdu_tag = EI_INIT;
@@ -1373,27 +1351,6 @@ static const value_string dvbci_disp_rep_id[] = {
 static const value_string dvbci_blind_ans[] = {
     { VISIBLE_ANS, "visible" },
     { BLIND_ANS,   "blind" },
-    { 0, NULL }
-};
-static const value_string dvbci_text_ctrl[] = {
-    { TEXT_CTRL_EMPH_ON,  "character emphasis on" },
-    { TEXT_CTRL_EMPH_OFF, "character emphasis off" },
-    { TEXT_CTRL_CRLF,     "CR/LF" },
-    { 0, NULL }
-};
-static const value_string dvbci_char_tbl[] = {
-    { CHAR_TBL_8859_5,      "ISO/IEC 8859-5 (Latin/Cyrillic)" },
-    { CHAR_TBL_8859_6,      "ISO/IEC 8859-6 (Latin/Arabic)" },
-    { CHAR_TBL_8859_7,      "ISO/IEC 8859-7 (Latin/Greek)" },
-    { CHAR_TBL_8859_8,      "ISO/IEC 8859-8 (Latin/Hebrew)" },
-    { CHAR_TBL_8859_9,      "ISO/IEC 8859-9 (Latin No. 5)" },
-    { CHAR_TBL_8859_10,     "ISO/IEC 8859-10 (Latin No. 6)" },
-    { CHAR_TBL_8859_11,     "ISO/IEC 8859-11 (Latin/Thai)" },
-    { CHAR_TBL_8859_13,     "ISO/IEC 8859-13 (Latin No. 7)" },
-    { CHAR_TBL_8859_14,     "ISO/IEC 8859-14 (Latin No. 8 (Celtic))" },
-    { CHAR_TBL_8859_15,     "ISO/IEC 8859-15 (Latin No. 9)" },
-    { CHAR_TBL_ENC_TYPE_ID, "defined by encoding_type_id" },
-    /* don't add any multi-byte tables (>= 0x10) */
     { 0, NULL }
 };
 static const value_string dvbci_ans_id[] = {
@@ -2255,8 +2212,9 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
         packet_info *pinfo, proto_tree *tree, const gchar *title,
         gboolean show_col_info)
 {
-    guint8      byte0;
-    guint8     *si_str = NULL;
+    guint           enc_len;
+    dvb_encoding_e  encoding;
+    guint8         *si_str = NULL;
 
     if (!title)  /* we always have a title for our strings */
         return;
@@ -2264,28 +2222,14 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
     if (str_len<=0)
         return;
 
-    byte0 = tvb_get_guint8(tvb, offset);
-    if (byte0>=0x01 && byte0<=0x0F) {
-        proto_tree_add_item(tree, hf_dvbci_char_tbl, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        str_len--;
-    }
-    else if (byte0>=0x10 && byte0 <= 0x1F) {
-        proto_tree_add_expert(tree, pinfo, &ei_dvbci_dvbci_char_tbl, tvb, offset, 1);
-        offset++;
-        str_len--;
-        proto_tree_add_text(tree, tvb, offset, str_len, "encoded text");
-        return;
-    }
-    /* for now, control characters are supported only at the beginning
-     * of a string (this should cover all cases found in practice) */
-    else if (byte0>=0x80 && byte0<=0x9F) {
-        proto_tree_add_item(tree, hf_dvbci_text_ctrl, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        str_len--;
-    }
+    enc_len = dvb_analyze_string_charset(tvb, offset, str_len, &encoding);
+    proto_tree_add_int(tree, hf_dvbci_mmi_char_tbl, tvb, offset, enc_len, encoding);
 
-    si_str = tvb_get_string(wmem_packet_scope(), tvb, offset, str_len);
+    offset += enc_len;
+    str_len -= enc_len;
+
+    si_str = tvb_get_string_enc(wmem_packet_scope(),
+            tvb, offset, str_len, dvb_enc_to_item_enc(encoding));
     if (!si_str)
         return;
 
@@ -2876,15 +2820,18 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    gint         offset_start;
-    guint8       close_mmi_cmd_id;
-    guint8       disp_ctl_cmd, disp_rep_id;
-    const gchar *disp_ctl_cmd_str = NULL, *disp_rep_id_str = NULL;
-    guint8       ans_txt_len;
-    guint8       ans_id;
-    guint8       choice_or_item_nb;
-    gint         text_len;
-    guint8       choice_ref;
+    gint            offset_start;
+    guint8          close_mmi_cmd_id;
+    guint8          disp_ctl_cmd, disp_rep_id;
+    const gchar    *disp_ctl_cmd_str = NULL, *disp_rep_id_str = NULL;
+    gint            msg_len;
+    guint           enc_len;
+    dvb_encoding_e  encoding;
+    guint8          ans_txt_len;
+    guint8          ans_id;
+    guint8          choice_or_item_nb;
+    gint            text_len;
+    guint8          choice_ref;
 
 
     offset_start = offset;
@@ -2943,10 +2890,17 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             }
             else if (disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL ||
                      disp_rep_id == DISP_REP_ID_INP_CHAR_TBL) {
-                while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                    proto_tree_add_item(tree, hf_dvbci_char_tbl,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
+                while ((msg_len=tvb_reported_length_remaining(tvb, offset)) > 0) {
+                    enc_len = dvb_analyze_string_charset(
+                            tvb, offset, msg_len, &encoding);
+                    if (enc_len==0) {
+                        proto_tree_add_expert(tree, pinfo,
+                            &ei_dvbci_invalid_char_tbl, tvb, offset, msg_len);
+                        break;
+                    }
+                    proto_tree_add_int(tree, hf_dvbci_mmi_char_tbl,
+                            tvb, offset, enc_len, encoding);
+                    offset += enc_len;
                  }
             }
             break;
@@ -3693,16 +3647,17 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint16     nit_loop_len, nit_loop_offset;
-    tvbuff_t   *nit_loop_tvb, *nit_loop_partial_tvb;
-    guint       dvb_nit_bytes;
-    guint8      table_id;
-    guint8      cap_loop_len;
-    gboolean    info_valid;
-    guint8      char_tbl;
-    guint8      desc_num;
-    guint8      sig_strength, sig_qual;
-    proto_item *pi;
+    guint16         nit_loop_len, nit_loop_offset;
+    tvbuff_t       *nit_loop_tvb, *nit_loop_partial_tvb;
+    guint           dvb_nit_bytes;
+    guint8          table_id;
+    guint8          cap_loop_len;
+    gboolean        info_valid;
+    guint           enc_len;
+    dvb_encoding_e  encoding;
+    guint8          desc_num;
+    guint8          sig_strength, sig_qual;
+    proto_item     *pi;
 
     switch(tag) {
         case T_OPERATOR_STATUS:
@@ -3755,24 +3710,19 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           proto_tree_add_item(tree, hf_dvbci_cicam_id,
                   tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
-          char_tbl = tvb_get_guint8(tvb, offset);
-          if (char_tbl==CHAR_TBL_MULTI_BYTE) {
-              /* we display this sligthly differently (i.e. clearer)
-                 than the CI+ specification ;-) */
-              proto_tree_add_item(tree, hf_dvbci_opp_char_tbl_multi,
-                  tvb, offset, 3, ENC_BIG_ENDIAN);
-              offset += 3;
+
+          enc_len = dvb_analyze_string_charset(tvb, offset,
+                  tvb_reported_length_remaining(tvb, offset), &encoding);
+          if (enc_len==0) {
+              proto_tree_add_expert(tree, pinfo,
+                      &ei_dvbci_invalid_char_tbl, tvb, offset,
+                      tvb_reported_length_remaining(tvb, offset));
+              break;
           }
-          else {
-              proto_tree_add_item(tree, hf_dvbci_opp_char_tbl,
-                      tvb, offset, 1, ENC_BIG_ENDIAN);
-              offset++;
-              if (char_tbl==CHAR_TBL_ENC_TYPE_ID) {
-                  proto_tree_add_item(tree, hf_dvbci_enc_type_id,
-                          tvb, offset, 1, ENC_BIG_ENDIAN);
-                  offset++;
-              }
-          }
+          proto_tree_add_int(tree, hf_dvbci_opp_char_tbl,
+                  tvb, offset, enc_len, encoding);
+          offset += enc_len;
+
           proto_tree_add_item(tree, hf_dvbci_sdt_rst_trusted,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           proto_tree_add_item(tree, hf_dvbci_eit_rst_trusted,
@@ -5330,9 +5280,9 @@ proto_register_dvbci(void)
           { "Reply ID", "dvb-ci.mmi.disp_rep_id",
             FT_UINT8, BASE_HEX, VALS(dvbci_disp_rep_id), 0, NULL, HFILL }
         },
-        { &hf_dvbci_char_tbl,
+        { &hf_dvbci_mmi_char_tbl,
           { "Character table", "dvb-ci.mmi.char_tbl",
-            FT_UINT8, BASE_HEX, VALS(dvbci_char_tbl), 0, NULL, HFILL }
+            FT_INT32, BASE_DEC, VALS(dvb_string_encoding_vals), 0, NULL, HFILL}
         },
         { &hf_dvbci_blind_ans,
           { "Blind answer flag", "dvb-ci.mmi.blind_ans",
@@ -5341,10 +5291,6 @@ proto_register_dvbci(void)
         { &hf_dvbci_ans_txt_len,
           { "Answer text length", "dvb-ci.mmi.ans_txt_len",
             FT_UINT8, BASE_DEC, NULL , 0, NULL, HFILL }
-        },
-        { &hf_dvbci_text_ctrl,
-          { "Text control code", "dvb-ci.mmi.text_ctrl",
-            FT_UINT8, BASE_HEX, VALS(dvbci_text_ctrl), 0, NULL, HFILL }
         },
         { &hf_dvbci_ans_id,
           { "Answer ID", "dvb-ci.mmi.ans_id",
@@ -5705,17 +5651,9 @@ proto_register_dvbci(void)
           { "CICAM ID", "dvb-ci.opp.cicam_id",
             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
-        { &hf_dvbci_opp_char_tbl_multi,
-          { "Multi-byte character table", "dvb-ci.opp.char_tbl_multi",
-            FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }
-        },
         { &hf_dvbci_opp_char_tbl,
-          { "Character code table", "dvb-ci.opp.char_tbl",
-            FT_UINT8, BASE_HEX, VALS(dvbci_char_tbl), 0, NULL, HFILL }
-        },
-        { &hf_dvbci_enc_type_id,
-          { "Encoding type ID", "dvb-ci.opp.enc_type_id",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+          { "Character table", "dvb-ci.opp.char_tbl",
+            FT_INT32, BASE_DEC, VALS(dvb_string_encoding_vals), 0, NULL, HFILL}
         },
         { &hf_dvbci_sdt_rst_trusted,
           { "SDT running status trusted", "dvb-ci.opp.sdt_rst_trusted",
@@ -5813,7 +5751,9 @@ proto_register_dvbci(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_dvbci_dvbci_char_tbl, { "dvb-ci.mmi.char_tbl.not_supported", PI_PROTOCOL, PI_WARN, "Character tables with multi-byte encoding are not supported", EXPFILL }},
+        { &ei_dvbci_invalid_char_tbl,
+            { "dvb-ci.invalid_char_tbl", PI_MALFORMED, PI_ERROR,
+                "Invalid character table", EXPFILL }},
         { &ei_dvbci_ca_pmt_cmd_id, { "dvb-ci.ca.ca_pmt_cmd_id.ca_pmt", PI_MALFORMED, PI_ERROR, "The ca_pmt shall only contain ca descriptors (tag 0x9)", EXPFILL }},
         { &ei_dvbci_bad_length, { "dvb-ci.bad_length", PI_MALFORMED, PI_ERROR, "Invalid APDU length field, %s must be a multiple of 4 bytes", EXPFILL }},
         { &ei_dvbci_network_id, { "dvb-ci.hc.nid.ignored", PI_PROTOCOL, PI_NOTE, "Network ID is usually ignored by hosts", EXPFILL }},
