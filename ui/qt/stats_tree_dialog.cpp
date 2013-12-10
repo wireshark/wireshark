@@ -50,6 +50,8 @@
 
 const int item_col_     = 0;
 
+const int expand_all_threshold_ = 100; // Arbitrary
+
 Q_DECLARE_METATYPE(stat_node *);
 
 class StatsTreeWidgetItem : public QTreeWidgetItem
@@ -224,6 +226,7 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
     if (!st || !st->cfg || !st->cfg->pr || !st->cfg->pr->st_dlg) return;
     StatsTreeDialog *st_dlg = st->cfg->pr->st_dlg;
     QTreeWidgetItemIterator iter(st_dlg->ui->statsTreeWidget);
+    int node_count = 0;
 
     while (*iter) {
         stat_node *node = (*iter)->data(item_col_, Qt::UserRole).value<stat_node *>();
@@ -233,13 +236,17 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
                 (*iter)->setText(count,valstrs[count]);
                 g_free(valstrs[count]);
             }
-            if (node->parent==(&st->root)) {
-                (*iter)->setExpanded(!(node->st_flags&ST_FLG_DEF_NOEXPAND));
-            }
+            (*iter)->setExpanded( (node->parent==(&st->root)) &&
+                                  (!(node->st_flags&ST_FLG_DEF_NOEXPAND)) );
             g_free(valstrs);
         }
+        node_count++;
         ++iter;
     }
+    if (node_count < expand_all_threshold_) {
+        st_dlg->ui->statsTreeWidget->expandAll();
+    }
+
     for (int count = 0; count<st->num_columns; count++) {
         st_dlg->ui->statsTreeWidget->resizeColumnToContents(count);
     }
