@@ -256,13 +256,13 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 }
 
 static int
-dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     return dissect_wol_pdu(tvb, pinfo, tree, data);
 }
 
 static gboolean
-dissect_wolheur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_wolheur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (dissect_wol_pdu(tvb, pinfo, tree, data) > 0)
         return TRUE;
