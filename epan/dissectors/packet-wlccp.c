@@ -68,6 +68,9 @@
 #include <epan/oui.h>
 #include "packet-llc.h"
 
+void proto_register_wlccp(void);
+void proto_reg_handoff_wlccp(void);
+void proto_register_wlccp_oui(void);
 
 /* The UDP port that WLCCP is expected to ride on */
 /* WLCCP also uses an LLC OUI type and an ethertype */

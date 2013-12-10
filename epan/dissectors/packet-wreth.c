@@ -27,6 +27,9 @@
 
 #define WRETH_PORT 0xAAAA
 
+void proto_register_wreth(void);
+void proto_reg_handoff_wreth(void);
+
 static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
 static gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);

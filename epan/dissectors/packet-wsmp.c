@@ -39,6 +39,9 @@
 #define DATARATE   0x10
 #define TRANSMITPW 0x04
 
+void proto_register_wsmp(void);
+void proto_reg_handoff_wsmp(void);
+
 static const value_string wsmp_elemenid_names[] = {
     { 0x80, "WSMP" },
     { 0x81, "WSMP-S" },
@@ -64,7 +67,7 @@ static int hf_wsmp_WSMP_S_data = -1;
     successive 1s in the most sig bits of the most sig octet. Taken
     from libwme
 */
-int wme_getpsidlen (guint8 *psid)
+static int wme_getpsidlen (guint8 *psid)
 {
     int length = 0;
     if ((psid[0] & 0xF0) == 0xF0) {

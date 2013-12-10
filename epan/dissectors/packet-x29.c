@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include <epan/nlpid.h>
 
+void proto_register_x29(void);
+void proto_reg_handoff_x29(void);
+
 static int proto_x29 = -1;
 static int hf_msg_code = -1;
 static int hf_error_type = -1;

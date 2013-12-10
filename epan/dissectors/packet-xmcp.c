@@ -43,6 +43,8 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
+void proto_register_xmcp(void);
+
 static dissector_table_t media_type_dissector_table;
 
 /* Initialize the protocol and registered fields */

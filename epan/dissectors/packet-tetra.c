@@ -9033,12 +9033,12 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
-		gint hf_channel[] = {
-		    hf_tetra_rxchannel1,
-		    hf_tetra_rxchannel2,
-		    hf_tetra_rxchannel3
-		};
 		gint byte_len, bits_len, remaining_bits;
+		gint hf_channel[3];
+
+		hf_channel[0] = hf_tetra_rxchannel1;
+		hf_channel[1] = hf_tetra_rxchannel2;
+		hf_channel[2] = hf_tetra_rxchannel3;
 
 		/* Channel type */
 		channel_type = (rxreg >> ((i + 1) * 4) ) & 0xf;
@@ -9063,7 +9063,7 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
-void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset)
+static void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset)
 {
 	guint32 txreg = 0;
 	guint32 channels = 0, i;
@@ -9093,8 +9093,12 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
-		gint hf_channel[] = {hf_tetra_channel1, hf_tetra_channel2, hf_tetra_channel3};
 		gint byte_len, bits_len, remaining_bits;
+		gint hf_channel[3];
+
+		hf_channel[0] = hf_tetra_channel1;
+		hf_channel[1] = hf_tetra_channel2;
+		hf_channel[2] = hf_tetra_channel3;
 
 		channel_type = txreg & 0xf;
 		proto_tree_add_uint( tetra_header_tree, hf_channel[i], tvb, offset, 4, channel_type);
@@ -11678,7 +11682,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 629 "../../asn1/tetra/packet-tetra-template.c"
+#line 633 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11963,7 +11967,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 639 "../../asn1/tetra/packet-tetra-template.c"
+#line 643 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {

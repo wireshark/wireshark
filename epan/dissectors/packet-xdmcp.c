@@ -52,6 +52,9 @@
 #define XDMCP_KEEPALIVE 13
 #define XDMCP_ALIVE 14
 
+void proto_register_xdmcp(void);
+void proto_reg_handoff_xdmcp(void);
+
 static const value_string opcode_vals[] = {
   { XDMCP_BROADCAST_QUERY, "Broadcast_query" },
   { XDMCP_QUERY, "Query" },

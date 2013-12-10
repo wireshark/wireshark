@@ -115,6 +115,9 @@
 #define MAX_WCP_BUF_LEN 2048		/* storage size for decompressed data */
 #define FROM_DCE	0x80		/* for direction setting */
 
+void proto_register_wcp(void);
+void proto_reg_handoff_wcp(void);
+
 typedef struct {
 
 	guint8  *buf_cur;

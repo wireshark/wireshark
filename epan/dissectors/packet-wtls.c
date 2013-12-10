@@ -39,6 +39,9 @@
 #include "packet-wap.h"
 #include "packet-wtls.h"
 
+void proto_register_wtls(void);
+void proto_reg_handoff_wtls(void);
+
 /* File scoped variables for the protocol and registered fields */
 static int proto_wtls = HF_EMPTY;
 

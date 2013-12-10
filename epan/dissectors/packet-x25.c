@@ -41,6 +41,9 @@
 #include <epan/x264_prt_id.h>
 #include <epan/lapd_sapi.h>
 
+void proto_register_x25(void);
+void proto_reg_handoff_x25(void);
+
 /*
  * Direction of packet.
  */

@@ -62,6 +62,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
+void proto_register_wol(void);
+void proto_reg_handoff_wol(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_wol = -1;
 static int hf_wol_sync = -1;

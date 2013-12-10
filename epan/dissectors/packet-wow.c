@@ -36,6 +36,9 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_wow(void);
+void proto_reg_handoff_wow(void);
+
 typedef enum {
 	AUTH_LOGON_CHALLENGE = 0x00,
 	AUTH_LOGON_PROOF     = 0x01,

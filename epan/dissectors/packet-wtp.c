@@ -42,6 +42,9 @@
 #include "packet-wtp.h"
 #include "packet-wsp.h"
 
+void proto_register_wtp(void);
+void proto_reg_handoff_wtp(void);
+
 static const true_false_string continue_truth = {
     "TPI Present" ,
     "No TPI"

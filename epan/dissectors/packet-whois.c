@@ -32,6 +32,7 @@
 
 #define WHOIS_PORT      43  /* This is the registered IANA port (nicname) */
 
+void proto_register_whois(void);
 void proto_reg_handoff_whois(void);
 
 static int proto_whois = -1;

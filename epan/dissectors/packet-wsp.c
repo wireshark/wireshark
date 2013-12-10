@@ -69,6 +69,12 @@
 
 /* Statistics (see doc/README.tapping) */
 #include <epan/tap.h>
+
+void proto_register_wsp(void);
+void proto_reg_handoff_wsp(void);
+void proto_register_sir(void);
+void proto_reg_handoff_sir(void);
+
 static int wsp_tap = -1;
 
 

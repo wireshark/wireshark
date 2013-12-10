@@ -32,6 +32,9 @@
 #include "packet-chdlc.h"
 #include "packet-ip.h"
 
+void proto_register_wfleet_hdlc(void);
+void proto_reg_handoff_wfleet_hdlc(void);
+
 static int proto_wfleet_hdlc = -1;
 static int hf_wfleet_hdlc_addr = -1;
 static int hf_wfleet_hdlc_cmd = -1;
