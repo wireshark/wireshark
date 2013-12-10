@@ -31,6 +31,9 @@
 #include <wiretap/wtap.h>
 #include <epan/etypes.h>
 
+void proto_register_symantec(void);
+void proto_reg_handoff_symantec(void);
+
 static dissector_table_t ethertype_dissector_table;
 
 /* protocols and header fields */

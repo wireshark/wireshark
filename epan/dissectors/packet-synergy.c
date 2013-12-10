@@ -32,8 +32,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_synergy(void);
 void proto_reg_handoff_synergy(void);
-
 
 static int proto_synergy = -1;
 

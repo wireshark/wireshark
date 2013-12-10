@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_reg_handoff_time(void);
+void proto_register_time(void);
 
 static const enum_val_t time_display_types[] = {
     { "UTC", "UTC", ABSOLUTE_TIME_UTC },

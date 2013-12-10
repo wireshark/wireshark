@@ -29,6 +29,9 @@
 #include "packet-rpc.h"
 #include "packet-stat-notify.h"
 
+void proto_register_statnotify(void);
+void proto_reg_handoff_statnotify(void);
+
 static int proto_statnotify = -1;
 static int hf_statnotify_procedure_v1 = -1;
 static int hf_statnotify_name = -1;

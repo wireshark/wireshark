@@ -40,6 +40,9 @@
 #include "packet-tn3270.h"
 #include "packet-tn5250.h"
 
+void proto_reg_handoff_telnet(void);
+void proto_register_telnet(void);
+
 static int proto_telnet = -1;
 static int hf_telnet_cmd = -1;
 static int hf_telnet_subcmd = -1;

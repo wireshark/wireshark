@@ -38,6 +38,9 @@
 #include <epan/packet.h>
 #include <packet-tcp.h>
 
+void proto_register_turnchannel(void);
+void proto_reg_handoff_turnchannel(void);
+
 /* heuristic subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
 

@@ -42,6 +42,8 @@
 
 #include "packet-tcp.h"
 
+void proto_register_tipc(void);
+
 static int proto_tipc = -1;
 
 /* dissector handles */

@@ -38,6 +38,9 @@
 
 #define BASE58_MAX_STR_SIZE 13
 
+void proto_reg_handoff_tfp(void);
+void proto_register_tfp(void);
+
 /* variables for creating the tree */
 static gint proto_tfp = -1;
 static gint ett_tfp = -1;

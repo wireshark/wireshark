@@ -35,6 +35,8 @@
  * For a full documentation of the Time Synchronization Protocol (TSP) see:
  * http://docs.freebsd.org/44doc/smm/12.timed/paper.pdf
  */
+void proto_register_tsp(void);
+void proto_reg_handoff_tsp(void);
 
 static int proto_tsp = -1;
 static int hf_tsp_type = -1;

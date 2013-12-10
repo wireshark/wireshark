@@ -45,6 +45,9 @@
 #define ALGO_RFC2507 1
 #define ALGO_ROHC 2
 
+void proto_register_sndcp_xid(void);
+void proto_reg_handoff_sndcp_xid(void);
+
 static const value_string sndcp_xid_dcomp_algo_str[] = {
 	{0x0, "V.42 bis"},
 	{0x1, "V.44"},

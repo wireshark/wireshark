@@ -31,6 +31,10 @@
 #include <epan/stream.h>
 #include <epan/crc16-tvb.h>
 
+void proto_register_srp(void);
+void proto_register_ccsrl(void);
+void proto_reg_handoff_srp(void);
+
 /* Wireshark ID of the protocols */
 static int proto_srp = -1;
 static int proto_ccsrl = -1;

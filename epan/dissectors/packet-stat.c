@@ -34,6 +34,9 @@
 #include "packet-rpc.h"
 #include "packet-stat.h"
 
+void proto_register_stat(void);
+void proto_reg_handoff_stat(void);
+
 static header_field_info *hfi_stat = NULL;
 
 #define STAT_HFI_INIT HFI_INIT(proto_stat)

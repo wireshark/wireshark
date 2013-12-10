@@ -47,6 +47,9 @@
 #include <packet-tcp.h>
 #include <packet-udp.h>
 
+void proto_register_stun(void);
+void proto_reg_handoff_stun(void);
+
 /* heuristic subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
 

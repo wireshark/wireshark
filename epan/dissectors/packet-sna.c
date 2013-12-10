@@ -40,6 +40,8 @@
  * ftp://ftp.software.ibm.com/networking/pub/standards/aiw/formats/
  *
  */
+void proto_register_sna(void);
+void proto_reg_handoff_sna(void);
 
 static int proto_sna = -1;
 static int proto_sna_xid = -1;

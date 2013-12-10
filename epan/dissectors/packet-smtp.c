@@ -50,6 +50,9 @@
 /* RFC 4409 */
 #define TCP_PORT_SUBMISSION 587
 
+void proto_register_smtp(void);
+void proto_reg_handoff_smtp(void);
+
 static int proto_smtp = -1;
 
 static int hf_smtp_req = -1;

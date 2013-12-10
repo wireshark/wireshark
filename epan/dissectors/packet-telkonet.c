@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_reg_handoff_telkonet(void);
+void proto_register_telkonet(void);
+
 static int proto_telkonet = -1;
 static int hf_telkonet_type = -1;
 

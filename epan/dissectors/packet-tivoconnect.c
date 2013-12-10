@@ -47,6 +47,7 @@
 
 /* Forward declaration we need below */
 void proto_reg_handoff_tivoconnect(void);
+void proto_register_tivoconnect(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_tivoconnect = -1;

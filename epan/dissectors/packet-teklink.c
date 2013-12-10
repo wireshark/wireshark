@@ -29,6 +29,9 @@
 
 #define PROGRAM_TEKLINK 0x20400034
 
+void proto_reg_handoff_teklink(void);
+void proto_register_teklink(void);
+
 static int proto_teklink = -1;
 static int hf_teklink_procedure = -1;
 static int hf_teklink_unknown_long = -1;

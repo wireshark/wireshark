@@ -33,6 +33,8 @@
 
 #include <epan/prefs.h>
 
+void proto_register_tns(void);
+
 /* desegmentation of TNS over TCP */
 static gboolean tns_desegment = TRUE;
 

@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
+void proto_register_tuxedo(void);
+void proto_reg_handoff_tuxedo(void);
+
 static int proto_tuxedo = -1;
 static int hf_tuxedo_magic = -1;
 static int hf_tuxedo_opcode = -1;

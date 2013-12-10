@@ -88,6 +88,9 @@
 #define ATT_OEM_CODEPAGE              (0x00069007) /* handled */
 #define ATT_ORIGINAL_MESSAGE_CLASS    (0x00079008) /* handled */
 
+void proto_register_tnef(void);
+void proto_reg_handoff_tnef(void);
+
 static int proto_tnef = -1;
 
 static int hf_tnef_signature = -1;

@@ -51,6 +51,8 @@
 #include <epan/range.h>
 #include <epan/prefs.h>
 
+void proto_register_tftp(void);
+
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
 	guint16 blocksize;

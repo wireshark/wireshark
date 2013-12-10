@@ -39,6 +39,9 @@
 
 #include "packet-tte.h"
 
+void proto_register_tte(void);
+void proto_reg_handoff_tte(void);
+
 static dissector_handle_t ethertype_handle;
 
 /* Initialize the protocol and registered fields */

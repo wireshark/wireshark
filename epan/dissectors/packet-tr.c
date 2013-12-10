@@ -36,6 +36,9 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_tr(void);
+void proto_reg_handoff_tr(void);
+
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
 static int hf_tr_src = -1;

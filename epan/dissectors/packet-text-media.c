@@ -44,6 +44,8 @@
  *
  * TODO - character set and chunked transfer-coding
  */
+void proto_register_text_lines(void);
+void proto_reg_handoff_text_lines(void);
 
 /* Filterable header fields */
 static gint proto_text_lines = -1;

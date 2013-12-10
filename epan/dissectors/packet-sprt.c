@@ -45,6 +45,8 @@
 
 #include "packet-sprt.h"
 
+void proto_register_sprt(void);
+void proto_reg_handoff_sprt(void);
 
 /* for some "range_string"s, there's only one value in the range  */
 #define SPRT_VALUE_RANGE(a) a,a

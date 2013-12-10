@@ -67,6 +67,12 @@
 #include <epan/expert.h>
 #include "packet-tacacs.h"
 
+void proto_reg_handoff_tacacs(void);
+void proto_register_tacacs(void);
+
+void proto_reg_handoff_tacplus(void);
+void proto_register_tacplus(void);
+
 static void md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
 
 static int proto_tacacs = -1;

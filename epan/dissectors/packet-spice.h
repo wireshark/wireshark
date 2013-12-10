@@ -713,7 +713,7 @@ enum {
     SPICE_MSG_WAIT_FOR_CHANNELS,
     SPICE_MSG_DISCONNECTING,
     SPICE_MSG_NOTIFY,
-    SPICE_MSG_LIST,
+    SPICE_MSG_LIST
 };
 
 static const value_string spice_msg_vs[] =  {
@@ -734,7 +734,7 @@ enum {
     SPICE_MSGC_PONG,
     SPICE_MSGC_MIGRATE_FLUSH_MARK,
     SPICE_MSGC_MIGRATE_DATA,
-    SPICE_MSGC_DISCONNECTING,
+    SPICE_MSGC_DISCONNECTING
 };
 
 static const value_string spice_msgc_vs[] =  {

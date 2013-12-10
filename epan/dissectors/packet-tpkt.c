@@ -41,6 +41,9 @@
 
 #include "packet-tpkt.h"
 
+void proto_register_tpkt(void);
+void proto_reg_handoff_tpkt(void);
+
 /* TPKT header fields             */
 static int proto_tpkt          = -1;
 static protocol_t *proto_tpkt_ptr;

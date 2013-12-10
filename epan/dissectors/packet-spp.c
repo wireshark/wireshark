@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include "packet-idp.h"
 
+void proto_register_spp(void);
+void proto_reg_handoff_spp(void);
+
 static int proto_spp = -1;
 static int hf_spp_connection_control = -1;
 static int hf_spp_connection_control_sys = -1;

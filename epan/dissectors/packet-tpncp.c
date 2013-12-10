@@ -61,6 +61,9 @@
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
+void proto_register_tpncp(void);
+void proto_reg_handoff_tpncp(void);
+
 /* The linked list for storing information about specific data fields. */
 typedef struct tpncp_data_field_info
 {

@@ -50,6 +50,9 @@
 #include "packet-tcp.h"
 #include <epan/expert.h>
 
+void proto_register_srvloc(void);
+void proto_reg_handoff_srvloc(void);
+
 static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;
 static int hf_srvloc_version = -1;

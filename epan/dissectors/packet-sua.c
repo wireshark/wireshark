@@ -41,6 +41,9 @@
 #include "packet-sccp.h"
 #include <epan/wmem/wmem.h>
 
+void proto_register_sua(void);
+void proto_reg_handoff_sua(void);
+
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 #define SCTP_PORT_SUA          14001
 

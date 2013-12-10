@@ -40,6 +40,9 @@ Specs:
 #include <epan/ipproto.h>
 #include "packet-ip.h"
 
+void proto_reg_handoff_tapa(void);
+void proto_register_tapa(void);
+
 /* protocol handles */
 static int proto_tapa = -1;
 

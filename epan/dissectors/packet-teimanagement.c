@@ -37,6 +37,9 @@
  * http://www.acacia-net.com/Clarinet/Protocol/q9213o84.htm
  */
 
+void proto_reg_handoff_teimanagement(void);
+void proto_register_teimanagement(void);
+
 static int proto_tei=-1;
 
 static int lm_entity_id=-1;

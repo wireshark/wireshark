@@ -63,6 +63,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_ssh(void);
+void proto_reg_handoff_ssh(void);
+
 /* SSH Version 1 definition , from openssh ssh1.h */
 #define SSH1_MSG_NONE			0	/* no message */
 #define SSH1_MSG_DISCONNECT		1	/* cause (string) */

@@ -29,6 +29,9 @@
 #include "packet-rpc.h"
 #include "packet-spray.h"
 
+void proto_register_spray(void);
+void proto_reg_handoff_spray(void);
+
 static int proto_spray = -1;
 static int hf_spray_procedure_v1 = -1;
 static int hf_spray_sprayarr = -1;

@@ -37,6 +37,9 @@
 #define TYPE_2_LEN 12
 #define TYPE_3_LEN 19
 
+void proto_register_sync(void);
+void proto_reg_handoff_sync(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_sync = -1;
 static int hf_sync_type = -1;

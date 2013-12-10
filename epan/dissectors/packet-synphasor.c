@@ -40,6 +40,7 @@
 #define PROTOCOL_ABBREV	    "synphasor"
 
 /* forward references */
+void proto_register_synphasor(void);
 void proto_reg_handoff_synphasor(void);
 
 /* global variables */

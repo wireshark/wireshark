@@ -31,6 +31,9 @@
 #include <prefs.h>
 #include "packet-sscop.h"
 
+void proto_register_sscop(void);
+void proto_reg_handoff_sscop(void);
+
 int proto_sscop = -1;
 
 static int hf_sscop_type = -1;

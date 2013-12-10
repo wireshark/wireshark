@@ -37,6 +37,9 @@
 #define MASK_T      0x20
 #define MASK_M      0x10
 
+void proto_register_sndcp(void);
+void proto_reg_handoff_sndcp(void);
+
 /* Initialize the protocol and registered fields
 */
 static int proto_sndcp       = -1;

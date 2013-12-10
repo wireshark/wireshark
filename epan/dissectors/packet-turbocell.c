@@ -62,6 +62,9 @@
             "connected stations / satellites ?", HFILL } \
         }
 
+void proto_register_turbocell(void);
+void proto_reg_handoff_turbocell(void);
+
 /* Initialize the protocol and registered fields */
 
 static int proto_turbocell = -1;

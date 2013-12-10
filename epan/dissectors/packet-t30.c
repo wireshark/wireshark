@@ -37,6 +37,8 @@
 #include "packet-t38.h"
 #include "packet-t30.h"
 
+void proto_reg_handoff_t30(void);
+
 /* T30 */
 static int proto_t30 = -1;
 static int hf_t30_Address = -1;

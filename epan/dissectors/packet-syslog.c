@@ -43,6 +43,9 @@
 #define PRIORITY_MASK 0x0007  /* 0000 0111 */
 #define FACILITY_MASK 0x03f8  /* 1111 1000 */
 
+void proto_reg_handoff_syslog(void);
+void proto_register_syslog(void);
+
 /* The maximum number if priority digits to read in. */
 #define MAX_DIGITS 3
 

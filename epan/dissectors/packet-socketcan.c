@@ -46,6 +46,8 @@
 #define CAN_ERR_FLAG 0x20000000U /* error frame */
 #define CAN_EFF_MASK 0x1FFFFFFFU /* extended frame format (EFF) */
 
+void proto_register_socketcan(void);
+void proto_reg_handoff_socketcan(void);
 
 static int hf_can_len = -1;
 static int hf_can_ident = -1;

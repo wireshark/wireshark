@@ -417,6 +417,9 @@ static const value_string tds_data_type_names[] = {
     {0, NULL }
 };
 
+void proto_reg_handoff_tds(void);
+void proto_register_tds(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_tds = -1;
 static int hf_tds_type = -1;

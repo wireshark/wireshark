@@ -38,6 +38,9 @@
 
 #include "packet-tte.h"
 
+void proto_register_tte_pcf(void);
+void proto_reg_handoff_tte_pcf(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_tte_pcf = -1;
 

@@ -93,6 +93,9 @@
 #define CHAP_AUTHENTICATION         3
 #define AUTHENTICATION_FAILED       0xff
 
+void proto_register_socks(void);
+void proto_reg_handoff_socks(void);
+
 /*********** Header field identifiers *************/
 
 static int proto_socks = -1;

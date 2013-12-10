@@ -35,6 +35,9 @@
 #define TDMOE_YELLOW_ALARM_BITMASK 0x01
 #define TDMOE_SIGBITS_BITMASK      0x02
 
+void proto_reg_handoff_tdmoe(void);
+void proto_register_tdmoe(void);
+
 /* protocols and header fields */
 static int proto_tdmoe = -1;
 

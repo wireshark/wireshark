@@ -30,6 +30,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_sscf(void);
+void proto_reg_handoff_sscf(void);
+
 static int proto_sscf = -1;
 
 static gint ett_sscf = -1;

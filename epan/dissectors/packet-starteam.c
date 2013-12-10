@@ -37,6 +37,9 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_starteam(void);
+void proto_reg_handoff_starteam(void);
+
 static int proto_starteam = -1;
 
 static int hf_starteam_mdh_session_tag = -1;

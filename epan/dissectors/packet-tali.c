@@ -60,6 +60,9 @@
 #define TALI_MTP3 "mtp3"
 #define TALI_SAAL "saal"
 
+void proto_reg_handoff_tali(void);
+void proto_register_tali(void);
+
 /* Initialize the subtree pointers */
 static gint ett_tali = -1;
 static gint ett_tali_sync = -1;
