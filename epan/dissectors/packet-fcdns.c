@@ -1594,8 +1594,12 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     conversation_t *conversation;
     fcdns_conv_data_t *cdata;
     fcdns_conv_key_t ckey, *req_key;
-    fc_hdr *fchdr = (fc_hdr *)data;
+    fc_hdr *fchdr;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    fchdr = (fc_hdr *)data;
 
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset);

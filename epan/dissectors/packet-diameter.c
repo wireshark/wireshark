@@ -396,7 +396,12 @@ static const value_string diameter_3gpp2_exp_res_vals[]= {
 static int
 dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
 	proto_item *pi;
-	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+	diam_sub_dis_t *diam_sub_dis;
+
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	diam_sub_dis = (diam_sub_dis_t*)data;
 
 	pi = proto_tree_add_item(tree, hf_diameter_3gpp2_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
 	diam_sub_dis->avp_str = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
@@ -936,7 +941,7 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf);
 	}
 	/* Clear info collected in grouped AVP */
-	diam_sub_dis_inf->vendor_id  = 0; 
+	diam_sub_dis_inf->vendor_id  = 0;
 	diam_sub_dis_inf->dis_gouped = FALSE;
 	diam_sub_dis_inf->avp_str = NULL;
 
@@ -2018,7 +2023,7 @@ proto_reg_handoff_diameter(void)
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 
 		/* Register dissector for Experimental result code, with 3GPP2:s vendor Id */
-		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, 
+		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2,
 			new_create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
 
 		Initialized=TRUE;
