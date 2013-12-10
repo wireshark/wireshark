@@ -26,6 +26,8 @@
 #ifndef __DECODE_AS_UTILS_H__
 #define __DECODE_AS_UTILS_H__
 
+#include "ws_symbol_export.h"
+
 /** @file
  *  "Decode As" / "User Specified Decodes" dialog box.
  *  @ingroup main_ui_group
@@ -37,7 +39,7 @@ extern "C" {
 
 /** Reset the "decode as" entries and reload ones of the current profile.
  */
-WS_DLL_PUBLIC void load_decode_as_entries(void);
+void load_decode_as_entries(void);
 
 /** This routine creates one entry in the list of protocol dissector
  * that need to be reset. It is called by the g_hash_table_foreach
@@ -59,13 +61,13 @@ WS_DLL_PUBLIC void load_decode_as_entries(void);
  *
  * @param user_data Unused.
  */
-WS_DLL_PUBLIC void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
+void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
                          gpointer key, gpointer value _U_,
                          gpointer user_data _U_);
 
 /** Clear all "decode as" settings.
  */
-WS_DLL_PUBLIC void decode_clear_all(void);
+void decode_clear_all(void);
 
 /** Open the "decode_as_entries" configuration file and write its header.
  * 

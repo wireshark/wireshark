@@ -119,9 +119,12 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
         sub_dissectors = find_dissector_table(values[0]);
         if (sub_dissectors != NULL) {
             lookup_entry_t lookup;
+            ftenum_t selector_type = dissector_table_get_type(sub_dissectors);
+
             lookup.dissector_short_name = values[3];
             lookup.handle = NULL;
-            ftenum_t selector_type = dissector_table_get_type(sub_dissectors);
+            selector_type = dissector_table_get_type(sub_dissectors);
+
             g_slist_foreach(dissector_table_get_dissector_handles(sub_dissectors),
                     change_dissector_if_matched, &lookup);
             if (lookup.handle != NULL || g_ascii_strcasecmp(values[3], DECODE_AS_NONE) == 0) {
