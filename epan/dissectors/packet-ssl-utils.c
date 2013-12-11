@@ -1610,7 +1610,7 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
                    gcry_mpi_t *skey, gint flags);
 
 #define PUBKEY_FLAG_NO_BLINDING (1 << 0)
-
+#if 0
 static const gchar*
 ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
 {
@@ -1627,9 +1627,9 @@ ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
 #else /* SSL_FAST */
     str = "TO DO: dump mpi gcry_mpi_print()";
 #endif /* SSL_FAST */
-
     return str;
 }
+#endif
 
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
