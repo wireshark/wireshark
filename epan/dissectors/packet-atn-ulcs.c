@@ -1605,7 +1605,6 @@ static const value_string per_External_encoding_vals[] = {
 {   2, "arbitrary" },
 { 0, NULL }
 };
-#endif
 
 /* re-implementing external data: packet-per.c */
 static const per_choice_t External_encoding_choice[] =
@@ -1631,10 +1630,11 @@ static const per_choice_t External_encoding_choice[] =
 				NULL
 		}
 };
+#endif
 
 /* ATN Session layer */
 #define SES_PDU_TYPE_MASK			0xf8
-#define SES_PARAM_IND_MASK		0x04 
+#define SES_PARAM_IND_MASK			0x04
 #define SES_PARAM_B2_MASK			0x02
 #define SES_PARAM_B1_MASK			0x01
 
