@@ -1465,8 +1465,6 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 
         /* Make sure the first time reference has been set */
         if (!ue_state->state_before.firstCycleStartSet) {
-            guint16 subframes = SFN*10 + SF;
-
             /* Set current time to now */
             ue_state->state_before.currentSFN = SFN;
             ue_state->state_before.currentSF = SF;
