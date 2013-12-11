@@ -54,8 +54,6 @@ Icon "..\..\image\wiresharkinst.ico"
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME}.exe"
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 
-
-
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW myShowCallback
 
 ; ============================================================================
@@ -274,6 +272,11 @@ Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 !ifdef VCREDIST_EXE
 Var VCREDIST_FLAGS ; silent vs passive, norestart
 !endif
+
+!define PROGRAM_NAME_GTK "${PROGRAM_NAME} (GTK+)"
+!define PROGRAM_NAME_QT "${PROGRAM_NAME} (Qt)"
+!define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (GTK+)"
+!define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer (Qt)"
 
 Section "-Required"
 ;-------------------------------------------
@@ -672,7 +675,7 @@ SetOutPath $PROFILE
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
 Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 ;WriteINIStr "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
-CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "The ${PROGRAM_NAME} Network Protocol Analyzer"
+CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Program Directory.lnk" "$INSTDIR"
@@ -688,7 +691,7 @@ StrCmp $R1 "yes" SecRequired_install_DesktopIcon
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
 StrCmp $0 "0" SecRequired_skip_DesktopIcon
 SecRequired_install_DesktopIcon:
-CreateShortCut "$DESKTOP\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "The ${PROGRAM_NAME} Network Protocol Analyzer"
+CreateShortCut "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 SecRequired_skip_DesktopIcon:
 
 ; is command line option "/quicklaunchicon" set?
@@ -701,7 +704,7 @@ StrCmp $R1 "yes" SecRequired_install_QuickLaunchIcon
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_QuickLaunchIcon
 SecRequired_install_QuickLaunchIcon:
-CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "The ${PROGRAM_NAME} Network Protocol Analyzer"
+CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 SecRequired_skip_QuickLaunchIcon:
 
 ; Create File Extensions (depending on additional tasks page)
@@ -749,7 +752,7 @@ SetShellVarContext all
 SectionEnd ; "Required"
 
 !ifdef GTK_DIR
-Section "Wireshark" SecWireshark
+Section "${PROGRAM_NAME} GTK+ UI (stable)" SecWiresharkGtk
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\${PROGRAM_NAME}.exe"
@@ -832,7 +835,7 @@ File "..\..\doc\tshark.html"
 SectionEnd
 
 !ifdef QT_DIR
-Section "QtShark (Experimental)" SecQtshark
+Section "${PROGRAM_NAME} Qt UI (alpha)" SecWiresharkQt
 ;-------------------------------------------
 ; by default, QtShark is not installed
 SetOutPath $INSTDIR
@@ -849,11 +852,37 @@ File "${QT_DIR}\Qt5PrintSupport.dll"
 SetOutPath $INSTDIR\platforms
 File "${QT_DIR}\platforms\qwindows.dll"
 !endif
-; Disable Qtshark shortcut if Qtshark isn't selected
 Push $0
-SectionGetFlags ${SecQtshark} $0
+SectionGetFlags ${SecWiresharkQt} $0
 IntOp  $0 $0 & 1
-CreateShortCut "$SMPROGRAMS\Qtshark.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "The new QtShark Network Protocol Analyzer"
+CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+
+; is command line option "/desktopicon" set?
+${GetParameters} $R0
+${GetOptions} $R0 "/desktopicon=" $R1
+StrCmp $R1 "no" SecRequired_skip_DesktopIconQt
+StrCmp $R1 "yes" SecRequired_install_DesktopIconQt
+
+; Create desktop icon (depending on additional tasks page and command line option)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
+StrCmp $0 "0" SecRequired_skip_DesktopIconQt
+SecRequired_install_DesktopIconQt:
+CreateShortCut "$DESKTOP\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+SecRequired_skip_DesktopIconQt:
+
+; is command line option "/quicklaunchicon" set?
+${GetParameters} $R0
+${GetOptions} $R0 "/quicklaunchicon=" $R1
+StrCmp $R1 "no" SecRequired_skip_QuickLaunchIconQt
+StrCmp $R1 "yes" SecRequired_install_QuickLaunchIconQt
+
+; Create quick launch icon (depending on additional tasks page and command line option)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
+StrCmp $0 "0" SecRequired_skip_QuickLaunchIconQt
+SecRequired_install_QuickLaunchIconQt:
+CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+SecRequired_skip_QuickLaunchIconQt:
+
 Pop $0
 SectionEnd
 !endif
@@ -986,11 +1015,11 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef GTK_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWireshark} "${PROGRAM_NAME} is a GUI network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGtk} "${PROGRAM_NAME} is a GUI network protocol analyzer. (GTK+ UI)"
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
 !ifdef QT_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecQtshark} "Qtshark is a new GUI network protocol analyzer. (Experimental)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkQt} "${PROGRAM_NAME} is a GUI network protocol analyzer. (Qt UI, alpha)"
 !endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Plugins and extensions for both ${PROGRAM_NAME} and TShark."
@@ -1024,7 +1053,7 @@ SectionEnd
 ; Disable File extensions if Wireshark isn't selected
 Function .onSelChange
 	Push $0
-	SectionGetFlags ${SecWireshark} $0
+	SectionGetFlags ${SecWiresharkGtk} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 1
