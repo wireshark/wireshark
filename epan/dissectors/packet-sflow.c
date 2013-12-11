@@ -3191,7 +3191,7 @@ proto_reg_handoff_sflow_245(void) {
         data_handle = find_dissector("data");
         sflow_245_prefs_initialized = TRUE;
     } else {
-		dissector_delete_uint_range("udp.port", sflow_ports, sflow_handle);
+        dissector_delete_uint_range("udp.port", sflow_ports, sflow_handle);
         g_free(sflow_ports);
     }
 
