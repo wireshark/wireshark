@@ -132,7 +132,7 @@ typedef struct mac_lte_info
     gboolean        isExtendedBSRSizes;
 
     /* DL only.  Status of CRC check */
-    mac_lte_crc_status   crcStatusValid;
+    gboolean        crcStatusValid;
 
     /* Carrier ID */
     mac_lte_carrier_id   carrierId;
@@ -186,7 +186,7 @@ typedef struct mac_lte_tap_info {
     guint16  ueid;
     guint8   rntiType;
     guint8   isPredefinedData;
-    guint8   crcStatusValid;
+    gboolean crcStatusValid;
     mac_lte_crc_status   crcStatus;
     guint8   direction;
 

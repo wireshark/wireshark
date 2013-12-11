@@ -1199,19 +1199,20 @@ static GHashTable *mac_lte_drx_ue_state = NULL;
 
 typedef struct drx_running_state_t
 {
-    /* Need time reference point to work out timers, as SFN may wrap */
     gboolean     firstCycleStartSet;
-    nstime_t     firstCycleStart;
 
     /* Cycle information */
     gboolean     inShortCycle;
 
     /* Timers */
-    nstime_t     currentTime;  /* absolute time of last PDU */
+    nstime_t     currentTime;  /* absolute time of last PDU. Used to detect whole
+                                  missing SFN cycle */
+
+    guint64      currentTicks;
     guint16      currentSFN;
     guint16      currentSF;
 
-    gboolean     inOnDuration;
+    /* These timers are absolute times when these events expire */
     guint64      onDurationTimer;
     guint64      inactivityTimer;
     guint64      RTT[8];
@@ -1229,9 +1230,32 @@ typedef struct drx_state_t {
 } drx_state_t;
 
 
+typedef struct drx_state_key_t {
+    guint32 frameNumber;
+    guint   pdu_instance;
+} drx_state_key_t;
+
 /* Entries in this table are written during the first pass
-   It maps (Framenum -> drx_state_t), so state at that point may be shown */
+   It maps (drx_state_key_t -> drx_state_t), so state at that point may be shown. */
 static GHashTable *mac_lte_drx_frame_result = NULL;
+
+static gint mac_lte_framenum_instance_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    drx_state_key_t *p1 = (drx_state_key_t*)v;
+    drx_state_key_t *p2 = (drx_state_key_t*)v2;
+    return ((p1->frameNumber == p2->frameNumber) &&
+            (p1->pdu_instance == p2->pdu_instance));
+}
+
+static guint mac_lte_framenum_instance_hash_func(gconstpointer v)
+{
+    drx_state_key_t *p1 = (drx_state_key_t*)v;
+    return p1->frameNumber + (p1->pdu_instance >> 8);
+    return GPOINTER_TO_UINT(v);
+}
+
+
+
 
 /* Initialise the UE DRX state */
 static void init_drx_ue_state(drx_state_t *drx_state, gboolean at_init)
@@ -1261,9 +1285,6 @@ typedef enum drx_timer_type_t {
 static void mac_lte_drx_start_timer(drx_state_t *p_state, drx_timer_type_t timer_type, guint8 timer_id)
 {
     /* Get current time in ms */
-    /* TODO: should this be relative to firstCycleStart to avoid overflowing? */
-    guint64 currentTime = (p_state->state_before.currentTime.secs * 1000) + (p_state->state_before.currentTime.nsecs / 1000000);
-
     guint64 *pTimer;
     guint16 timerLength;
 
@@ -1293,7 +1314,7 @@ static void mac_lte_drx_start_timer(drx_state_t *p_state, drx_timer_type_t timer
     }
 
     /* Set timer */
-    *pTimer = currentTime + timerLength;
+    *pTimer = p_state->state_before.currentTicks + timerLength;
 }
 
 /* Stop the specified timer.  */
@@ -1326,7 +1347,6 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
 {
     guint64 *pTimer = NULL;
     drx_running_state_t *state_to_use;
-    guint64 currentTime;
 
     if (before_event) {
         state_to_use = &p_state->state_before;
@@ -1335,10 +1355,6 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
         state_to_use = &p_state->state_after;
     }
 
-
-    /* Get current time in ms */
-    /* TODO: should this be relative to firstCycleStart to avoid overflowing? */
-    currentTime = (state_to_use->currentTime.secs * 1000) + (state_to_use->currentTime.nsecs / 1000000);
 
     /* Get pointer to timer value */
     switch (timer_type) {
@@ -1363,13 +1379,19 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
     }
 
     /* TODO: verify using SFN/SF ? */
-    if (currentTime >= *pTimer) {
+    if (state_to_use->currentTicks == *pTimer) {
+        *time_until_expires = 0;
         return TRUE;
     }
-    else {
-        *time_until_expires = *pTimer - currentTime;
-        return FALSE;
+    
+    if (state_to_use->currentTicks > *pTimer) {
+        *time_until_expires = 0;
     }
+    else {
+        *time_until_expires = *pTimer - state_to_use->currentTicks;
+    }
+
+    return FALSE;
 }
 
 
@@ -1437,6 +1459,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
                                                                GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
 
     if (ue_state != NULL) {
+        /* We loop until we find this subframe */
         guint16 SFN = p_mac_lte_info->sysframeNumber;
         guint16 SF = p_mac_lte_info->subframeNumber;
 
@@ -1444,20 +1467,13 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         if (!ue_state->state_before.firstCycleStartSet) {
             guint16 subframes = SFN*10 + SF;
 
-            /* Set firstCycleStart to be the previous SFN=0, SF=0 */
-            if (pinfo->fd->abs_ts.nsecs > ((subframes % 1000)*1000)) {
-                ue_state->state_before.firstCycleStart.secs = pinfo->fd->abs_ts.secs - (subframes/1000);
-                ue_state->state_before.firstCycleStart.nsecs = pinfo->fd->abs_ts.nsecs - (subframes*1000);
-            }
-            else {
-                ue_state->state_before.firstCycleStart.secs = pinfo->fd->abs_ts.secs - (subframes/1000) - 1;
-                ue_state->state_before.firstCycleStart.nsecs = 1000000 + pinfo->fd->abs_ts.nsecs - (subframes*1000);
-            }
-            ue_state->state_before.firstCycleStartSet = TRUE;
-
             /* Set current time to now */
             ue_state->state_before.currentSFN = SFN;
             ue_state->state_before.currentSF = SF;
+
+            ue_state->state_before.currentTicks = SFN*10 + SF;
+
+            ue_state->state_before.firstCycleStartSet = TRUE;
         }
 
         /* Will loop around these checks, once for each subframe between previous
@@ -1475,23 +1491,16 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             /* Check for timers that have expired and change state accordingly */
 
             /* See if onDuration timer should be started */
-            guint16 subframes = SFN*10 + SF;
+            guint16 subframes = ue_state->state_before.currentSFN*10 + ue_state->state_before.currentSF;
             if (!ue_state->state_before.inShortCycle) {
-                if ((subframes % ue_state->config.longCycle) == ue_state->config.onDurationTimer) {
+                if ((subframes % ue_state->config.longCycle) == ue_state->config.cycleOffset) {
                     mac_lte_drx_start_timer(ue_state, drx_onduration_timer, 0);
-                    ue_state->state_before.inOnDuration = TRUE;
                 }
             }
             else {
-                if ((subframes % ue_state->config.shortCycle) == (ue_state->config.onDurationTimer % ue_state->config.shortCycle)) {
+                if ((subframes % ue_state->config.shortCycle) == (ue_state->config.cycleOffset % ue_state->config.shortCycle)) {
                     mac_lte_drx_start_timer(ue_state, drx_onduration_timer, 0);
-                    ue_state->state_before.inOnDuration = TRUE;
                 }
-            }
-
-            /* See if onDuration has expired */
-            if (mac_lte_drx_has_timer_expired(ue_state, drx_onduration_timer, 0, TRUE, &time_until_expires)) {
-                ue_state->state_before.inOnDuration = FALSE;
             }
 
             /* Check for HARQ RTT Timer expiring.
@@ -1527,16 +1536,45 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             else {
                 ue_state->state_before.currentSF++;
             }
+
+            ue_state->state_before.currentTicks++;
+            /* TODO: need to actually move time on in state if want to see timers expiring!!!! */
         }
 
         /* Set current time to now */
+        /* TODO: increment only by number of ms should do according to change in SF */
         ue_state->state_before.currentTime = pinfo->fd->abs_ts;
     }
 }
 
+/* Convenience function to get a pointer for the hash_func to work with */
+static gpointer get_drx_result_hash_key(guint32 frameNumber,
+                                        guint pdu_instance,
+                                        gboolean do_persist)
+{
+    static drx_state_key_t key;
+    drx_state_key_t *p_key;
+
+    /* Only allocate a struct when will be adding entry */
+    if (do_persist) {
+        p_key = wmem_new0(wmem_file_scope(), drx_state_key_t);
+    }
+    else {
+        memset(&key, 0, sizeof(drx_state_key_t));
+        p_key = &key;
+    }
+
+    /* Fill in details, and return pointer */
+    p_key->frameNumber = frameNumber;
+    p_key->pdu_instance = pdu_instance;
+
+    return p_key;
+}
+
+
 /* Set DRX information to display for the current MAC frame.
    Only called on first pass through frames. */
-static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gboolean before_event)
+static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gboolean before_event, guint pdu_instance)
 {
     /* Look up state of this UE */
     drx_state_t *ue_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_ue_state,
@@ -1554,12 +1592,12 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
             *frame_result = *ue_state;
 
             /* And store in table */
-            g_hash_table_insert(mac_lte_drx_frame_result, GUINT_TO_POINTER(pinfo->fd->num), frame_result);
+            g_hash_table_insert(mac_lte_drx_frame_result, get_drx_result_hash_key(pinfo->fd->num, pdu_instance, TRUE), frame_result);
         }
         else {
             /* After update, so just copy ue_state 'state' info after part of frame */
             frame_result = (drx_state_t*)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                             GUINT_TO_POINTER(pinfo->fd->num));
+                                                             get_drx_result_hash_key(pinfo->fd->num, pdu_instance, FALSE));
             if (frame_result != NULL) {
                 /* Deep-copy updated state from UE */
                 frame_result->state_after = ue_state->state_before;
@@ -1570,7 +1608,7 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
 
 /* Show DRX information associated with this MAC frame */
 static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                          mac_lte_info *p_mac_lte_info, gboolean before_event)
+                          mac_lte_info *p_mac_lte_info, gboolean before_event, guint pdu_instance)
 {
     drx_state_t         *frame_state;
     drx_running_state_t *state_to_show;
@@ -1579,7 +1617,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     /* Look up entry by frame number in result table */
     frame_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                     GUINT_TO_POINTER(pinfo->fd->num));
+                                                     get_drx_result_hash_key(pinfo->fd->num, pdu_instance, FALSE));
 
     /* Show available information */
     if (frame_state != NULL) {
@@ -1669,14 +1707,6 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_long_cycle_offset, tvb,
                                      0, 0, offset_into_long_cycle);
             PROTO_ITEM_SET_GENERATED(ti);
-
-            /* Show whether we're inside long cycle on-duration */
-            ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_long_cycle_on, tvb,
-                                        0, 0, state_to_show->inOnDuration);
-            PROTO_ITEM_SET_GENERATED(ti);
-
-            proto_item_append_text(drx_state_ti, " (Offset-into-Long=%u, Long-cycle-on=%s)",
-                                   offset_into_long_cycle, state_to_show->inOnDuration ? "True" : "False");
         }
         else {
             /* Show where we are inside short cycle */
@@ -1687,20 +1717,14 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                      0, 0, offset_into_short_cycle);
             PROTO_ITEM_SET_GENERATED(ti);
 
-            /* Show whether we're inside short cycle on-duration */
-            ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_short_cycle_on, tvb,
-                                        0, 0, state_to_show->inOnDuration);
-            PROTO_ITEM_SET_GENERATED(ti);
-
-            proto_item_append_text(drx_state_ti, " (Offset-into-Short=%u, Long-cycle-on=%s)",
-                                   offset_into_short_cycle, state_to_show->inOnDuration ? "True" : "False");
-
             /* Is short-cycle-timer running? */
             /* TODO: do we need this and the boolean above? */
             if (!mac_lte_drx_has_timer_expired(frame_state, drx_short_cycle_timer, 0, before_event, &time_until_expires)) {
-                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_remaining, tvb,
-                                         0, 0, (guint16)time_until_expires);
-                PROTO_ITEM_SET_GENERATED(ti);
+                if (time_until_expires) {
+                    ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_remaining, tvb,
+                                             0, 0, (guint16)time_until_expires);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                }
             }
         }
 
@@ -1711,36 +1735,43 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
         /* Is onduration timer running? */
         if (!mac_lte_drx_has_timer_expired(frame_state, drx_onduration_timer, 0, before_event, &time_until_expires)) {
-            ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_onduration_remaining, tvb,
-                                     0, 0, (guint16)time_until_expires);
-            PROTO_ITEM_SET_GENERATED(ti);
+            if (time_until_expires) {
+                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_onduration_remaining, tvb,
+                                         0, 0, (guint16)time_until_expires);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
         }
-
 
         /* Is inactivity timer running? */
         if (!mac_lte_drx_has_timer_expired(frame_state, drx_inactivity_timer, 0, before_event, &time_until_expires)) {
-            ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_inactivity_remaining, tvb,
-                                     0, 0, (guint16)time_until_expires);
-            PROTO_ITEM_SET_GENERATED(ti);
+            if (time_until_expires) {
+                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_inactivity_remaining, tvb,
+                                         0, 0, (guint16)time_until_expires);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
         }
 
         /* Are any of the Retransmission timers running? */
         for (n=0; n < 8; n++) {
             if (!mac_lte_drx_has_timer_expired(frame_state, drx_retx_timer, n, before_event, &time_until_expires)) {
-                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_retransmission_remaining, tvb,
-                                         0, 0, (guint16)time_until_expires);
-                PROTO_ITEM_SET_GENERATED(ti);
-                proto_item_append_text(ti, " (harqid=%u)", n);
+                if (time_until_expires) {
+                    ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_retransmission_remaining, tvb,
+                                             0, 0, (guint16)time_until_expires);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_append_text(ti, " (harqid=%u)", n);
+                }
             }
         }
 
         /* Are any of the RTT timers running? */
         for (n=0; n < 8; n++) {
             if (!mac_lte_drx_has_timer_expired(frame_state, drx_rtt_timer, n, before_event, &time_until_expires)) {
-                ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_rtt_remaining, tvb,
-                                         0, 0, (guint16)time_until_expires);
-                PROTO_ITEM_SET_GENERATED(ti);
-                proto_item_append_text(ti, " (harqid=%u)", n);
+                if (time_until_expires) {
+                    ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_rtt_remaining, tvb,
+                                             0, 0, (guint16)time_until_expires);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_append_text(ti, " (harqid=%u)", n);
+                }
             }
         }
     }
@@ -1752,7 +1783,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 /* Forward declarations */
-void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
 
 static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
                                            guint8 direction);
@@ -1840,7 +1871,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 offset++;
                 break;
             case MAC_LTE_CRC_STATUS_TAG:
-                p_mac_lte_info->crcStatusValid = crc_success;
+                p_mac_lte_info->crcStatusValid = TRUE;
                 p_mac_lte_info->detailed_phy_info.dl_info.crc_status =
                     (mac_lte_crc_status)tvb_get_guint8(tvb, offset);
                 offset++;
@@ -1929,7 +1960,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual MAC PDU */
     mac_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_mac_lte(mac_tvb, pinfo, tree);
+    dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
 
     return TRUE;
 }
@@ -3290,7 +3321,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    volatile guint32 offset, guint8 direction,
                                    mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info,
                                    proto_item *retx_ti,
-                                   proto_tree *context_tree)
+                                   proto_tree *context_tree,
+                                   guint pdu_instance)
 {
     guint8            extension;
     volatile guint16  n;
@@ -3336,11 +3368,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             update_drx_info(pinfo, p_mac_lte_info);
 
             /* Store 'before' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info, TRUE);
+            set_drx_info(pinfo, p_mac_lte_info, TRUE, pdu_instance);
         }
 
         /* Show current DRX state in tree as 'before' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE);
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE, pdu_instance);
 
         /* Changes of state caused by events */
         if (!pinfo->fd->flags.visited) {
@@ -3349,7 +3381,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             else {
                 /* Downlink */
-                if (p_mac_lte_info->crcStatusValid != crc_success) {
+                if ((p_mac_lte_info->crcStatusValid) && (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success)) {
                     mac_lte_drx_dl_crc_error(p_mac_lte_info->ueid);
                 }
                 else if (p_mac_lte_info->reTxCount == 0) {
@@ -4437,11 +4469,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (global_mac_lte_show_drx) {
         if (!pinfo->fd->flags.visited) {
             /* Store 'after' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info, FALSE);
+            set_drx_info(pinfo, p_mac_lte_info, FALSE, pdu_instance);
         }
 
         /* Show current DRX state in tree as 'after' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, FALSE);
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, FALSE, pdu_instance);
     }
 }
 
@@ -4856,7 +4888,11 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
 /*****************************/
 /* Main dissection function. */
-void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/* 'data' will be cast to an int, where it can then be used to differentiate
+   multiple MAC PDUs logged in the same frame (e.g. in the LTE eNB LI API definition from
+   the Small Cell Forum)
+*/
+int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree          *mac_lte_tree;
     proto_item          *pdu_ti;
@@ -4867,9 +4903,10 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                 offset         = 0;
     struct mac_lte_info *p_mac_lte_info;
     gint                 n;
+    guint               pdu_instance = GPOINTER_TO_UINT(data);
 
     /* Allocate and zero tap struct */
-    mac_lte_tap_info *tap_info = (mac_lte_tap_info *)wmem_alloc0(wmem_packet_scope(), sizeof(mac_lte_tap_info));
+    mac_lte_tap_info *tap_info = (mac_lte_tap_info *)wmem_alloc0(wmem_file_scope(), sizeof(mac_lte_tap_info));
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
@@ -4888,7 +4925,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_text(mac_lte_tree, tvb, offset, -1,
                                 "Can't dissect LTE MAC frame because no per-frame info was attached!");
         PROTO_ITEM_SET_GENERATED(tii);
-        return;
+        return 0;
     }
 
     /* Clear info column */
@@ -5031,7 +5068,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /* Our work here is done */
-        return;
+        return -1;
     }
 
     /* Show remaining meta information */
@@ -5080,7 +5117,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "M-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFD);
-                return;
+                return 0;
             }
             break;
         case P_RNTI:
@@ -5088,7 +5125,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "P-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
-                return;
+                return 0;
             }
             break;
         case SI_RNTI:
@@ -5096,7 +5133,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "SI-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
-                return;
+                return 0;
             }
             break;
         case RA_RNTI:
@@ -5104,7 +5141,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "RA_RNTI indicated, but given value %u (0x%x)is out of range",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti);
-                return;
+                return 0;
             }
             break;
         case C_RNTI:
@@ -5114,7 +5151,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                       "%s indicated, but given value %u (0x%x)is out of range",
                       val_to_str_const(p_mac_lte_info->rntiType,  rnti_type_vals, "Unknown"),
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti);
-                return;
+                return 0;
             }
             break;
 
@@ -5224,7 +5261,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tap_queue_packet(mac_lte_tap, pinfo, tap_info);
         }
 
-        return;
+        return -1;
     }
 
     /* IF CRC status failed, just do decode as raw bytes */
@@ -5241,7 +5278,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tap_queue_packet(mac_lte_tap, pinfo, tap_info);
         }
 
-        return;
+        return -1;
     }
 
     /* Reset this counter */
@@ -5265,7 +5302,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, pdu_ti, offset,
                                    p_mac_lte_info->direction, p_mac_lte_info, tap_info,
-                                   retx_ti, context_tree);
+                                   retx_ti, context_tree, pdu_instance);
             break;
 
         case SI_RNTI:
@@ -5290,6 +5327,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Queue tap info */
     tap_queue_packet(mac_lte_tap, pinfo, tap_info);
+
+    return -1;
 }
 
 
@@ -5363,7 +5402,7 @@ static void mac_lte_init_protocol(void)
     mac_lte_ue_channels_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
 
     mac_lte_drx_ue_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
-    mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+    mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_instance_hash_func, mac_lte_framenum_instance_hash_equal);
 }
 
 /* Callback used as part of configuring a channel mapping using UAT */
@@ -5489,15 +5528,6 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
         if (ue_state == NULL) {
             ue_state = (drx_state_t *)wmem_new(wmem_file_scope(), drx_state_t);
             g_hash_table_insert(mac_lte_drx_ue_state, GUINT_TO_POINTER((guint)ueid), ue_state);
-
-            /* The signalling protocol (i.e. RRC) won't know the current SFN/SF, so
-               don't try to set a time reference yet */
-            /* Set time reference for this UE */
-/*            ue_state->firstCycleStart = pinfo->fd->abs_ts;
-            ue_state->firstCycleStartSet = TRUE;*/
-
-            /* Current time starts off here */
-/*            ue_state->currentTime = pinfo->fd->abs_ts;*/
         }
         else {
             previousFrameNum = ue_state->config.frameNum;
@@ -6731,7 +6761,7 @@ void proto_register_mac_lte(void)
     expert_register_field_array(expert_mac_lte, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
+    new_register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
 
     /* Register the tap name */
     mac_lte_tap = register_tap("mac-lte");
