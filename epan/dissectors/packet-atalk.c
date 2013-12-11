@@ -1315,6 +1315,10 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   guint8          fn;
   int             len;
 
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1459,6 +1463,10 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   guint8          fn;
   guint16         count;
   guint8          len;
+
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
