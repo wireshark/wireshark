@@ -90,7 +90,7 @@ static header_field_info hfi_netlink_netfilter_queue_type NETLINK_NETFILTER_HFI_
 	  VALS(netlink_netfilter_queue_type_vals), 0x00FF, NULL, HFILL };
 
 static int
-dissect_netlink_netfilter_queue(tvbuff_t *tvb, struct netlink_netfilter_info *info, proto_tree *tree, int offset)
+dissect_netlink_netfilter_queue(tvbuff_t *tvb _U_, struct netlink_netfilter_info *info, proto_tree *tree, int offset)
 {
 	enum ws_nfqnl_msg_types type = (enum ws_nfqnl_msg_types) (info->data->type & 0xff);
 
