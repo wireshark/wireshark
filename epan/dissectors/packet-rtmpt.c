@@ -2248,7 +2248,13 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         conversation_t *conv;
         rtmpt_conv_t   *rconv;
         int             cdir;
-        struct tcpinfo *tcpinfo = (struct tcpinfo*)data;
+        struct tcpinfo *tcpinfo;
+
+        /* Reject the packet if data is NULL */
+        if (data == NULL) {
+                return 0;
+        }
+        tcpinfo = (struct tcpinfo*)data;
 
         conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
         if (!conv) {
