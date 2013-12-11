@@ -595,9 +595,14 @@ static amr_capability_t *find_cap(const gchar *id) {
 static int
 dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    asn1_ctx_t *actx = get_asn1_ctx(data);
+    asn1_ctx_t *actx;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    actx = get_asn1_ctx(data);
     DISSECTOR_ASSERT(actx != NULL);
+
     if (tree && (actx != NULL)) {
         amr_capability_t *ftr;
         ftr = find_cap(pinfo->match_string);
