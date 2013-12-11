@@ -2473,7 +2473,7 @@ get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 /******************************************************************************************************/
 /* Dissect (and possibly Re-assemble) SEL protocol payload data */
 /******************************************************************************************************/
-static gboolean
+static int
 dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
@@ -2483,7 +2483,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* Check for a SEL FM packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
         /* Not a SEL Protocol packet, just happened to use the same port */
-        return FALSE;
+        return 0;
     }
 
     /* If this is a Telnet-encapsulated Ethernet, let's clean out the IAC 0xFF instances */
@@ -2499,13 +2499,13 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     tcp_dissect_pdus(selfm_tvb, pinfo, tree, selfm_desegment, 2,
                    get_selfm_len, dissect_selfm, data);
 
-    return TRUE;
+    return length;
 }
 
 /******************************************************************************************************/
 /* Dissect "simple" SEL protocol payload (no TCP re-assembly) */
 /******************************************************************************************************/
-static gboolean
+static int
 dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint length = tvb_length(tvb);
@@ -2513,12 +2513,12 @@ dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /* Check for a SEL FM packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
         /* Not a SEL Protocol packet, just happened to use the same port */
-        return FALSE;
+        return 0;
     }
 
     dissect_selfm(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return length;
 }
 
 /******************************************************************************************************/
