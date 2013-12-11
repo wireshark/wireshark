@@ -34,6 +34,8 @@
 
 #define SSPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097604
 
+void proto_register_ssprotocol(void);
+void proto_reg_handoff_ssprotocol(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_ssprotocol     = -1;

@@ -33,6 +33,8 @@
 #define SCOP_DEFAULT_PORT           17755
 #define SCOP_DEFAULT_PORT_SECURED   17756
 
+void proto_register_scop(void);
+
 /* Structure to contain information from the SCoP packet. */
 typedef struct {
     guint8      transport;

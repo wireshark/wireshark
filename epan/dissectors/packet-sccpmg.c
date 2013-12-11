@@ -54,6 +54,9 @@
 #define SCCPMG_MESSAGE_TYPE_SNR 0xfe
 #define SCCPMG_MESSAGE_TYPE_SRT 0xff
 
+void proto_register_sccpmg(void);
+void proto_reg_handoff_sccpmg(void);
+
 /* Same as below but with names typed out */
 static const value_string sccpmg_message_type_values[] = {
   { SCCPMG_MESSAGE_TYPE_SSA,   "SubSystem Allowed" },

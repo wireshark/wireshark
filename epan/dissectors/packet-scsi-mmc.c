@@ -35,6 +35,7 @@
 #include "packet-scsi-mmc.h"
 #include "packet-scsi-sbc.h"
 
+void proto_register_scsi_mmc(void);
 
 static int proto_scsi_mmc = -1;
 int hf_scsi_mmc_opcode = -1;

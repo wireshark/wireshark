@@ -86,6 +86,9 @@
 /* By default, but can be completely different */
 #define UDP_PORT_SEBEK	1101
 
+void proto_register_sebek(void);
+void proto_reg_handoff_sebek(void);
+
 static int proto_sebek = -1;
 
 static int hf_sebek_magic = -1;

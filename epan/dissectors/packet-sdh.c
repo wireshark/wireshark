@@ -34,6 +34,9 @@
 #define COLUMNS 270
 #define EXT_HDR_TYPE_RAW_LINK        5
 
+void proto_register_sdh(void);
+void proto_reg_handoff_sdh(void);
+
 static int proto_sdh = -1;
 
 static gint ett_sdh = -1;

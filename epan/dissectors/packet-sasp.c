@@ -33,6 +33,9 @@
 #include <epan/prefs.h>
 
 /* forward reference */
+void proto_register_sasp(void);
+void proto_reg_handoff_sasp(void);
+
 static void dissect_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset);

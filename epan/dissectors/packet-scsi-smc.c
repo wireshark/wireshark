@@ -37,6 +37,8 @@
 #include "packet-fc.h"
 #include "packet-scsi-smc.h"
 
+void proto_register_scsi_smc(void);
+void proto_reg_handoff_scsi_smc(void);
 
 static int proto_scsi_smc			= -1;
 int hf_scsi_smc_opcode				= -1;
@@ -101,7 +103,7 @@ static gint ett_scsi_exchange_medium		= -1;
 static gint ett_scsi_range			= -1;
 static gint ett_scsi_move			= -1;
 
-void
+static void
 dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -127,7 +129,7 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     }
 }
 
-void
+static void
 dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -150,7 +152,7 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 }
 
-void
+static void
 dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -164,7 +166,7 @@ dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, pr
     }
 }
 
-void
+static void
 dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -188,7 +190,7 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
     }
 }
 
-void
+static void
 dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)

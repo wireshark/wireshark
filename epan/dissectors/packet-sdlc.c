@@ -35,6 +35,8 @@
  *
  *	http://www.protocols.com/pbook/sna.htm
  */
+void proto_register_sdlc(void);
+void proto_reg_handoff_sdlc(void);
 
 static int proto_sdlc = -1;
 static int hf_sdlc_address = -1;

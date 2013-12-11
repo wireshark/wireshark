@@ -81,6 +81,9 @@
 /** This is a valid PPID, but we use it to mark the end of the list */
 #define LAST_PPID 0xffffffff
 
+void proto_register_sctp(void);
+void proto_reg_handoff_sctp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_sctp = -1;
 static int hf_port = -1;

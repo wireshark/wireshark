@@ -38,6 +38,8 @@
 #define FREQUENCY_44100        0x02
 #define FREQUENCY_48000        0x03
 
+void proto_register_sbc(void);
+
 static int proto_sbc = -1;
 
 static int hf_sbc_fragmented                                               = -1;

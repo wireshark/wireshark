@@ -98,6 +98,9 @@
 #include "packet-scsi-ssc.h"
 #include "packet-scsi-smc.h"
 
+void proto_register_scsi(void);
+void proto_reg_handoff_scsi(void);
+
 static int proto_scsi                           = -1;
 static int hf_scsi_inq_control_vendor_specific  = -1;
 static int hf_scsi_inq_control_reserved         = -1;
@@ -4945,7 +4948,7 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
     }
 }
 
-void
+static void
 dissect_scsi_sense(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
     guint8 sense_type;

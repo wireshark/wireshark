@@ -38,6 +38,8 @@
 #include "packet-fc.h"
 #include "packet-scsi-osd.h"
 
+void proto_register_scsi_osd(void);
+void proto_reg_handoff_scsi_osd(void);
 
 static int proto_scsi_osd                               = -1;
 int hf_scsi_osd_opcode                                  = -1;

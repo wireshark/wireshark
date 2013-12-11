@@ -75,6 +75,9 @@
 #include "packet-h264.h"
 #include "packet-mp4ves.h"
 
+void proto_register_sdp(void);
+void proto_reg_handoff_sdp(void);
+
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
