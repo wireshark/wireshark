@@ -161,8 +161,6 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	netlink_netfilter_info_t info;
 	int offset;
 
-	gboolean is_req;
-
 	if (_data) {
 		if (((struct packet_netlink_data *) _data)->magic == PACKET_NETLINK_MAGIC)
 			data = (struct packet_netlink_data *) _data;
@@ -183,8 +181,6 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	info.encoding = data->encoding;
 	info.pinfo = pinfo;
 	info.data = data;
-
-	is_req = (pinfo->p2p_dir == P2P_DIR_RECV);
 
 	offset = 0;
 
