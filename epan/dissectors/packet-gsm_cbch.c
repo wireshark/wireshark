@@ -301,7 +301,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                         ++k;
                     }
                 }
-                else if ((octet1 & 0xC0) == 0)
+                else if (octet1 && ((octet1 & 0xC0) == 0))
                 {
                     /* MDT 00 */
                     if (octet1 < k)
