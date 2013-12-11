@@ -29,6 +29,9 @@
 
 #include <wiretap/stanag4607.h>
 
+void proto_register_stanag4607(void);
+void proto_reg_handoff_stanag4607(void);
+
 static int proto_stanag4607 = -1;
 
 static int hf_4607_version = -1;

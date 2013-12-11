@@ -79,6 +79,7 @@ static guint tcp_port_pref = TCP_PORT_SML;
 static guint udp_port_pref = UDP_PORT_SML;
 
 /* Forward declaration we need below (if using proto_reg_handoff as a prefs callback)*/
+void proto_register_sml(void);
 void proto_reg_handoff_sml(void);
 
 /* Initialize the protocol and registered fields */

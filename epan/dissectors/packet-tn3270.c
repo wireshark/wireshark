@@ -59,6 +59,8 @@
 
 #include "packet-tn3270.h"
 
+void proto_register_tn3270(void);
+
 /* Note well:
  *  In the IBM "3270 Information Display System: Data Stream Programmer's Reference"
  *  document, the references to bit numbers in the text and tables

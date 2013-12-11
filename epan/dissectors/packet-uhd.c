@@ -36,6 +36,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_uhd(void);
+
 static gint dissector_port_pref = 0;
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */

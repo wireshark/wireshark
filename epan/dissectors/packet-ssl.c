@@ -112,6 +112,8 @@
 #include <epan/uat.h>
 #include <epan/exported_pdu.h>
 
+void proto_register_ssl(void);
+
 static ssldecrypt_assoc_t *sslkeylist_uats = NULL;
 static guint nssldecrypt = 0;
 

@@ -58,8 +58,6 @@ static dissector_handle_t data_handle;
 
 static gint pref_tdmoe_d_channel = 24;
 
-void proto_reg_handoff_tdmoe(void);
-
 static int
 dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {

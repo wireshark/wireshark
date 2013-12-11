@@ -106,8 +106,8 @@
 #define TS2_STATUS_MUTEMICROPHONE   16
 #define TS2_STATUS_MUTE             32
 
-void proto_reg_handoff_teamspeak2(void);
-void proto_register_teamspeak2(void);
+void proto_reg_handoff_ts2(void);
+void proto_register_ts2(void);
 
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;

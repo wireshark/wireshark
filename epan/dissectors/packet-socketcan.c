@@ -76,7 +76,7 @@ typedef enum {
 	CAN_DATA_DISSECTOR = 1,
 	CAN_CANOPEN_DISSECTOR = 2,
 	CAN_DEVICENET_DISSECTOR = 3,
-	CAN_J1939_DISSECTOR = 4,
+	CAN_J1939_DISSECTOR = 4
 } Dissector_Option;
 
 /* Structure that gets passed between dissectors.  Since it's just a simple 32-bit

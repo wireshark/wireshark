@@ -48,6 +48,9 @@
 #include "packet-ip.h"
 #include "packet-icmp.h"
 
+void proto_register_tcp(void);
+void proto_reg_handoff_tcp(void);
+
 static int tcp_tap = -1;
 
 /* Place TCP summary in proto tree */
@@ -517,7 +520,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
     struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo);
 
 
-struct tcp_analysis *
+static struct tcp_analysis *
 init_tcp_conversation_data(packet_info *pinfo)
 {
     struct tcp_analysis *tcpd;

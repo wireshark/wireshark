@@ -31,6 +31,8 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 
+void proto_register_trmac(void);
+
 static int proto_trmac = -1;
 static int hf_trmac_mv = -1;
 static int hf_trmac_length = -1;

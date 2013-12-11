@@ -1108,7 +1108,7 @@ static dissector_handle_t gsm_sms_handle;
 /*
  * For Stats Tree
  */
-void
+static void
 smpp_stats_tree_init(stats_tree* st)
 {
     st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, TRUE);
@@ -1118,7 +1118,7 @@ smpp_stats_tree_init(stats_tree* st)
 
 }
 
-int
+static int
 smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                            packet_info *pinfo _U_,
                            epan_dissect_t *edt _U_,

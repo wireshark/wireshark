@@ -1611,7 +1611,7 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 
 #define PUBKEY_FLAG_NO_BLINDING (1 << 0)
 
-const gchar*
+static const gchar*
 ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
 {
     const gchar *str = "NULL";
@@ -1633,7 +1633,7 @@ ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
 
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
-int
+static int
 ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
 {
     gint        rc;
@@ -2813,7 +2813,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     return 0;
 }
 
-int
+static int
 ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
         guint32 datalen, guint8* mac)
 {
@@ -2926,7 +2926,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 }
 
 #ifdef HAVE_LIBZ
-int
+static int
 ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, StringInfo* out_str, guint* outl)
 {
     gint err;
@@ -3186,7 +3186,7 @@ skip_mac:
 }
 
 #define RSA_PARS 6
-SSL_PRIVATE_KEY*
+static SSL_PRIVATE_KEY*
 ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
 {
     gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
