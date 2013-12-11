@@ -47,6 +47,9 @@
 #include "packet-ssl.h"
 #include "packet-skinny.h"
 
+void proto_register_skinny(void);
+void proto_reg_handoff_skinny(void);
+
 #define TCP_PORT_SKINNY 2000
 #define SSL_PORT_SKINNY 2443 /* IANA assigned to PowerClient Central Storage Facility */
 

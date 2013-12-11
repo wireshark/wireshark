@@ -33,6 +33,8 @@
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
 
+void proto_register_smb_logon(void);
+
 static int proto_smb_logon = -1;
 static int hf_command = -1;
 static int hf_computer_name = -1;

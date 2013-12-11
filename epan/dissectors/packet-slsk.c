@@ -42,6 +42,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_slsk(void);
+void proto_reg_handoff_slsk(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_slsk = -1;
 

@@ -40,6 +40,11 @@
 #include "packet-ber.h"
 #include "packet-ses.h"
 
+void proto_register_ses(void);
+void proto_reg_handoff_ses(void);
+
+void proto_register_clses(void);
+void proto_reg_handoff_clses(void);
 
 /* ses header fields             */
 static int proto_ses          = -1;

@@ -39,6 +39,8 @@
 #include <epan/expert.h>
 
 /* General declarations */
+void proto_register_slow_protocols(void);
+void proto_reg_handoff_slow_protocols(void);
 
 #define SLOW_PROTO_SUBTYPE              0
 

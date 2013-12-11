@@ -43,6 +43,9 @@
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>
 
+void proto_register_sigcomp(void);
+void proto_reg_handoff_sigcomp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_sigcomp                            = -1;
 static int proto_raw_sigcomp                        = -1;

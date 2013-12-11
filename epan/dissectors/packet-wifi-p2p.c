@@ -30,6 +30,8 @@
 
 #include "packet-ieee80211.h"
 
+void proto_register_p2p(void);
+
 enum {
   P2P_ATTR_STATUS = 0,
   P2P_ATTR_MINOR_REASON_CODE = 1,

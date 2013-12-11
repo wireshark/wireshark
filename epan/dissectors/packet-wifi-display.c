@@ -30,6 +30,8 @@
 
 #include "packet-ieee80211.h"
 
+void proto_register_wifi_display(void);
+
 static int proto_wifi_display = -1;
 
 static int hf_wfd_subelem_id = -1;

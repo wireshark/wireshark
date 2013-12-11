@@ -65,6 +65,8 @@
 #define TLS_PORT_SIP 5061
 #define DEFAULT_SIP_PORT_RANGE "5060"
 
+void proto_register_sip(void);
+
 static dissector_handle_t sip_tcp_handle;
 
 static gint sip_tap = -1;

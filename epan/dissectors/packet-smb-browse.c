@@ -38,6 +38,9 @@
 #include "packet-smb-browse.h"
 #include "packet-dcerpc.h"
 
+void proto_register_smb_browse(void);
+void proto_reg_handoff_smb_browse(void);
+
 static int proto_smb_browse = -1;
 static int hf_command = -1;
 static int hf_update_count = -1;

@@ -50,6 +50,11 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include "packet-dcerpc.h"
 #include <epan/reassemble.h>
 
+void proto_register_pipe_lanman(void);
+void proto_register_pipe_dcerpc(void);
+void proto_register_smb_pipe(void);
+void proto_reg_handoff_smb_pipe(void);
+
 static int proto_smb_pipe = -1;
 static int hf_smb_pipe_function = -1;
 static int hf_smb_pipe_priority = -1;

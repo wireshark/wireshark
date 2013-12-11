@@ -64,6 +64,9 @@ RWHOD(8)                 UNIX System Manager's Manual                 RWHOD(8)
  *
  */
 
+void proto_register_who(void);
+void proto_reg_handoff_who(void);
+
 static int proto_who = -1;
 static int hf_who_vers = -1;
 static int hf_who_type = -1;

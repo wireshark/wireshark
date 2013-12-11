@@ -54,6 +54,9 @@
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
+void proto_register_smb2(void);
+void proto_reg_handoff_smb2(void);
+
 static const char smb_header_label[] = "SMB2 Header";
 static const char smb_transform_header_label[] = "SMB2 Transform Header";
 

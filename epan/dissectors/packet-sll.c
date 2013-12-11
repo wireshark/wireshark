@@ -40,6 +40,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
+void proto_register_sll(void);
+void proto_reg_handoff_sll(void);
 /*
  * A DLT_LINUX_SLL fake link-layer header.
  */

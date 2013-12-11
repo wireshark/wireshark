@@ -38,6 +38,7 @@
  * http://www.iana.org/assignments/websocket (last updated 2012-04-12)
  */
 
+void proto_register_websocket(void);
 void proto_reg_handoff_websocket(void);
 
 static dissector_handle_t text_lines_handle;
@@ -131,7 +132,7 @@ static dissector_table_t port_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 #define MAX_UNMASKED_LEN (1024 * 64)
-tvbuff_t *
+static tvbuff_t *
 tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guint8 *masking_key)
 {
 

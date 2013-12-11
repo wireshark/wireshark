@@ -61,6 +61,8 @@
 
 #define SFLOW_UDP_PORTS "6343"
 
+void proto_register_sflow(void);
+
 static dissector_handle_t sflow_handle;
 
 /*

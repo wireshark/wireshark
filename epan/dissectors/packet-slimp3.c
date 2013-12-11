@@ -35,6 +35,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 
+void proto_register_slimp3(void);
+void proto_reg_handoff_slimp3(void);
+
 static int proto_slimp3 = -1;
 static int hf_slimp3_opcode = -1;
 static int hf_slimp3_control = -1;

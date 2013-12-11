@@ -47,6 +47,8 @@
 #define COMMUNICATION_PHASE_3 (0x3)
 #define COMMUNICATION_PHASE_4 (0x4)
 
+void proto_register_sercosiii(void);
+void proto_reg_handoff_sercosiii(void);
 
 /* Initialize the protocol and registered fields */
 static gint proto_siii = -1;
@@ -775,7 +777,7 @@ static const value_string siii_at_hotplug_status_error_text[]=
 
 
 
-void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *subtree;
@@ -801,7 +803,7 @@ void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 }
 
-void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *subtree;
   proto_tree *subtree2;
@@ -821,7 +823,7 @@ void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree_add_item(subtree, hf_siii_mdt_hp_info, tvb, 4, 4, ENC_NA);
 }
 
-void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *subtree;
   proto_item *ti;
@@ -834,7 +836,7 @@ void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   proto_tree_add_item(subtree, hf_siii_mdt_dev_control_top_control,     tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
-void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be needed in later versions */
+static void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be needed in later versions */
 {
   proto_tree *subtree;
   proto_item *ti;
@@ -930,7 +932,7 @@ static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   proto_tree_add_text(tree, tvb, 0, 0, "Device Controls");
 }
 
-void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *subtree;
@@ -984,7 +986,7 @@ void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be used in later versions */
+static void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be used in later versions */
 {
   proto_tree *subtree;
   proto_item *ti;
@@ -1000,7 +1002,7 @@ void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, ENC_NA);
 }
 
-void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *subtree;
   proto_item *ti;
@@ -1018,7 +1020,7 @@ void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   proto_tree_add_item(subtree, hf_siii_at_dev_status_parameterization_level_active, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
-void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *subtree;
   proto_tree *subtree2;
@@ -1122,7 +1124,7 @@ static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 
-void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *subtree;

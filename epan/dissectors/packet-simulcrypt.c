@@ -43,6 +43,8 @@
 #define CA_SYSTEM_ID_MIKEY              0x9999  /* CA_system_ID corresponding to MIKEY ECM */
 #define CA_SYSTEM_ID_MIKEY_PROTO        "mikey" /* Protocol name to be used to "decode as" ECMs with CA_SYSTEM_ID_MIKEY */
 
+void proto_register_simulcrypt(void);
+
 /* Tecm_interpretation links ca_system_id to ecmg port and protocol name for dissection of
  * ecm_datagram in ECM_Response message.
  * Currently size is 1 as only have MIKEY protocol but could add extra protocols

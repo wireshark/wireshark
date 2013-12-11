@@ -32,6 +32,7 @@
  * Doesn't do a detailed dissection of the lines of the message, just treat as text.
  */
 
+void proto_register_sipfrag(void);
 
 /* Initialize the protocol and registered fields. */
 static int proto_sipfrag = -1;

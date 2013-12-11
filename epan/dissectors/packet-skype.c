@@ -47,6 +47,9 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
+void proto_register_skype(void);
+void proto_reg_handoff_skype(void);
+
 /* Things we may want to remember for a whole conversation */
 typedef struct _skype_udp_conv_info_t {
 	guint32 global_src_ip;

@@ -37,6 +37,9 @@
 #include "packet-smb-browse.h"
 #include "packet-smb-pipe.h"
 
+void proto_register_smb_mailslot(void);
+void proto_reg_handoff_smb_mailslot(void);
+
 static int proto_smb_msp = -1;
 static int hf_opcode = -1;
 static int hf_priority = -1;

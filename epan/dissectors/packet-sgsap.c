@@ -44,6 +44,8 @@
  */
 #define SCTP_PORT_SGSAP 29118
 
+void proto_register_sgsap(void);
+void proto_reg_handoff_sgsap(void);
 
 /* Global variables */
 static dissector_handle_t gsm_a_dtap_handle;
