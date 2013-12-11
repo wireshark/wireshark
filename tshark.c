@@ -1357,7 +1357,8 @@ main(int argc, char *argv[])
       if (strchr(optarg, 'n')) {
         out_file_name_res = TRUE;
       } else {
-        cmdarg_err("Invalid -W argument \"%s\"", optarg);
+        cmdarg_err("Invalid -W argument \"%s\"; it must be one of:", optarg);
+        cmdarg_err_cont("\t'n' write network address resolution information (pcapng only)");
         return 1;
       }
       break;
@@ -1406,9 +1407,14 @@ main(int argc, char *argv[])
     case 'N':        /* Select what types of addresses/port #s to resolve */
       badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
       if (badopt != '\0') {
-        cmdarg_err("-N specifies unknown resolving option '%c';",
+        cmdarg_err("-N specifies unknown resolving option '%c'; valid options are:",
                    badopt);
-        cmdarg_err_cont( "           Valid options are 'm', 'n', 't', and 'C'");
+        cmdarg_err_cont("\t'C' to enable concurrent (asynchronous) DNS lookups\n"
+                        "\t'm' to enable MAC address resolution\n"
+                        "\t'n' to enable network address resolution\n"
+                        "\t'N' to enable using external resolvers (e.g., DNS)\n"
+                        "\t    for network address resolution\n"
+                        "\t't' to enable transport-layer port number resolution");
         return 1;
       }
       break;
@@ -1471,17 +1477,17 @@ main(int argc, char *argv[])
       else if (strcmp(optarg, "udoy") == 0)
         timestamp_set_type(TS_UTC_WITH_YDOY);
       else {
-        cmdarg_err("Invalid time stamp type \"%s\"", optarg);
-        cmdarg_err_cont(
-"It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
-        cmdarg_err_cont(
-"\"adoy\" for absolute with YYYY/DOY date, \"d\" for delta,");
-        cmdarg_err_cont(
-"\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative,");
-        cmdarg_err_cont(
-"\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
-        cmdarg_err_cont(
-"or \"udoy\" for absolute UTC with YYYY/DOY date.");
+        cmdarg_err("Invalid time stamp type \"%s\"; it must be one of:", optarg);
+        cmdarg_err_cont("\t\"a\"    for absolute\n"
+                        "\t\"ad\"   for absolute with YYYY-MM-DD date\n"
+                        "\t\"adoy\" for absolute with YYYY/DOY date\n"
+                        "\t\"d\"    for delta\n"
+                        "\t\"dd\"   for delta displayed\n"
+                        "\t\"e\"    for epoch\n"
+                        "\t\"r\"    for relative\n"
+                        "\t\"u\"    for absolute UTC\n"
+                        "\t\"ud\"   for absolute UTC with YYYY-MM-DD date\n"
+                        "\t\"udoy\" for absolute UTC with YYYY/DOY date");
         return 1;
       }
       break;
@@ -1505,8 +1511,23 @@ main(int argc, char *argv[])
         print_details = TRUE;   /* Need full tree info */
         print_summary = FALSE;  /* Don't allow summary */
       } else {
-        cmdarg_err("Invalid -T parameter.");
-        cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
+        cmdarg_err("Invalid -T parameter \"%s\"; it must be one of:", optarg);                   /* x */
+        cmdarg_err_cont("\t\"fields\" The values of fields specified with the -e option, in a form\n"
+                        "\t         specified by the -E option.\n"
+                        "\t\"pdml\"   Packet Details Markup Language, an XML-based format for the\n"
+                        "\t         details of a decoded packet. This information is equivalent to\n"
+                        "\t         the packet details printed with the -V flag.\n"
+                        "\t\"ps\"     PostScript for a human-readable one-line summary of each of\n"
+                        "\t         the packets, or a multi-line view of the details of each of\n"
+                        "\t         the packets, depending on whether the -V flag was specified.\n"
+                        "\t\"psml\"   Packet Summary Markup Language, an XML-based format for the\n"
+                        "\t         summary information of a decoded packet. This information is\n"
+                        "\t         equivalent to the information shown in the one-line summary\n"
+                        "\t         printed by default.\n"
+                        "\t\"text\"   Text of a human-readable one-line summary of each of the\n"
+                        "\t         packets, or a multi-line view of the details of each of the\n"
+                        "\t         packets, depending on whether the -V flag was specified.\n"
+                        "\t         This is the default.");
         return 1;
       }
       break;
@@ -1516,8 +1537,9 @@ main(int argc, char *argv[])
       else if (strcmp(optarg, "hms") == 0)
         timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
       else {
-        cmdarg_err("Invalid seconds type \"%s\"", optarg);
-        cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
+        cmdarg_err("Invalid seconds type \"%s\"; it must be one of:", optarg);
+        cmdarg_err_cont("\t\"s\"   for seconds\n"
+                        "\t\"hms\" for hours, minutes and seconds");
         return 1;
       }
       break;
@@ -1560,8 +1582,7 @@ main(int argc, char *argv[])
           list_stat_cmd_args();
           return 0;
         }
-        cmdarg_err("Invalid -z argument \"%s\".", optarg);
-        cmdarg_err_cont("  -z argument must be one of :");
+        cmdarg_err("Invalid -z argument \"%s\"; it must be one of:", optarg);
         list_stat_cmd_args();
         return 1;
       }
@@ -1888,8 +1909,7 @@ main(int argc, char *argv[])
         if (pc != NULL) {
           if (pcap_compile(pc, &fcode, rfilter, 0, 0) != -1) {
             cmdarg_err_cont(
-              "  Note: That read filter code looks like a valid capture filter;");
-            cmdarg_err_cont(
+              "  Note: That read filter code looks like a valid capture filter;\n"
               "        maybe you mixed them up?");
           }
           pcap_close(pc);
@@ -1913,8 +1933,7 @@ main(int argc, char *argv[])
         if (pc != NULL) {
           if (pcap_compile(pc, &fcode, dfilter, 0, 0) != -1) {
             cmdarg_err_cont(
-              "  Note: That display filter code looks like a valid capture filter;");
-            cmdarg_err_cont(
+              "  Note: That display filter code looks like a valid capture filter;\n"
               "        maybe you mixed them up?");
           }
           pcap_close(pc);

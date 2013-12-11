@@ -39,7 +39,8 @@ S<[ B<-R> E<lt>Read filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
-S<[ B<-T> pdml|psml|ps|text|fields ]>
+S<[ B<-T> fields|pdml|ps|psml|text ]>
+S<[ B<-u> E<lt>seconds typeE<gt>]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
@@ -560,6 +561,8 @@ are turned on.
 
 The argument is a string that may contain the letters:
 
+B<C> to enable concurrent (asynchronous) DNS lookups
+
 B<m> to enable MAC address resolution
 
 B<n> to enable network address resolution
@@ -568,8 +571,6 @@ B<N> to enable using external resolvers (e.g., DNS) for network address
 resolution
 
 B<t> to enable transport-layer port number resolution
-
-B<C> to enable concurrent (asynchronous) DNS lookups
 
 =item -o  E<lt>preferenceE<gt>:E<lt>valueE<gt>
 
@@ -704,26 +705,10 @@ was captured
 
 The default format is relative.
 
-=item -T  pdml|psml|ps|text|fields
+=item -T  fields|pdml|ps|psml|text
 
 Set the format of the output when viewing decoded packet data.  The
 options are one of:
-
-B<pdml> Packet Details Markup Language, an XML-based format for the details of
-a decoded packet.  This information is equivalent to the packet details
-printed with the B<-V> flag.
-
-B<psml> Packet Summary Markup Language, an XML-based format for the summary
-information of a decoded packet.  This information is equivalent to the
-information shown in the one-line summary printed by default.
-
-B<ps> PostScript for a human-readable one-line summary of each of the packets,
-or a multi-line view of the details of each of the packets, depending on
-whether the B<-V> flag was specified.
-
-B<text> Text of a human-readable one-line summary of each of the packets, or a
-multi-line view of the details of each of the packets, depending on
-whether the B<-V> flag was specified.  This is the default.
 
 B<fields> The values of fields specified with the B<-e> option, in a
 form specified by the B<-E> option.  For example,
@@ -733,6 +718,29 @@ form specified by the B<-E> option.  For example,
 would generate comma-separated values (CSV) output suitable for importing
 into your favorite spreadsheet program.
 
+B<pdml> Packet Details Markup Language, an XML-based format for the details of
+a decoded packet.  This information is equivalent to the packet details
+printed with the B<-V> flag.
+
+B<ps> PostScript for a human-readable one-line summary of each of the packets,
+or a multi-line view of the details of each of the packets, depending on
+whether the B<-V> flag was specified.
+
+B<psml> Packet Summary Markup Language, an XML-based format for the summary
+information of a decoded packet.  This information is equivalent to the
+information shown in the one-line summary printed by default.
+
+B<text> Text of a human-readable one-line summary of each of the packets, or a
+multi-line view of the details of each of the packets, depending on
+whether the B<-V> flag was specified.  This is the default.
+
+=item -u E<lt>seconds typeE<gt>
+
+Specifies the seconds type.  Valid choices are:
+
+B<s> for seconds
+
+B<hms> for hours, minutes and seconds
 
 =item -v
 
