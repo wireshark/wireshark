@@ -66,4 +66,8 @@ struct packet_netlink_data {
 	guint16 type;
 };
 
+typedef int netlink_attributes_cb_t(tvbuff_t *, void *data, proto_tree *, int nla_type, int offset, int len);
+
+int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, netlink_attributes_cb_t cb);
+
 #endif /* __PACKET_NETLINK_H__ */

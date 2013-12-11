@@ -116,6 +116,58 @@ static gint ett_netlink_msg = -1;
 static dissector_table_t netlink_dissector_table;
 static dissector_handle_t data_handle;
 
+int
+dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
+{
+	/* align to 4 */
+	offset = (offset + 3) & ~3;
+
+	while (tvb_length_remaining(tvb, offset) >= 4) {
+		guint16 rta_len, rta_type;
+		int end_offset;
+
+		proto_item *ti;
+		proto_tree *attr_tree;
+
+		rta_len = tvb_get_letohs(tvb, offset);
+		if (rta_len < 4) {
+			/* XXX invalid expert */
+			break;
+		}
+
+		end_offset = (offset + rta_len + 3) & ~3;
+
+		ti = proto_tree_add_text(tree, tvb, offset, end_offset - offset, "Attribute");
+		attr_tree = proto_item_add_subtree(ti, ett);
+
+		proto_tree_add_text(attr_tree, tvb, offset, 2, "Len: %d", rta_len);
+		offset += 2;
+
+		rta_type = tvb_get_letohs(tvb, offset);
+		proto_tree_add_item(attr_tree, hfi_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		if (hfi_type->strings) {
+			/* XXX, export hf_try_val_to_str */
+			const char *rta_str = try_val_to_str(rta_type, (const value_string *) hfi_type->strings);
+
+			if (rta_str)
+				proto_item_append_text(ti, ": %s", rta_str);
+		}
+
+		if (!cb(tvb, data, attr_tree, rta_type, offset, rta_len - 4)) {
+			/* not handled */
+		}
+
+		if (end_offset <= offset)
+			break;
+
+		offset = end_offset;
+	}
+
+	return offset;
+}
+
 static int
 dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data _U_)
 {
@@ -151,6 +203,8 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 	protocol = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(fh_tree, &hfi_netlink_family, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
+
+	pinfo->p2p_dir = P2P_DIR_SENT; /* XXX */
 
 	/* DISSECTOR_ASSERT(offset == 16); */
 

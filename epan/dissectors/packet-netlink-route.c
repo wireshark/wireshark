@@ -265,47 +265,6 @@ static header_field_info *hfi_netlink_route = NULL;
 
 #define NETLINK_ROUTE_HFI_INIT HFI_INIT(proto_netlink_route)
 
-static const value_string netlink_route_type_vals[] = {
-	{ WS_RTM_NEWLINK, "Create network interface" },
-	{ WS_RTM_DELLINK, "Remove network interface" },
-	{ WS_RTM_GETLINK, "Get network interface" },
-	/* WS_RTM_SETLINK */
-
-	{ WS_RTM_NEWADDR, "Add IP address" },
-	{ WS_RTM_DELADDR, "Delete IP address" },
-	{ WS_RTM_GETADDR, "Get IP address" },
-
-	{ WS_RTM_NEWROUTE, "Add network route" },
-	{ WS_RTM_DELROUTE, "Delete network route" },
-	{ WS_RTM_GETROUTE, "Get network route" },
-
-	{ WS_RTM_NEWNEIGH, "Add neighbor table entry" },
-	{ WS_RTM_DELNEIGH, "Delete neighbor table entry" },
-	{ WS_RTM_GETNEIGH, "Get neighbor table entry" },
-
-	{ WS_RTM_NEWRULE, "Add routing rule" },
-	{ WS_RTM_DELRULE, "Delete routing rule" },
-	{ WS_RTM_GETRULE, "Get routing rule" },
-
-	{ WS_RTM_NEWQDISC, "Add queueing discipline" },
-	{ WS_RTM_DELQDISC, "Delete queueing discipline" },
-	{ WS_RTM_GETQDISC, "Get queueing discipline" },
-
-	{ WS_RTM_NEWTCLASS, "Add traffic class" },
-	{ WS_RTM_DELTCLASS, "Delete traffic class" },
-	{ WS_RTM_GETTCLASS, "Get traffic class" },
-
-	{ WS_RTM_NEWTFILTER, "Add traffic class" },
-	{ WS_RTM_DELTFILTER, "Delete traffic class" },
-	{ WS_RTM_GETTFILTER, "Get traffic class" },
-/* XXX from WS_RTM_NEWACTION */
-	{ 0, NULL }
-};
-
-static header_field_info hfi_netlink_route_type NETLINK_ROUTE_HFI_INIT =
-	{ "Message type", "netlink-route.type", FT_UINT16, BASE_DEC,
-	  VALS(netlink_route_type_vals), 0x00, NULL, HFILL };
-
 static gint ett_netlink_route = -1;
 static gint ett_netlink_route_attr = -1;
 static gint ett_netlink_route_if_flags = -1;
@@ -342,49 +301,13 @@ _fill_label_value_string_bitmask(char *label, guint32 value, const value_string 
 static int
 dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, struct netlink_route_info *info, proto_tree *tree, int offset, netlink_route_attributes_cb_t cb)
 {
-	/* align to 4 */
-	offset = (offset + 3) & ~3;
+	/* XXX, it's *almost* the same:
+	 *  - rtnetlink is using struct rtattr with shorts 
+	 *  - generic netlink is using struct nlattr with __u16
+	 */
 
-	while (tvb_length_remaining(tvb, offset) >= 4) {
-		guint16 rta_len, rta_type;
-		int end_offset;
-
-		proto_item *ti;
-		proto_tree *attr_tree;
-
-		rta_len = tvb_get_letohs(tvb, offset);
-		end_offset = (offset + rta_len + 3) & ~3;
-
-		ti = proto_tree_add_text(tree, tvb, offset, end_offset - offset, "rtnetlink attribute");
-		attr_tree = proto_item_add_subtree(ti, ett_netlink_route_attr);
-
-		proto_tree_add_text(attr_tree, tvb, offset, 2, "Len: %d", rta_len);
-		offset += 2;
-
-		rta_type = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(attr_tree, hfi_type, tvb, offset, 2, info->encoding);
-		offset += 2;
-
-		if (hfi_type->strings) {
-			/* XXX, export hf_try_val_to_str */
-			const char *rta_str = try_val_to_str(rta_type, (const value_string *) hfi_type->strings);
-
-			if (rta_str)
-				proto_item_append_text(ti, ": %s", rta_str);
-		}
-
-
-		if (!cb(tvb, info, attr_tree, rta_type, offset, end_offset - offset)) {
-			/* not handled */
-		}
-
-		if (end_offset <= offset)
-			break;
-
-		offset = end_offset;
-	}
-
-	return offset;
+	/* XXX, nice */
+	return dissect_netlink_attributes(tvb, hfi_type, ett_netlink_route_attr, info, tree, offset, (netlink_attributes_cb_t *) cb);
 }
 
 /* Interface */
@@ -875,6 +798,47 @@ dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, prot
 	return offset;
 }
 
+static const value_string netlink_route_type_vals[] = {
+	{ WS_RTM_NEWLINK, "Create network interface" },
+	{ WS_RTM_DELLINK, "Remove network interface" },
+	{ WS_RTM_GETLINK, "Get network interface" },
+	/* WS_RTM_SETLINK */
+
+	{ WS_RTM_NEWADDR, "Add IP address" },
+	{ WS_RTM_DELADDR, "Delete IP address" },
+	{ WS_RTM_GETADDR, "Get IP address" },
+
+	{ WS_RTM_NEWROUTE, "Add network route" },
+	{ WS_RTM_DELROUTE, "Delete network route" },
+	{ WS_RTM_GETROUTE, "Get network route" },
+
+	{ WS_RTM_NEWNEIGH, "Add neighbor table entry" },
+	{ WS_RTM_DELNEIGH, "Delete neighbor table entry" },
+	{ WS_RTM_GETNEIGH, "Get neighbor table entry" },
+
+	{ WS_RTM_NEWRULE, "Add routing rule" },
+	{ WS_RTM_DELRULE, "Delete routing rule" },
+	{ WS_RTM_GETRULE, "Get routing rule" },
+
+	{ WS_RTM_NEWQDISC, "Add queueing discipline" },
+	{ WS_RTM_DELQDISC, "Delete queueing discipline" },
+	{ WS_RTM_GETQDISC, "Get queueing discipline" },
+
+	{ WS_RTM_NEWTCLASS, "Add traffic class" },
+	{ WS_RTM_DELTCLASS, "Delete traffic class" },
+	{ WS_RTM_GETTCLASS, "Get traffic class" },
+
+	{ WS_RTM_NEWTFILTER, "Add traffic class" },
+	{ WS_RTM_DELTFILTER, "Delete traffic class" },
+	{ WS_RTM_GETTFILTER, "Get traffic class" },
+/* XXX from WS_RTM_NEWACTION */
+	{ 0, NULL }
+};
+
+static header_field_info hfi_netlink_route_nltype NETLINK_ROUTE_HFI_INIT =
+	{ "Message type", "netlink-route.nltype", FT_UINT16, BASE_DEC,
+	  VALS(netlink_route_type_vals), 0x00, NULL, HFILL };
+
 static int
 dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
 {
@@ -899,7 +863,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		proto_item_set_text(tree, "Linux rtnetlink (route netlink) message");
 
 		/* XXX, from header tvb */
-		proto_tree_add_uint(tree, &hfi_netlink_route_type, NULL, 0, 0, data->type);
+		proto_tree_add_uint(tree, &hfi_netlink_route_nltype, NULL, 0, 0, data->type);
 	}
 
 	info.encoding = data->encoding;
@@ -947,7 +911,7 @@ proto_register_netlink_route(void)
 {
 #ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
-		&hfi_netlink_route_type,
+		&hfi_netlink_route_nltype,
 
 	/* Interface */
 		&hfi_netlink_route_ifi_family,
