@@ -30,12 +30,12 @@
 #include <epan/packet.h>
 #include "packet-netlink.h"
 
-struct netlink_netfilter_info {
+typedef struct {
 	packet_info *pinfo;
 	struct packet_netlink_data *data;
 
 	int encoding; /* copy of data->encoding */
-};
+} netlink_netfilter_info_t;
 
 
 static dissector_handle_t netlink_netfilter;
@@ -90,7 +90,7 @@ static header_field_info hfi_netlink_netfilter_queue_type NETLINK_NETFILTER_HFI_
 	  VALS(netlink_netfilter_queue_type_vals), 0x00FF, NULL, HFILL };
 
 static int
-dissect_netlink_netfilter_queue(tvbuff_t *tvb _U_, struct netlink_netfilter_info *info, proto_tree *tree, int offset)
+dissect_netlink_netfilter_queue(tvbuff_t *tvb _U_, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
 {
 	enum ws_nfqnl_msg_types type = (enum ws_nfqnl_msg_types) (info->data->type & 0xff);
 
@@ -118,7 +118,7 @@ static header_field_info hfi_netlink_netfilter_ulog_type NETLINK_NETFILTER_HFI_I
 	  VALS(netlink_netfilter_ulog_type_vals), 0x00FF, NULL, HFILL };
 
 static int
-dissect_netlink_netfilter_ulog(tvbuff_t *tvb, struct netlink_netfilter_info *info, proto_tree *tree, int offset)
+dissect_netlink_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
 {
 	enum ws_nfulnl_msg_types type = (enum ws_nfulnl_msg_types) (info->data->type & 0xff);
 
@@ -157,8 +157,8 @@ static header_field_info hfi_netlink_netfilter_subsys NETLINK_NETFILTER_HFI_INIT
 static int
 dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
 {
-	struct netlink_netfilter_info info;
 	struct packet_netlink_data *data = NULL;
+	netlink_netfilter_info_t info;
 	int offset;
 
 	gboolean is_req;
@@ -189,6 +189,10 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	offset = 0;
 
 	switch (data->type >> 8) {
+		case WS_NFNL_SUBSYS_QUEUE:
+			offset = dissect_netlink_netfilter_queue(tvb, &info, tree, offset);
+			break;
+
 		case WS_NFNL_SUBSYS_ULOG:
 			offset = dissect_netlink_netfilter_ulog(tvb, &info, tree, offset);
 			break;
