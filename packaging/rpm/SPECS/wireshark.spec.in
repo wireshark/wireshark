@@ -7,7 +7,7 @@
 %bcond_with    gtk3
 %bcond_with    qt
 
-# Set these to 1 if you want to ensure your package inclues support for them:
+# Set these to 1 if you want to ensure your package includes support for them:
 %global with_adns 0
 %global with_c_ares 1
 %global with_lua  1
