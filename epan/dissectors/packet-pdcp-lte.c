@@ -623,6 +623,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     /* Set report for this frame */
     /* For PDCP, sequence number is always expectedSequence number */
     p_report_in_frame->sequenceExpectedCorrect = (sequenceNumber == expectedSequenceNumber);
+    p_report_in_frame->hfn = p_channel_status->hfn;
 
     /* For wrong sequence number... */
     if (!p_report_in_frame->sequenceExpectedCorrect) {
