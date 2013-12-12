@@ -42,9 +42,10 @@ if [ `builtin type -p putclip` ]  ; then
 fi
 
 if [ -z "$PBCOPY" ] ; then
-    echo "Can't find an clipboard copy. Check if pbcopy, xsel or putclip is installed in your system"
+    echo "Can't find a clipboard copy. Check if pbcopy, xsel or putclip is installed in your system"
     exit 1
 fi
+
 function exit_err
 {
     if [ -n "$*" ] ; then

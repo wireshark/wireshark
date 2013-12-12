@@ -1,0 +1,140 @@
+#!/bin/bash
+#
+# backport-change - Given a master git commit or trunk SVN revision, creates
+# a backport request in Gerrit.
+#
+# $Id$
+#
+# Copyright 2013 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+# A more complete and likely more robust workflow can be found at
+# http://www.mediawiki.org/wiki/Gerrit/Advanced_usage#Submitting_a_change_to_a_branch_for_review_.28.22backporting.22.29
+
+export GIT_PAGER=""
+TOOLS_DIR=`dirname $0`
+COMMIT_MSG_HOOK=`git rev-parse --git-dir`/hooks/commit-msg
+
+function exit_err
+{
+    if [ -n "$*" ] ; then
+        echo -e "Error: $*\n"
+    fi
+    echo "Usage:"
+    echo `basename $0` "<svn revision|git sha>"
+    echo "SVN revisions MUST be prefixed with \"r\""
+    exit 1
+}
+
+# Check if pbcopy (or similar) is available...
+if [ `builtin type -p pbcopy` ] ; then
+    PBCOPY="pbcopy"
+fi
+
+if [ `builtin type -p xsel` ]  ; then
+    PBCOPY="xsel --clipboard --input"
+fi
+
+if [ `builtin type -p putclip` ]  ; then
+    PBCOPY="putclip"
+fi
+
+#
+# Make sure we have a destination
+#
+
+git ls-remote --heads gerrit 2> /dev/null
+if [ $? -ne 0 ] ; then exit_err "Can't find a remote named \"gerrit\"" ; fi
+
+#
+# Find our change
+#
+
+CHANGE="$1"
+LONG_HASH=""
+
+if [ -z "$CHANGE" ] ; then exit_err ; fi
+
+if [[ $CHANGE = r* ]] ; then
+    # Subversion
+    SVN_REV=${CHANGE:1}
+    LONG_HASH=`git log master --grep "svn path=/trunk/; revision=${SVN_REV}\$" -1 --format=format:%H`
+    if [ -z "$LONG_HASH" ] ; then exit_err "Can't find SVN revision $CHANGE" ; fi
+else
+    # Git
+    LONG_HASH=`git rev-parse $CHANGE`
+    if [ -z "$LONG_HASH" ] ; then exit_err "Can't find git commit $CHANGE" ; fi
+fi
+
+#
+# Make sure our upstream is valid
+#
+
+UPSTREAM_NAME=`git rev-parse --abbrev-ref --symbolic-full-name @{upstream}`
+UPSTREAM_NAME=`basename $UPSTREAM_NAME`
+
+if [ $? -ne 0 -o -z "$UPSTREAM_NAME" ] ; then exit_err "Can't find upstream branch." ; fi
+
+if [[ $UPSTREAM_NAME != master-[0-9].[0-9]* ]] ; then
+    exit_err "Can't backport to remote branch $UPSTREAM_NAME."
+fi
+
+PUSH_CMD="git push gerrit HEAD:refs/for/$UPSTREAM_NAME"
+
+#
+# On with the show
+#
+
+echo "Backporting $LONG_HASH"
+git cherry-pick $LONG_HASH
+
+if [ $? -eq 0 ] ; then
+    # XXX We might want to install Gerrit's commit-msg hook instead, e.g.
+    # scp -p -P 29418 <user>@code.wireshark.org:hooks/commit-msg .git/hooks/
+
+    echo
+    echo "Attempting push to gerrit HEAD:refs/for/$UPSTREAM_NAME"
+    $PUSH_CMD
+
+    if [ $? -ne 0 ] ; then
+        # XXX - We might want to check for the commit-msg hook and if it's
+        # present run git revert + git commit as described at
+        # http://code.google.com/p/gerrit/issues/detail?id=843#c4
+        cat <<FIN
+
+Push failed. If the server is complaining about a missing change id
+copy it and run
+
+  git commit --amend
+  # Insert the change id in your editor
+  $PUSH_CMD
+FIN
+    fi
+fi
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=4 tabstop=8 expandtab:
+# :indentSize=4:tabSize=8:noTabs=true:
+#
