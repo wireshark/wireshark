@@ -344,7 +344,7 @@ static gint body_type_16_over_8_dissection(guint8 data_length, proto_tree *devic
     proto_item *devicenet_16_8;
     guint16 class_id, instance, attribute;
     attribute_info_t* att_info;
-   
+
     devicenet_16_8 = proto_tree_add_text(devicenet_tree, tvb, offset, -1, "DeviceNet 16/8");
     devicenet_tree = proto_item_add_subtree(devicenet_16_8, ett_devicenet_16_8);
 
@@ -505,10 +505,10 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         case 0x7:
             proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_rr_bit, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_physical_port_number, tvb, offset, 1, ENC_NA);
-            offset ++; 
+            offset ++;
 
             proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_vendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset+=2; 
+            offset+=2;
 
             proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_serial_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -682,9 +682,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             default:
                                 proto_tree_add_bytes_format_value(content_tree, hf_devicenet_data, tvb, offset, data_length,
                                     NULL, "%s", tvb_bytes_to_str_punct(tvb, offset, data_length, ' '));
+                                break;
                             }
                         }
-                        break;
                     }
 
                     /* Don't have a behavior defined for this address, default to 8 over 8 */
