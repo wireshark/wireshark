@@ -68,6 +68,8 @@
  *	protocols (ab)use AUTH_RSA for their own AUTH-flavor. AUTH_RSA is
  *	therefore dissected as the inofficial AUTH_GLUSTER.
  */
+void proto_register_rpc(void);
+void proto_reg_handoff_rpc(void);
 
 /* desegmentation of RPC over TCP */
 static gboolean rpc_desegment = TRUE;

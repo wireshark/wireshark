@@ -40,6 +40,7 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 
+void proto_register_rtcdc(void);
 void proto_reg_handoff_rtcdc(void);
 
 /* PPID used for this protocol */

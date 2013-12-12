@@ -31,6 +31,9 @@
 #include <epan/llcsaps.h>
 #include "packet-llc.h"
 
+void proto_register_rpl(void);
+void proto_reg_handoff_rpl(void);
+
 static int proto_rpl          = -1;
 
 static int hf_rpl_type        = -1;

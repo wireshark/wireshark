@@ -34,6 +34,9 @@
 
 #define DEFAULT_SAMETIME_PORT	1533
 
+void proto_register_sametime(void);
+void proto_reg_handoff_sametime(void);
+
 static int proto_sametime = -1;
 static guint global_sametime_port = DEFAULT_SAMETIME_PORT;
 static dissector_handle_t sametime_handle;

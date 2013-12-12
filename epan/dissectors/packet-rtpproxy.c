@@ -55,6 +55,9 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 
+void proto_register_rtpproxy(void);
+void proto_reg_handoff_rtpproxy(void);
+
 static int proto_rtpproxy = -1;
 
 static int hf_rtpproxy_cookie = -1;
@@ -266,7 +269,7 @@ static nstime_t rtpproxy_timeout_ns = {1, 0};
 
 void proto_reg_handoff_rtpproxy(void);
 
-gint
+static gint
 rtpproxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint realsize)
 {
 	proto_item *ti = NULL;
@@ -300,7 +303,7 @@ rtpproxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint re
 	return (end == realsize ? -1 : (gint)end);
 }
 
-void
+static void
 rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint realsize)
 {
 	proto_item *ti;
@@ -397,7 +400,7 @@ rtpproxy_add_parameter(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, gu
 	}
 }
 
-rtpproxy_info_t *
+static rtpproxy_info_t *
 rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, rtpproxy_conv_info_t *rtpproxy_conv, gchar* cookie)
 {
 	rtpproxy_info_t *rtpproxy_info;
@@ -439,7 +442,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	return rtpproxy_info;
 }
 
-void
+static void
 rtpproxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint end)
 {
 	gint offset = 0;

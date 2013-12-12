@@ -42,6 +42,8 @@
  * XXX - is the "Epoch" really a UN*X time?  The high-order bit, according
  * to that spec, is a flag bit.
  */
+void proto_register_rx(void);
+void proto_reg_handoff_rx(void);
 
 #define UDP_PORT_RX_LOW		7000
 #define UDP_PORT_RX_HIGH	7009

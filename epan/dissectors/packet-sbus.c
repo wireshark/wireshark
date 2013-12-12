@@ -31,6 +31,9 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
+void proto_register_sbus(void);
+void proto_reg_handoff_sbus(void);
+
 /* Attribute values*/
 #define SBUS_REQUEST                   0x00
 #define SBUS_RESPONSE                  0x01

@@ -30,6 +30,9 @@
 
 #include "packet-rpc.h"
 
+void proto_register_rstat(void);
+void proto_reg_handoff_rstat(void);
+
 static int proto_rstat = -1;
 static int hf_rstat_procedure_v1 = -1;
 static int hf_rstat_procedure_v2 = -1;

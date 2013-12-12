@@ -45,6 +45,8 @@
 #include "packet-rtp.h"
 #include <epan/tap.h>
 
+void proto_register_rtp_event(void);
+
 /*  rtp_event_payload_type_value is the value used globally
 	to set the appropriate payload type
 */

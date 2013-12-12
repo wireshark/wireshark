@@ -106,6 +106,7 @@
 #define FLAG_INBOUND     0x0008
 #define FLAG_OUTBOUND    0x0010
 
+void proto_register_rpcap (void);
 void proto_reg_handoff_rpcap (void);
 
 static int proto_rpcap = -1;

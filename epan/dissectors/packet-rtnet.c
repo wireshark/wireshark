@@ -44,6 +44,12 @@
  *        http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
  */
 
+void proto_register_rtmac(void);
+void proto_reg_handoff_rtmac(void);
+
+void proto_register_rtcfg(void);
+void proto_reg_handoff_rtcfg(void);
+
 #define RTMAC_TYPE_TDMA     0x0001 /* since version 2    */
 #define RTMAC_TYPE_TDMA_V1  0x9031 /* first TDMA version */
 

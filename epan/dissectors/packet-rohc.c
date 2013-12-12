@@ -44,6 +44,8 @@
 
 #include "packet-rohc.h"
 
+void proto_register_rohc(void);
+void proto_reg_handoff_rohc(void);
 
 static GHashTable *rohc_cid_hash = NULL;
 

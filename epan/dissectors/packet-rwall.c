@@ -28,6 +28,9 @@
 #include "packet-rpc.h"
 #include "packet-rwall.h"
 
+void proto_register_rwall(void);
+void proto_reg_handoff_rwall(void);
+
 static header_field_info *hfi_rwall = NULL;
 
 #define RWALL_HFI_INIT HFI_INIT(proto_rwall)

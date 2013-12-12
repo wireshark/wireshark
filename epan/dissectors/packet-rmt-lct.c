@@ -55,6 +55,8 @@
 #define LCT_CLOSE_SESSION_FLAG 0x0002
 #define LCT_CLOSE_OBJECT_FLAG 0x0001
 
+void proto_register_rmt_lct(void);
+
 static int proto_rmt_lct = -1;
 
 static int hf_version = -1;

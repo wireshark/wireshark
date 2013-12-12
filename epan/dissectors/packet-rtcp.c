@@ -79,6 +79,9 @@
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_rtcp(void);
+void proto_reg_handoff_rtcp(void);
+
 /* Version is the first 2 bits of the first octet*/
 #define RTCP_VERSION(octet) ((octet) >> 6)
 
@@ -734,7 +737,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 /* Dissect the length field. Append to this field text indicating the number of
    actual bytes this translates to (i.e. (raw value + 1) * 4) */
-int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, int offset)
+static int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_item     *ti;
     unsigned short  raw_length = tvb_get_ntohs( tvb, offset );

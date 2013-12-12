@@ -65,6 +65,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_rtacser(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_rtacser                    = -1;
 static int hf_rtacser_timestamp             = -1;

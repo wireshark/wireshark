@@ -38,6 +38,8 @@
 #include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 
+void proto_register_rsync(void);
+
 #define RSYNCD_MAGIC_HEADER "@RSYNCD:"
 #define RSYNCD_MAGIC_HEADER_LEN 8
 

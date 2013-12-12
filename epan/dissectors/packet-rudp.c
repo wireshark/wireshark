@@ -48,6 +48,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+
+void proto_register_rudp(void);
+
 /* Disable rudp by default. The previously hardcoded value of
  * 7000 (used by Cisco) collides with afs and as the draft states:
  * "RUDP doesn't place any restrictions on which UDP port numbers are used.

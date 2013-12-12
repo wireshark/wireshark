@@ -43,6 +43,9 @@
 /* The rsh protocol uses TCP port 512 per its IANA assignment */
 #define RSH_PORT 514
 
+void proto_register_rsh(void);
+void proto_reg_handoff_rsh(void);
+
 /* Variables for our preferences */
 static gboolean preference_info_show_client_username = FALSE;
 static gboolean preference_info_show_server_username = TRUE;

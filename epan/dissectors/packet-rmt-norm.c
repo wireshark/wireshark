@@ -51,6 +51,9 @@
 
 #include "packet-rmt-common.h"
 
+void proto_register_rmt_norm(void);
+void proto_reg_handoff_rmt_norm(void);
+
 /* String tables */
 
 #define NORM_INFO       1

@@ -79,6 +79,11 @@
 
 /* #define DEBUG_RTMPT 1 */
 
+void proto_register_rtmpt(void);
+void proto_reg_handoff_rtmpt(void);
+
+void proto_register_amf(void);
+
 static int proto_rtmpt = -1;
 
 static int hf_rtmpt_handshake_c0 = -1;

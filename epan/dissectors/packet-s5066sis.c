@@ -34,6 +34,7 @@
 
 /* Forward reference */
 /* Register functions */
+void proto_register_s5066(void);
 void proto_reg_handoff_s5066(void);
 /* Main dissectors */
 static int dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);

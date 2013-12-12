@@ -32,6 +32,9 @@
 #include "packet-rpc.h"
 #include "packet-rquota.h"
 
+void proto_register_rquota(void);
+void proto_reg_handoff_rquota(void);
+
 static int proto_rquota = -1;
 static int hf_rquota_procedure_v1 = -1;
 static int hf_rquota_procedure_v2 = -1;

@@ -54,6 +54,8 @@
 #include "packet-e164.h"
 #include "packet-rtsp.h"
 
+void proto_register_rtsp(void);
+
 static int rtsp_tap = -1;
 static rtsp_info_value_t *rtsp_stat_info;
 

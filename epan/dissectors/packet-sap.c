@@ -39,6 +39,10 @@
 #define MCAST_SAP_VERSION_SHIFT 5   /* Right shift 5 bits to get the version */
 #define MCAST_SAP_VER0 0            /* Version 0 */
 #define MCAST_SAP_VER1PLUS 1        /* Version 1 or later */
+
+void proto_register_sap(void);
+void proto_reg_handoff_sap(void);
+
 static const value_string mcast_sap_ver[] = {
     { MCAST_SAP_VER0,     "SAPv0"},
     { MCAST_SAP_VER1PLUS, "SAPv1 or later"},

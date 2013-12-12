@@ -33,6 +33,8 @@
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
 
+void proto_register_rsip(void);
+
 /* Forward declaration we need below */
 void proto_reg_handoff_rsip(void);
 

@@ -30,6 +30,9 @@
 
 #include "packet-rpc.h"
 
+void proto_register_sadmind(void);
+void proto_reg_handoff_sadmind(void);
+
 static int proto_sadmind = -1;
 static int hf_sadmind_procedure_v1 = -1;
 static int hf_sadmind_procedure_v2 = -1;

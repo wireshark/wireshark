@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_rpkirtr(void);
 void proto_reg_handoff_rpkirtr(void);
 
 static int proto_rpkirtr = -1;

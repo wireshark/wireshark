@@ -61,6 +61,9 @@
 
 #include "packet-rtps.h"
 
+void proto_register_rtps(void);
+void proto_reg_handoff_rtps(void);
+
 static const char * const SM_EXTRA_RPLUS  = "(r+)";
 static const char * const SM_EXTRA_RMINUS = "(r-)";
 static const char * const SM_EXTRA_WPLUS  = "(w+)";

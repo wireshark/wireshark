@@ -68,6 +68,8 @@
 #define S5066_EOW_HDR_DRC_REQUEST           7
 #define S5066_EOW_HFTRP_TOKEN               15
 
+void proto_register_s5066dts(void);
+
 static gint proto_s5066dts = -1;
 
 /* Configuration parameters */
