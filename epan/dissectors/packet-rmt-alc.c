@@ -51,8 +51,8 @@
 /* Initialize the protocol and registered fields */
 /* ============================================= */
 
-void proto_register_rmt_alc(void);
-void proto_reg_handoff_rmt_alc(void);
+void proto_register_alc(void);
+void proto_reg_handoff_alc(void);
 
 static int proto_rmt_alc = -1;
 
