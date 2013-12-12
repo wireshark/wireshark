@@ -29,7 +29,7 @@
 
 #define SCSI_OSD_OPCODE			0x7f
 
-extern const value_string attributes_page_vals[];
+WS_DLL_PUBLIC value_string_ext attributes_page_vals_ext;
 
 typedef struct _scsi_osd_lun_info_t scsi_osd_lun_info_t;
 typedef struct _attribute_page_numbers_t attribute_page_numbers_t;
@@ -49,6 +49,6 @@ osd_lookup_attribute(guint32 page, guint32 number);
 
 extern int hf_scsi_osd_opcode;
 extern scsi_cdb_table_t scsi_osd_table[256];
-WS_DLL_PUBLIC const value_string scsi_osd_vals[];
+WS_DLL_PUBLIC value_string_ext scsi_osd_vals_ext;
 
 #endif

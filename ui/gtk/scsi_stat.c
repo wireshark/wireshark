@@ -43,6 +43,7 @@
 #include <epan/dissectors/packet-scsi-ssc.h>
 #include <epan/dissectors/packet-scsi-smc.h>
 #include <epan/dissectors/packet-scsi-osd.h>
+#include <epan/dissectors/packet-scsi-mmc.h>
 
 #include "ui/simple_dialog.h"
 #include "../globals.h"
@@ -60,20 +61,20 @@
 
 /* used to keep track of the statistics for an entire scsi command set */
 typedef struct _scsistat_t {
-	GtkWidget *win;
-	srt_stat_table srt_table;
-	guint8 cmdset;
-	const value_string *cdbnames;
-	const char *prog;
+	GtkWidget	 *win;
+	srt_stat_table	  srt_table;
+	guint8		  cmdset;
+	value_string_ext *cdbnames_ext;
+	const char	 *prog;
 } scsistat_t;
 
-static guint8 scsi_program=0;
+static guint8 scsi_program = 0;
 
 enum
 {
-   SCSI_STAT_PROG_LABEL_SBC,
-   SCSI_STAT_PROG_LABEL_SSC,
-   SCSI_STAT_PROG_LABEL_MMC
+	SCSI_STAT_PROG_LABEL_SBC,
+	SCSI_STAT_PROG_LABEL_SSC,
+	SCSI_STAT_PROG_LABEL_MMC
 };
 
 
@@ -145,7 +146,7 @@ scsistat_draw(void *arg)
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	scsistat_t *rs=(scsistat_t *)data;
+	scsistat_t *rs = (scsistat_t *)data;
 
 	remove_tap_listener(rs);
 
@@ -160,59 +161,59 @@ static void
 gtk_scsistat_init(const char *opt_arg, void* userdata _U_)
 {
 	scsistat_t *rs;
-	guint32 i;
-	char *title_string;
-	char *filter_string;
-	GtkWidget *vbox;
-	GtkWidget *stat_label;
-	GtkWidget *filter_label;
-	GtkWidget *bbox;
-	GtkWidget *close_bt;
-	int program, pos;
-	const char *filter=NULL;
-	GString *error_string;
-	const char *hf_name=NULL;
+	guint32	    i;
+	char	   *title_string;
+	char	   *filter_string;
+	GtkWidget  *vbox;
+	GtkWidget  *stat_label;
+	GtkWidget  *filter_label;
+	GtkWidget  *bbox;
+	GtkWidget  *close_bt;
+	int	    program, pos;
+	const char *filter  = NULL;
+	GString	   *error_string;
+	const char *hf_name = NULL;
 
-	pos=0;
-	if(sscanf(opt_arg,"scsi,srt,%d,%n",&program,&pos)==1){
+	pos = 0;
+	if(sscanf(opt_arg,"scsi,srt,%d,%n",&program,&pos) == 1){
 		if(pos){
-			filter=opt_arg+pos;
+			filter = opt_arg+pos;
 		} else {
-			filter=NULL;
+			filter = NULL;
 		}
 	} else {
 		fprintf(stderr, "wireshark: invalid \"-z scsi,srt,<cmdset>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
-	scsi_program=program;
-	rs=(scsistat_t *)g_malloc(sizeof(scsistat_t));
-        rs->cmdset=program;
-        switch(program){
+	scsi_program = program;
+	rs = (scsistat_t *)g_malloc(sizeof(scsistat_t));
+	rs->cmdset = program;
+	switch(program){
 	case SCSI_DEV_SBC:
-		rs->prog="SBC (disk)";
-		rs->cdbnames=scsi_sbc_vals;
-		hf_name="scsi_sbc.opcode";
+		rs->prog = "SBC (disk)";
+		rs->cdbnames_ext = &scsi_sbc_vals_ext;
+		hf_name = "scsi_sbc.opcode";
 		break;
 	case SCSI_DEV_SSC:
-		rs->prog="SSC (tape)";
-		rs->cdbnames=scsi_ssc_vals;
-		hf_name="scsi_ssc.opcode";
+		rs->prog = "SSC (tape)";
+		rs->cdbnames_ext = &scsi_ssc_vals_ext;
+		hf_name = "scsi_ssc.opcode";
 		break;
 	case SCSI_DEV_CDROM:
-		rs->prog="MMC (cd/dvd)";
-		rs->cdbnames=scsi_mmc_vals;
-		hf_name="scsi_mmc.opcode";
+		rs->prog = "MMC (cd/dvd)";
+		rs->cdbnames_ext = &scsi_mmc_vals_ext;
+		hf_name = "scsi_mmc.opcode";
 		break;
 	case SCSI_DEV_SMC:
-		rs->prog="SMC (tape robot)";
-		rs->cdbnames=scsi_smc_vals;
-		hf_name="scsi_smc.opcode";
+		rs->prog = "SMC (tape robot)";
+		rs->cdbnames_ext = &scsi_smc_vals_ext;
+		hf_name = "scsi_smc.opcode";
 		break;
 	case SCSI_DEV_OSD:
-		rs->prog="OSD (object based)";
-		rs->cdbnames=scsi_osd_vals;
-		hf_name="scsi_osd.opcode";
+		rs->prog = "OSD (object based)";
+		rs->cdbnames_ext = &scsi_osd_vals_ext;
+		hf_name = "scsi_osd.opcode";
 		break;
 	}
 
@@ -221,17 +222,17 @@ gtk_scsistat_init(const char *opt_arg, void* userdata _U_)
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	scsistat_set_title(rs);
 
-	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	title_string = scsistat_gen_title(rs);
-	stat_label=gtk_label_new(title_string);
+	stat_label = gtk_label_new(title_string);
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 
 	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
-	filter_label=gtk_label_new(filter_string);
+	filter_label = gtk_label_new(filter_string);
 	g_free(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
@@ -241,12 +242,12 @@ gtk_scsistat_init(const char *opt_arg, void* userdata _U_)
 
 	init_srt_table(&rs->srt_table, 256, vbox, hf_name);
 
-	for(i=0;i<256;i++){
-		init_srt_table_row(&rs->srt_table, i, val_to_str(i, rs->cdbnames, "Unknown-0x%02x"));
+	for(i=0; i<256; i++){
+		init_srt_table_row(&rs->srt_table, i, val_to_str_ext(i, rs->cdbnames_ext, "Unknown-0x%02x"));
 	}
 
 
-	error_string=register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
+	error_string = register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -273,16 +274,16 @@ gtk_scsistat_init(const char *opt_arg, void* userdata _U_)
 }
 
 static const enum_val_t scsi_command_sets[] = {
-	{ "sbc", "SBC (disk)", SCSI_DEV_SBC },
-	{ "ssc", "SSC (tape)", SCSI_DEV_SSC },
-	{ "mmc", "MMC (cd/dvd)", SCSI_DEV_CDROM },
-	{ "smc", "SMC (tape robot)", SCSI_DEV_SMC },
+	{ "sbc", "SBC (disk)",	       SCSI_DEV_SBC },
+	{ "ssc", "SSC (tape)",	       SCSI_DEV_SSC },
+	{ "mmc", "MMC (cd/dvd)",       SCSI_DEV_CDROM },
+	{ "smc", "SMC (tape robot)",   SCSI_DEV_SMC },
 	{ "osd", "OSD (object based)", SCSI_DEV_OSD },
 	{ NULL, NULL, 0 }
 };
 
 static tap_param scsi_stat_params[] = {
-	{ PARAM_ENUM, "Command set", scsi_command_sets },
+	{ PARAM_ENUM,   "Command set", scsi_command_sets },
 	{ PARAM_FILTER, "Filter", NULL }
 };
 
@@ -301,3 +302,17 @@ register_tap_listener_gtkscsistat(void)
 	register_param_stat(&scsi_stat_dlg, "SCSI",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -465,9 +465,9 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
                          gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint bytecnt, desc_bytecnt;
-    guint8 elem_type;
-    guint8 voltag_flags;
+    guint   bytecnt, desc_bytecnt;
+    guint8  elem_type;
+    guint8  voltag_flags;
     guint16 elem_desc_len;
 
     if (!tree)
@@ -542,47 +542,48 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* SMC Commands */
-const value_string scsi_smc_vals[] = {
-    {SCSI_SPC_ACCESS_CONTROL_IN               , "Access Control In"},
-    {SCSI_SPC_ACCESS_CONTROL_OUT              , "Access Control Out"},
-    {SCSI_SMC_EXCHANGE_MEDIUM                 , "Exchange Medium"},
-    {SCSI_SMC_INITIALIZE_ELEMENT_STATUS       , "Initialize Element Status"},
-    {SCSI_SMC_INITIALIZE_ELEMENT_STATUS_RANGE , "Initialize Element Status With Range"},
-    {SCSI_SPC_INQUIRY                         , "Inquiry"},
-    {SCSI_SPC_LOGSELECT                       , "Log Select"},
-    {SCSI_SPC_LOGSENSE                        , "Log Sense"},
-    {SCSI_SPC_MGMT_PROTOCOL_IN                , "Mgmt Protocol In"},
-    {SCSI_SPC_MODESELECT6                     , "Mode Select(6)"},
-    {SCSI_SPC_MODESELECT10                    , "Mode Select(10)"},
-    {SCSI_SPC_MODESENSE6                      , "Mode Sense(6)"},
-    {SCSI_SPC_MODESENSE10                     , "Mode Sense(10)"},
-    {SCSI_SMC_MOVE_MEDIUM                     , "Move Medium"},
-    {SCSI_SMC_MOVE_MEDIUM_ATTACHED            , "Move Medium Attached"},
-    {SCSI_SMC_OPENCLOSE_ELEMENT               , "Open/Close Import/Export Element"},
-    {SCSI_SPC_PERSRESVIN                      , "Persistent Reserve In"},
-    {SCSI_SPC_PERSRESVOUT                     , "Persistent Reserve Out"},
-    {SCSI_SMC_POSITION_TO_ELEMENT             , "Position To Element"},
-    {SCSI_SPC_PREVMEDREMOVAL                  , "Prevent/Allow Medium Removal"},
-    {SCSI_SMC_READ_ATTRIBUTE                  , "Read Attribute"},
-    {SCSI_SPC_READBUFFER                      , "Read Buffer"},
-    {SCSI_SMC_READ_ELEMENT_STATUS             , "Read Element Status"},
-    {SCSI_SMC_READ_ELEMENT_STATUS_ATTACHED    , "Read Element Status Attached"},
-    {SCSI_SPC_RCVDIAGRESULTS                  , "Receive Diagnostics Results"},
-    {SCSI_SPC_RELEASE6                        , "Release(6)"},
-    {SCSI_SPC_RELEASE10                       , "Release(10)"},
-    {SCSI_SPC_REPORTLUNS                      , "Report LUNs"},
-    {SCSI_SMC_REPORT_VOLUME_TYPES_SUPPORTED   , "Report Volume Types Supported"},
-    {SCSI_SPC_REQSENSE                        , "Request Sense"},
-    {SCSI_SMC_REQUEST_VOLUME_ELEMENT_ADDRESS  , "Request Volume Element Address"},
-    {SCSI_SPC_RESERVE6                        , "Reserve(6)"},
-    {SCSI_SPC_RESERVE10                       , "Reserve(10)"},
-    {SCSI_SMC_SEND_VOLUME_TAG                 , "Send Volume Tag"},
-    {SCSI_SPC_SENDDIAG                        , "Send Diagnostic"},
-    {SCSI_SPC_TESTUNITRDY                     , "Test Unit Ready"},
-    {SCSI_SMC_WRITE_ATTRIBUTE                 , "Write Attribute"},
-    {SCSI_SPC_WRITEBUFFER                     , "Write Buffer"},
+static const value_string scsi_smc_vals[] = {
+    /* 0x00 */    {SCSI_SPC_TESTUNITRDY                     , "Test Unit Ready"},
+    /* 0x03 */    {SCSI_SPC_REQSENSE                        , "Request Sense"},
+    /* 0x07 */    {SCSI_SMC_INITIALIZE_ELEMENT_STATUS       , "Initialize Element Status"},
+    /* 0x12 */    {SCSI_SPC_INQUIRY                         , "Inquiry"},
+    /* 0x15 */    {SCSI_SPC_MODESELECT6                     , "Mode Select(6)"},
+    /* 0x16 */    {SCSI_SPC_RESERVE6                        , "Reserve(6)"},
+    /* 0x17 */    {SCSI_SPC_RELEASE6                        , "Release(6)"},
+    /* 0x1A */    {SCSI_SPC_MODESENSE6                      , "Mode Sense(6)"},
+    /* 0x1B */    {SCSI_SMC_OPENCLOSE_ELEMENT               , "Open/Close Import/Export Element"},
+    /* 0x1C */    {SCSI_SPC_RCVDIAGRESULTS                  , "Receive Diagnostics Results"},
+    /* 0x1D */    {SCSI_SPC_SENDDIAG                        , "Send Diagnostic"},
+    /* 0x1E */    {SCSI_SPC_PREVMEDREMOVAL                  , "Prevent/Allow Medium Removal"},
+    /* 0x2B */    {SCSI_SMC_POSITION_TO_ELEMENT             , "Position To Element"},
+    /* 0x37 */    {SCSI_SMC_INITIALIZE_ELEMENT_STATUS_RANGE , "Initialize Element Status With Range"},
+    /* 0x3B */    {SCSI_SPC_WRITEBUFFER                     , "Write Buffer"},
+    /* 0x3C */    {SCSI_SPC_READBUFFER                      , "Read Buffer"},
+    /* 0x40 */    {SCSI_SMC_EXCHANGE_MEDIUM                 , "Exchange Medium"},
+    /* 0x44 */    {SCSI_SMC_REPORT_VOLUME_TYPES_SUPPORTED   , "Report Volume Types Supported"},
+    /* 0x4C */    {SCSI_SPC_LOGSELECT                       , "Log Select"},
+    /* 0x4D */    {SCSI_SPC_LOGSENSE                        , "Log Sense"},
+    /* 0x55 */    {SCSI_SPC_MODESELECT10                    , "Mode Select(10)"},
+    /* 0x56 */    {SCSI_SPC_RESERVE10                       , "Reserve(10)"},
+    /* 0x57 */    {SCSI_SPC_RELEASE10                       , "Release(10)"},
+    /* 0x5A */    {SCSI_SPC_MODESENSE10                     , "Mode Sense(10)"},
+    /* 0x5E */    {SCSI_SPC_PERSRESVIN                      , "Persistent Reserve In"},
+    /* 0x5F */    {SCSI_SPC_PERSRESVOUT                     , "Persistent Reserve Out"},
+    /* 0x86 */    {SCSI_SPC_ACCESS_CONTROL_IN               , "Access Control In"},
+    /* 0x87 */    {SCSI_SPC_ACCESS_CONTROL_OUT              , "Access Control Out"},
+    /* 0x8C */    {SCSI_SMC_READ_ATTRIBUTE                  , "Read Attribute"},
+    /* 0x8D */    {SCSI_SMC_WRITE_ATTRIBUTE                 , "Write Attribute"},
+    /* 0xA0 */    {SCSI_SPC_REPORTLUNS                      , "Report LUNs"},
+    /* 0xA3 */    {SCSI_SPC_MGMT_PROTOCOL_IN                , "Mgmt Protocol In"},
+    /* 0xA5 */    {SCSI_SMC_MOVE_MEDIUM                     , "Move Medium"},
+    /* 0xA7 */    {SCSI_SMC_MOVE_MEDIUM_ATTACHED            , "Move Medium Attached"},
+    /* 0xB4 */    {SCSI_SMC_READ_ELEMENT_STATUS_ATTACHED    , "Read Element Status Attached"},
+    /* 0xB5 */    {SCSI_SMC_REQUEST_VOLUME_ELEMENT_ADDRESS  , "Request Volume Element Address"},
+    /* 0xB6 */    {SCSI_SMC_SEND_VOLUME_TAG                 , "Send Volume Tag"},
+    /* 0xB8 */    {SCSI_SMC_READ_ELEMENT_STATUS             , "Read Element Status"},
     {0, NULL},
 };
+value_string_ext scsi_smc_vals_ext = VALUE_STRING_EXT_INIT(scsi_smc_vals);
 
 scsi_cdb_table_t scsi_smc_table[256] = {
 /*SPC 0x00*/{dissect_spc_testunitready},
@@ -847,118 +848,308 @@ scsi_cdb_table_t scsi_smc_table[256] = {
 void
 proto_register_scsi_smc(void)
 {
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
         { &hf_scsi_smc_opcode,
-          {"SMC Opcode", "scsi_smc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_smc_vals), 0x0, NULL, HFILL}},
+          {"SMC Opcode", "scsi_smc.opcode",
+           FT_UINT8, BASE_HEX | BASE_EXT_STRING, &scsi_smc_vals_ext, 0x0,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_mta,
-          {"Medium Transport Address", "scsi_smc.mta", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Medium Transport Address", "scsi_smc.mta",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_sa,
-          {"Source Address", "scsi_smc.sa", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Source Address", "scsi_smc.sa",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_da,
-          {"Destination Address", "scsi_smc.da", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Destination Address", "scsi_smc.da",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_fda,
-          {"First Destination Address", "scsi_smc.fda", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"First Destination Address", "scsi_smc.fda",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_sda,
-          {"Second Destination Address", "scsi_smc.sda", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Second Destination Address", "scsi_smc.sda",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_medium_flags,
-          {"Flags", "scsi_smc.medium_flags", FT_UINT8, BASE_HEX,
-           NULL, 0x0, NULL, HFILL}},
+          {"Flags", "scsi_smc.medium_flags",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_inv1,
-          {"INV1", "scsi_smc.inv1", FT_BOOLEAN, 8,
-           NULL, 0x02, NULL, HFILL}},
+          {"INV1", "scsi_smc.inv1",
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_inv2,
-          {"INV2", "scsi_smc.inv2", FT_BOOLEAN, 8,
-           NULL, 0x01, NULL, HFILL}},
+          {"INV2", "scsi_smc.inv2",
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_range_flags,
-          {"Flags", "scsi_smc.range_flags", FT_UINT8, BASE_HEX,
-           NULL, 0x0, NULL, HFILL}},
+          {"Flags", "scsi_smc.range_flags",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_fast,
-          {"FAST", "scsi_smc.fast", FT_BOOLEAN, 8,
-           NULL, 0x02, NULL, HFILL}},
+          {"FAST", "scsi_smc.fast",
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_range,
-          {"RANGE", "scsi_smc.range", FT_BOOLEAN, 8,
-           NULL, 0x01, NULL, HFILL}},
+          {"RANGE", "scsi_smc.range",
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
+        },
 #if 0
         { &hf_scsi_smc_sea,
-          {"Starting Element Address", "scsi_smc.sea", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Starting Element Address", "scsi_smc.sea",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
 #endif
         { &hf_scsi_smc_num_elements,
-          {"Number of Elements", "scsi_smc.num_elements", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Number of Elements", "scsi_smc.num_elements",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
 	{ &hf_scsi_smc_invert,
-          {"INVERT", "scsi_smc.invert", FT_BOOLEAN, 8,
-           NULL, 0x01, NULL, HFILL}},
+          {"INVERT", "scsi_smc.invert",
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_ea,
-          {"Element Address", "scsi_smc.ea", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          {"Element Address", "scsi_smc.ea",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         { &hf_scsi_smc_action_code,
-          {"Action Code", "scsi_smc.action_code", FT_UINT8, BASE_HEX,
-           VALS(action_code_vals), 0x1f, NULL, HFILL}},
+          {"Action Code", "scsi_smc.action_code",
+           FT_UINT8, BASE_HEX, VALS(action_code_vals), 0x1f,
+           NULL, HFILL}
+        },
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_scsi_smc_scsi_bus_address, { "SCSI Bus Address", "scsi_smc.scsi_bus_address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_source_storage_element_address, { "Source Storage Element Address", "scsi_smc.source_storage_element_address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_code_set, { "Code Set", "scsi_smc.code_set", FT_UINT8, BASE_DEC, VALS(scsi_devid_codeset_val), 0x0F, NULL, HFILL }},
-      { &hf_scsi_smc_identifier_type, { "Identifier Type", "scsi_smc.identifier_type", FT_UINT8, BASE_DEC, VALS(scsi_devid_idtype_val), 0x0F, NULL, HFILL }},
-      { &hf_scsi_smc_identifier_length, { "Identifier Length", "scsi_smc.identifier_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_identifier, { "Identifier", "scsi_smc.identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_vendor_specific_data, { "Vendor-specific Data", "scsi_smc.vendor_specific_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_voltag, { "VOLTAG", "scsi_smc.voltag", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-      { &hf_scsi_smc_starting_element_address, { "Starting Element Address", "scsi_smc.starting_element_address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_number_of_elements, { "Number of Elements", "scsi_smc.number_of_elements", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_curdata, { "CURDATA", "scsi_smc.curdata", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-      { &hf_scsi_smc_allocation_length, { "Allocation Length", "scsi_smc.allocation_length", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_first_element_address_reported, { "First Element Address Reported", "scsi_smc.first_element_address_reported", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_number_of_elements_available, { "Number of Elements Available", "scsi_smc.number_of_elements_available", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_byte_count_of_report_available, { "Byte Count of Report Available", "scsi_smc.byte_count_of_report_available", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_element_type_code, { "Element Type Code", "scsi_smc.element_type_code", FT_UINT8, BASE_DEC, VALS(element_type_code_vals), 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_element_type_code_0F, { "Element Type Code", "scsi_smc.element_type_code", FT_UINT8, BASE_DEC, VALS(element_type_code_vals), 0x0F, NULL, HFILL }},
-      { &hf_scsi_smc_pvoltag, { "PVOLTAG", "scsi_smc.pvoltag", FT_BOOLEAN, 8, NULL, PVOLTAG, NULL, HFILL }},
-      { &hf_scsi_smc_element_descriptor_length, { "Element Descriptor Length", "scsi_smc.element_descriptor_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_byte_count_of_descriptor_data_available, { "Byte Count Of Descriptor Data Available", "scsi_smc.byte_count_of_descriptor_data_available", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_except, { "EXCEPT", "scsi_smc.except", FT_BOOLEAN, 8, NULL, EXCEPT, NULL, HFILL }},
-      { &hf_scsi_smc_access, { "ACCESS", "scsi_smc.access", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-      { &hf_scsi_smc_cmc, { "cmc", "scsi_smc.cmc", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
-      { &hf_scsi_smc_additional_sense_code_qualifier, { "Additional Sense Code+Qualifier", "scsi_smc.additional_sense_code_qualifier", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &scsi_asc_val_ext, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_not_bus, { "NOT BUS", "scsi_smc.not_bus", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-      { &hf_scsi_smc_id_valid, { "ID VALID", "scsi_smc.id_valid", FT_BOOLEAN, 8, NULL, ID_VALID, NULL, HFILL }},
-      { &hf_scsi_smc_lu_valid, { "LU VALID", "scsi_smc.lu_valid", FT_BOOLEAN, 8, NULL, LU_VALID, NULL, HFILL }},
-      { &hf_scsi_smc_svalid, { "SVALID", "scsi_smc.svalid", FT_BOOLEAN, 8, NULL, SVALID, NULL, HFILL }},
-      { &hf_scsi_smc_dvcid, { "DVCID", "scsi_smc.dvcid", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-      { &hf_scsi_smc_avoltag, { "AVOLTAG", "scsi_smc.pvoltag", FT_BOOLEAN, 8, NULL, AVOLTAG, NULL, HFILL }},
-      { &hf_scsi_smc_full, { "FULL", "scsi_smc.full", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-      { &hf_scsi_smc_exenab, { "EXENAB", "scsi_smc.exenab", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-      { &hf_scsi_smc_inenab, { "INENAB", "scsi_smc.inenab", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
-      { &hf_scsi_smc_impexp, { "IMPEXP", "scsi_smc.impexp", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-      { &hf_scsi_smc_lun, { "LUN", "scsi_smc.lun", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
-      { &hf_scsi_smc_primary_vol_tag_id, { "Primary Volume Identification", "scsi_smc.primary_vol_tag_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_alternate_vol_tag_id, { "Alternate Volume Identification", "scsi_smc.alternate_vol_tag_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_primary_vol_seq_num, { "Primary Volume Sequence Number", "scsi_smc.primary_vol_seq_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_smc_alternate_vol_seq_num, { "Alternate Volume Sequence Number", "scsi_smc.alternate_vol_seq_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-	};
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_scsi_smc_scsi_bus_address,
+          { "SCSI Bus Address", "scsi_smc.scsi_bus_address",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_source_storage_element_address,
+          { "Source Storage Element Address", "scsi_smc.source_storage_element_address",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_code_set,
+          { "Code Set", "scsi_smc.code_set",
+            FT_UINT8, BASE_DEC, VALS(scsi_devid_codeset_val), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_identifier_type,
+          { "Identifier Type", "scsi_smc.identifier_type",
+            FT_UINT8, BASE_DEC, VALS(scsi_devid_idtype_val), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_identifier_length,
+          { "Identifier Length", "scsi_smc.identifier_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_identifier,
+          { "Identifier", "scsi_smc.identifier",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_vendor_specific_data,
+          { "Vendor-specific Data", "scsi_smc.vendor_specific_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_voltag,
+          { "VOLTAG", "scsi_smc.voltag",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_starting_element_address,
+          { "Starting Element Address", "scsi_smc.starting_element_address",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_number_of_elements,
+          { "Number of Elements", "scsi_smc.number_of_elements",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_curdata,
+          { "CURDATA", "scsi_smc.curdata",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_allocation_length,
+          { "Allocation Length", "scsi_smc.allocation_length",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_first_element_address_reported,
+          { "First Element Address Reported", "scsi_smc.first_element_address_reported",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_number_of_elements_available,
+          { "Number of Elements Available", "scsi_smc.number_of_elements_available",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_byte_count_of_report_available,
+          { "Byte Count of Report Available", "scsi_smc.byte_count_of_report_available",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_element_type_code,
+          { "Element Type Code", "scsi_smc.element_type_code",
+            FT_UINT8, BASE_DEC, VALS(element_type_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_element_type_code_0F,
+          { "Element Type Code", "scsi_smc.element_type_code",
+            FT_UINT8, BASE_DEC, VALS(element_type_code_vals), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_pvoltag,
+          { "PVOLTAG", "scsi_smc.pvoltag",
+            FT_BOOLEAN, 8, NULL, PVOLTAG,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_element_descriptor_length,
+          { "Element Descriptor Length", "scsi_smc.element_descriptor_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_byte_count_of_descriptor_data_available,
+          { "Byte Count Of Descriptor Data Available", "scsi_smc.byte_count_of_descriptor_data_available",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_except,
+          { "EXCEPT", "scsi_smc.except",
+            FT_BOOLEAN, 8, NULL, EXCEPT,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_access,
+          { "ACCESS", "scsi_smc.access",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_cmc,
+          { "cmc", "scsi_smc.cmc",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_additional_sense_code_qualifier,
+          { "Additional Sense Code+Qualifier", "scsi_smc.additional_sense_code_qualifier",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &scsi_asc_val_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_not_bus,
+          { "NOT BUS", "scsi_smc.not_bus",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_id_valid,
+          { "ID VALID", "scsi_smc.id_valid",
+            FT_BOOLEAN, 8, NULL, ID_VALID,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_lu_valid,
+          { "LU VALID", "scsi_smc.lu_valid",
+            FT_BOOLEAN, 8, NULL, LU_VALID,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_svalid,
+          { "SVALID", "scsi_smc.svalid",
+            FT_BOOLEAN, 8, NULL, SVALID,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_dvcid,
+          { "DVCID", "scsi_smc.dvcid",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_avoltag,
+          { "AVOLTAG", "scsi_smc.pvoltag",
+            FT_BOOLEAN, 8, NULL, AVOLTAG,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_full,
+          { "FULL", "scsi_smc.full",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_exenab,
+          { "EXENAB", "scsi_smc.exenab",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_inenab,
+          { "INENAB", "scsi_smc.inenab",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_impexp,
+          { "IMPEXP", "scsi_smc.impexp",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_lun,
+          { "LUN", "scsi_smc.lun",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_primary_vol_tag_id,
+          { "Primary Volume Identification", "scsi_smc.primary_vol_tag_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_alternate_vol_tag_id,
+          { "Alternate Volume Identification", "scsi_smc.alternate_vol_tag_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_primary_vol_seq_num,
+          { "Primary Volume Sequence Number", "scsi_smc.primary_vol_seq_num",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_scsi_smc_alternate_vol_seq_num,
+          { "Alternate Volume Sequence Number", "scsi_smc.alternate_vol_seq_num",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+    };
 
 
-	/* Setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_scsi_exchange_medium,
-		&ett_scsi_range,
-		&ett_scsi_move
-	};
+    /* Setup protocol subtree array */
+    static gint *ett[] = {
+        &ett_scsi_exchange_medium,
+        &ett_scsi_range,
+        &ett_scsi_move
+    };
 
-	/* Register the protocol name and description */
-	proto_scsi_smc = proto_register_protocol("SCSI_SMC", "SCSI_SMC", "scsi_smc");
+    /* Register the protocol name and description */
+    proto_scsi_smc = proto_register_protocol("SCSI_SMC", "SCSI_SMC", "scsi_smc");
 
-	/* Required function calls to register the header fields and subtrees used */
-	proto_register_field_array(proto_scsi_smc, hf, array_length(hf));
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_scsi_smc, hf, array_length(hf));
 
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
@@ -966,3 +1157,16 @@ proto_reg_handoff_scsi_smc(void)
 {
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

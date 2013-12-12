@@ -25,8 +25,6 @@
 #ifndef __PACKET_SCSI_H_
 #define __PACKET_SCSI_H_
 
-#include "ws_symbol_export.h"
-
 #include <epan/exceptions.h>
 
 /* Structure containing itl nexus data :
@@ -215,8 +213,6 @@ void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, itlq_nexus_t *, itl_nexus_t *);
 
 void dissect_scsi_lun(proto_tree *, tvbuff_t *, guint);
-
-WS_DLL_PUBLIC const value_string scsi_mmc_vals[];
 
 extern const int *cdb_control_fields[6];
 extern gint ett_scsi_control;

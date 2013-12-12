@@ -37,26 +37,27 @@
 #include <epan/dissectors/packet-scsi-ssc.h>
 #include <epan/dissectors/packet-scsi-smc.h>
 #include <epan/dissectors/packet-scsi-osd.h>
+#include <epan/dissectors/packet-scsi-mmc.h>
 
 void register_tap_listener_scsistat(void);
 
-static guint8 scsi_program=0;
+static guint8 scsi_program = 0;
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _scsi_procedure_t {
 	const char *proc;
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
+	int         num;
+	nstime_t    min;
+	nstime_t    max;
+	nstime_t    tot;
 } scsi_procedure_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _scsistat_t {
-	guint8 cmdset;
-	char *filter;
-	const value_string *cdbnames;
-	const char *prog;
+	guint8            cmdset;
+	char             *filter;
+	value_string_ext *cdbnames_ext;
+	const char       *prog;
 #define MAX_PROCEDURES 256
 	scsi_procedure_t *procedures;
 } scsistat_t;
@@ -66,34 +67,34 @@ typedef struct _scsistat_t {
 static void
 scsistat_reset(void *prs)
 {
-	scsistat_t *rs=(scsistat_t *)prs;
-	guint32 i;
+	scsistat_t *rs = (scsistat_t *)prs;
+	guint32     i;
 
-	for(i=0; i < MAX_PROCEDURES; i++) {
-		rs->procedures[i].num=0;
-		rs->procedures[i].min.secs=0;
-		rs->procedures[i].min.nsecs=0;
-		rs->procedures[i].max.secs=0;
-		rs->procedures[i].max.nsecs=0;
-		rs->procedures[i].tot.secs=0;
-		rs->procedures[i].tot.nsecs=0;
+	for(i = 0; i < MAX_PROCEDURES; i++) {
+		rs->procedures[i].num       = 0;
+		rs->procedures[i].min.secs  = 0;
+		rs->procedures[i].min.nsecs = 0;
+		rs->procedures[i].max.secs  = 0;
+		rs->procedures[i].max.nsecs = 0;
+		rs->procedures[i].tot.secs  = 0;
+		rs->procedures[i].tot.nsecs = 0;
 	}
 }
 
 static int
 scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	scsistat_t *rs = (scsistat_t *)prs;
+	scsistat_t             *rs = (scsistat_t *)prs;
 	const scsi_task_data_t *ri = (const scsi_task_data_t *)pri;
-	nstime_t delta;
-	scsi_procedure_t *rp;
+	nstime_t                delta;
+	scsi_procedure_t       *rp;
 
 	/* we are only interested in response packets */
-	if(ri->type!=SCSI_PDU_TYPE_RSP) {
+	if(ri->type != SCSI_PDU_TYPE_RSP) {
 		return 0;
 	}
 	/* we are only interested in a specific commandset */
-	if( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK)!=rs->cmdset) ) {
+	if( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK) != rs->cmdset) ) {
 		return 0;
 	}
 	/* check that the opcode looks sane */
@@ -101,24 +102,24 @@ scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		return 0;
 	}
 
-	rp=&(rs->procedures[ri->itlq->scsi_opcode]);
+	rp = &(rs->procedures[ri->itlq->scsi_opcode]);
 
 	/* calculate time delta between request and reply */
 	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->itlq->fc_time);
 
-	if(rp->num==0) {
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
+	if(rp->num == 0) {
+		rp->max.secs = delta.secs;
+		rp->max.nsecs = delta.nsecs;
 	}
-	if(rp->num==0) {
-		rp->min.secs= delta.secs;
-		rp->min.nsecs=delta.nsecs;
+	if(rp->num == 0) {
+		rp->min.secs = delta.secs;
+		rp->min.nsecs = delta.nsecs;
 	}
 	if( (delta.secs  < rp->min.secs)
 	||( (delta.secs == rp->min.secs)
 	  &&(delta.nsecs < rp->min.nsecs) ) ) {
 		rp->min.secs = delta.secs;
-		rp->min.nsecs= delta.nsecs;
+		rp->min.nsecs = delta.nsecs;
 	}
 	if( (delta.secs  > rp->max.secs)
 	||( (delta.secs == rp->max.secs)
@@ -139,9 +140,9 @@ scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 static void
 scsistat_draw(void *prs)
 {
-	scsistat_t *rs=(scsistat_t *)prs;
-	guint32 i;
-	guint64 td;
+	scsistat_t *rs = (scsistat_t *)prs;
+	guint32     i;
+	guint64     td;
 
 	printf("\n");
 	printf("===========================================================\n");
@@ -149,7 +150,7 @@ scsistat_draw(void *prs)
 	printf("Filter: %s\n", rs->filter?rs->filter:"");
 	printf("Procedure            Calls   Min SRT    Max SRT    Avg SRT\n");
 	for(i=0; i < MAX_PROCEDURES; i++) {
-		if(rs->procedures[i].num==0) {
+		if(rs->procedures[i].num == 0) {
 			continue;
 		}
 		/* scale it to units of 1us.*/
@@ -173,72 +174,72 @@ static void
 scsistat_init(const char *opt_arg, void* userdata _U_)
 {
 	scsistat_t *rs;
-	guint32 i;
-	int program, pos;
-	const char *filter=NULL;
-	GString *error_string;
+	guint32     i;
+	int         program, pos;
+	const char *filter = NULL;
+	GString    *error_string;
 
-	pos=0;
-	if(sscanf(opt_arg, "scsi,srt,%d,%n", &program, &pos)==1) {
+	pos = 0;
+	if(sscanf(opt_arg, "scsi,srt,%d,%n", &program, &pos) == 1) {
 		if(pos) {
-			filter=opt_arg+pos;
+			filter = opt_arg+pos;
 		} else {
-			filter=NULL;
+			filter = NULL;
 		}
 	} else {
 		fprintf(stderr, "tshark: invalid \"-z scsi,srt,<cmdset>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
-	scsi_program=program;
-	rs=g_new(scsistat_t,1);
+	scsi_program = program;
+	rs = g_new(scsistat_t,1);
 	if(filter) {
-		rs->filter=g_strdup(filter);
+		rs->filter = g_strdup(filter);
 	} else {
-		rs->filter=NULL;
+		rs->filter = NULL;
 	}
-	rs->cmdset=program;
+	rs->cmdset = program;
 
 	switch(program) {
 		case SCSI_DEV_SBC:
-			rs->prog="SBC (disk)";
-			rs->cdbnames=scsi_sbc_vals;
+			rs->prog = "SBC (disk)";
+			rs->cdbnames_ext = &scsi_sbc_vals_ext;
 			break;
 		case SCSI_DEV_SSC:
-			rs->prog="SSC (tape)";
-			rs->cdbnames=scsi_ssc_vals;
+			rs->prog = "SSC (tape)";
+			rs->cdbnames_ext = &scsi_ssc_vals_ext;
 			break;
 		case SCSI_DEV_CDROM:
-			rs->prog="MMC (cd/dvd)";
-			rs->cdbnames=scsi_mmc_vals;
+			rs->prog = "MMC (cd/dvd)";
+			rs->cdbnames_ext = &scsi_mmc_vals_ext;
 			break;
 		case SCSI_DEV_SMC:
-			rs->prog="SMC (tape robot)";
-			rs->cdbnames=scsi_smc_vals;
+			rs->prog = "SMC (tape robot)";
+			rs->cdbnames_ext = &scsi_smc_vals_ext;
 			break;
 		case SCSI_DEV_OSD:
-			rs->prog="OSD (object based)";
-			rs->cdbnames=scsi_osd_vals;
+			rs->prog = "OSD (object based)";
+			rs->cdbnames_ext = &scsi_osd_vals_ext;
 			break;
 		default:
 			/* Default to the SBC (disk), since this is what EMC SCSI seem to always be */
-			rs->cmdset=0;
-			rs->prog="SBC (disk)";
-			rs->cdbnames=scsi_sbc_vals;
+			rs->cmdset = 0;
+			rs->prog = "SBC (disk)";
+			rs->cdbnames_ext = &scsi_sbc_vals_ext;
 			break;
 	}
-	rs->procedures=g_new(scsi_procedure_t,MAX_PROCEDURES);
+	rs->procedures = g_new(scsi_procedure_t,MAX_PROCEDURES);
 	for(i=0; i < MAX_PROCEDURES; i++) {
-		rs->procedures[i].proc=val_to_str(i, rs->cdbnames, "Unknown-0x%02x");
-		rs->procedures[i].num=0;
-		rs->procedures[i].min.secs=0;
-		rs->procedures[i].min.nsecs=0;
-		rs->procedures[i].max.secs=0;
-		rs->procedures[i].max.nsecs=0;
-		rs->procedures[i].tot.secs=0;
-		rs->procedures[i].tot.nsecs=0;
+		rs->procedures[i].proc = val_to_str_ext(i, rs->cdbnames_ext, "Unknown-0x%02x");
+		rs->procedures[i].num = 0;
+		rs->procedures[i].min.secs = 0;
+		rs->procedures[i].min.nsecs = 0;
+		rs->procedures[i].max.secs = 0;
+		rs->procedures[i].max.nsecs = 0;
+		rs->procedures[i].tot.secs = 0;
+		rs->procedures[i].tot.nsecs = 0;
 	}
-	error_string=register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
+	error_string = register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
 	if(error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);

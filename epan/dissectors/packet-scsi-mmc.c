@@ -293,6 +293,7 @@ static const value_string scsi_read_dvd_formats[] = {
     {0xff, "READ/SEND DVD STRUCTURE capability"},
     {0,NULL}
 };
+static value_string_ext scsi_read_dvd_formats_ext = VALUE_STRING_EXT_INIT(scsi_read_dvd_formats);
 
 static const value_string scsi_data_mode_vals[] = {
     {0x01, "Mode 1 (ISO/IEC 10149)"},
@@ -329,6 +330,7 @@ static const value_string scsi_getconf_current_profile_val[] = {
     {0xffff, "Logical unit not conforming to a standard profile"},
     {0,NULL}
 };
+static value_string_ext scsi_getconf_current_profile_val_ext = VALUE_STRING_EXT_INIT(scsi_getconf_current_profile_val);
 
 static const value_string scsi_feature_val[] = {
     {0x0000, "Profile List"},
@@ -374,6 +376,7 @@ static const value_string scsi_feature_val[] = {
     {0x010c, "Firmware Information"},
     {0,NULL}
 };
+static value_string_ext scsi_feature_val_ext = VALUE_STRING_EXT_INIT(scsi_feature_val);
 
 static void
 dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo,
@@ -383,10 +386,10 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo,
                                scsi_task_data_t *cdata)
 
 {
-    gint32 len;
-    guint old_offset;
-    tvbuff_t *volatile tvb_v = tvb;
-    volatile guint offset_v = offset;
+    gint32             len;
+    guint              old_offset;
+    tvbuff_t *volatile tvb_v    = tvb;
+    volatile guint     offset_v = offset;
 
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_rt, tvb_v, offset_v+0, 1, ENC_BIG_ENDIAN);
@@ -442,7 +445,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo,
 
                     profile=tvb_get_ntohs(tvb_v, offset_v);
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile, tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
-                    proto_item_append_text(it, "%s", val_to_str(profile, scsi_getconf_current_profile_val, "Unknown 0x%04x"));
+                    proto_item_append_text(it, "%s", val_to_str_ext(profile, &scsi_getconf_current_profile_val_ext, "Unknown 0x%04x"));
 
                     cur_profile=tvb_get_guint8(tvb_v, offset_v+2);
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, tvb_v, offset_v+2, 1, ENC_BIG_ENDIAN);
@@ -532,19 +535,20 @@ static const value_string scsi_q_subchannel_adr_val[] = {
 };
 static const value_string scsi_q_subchannel_control_val[] = {
     {0x0, "2 Audio channels without pre-emphasis (digital copy prohibited)"},
-    {0x2, "2 Audio channels without pre-emphasis (digital copy permitted)"},
     {0x1, "2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
+    {0x2, "2 Audio channels without pre-emphasis (digital copy permitted)"},
     {0x3, "2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
-    {0x8, "audio channels without pre-emphasis (digital copy prohibited)"},
-    {0xa, "audio channels without pre-emphasis (digital copy permitted)"},
-    {0x9, "2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
-    {0xb, "2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
     {0x4, "Data track, recorded uninterrupted (digital copy prohibited)"},
-    {0x6, "Data track, recorded uninterrupted (digital copy permitted)"},
     {0x5, "Data track, recorded incremental (digital copy prohibited)"},
+    {0x6, "Data track, recorded uninterrupted (digital copy permitted)"},
     {0x7, "Data track, recorded incremental (digital copy permitted)"},
+    {0x8, "audio channels without pre-emphasis (digital copy prohibited)"},
+    {0x9, "2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
+    {0xa, "audio channels without pre-emphasis (digital copy permitted)"},
+    {0xb, "2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
     {0,NULL}
 };
+static value_string_ext scsi_q_subchannel_control_val_ext = VALUE_STRING_EXT_INIT(scsi_q_subchannel_control_val);
 
 static void
 dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -919,7 +923,7 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
-    guint8 agid, key_format, key_class;
+    guint8      agid, key_format, key_class;
     proto_item *ti;
 
     if (tree && isreq && iscdb) {
@@ -1223,7 +1227,7 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                      guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
-    guint8 type;
+    guint8      type;
     proto_item *ti;
 
     if (tree && isreq && iscdb) {
@@ -1308,55 +1312,57 @@ dissect_mmc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 #define SCSI_MMC4_READDISCSTRUCTURE      0xad
 #define SCSI_MMC4_SETSTREAMING           0xb6
 #define SCSI_MMC4_SETCDSPEED             0xbb
-const value_string scsi_mmc_vals[] = {
-    {SCSI_MMC4_GETCONFIGURATION      , "Get Configuration"},
-    {SCSI_MMC4_GETEVENTSTATUSNOTIFY  , "Get Event Status Notification"},
-    {SCSI_MMC4_GETPERFORMANCE        , "Get Performance"},
-    {SCSI_SPC_INQUIRY               , "Inquiry"},
-    {SCSI_SPC_MGMT_PROTOCOL_IN      , "Mgmt Protocol In"},
-    {SCSI_SPC_MODESELECT10          , "Mode Select(10)"},
-    {SCSI_SPC_MODESENSE10           , "Mode Sense(10)"},
-    {SCSI_SPC_MODESENSE6            , "Mode Sense(6)"},
-    {SCSI_SPC_PREVMEDREMOVAL        , "Prevent/Allow Medium Removal"},
-    {SCSI_MMC4_READ10                , "Read(10)"},
-    {SCSI_MMC4_READ12                , "Read(12)"},
-    {SCSI_MMC4_CLOSETRACK            , "Close Track"},
-    {SCSI_MMC4_READBUFFERCAPACITY    , "Read Buffer Capacity"},
-    {SCSI_MMC4_READCAPACITY10        , "Read Capacity(10)"},
-    {SCSI_MMC4_READDISCINFORMATION   , "Read Disc Information"},
-    {SCSI_MMC4_READDISCSTRUCTURE     , "Read DISC Structure"},
-    {SCSI_MMC4_READTOCPMAATIP        , "Read TOC/PMA/ATIP"},
-    {SCSI_MMC4_READTRACKINFORMATION  , "Read Track Information"},
-    {SCSI_MMC4_REPORTKEY             , "Report Key"},
-    {SCSI_SPC_REPORTLUNS            , "Report LUNs"},
-    {SCSI_SPC_REQSENSE              , "Request Sense"},
-    {SCSI_MMC4_RESERVETRACK          , "Reserve Track"},
-    {SCSI_MMC4_SETCDSPEED            , "Set CD Speed"},
-    {SCSI_MMC4_SETSTREAMING          , "Set Streaming"},
-    {SCSI_SBC_STARTSTOPUNIT          , "Start Stop Unit"},
-    {SCSI_MMC4_SYNCHRONIZECACHE      , "Synchronize Cache"},
-    {SCSI_SPC_TESTUNITRDY           , "Test Unit Ready"},
-    {SCSI_MMC4_WRITE10               , "Write(10)"},
-    {SCSI_MMC4_WRITE12               , "Write(12)"},
-    {SCSI_SPC_WRITEBUFFER           , "Write Buffer"},
+static const value_string scsi_mmc_vals[] = {
+    /* 0x00 */    {SCSI_SPC_TESTUNITRDY            , "Test Unit Ready"},
+    /* 0x03 */    {SCSI_SPC_REQSENSE               , "Request Sense"},
+    /* 0x12 */    {SCSI_SPC_INQUIRY                , "Inquiry"},
+    /* 0x1A */    {SCSI_SPC_MODESENSE6             , "Mode Sense(6)"},
+    /* 0x1B */    {SCSI_SBC_STARTSTOPUNIT          , "Start Stop Unit"},
+    /* 0x1E */    {SCSI_SPC_PREVMEDREMOVAL         , "Prevent/Allow Medium Removal"},
+    /* 0x25 */    {SCSI_MMC4_READCAPACITY10        , "Read Capacity(10)"},
+    /* 0x28 */    {SCSI_MMC4_READ10                , "Read(10)"},
+    /* 0x2a */    {SCSI_MMC4_WRITE10               , "Write(10)"},
+    /* 0x35 */    {SCSI_MMC4_SYNCHRONIZECACHE      , "Synchronize Cache"},
+    /* 0x3B */    {SCSI_SPC_WRITEBUFFER            , "Write Buffer"},
+    /* 0x43 */    {SCSI_MMC4_READTOCPMAATIP        , "Read TOC/PMA/ATIP"},
+    /* 0x46 */    {SCSI_MMC4_GETCONFIGURATION      , "Get Configuration"},
+    /* 0x4a */    {SCSI_MMC4_GETEVENTSTATUSNOTIFY  , "Get Event Status Notification"},
+    /* 0x51 */    {SCSI_MMC4_READDISCINFORMATION   , "Read Disc Information"},
+    /* 0x52 */    {SCSI_MMC4_READTRACKINFORMATION  , "Read Track Information"},
+    /* 0x53 */    {SCSI_MMC4_RESERVETRACK          , "Reserve Track"},
+    /* 0x55 */    {SCSI_SPC_MODESELECT10           , "Mode Select(10)"},
+    /* 0x5A */    {SCSI_SPC_MODESENSE10            , "Mode Sense(10)"},
+    /* 0x5b */    {SCSI_MMC4_CLOSETRACK            , "Close Track"},
+    /* 0x5c */    {SCSI_MMC4_READBUFFERCAPACITY    , "Read Buffer Capacity"},
+    /* 0xA0 */    {SCSI_SPC_REPORTLUNS             , "Report LUNs"},
+    /* 0xA3 */    {SCSI_SPC_MGMT_PROTOCOL_IN       , "Mgmt Protocol In"},
+    /* 0xa4 */    {SCSI_MMC4_REPORTKEY             , "Report Key"},
+    /* 0xa8 */    {SCSI_MMC4_READ12                , "Read(12)"},
+    /* 0xaa */    {SCSI_MMC4_WRITE12               , "Write(12)"},
+    /* 0xac */    {SCSI_MMC4_GETPERFORMANCE        , "Get Performance"},
+    /* 0xad */    {SCSI_MMC4_READDISCSTRUCTURE     , "Read DISC Structure"},
+    /* 0xb6 */    {SCSI_MMC4_SETSTREAMING          , "Set Streaming"},
+    /* 0xbb */    {SCSI_MMC4_SETCDSPEED            , "Set CD Speed"},
     {0, NULL},
 };
+value_string_ext scsi_mmc_vals_ext = VALUE_STRING_EXT_INIT(scsi_mmc_vals);
 
-const value_string scsi_track_mode_vals[] = {
+static const value_string scsi_track_mode_vals[] = {
     {0x00 , "2 audio channels without pre-emphasis, digital copy prohibited"},
     {0x01 , "2 audio channels with pre-emphasis of 50/15 us, digital copy prohibited"},
-    {0x04 , "Data track, recorded uninterrupted, digital copy prohibited"},
-    {0x05 , "Data track, recorded incremental, digital copy prohibited"},
-    {0x08 , "audio channels without pre-emphasis, digital copy prohibited"},
-    {0x09 , "audio channels with pre-emphasis of 50/15 us"},
     {0x02 , "2 audio channels without pre-emphasis, digital copy permitted"},
     {0x03 , "2 audio channels with pre-emphasis of 50/15 us, digital copy permitted"},
+    {0x04 , "Data track, recorded uninterrupted, digital copy prohibited"},
+    {0x05 , "Data track, recorded incremental, digital copy prohibited"},
     {0x06 , "Data track, recorded uninterrupted, digital copy permitted"},
     {0x07 , "Data track, recorded incremental, digital copy permitted"},
+    {0x08 , "audio channels without pre-emphasis, digital copy prohibited"},
+    {0x09 , "audio channels with pre-emphasis of 50/15 us"},
     {0x0a , "audio channels without pre-emphasis, digital copy permitted"},
     {0x0b , "audio channels with pre-emphasis of 50/15 us, digital copy permitted"},
     {0, NULL},
 };
+static value_string_ext scsi_track_mode_vals_ext = VALUE_STRING_EXT_INIT(scsi_track_mode_vals);
 
 scsi_cdb_table_t scsi_mmc_table[256] = {
 /*SPC 0x00*/{dissect_spc_testunitready},
@@ -1623,8 +1629,8 @@ proto_register_scsi_mmc(void)
 {
     static hf_register_info hf[] = {
         { &hf_scsi_mmc_opcode,
-          {"MMC Opcode", "scsi_mmc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_mmc_vals), 0x0, NULL, HFILL}},
+          {"MMC Opcode", "scsi_mmc.opcode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &scsi_mmc_vals_ext, 0x0, NULL, HFILL}},
         { &hf_scsi_mmc_setstreaming_type,
           {"Type", "scsi_mmc.setstreaming.type", FT_UINT8, BASE_DEC,
            VALS(scsi_setstreaming_type_val), 0, NULL, HFILL}},
@@ -1689,8 +1695,8 @@ proto_register_scsi_mmc(void)
           {"Copy", "scsi_mmc.rti.copy", FT_BOOLEAN, 8,
            NULL, 0x10, NULL, HFILL}},
         { &hf_scsi_mmc_rti_track_mode,
-          {"Track Mode", "scsi_mmc.rti.track_mode", FT_UINT8, BASE_HEX,
-           VALS(scsi_track_mode_vals), 0x0f, NULL, HFILL}},
+          {"Track Mode", "scsi_mmc.rti.track_mode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &scsi_track_mode_vals_ext, 0x0f, NULL, HFILL}},
         { &hf_scsi_mmc_rti_rt,
           {"RT", "scsi_mmc.rti.rt", FT_BOOLEAN, 8,
            NULL, 0x80, NULL, HFILL}},
@@ -1803,8 +1809,8 @@ proto_register_scsi_mmc(void)
           {"Q Subchannel ADR", "scsi_mmc.q.subchannel.adr", FT_UINT8, BASE_HEX,
            VALS(scsi_q_subchannel_adr_val), 0xf0, NULL, HFILL}},
         { &hf_scsi_mmc_q_subchannel_control,
-          {"Q Subchannel Control", "scsi_mmc.q.subchannel.control", FT_UINT8, BASE_HEX,
-           VALS(scsi_q_subchannel_control_val), 0x0f, NULL, HFILL}},
+          {"Q Subchannel Control", "scsi_mmc.q.subchannel.control", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &scsi_q_subchannel_control_val_ext, 0x0f, NULL, HFILL}},
         { &hf_scsi_mmc_agid,
           {"AGID", "scsi_mmc.agid", FT_UINT8, BASE_HEX,
            NULL, 0xc0, NULL, HFILL}},
@@ -1833,14 +1839,14 @@ proto_register_scsi_mmc(void)
           {"RT", "scsi_mmc.getconf.rt", FT_UINT8, BASE_HEX,
            VALS(scsi_getconf_rt_val), 0x03, NULL, HFILL}},
         { &hf_scsi_mmc_getconf_current_profile,
-          {"Current Profile", "scsi_mmc.getconf.current_profile", FT_UINT16, BASE_HEX,
-           VALS(scsi_getconf_current_profile_val), 0, NULL, HFILL}},
+          {"Current Profile", "scsi_mmc.getconf.current_profile", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+           &scsi_getconf_current_profile_val_ext, 0, NULL, HFILL}},
         { &hf_scsi_mmc_getconf_starting_feature,
-          {"Starting Feature", "scsi_mmc.getconf.starting_feature", FT_UINT16, BASE_HEX,
-           VALS(scsi_feature_val), 0, NULL, HFILL}},
+          {"Starting Feature", "scsi_mmc.getconf.starting_feature", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+           &scsi_feature_val_ext, 0, NULL, HFILL}},
         { &hf_scsi_mmc_feature,
-          {"Feature", "scsi_mmc.feature", FT_UINT16, BASE_HEX,
-           VALS(scsi_feature_val), 0, NULL, HFILL}},
+          {"Feature", "scsi_mmc.feature", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+           &scsi_feature_val_ext, 0, NULL, HFILL}},
         { &hf_scsi_mmc_feature_version,
           {"Version", "scsi_mmc.feature.version", FT_UINT8, BASE_DEC,
            NULL, 0x3c, NULL, HFILL}},
@@ -1932,8 +1938,8 @@ proto_register_scsi_mmc(void)
           {"DVD-RW", "scsi_mmc.feature.dvdr.dvdrw", FT_BOOLEAN, 8,
            NULL, 0x02, NULL, HFILL}},
         { &hf_scsi_mmc_feature_profile,
-          {"Profile", "scsi_mmc.feature.profile", FT_UINT16, BASE_HEX,
-           VALS(scsi_getconf_current_profile_val), 0, NULL, HFILL}},
+          {"Profile", "scsi_mmc.feature.profile", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+           &scsi_getconf_current_profile_val_ext, 0, NULL, HFILL}},
         { &hf_scsi_mmc_feature_profile_current,
           {"Current", "scsi_mmc.feature.profile.current", FT_BOOLEAN, 8,
            NULL, 0x01, NULL, HFILL}},
@@ -1983,8 +1989,8 @@ proto_register_scsi_mmc(void)
           {"Free Blocks", "scsi_mmc.free_blocks", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_mmc_read_dvd_format,
-          { "Format Code", "scsi_mmc.read_dvd.format", FT_UINT8, BASE_HEX,
-            VALS(scsi_read_dvd_formats), 0x0, NULL, HFILL}},
+          { "Format Code", "scsi_mmc.read_dvd.format", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+            &scsi_read_dvd_formats_ext, 0x0, NULL, HFILL}},
         { &hf_scsi_mmc_disc_book_type,
           { "Type", "scsi_mmc.book.type", FT_UINT8, BASE_HEX,
             VALS(scsi_disc_category_type), 0xf0, NULL, HFILL}},
@@ -2123,3 +2129,16 @@ proto_register_scsi_mmc(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

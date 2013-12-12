@@ -45,56 +45,56 @@
 void proto_register_scsi_ssc(void);
 void proto_reg_handoff_scsi_ssc(void);
 
-static int proto_scsi_ssc		= -1;
-int hf_scsi_ssc_opcode			= -1;
-static int hf_scsi_ssc_rdwr6_xferlen	= -1;
-static int hf_scsi_ssc_ver16_verlen	= -1;
-static int hf_scsi_ssc_locate10_loid	= -1;
-static int hf_scsi_ssc_locate16_loid	= -1;
-static int hf_scsi_ssc_space6_code	= -1;
-static int hf_scsi_ssc_space6_count	= -1;
-static int hf_scsi_ssc_space16_count	= -1;
-static int hf_scsi_ssc_erase_flags		= -1;
-static int hf_scsi_ssc_fcs			= -1;
-static int hf_scsi_ssc_lcs			= -1;
-static int hf_scsi_ssc_erase_immed		= -1;
-static int hf_scsi_ssc_long			= -1;
-static int hf_scsi_ssc_partition		= -1;
-static int hf_scsi_ssc_lbi			= -1;
-static int hf_scsi_ssc_verify			= -1;
-static int hf_scsi_ssc_immed			= -1;
-static int hf_scsi_ssc_formatmedium_flags	= -1;
-static int hf_scsi_ssc_format			= -1;
-static int hf_scsi_ssc_rdwr10_xferlen		= -1;
-static int hf_scsi_ssc_loadunload_immed_flags	= -1;
-static int hf_scsi_ssc_loadunload_flags		= -1;
-static int hf_scsi_ssc_hold			= -1;
-static int hf_scsi_ssc_eot			= -1;
-static int hf_scsi_ssc_reten			= -1;
-static int hf_scsi_ssc_load			= -1;
-static int hf_scsi_ssc_locate_flags		= -1;
-static int hf_scsi_ssc_bt			= -1;
-static int hf_scsi_ssc_cp			= -1;
-static int hf_scsi_ssc_dest_type		= -1;
-static int hf_scsi_ssc_bam_flags		= -1;
-static int hf_scsi_ssc_bam			= -1;
-static int hf_scsi_ssc_read6_flags		= -1;
-static int hf_scsi_ssc_sili			= -1;
-static int hf_scsi_ssc_fixed			= -1;
-static int hf_scsi_ssc_bytord			= -1;
-static int hf_scsi_ssc_bytcmp			= -1;
-static int hf_scsi_ssc_verify16_immed		= -1;
-static int hf_scsi_ssc_medium_type		= -1;
-static int hf_scsi_ssc_media			= -1;
-static int hf_scsi_ssc_capacity_prop_value	= -1;
+static int proto_scsi_ssc               = -1;
+int hf_scsi_ssc_opcode                  = -1;
+static int hf_scsi_ssc_rdwr6_xferlen    = -1;
+static int hf_scsi_ssc_ver16_verlen     = -1;
+static int hf_scsi_ssc_locate10_loid    = -1;
+static int hf_scsi_ssc_locate16_loid    = -1;
+static int hf_scsi_ssc_space6_code      = -1;
+static int hf_scsi_ssc_space6_count     = -1;
+static int hf_scsi_ssc_space16_count    = -1;
+static int hf_scsi_ssc_erase_flags              = -1;
+static int hf_scsi_ssc_fcs                      = -1;
+static int hf_scsi_ssc_lcs                      = -1;
+static int hf_scsi_ssc_erase_immed              = -1;
+static int hf_scsi_ssc_long                     = -1;
+static int hf_scsi_ssc_partition                = -1;
+static int hf_scsi_ssc_lbi                      = -1;
+static int hf_scsi_ssc_verify                   = -1;
+static int hf_scsi_ssc_immed                    = -1;
+static int hf_scsi_ssc_formatmedium_flags       = -1;
+static int hf_scsi_ssc_format                   = -1;
+static int hf_scsi_ssc_rdwr10_xferlen           = -1;
+static int hf_scsi_ssc_loadunload_immed_flags   = -1;
+static int hf_scsi_ssc_loadunload_flags         = -1;
+static int hf_scsi_ssc_hold                     = -1;
+static int hf_scsi_ssc_eot                      = -1;
+static int hf_scsi_ssc_reten                    = -1;
+static int hf_scsi_ssc_load                     = -1;
+static int hf_scsi_ssc_locate_flags             = -1;
+static int hf_scsi_ssc_bt                       = -1;
+static int hf_scsi_ssc_cp                       = -1;
+static int hf_scsi_ssc_dest_type                = -1;
+static int hf_scsi_ssc_bam_flags                = -1;
+static int hf_scsi_ssc_bam                      = -1;
+static int hf_scsi_ssc_read6_flags              = -1;
+static int hf_scsi_ssc_sili                     = -1;
+static int hf_scsi_ssc_fixed                    = -1;
+static int hf_scsi_ssc_bytord                   = -1;
+static int hf_scsi_ssc_bytcmp                   = -1;
+static int hf_scsi_ssc_verify16_immed           = -1;
+static int hf_scsi_ssc_medium_type              = -1;
+static int hf_scsi_ssc_media                    = -1;
+static int hf_scsi_ssc_capacity_prop_value      = -1;
 
-static gint ett_scsi_erase			= -1;
-static gint ett_scsi_formatmedium		= -1;
-static gint ett_scsi_loadunload_immed		= -1;
-static gint ett_scsi_loadunload			= -1;
-static gint ett_scsi_locate			= -1;
-static gint ett_scsi_bam			= -1;
-static gint ett_scsi_read6			= -1;
+static gint ett_scsi_erase                      = -1;
+static gint ett_scsi_formatmedium               = -1;
+static gint ett_scsi_loadunload_immed           = -1;
+static gint ett_scsi_loadunload                 = -1;
+static gint ett_scsi_locate                     = -1;
+static gint ett_scsi_bam                        = -1;
+static gint ett_scsi_read6                      = -1;
 
 
 static void
@@ -103,9 +103,9 @@ dissect_ssc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *read6_fields[] = {
-	&hf_scsi_ssc_sili,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_sili,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -128,9 +128,9 @@ dissect_ssc_recoverbuffereddata (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *recover_fields[] = {
-	&hf_scsi_ssc_sili,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_sili,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -153,9 +153,9 @@ dissect_ssc_reportdensitysupport (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *rd_fields[] = {
-	&hf_scsi_ssc_medium_type,
-	&hf_scsi_ssc_media,
-	NULL
+        &hf_scsi_ssc_medium_type,
+        &hf_scsi_ssc_media,
+        NULL
     };
 
     if (isreq) {
@@ -183,10 +183,10 @@ dissect_ssc_readreverse6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *rr6_fields[] = {
-	&hf_scsi_ssc_bytord,
-	&hf_scsi_ssc_sili,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_bytord,
+        &hf_scsi_ssc_sili,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -209,9 +209,9 @@ dissect_ssc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *read6_fields[] = {
-	&hf_scsi_ssc_sili,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_sili,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -236,10 +236,10 @@ dissect_ssc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *write16_fields[] = {
-	&hf_scsi_ssc_fcs,
-	&hf_scsi_ssc_lcs,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_fcs,
+        &hf_scsi_ssc_lcs,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -264,10 +264,10 @@ dissect_ssc_writefilemarks16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *wf16_fields[] = {
-	&hf_scsi_ssc_fcs,
-	&hf_scsi_ssc_lcs,
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_fcs,
+        &hf_scsi_ssc_lcs,
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (isreq) {
@@ -292,10 +292,10 @@ dissect_ssc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *verify16_fields[] = {
-	&hf_scsi_ssc_verify16_immed,
-	&hf_scsi_ssc_bytcmp,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_verify16_immed,
+        &hf_scsi_ssc_bytcmp,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -320,10 +320,10 @@ dissect_ssc_verify6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *verify6_fields[] = {
-	&hf_scsi_ssc_verify16_immed,
-	&hf_scsi_ssc_bytcmp,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_verify16_immed,
+        &hf_scsi_ssc_bytcmp,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -346,10 +346,10 @@ dissect_ssc_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *rr16_fields[] = {
-	&hf_scsi_ssc_bytord,
-	&hf_scsi_ssc_sili,
-	&hf_scsi_ssc_fixed,
-	NULL
+        &hf_scsi_ssc_bytord,
+        &hf_scsi_ssc_sili,
+        &hf_scsi_ssc_fixed,
+        NULL
     };
 
     if (isreq) {
@@ -374,8 +374,8 @@ dissect_ssc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *write6_fields[] = {
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (isreq && iscdb) {
@@ -398,8 +398,8 @@ dissect_ssc_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *wf6_fields[] = {
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (isreq) {
@@ -422,15 +422,15 @@ dissect_ssc_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *loadunload_immed_fields[] = {
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_immed,
+        NULL
     };
     static const int *loadunload_fields[] = {
-	&hf_scsi_ssc_hold,
-	&hf_scsi_ssc_eot,
-	&hf_scsi_ssc_reten,
-	&hf_scsi_ssc_load,
-	NULL
+        &hf_scsi_ssc_hold,
+        &hf_scsi_ssc_eot,
+        &hf_scsi_ssc_reten,
+        &hf_scsi_ssc_load,
+        NULL
     };
 
     if (isreq && iscdb) {
@@ -468,7 +468,7 @@ dissect_ssc_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else if (!iscdb) {
-    	granularity = tvb_get_guint8 (tvb, offset);
+        granularity = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1, "Granularity: %u (%u %s)",
                              granularity, 1 << granularity,
                              plurality(1 << granularity, "byte", "bytes"));
@@ -485,8 +485,8 @@ dissect_ssc_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *rewind_fields[] = {
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (!tree)
@@ -508,8 +508,8 @@ dissect_ssc_setcapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *sc_fields[] = {
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (!tree)
@@ -531,10 +531,10 @@ dissect_ssc_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *locate_fields[] = {
-	&hf_scsi_ssc_bt,
-	&hf_scsi_ssc_cp,
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_bt,
+        &hf_scsi_ssc_cp,
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (!tree)
@@ -557,14 +557,14 @@ dissect_ssc_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *locate_fields[] = {
-	&hf_scsi_ssc_dest_type,
-	&hf_scsi_ssc_cp,
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_dest_type,
+        &hf_scsi_ssc_cp,
+        &hf_scsi_ssc_immed,
+        NULL
     };
     static const int *bam_fields[] = {
-	&hf_scsi_ssc_bam,
-	NULL
+        &hf_scsi_ssc_bam,
+        NULL
     };
 
     if (!tree)
@@ -612,11 +612,11 @@ dissect_ssc_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *erase16_fields[] = {
-	&hf_scsi_ssc_fcs,
-	&hf_scsi_ssc_lcs,
-	&hf_scsi_ssc_erase_immed,
-	&hf_scsi_ssc_long,
-	NULL
+        &hf_scsi_ssc_fcs,
+        &hf_scsi_ssc_lcs,
+        &hf_scsi_ssc_erase_immed,
+        &hf_scsi_ssc_long,
+        NULL
     };
 
     if (!tree)
@@ -668,10 +668,10 @@ dissect_ssc_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static const value_string space6_code_vals[] = {
-    {0,	"Logical Blocks"},
-    {1,	"Filemarks"},
-    {2,	"Sequential Filemarks"},
-    {3,	"End-Of-Data"},
+    {0, "Logical Blocks"},
+    {1, "Filemarks"},
+    {2, "Sequential Filemarks"},
+    {3, "End-Of-Data"},
     {0, NULL}
 };
 
@@ -694,9 +694,9 @@ dissect_ssc_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static const int *formatmedium_fields[] = {
-	&hf_scsi_ssc_verify,
-	&hf_scsi_ssc_immed,
-	NULL
+        &hf_scsi_ssc_verify,
+        &hf_scsi_ssc_immed,
+        NULL
     };
 
     if (!tree)
@@ -891,60 +891,58 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 
-
-
-
 /* SSC Commands */
-const value_string scsi_ssc_vals[] = {
-    {SCSI_SSC_ERASE_6                      , "Erase(6)"},
-    {SCSI_SSC_ERASE_16                     , "Erase(16)"},
-    {SCSI_SPC_EXTCOPY                      , "Extended Copy"},
-    {SCSI_SSC_FORMAT_MEDIUM                , "Format Medium"},
-    {SCSI_SPC_INQUIRY                      , "Inquiry"},
-    {SCSI_SSC_LOAD_UNLOAD                  , "Load Unload"},
-    {SCSI_SSC_LOCATE_10                    , "Locate(10)"},
-    {SCSI_SSC_LOCATE_16                    , "Locate(16)"},
-    {SCSI_SPC_LOGSELECT                    , "Log Select"},
-    {SCSI_SPC_LOGSENSE                     , "Log Sense"},
-    {SCSI_SPC_MGMT_PROTOCOL_IN             , "Mgmt Protocol In"},
-    {SCSI_SPC_MODESELECT6                  , "Mode Select(6)"},
-    {SCSI_SPC_RESERVE6                     , "Reserve(6)"},
-    {SCSI_SPC_RELEASE6                     , "Release(6)"},
-    {SCSI_SPC_MODESELECT10                 , "Mode Select(10)"},
-    {SCSI_SPC_MODESENSE6                   , "Mode Sense(6)"},
-    {SCSI_SPC_MODESENSE10                  , "Mode Sense(10)"},
-    {SCSI_SMC_MOVE_MEDIUM                  , "Move Medium"},
-    {SCSI_SMC_MOVE_MEDIUM_ATTACHED         , "Move Medium Attached"},
-    {SCSI_SPC_PERSRESVIN                   , "Persistent Reserve In"},
-    {SCSI_SPC_PERSRESVOUT                  , "Persistent Reserve Out"},
-    {SCSI_SPC_PREVMEDREMOVAL               , "Prevent/Allow Medium Removal"},
-    {SCSI_SSC_READ6                        , "Read(6)"},
-    {SCSI_SSC_READ_16                      , "Read(16)"},
-    {SCSI_SSC_READ_BLOCK_LIMITS            , "Read Block Limits"},
-    {SCSI_SMC_READ_ELEMENT_STATUS          , "Read Element Status"},
-    {SCSI_SMC_READ_ELEMENT_STATUS_ATTACHED , "Read Element Status Attached"},
-    {SCSI_SSC_READ_POSITION                , "Read Position"},
-    {SCSI_SSC_READ_REVERSE_6               , "Read Reverse(6)"},
-    {SCSI_SSC_READ_REVERSE_16              , "Read Reverse(16)"},
-    {SCSI_SSC_RECOVER_BUFFERED_DATA        , "Recover Buffered Data"},
-    {SCSI_SSC_REPORT_DENSITY_SUPPORT       , "Report Density Support"},
-    {SCSI_SPC_REPORTLUNS                   , "Report LUNs"},
-    {SCSI_SPC_REQSENSE                     , "Request Sense"},
-    {SCSI_SSC_REWIND                       , "Rewind"},
-    {SCSI_SPC_SENDDIAG                     , "Send Diagnostic"},
-    {SCSI_SSC_SET_CAPACITY                 , "Set Capacity"},
-    {SCSI_SSC_SPACE_6                      , "Space(6)"},
-    {SCSI_SSC_SPACE_16                     , "Space(16)"},
-    {SCSI_SPC_TESTUNITRDY                  , "Test Unit Ready"},
-    {SCSI_SSC_VERIFY_6                     , "Verify(6)"},
-    {SCSI_SSC_VERIFY_16                    , "Verify(16)"},
-    {SCSI_SSC_WRITE6                       , "Write(6)"},
-    {SCSI_SSC_WRITE_16                     , "Write(16)"},
-    {SCSI_SPC_WRITEBUFFER                  , "Write Buffer"},
-    {SCSI_SSC_WRITE_FILEMARKS_16           , "Write Filemarks(16)"},
-    {SCSI_SSC_WRITE_FILEMARKS_6            , "Write Filemarks(6)"},
+static const value_string scsi_ssc_vals[] = {
+    /* 0x00 */    {SCSI_SPC_TESTUNITRDY                  , "Test Unit Ready"},
+    /* 0x01 */    {SCSI_SSC_REWIND                       , "Rewind"},
+    /* 0x03 */    {SCSI_SPC_REQSENSE                     , "Request Sense"},
+    /* 0x04 */    {SCSI_SSC_FORMAT_MEDIUM                , "Format Medium"},
+    /* 0x05 */    {SCSI_SSC_READ_BLOCK_LIMITS            , "Read Block Limits"},
+    /* 0x08 */    {SCSI_SSC_READ6                        , "Read(6)"},
+    /* 0x0A */    {SCSI_SSC_WRITE6                       , "Write(6)"},
+    /* 0x0B */    {SCSI_SSC_SET_CAPACITY                 , "Set Capacity"},
+    /* 0x0F */    {SCSI_SSC_READ_REVERSE_6               , "Read Reverse(6)"},
+    /* 0x10 */    {SCSI_SSC_WRITE_FILEMARKS_6            , "Write Filemarks(6)"},
+    /* 0x11 */    {SCSI_SSC_SPACE_6                      , "Space(6)"},
+    /* 0x12 */    {SCSI_SPC_INQUIRY                      , "Inquiry"},
+    /* 0x13 */    {SCSI_SSC_VERIFY_6                     , "Verify(6)"},
+    /* 0x14 */    {SCSI_SSC_RECOVER_BUFFERED_DATA        , "Recover Buffered Data"},
+    /* 0x15 */    {SCSI_SPC_MODESELECT6                  , "Mode Select(6)"},
+    /* 0x16 */    {SCSI_SPC_RESERVE6                     , "Reserve(6)"},
+    /* 0x17 */    {SCSI_SPC_RELEASE6                     , "Release(6)"},
+    /* 0x19 */    {SCSI_SSC_ERASE_6                      , "Erase(6)"},
+    /* 0x1A */    {SCSI_SPC_MODESENSE6                   , "Mode Sense(6)"},
+    /* 0x1B */    {SCSI_SSC_LOAD_UNLOAD                  , "Load Unload"},
+    /* 0x1D */    {SCSI_SPC_SENDDIAG                     , "Send Diagnostic"},
+    /* 0x1E */    {SCSI_SPC_PREVMEDREMOVAL               , "Prevent/Allow Medium Removal"},
+    /* 0x2B */    {SCSI_SSC_LOCATE_10                    , "Locate(10)"},
+    /* 0x34 */    {SCSI_SSC_READ_POSITION                , "Read Position"},
+    /* 0x3B */    {SCSI_SPC_WRITEBUFFER                  , "Write Buffer"},
+    /* 0x44 */    {SCSI_SSC_REPORT_DENSITY_SUPPORT       , "Report Density Support"},
+    /* 0x4C */    {SCSI_SPC_LOGSELECT                    , "Log Select"},
+    /* 0x4D */    {SCSI_SPC_LOGSENSE                     , "Log Sense"},
+    /* 0x55 */    {SCSI_SPC_MODESELECT10                 , "Mode Select(10)"},
+    /* 0x5A */    {SCSI_SPC_MODESENSE10                  , "Mode Sense(10)"},
+    /* 0x5E */    {SCSI_SPC_PERSRESVIN                   , "Persistent Reserve In"},
+    /* 0x5F */    {SCSI_SPC_PERSRESVOUT                  , "Persistent Reserve Out"},
+    /* 0x80 */    {SCSI_SSC_WRITE_FILEMARKS_16           , "Write Filemarks(16)"},
+    /* 0x81 */    {SCSI_SSC_READ_REVERSE_16              , "Read Reverse(16)"},
+    /* 0x83 */    {SCSI_SPC_EXTCOPY                      , "Extended Copy"},
+    /* 0x88 */    {SCSI_SSC_READ_16                      , "Read(16)"},
+    /* 0x8A */    {SCSI_SSC_WRITE_16                     , "Write(16)"},
+    /* 0x8F */    {SCSI_SSC_VERIFY_16                    , "Verify(16)"},
+    /* 0x91 */    {SCSI_SSC_SPACE_16                     , "Space(16)"},
+    /* 0x92 */    {SCSI_SSC_LOCATE_16                    , "Locate(16)"},
+    /* 0x93 */    {SCSI_SSC_ERASE_16                     , "Erase(16)"},
+    /* 0xA0 */    {SCSI_SPC_REPORTLUNS                   , "Report LUNs"},
+    /* 0xA3 */    {SCSI_SPC_MGMT_PROTOCOL_IN             , "Mgmt Protocol In"},
+    /* 0xA5 */    {SCSI_SMC_MOVE_MEDIUM                  , "Move Medium"},
+    /* 0xA7 */    {SCSI_SMC_MOVE_MEDIUM_ATTACHED         , "Move Medium Attached"},
+    /* 0xB4 */    {SCSI_SMC_READ_ELEMENT_STATUS_ATTACHED , "Read Element Status Attached"},
+    /* 0xB8 */    {SCSI_SMC_READ_ELEMENT_STATUS          , "Read Element Status"},
     {0, NULL}
 };
+value_string_ext scsi_ssc_vals_ext = VALUE_STRING_EXT_INIT(scsi_ssc_vals);
 
 
 scsi_cdb_table_t scsi_ssc_table[256] = {
@@ -1211,10 +1209,10 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 void
 proto_register_scsi_ssc(void)
 {
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
         { &hf_scsi_ssc_opcode,
-          {"SSC Opcode", "scsi_ssc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_ssc_vals), 0x0, NULL, HFILL}},
+          {"SSC Opcode", "scsi_ssc.opcode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &scsi_ssc_vals_ext, 0x0, NULL, HFILL}},
         { &hf_scsi_ssc_rdwr6_xferlen,
           {"Transfer Length", "scsi_ssc.rdwr6.xferlen", FT_UINT24, BASE_DEC, NULL, 0x0,
            NULL, HFILL}},
@@ -1232,7 +1230,7 @@ proto_register_scsi_ssc(void)
            NULL, HFILL}},
         { &hf_scsi_ssc_space6_code,
           {"Code", "scsi_ssc.space6.code", FT_UINT8, BASE_HEX,
-          VALS(space6_code_vals), 0x0f,
+           VALS(space6_code_vals), 0x0f,
            NULL, HFILL}},
         { &hf_scsi_ssc_space16_count,
           {"Count", "scsi_ssc.space16.count", FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1336,28 +1334,28 @@ proto_register_scsi_ssc(void)
         { &hf_scsi_ssc_capacity_prop_value,
           {"Capacity Proportion Value", "scsi_ssc.cpv", FT_UINT16, BASE_DEC,
            NULL, 0, NULL, HFILL}},
-	};
+    };
 
 
-	/* Setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_scsi_erase,
-		&ett_scsi_formatmedium,
-		&ett_scsi_loadunload_immed,
-		&ett_scsi_loadunload,
-		&ett_scsi_locate,
-		&ett_scsi_bam,
-		&ett_scsi_read6
-	};
+    /* Setup protocol subtree array */
+    static gint *ett[] = {
+        &ett_scsi_erase,
+        &ett_scsi_formatmedium,
+        &ett_scsi_loadunload_immed,
+        &ett_scsi_loadunload,
+        &ett_scsi_locate,
+        &ett_scsi_bam,
+        &ett_scsi_read6
+    };
 
 
-	/* Register the protocol name and description */
-	proto_scsi_ssc = proto_register_protocol("SCSI_SSC", "SCSI_SSC", "scsi_ssc");
+    /* Register the protocol name and description */
+    proto_scsi_ssc = proto_register_protocol("SCSI_SSC", "SCSI_SSC", "scsi_ssc");
 
-	/* Required function calls to register the header fields and subtrees used */
-	proto_register_field_array(proto_scsi_ssc, hf, array_length(hf));
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_scsi_ssc, hf, array_length(hf));
 
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_subtree_array(ett, array_length(ett));
 
 }
 
@@ -1366,3 +1364,16 @@ proto_reg_handoff_scsi_ssc(void)
 {
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

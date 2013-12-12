@@ -97,6 +97,6 @@ void dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 extern int hf_scsi_sbc_opcode;
 extern scsi_cdb_table_t scsi_sbc_table[256];
-WS_DLL_PUBLIC const value_string scsi_sbc_vals[];
+WS_DLL_PUBLIC value_string_ext scsi_sbc_vals_ext;
 
 #endif

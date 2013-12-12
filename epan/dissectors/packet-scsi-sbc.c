@@ -984,7 +984,7 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                            guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint32 len, block_len, tot_len;
+    guint32     len, block_len, tot_len;
     const char *un;
 
     if (!tree)
@@ -1221,9 +1221,8 @@ dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
         guint8 service_action;
 
         service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(service_action,
-							sanitize_val,
-							"Unknown (0x%02x)"));
+        col_append_str(pinfo->cinfo, COL_INFO,
+                       val_to_str(service_action, sanitize_val, "Unknown (0x%02x)"));
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_sanitize_flags,
                 ett_scsi_sanitize, sanitize_fields, ENC_BIG_ENDIAN);
@@ -1322,9 +1321,9 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                            gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 service_action;
-    guint32 block_len;
-    guint64 len, tot_len;
+    guint8      service_action;
+    guint32     block_len;
+    guint64     len, tot_len;
     const char *un;
 
     if (!tree)
@@ -1485,82 +1484,85 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 /* SBC Commands */
-const value_string scsi_sbc_vals[] = {
-    {SCSI_SPC_EXTCOPY           , "Extended Copy"},
-    {SCSI_SPC_INQUIRY           , "Inquiry"},
-    {SCSI_SBC_FORMATUNIT        , "Format Unit"},
-    {SCSI_SBC_LOCKUNLKCACHE10   , "Lock Unlock Cache(10)"},
-    {SCSI_SBC_LOCKUNLKCACHE16   , "Lock Unlock Cache(16)"},
-    {SCSI_SPC_LOGSELECT         , "Log Select"},
-    {SCSI_SPC_LOGSENSE          , "Log Sense"},
-    {SCSI_SPC_MGMT_PROTOCOL_IN  , "Mgmt Protocol In"},
-    {SCSI_SPC_MODESELECT6       , "Mode Select(6)"},
-    {SCSI_SPC_MODESELECT10      , "Mode Select(10)"},
-    {SCSI_SPC_MODESENSE6        , "Mode Sense(6)"},
-    {SCSI_SPC_MODESENSE10       , "Mode Sense(10)"},
-    {SCSI_SPC_PERSRESVIN        , "Persistent Reserve In"},
-    {SCSI_SPC_PERSRESVOUT       , "Persistent Reserve Out"},
-    {SCSI_SBC_PREFETCH10        , "Pre-Fetch(10)"},
-    {SCSI_SBC_PREFETCH16        , "Pre-Fetch(16)"},
-    {SCSI_SPC_PREVMEDREMOVAL    , "Prevent/Allow Medium Removal"},
-    {SCSI_SBC_READ6             , "Read(6)"},
-    {SCSI_SBC_READ10            , "Read(10)"},
-    {SCSI_SBC_READ12            , "Read(12)"},
-    {SCSI_SBC_READ16            , "Read(16)"},
-    {SCSI_SBC_READCAPACITY10    , "Read Capacity(10)"},
-    {SCSI_SPC_REPORTLUNS        , "Report LUNs"},
-    {SCSI_SPC_REQSENSE          , "Request Sense"},
-    {SCSI_SBC_SERVICEACTIONIN16 , "Service Action In(16)"},
-    {SCSI_SBC_READDEFDATA10     , "Read Defect Data(10)"},
-    {SCSI_SBC_READDEFDATA12     , "Read Defect Data(12)"},
-    {SCSI_SBC_READLONG          , "Read Long(10)"},
-    {SCSI_SBC_REASSIGNBLKS      , "Reassign Blocks"},
-    {SCSI_SBC_REBUILD16         , "Rebuild(16)"},
-    {SCSI_SBC_REBUILD32         , "Rebuild(32)"},
-    {SCSI_SBC_REGENERATE16      , "Regenerate(16)"},
-    {SCSI_SBC_REGENERATE32      , "Regenerate(32)"},
-    {SCSI_SPC_RELEASE6          , "Release(6)"}, /* obsolete in SBC2 and later */
-    {SCSI_SPC_RELEASE10         , "Release(10)"},/* obsolete in SBC2 and later */
-    {SCSI_SPC_RESERVE6          , "Reserve(6)"}, /* obsolete in SBC2 and later */
-    {SCSI_SPC_RESERVE10         , "Reserve(10)"},/* obsolete in SBC2 and later */
-    {SCSI_SBC_SANITIZE          , "Sanitize"},
-    {SCSI_SBC_SEEK10            , "Seek(10)"},
-    {SCSI_SPC_SENDDIAG          , "Send Diagnostic"},
-    {SCSI_SBC_SETLIMITS10       , "Set Limits(10)"},
-    {SCSI_SBC_SETLIMITS12       , "Set Limits(12)"},
-    {SCSI_SBC_STARTSTOPUNIT     , "Start Stop Unit"},
-    {SCSI_SBC_SYNCCACHE10       , "Synchronize Cache(10)"},
-    {SCSI_SBC_SYNCCACHE16       , "Synchronize Cache(16)"},
-    {SCSI_SPC_TESTUNITRDY       , "Test Unit Ready"},
-    {SCSI_SBC_UNMAP             , "Unmap"},
-    {SCSI_SBC_VERIFY10          , "Verify(10)"},
-    {SCSI_SBC_VERIFY12          , "Verify(12)"},
-    {SCSI_SBC_VERIFY16          , "Verify(16)"},
-    {SCSI_SBC_WRITE6            , "Write(6)"},
-    {SCSI_SBC_WRITE10           , "Write(10)"},
-    {SCSI_SBC_WRITE12           , "Write(12)"},
-    {SCSI_SBC_WRITE16           , "Write(16)"},
-    {SCSI_SBC_ORWRITE           , "OrWrite(16)"},
-    {SCSI_SPC_WRITEBUFFER       , "Write Buffer"},
-    {SCSI_SBC_COMPARENWRITE     , "Compare & Write(16)"},
-    {SCSI_SBC_WRITENVERIFY10    , "Write & Verify(10)"},
-    {SCSI_SBC_WRITENVERIFY12    , "Write & Verify(12)"},
-    {SCSI_SBC_WRITENVERIFY16    , "Write & Verify(16)"},
-    {SCSI_SBC_WRITELONG         , "Write Long"},
-    {SCSI_SBC_WRITESAME10       , "Write Same(10)"},
-    {SCSI_SBC_WRITESAME16       , "Write Same(16)"},
-    {SCSI_SBC_XDREAD10          , "XdRead(10)"},
-    {SCSI_SBC_XDREAD32          , "XdRead(32)"},
-    {SCSI_SBC_XDWRITE10         , "XdWrite(10)"},
-    {SCSI_SBC_XDWRITE32         , "XdWrite(32)"},
-    {SCSI_SBC_XDWRITEREAD10     , "XdWriteRead(10)"},
-    {SCSI_SBC_XDWRITEREAD32     , "XdWriteRead(32)"},
-    {SCSI_SBC_XDWRITEEXTD16     , "XdWrite Extended(16)"},
-    {SCSI_SBC_XDWRITEEXTD32     , "XdWrite Extended(32)"},
-    {SCSI_SBC_XPWRITE10         , "XpWrite(10)"},
-    {SCSI_SBC_XPWRITE32         , "XpWrite(32)"},
+static const value_string scsi_sbc_vals[] = {
+    /* 0x00 */    {SCSI_SPC_TESTUNITRDY       , "Test Unit Ready"},
+    /* 0x03 */    {SCSI_SPC_REQSENSE          , "Request Sense"},
+    /* 0x04 */    {SCSI_SBC_FORMATUNIT        , "Format Unit"},
+    /* 0x07 */    {SCSI_SBC_REASSIGNBLKS      , "Reassign Blocks"},
+    /* 0x08 */    {SCSI_SBC_READ6             , "Read(6)"},
+    /* 0x0A */    {SCSI_SBC_WRITE6            , "Write(6)"},
+    /* 0x12 */    {SCSI_SPC_INQUIRY           , "Inquiry"},
+    /* 0x15 */    {SCSI_SPC_MODESELECT6       , "Mode Select(6)"},
+    /* 0x16 */    {SCSI_SPC_RESERVE6          , "Reserve(6)"}, /* obsolete in SBC2 and later */
+    /* 0x17 */    {SCSI_SPC_RELEASE6          , "Release(6)"}, /* obsolete in SBC2 and later */
+    /* 0x1A */    {SCSI_SPC_MODESENSE6        , "Mode Sense(6)"},
+    /* 0x1B */    {SCSI_SBC_STARTSTOPUNIT     , "Start Stop Unit"},
+    /* 0x1D */    {SCSI_SPC_SENDDIAG          , "Send Diagnostic"},
+    /* 0x1E */    {SCSI_SPC_PREVMEDREMOVAL    , "Prevent/Allow Medium Removal"},
+    /* 0x25 */    {SCSI_SBC_READCAPACITY10    , "Read Capacity(10)"},
+    /* 0x28 */    {SCSI_SBC_READ10            , "Read(10)"},
+    /* 0x2A */    {SCSI_SBC_WRITE10           , "Write(10)"},
+    /* 0x2B */    {SCSI_SBC_SEEK10            , "Seek(10)"},
+    /* 0x2E */    {SCSI_SBC_WRITENVERIFY10    , "Write & Verify(10)"},
+    /* 0x2F */    {SCSI_SBC_VERIFY10          , "Verify(10)"},
+    /* 0x33 */    {SCSI_SBC_SETLIMITS10       , "Set Limits(10)"},
+    /* 0x34 */    {SCSI_SBC_PREFETCH10        , "Pre-Fetch(10)"},
+    /* 0x35 */    {SCSI_SBC_SYNCCACHE10       , "Synchronize Cache(10)"},
+    /* 0x36 */    {SCSI_SBC_LOCKUNLKCACHE10   , "Lock Unlock Cache(10)"},
+    /* 0x37 */    {SCSI_SBC_READDEFDATA10     , "Read Defect Data(10)"},
+    /* 0x3B */    {SCSI_SPC_WRITEBUFFER       , "Write Buffer"},
+    /* 0x3E */    {SCSI_SBC_READLONG          , "Read Long(10)"},
+    /* 0x3F */    {SCSI_SBC_WRITELONG         , "Write Long"},
+    /* 0x41 */    {SCSI_SBC_WRITESAME10       , "Write Same(10)"},
+    /* 0x42 */    {SCSI_SBC_UNMAP             , "Unmap"},
+    /* 0x48 */    {SCSI_SBC_SANITIZE          , "Sanitize"},
+    /* 0x4C */    {SCSI_SPC_LOGSELECT         , "Log Select"},
+    /* 0x4D */    {SCSI_SPC_LOGSENSE          , "Log Sense"},
+    /* 0x50 */    {SCSI_SBC_XDWRITE10         , "XdWrite(10)"},
+    /* 0x51 */    {SCSI_SBC_XPWRITE10         , "XpWrite(10)"},
+    /* 0x52 */    {SCSI_SBC_XDREAD10          , "XdRead(10)"},
+    /* 0x53 */    {SCSI_SBC_XDWRITEREAD10     , "XdWriteRead(10)"},
+    /* 0x55 */    {SCSI_SPC_MODESELECT10      , "Mode Select(10)"},
+    /* 0x56 */    {SCSI_SPC_RESERVE10         , "Reserve(10)"},/* obsolete in SBC2 and later */
+    /* 0x57 */    {SCSI_SPC_RELEASE10         , "Release(10)"},/* obsolete in SBC2 and later */
+    /* 0x5A */    {SCSI_SPC_MODESENSE10       , "Mode Sense(10)"},
+    /* 0x5E */    {SCSI_SPC_PERSRESVIN        , "Persistent Reserve In"},
+    /* 0x5F */    {SCSI_SPC_PERSRESVOUT       , "Persistent Reserve Out"},
+    /* 0x7F */    {SCSI_SBC_REBUILD32         , "Rebuild(32)"},
+#if 0 /* dups which would never have been found (in the previous unsorted version of this array) */
+    /* 0x7F */    {SCSI_SBC_REGENERATE32      , "Regenerate(32)"},
+    /* 0x7F */    {SCSI_SBC_XDREAD32          , "XdRead(32)"},
+    /* 0x7F */    {SCSI_SBC_XDWRITE32         , "XdWrite(32)"},
+    /* 0x7F */    {SCSI_SBC_XDWRITEEXTD32     , "XdWrite Extended(32)"},
+    /* 0x7F */    {SCSI_SBC_XDWRITEREAD32     , "XdWriteRead(32)"},
+    /* 0x7F */    {SCSI_SBC_XPWRITE32         , "XpWrite(32)"},
+#endif
+    /* 0x80 */    {SCSI_SBC_XDWRITEEXTD16     , "XdWrite Extended(16)"},
+    /* 0x81 */    {SCSI_SBC_REBUILD16         , "Rebuild(16)"},
+    /* 0x82 */    {SCSI_SBC_REGENERATE16      , "Regenerate(16)"},
+    /* 0x83 */    {SCSI_SPC_EXTCOPY           , "Extended Copy"},
+    /* 0x88 */    {SCSI_SBC_READ16            , "Read(16)"},
+    /* 0x89 */    {SCSI_SBC_COMPARENWRITE     , "Compare & Write(16)"},
+    /* 0x8A */    {SCSI_SBC_WRITE16           , "Write(16)"},
+    /* 0x8B */    {SCSI_SBC_ORWRITE           , "OrWrite(16)"},
+    /* 0x8E */    {SCSI_SBC_WRITENVERIFY16    , "Write & Verify(16)"},
+    /* 0x8F */    {SCSI_SBC_VERIFY16          , "Verify(16)"},
+    /* 0x90 */    {SCSI_SBC_PREFETCH16        , "Pre-Fetch(16)"},
+    /* 0x91 */    {SCSI_SBC_SYNCCACHE16       , "Synchronize Cache(16)"},
+    /* 0x92 */    {SCSI_SBC_LOCKUNLKCACHE16   , "Lock Unlock Cache(16)"},
+    /* 0x93 */    {SCSI_SBC_WRITESAME16       , "Write Same(16)"},
+    /* 0x9E */    {SCSI_SBC_SERVICEACTIONIN16 , "Service Action In(16)"},
+    /* 0xA0 */    {SCSI_SPC_REPORTLUNS        , "Report LUNs"},
+    /* 0xA3 */    {SCSI_SPC_MGMT_PROTOCOL_IN  , "Mgmt Protocol In"},
+    /* 0xA8 */    {SCSI_SBC_READ12            , "Read(12)"},
+    /* 0xAA */    {SCSI_SBC_WRITE12           , "Write(12)"},
+    /* 0xAE */    {SCSI_SBC_WRITENVERIFY12    , "Write & Verify(12)"},
+    /* 0xAF */    {SCSI_SBC_VERIFY12          , "Verify(12)"},
+    /* 0xB3 */    {SCSI_SBC_SETLIMITS12       , "Set Limits(12)"},
+    /* 0xB7 */    {SCSI_SBC_READDEFDATA12     , "Read Defect Data(12)"},
     {0, NULL}
 };
+value_string_ext scsi_sbc_vals_ext = VALUE_STRING_EXT_INIT(scsi_sbc_vals);
 
 scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SPC 0x00*/{dissect_spc_testunitready},
@@ -1827,8 +1829,8 @@ proto_register_scsi_sbc(void)
 {
     static hf_register_info hf[] = {
         { &hf_scsi_sbc_opcode,
-          {"SBC Opcode", "scsi_sbc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_sbc_vals), 0x0, NULL, HFILL}},
+          {"SBC Opcode", "scsi_sbc.opcode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &scsi_sbc_vals_ext, 0x0, NULL, HFILL}},
         { &hf_scsi_sbc_formatunit_flags,
           {"Flags", "scsi_sbc.formatunit.flags", FT_UINT8, BASE_HEX, NULL, 0xF8,
            NULL, HFILL}},
@@ -2165,16 +2167,15 @@ proto_reg_handoff_scsi_sbc(void)
 {
 }
 
-
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

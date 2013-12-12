@@ -758,39 +758,40 @@ typedef guint32 scsi_device_type;
 
 /* SPC and SPC-2 Commands */
 static const value_string scsi_spc_vals[] = {
-    {SCSI_SPC_ACCESS_CONTROL_IN  , "Access Control In"},
-    {SCSI_SPC_ACCESS_CONTROL_OUT , "Access Control Out"},
-    {SCSI_SPC_CHANGE_DEFINITION  , "Change Definition"},
-    {SCSI_SPC_COMPARE            , "Compare"},
-    {SCSI_SPC_COPY               , "Copy"},
-    {SCSI_SPC_COPY_AND_VERIFY    , "Copy And Verify"},
-    {SCSI_SPC_EXTCOPY            , "Extended Copy"},
-    {SCSI_SPC_INQUIRY            , "Inquiry"},
-    {SCSI_SPC_LOGSELECT          , "Log Select"},
-    {SCSI_SPC_LOGSENSE           , "Log Sense"},
-    {SCSI_SPC_MGMT_PROTOCOL_IN   , "Mgmt Protocol In"},
-    {SCSI_SPC_MODESELECT6        , "Mode Select(6)"},
-    {SCSI_SPC_MODESELECT10       , "Mode Select(10)"},
-    {SCSI_SPC_MODESENSE6         , "Mode Sense(6)"},
-    {SCSI_SPC_MODESENSE10        , "Mode Sense(10)"},
-    {SCSI_SPC_PERSRESVIN         , "Persistent Reserve In"},
-    {SCSI_SPC_PERSRESVOUT        , "Persistent Reserve Out"},
-    {SCSI_SPC_PREVMEDREMOVAL     , "Prevent/Allow Medium Removal"},
-    {SCSI_SPC_RCVCOPYRESULTS     , "Receive Copy Results"},
-    {SCSI_SPC_RCVDIAGRESULTS     , "Receive Diagnostics Results"},
-    {SCSI_SPC_READBUFFER         , "Read Buffer"},
-    {SCSI_SPC_RELEASE6           , "Release(6)"},
-    {SCSI_SPC_RELEASE10          , "Release(10)"},
-    {SCSI_SPC_REPORTLUNS         , "Report LUNs"},
-    {SCSI_SPC_REQSENSE           , "Request Sense"},
-    {SCSI_SPC_RESERVE6           , "Reserve(6)"},
-    {SCSI_SPC_RESERVE10          , "Reserve(10)"},
-    {SCSI_SPC_SENDDIAG           , "Send Diagnostic"},
-    {SCSI_SPC_TESTUNITRDY        , "Test Unit Ready"},
-    {SCSI_SPC_WRITEBUFFER        , "Write Buffer"},
-    {SCSI_SPC_VARLENCDB          , "Variable Length CDB"},
+    /* 0x00 */    {SCSI_SPC_TESTUNITRDY        , "Test Unit Ready"},
+    /* 0x03 */    {SCSI_SPC_REQSENSE           , "Request Sense"},
+    /* 0x12 */    {SCSI_SPC_INQUIRY            , "Inquiry"},
+    /* 0x15 */    {SCSI_SPC_MODESELECT6        , "Mode Select(6)"},
+    /* 0x16 */    {SCSI_SPC_RESERVE6           , "Reserve(6)"},
+    /* 0x17 */    {SCSI_SPC_RELEASE6           , "Release(6)"},
+    /* 0x18 */    {SCSI_SPC_COPY               , "Copy"},
+    /* 0x1A */    {SCSI_SPC_MODESENSE6         , "Mode Sense(6)"},
+    /* 0x1C */    {SCSI_SPC_RCVDIAGRESULTS     , "Receive Diagnostics Results"},
+    /* 0x1D */    {SCSI_SPC_SENDDIAG           , "Send Diagnostic"},
+    /* 0x1E */    {SCSI_SPC_PREVMEDREMOVAL     , "Prevent/Allow Medium Removal"},
+    /* 0x39 */    {SCSI_SPC_COMPARE            , "Compare"},
+    /* 0x3A */    {SCSI_SPC_COPY_AND_VERIFY    , "Copy And Verify"},
+    /* 0x3B */    {SCSI_SPC_WRITEBUFFER        , "Write Buffer"},
+    /* 0x3C */    {SCSI_SPC_READBUFFER         , "Read Buffer"},
+    /* 0x40 */    {SCSI_SPC_CHANGE_DEFINITION  , "Change Definition"},
+    /* 0x4C */    {SCSI_SPC_LOGSELECT          , "Log Select"},
+    /* 0x4D */    {SCSI_SPC_LOGSENSE           , "Log Sense"},
+    /* 0x55 */    {SCSI_SPC_MODESELECT10       , "Mode Select(10)"},
+    /* 0x56 */    {SCSI_SPC_RESERVE10          , "Reserve(10)"},
+    /* 0x57 */    {SCSI_SPC_RELEASE10          , "Release(10)"},
+    /* 0x5A */    {SCSI_SPC_MODESENSE10        , "Mode Sense(10)"},
+    /* 0x5E */    {SCSI_SPC_PERSRESVIN         , "Persistent Reserve In"},
+    /* 0x5F */    {SCSI_SPC_PERSRESVOUT        , "Persistent Reserve Out"},
+    /* 0x7F */    {SCSI_SPC_VARLENCDB          , "Variable Length CDB"},
+    /* 0x83 */    {SCSI_SPC_EXTCOPY            , "Extended Copy"},
+    /* 0x84 */    {SCSI_SPC_RCVCOPYRESULTS     , "Receive Copy Results"},
+    /* 0x86 */    {SCSI_SPC_ACCESS_CONTROL_IN  , "Access Control In"},
+    /* 0x87 */    {SCSI_SPC_ACCESS_CONTROL_OUT , "Access Control Out"},
+    /* 0xA0 */    {SCSI_SPC_REPORTLUNS         , "Report LUNs"},
+    /* 0xA3 */    {SCSI_SPC_MGMT_PROTOCOL_IN   , "Mgmt Protocol In"},
     {0, NULL},
 };
+static value_string_ext scsi_spc_vals_ext = VALUE_STRING_EXT_INIT(scsi_spc_vals);
 
 static const value_string scsi_lun_address_mode_vals[] = {
     { 0, "Single Level LUN Structure" },
@@ -2592,7 +2593,7 @@ static gint scsi_def_devtype = SCSI_DEV_SBC;
 
 typedef struct _cmdset_t {
     int                 hf_opcode;
-    const value_string *cdb_vals;
+    value_string_ext   *cdb_vals_ext;
     scsi_cdb_table_t   *cdb_table;
 } cmdset_t;
 
@@ -4774,7 +4775,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 
                         it = proto_tree_add_text(tree, tvb_v, offset_v,
                                 20, "Command Descriptor: %s",
-                                val_to_str(tvb_get_guint8(tvb_v, offset_v+0), csdata->cdb_vals, "Unknown"));
+                                val_to_str_ext_const(tvb_get_guint8(tvb_v, offset_v+0), csdata->cdb_vals_ext, "Unknown"));
                         tr = proto_item_add_subtree(it,
                                 ett_command_descriptor);
 
@@ -5118,9 +5119,9 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, 0,
                                             0, "SCSI Response (%s)",
-                                            val_to_str(itlq->scsi_opcode,
-                                                       csdata->cdb_vals,
-                                                       "CDB:0x%02x"));
+                                            val_to_str_ext(itlq->scsi_opcode,
+                                                           csdata->cdb_vals_ext,
+                                                           "CDB:0x%02x"));
         scsi_tree = proto_item_add_subtree(ti, ett_scsi);
     }
 
@@ -5150,7 +5151,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
     ti = proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
     PROTO_ITEM_SET_GENERATED(ti);
     col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI: Response LUN: 0x%02x (%s) (%s)", itlq->lun,
-                     val_to_str(itlq->scsi_opcode, csdata->cdb_vals, "CDB:0x%02x"),
+                     val_to_str_ext(itlq->scsi_opcode, csdata->cdb_vals_ext, "CDB:0x%02x"),
                      val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
 
     col_set_fence(pinfo->cinfo, COL_INFO);
@@ -5498,8 +5499,8 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 #endif
 
-    if ((valstr = try_val_to_str(opcode, scsi_spc_vals)) == NULL) {
-        valstr = try_val_to_str(opcode, csdata->cdb_vals);
+    if ((valstr = try_val_to_str_ext(opcode, &scsi_spc_vals_ext)) == NULL) {
+        valstr = try_val_to_str_ext(opcode, csdata->cdb_vals_ext);
     }
 
     if (valstr != NULL) {
@@ -5519,9 +5520,9 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, 0,
                                             -1, "SCSI CDB %s",
-                                            val_to_str(opcode,
-                                                       csdata->cdb_vals,
-                                                       "0x%02x")
+                                            val_to_str_ext(opcode,
+                                                           csdata->cdb_vals_ext,
+                                                           "0x%02x")
             );
         scsi_tree = proto_item_add_subtree(ti, ett_scsi);
     }
@@ -5608,9 +5609,9 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, offset,
                                             payload_len,
                                             "SCSI Payload (%s %s)",
-                                            val_to_str(opcode,
-                                                       csdata->cdb_vals,
-                                                       "CDB:0x%02x"),
+                                            val_to_str_ext(opcode,
+                                                           csdata->cdb_vals_ext,
+                                                           "CDB:0x%02x"),
                                             isreq ? "Request Data" : "Response Data");
         scsi_tree = proto_item_add_subtree(ti, ett_scsi);
     }
@@ -5619,7 +5620,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "SCSI: Data %s LUN: 0x%02x (%s %s) ",
                     isreq ? "Out" : "In",
                     itlq->lun,
-                    val_to_str(opcode, csdata->cdb_vals, "0x%02x"),
+                    val_to_str_ext(opcode, csdata->cdb_vals_ext, "0x%02x"),
                     isreq ? "Request Data" : "Response Data");
 
     col_set_fence(pinfo->cinfo, COL_INFO);
@@ -5792,34 +5793,34 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
 
     switch(cmdset&SCSI_CMDSET_MASK) {
     case SCSI_DEV_SBC:
-        csdata->hf_opcode = hf_scsi_sbc_opcode;
-        csdata->cdb_vals  = scsi_sbc_vals;
-        csdata->cdb_table = scsi_sbc_table;
+        csdata->hf_opcode    = hf_scsi_sbc_opcode;
+        csdata->cdb_vals_ext = &scsi_sbc_vals_ext;
+        csdata->cdb_table    = scsi_sbc_table;
         break;
     case SCSI_DEV_CDROM:
-        csdata->hf_opcode = hf_scsi_mmc_opcode;
-        csdata->cdb_vals  = scsi_mmc_vals;
-        csdata->cdb_table = scsi_mmc_table;
+        csdata->hf_opcode    = hf_scsi_mmc_opcode;
+        csdata->cdb_vals_ext = &scsi_mmc_vals_ext;
+        csdata->cdb_table    = scsi_mmc_table;
         break;
     case SCSI_DEV_SSC:
-        csdata->hf_opcode = hf_scsi_ssc_opcode;
-        csdata->cdb_vals  = scsi_ssc_vals;
-        csdata->cdb_table = scsi_ssc_table;
+        csdata->hf_opcode    = hf_scsi_ssc_opcode;
+        csdata->cdb_vals_ext = &scsi_ssc_vals_ext;
+        csdata->cdb_table    = scsi_ssc_table;
         break;
     case SCSI_DEV_SMC:
-        csdata->hf_opcode = hf_scsi_smc_opcode;
-        csdata->cdb_vals  = scsi_smc_vals;
-        csdata->cdb_table = scsi_smc_table;
+        csdata->hf_opcode    = hf_scsi_smc_opcode;
+        csdata->cdb_vals_ext = &scsi_smc_vals_ext;
+        csdata->cdb_table    = scsi_smc_table;
         break;
     case SCSI_DEV_OSD:
-        csdata->hf_opcode = hf_scsi_osd_opcode;
-        csdata->cdb_vals  = scsi_osd_vals;
-        csdata->cdb_table = scsi_osd_table;
+        csdata->hf_opcode    = hf_scsi_osd_opcode;
+        csdata->cdb_vals_ext = &scsi_osd_vals_ext;
+        csdata->cdb_table    = scsi_osd_table;
         break;
     default:
-        csdata->hf_opcode = hf_scsi_spcopcode;
-        csdata->cdb_vals  = scsi_spc_vals;
-        csdata->cdb_table = spc;
+        csdata->hf_opcode    = hf_scsi_spcopcode;
+        csdata->cdb_vals_ext = &scsi_spc_vals_ext;
+        csdata->cdb_table    = spc;
         break;
     }
 
@@ -5835,8 +5836,8 @@ proto_register_scsi(void)
           { "Status", "scsi.status", FT_UINT8, BASE_HEX,
             VALS(scsi_status_val), 0, "SCSI command status value", HFILL }},
         { &hf_scsi_spcopcode,
-          {"SPC-2 Opcode", "scsi.spc.opcode", FT_UINT8, BASE_HEX,
-           VALS(scsi_spc_vals), 0x0, NULL, HFILL}},
+          {"SPC-2 Opcode", "scsi.spc.opcode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &scsi_spc_vals_ext, 0x0, NULL, HFILL}},
         { &hf_scsi_control,
           {"Control", "scsi.cdb.control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
@@ -6184,7 +6185,7 @@ proto_register_scsi(void)
         { &hf_scsi_sns_osd_object_id,
             {"Object ID", "scsi.sns.desc.osd_object.object_id",  FT_UINT64, BASE_HEX,  NULL, 0, NULL, HFILL}},
         { &hf_scsi_sns_osd_attr_page,
-            {"Attribute page", "scsi.sns.desc.osd_attr.page",      FT_UINT32, BASE_HEX,  VALS(attributes_page_vals), 0, NULL, HFILL}},
+            {"Attribute page", "scsi.sns.desc.osd_attr.page",      FT_UINT32, BASE_HEX | BASE_EXT_STRING,  &attributes_page_vals_ext, 0, NULL, HFILL}},
         { &hf_scsi_sns_osd_attr_number,
             {"Attribute number", "scsi.sns.desc.osd_attr.number",  FT_UINT32, BASE_HEX,  NULL, 0, NULL, HFILL}},
         { &hf_scsi_persresv_key,
