@@ -62,7 +62,6 @@ static int hf_fcp_snslen = -1;
 static int hf_fcp_rsplen = -1;
 static int hf_fcp_rspcode = -1;
 static int hf_fcp_scsistatus = -1;
-static int hf_fcp_type = -1;
 static int hf_fcp_mgmt_flags_obsolete = -1;
 static int hf_fcp_mgmt_flags_clear_aca = -1;
 static int hf_fcp_mgmt_flags_target_reset = -1;
@@ -102,7 +101,6 @@ typedef struct fcp_request_data {
    itlq_nexus_t *itlq;
 } fcp_request_data_t;
 
-static dissector_table_t fcp_dissector;
 static dissector_handle_t data_handle;
 
 /* Information Categories based on lower 4 bits of R_CTL */
@@ -392,7 +390,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     tvbuff_t    *cdb_tvb;
     int          tvb_len, tvb_rlen;
     fcp_request_data_t *request_data = NULL;
-    proto_item  *hidden_item;
     itl_nexus_t itl;
     fcp_proto_data_t *proto_data;
 
@@ -402,9 +399,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         add_len = tvb_get_guint8(tvb, offset+11) & 0x7C;
         add_len = add_len >> 2;
     }
-
-    hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     lun0 = tvb_get_guint8(tvb, offset);
 
@@ -562,7 +556,6 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     gint32      rsplen = 0;
     guint8      flags;
     guint8      status;
-    proto_item *hidden_item;
     itl_nexus_t itl;
     itlq_nexus_t empty_itlq;
 
@@ -591,9 +584,6 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         empty_itlq.lun=0xffff;
         empty_itlq.scsi_opcode=0xffff;
     }
-
-    hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* 8 reserved bytes */
     offset += 8;
@@ -672,10 +662,6 @@ static void
 dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
 {
     int         offset = 0;
-    proto_item *hidden_item;
-
-    hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_item(tree, hf_fcp_data_ro, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_fcp_burstlen, tvb, offset+4, 4, ENC_BIG_ENDIAN);
@@ -853,11 +839,6 @@ proto_register_fcp(void)
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
-        { &hf_fcp_type,
-          {"Field to branch off to SCSI", "fcp.type",
-           FT_UINT8, BASE_HEX, NULL, 0x0,
-           NULL, HFILL}},
-
         { &hf_fcp_multilun,
           {"Multi-Level LUN", "fcp.multilun",
            FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1087,8 +1068,6 @@ proto_register_fcp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    fcp_dissector = register_dissector_table("fcp.type", "FCP Type", FT_UINT8,
-                                              BASE_HEX);
 }
 
 void
