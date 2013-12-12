@@ -109,6 +109,12 @@ static int hf_pdcp_lte_security_setup_frame = -1;
 static int hf_pdcp_lte_security_integrity_algorithm = -1;
 static int hf_pdcp_lte_security_ciphering_algorithm = -1;
 
+static int hf_pdcp_lte_security_bearer = -1;
+static int hf_pdcp_lte_security_direction = -1;
+static int hf_pdcp_lte_security_count = -1;
+/* TODO: RRC and UP keys */
+
+
 
 /* Protocol subtree. */
 static int ett_pdcp = -1;
@@ -245,6 +251,7 @@ typedef struct
 {
     guint16  previousSequenceNumber;
     guint32  previousFrameNum;
+    guint32  hfn;
 } pdcp_channel_status;
 
 /* The sequence analysis channel hash table.
@@ -351,11 +358,13 @@ typedef struct
 
     guint16  firstSN;
     guint16  lastSN;
+    guint32  hfn;
 
     sequence_state state;
 } pdcp_sequence_report_in_frame;
 
-/* The sequence analysis frame report hash table instance itself   */
+/* The sequence analysis frame report hash table.
+   Maps pdcp_result_hash_key* -> pdcp_sequence_report_in_frame* */
 static GHashTable *pdcp_lte_sequence_analysis_report_hash = NULL;
 
 
@@ -364,7 +373,8 @@ static GHashTable *pdcp_lte_sequence_analysis_report_hash = NULL;
 static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                    pdcp_lte_info *p_pdcp_lte_info,
                                    guint16   sequenceNumber,
-                                   packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+                                   packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                                   proto_tree *security_tree)
 {
     proto_tree *seqnum_tree;
     proto_item *seqnum_ti;
@@ -416,6 +426,46 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             if (p->nextFrameNum != 0) {
                 proto_tree_add_uint(seqnum_tree, hf_pdcp_lte_sequence_analysis_next_frame,
                                     tvb, 0, 0, p->nextFrameNum);
+            }
+
+            /* May also be able to add key inputs to security tree here */
+            if (security_tree != NULL) {
+                guint32 hfn_multiplier;
+                guint32 count;
+
+                /* BEARER */
+                ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
+                                         tvb, 0, 0, p_pdcp_lte_info->channelId-1);
+                PROTO_ITEM_SET_GENERATED(ti);
+        
+                /* DIRECTION */
+                ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_direction,
+                                         tvb, 0, 0, p_pdcp_lte_info->direction);
+                PROTO_ITEM_SET_GENERATED(ti);
+        
+                /* Work out and show COUNT (HFN * snLength^2 + SN) */
+                switch (p_pdcp_lte_info->seqnum_length) {
+                    case PDCP_SN_LENGTH_5_BITS:
+                        hfn_multiplier = 32;
+                        break;
+                    case PDCP_SN_LENGTH_7_BITS:
+                        hfn_multiplier = 128;
+                        break;
+                    case PDCP_SN_LENGTH_12_BITS:
+                        hfn_multiplier = 2048;
+                        break;
+                    case PDCP_SN_LENGTH_15_BITS:
+                        hfn_multiplier = 32768;
+                        break;
+                    default:
+                        DISSECTOR_ASSERT_NOT_REACHED();
+                        break;
+                }
+
+                count = (p->hfn * hfn_multiplier) + sequenceNumber;
+                ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_count,
+                                         tvb, 0, 0, count);
+                PROTO_ITEM_SET_GENERATED(ti);
             }
             break;
 
@@ -486,7 +536,8 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      pdcp_lte_info *p_pdcp_lte_info,
                                      guint16 sequenceNumber,
-                                     proto_tree *tree)
+                                     proto_tree *tree,
+                                     proto_tree *security_tree)
 {
     pdcp_channel_hash_key          channel_key;
     pdcp_channel_status           *p_channel_status;
@@ -505,7 +556,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         if (p_report_in_frame != NULL) {
             addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info,
                                    sequenceNumber,
-                                   pinfo, tree, tvb);
+                                   pinfo, tree, tvb, security_tree);
             return;
         }
         else {
@@ -603,6 +654,13 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         p_report_in_frame->state = SN_OK;
         p_report_in_frame->sequenceExpected = expectedSequenceNumber;
         p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
+        /* SN has rolled around, inc hfn! */
+        if (!createdChannel && (sequenceNumber == 0)) {
+            /* TODO: not worrying about HFN rolling over for now! */
+            p_channel_status->hfn++;
+            p_report_in_frame->hfn = p_channel_status->hfn;
+        }
+        
 
         /* Update channel status to remember *this* frame */
         p_channel_status->previousFrameNum = pinfo->fd->num;
@@ -632,7 +690,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
     /* Add state report for this frame into tree */
     addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info, sequenceNumber,
-                           pinfo, tree, tvb);
+                           pinfo, tree, tvb, security_tree);
 }
 
 
@@ -1055,9 +1113,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint                  rohc_offset;
     struct pdcp_lte_info *p_pdcp_info;
     tvbuff_t             *rohc_tvb            = NULL;
-    pdcp_security_info_t *current_security = NULL;   /* current security for this UE */
-    pdcp_security_info_t *pdu_security;       /* security in place for this PDU */
 
+    pdcp_security_info_t *current_security = NULL;   /* current security for this UE */
+    pdcp_security_info_t *pdu_security;              /* security in place for this PDU */
+    proto_tree *security_tree = NULL;
+    proto_item *security_ti;
 
     /* Set protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -1116,19 +1176,18 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 security_to_store);
         }
     }
+
     /* Show security settings for this PDU */
     pdu_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
     if (pdu_security != NULL) {
-        proto_tree *security_tree;
-        proto_item *security_ti, *ti;
+        proto_item *ti;
 
         /* Create subtree */
         security_ti = proto_tree_add_string_format(pdcp_tree,
                                                    hf_pdcp_lte_security,
                                                    tvb, 0, 0,
                                                    "", "UE Security");
-        security_tree = proto_item_add_subtree(security_ti,
-                                               ett_pdcp_security);
+        security_tree = proto_item_add_subtree(security_ti, ett_pdcp_security);
         PROTO_ITEM_SET_GENERATED(security_ti);
 
         /* Setup frame */
@@ -1424,7 +1483,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if (do_analysis) {
                 checkChannelSequenceInfo(pinfo, tvb, p_pdcp_info,
-                                         (guint16)seqnum, pdcp_tree);
+                                         (guint16)seqnum, pdcp_tree, security_tree);
             }
         }
     }
@@ -1799,6 +1858,24 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_security_ciphering_algorithm,
             { "Ciphering Algorithm",
               "pdcp-lte.security-config.ciphering", FT_UINT16, BASE_DEC, VALS(ciphering_algorithm_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_bearer,
+            { "BEARER",
+              "pdcp-lte.security-config.bearer", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_direction,
+            { "DIRECTION",
+              "pdcp-lte.security-config.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_count,
+            { "COUNT",
+              "pdcp-lte.security-config.count", FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
