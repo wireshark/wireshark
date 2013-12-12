@@ -862,7 +862,7 @@ static int
 dissect_ncp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_ncp_common(tvb, pinfo, tree, TRUE);
-	return tvb_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int
@@ -870,7 +870,7 @@ dissect_ncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, ncp_desegment, 8, get_ncp_pdu_len,
                      dissect_ncp_tcp_pdu, data);
-	return tvb_length(tvb);
+    return tvb_length(tvb);
 }
 
 void
@@ -1122,11 +1122,11 @@ proto_reg_handoff_ncp(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
 
