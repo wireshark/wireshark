@@ -61,6 +61,7 @@
 #include "packet-frame.h"
 
 /* function prototypes */
+void proto_register_sccp(void);
 void proto_reg_handoff_sccp(void);
 
 static Standard_Type decode_mtp3_standard;
@@ -1360,12 +1361,19 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   case SCCP_MSG_TYPE_CR:
   {
     /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
-    wmem_tree_key_t bw_key[] = {
-      {1, &dpck},
-      {1, &opck},
-      {1, &src_lr},
-      {0, NULL}
-    };
+    wmem_tree_key_t bw_key[4];
+
+    bw_key[0].length = 1;
+    bw_key[0].key = &dpck;
+
+    bw_key[1].length = 1;
+    bw_key[1].key = &opck;
+
+    bw_key[2].length = 1;
+    bw_key[2].key = &src_lr;
+
+    bw_key[3].length = 0;
+    bw_key[3].key = NULL;
 
     if (! ( assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
       assoc = new_assoc(opck, dpck);
@@ -1379,12 +1387,33 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   }
   case SCCP_MSG_TYPE_CC:
   {
-    wmem_tree_key_t fw_key[] = {
-      {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-    };
-    wmem_tree_key_t bw_key[] = {
-      {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-    };
+    wmem_tree_key_t fw_key[4];
+    wmem_tree_key_t bw_key[4];
+
+    fw_key[0].length = 1;
+    fw_key[0].key = &dpck;
+
+    fw_key[1].length = 1;
+    fw_key[1].key = &opck;
+
+    fw_key[2].length = 1;
+    fw_key[2].key = &src_lr;
+
+    fw_key[3].length = 0;
+    fw_key[3].key = NULL;
+
+    bw_key[0].length = 1;
+    bw_key[0].key = &opck;
+
+    bw_key[1].length = 1;
+    bw_key[1].key = &dpck;
+
+    bw_key[2].length = 1;
+    bw_key[2].key = &dst_lr;
+
+    bw_key[3].length = 0;
+    bw_key[3].key = NULL;
+
 
     if ( ( assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
       goto got_assoc;
@@ -1414,12 +1443,33 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   }
   case SCCP_MSG_TYPE_RLC:
   {
-    wmem_tree_key_t bw_key[] = {
-      {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-    };
-    wmem_tree_key_t fw_key[] = {
-      {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-    };
+    wmem_tree_key_t fw_key[4];
+    wmem_tree_key_t bw_key[4];
+
+    fw_key[0].length = 1;
+    fw_key[0].key = &dpck;
+
+    fw_key[1].length = 1;
+    fw_key[1].key = &opck;
+
+    fw_key[2].length = 1;
+    fw_key[2].key = &src_lr;
+
+    fw_key[3].length = 0;
+    fw_key[3].key = NULL;
+
+    bw_key[0].length = 1;
+    bw_key[0].key = &opck;
+
+    bw_key[1].length = 1;
+    bw_key[1].key = &dpck;
+
+    bw_key[2].length = 1;
+    bw_key[2].key = &dst_lr;
+
+    bw_key[3].length = 0;
+    bw_key[3].key = NULL;
+
     if ( ( assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
       goto got_assoc_rlc;
     }
@@ -1447,9 +1497,20 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   }
   default:
   {
-    wmem_tree_key_t key[] = {
-      {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-    };
+    wmem_tree_key_t key[4];
+
+    key[0].length = 1;
+    key[0].key = &opck;
+
+    key[1].length = 1;
+    key[1].key = &dpck;
+
+    key[2].length = 1;
+    key[2].key = &dst_lr;
+
+    key[3].length = 0;
+    key[3].key = NULL;
+
 
     assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, key);
 
