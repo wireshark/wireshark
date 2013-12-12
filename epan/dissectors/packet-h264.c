@@ -2017,13 +2017,17 @@ static const value_string h264_par_level_values[] = {
 };
 
 static int
-dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
+dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
     int          offset = 0;
     guint16      lvl;
     const gchar *p;
-    asn1_ctx_t  *actx = get_asn1_ctx(data);
+    asn1_ctx_t  *actx;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    actx = get_asn1_ctx(data);
     DISSECTOR_ASSERT(actx);
 
     lvl = tvb_get_ntohs(tvb, offset);
@@ -2038,8 +2042,12 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
 static int
 dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    asn1_ctx_t *actx = get_asn1_ctx(data);
+    asn1_ctx_t *actx;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    actx = get_asn1_ctx(data);
     DISSECTOR_ASSERT(actx);
 
     dissect_h264_nal_unit(tvb, pinfo, tree);
@@ -2087,11 +2095,16 @@ static h264_capability_t *find_cap(const gchar *id) {
 }
 
 static int
-dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    asn1_ctx_t *actx = get_asn1_ctx(data);
+    asn1_ctx_t *actx;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    actx = get_asn1_ctx(data);
     DISSECTOR_ASSERT(actx);
+
     if (tree) {
         h264_capability_t *ftr;
         ftr = find_cap(pinfo->match_string);

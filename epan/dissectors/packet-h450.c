@@ -4711,15 +4711,18 @@ static const h450_err_t *get_err(gint32 errcode) {
 static int
 dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   proto_item *hidden_item;
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 opcode;
   const h450_op_t *op_ptr;
   const gchar *p;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 1)  /* invoke */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -4753,15 +4756,18 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   proto_item *hidden_item;
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 opcode;
   const h450_op_t *op_ptr;
   const gchar *p;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 2)  /* returnResult */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -4795,15 +4801,18 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   proto_item *hidden_item;
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 errcode;
   const h450_err_t *err_ptr;
   const gchar *p;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 3)  /* returnError */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -6277,7 +6286,7 @@ void proto_register_h450(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 254 "../../asn1/h450/packet-h450-template.c"
+#line 263 "../../asn1/h450/packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -6457,7 +6466,7 @@ void proto_register_h450(void) {
     &ett_h450_12_FeatureControl,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 259 "../../asn1/h450/packet-h450-template.c"
+#line 268 "../../asn1/h450/packet-h450-template.c"
   };
 
 

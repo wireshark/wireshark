@@ -359,8 +359,8 @@ static gint ett_h460_21_TransmitCapabilities = -1;
 #line 53 "../../asn1/h460/packet-h460-template.c"
 
 /* Subdissectors */
-static dissector_handle_t q931_ie_handle = NULL; 
-static dissector_handle_t h225_ras_handle = NULL; 
+static dissector_handle_t q931_ie_handle = NULL;
+static dissector_handle_t h225_ras_handle = NULL;
 
 
 /*--- Included file: packet-h460-fn.c ---*/
@@ -1980,7 +1980,7 @@ dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   return offset;
 }
 
-static int 
+static int
 dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
 
@@ -2114,7 +2114,7 @@ static h460_feature_t h460_feature_tab[] = {
   { GD|FD, "22/2",   "ipsecSecurityProtocol", NULL, FFILL },
   { GD|FD, "22/2/1", "priority", NULL, FFILL },
   { 0, NULL, NULL, NULL, FFILL },
-};                                 
+};
 
 static h460_feature_t *find_ftr(const gchar *key) {
   h460_feature_t *ftr = NULL;
@@ -2133,10 +2133,15 @@ static h460_feature_t *find_ftr(const gchar *key) {
 static int
 dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
-  asn1_ctx_t *actx = get_asn1_ctx(data);
+  asn1_ctx_t *actx;
   h460_feature_t *ftr;
 
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  actx = get_asn1_ctx(data);
   DISSECTOR_ASSERT(actx);
+
   if (tree) {
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, 0, 0, "*** DEBUG dissect_h460_name: %s", pinfo->match_string);*/
     ftr = find_ftr(pinfo->match_string);
@@ -2873,7 +2878,7 @@ void proto_register_h460(void) {
         "UnicastAddress", HFILL }},
 
 /*--- End of included file: packet-h460-hfarr.c ---*/
-#line 250 "../../asn1/h460/packet-h460-template.c"
+#line 255 "../../asn1/h460/packet-h460-template.c"
   };
 
   /* List of subtrees */
@@ -2972,7 +2977,7 @@ void proto_register_h460(void) {
     &ett_h460_21_TransmitCapabilities,
 
 /*--- End of included file: packet-h460-ettarr.c ---*/
-#line 255 "../../asn1/h460/packet-h460-template.c"
+#line 260 "../../asn1/h460/packet-h460-template.c"
   };
 
   /* Register protocol */
@@ -2992,7 +2997,7 @@ void proto_register_h460(void) {
 }
 
 /*--- proto_reg_handoff_h460 -------------------------------------------*/
-void proto_reg_handoff_h460(void) 
+void proto_reg_handoff_h460(void)
 {
   h460_feature_t *ftr;
   dissector_handle_t h460_name_handle;
