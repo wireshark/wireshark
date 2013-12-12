@@ -3482,7 +3482,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         } else { /* try dissect by "usb.device" */
             if (!device_product_data)
                 device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
-            if (device_product_data && device_product_data && device_product_data->bus_id == bus_id &&
+            if (device_product_data && device_product_data->bus_id == bus_id &&
                     device_product_data->device_address == device_address &&
                     dissector_try_uint_new(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product),
                                            next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
