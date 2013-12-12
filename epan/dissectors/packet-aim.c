@@ -380,8 +380,6 @@ static const value_string aim_ssi_result_codes[] = {
 	{ 0, NULL }
 };
 
-static dissector_table_t subdissector_table;
-
 /* Initialize the protocol and registered fields */
 static int proto_aim = -1;
 static int hf_aim_cmd_start = -1;
@@ -1725,9 +1723,6 @@ proto_register_aim(void)
 				       "Whether the AIM dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &aim_desegment);
-
-	subdissector_table = register_dissector_table("aim.family",
-		"AIM Family ID", FT_UINT16, BASE_HEX);
 }
 
 void
