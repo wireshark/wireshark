@@ -51,6 +51,51 @@
 #include "packet-usb.h"
 #include "packet-sll.h"
 
+void proto_register_ppp_raw_hdlc(void);
+void proto_reg_handoff_ppp_raw_hdlc(void);
+void proto_register_ppp(void);
+void proto_reg_handoff_ppp(void);
+void proto_register_mp(void);
+void proto_reg_handoff_mp(void);
+void proto_register_lcp(void);
+void proto_reg_handoff_lcp(void);
+void proto_register_vsncp(void);
+void proto_reg_handoff_vsncp(void);
+void proto_register_vsnp(void);
+void proto_reg_handoff_vsnp(void);
+void proto_register_ipcp(void);
+void proto_reg_handoff_ipcp(void);
+void proto_register_bcp(void);
+void proto_register_osinlcp(void);
+void proto_reg_handoff_bcp(void);
+void proto_reg_handoff_osinlcp(void);
+void proto_register_ccp(void);
+void proto_reg_handoff_ccp(void);
+void proto_register_cbcp(void);
+void proto_reg_handoff_cbcp(void);
+void proto_register_bacp(void);
+void proto_reg_handoff_bacp(void);
+void proto_register_bap(void);
+void proto_reg_handoff_bap(void);
+void proto_register_comp_data(void);
+void proto_reg_handoff_comp_data(void);
+void proto_register_pap(void);
+void proto_reg_handoff_pap(void);
+void proto_register_chap(void);
+void proto_reg_handoff_chap(void);
+void proto_register_pppmuxcp(void);
+void proto_reg_handoff_pppmuxcp(void);
+void proto_register_pppmux(void);
+void proto_reg_handoff_pppmux(void);
+void proto_register_mplscp(void);
+void proto_reg_handoff_mplscp(void);
+void proto_register_cdpcp(void);
+void proto_reg_handoff_cdpcp(void);
+void proto_register_ipv6cp(void);
+void proto_reg_handoff_ipv6cp(void);
+void proto_register_iphc_crtp(void);
+void proto_reg_handoff_iphc_crtp(void);
+
 
 static int proto_ppp = -1;
 static int hf_ppp_direction = -1;

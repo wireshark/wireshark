@@ -36,6 +36,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_quake2(void);
+
 static int proto_quake2 = -1;
 
 static int hf_quake2_s2c = -1;

@@ -33,6 +33,12 @@
 #include <epan/expert.h>
 #include <epan/ppptypes.h>
 
+void proto_register_pppoed(void);
+void proto_reg_handoff_pppoed(void);
+void proto_register_pppoes(void);
+void proto_register_pppoe(void);
+void proto_reg_handoff_pppoes(void);
+
 static int proto_pppoed = -1;
 
 /* Common to session and discovery protocols */

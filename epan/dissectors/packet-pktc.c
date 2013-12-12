@@ -43,6 +43,11 @@
 #define PKTC_PORT	1293
 #define PKTC_MTAFQDN_PORT	2246
 
+void proto_register_pktc(void);
+void proto_reg_handoff_pktc(void);
+void proto_register_pktc_mtafqdn(void);
+void proto_reg_handoff_pktc_mtafqdn(void);
+
 static int proto_pktc = -1;
 static gint hf_pktc_app_spec_data = -1;
 static gint hf_pktc_list_of_ciphersuites = -1;

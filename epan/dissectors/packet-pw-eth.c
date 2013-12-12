@@ -35,6 +35,9 @@
 
 #include "packet-mpls.h"
 
+void proto_register_pw_eth(void);
+void proto_reg_handoff_pw_eth(void);
+
 static gint proto_pw_eth_cw = -1;
 static gint proto_pw_eth_nocw = -1;
 static gint proto_pw_eth_heuristic = -1;

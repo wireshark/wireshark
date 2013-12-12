@@ -149,6 +149,7 @@ static const value_string relativeto_string[] = {
     { 0x00, NULL}
 };
 
+void proto_register_ppi_vector(void);
 
 /* protocol */
 static int proto_ppi_vector = -1;

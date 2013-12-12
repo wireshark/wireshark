@@ -42,6 +42,9 @@
 #include "packet-mpls.h"
 #include "packet-pw-common.h"
 
+void proto_register_pw_cesopsn(void);
+void proto_reg_handoff_pw_cesopsn(void);
+
 static gint proto = -1;
 static gint ett = -1;
 

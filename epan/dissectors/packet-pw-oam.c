@@ -30,6 +30,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_pw_oam(void);
+void proto_reg_handoff_pw_oam(void);
+
 /* MPLS-TP FM protocol specific variables */
 static gint proto_pw_oam             = -1;
 static gint ett_pw_oam               = -1;

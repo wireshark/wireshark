@@ -30,6 +30,8 @@
 
 #include "packet-q708.h"
 
+void proto_register_q708(void);
+
 static int proto_q708 = -1;
 static int hf_q708_sanc = -1;
 static int hf_q708_ispc_name = -1;

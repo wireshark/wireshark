@@ -45,6 +45,7 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 
+void proto_register_quake3(void);
 static int proto_quake3 = -1;
 
 static int hf_quake3_direction = -1;

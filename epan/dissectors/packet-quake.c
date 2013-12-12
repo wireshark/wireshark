@@ -34,6 +34,8 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
+void proto_register_quake(void);
+
 static int proto_quake = -1;
 static int hf_quake_header_flags = -1;
 static int hf_quake_header_flags_data = -1;

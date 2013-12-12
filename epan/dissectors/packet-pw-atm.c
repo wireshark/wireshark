@@ -49,6 +49,9 @@
 #include "packet-pw-atm.h"
 #include "packet-pw-common.h"
 
+void proto_register_pw_atm(void);
+void proto_reg_handoff_pw_atm(void);
+
 static gint proto_n1_nocw = -1;
 static gint proto_n1_cw = -1;
 static gint proto_11_or_aal5_pdu = -1;

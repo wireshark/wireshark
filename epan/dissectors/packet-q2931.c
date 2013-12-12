@@ -43,6 +43,8 @@
  * ATM code, and from Q.2931 (and Q.931) itself.
  */
 
+void proto_register_q2931(void);
+
 static int proto_q2931 = -1;
 static int hf_q2931_discriminator = -1;
 static int hf_q2931_call_ref_len = -1;

@@ -67,6 +67,8 @@ enum ppi_geotagging_type {
 #define PPI_GPS_MASK_EXT            0x80000000
 
 
+void proto_register_ppi_gps(void);
+
 /* protocol */
 static int proto_ppi_gps = -1;
 

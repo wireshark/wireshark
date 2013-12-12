@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include "packet-pw-common.h"
 
+void proto_register_pw_common(void);
+void proto_reg_handoff_pw_common(void);
+
 static const char string_ok[] = "Ok";
 
 const value_string

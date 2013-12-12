@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_pptp(void);
+void proto_reg_handoff_pptp(void);
+
 static int proto_pptp = -1;
 static int hf_pptp_length = -1;
 static int hf_pptp_message_type = -1;

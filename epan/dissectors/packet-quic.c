@@ -36,6 +36,7 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_quic(void);
 void proto_reg_handoff_quic(void);
 
 static int proto_quic = -1;

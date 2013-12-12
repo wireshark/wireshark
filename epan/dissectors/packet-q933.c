@@ -30,6 +30,9 @@
 #include <epan/strutil.h>
 #include <epan/nlpid.h>
 
+void proto_register_q933(void);
+void proto_reg_handoff_q933(void);
+
 static int proto_q933 					= -1;
 static int hf_q933_discriminator			= -1;
 static int hf_q933_coding_standard			= -1;

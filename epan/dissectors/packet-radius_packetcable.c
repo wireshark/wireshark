@@ -49,7 +49,8 @@
 
 #include "packet-radius.h"
 
-
+void proto_register_packetcable(void);
+void proto_reg_handoff_packetcable(void);
 
 static int proto_packetcable = -1;
 

@@ -55,6 +55,10 @@
  * http://www.andrews-arnold.co.uk/isdn/q931cause.html
  * http://www.tulatelecom.ru/staff/german/DSSHelp/MessList/InfEl/InfElList.html
  */
+
+void proto_register_q931(void);
+void proto_reg_handoff_q931(void);
+
 static void reset_q931_packet_info(q931_packet_info *pi);
 static gboolean have_valid_q931_pi=FALSE;
 static q931_packet_info *q931_pi=NULL;

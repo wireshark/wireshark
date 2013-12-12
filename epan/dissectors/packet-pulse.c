@@ -38,6 +38,7 @@
 
 static guint  pulse_port = PORT_PULSE;
 
+void proto_register_pulse(void);
 void proto_reg_handoff_pulse(void);
 
 static int  proto_pulse    = -1;

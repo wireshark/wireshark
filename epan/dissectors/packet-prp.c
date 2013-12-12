@@ -45,7 +45,9 @@ static const value_string prp_lan_vals[] = {
 /* Initialize the protocol and registered fields      */
 /**********************************************************/
 
+void proto_register_prp(void);
 void proto_reg_handoff_prp(void);
+
 static int proto_prp = -1;
 
 

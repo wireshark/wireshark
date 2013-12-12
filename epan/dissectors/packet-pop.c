@@ -40,6 +40,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-ssl.h"
 
+void proto_register_pop(void);
+void proto_reg_handoff_pop(void);
+
 static int proto_pop = -1;
 
 static int hf_pop_response = -1;

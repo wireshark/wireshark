@@ -36,6 +36,8 @@
 
 #define PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097602
 
+void proto_register_pingpongprotocol(void);
+void proto_reg_handoff_pingpongprotocol(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_pingpongprotocol         = -1;

@@ -39,6 +39,9 @@
 
 #include "packet-mpls.h"
 
+void proto_register_pw_fr(void);
+void proto_reg_handoff_pw_fr(void);
+
 static gint proto_encaps = -1;
 static gint ett_encaps = -1;
 

@@ -42,6 +42,9 @@
 
 #include "packet-mpls.h"
 
+void proto_register_pw_hdlc(void);
+void proto_reg_handoff_pw_hdlc(void);
+
 static dissector_handle_t ppp_handle;
 static dissector_handle_t fr_handle;
 

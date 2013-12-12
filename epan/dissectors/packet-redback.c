@@ -34,6 +34,9 @@
 
 #include "packet-ip.h"
 
+void proto_register_redback(void);
+void proto_reg_handoff_redback(void);
+
 static dissector_handle_t redback_handle;
 
 static gint ett_redback = -1;

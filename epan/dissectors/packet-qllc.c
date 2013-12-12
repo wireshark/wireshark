@@ -28,6 +28,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_qllc(void);
+void proto_reg_handoff_qllc(void);
+
 static int proto_qllc = -1;
 static int hf_qllc_address = -1;
 static int hf_qllc_control = -1;

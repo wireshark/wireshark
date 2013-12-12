@@ -105,6 +105,9 @@
 #define FLAGS_ENCODED_CPA_C           0x08
 #define FLAGS_ENCODED_CPA_F           0x10
 
+void proto_register_pnrp(void);
+void proto_reg_handoff_pnrp(void);
+
 /* Define all helper methods  */
 static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
 static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);

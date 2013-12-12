@@ -92,6 +92,7 @@ static const value_string sensor_unit_str[] = {
   { 0, NULL}
   };
 
+void proto_register_ppi_sensor(void);
 /* protocol */
 static int proto_ppi_sensor = -1;
 

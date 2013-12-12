@@ -165,6 +165,9 @@
         (IEEE80211_CHAN_PUREG | IEEE80211_CHAN_TURBO)
 /* XXX - End - Copied from packet-radiotap.c */
 
+void proto_register_ppi(void);
+void proto_reg_handoff_ppi(void);
+
 typedef enum {
     /* 0 - 29999: Public types */
     PPI_80211_COMMON          =  2,

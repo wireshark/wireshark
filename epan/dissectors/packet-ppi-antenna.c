@@ -50,6 +50,7 @@ enum ppi_antenna_type {
 };
 #define PPI_ANTENNA_MAXTAGLEN  187 /* increase as fields are added */
 
+void proto_register_ppi_antenna(void);
 
 /* protocol */
 static int proto_ppi_antenna = -1;

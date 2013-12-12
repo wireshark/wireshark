@@ -39,6 +39,8 @@
  *
  *	RFC 1833, "Binding Protocols for ONC RPC Version 2".
  */
+void proto_register_portmap(void);
+void proto_reg_handoff_portmap(void);
 
 static int proto_portmap = -1;
 static int hf_portmap_procedure_v1 = -1;

@@ -56,6 +56,7 @@
 static gboolean pvfs_desegment = TRUE;
 
 /* Forward declaration we need below */
+void proto_register_pvfs(void);
 void proto_reg_handoff_pvfs(void);
 
 /* Initialize the protocol and registered fields */

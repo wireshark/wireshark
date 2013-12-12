@@ -62,6 +62,8 @@
 #define GENERAL_PORT_PTP    320
 
 /* END Port definition's for PTP */
+void proto_register_ptp(void);
+void proto_reg_handoff_ptp(void);
 
 static int proto_ptp = -1;
 

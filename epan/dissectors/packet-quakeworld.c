@@ -38,6 +38,8 @@
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_quakeworld(void);
+
 static int proto_quakeworld = -1;
 
 static int hf_quakeworld_s2c = -1;

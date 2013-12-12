@@ -33,6 +33,8 @@
 
 #define INVALID_SSN	0xff
 
+void proto_register_ppcap(void);
+
 static guint8 ssn;
 
 static dissector_handle_t ppcap_handle;
