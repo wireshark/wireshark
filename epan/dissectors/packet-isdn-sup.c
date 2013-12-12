@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-isdn-sup.c                                                          */
-/* ../../tools/asn2wrs.py -b -k -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn */
+/* ../../tools/asn2wrs.py -b -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn */
 
 /* Input file: packet-isdn-sup-template.c */
 
@@ -2618,17 +2618,20 @@ static const isdn_sup_err_t *get_err(gint32 errcode) {
 /*--- dissect_isdn_sup_arg ------------------------------------------------------*/
 static int
 dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 opcode = 0;
   const gchar *p;
   const isdn_sup_op_t *op_ptr;
   proto_item *ti;
   proto_tree *isdn_sup_tree;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 1)  /* invoke */
     return offset;
   if (rctx->d.code == 0) {  /* local */
@@ -2666,17 +2669,20 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 /*--- dissect_isdn_sup_res -------------------------------------------------------*/
 static int
 dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  gint offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  gint offset = 0;
+  rose_ctx_t *rctx;
   gint32 opcode = 0;
   const gchar *p;
   const isdn_sup_op_t *op_ptr;
   proto_item *ti;
   proto_tree *isdn_sup_tree;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 2)  /* returnResult */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -2713,17 +2719,20 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 /*--- dissect_isdn_sup_err ------------------------------------------------------*/
 static int
 dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 errcode;
   const isdn_sup_err_t *err_ptr;
   const gchar *p;
   proto_item *ti;
   proto_tree *isdn_sup_tree;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 3)  /* returnError */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -3444,7 +3453,7 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 339 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 348 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -3520,7 +3529,7 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_Call_T_FPHArg,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 346 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 355 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* Register fields and subtrees */

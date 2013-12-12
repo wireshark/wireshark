@@ -787,8 +787,12 @@ dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	int offset = 0;
 	guint16 lvl;
 	const gchar *p = NULL;
-	asn1_ctx_t *actx = get_asn1_ctx(data);
+	asn1_ctx_t *actx;
 
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	actx = get_asn1_ctx(data);
 	DISSECTOR_ASSERT(actx);
 
 	lvl = tvb_get_ntohs(tvb, offset);
@@ -805,8 +809,12 @@ dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	int offset = 0;
 	guint16 lvl;
 	const gchar *p = NULL;
-	asn1_ctx_t *actx = get_asn1_ctx(data);
+	asn1_ctx_t *actx;
 
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	actx = get_asn1_ctx(data);
 	DISSECTOR_ASSERT(actx);
 
 	lvl = tvb_get_ntohs(tvb, offset);
@@ -821,8 +829,12 @@ dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static int
 dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	asn1_ctx_t *actx = get_asn1_ctx(data);
+	asn1_ctx_t *actx;
 
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	actx = get_asn1_ctx(data);
 	DISSECTOR_ASSERT(actx);
 
 	dissect_mp4ves_config(tvb, pinfo, tree);
@@ -859,10 +871,15 @@ static mp4ves_capability_t *find_cap(const gchar *id) {
 static int
 dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	asn1_ctx_t *actx = get_asn1_ctx(data);
+	asn1_ctx_t *actx;
 	mp4ves_capability_t *ftr;
 
+	/* Reject the packet if data is NULL */
+	if (data == NULL)
+		return 0;
+	actx = get_asn1_ctx(data);
 	DISSECTOR_ASSERT(actx);
+
 	if (tree) {
 		ftr = find_cap(pinfo->match_string);
 		if (ftr) {

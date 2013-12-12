@@ -12381,17 +12381,20 @@ static const qsig_err_t *get_err(gint32 errcode) {
 /*--- dissect_qsig_arg ------------------------------------------------------*/
 static int
 dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 opcode = 0, service;
   const qsig_op_t *op_ptr;
   const gchar *p;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 1)  /* invoke */
     return offset;
   if (rctx->d.code == 0) {  /* local */
@@ -12437,17 +12440,20 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 /*--- dissect_qsig_res -------------------------------------------------------*/
 static int
 dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  gint offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  gint offset = 0;
+  rose_ctx_t *rctx;
   gint32 opcode, service;
   const qsig_op_t *op_ptr;
   const gchar *p;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 2)  /* returnResult */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -12488,17 +12494,20 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 /*--- dissect_qsig_err ------------------------------------------------------*/
 static int
 dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  int offset;
-  rose_ctx_t *rctx = get_rose_ctx(data);
+  int offset = 0;
+  rose_ctx_t *rctx;
   gint32 errcode;
   const qsig_err_t *err_ptr;
   const gchar *p;
   proto_item *ti;
   proto_tree *qsig_tree;
 
-  offset = 0;
-
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+  rctx = get_rose_ctx(data);
   DISSECTOR_ASSERT(rctx);
+
   if (rctx->d.pdu != 3)  /* returnError */
     return offset;
   if (rctx->d.code != 0)  /* local */
@@ -15895,7 +15904,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 653 "../../asn1/qsig/packet-qsig-template.c"
+#line 662 "../../asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16346,7 +16355,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 661 "../../asn1/qsig/packet-qsig-template.c"
+#line 670 "../../asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
 
