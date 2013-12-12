@@ -456,12 +456,15 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     const gchar *str     = NULL;
     gchar       *buf;
     tvbuff_t    *tvb_out = NULL;
+    gsm_sms_udh_fields_t    udh_fields;
 
     gchar *utf8_text = NULL;
     GIConv cd;
     GError *l_conv_error = NULL;
 
     SHORT_DATA_CHECK(len, 2);
+
+    memset(&udh_fields, 0, sizeof(udh_fields));
 
     /*
      * message encoding
@@ -587,7 +590,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset = 0;
         bit = 0;
         if (*has_private_data == TRUE) {
-                dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, ASCII_7BITS, &bit);
+                dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, ASCII_7BITS, &bit, &udh_fields);
         }
 
         saved_offset = offset;
@@ -649,7 +652,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset = 0;
         bit = 0;
         if (*has_private_data == TRUE) {
-            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, ASCII_7BITS, &bit);
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, ASCII_7BITS, &bit, &udh_fields);
         }
         saved_offset = offset;
         bit = bit ? bit : 8;
@@ -678,7 +681,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         add_new_data_source(pinfo, tvb_out, "Characters");
         offset = 0;
         if (*has_private_data == TRUE) {
-            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit);
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
         if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
@@ -714,7 +717,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset = 0;
         required_octs = len - used;
         if (*has_private_data == TRUE) {
-            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit);
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
         if ((cd = g_iconv_open("UTF-8","iso-8859-8")) != (GIConv)-1)
@@ -750,7 +753,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset = 0;
         required_octs = len - used;
         if (*has_private_data == TRUE) {
-            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit);
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
         if ((cd = g_iconv_open("UTF-8","iso-8859-1")) != (GIConv)-1)
@@ -800,7 +803,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset = 0;
         bit = 0;
         if (*has_private_data == TRUE) {
-            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, GSM_7BITS, &bit);
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, GSM_7BITS, &bit, &udh_fields);
         }
 
         out_len = gsm_sms_char_7bit_unpack(bit, required_octs, num_fields,
@@ -826,7 +829,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset = 0;
         required_octs = len - used;
         if (*has_private_data == TRUE) {
-            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit);
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
         if ((cd = g_iconv_open("UTF-8","EUC-KR")) != (GIConv)-1)

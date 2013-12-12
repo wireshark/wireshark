@@ -38,7 +38,7 @@
  */
 
 extern int gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
-		     const guint8 *input, unsigned char *output);
+                     const guint8 *input, unsigned char *output);
 
 /* Convert an unpacked SMS string to UTF-8.
  *
@@ -55,8 +55,21 @@ enum character_set {
     ASCII_7BITS
 };
 
+/*
+ * contains a subset of parameters dissected from the UDH
+ * that are useful in the GSM SMS dissector or other dissectors
+ * (packet-ansi_637.c)
+ */
+typedef struct {
+    guint16     sm_id;          /* message identifier */
+    guint16     frags;          /* total number of fragments */
+    guint16     frag;           /* fragment number */
+    guint16     port_src;       /* application port addressing scheme source port */
+    guint16     port_dst;       /* application port addressing scheme destination port */
+} gsm_sms_udh_fields_t;
+
 void dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
-                   guint8 *udl, enum character_set cset, guint8 *fill_bits);
+                   guint8 *udl, enum character_set cset, guint8 *fill_bits, gsm_sms_udh_fields_t *p_udh_fields);
 
 /* Data structure that can be optionally given to gsm_sms dissector */
 typedef struct _gsm_sms_data_t {
