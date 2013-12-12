@@ -3101,6 +3101,10 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	tvbuff_t* new_tvb = NULL;
 	fragment_head *frag_msg = NULL;
 
+	/* Reject the packet if data is NULL under conditions where it'll be used */
+	if (data == NULL && ndmp_defragment && ndmp_desegment)
+		return 0;
+
 	top_tree=tree; /* scsi should open its expansions on the top level */
 
 	/*
