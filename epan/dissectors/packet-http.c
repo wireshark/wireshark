@@ -182,31 +182,33 @@ header_fields_update_cb(void *r, const char **err)
 static void *
 header_fields_copy_cb(void* n, const void* o, size_t siz _U_)
 {
-    header_field_t* new_rec = (header_field_t*)n;
-    const header_field_t* old_rec = (const header_field_t*)o;
+	header_field_t* new_rec = (header_field_t*)n;
+	const header_field_t* old_rec = (const header_field_t*)o;
 
-    if (old_rec->header_name) {
-	new_rec->header_name = g_strdup(old_rec->header_name);
-    } else {
-	new_rec->header_name = NULL;
-    }
+	if (old_rec->header_name) {
+		new_rec->header_name = g_strdup(old_rec->header_name);
+	} else {
+		new_rec->header_name = NULL;
+	}
 
-    if (old_rec->header_desc) {
-	new_rec->header_desc = g_strdup(old_rec->header_desc);
-    } else {
-	new_rec->header_desc = NULL;
-    }
+	if (old_rec->header_desc) {
+		new_rec->header_desc = g_strdup(old_rec->header_desc);
+	} else {
+		new_rec->header_desc = NULL;
+	}
 
-    return new_rec;
+	return new_rec;
 }
 
 static void
 header_fields_free_cb(void*r)
 {
-    header_field_t* rec = (header_field_t*)r;
+	header_field_t* rec = (header_field_t*)r;
 
-    if (rec->header_name) g_free(rec->header_name);
-    if (rec->header_desc) g_free(rec->header_desc);
+	if (rec->header_name)
+		g_free(rec->header_name);
+	if (rec->header_desc)
+		g_free(rec->header_desc);
 }
 
 UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
@@ -323,7 +325,7 @@ static const value_string vals_status_code[] = {
 	{ 205, "Reset Content"},
 	{ 206, "Partial Content"},
 	{ 207, "Multi-Status"},                    /* RFC 4918 */
-        { 226, "IM Used"},                         /* RFC 3229 */
+	{ 226, "IM Used"},                         /* RFC 3229 */
 	{ 299, "Success - Others"},
 
 	{ 300, "Multiple Choices"},
@@ -357,10 +359,10 @@ static const value_string vals_status_code[] = {
 	{ 422, "Unprocessable Entity"},            /* RFC 4918 */
 	{ 423, "Locked"},                          /* RFC 4918 */
 	{ 424, "Failed Dependency"},               /* RFC 4918 */
-        { 426, "Upgrade Required"},                /* RFC 2817 */
-        { 428, "Precondition Required"},           /* RFC 6585 */
-        { 429, "Too Many Requests"},               /* RFC 6585 */
-        { 431, "Request Header Fields Too Large"}, /* RFC 6585 */
+	{ 426, "Upgrade Required"},                /* RFC 2817 */
+	{ 428, "Precondition Required"},           /* RFC 6585 */
+	{ 429, "Too Many Requests"},               /* RFC 6585 */
+	{ 431, "Request Header Fields Too Large"}, /* RFC 6585 */
 	{ 499, "Client Error - Others"},
 
 	{ 500, "Internal Server Error"},
@@ -370,7 +372,7 @@ static const value_string vals_status_code[] = {
 	{ 504, "Gateway Time-out"},
 	{ 505, "HTTP Version not supported"},
 	{ 507, "Insufficient Storage"},            /* RFC 4918 */
-        { 511, "Network Authentication Required"}, /* RFC 6585 */
+	{ 511, "Network Authentication Required"}, /* RFC 6585 */
 	{ 599, "Server Error - Others"},
 
 	{ 0, 	NULL}
@@ -1328,7 +1330,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * decompressed, such as when desegmentation
 				 * isn't enabled.
 				 *
- 				tvb_free(next_tvb);
+				tvb_free(next_tvb);
 				*/
 				proto_item_append_text(e_ti, " -> %u bytes", tvb_length(uncomp_tvb));
 				next_tvb = uncomp_tvb;
@@ -1510,7 +1512,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* Save the request URI for various later uses */
 	request_uri = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 	stat_info->request_uri = wmem_strdup(wmem_packet_scope(), request_uri);
- 	conv_data->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
+	conv_data->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
 
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 			      request_uri);
@@ -1798,7 +1800,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
 	}
 
-        /* Dechunk the "chunked response" to a new memory buffer */
+	/* Dechunk the "chunked response" to a new memory buffer */
 	orig_datalen      = datalen;
 	raw_data	      = (guint8 *)wmem_alloc(pinfo->pool, datalen);
 	raw_len		      = 0;
@@ -1919,7 +1921,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			  packet_info *pinfo, http_conv_t *conv_data, void* data)
 {
 	guint32 *ptr = NULL;
- 	guint32 uri_port, saved_port, srcport, destport;
+	guint32 uri_port, saved_port, srcport, destport;
 	gchar **strings; /* An array for splitting the request URI into hostname and port */
 	proto_item *item;
 	proto_tree *proxy_tree;
@@ -1974,7 +1976,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 
 			/* Increase pinfo->can_desegment because we are traversing
 			 * http and want to preserve desegmentation functionality for
-       			 * the proxied protocol
+			 * the proxied protocol
 			 */
 			if( pinfo->can_desegment>0 )
 				pinfo->can_desegment++;
@@ -2594,8 +2596,7 @@ find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len)
  * Dissect Microsoft's abomination called NTLMSSP over HTTP.
  */
 static gboolean
-check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
-    gchar *value)
+check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gchar *value)
 {
 	static const char *ntlm_headers[] = {
 		"NTLM ",
@@ -2661,8 +2662,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 }
 
 static gboolean
-check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
-    const gchar *value)
+check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, const gchar *value)
 {
 	proto_tree *hdr_tree;
 
@@ -3080,9 +3080,9 @@ proto_register_http(void)
 			      TRUE,
 			      (void**) &header_fields,
 			      &num_header_fields,
-                              /* specifies named fields, so affects dissection
-                                 and the set of named fields */
-                              UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+			      /* specifies named fields, so affects dissection
+			         and the set of named fields */
+			      UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
 			      NULL,
 			      header_fields_copy_cb,
 			      header_fields_update_cb,
@@ -3127,7 +3127,7 @@ proto_register_http(void)
 	 * Register for tapping
 	 */
 	http_tap = register_tap("http"); /* HTTP statistics tap */
-      	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
+	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
 }
 
 /*
