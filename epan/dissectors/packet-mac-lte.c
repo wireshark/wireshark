@@ -1536,11 +1536,9 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             }
 
             ue_state->state_before.currentTicks++;
-            /* TODO: need to actually move time on in state if want to see timers expiring!!!! */
         }
 
         /* Set current time to now */
-        /* TODO: increment only by number of ms should do according to change in SF */
         ue_state->state_before.currentTime = pinfo->fd->abs_ts;
     }
 }
@@ -1716,7 +1714,6 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* Is short-cycle-timer running? */
-            /* TODO: do we need this and the boolean above? */
             if (!mac_lte_drx_has_timer_expired(frame_state, drx_short_cycle_timer, 0, before_event, &time_until_expires)) {
                 if (time_until_expires) {
                     ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_remaining, tvb,
