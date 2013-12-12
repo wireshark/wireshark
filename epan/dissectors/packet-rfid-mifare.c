@@ -71,7 +71,6 @@ static const value_string hf_mifare_commands[] = {
 };
 
 static dissector_handle_t data_handle;
-static dissector_table_t  mifare_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_mifare = -1;
@@ -214,9 +213,6 @@ proto_register_mifare(void)
     proto_mifare = proto_register_protocol("NXP MiFare", "MiFare", "mifare");
     proto_register_field_array(proto_mifare, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    mifare_dissector_table = register_dissector_table("mifare.payload",
-                                                      "MiFare Payload", FT_UINT8, BASE_DEC);
 
     register_dissector("mifare", dissect_mifare, proto_mifare);
 }

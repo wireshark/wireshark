@@ -326,8 +326,6 @@ typedef struct command_data_t {
 static dissector_handle_t sub_handles[SUB_MAX];
 static gint sub_selected = SUB_DATA;
 
-static dissector_table_t pn532_dissector_table;
-
 /* Subtree handles: set by register_subtree_array */
 static gint ett_pn532 = -1;
 static gint ett_pn532_flags = -1;
@@ -2333,8 +2331,6 @@ void proto_register_pn532(void)
             "Version of protocol supported by this dissector.");
     prefs_register_enum_preference(pref_mod, "prtype532", "Payload Type", "Protocol payload type",
         &sub_selected, sub_enum_vals, FALSE);
-
-    pn532_dissector_table = register_dissector_table("pn532.payload", "PN532 Payload", FT_UINT8, BASE_DEC);
 
     new_register_dissector("pn532", dissect_pn532, proto_pn532);
 }

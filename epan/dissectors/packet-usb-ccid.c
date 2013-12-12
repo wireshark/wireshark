@@ -212,8 +212,6 @@ static const value_string ccid_proto_structs_vals[] = {
     {0x00, NULL}
 };
 
-static dissector_table_t  ccid_dissector_table;
-
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
@@ -672,9 +670,6 @@ proto_register_ccid(void)
     pref_mod = prefs_register_protocol(proto_ccid, NULL);
     prefs_register_enum_preference(pref_mod, "prtype", "PC -> Reader Payload Type", "How commands from the PC to the reader are interpreted",
         &sub_selected, sub_enum_vals, FALSE);
-
-    ccid_dissector_table = register_dissector_table("usbccid.payload",
-                                                    "USBCCID Payload", FT_UINT8, BASE_DEC);
 
     usb_ccid_handle = new_register_dissector("usbccid", dissect_ccid, proto_ccid);
 }
