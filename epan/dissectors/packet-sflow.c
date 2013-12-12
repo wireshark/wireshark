@@ -88,9 +88,9 @@ static gboolean global_analyze_samp_ip_headers = FALSE;
 #define EXPANDED_COUNTERSSAMPLE 4
 
 static const value_string sflow_245_sampletype[] = {
-    { FLOWSAMPLE, "Flow sample"},
-    { COUNTERSSAMPLE, "Counters sample"},
-    { EXPANDED_FLOWSAMPLE, "Expanded flow sample"},
+    { FLOWSAMPLE,              "Flow sample"},
+    { COUNTERSSAMPLE,          "Counters sample"},
+    { EXPANDED_FLOWSAMPLE,     "Expanded flow sample"},
     { EXPANDED_COUNTERSSAMPLE, "Expanded counters sample"},
     { 0, NULL}
 };
@@ -162,22 +162,22 @@ const true_false_string tfs_high_normal = { "High", "Normal" };
 const true_false_string tfs_minimize_monetary_normal = { "Minimize Monetary", "Normal" };
 const true_false_string tfs_up_down = { "Up", "Down" };
 
-#define SFLOW_245_HEADER_ETHERNET 1
-#define SFLOW_245_HEADER_TOKENBUS 2
-#define SFLOW_245_HEADER_TOKENRING 3
-#define SFLOW_245_HEADER_FDDI 4
-#define SFLOW_245_HEADER_FRAME_RELAY 5
-#define SFLOW_245_HEADER_X25 6
-#define SFLOW_245_HEADER_PPP 7
-#define SFLOW_245_HEADER_SMDS 8
-#define SFLOW_245_HEADER_AAL5 9
-#define SFLOW_245_HEADER_AAL5_IP 10
-#define SFLOW_245_HEADER_IPv4 11
-#define SFLOW_245_HEADER_IPv6 12
-#define SFLOW_245_HEADER_MPLS 13
-#define SFLOW_5_HEADER_POS 14
-#define SFLOW_5_HEADER_80211_MAC 15
-#define SFLOW_5_HEADER_80211_AMPDU 16
+#define SFLOW_245_HEADER_ETHERNET            1
+#define SFLOW_245_HEADER_TOKENBUS            2
+#define SFLOW_245_HEADER_TOKENRING           3
+#define SFLOW_245_HEADER_FDDI                4
+#define SFLOW_245_HEADER_FRAME_RELAY         5
+#define SFLOW_245_HEADER_X25                 6
+#define SFLOW_245_HEADER_PPP                 7
+#define SFLOW_245_HEADER_SMDS                8
+#define SFLOW_245_HEADER_AAL5                9
+#define SFLOW_245_HEADER_AAL5_IP            10
+#define SFLOW_245_HEADER_IPv4               11
+#define SFLOW_245_HEADER_IPv6               12
+#define SFLOW_245_HEADER_MPLS               13
+#define SFLOW_5_HEADER_POS                  14
+#define SFLOW_5_HEADER_80211_MAC            15
+#define SFLOW_5_HEADER_80211_AMPDU          16
 #define SFLOW_5_HEADER_80211_AMSDU_SUBFRAME 17
 
 static const value_string sflow_245_header_protocol[] = {
@@ -200,6 +200,7 @@ static const value_string sflow_245_header_protocol[] = {
     { SFLOW_5_HEADER_80211_AMSDU_SUBFRAME, "A-MSDU Subframe"},
     { 0, NULL}
 };
+static value_string_ext sflow_245_header_protocol_ext = VALUE_STRING_EXT_INIT(sflow_245_header_protocol);
 
 /* extended packet data types */
 #define SFLOW_245_EXTENDED_SWITCH 1
@@ -249,51 +250,52 @@ static const value_string sflow_245_ipv4_precedence_types[] = {
 };
 
 /* sFlow v5 flow record formats */
-#define SFLOW_5_RAW_PACKET_HEADER 1
-#define SFLOW_5_ETHERNET_FRAME 2
-#define SFLOW_5_IPV4 3
-#define SFLOW_5_IPV6 4
-#define SFLOW_5_SWITCH 1001
-#define SFLOW_5_ROUTER 1002
-#define SFLOW_5_GATEWAY 1003
-#define SFLOW_5_USER 1004
-#define SFLOW_5_URL 1005
-#define SFLOW_5_MPLS_DATA 1006
-#define SFLOW_5_NAT 1007
-#define SFLOW_5_MPLS_TUNNEL 1008
-#define SFLOW_5_MPLS_VC 1009
-#define SFLOW_5_MPLS_FEC 1010
-#define SFLOW_5_MPLS_LVP_FEC 1011
-#define SFLOW_5_VLAN_TUNNEL 1012
-#define SFLOW_5_80211_PAYLOAD 1013
-#define SFLOW_5_80211_RX 1014
-#define SFLOW_5_80211_TX 1015
+#define SFLOW_5_RAW_PACKET_HEADER    1
+#define SFLOW_5_ETHERNET_FRAME       2
+#define SFLOW_5_IPV4                 3
+#define SFLOW_5_IPV6                 4
+#define SFLOW_5_SWITCH            1001
+#define SFLOW_5_ROUTER            1002
+#define SFLOW_5_GATEWAY           1003
+#define SFLOW_5_USER              1004
+#define SFLOW_5_URL               1005
+#define SFLOW_5_MPLS_DATA         1006
+#define SFLOW_5_NAT               1007
+#define SFLOW_5_MPLS_TUNNEL       1008
+#define SFLOW_5_MPLS_VC           1009
+#define SFLOW_5_MPLS_FEC          1010
+#define SFLOW_5_MPLS_LVP_FEC      1011
+#define SFLOW_5_VLAN_TUNNEL       1012
+#define SFLOW_5_80211_PAYLOAD     1013
+#define SFLOW_5_80211_RX          1014
+#define SFLOW_5_80211_TX          1015
 #define SFLOW_5_80211_AGGREGATION 1016
 
 
 static const value_string sflow_5_flow_record_type[] = {
     { SFLOW_5_RAW_PACKET_HEADER, "Raw packet header"},
-    { SFLOW_5_ETHERNET_FRAME, "Ethernet frame data"},
-    { SFLOW_5_IPV4, "IPv4 data"},
-    { SFLOW_5_IPV6, "IPv6 data"},
-    { SFLOW_5_SWITCH, "Extended switch data"},
-    { SFLOW_5_ROUTER, "Extended router data"},
-    { SFLOW_5_GATEWAY, "Extended gateway data"},
-    { SFLOW_5_USER, "Extended user data"},
-    { SFLOW_5_URL, "Extended URL data"},
-    { SFLOW_5_MPLS_DATA, "Extended MPLS data"},
-    { SFLOW_5_NAT, "Extended NAT data"},
-    { SFLOW_5_MPLS_TUNNEL, "Extended MPLS tunnel data"},
-    { SFLOW_5_MPLS_VC, "Extended MPLS VC data"},
-    { SFLOW_5_MPLS_FEC, "Extended MPLS FEC data"},
-    { SFLOW_5_MPLS_LVP_FEC, "Extended MPLS LVP FEC data"},
-    { SFLOW_5_VLAN_TUNNEL, "Extended VLAN tunnel"},
-    { SFLOW_5_80211_PAYLOAD, "Extended 802.11 payload"},
-    { SFLOW_5_80211_RX, "Extended 802.11 RX"},
-    { SFLOW_5_80211_TX, "Extended 802.11 TX"},
+    { SFLOW_5_ETHERNET_FRAME,    "Ethernet frame data"},
+    { SFLOW_5_IPV4,              "IPv4 data"},
+    { SFLOW_5_IPV6,              "IPv6 data"},
+    { SFLOW_5_SWITCH,            "Extended switch data"},
+    { SFLOW_5_ROUTER,            "Extended router data"},
+    { SFLOW_5_GATEWAY,           "Extended gateway data"},
+    { SFLOW_5_USER,              "Extended user data"},
+    { SFLOW_5_URL,               "Extended URL data"},
+    { SFLOW_5_MPLS_DATA,         "Extended MPLS data"},
+    { SFLOW_5_NAT,               "Extended NAT data"},
+    { SFLOW_5_MPLS_TUNNEL,       "Extended MPLS tunnel data"},
+    { SFLOW_5_MPLS_VC,           "Extended MPLS VC data"},
+    { SFLOW_5_MPLS_FEC,          "Extended MPLS FEC data"},
+    { SFLOW_5_MPLS_LVP_FEC,      "Extended MPLS LVP FEC data"},
+    { SFLOW_5_VLAN_TUNNEL,       "Extended VLAN tunnel"},
+    { SFLOW_5_80211_PAYLOAD,     "Extended 802.11 payload"},
+    { SFLOW_5_80211_RX,          "Extended 802.11 RX"},
+    { SFLOW_5_80211_TX,          "Extended 802.11 TX"},
     { SFLOW_5_80211_AGGREGATION, "Extended 802.11 aggregation"},
     { 0, NULL}
 };
+static value_string_ext sflow_5_flow_record_type_ext = VALUE_STRING_EXT_INIT(sflow_5_flow_record_type);
 
 /* sFlow v5 counters record formats */
 #define SFLOW_5_GENERIC_INTERFACE 1
@@ -306,14 +308,14 @@ static const value_string sflow_5_flow_record_type[] = {
 #define SFLOW_5_RADIO_UTILIZATION 1002
 
 static const value_string sflow_5_counters_record_type[] = {
-    { SFLOW_5_GENERIC_INTERFACE, "Generic interface counters"},
-    { SFLOW_5_ETHERNET_INTERFACE, "Ethernet interface counters"},
-    { SFLOW_5_TOKEN_RING, "Token ring counters"},
+    { SFLOW_5_GENERIC_INTERFACE,    "Generic interface counters"},
+    { SFLOW_5_ETHERNET_INTERFACE,   "Ethernet interface counters"},
+    { SFLOW_5_TOKEN_RING,           "Token ring counters"},
     { SFLOW_5_100BASE_VG_INTERFACE, "100 Base VG interface counters"},
-    { SFLOW_5_VLAN, "VLAN counters"},
-    { SFLOW_5_80211_COUNTERS, "IEEE 802.11 counters"},
-    { SFLOW_5_PROCESSOR, "Processor information"},
-    { SFLOW_5_RADIO_UTILIZATION, "Radio utilization"},
+    { SFLOW_5_VLAN,                 "VLAN counters"},
+    { SFLOW_5_80211_COUNTERS,       "IEEE 802.11 counters"},
+    { SFLOW_5_PROCESSOR,            "Processor information"},
+    { SFLOW_5_RADIO_UTILIZATION,    "Radio utilization"},
     { 0, NULL}
 };
 
@@ -654,17 +656,17 @@ void proto_reg_handoff_sflow_245(void);
 static gint
 dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, volatile gint offset) {
-    guint32 version, header_proto, frame_length;
-    volatile guint32 header_length;
-    tvbuff_t *next_tvb;
-    proto_tree *sflow_245_header_tree;
-    proto_item *ti;
+    guint32           version, header_proto, frame_length;
+    volatile guint32  header_length;
+    tvbuff_t         *next_tvb;
+    proto_tree       *sflow_245_header_tree;
+    proto_item       *ti;
     /* stuff for saving column state before calling other dissectors.
      * Thanks to Guy Harris for the tip. */
-    gboolean save_writable;
-    gboolean save_in_error_pkt;
-    address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
-    void *pd_save;
+    gboolean          save_writable;
+    gboolean          save_in_error_pkt;
+    address           save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
+    void             *pd_save;
 
     version = tvb_get_ntohl(tvb, 0);
     header_proto = tvb_get_ntohl(tvb, offset);
@@ -879,10 +881,10 @@ static gint
 dissect_sflow_245_extended_router(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     struct sflow_address_type addr_type;
 
-	addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
-	addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
+    addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
+    addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
 
-	offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -893,15 +895,15 @@ dissect_sflow_245_extended_router(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /* extended MPLS data */
 static gint
 dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-    guint32 in_label_count, out_label_count, label, i, j;
+    guint32     in_label_count, out_label_count, label, i, j;
     proto_tree *in_stack;
     proto_item *ti_in;
     proto_tree *out_stack;
     proto_item *ti_out;
     struct sflow_address_type addr_type;
 
-	addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
-	addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
+    addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
+    addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
 
     offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
@@ -945,8 +947,8 @@ static gint
 dissect_sflow_5_extended_nat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     struct sflow_address_type addr_type;
 
-	addr_type.hf_addr_v4 = hf_sflow_245_ipv4_src;
-	addr_type.hf_addr_v6 = hf_sflow_245_ipv6_src;
+    addr_type.hf_addr_v4 = hf_sflow_245_ipv4_src;
+    addr_type.hf_addr_v6 = hf_sflow_245_ipv6_src;
 
     offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
@@ -961,10 +963,10 @@ dissect_sflow_5_extended_nat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /* extended gateway data, after the packet data */
 static gint
 dissect_sflow_245_extended_gateway(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-    gint32 len = 0;
-    gint32 i, j, comm_len, dst_len, dst_seg_len;
+    gint32  len = 0;
+    gint32  i, j, comm_len, dst_len, dst_seg_len;
     guint32 path_type;
-    gint32 kludge;
+    gint32  kludge;
 
     guint32 version = tvb_get_ntohl(tvb, 0); /* get sFlow version */
     proto_item *ti;
@@ -1513,11 +1515,11 @@ dissect_sflow_5_extended_80211_aggregation(tvbuff_t *tvb _U_, proto_tree *tree _
 static gint
 dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, proto_item *parent) {
-    guint32 sequence_number, sampling_rate, sample_pool, output;
+    guint32     sequence_number, sampling_rate, sample_pool, output;
 
     proto_tree *extended_data_tree;
     proto_item *ti;
-    guint32 packet_type, extended_data, ext_type, i;
+    guint32     packet_type, extended_data, ext_type, i;
 
     sequence_number = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1602,7 +1604,7 @@ static gint
 dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     proto_tree *flow_data_tree;
     proto_item *ti;
-    guint32 enterprise_format, enterprise, format;
+    guint32     enterprise_format, enterprise, format;
 
     /* what kind of flow sample is it? */
     enterprise_format = tvb_get_ntohl(tvb, offset);
@@ -1612,7 +1614,7 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* only accept default enterprise 0 (InMon sFlow) */
     if (enterprise == ENTERPRISE_DEFAULT) {
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str_const(format, sflow_5_flow_record_type, "Unknown sample format"));
+                val_to_str_ext_const(format, &sflow_5_flow_record_type_ext, "Unknown sample format"));
         flow_data_tree = proto_item_add_subtree(ti, ett_sflow_5_flow_record);
 
         proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, 4,
@@ -1965,7 +1967,7 @@ static gint
 dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     proto_tree *counter_data_tree;
     proto_item *ti;
-    guint32 enterprise_format, enterprise, format;
+    guint32     enterprise_format, enterprise, format;
 
     /* what kind of flow sample is it? */
     enterprise_format = tvb_get_ntohl(tvb, offset);
@@ -2442,10 +2444,6 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
- */
-
 void
 proto_register_sflow(void) {
 
@@ -2515,7 +2513,7 @@ proto_register_sflow(void) {
                 "IPv4 Precedence Type", HFILL}},
         { &hf_sflow_5_flow_record_format,
             { "Format", "sflow_245.flow_record_format",
-                FT_UINT32, BASE_DEC, VALS(sflow_5_flow_record_type), 0x0,
+                FT_UINT32, BASE_DEC | BASE_EXT_STRING, &sflow_5_flow_record_type_ext, 0x0,
                 "Format of sFlow flow record", HFILL}},
         { &hf_sflow_5_counters_record_format,
             { "Format", "sflow_245.counters_record_format",
@@ -2523,7 +2521,7 @@ proto_register_sflow(void) {
                 "Format of sFlow counters record", HFILL}},
         { &hf_sflow_245_header_protocol,
             { "Header protocol", "sflow_245.header_protocol",
-                FT_UINT32, BASE_DEC, VALS(sflow_245_header_protocol), 0x0,
+                FT_UINT32, BASE_DEC | BASE_EXT_STRING, &sflow_245_header_protocol_ext, 0x0,
                 "Protocol of sampled header", HFILL}},
         { &hf_sflow_245_header,
             { "Header of sampled packet", "sflow_245.header",
@@ -3019,107 +3017,511 @@ proto_register_sflow(void) {
                 "Time in ms Spent on Channel and Busy", HFILL}},
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_sflow_245_header_frame_length, { "Frame Length", "sflow_245.header.frame_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_header_payload_removed, { "Payload removed", "sflow_245.header.payload_removed", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_extended_mpls_in_label_stack_entries, { "In Label Stack Entries", "sflow_245.extended_mpls.in_label_stack_entries", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_extended_mpls_in_label, { "Label", "sflow_245.extended_mpls.in_label", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_extended_mpls_out_label_stack_entries, { "Out Label Stack Entries", "sflow_245.extended_mpls.out_label_stack_entries", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_extended_mpls_out_label, { "Label", "sflow_245.extended_mpls.out_label", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ethernet_length_of_mac_packet, { "Length of MAC Packet", "sflow_245.ethernet.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ethernet_source_mac_address, { "Source MAC Address", "sflow_245.ethernet.source_mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ethernet_destination_mac_address, { "Destination MAC Address", "sflow_245.ethernet.destination_mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ethernet_packet_type, { "Ethernet Packet Type", "sflow_245.ethernet.packet_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_length_of_ip_packet, { "Length of IP Packet", "sflow_245.ip.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ip_source_port, { "Source Port", "sflow_245.ip.source_port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ip_destination_port, { "Destination Port", "sflow.ip.destination_port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_cwr, { "TCP Flag (CWR)", "sflow_245.ip.tcp_flag.cwr", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_ece, { "TCP Flag (ECE)", "sflow_245.ip.tcp_flag.ece", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_urg, { "TCP Flag (URG)", "sflow_245.ip.tcp_flag.urg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_ack, { "TCP Flag (ACK)", "sflow_245.ip.tcp_flag.ack", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_psh, { "TCP Flag (PSH)", "sflow_245.ip.tcp_flag.psh", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_rst, { "TCP Flag (RST)", "sflow_245.ip.tcp_flag.rst", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_syn, { "TCP Flag (SYN)", "sflow_245.ip.tcp_flag.syn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
-      { &hf_sflow_245_ip_tcp_flag_fin, { "TCP Flag (FIN)", "sflow_245.ip.tcp_flag.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
-      { &hf_sflow_245_ipv4_delay, { "Delay", "sflow_245.ipv4_delay", FT_BOOLEAN, 8, TFS(&tfs_low_normal), 0x10, NULL, HFILL }},
-      { &hf_sflow_245_ipv4_throughput, { "Throughput", "sflow_245.ipv4_throughput", FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x08, NULL, HFILL }},
-      { &hf_sflow_245_ipv4_reliability, { "Reliability", "sflow_245.ipv4_reliability", FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x04, NULL, HFILL }},
-      { &hf_sflow_245_ipv4_cost, { "Cost (RFC1349)", "sflow_245.ipv4_cost", FT_BOOLEAN, 8, TFS(&tfs_minimize_monetary_normal), 0x02, NULL, HFILL }},
-      { &hf_sflow_245_ipv6_priority, { "Priority", "sflow_245.ipv6_priority", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_user_source_character_set, { "Source Character Set", "sflow_5.extended_user.source_character_set", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_user_source_user_string_length, { "Source User String Length (bytes)", "sflow_5.extended_user.source_user_string_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_user_destination_character_set, { "Destination Character Set", "sflow_5.extended_user.destination_character_set", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_user_destination_user_string_length, { "Destination User String Length (bytes)", "sflow_5.extended_user.destination_user_string_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_url_url_length, { "URL Length (bytes)", "sflow_5.extended_url.url_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_url_host_length, { "Host Length (bytes)", "sflow_5.extended_url.host_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_tunnel_name_length, { "Tunnel Name Length (bytes)", "sflow_5.extended_mpls_tunnel.name_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_tunnel_id, { "Tunnel ID", "sflow_5.extended_mpls_tunnel.id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_tunnel_cos_value, { "Tunnel COS Value", "sflow_5.extended_mpls_tunnel.cos_value", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_vc_instance_name_length, { "VC Instance Name Length (bytes)", "sflow_5.extended_mpls_vc.instance_name_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_vc_id, { "VLL/VC ID", "sflow_5.extended_mpls_vc.id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_vc_label_cos_value, { "VC Label COS Value", "sflow_5.extended_mpls_vc.label_cos_value", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_ftn_description_length, { "MPLS FTN Description Length (bytes)", "sflow_5.extended_mpls.ftn_description_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_ftn_mask, { "MPLS FTN Mask", "sflow_5.extended_mpls.ftn_mask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_fec_address_prefix_length, { "MPLS FEC Address Prefix Length (bytes)", "sflow_5.extended_mpls.fec_address_prefix_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_vlan_tunnel_number_of_layers, { "Number of Layers", "sflow_5.extended_vlan_tunnel.number_of_layers", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_vlan_tunnel_tpid_tci_pair, { "TPID/TCI Pair as Integer", "sflow_5.extended_vlan_tunnel.tpid_tci_pair", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_oui, { "OUI", "sflow_5.extended_80211.oui", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_suite_type, { "Suite Type", "sflow_5.extended_80211.suite_type", FT_UINT8, BASE_DEC, VALS(extended_80211_suite_type_vals), 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_payload_length, { "Payload Length", "sflow_5.extended_80211.payload_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_bssid, { "BSSID", "sflow_5.extended_80211.rx.bssid", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_version, { "Version", "sflow_5.extended_80211.rx.version", FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versions), 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_channel, { "Channel", "sflow_5.extended_80211.rx.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_speed, { "Speed", "sflow_5.extended_80211.rx.speed", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_rsni, { "RSNI", "sflow_5.extended_80211.rx.rsni", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_rcpi, { "RCPI", "sflow_5.extended_80211.rx.rcpi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_packet_duration, { "Packet Duration (ms)", "sflow_5.rx.extended_80211.packet_duration", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_bssid, { "BSSID", "sflow_5.extended_80211.tx.bssid", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_version, { "Version", "sflow_5.extended_80211.tx.version", FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versions), 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_retransmissions, { "Retransmissions", "sflow_5.extended_80211.tx.retransmissions", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_packet_duration, { "Packet Duration (ms)", "sflow_5.extended_80211.tx.packet_duration", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_retransmission_duration, { "Retransmission Duration (ms)", "sflow_5.extended_80211.tx.retransmission_duration", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_channel, { "Channel", "sflow_5.extended_80211.tx.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_speed, { "Speed", "sflow_5.extended_80211.tx.speed", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_power, { "Power", "sflow_5.extended_80211.tx.power", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_sequence_number, { "Sequence number", "sflow.flow_sample.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_source_id_class, { "Source ID class", "sflow.flow_sample.source_id_class", FT_UINT32, BASE_DEC, NULL, 0xFF000000, NULL, HFILL }},
-      { &hf_sflow_flow_sample_sampling_rate, { "Sampling rate", "sflow.flow_sample.sampling_rate", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_sample_pool, { "Sample pool", "sflow.flow_sample.sample_pool", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_dropped_packets, { "Dropped packets", "sflow.flow_sample.dropped_packets", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_input_interface, { "Input interface (ifIndex)", "sflow.flow_sample.input_interface", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_multiple_outputs, { "Multiple outputs", "sflow.flow_sample.multiple_outputs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_output_interface, { "Output interface (ifIndex)", "sflow.flow_sample.output_interface", FT_UINT32, BASE_DEC, NULL, 0x7fffffff, NULL, HFILL }},
-      { &hf_sflow_enterprise, { "Enterprise", "sflow.enterprise", FT_UINT32, BASE_DEC, NULL, 0xFFFFF000, NULL, HFILL }},
-      { &hf_sflow_flow_sample_flow_record, { "Flow record", "sflow.flow_sample.flow_record", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_source_id_type, { "Source ID type", "sflow.flow_sample.source_id_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_source_id_index, { "Source ID index", "sflow.flow_sample.source_id_index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_input_interface_format, { "Input interface format", "sflow.flow_sample.input_interface_format", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_input_interface_value, { "Input interface value", "sflow.flow_sample.input_interface_value", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_output_interface_format, { "Output interface format", "sflow.flow_sample.output_interface_format", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_output_interface_value, { "Output interface value", "sflow.flow_sample.output_interface_value", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_counters_sample_sequence_number, { "Sequence number", "sflow.counters_sample.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_counters_sample_source_id_class, { "Source ID class", "sflow.counters_sample.source_id_class", FT_UINT32, BASE_DEC, NULL, 0xFF000000, NULL, HFILL }},
-      { &hf_sflow_counters_sample_sampling_interval, { "Sampling Interval", "sflow.counters_sample.sampling_interval", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_counters_sample_counters_type, { "Counters type", "sflow.counters_sample.counters_type", FT_UINT32, BASE_DEC, VALS(sflow_245_counterstype), 0x0, NULL, HFILL }},
-      { &hf_sflow_counters_sample_source_id_type, { "Source ID type", "sflow.counters_sample.source_id_type", FT_UINT32, BASE_DEC, NULL, 0xFF000000, NULL, HFILL }},
-      { &hf_sflow_counters_sample_source_id_index, { "Source ID index", "sflow.counters_sample.source_id_index", FT_UINT32, BASE_DEC, NULL, 0x00FFFFFF, NULL, HFILL }},
-      { &hf_sflow_counters_sample_counters_records, { "Counters records", "sflow.counters_sample.counters_records", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_counters_sample_expanded_source_id_type, { "Source ID type", "sflow.counters_sample.source_id_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_counters_sample_expanded_source_id_index, { "Source ID index", "sflow.counters_sample.source_id_index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_245_as_type, { "AS Type", "sflow.as_type", FT_UINT32, BASE_DEC, VALS(sflow_245_as_types), 0x0, NULL, HFILL }},
-      { &hf_sflow_245_ip_protocol, { "IP Protocol", "sflow.ip_protocol", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_user_source_user, { "Source User", "sflow_5.extended_user.source_user", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_user_destination_user, { "Destination User", "sflow_5.extended_user.destination_user", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_url_direction, { "Direction", "sflow_5.extended_url.direction", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_url_url, { "URL", "sflow_5.extended_url.url", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_url_host, { "Host", "sflow_5.extended_url.host", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_tunnel_name, { "Tunnel Name", "sflow_5.extended_mpls_tunnel.tunnel_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_vc_instance_name, { "VC Instance Name", "sflow_5.extended_mpls_vc.vc_instance_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_mpls_ftn_description, { "MPLS FTN Description", "sflow_5.extended_mpls.ftn_description", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_payload, { "Payload", "sflow_5.extended_80211.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_rx_ssid, { "SSID", "sflow_5.extended_80211.rx.ssid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_5_extended_80211_tx_ssid, { "SSID", "sflow_5.extended_80211.tx.ssid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_sflow_flow_sample_index, { "Index", "sflow.flow_sample.index", FT_UINT32, BASE_DEC, NULL, 0x00FFFFFF, NULL, HFILL }},
-      { &hf_sflow_counters_sample_index, { "Index", "sflow.counters_sample.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_sflow_245_header_frame_length,
+        { "Frame Length", "sflow_245.header.frame_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_header_payload_removed,
+        { "Payload removed", "sflow_245.header.payload_removed",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_extended_mpls_in_label_stack_entries,
+        { "In Label Stack Entries", "sflow_245.extended_mpls.in_label_stack_entries",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_extended_mpls_in_label,
+        { "Label", "sflow_245.extended_mpls.in_label",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_extended_mpls_out_label_stack_entries,
+        { "Out Label Stack Entries", "sflow_245.extended_mpls.out_label_stack_entries",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_extended_mpls_out_label,
+        { "Label", "sflow_245.extended_mpls.out_label",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ethernet_length_of_mac_packet,
+        { "Length of MAC Packet", "sflow_245.ethernet.length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ethernet_source_mac_address,
+        { "Source MAC Address", "sflow_245.ethernet.source_mac_address",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ethernet_destination_mac_address,
+        { "Destination MAC Address", "sflow_245.ethernet.destination_mac_address",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ethernet_packet_type,
+        { "Ethernet Packet Type", "sflow_245.ethernet.packet_type",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_length_of_ip_packet,
+        { "Length of IP Packet", "sflow_245.ip.length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_source_port,
+        { "Source Port", "sflow_245.ip.source_port",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_destination_port,
+        { "Destination Port", "sflow.ip.destination_port",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_cwr,
+        { "TCP Flag (CWR)", "sflow_245.ip.tcp_flag.cwr",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_ece,
+        { "TCP Flag (ECE)", "sflow_245.ip.tcp_flag.ece",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_urg,
+        { "TCP Flag (URG)", "sflow_245.ip.tcp_flag.urg",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_ack,
+        { "TCP Flag (ACK)", "sflow_245.ip.tcp_flag.ack",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_psh,
+        { "TCP Flag (PSH)", "sflow_245.ip.tcp_flag.psh",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_rst,
+        { "TCP Flag (RST)", "sflow_245.ip.tcp_flag.rst",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_syn,
+        { "TCP Flag (SYN)", "sflow_245.ip.tcp_flag.syn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_tcp_flag_fin,
+        { "TCP Flag (FIN)", "sflow_245.ip.tcp_flag.fin",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ipv4_delay,
+        { "Delay", "sflow_245.ipv4_delay",
+          FT_BOOLEAN, 8, TFS(&tfs_low_normal), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ipv4_throughput,
+        { "Throughput", "sflow_245.ipv4_throughput",
+          FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ipv4_reliability,
+        { "Reliability", "sflow_245.ipv4_reliability",
+          FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ipv4_cost,
+        { "Cost (RFC1349)", "sflow_245.ipv4_cost",
+          FT_BOOLEAN, 8, TFS(&tfs_minimize_monetary_normal), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ipv6_priority,
+        { "Priority", "sflow_245.ipv6_priority",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_user_source_character_set,
+        { "Source Character Set", "sflow_5.extended_user.source_character_set",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_user_source_user_string_length,
+        { "Source User String Length (bytes)", "sflow_5.extended_user.source_user_string_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_user_destination_character_set,
+        { "Destination Character Set", "sflow_5.extended_user.destination_character_set",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_user_destination_user_string_length,
+        { "Destination User String Length (bytes)", "sflow_5.extended_user.destination_user_string_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_url_url_length,
+        { "URL Length (bytes)", "sflow_5.extended_url.url_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_url_host_length,
+        { "Host Length (bytes)", "sflow_5.extended_url.host_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_tunnel_name_length,
+        { "Tunnel Name Length (bytes)", "sflow_5.extended_mpls_tunnel.name_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_tunnel_id,
+        { "Tunnel ID", "sflow_5.extended_mpls_tunnel.id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_tunnel_cos_value,
+        { "Tunnel COS Value", "sflow_5.extended_mpls_tunnel.cos_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_vc_instance_name_length,
+        { "VC Instance Name Length (bytes)", "sflow_5.extended_mpls_vc.instance_name_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_vc_id,
+        { "VLL/VC ID", "sflow_5.extended_mpls_vc.id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_vc_label_cos_value,
+        { "VC Label COS Value", "sflow_5.extended_mpls_vc.label_cos_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_ftn_description_length,
+        { "MPLS FTN Description Length (bytes)", "sflow_5.extended_mpls.ftn_description_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_ftn_mask,
+        { "MPLS FTN Mask", "sflow_5.extended_mpls.ftn_mask",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_fec_address_prefix_length,
+        { "MPLS FEC Address Prefix Length (bytes)", "sflow_5.extended_mpls.fec_address_prefix_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_vlan_tunnel_number_of_layers,
+        { "Number of Layers", "sflow_5.extended_vlan_tunnel.number_of_layers",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_vlan_tunnel_tpid_tci_pair,
+        { "TPID/TCI Pair as Integer", "sflow_5.extended_vlan_tunnel.tpid_tci_pair",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_oui,
+        { "OUI", "sflow_5.extended_80211.oui",
+          FT_UINT24, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_suite_type,
+        { "Suite Type", "sflow_5.extended_80211.suite_type",
+          FT_UINT8, BASE_DEC, VALS(extended_80211_suite_type_vals), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_payload_length,
+        { "Payload Length", "sflow_5.extended_80211.payload_length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_bssid,
+        { "BSSID", "sflow_5.extended_80211.rx.bssid",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_version,
+        { "Version", "sflow_5.extended_80211.rx.version",
+          FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versions), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_channel,
+        { "Channel", "sflow_5.extended_80211.rx.channel",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_speed,
+        { "Speed", "sflow_5.extended_80211.rx.speed",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_rsni,
+        { "RSNI", "sflow_5.extended_80211.rx.rsni",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_rcpi,
+        { "RCPI", "sflow_5.extended_80211.rx.rcpi",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_packet_duration,
+        { "Packet Duration (ms)", "sflow_5.rx.extended_80211.packet_duration",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_bssid,
+        { "BSSID", "sflow_5.extended_80211.tx.bssid",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_version,
+        { "Version", "sflow_5.extended_80211.tx.version",
+          FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versions), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_retransmissions,
+        { "Retransmissions", "sflow_5.extended_80211.tx.retransmissions",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_packet_duration,
+        { "Packet Duration (ms)", "sflow_5.extended_80211.tx.packet_duration",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_retransmission_duration,
+        { "Retransmission Duration (ms)", "sflow_5.extended_80211.tx.retransmission_duration",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_channel,
+        { "Channel", "sflow_5.extended_80211.tx.channel",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_speed,
+        { "Speed", "sflow_5.extended_80211.tx.speed",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_power,
+        { "Power", "sflow_5.extended_80211.tx.power",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_sequence_number,
+        { "Sequence number", "sflow.flow_sample.sequence_number",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_source_id_class,
+        { "Source ID class", "sflow.flow_sample.source_id_class",
+          FT_UINT32, BASE_DEC, NULL, 0xFF000000,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_sampling_rate,
+        { "Sampling rate", "sflow.flow_sample.sampling_rate",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_sample_pool,
+        { "Sample pool", "sflow.flow_sample.sample_pool",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_dropped_packets,
+        { "Dropped packets", "sflow.flow_sample.dropped_packets",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_input_interface,
+        { "Input interface (ifIndex)", "sflow.flow_sample.input_interface",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_multiple_outputs,
+        { "Multiple outputs", "sflow.flow_sample.multiple_outputs",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_output_interface,
+        { "Output interface (ifIndex)", "sflow.flow_sample.output_interface",
+          FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+          NULL, HFILL }
+      },
+      { &hf_sflow_enterprise,
+        { "Enterprise", "sflow.enterprise",
+          FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_flow_record,
+        { "Flow record", "sflow.flow_sample.flow_record",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_source_id_type,
+        { "Source ID type", "sflow.flow_sample.source_id_type",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_source_id_index,
+        { "Source ID index", "sflow.flow_sample.source_id_index",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_input_interface_format,
+        { "Input interface format", "sflow.flow_sample.input_interface_format",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_input_interface_value,
+        { "Input interface value", "sflow.flow_sample.input_interface_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_output_interface_format,
+        { "Output interface format", "sflow.flow_sample.output_interface_format",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_output_interface_value,
+        { "Output interface value", "sflow.flow_sample.output_interface_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_sequence_number,
+        { "Sequence number", "sflow.counters_sample.sequence_number",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_source_id_class,
+        { "Source ID class", "sflow.counters_sample.source_id_class",
+          FT_UINT32, BASE_DEC, NULL, 0xFF000000,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_sampling_interval,
+        { "Sampling Interval", "sflow.counters_sample.sampling_interval",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_counters_type,
+        { "Counters type", "sflow.counters_sample.counters_type",
+          FT_UINT32, BASE_DEC, VALS(sflow_245_counterstype), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_source_id_type,
+        { "Source ID type", "sflow.counters_sample.source_id_type",
+          FT_UINT32, BASE_DEC, NULL, 0xFF000000,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_source_id_index,
+        { "Source ID index", "sflow.counters_sample.source_id_index",
+          FT_UINT32, BASE_DEC, NULL, 0x00FFFFFF,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_counters_records,
+        { "Counters records", "sflow.counters_sample.counters_records",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_expanded_source_id_type,
+        { "Source ID type", "sflow.counters_sample.source_id_type",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_expanded_source_id_index,
+        { "Source ID index", "sflow.counters_sample.source_id_index",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_as_type,
+        { "AS Type", "sflow.as_type",
+          FT_UINT32, BASE_DEC, VALS(sflow_245_as_types), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_ip_protocol,
+        { "IP Protocol", "sflow.ip_protocol",
+          FT_UINT32, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_user_source_user,
+        { "Source User", "sflow_5.extended_user.source_user",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_user_destination_user,
+        { "Destination User", "sflow_5.extended_user.destination_user",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_url_direction,
+        { "Direction", "sflow_5.extended_url.direction",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_url_url,
+        { "URL", "sflow_5.extended_url.url",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_url_host,
+        { "Host", "sflow_5.extended_url.host",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_tunnel_name,
+        { "Tunnel Name", "sflow_5.extended_mpls_tunnel.tunnel_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_vc_instance_name,
+        { "VC Instance Name", "sflow_5.extended_mpls_vc.vc_instance_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_mpls_ftn_description,
+        { "MPLS FTN Description", "sflow_5.extended_mpls.ftn_description",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_payload,
+        { "Payload", "sflow_5.extended_80211.payload",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_rx_ssid,
+        { "SSID", "sflow_5.extended_80211.rx.ssid",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_extended_80211_tx_ssid,
+        { "SSID", "sflow_5.extended_80211.tx.ssid",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_flow_sample_index,
+        { "Index", "sflow.flow_sample.index",
+          FT_UINT32, BASE_DEC, NULL, 0x00FFFFFF,
+          NULL, HFILL }
+      },
+      { &hf_sflow_counters_sample_index,
+        { "Index", "sflow.counters_sample.index",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
     };
 
     /* Setup protocol subtree array */
@@ -3182,7 +3584,9 @@ proto_register_sflow(void) {
      */
     prefs_register_bool_preference(sflow_245_module, "enable_dissection",
             "Dissect data in sampled headers",
-            "Enabling dissection makes it easy to view protocol details in each of the sampled headers.  Disabling dissection may reduce noise caused when display filters match the contents of any sampled header(s).",
+            "Enabling dissection makes it easy to view protocol details in each of the sampled headers."
+            "  Disabling dissection may reduce noise caused when display filters match the contents of"
+            " any sampled header(s).",
             &global_dissect_samp_headers);
     /*
        It is not clear to me that it *ever* makes sense to enable
@@ -3198,8 +3602,8 @@ proto_register_sflow(void) {
 
 void
 proto_reg_handoff_sflow_245(void) {
-    static range_t *sflow_ports;
-    static gboolean sflow_245_prefs_initialized = FALSE;
+    static range_t  *sflow_ports;
+    static gboolean  sflow_245_prefs_initialized = FALSE;
 
     if (!sflow_245_prefs_initialized) {
         sflow_handle = new_create_dissector_handle(dissect_sflow_245, proto_sflow);
