@@ -180,17 +180,17 @@ dissect_soupbintcp_common(
     proto_tree *tree)
 {
     struct conv_data *conv_data;
-    struct pdu_data *pdu_data;
-    tvbuff_t *sub_tvb = NULL;
-    const char *pkt_name;
-    const char *tmp_buf;
-    proto_item *ti;
-    proto_tree *soupbintcp_tree = NULL;
-    conversation_t *conv = NULL;
-    guint16 expected_len;
-    guint8 pkt_type;
-    gint offset = 0;
-    guint this_seq = 0, next_seq;
+    struct pdu_data  *pdu_data;
+    tvbuff_t         *sub_tvb         = NULL;
+    const char       *pkt_name;
+    const char       *tmp_buf;
+    proto_item       *ti;
+    proto_tree       *soupbintcp_tree = NULL;
+    conversation_t   *conv            = NULL;
+    guint16           expected_len;
+    guint8            pkt_type;
+    gint              offset          = 0;
+    guint             this_seq        = 0, next_seq;
 
     /* Get the 16-bit big-endian SOUP packet length */
     expected_len = tvb_get_ntohs(tvb, 0);
@@ -482,10 +482,10 @@ dissect_soupbintcp_tcp(
 static void
 soupbintcp_prefs(void)
 {
-	dissector_delete_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
+    dissector_delete_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
     g_free(soupbintcp_range);
     soupbintcp_range = range_copy(global_soupbintcp_range);
-	dissector_add_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
+    dissector_add_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
 }
 
 

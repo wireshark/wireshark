@@ -60,9 +60,9 @@ static gint hf_vrrp_auth_string = -1;
 
 static expert_field ei_vrrp_checksum = EI_INIT;
 
-#define VRRP_VERSION_MASK 0xf0
-#define VRRP_TYPE_MASK 0x0f
-#define VRRP_AUTH_DATA_LEN 8
+#define VRRP_VERSION_MASK  0xf0
+#define VRRP_TYPE_MASK     0x0f
+#define VRRP_AUTH_DATA_LEN    8
 
 #define VRRP_TYPE_ADVERTISEMENT 1
 static const value_string vrrp_type_vals[] = {
@@ -70,11 +70,11 @@ static const value_string vrrp_type_vals[] = {
     {0, NULL}
 };
 
-#define VRRP_AUTH_TYPE_NONE 0
+#define VRRP_AUTH_TYPE_NONE        0
 #define VRRP_AUTH_TYPE_SIMPLE_TEXT 1
 #define VRRP_AUTH_TYPE_IP_AUTH_HDR 2
 static const value_string vrrp_auth_vals[] = {
-    {VRRP_AUTH_TYPE_NONE,    "No Authentication"},
+    {VRRP_AUTH_TYPE_NONE,        "No Authentication"},
     {VRRP_AUTH_TYPE_SIMPLE_TEXT, "Simple Text Authentication [RFC 2338] / Reserved [RFC 3768]"},
     {VRRP_AUTH_TYPE_IP_AUTH_HDR, "IP Authentication Header [RFC 2338] / Reserved [RFC 3768]"},
     {0, NULL}
@@ -83,11 +83,11 @@ static const value_string vrrp_auth_vals[] = {
 #define VRRP_PRIORITY_MASTER_STOPPING 0
 /* Values between 1 and 254 inclusive are for backup VRRP routers */
 #define VRRP_PRIORITY_DEFAULT 100
-#define VRRP_PRIORITY_OWNER 255
+#define VRRP_PRIORITY_OWNER   255
 static const value_string vrrp_prio_vals[] = {
     {VRRP_PRIORITY_MASTER_STOPPING,  "Current Master has stopped participating in VRRP"},
-    {VRRP_PRIORITY_DEFAULT,      "Default priority for a backup VRRP router"},
-    {VRRP_PRIORITY_OWNER,        "This VRRP router owns the virtual router's IP address(es)"},
+    {VRRP_PRIORITY_DEFAULT,          "Default priority for a backup VRRP router"},
+    {VRRP_PRIORITY_OWNER,            "This VRRP router owns the virtual router's IP address(es)"},
     {0, NULL }
 };
 
@@ -128,45 +128,45 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             val_to_str_const(lo_nibble(ver_type), vrrp_type_vals, "Unknown"));
     ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
 
-	if(ver_type_tree){
-		proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
-				offset, 1, ver_type);
-		proto_tree_add_uint(ver_type_tree, hf_vrrp_type, tvb, offset, 1, ver_type);
-		offset++;
+    if(ver_type_tree){
+        proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
+                            offset, 1, ver_type);
+        proto_tree_add_uint(ver_type_tree, hf_vrrp_type, tvb, offset, 1, ver_type);
+        offset += 1;
 
-		proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+        proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-		proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
-				priority,
-				val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
-		offset++;
+        proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
+                                   priority,
+                                   val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
+        offset += 1;
 
-		proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
-				offset, 1, addr_count);
-		offset++;
+        proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
+                            offset, 1, addr_count);
+        offset += 1;
 
-		switch(hi_nibble(ver_type)) {
-			case 3:
-				/* 4 bits reserved (mbz) + 12 bits interval */
-				proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset+=2;
-				break;
-			case 2:
-			default:
-				/* 1 byte auth type + 1 byte interval */
-				auth_type = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset++;
+        switch(hi_nibble(ver_type)) {
+        case 3:
+            /* 4 bits reserved (mbz) + 12 bits interval */
+            proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case 2:
+        default:
+            /* 1 byte auth type + 1 byte interval */
+            auth_type = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
 
-				proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset++;
-				break;
-		}
-	}else{
-		offset+=6;
-	}
+            proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+        }
+    }else{
+        offset += 6;
+    }
 
 
     checksum_item = proto_tree_add_item(vrrp_tree, hf_vrrp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -212,15 +212,15 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
     }
-    offset+=2;
+    offset += 2;
 
     while (addr_count > 0) {
         if (is_ipv6) {
             proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, ENC_NA);
-            offset+=16;
+            offset += 16;
         } else {
             proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset+=4;
+            offset += 4;
         }
         addr_count--;
     }

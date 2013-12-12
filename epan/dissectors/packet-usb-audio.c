@@ -42,17 +42,17 @@ static gint ett_usb_audio_desc = -1;
 
 static dissector_handle_t sysex_handle;
 
-#define AUDIO_SUBCLASS_UNDEFINED	0x00
-#define AUDIO_SUBCLASS_AUDIOCONTROL	0x01
-#define AUDIO_SUBCLASS_AUDIOSTREAMING	0x02
-#define AUDIO_SUBCLASS_MIDISTREAMING	0x03
+#define AUDIO_SUBCLASS_UNDEFINED        0x00
+#define AUDIO_SUBCLASS_AUDIOCONTROL     0x01
+#define AUDIO_SUBCLASS_AUDIOSTREAMING   0x02
+#define AUDIO_SUBCLASS_MIDISTREAMING    0x03
 
 #if 0
 static const value_string usb_audio_subclass_vals[] = {
-    {AUDIO_SUBCLASS_UNDEFINED,		"SUBCLASS_UNDEFINED"},
-    {AUDIO_SUBCLASS_AUDIOCONTROL,	"AUDIOCONSTROL"},
-    {AUDIO_SUBCLASS_AUDIOSTREAMING,	"AUDIOSTREAMING"},
-    {AUDIO_SUBCLASS_MIDISTREAMING,	"MIDISTREAMING"},
+    {AUDIO_SUBCLASS_UNDEFINED,          "SUBCLASS_UNDEFINED"},
+    {AUDIO_SUBCLASS_AUDIOCONTROL,       "AUDIOCONSTROL"},
+    {AUDIO_SUBCLASS_AUDIOSTREAMING,     "AUDIOSTREAMING"},
+    {AUDIO_SUBCLASS_MIDISTREAMING,      "MIDISTREAMING"},
     {0, NULL}
 };
 #endif
@@ -83,7 +83,7 @@ static const value_string code_index_vals[] = {
 
 static const value_string aud_descriptor_type_vals[] = {
         {CS_INTERFACE, "audio class interface"},
-        {CS_ENDPOINT, "audio class endpoint"},
+        {CS_ENDPOINT,  "audio class endpoint"},
         {0,NULL}
 };
 static value_string_ext aud_descriptor_type_vals_ext =
@@ -137,8 +137,8 @@ is_sysex_code(guint8 code)
 static gboolean
 is_last_sysex_packet_in_tvb(tvbuff_t *tvb, gint offset)
 {
-    gboolean last = TRUE;
-    gint length = tvb_length(tvb);
+    gboolean last   = TRUE;
+    gint     length = tvb_length(tvb);
 
     offset += 4;
     while (offset < length)
@@ -163,9 +163,9 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *usb_audio_tree, proto_tree *parent_tree,
                        gint offset)
 {
-    guint8 code;
-    guint8 cable;
-    gboolean save_fragmented;
+    guint8      code;
+    guint8      cable;
+    gboolean    save_fragmented;
     proto_tree *tree = NULL;
 
     col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets");
@@ -176,7 +176,7 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
 
     if (parent_tree)
     {
-        proto_item *ti = NULL;
+        proto_item *ti;
 
         ti = proto_tree_add_protocol_format(usb_audio_tree, proto_usb_audio, tvb, offset, 4, "USB Midi Event Packet");
         tree = proto_item_add_subtree(ti, ett_usb_audio);
@@ -276,12 +276,12 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* dissector for usb midi bulk data */
 static int
-dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
+dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
     usb_conv_info_t *usb_conv_info;
-    proto_tree *tree = NULL;
-    guint offset;
-    guint length = tvb_length(tvb);
+    proto_tree      *tree   = NULL;
+    guint            offset;
+    guint            length = tvb_length(tvb);
 
 
     /* Reject the packet if data is NULL */
@@ -293,9 +293,9 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
     if (parent_tree)
     {
-        proto_item *ti = NULL;
+        proto_item *ti;
 
-        ti = proto_tree_add_protocol_format(parent_tree, proto_usb_audio, tvb, 0, -1, "USB Audio");
+        ti   = proto_tree_add_protocol_format(parent_tree, proto_usb_audio, tvb, 0, -1, "USB Audio");
         tree = proto_item_add_subtree(ti, ett_usb_audio);
     }
 
