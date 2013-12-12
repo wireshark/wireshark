@@ -877,9 +877,12 @@ dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 /* extended router data, after the packet data */
 static gint
 dissect_sflow_245_extended_router(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-    struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
+    struct sflow_address_type addr_type;
 
-    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
+	addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
+	addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
+
+	offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -895,8 +898,11 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item *ti_in;
     proto_tree *out_stack;
     proto_item *ti_out;
+    struct sflow_address_type addr_type;
 
-    struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
+	addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
+	addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
+
     offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     in_label_count = tvb_get_ntohl(tvb, offset);
@@ -937,8 +943,11 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /* extended NAT data */
 static gint
 dissect_sflow_5_extended_nat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-    struct sflow_address_type addr_type = {hf_sflow_245_ipv4_src,
-                                           hf_sflow_245_ipv6_src};
+    struct sflow_address_type addr_type;
+
+	addr_type.hf_addr_v4 = hf_sflow_245_ipv4_src;
+	addr_type.hf_addr_v6 = hf_sflow_245_ipv6_src;
+
     offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     addr_type.hf_addr_v4 = hf_sflow_245_ipv4_dst;
@@ -965,7 +974,10 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* sFlow v5 contains next hop router IP address */
     if (version == 5) {
-        struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
+        struct sflow_address_type addr_type;
+
+        addr_type.hf_addr_v4 = hf_sflow_245_nexthop_v4;
+        addr_type.hf_addr_v6 = hf_sflow_245_nexthop_v6;
 
         offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     }
@@ -2333,11 +2345,14 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree                   *sflow_245_tree;
     guint32                       version, sub_agent_id, seqnum;
     struct sflow_address_details  addr_details;
-    struct sflow_address_type     addr_type = {hf_sflow_agent_address_v4, hf_sflow_agent_address_v6};
+    struct sflow_address_type     addr_type;
 
     guint32        numsamples;
     volatile guint offset = 0;
     guint          i      = 0;
+
+    addr_type.hf_addr_v4 = hf_sflow_agent_address_v4;
+    addr_type.hf_addr_v6 = hf_sflow_agent_address_v6;
 
     /*
      * We fetch the version and address type so that we can determine,

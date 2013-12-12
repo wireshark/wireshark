@@ -443,12 +443,20 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
         case MESSAGE_TYPE_CORE:
         {
             /* Calling and called is seen from initiator of CORE */
-            wmem_tree_key_t bw_key[] = {
-                            {1, &dpck},
-                            {1, &opck},
-                            {1, &src_rn},
-                            {0, NULL}
-                            };
+            wmem_tree_key_t bw_key[4];
+
+            bw_key[0].length = 1;
+            bw_key[0].key = &dpck;
+
+            bw_key[1].length = 1;
+            bw_key[1].key = &opck;
+
+            bw_key[2].length = 1;
+            bw_key[2].key = &src_rn;
+
+            bw_key[3].length = 0;
+            bw_key[3].key = NULL;
+
 
             if ( !(assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
                 assoc = new_assoc(opck, dpck);
@@ -462,19 +470,33 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
 
         case MESSAGE_TYPE_COAK:
         {
-            /* Calling and called is seen from initiator of CORE */
-            wmem_tree_key_t fw_key[] = {
-                                    {1,&dpck},
-                                    {1,&opck},
-                                    {1,&src_rn},
-                                    {0,NULL}
-                                    };
-            wmem_tree_key_t bw_key[] = {
-                                    {1,&opck},
-                                    {1,&dpck},
-                                    {1,&dst_rn},
-                                    {0,NULL}
-                                    };
+            wmem_tree_key_t fw_key[4];
+            wmem_tree_key_t bw_key[4];
+
+            fw_key[0].length = 1;
+            fw_key[0].key = &dpck;
+
+            fw_key[1].length = 1;
+            fw_key[1].key = &opck;
+
+            fw_key[2].length = 1;
+            fw_key[2].key = &src_rn;
+
+            fw_key[3].length = 0;
+            fw_key[3].key = NULL;
+
+
+            bw_key[0].length = 1;
+            bw_key[0].key = &opck;
+
+            bw_key[1].length = 1;
+            bw_key[1].key = &dpck;
+
+            bw_key[2].length = 1;
+            bw_key[2].key = &dst_rn;
+
+            bw_key[3].length = 0;
+            bw_key[3].key = NULL;
                     /*g_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
                     if ( ( assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
                             goto got_assoc;
@@ -504,12 +526,20 @@ got_assoc:
 
         default:
         {
-            wmem_tree_key_t key[] = {
-                                    {1, &opck},
-                                    {1, &dpck},
-                                    {1, &dst_rn},
-                                    {0, NULL}
-                                    };
+            wmem_tree_key_t key[4];
+
+            key[0].length = 1;
+            key[0].key = &opck;
+
+            key[1].length = 1;
+            key[1].key = &dpck;
+
+            key[2].length = 1;
+            key[2].key = &dst_rn;
+
+            key[3].length = 0;
+            key[3].key = NULL;
+
                     assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,key);
                     /* Should a check be made on pinfo->p2p_dir ??? */
         break;
