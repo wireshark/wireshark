@@ -298,8 +298,6 @@ static int hf_rsvp_juniper_unknown = -1;
 static int hf_rsvp_juniper_pad = -1;
 static int hf_rsvp_unknown_data = -1;
 
-static dissector_table_t rsvp_dissector_table;
-
 static int rsvp_tap = -1;
 
 /*
@@ -9256,9 +9254,6 @@ proto_register_rsvp(void)
     proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
     proto_register_subtree_array(ett_tree, array_length(ett_tree));
     register_rsvp_prefs();
-
-    rsvp_dissector_table = register_dissector_table("rsvp.proto", "RSVP Protocol",
-                                                    FT_UINT8, BASE_DEC);
 
     /* Initialization routine for RSVP conversations */
     register_init_routine(&rsvp_init_protocol);
