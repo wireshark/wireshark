@@ -309,11 +309,8 @@ unix {
             -L../../wiretap/.libs -Wl,-rpath ../../wiretap/.libs \
             -L../../wsutil/.libs -Wl,-rpath ../../wsutil/.libs
     } else:exists(../../run/libw*) {
-        message( "Assuming CMake 'run' library path" )
+        message( "Assuming CMake library path" )
         LIBS += -L../../run -Wl,-rpath ../../run
-    } else:exists(../../lib/libw*) {
-        message( "Assuming CMake 'lib' library path" )
-        LIBS += -L../../lib -Wl,-rpath ../../lib
     }
 
     LIBS += -lwireshark -lwiretap -lui -lcodecs -lwsutil \
@@ -346,12 +343,6 @@ unix: {
         EXTRA_LIBFILES += ../../run/libwireshark*$$QMAKE_EXTENSION_SHLIB* \
                         ../../run/libwiretap*$$QMAKE_EXTENSION_SHLIB* \
                         ../../run/libwsutil*$$QMAKE_EXTENSION_SHLIB*
-    } else:exists(../../lib/libw*) {
-        EXTRA_BINFILES += \
-            ../../dumpcap
-        EXTRA_LIBFILES += ../../lib/libwireshark*$$QMAKE_EXTENSION_SHLIB* \
-                        ../../lib/libwiretap*$$QMAKE_EXTENSION_SHLIB* \
-                        ../../lib/libwsutil*$$QMAKE_EXTENSION_SHLIB*
     }
 
 }
