@@ -640,6 +640,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       tm.tm_sec         = sec;
       tm.tm_isdst       = -1;
       phdr->ts.secs = mktime (&tm);
+      csec[sizeof(csec) - 1] = '\0';
       switch (strlen(csec))
         {
           case 0:
