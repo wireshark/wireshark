@@ -54,13 +54,13 @@ void proto_register_rsync(void);
 
 /* what states make sense here ? */
 typedef enum _rsync_state {
-    RSYNC_INIT = 0,
-    RSYNC_SERV_INIT = 1,
+    RSYNC_INIT         = 0,
+    RSYNC_SERV_INIT    = 1,
     RSYNC_CLIENT_QUERY = 2,
-    RSYNC_MODULE_LIST = 4,
-    RSYNC_COMMAND = 5,
-    RSYNC_SERV_MOTD = 6,
-    RSYNC_DATA = 7
+    RSYNC_MODULE_LIST  = 4,
+    RSYNC_COMMAND      = 5,
+    RSYNC_SERV_MOTD    = 6,
+    RSYNC_DATA         = 7
 } rsync_state_t;
 
 enum rsync_who {
@@ -72,67 +72,68 @@ static gboolean rsync_desegment = TRUE;
 
 /* this is a guide to the current conversation state */
 struct rsync_conversation_data {
-    rsync_state_t 	client_state;
-    rsync_state_t 	server_state;
+    rsync_state_t client_state;
+    rsync_state_t server_state;
 };
 
 struct rsync_frame_data {
-    rsync_state_t 	state;
+    rsync_state_t state;
 };
 
 static header_field_info *hfi_rsync = NULL;
 
 #define RSYNC_HF_INIT HFI_INIT(proto_rsync)
 
-static header_field_info hfi_rsync_hdr_magic RSYNC_HF_INIT =
-	 {"Magic Header", "rsync.hdr_magic",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_hdr_magic RSYNC_HF_INIT = {
+    "Magic Header", "rsync.hdr_magic",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_hdr_version RSYNC_HF_INIT =
-	 {"Header Version", "rsync.hdr_version",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_hdr_version RSYNC_HF_INIT = {
+    "Header Version", "rsync.hdr_version",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_query_string RSYNC_HF_INIT =
-	 {"Client Query String", "rsync.query",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_query_string RSYNC_HF_INIT = {
+    "Client Query String", "rsync.query",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_motd_string RSYNC_HF_INIT =
-	 {"Server MOTD String", "rsync.motd",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_motd_string RSYNC_HF_INIT = {
+    "Server MOTD String", "rsync.motd",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_module_list_string RSYNC_HF_INIT =
-	 {"Server Module List", "rsync.module_list",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_module_list_string RSYNC_HF_INIT = {
+    "Server Module List", "rsync.module_list",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_rsyncdok_string RSYNC_HF_INIT =
-	 {"RSYNCD Response String", "rsync.response",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_rsyncdok_string RSYNC_HF_INIT = {
+    "RSYNCD Response String", "rsync.response",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_command_string RSYNC_HF_INIT =
-	 {"Client Command String", "rsync.command",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_command_string RSYNC_HF_INIT = {
+    "Client Command String", "rsync.command",
+    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_rsync_data RSYNC_HF_INIT =
-	 {"rsync data", "rsync.data",
-	  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_rsync_data RSYNC_HF_INIT = {
+    "rsync data", "rsync.data",
+    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static gint ett_rsync = -1;
 
 static dissector_handle_t rsync_handle;
 
 
-#define TCP_PORT_RSYNC	873
+#define TCP_PORT_RSYNC  873
 
 static guint glb_rsync_tcp_port = TCP_PORT_RSYNC;
 
 static void
 dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsync_tree, enum rsync_who me)
 {
-    int		offset = 0;
-    gchar	version[5]; /* 2 digits for main version; '.'; 1 digit for sub version; NULL */
+    int   offset = 0;
+    gchar version[5];           /* 2 digits for main version; '.'; 1 digit for sub version; NULL */
+
     proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII|ENC_NA);
     offset += RSYNCD_MAGIC_HEADER_LEN;
-    offset++; /* skip the space */
+    offset += 1; /* skip the space */
     proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, sizeof(version)-1, ENC_ASCII|ENC_NA);
     tvb_get_nstringz0(tvb, offset, sizeof(version), version);
 
@@ -142,16 +143,16 @@ dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsyn
 /* Packet dissection routine called by tcp (& udp) when port 873 detected */
 static int
 dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		    gboolean desegment _U_)
+                    gboolean desegment _U_)
 {
-    conversation_t			*conversation;
-    struct rsync_conversation_data	*conversation_data;
-    struct rsync_frame_data		*rsync_frame_data_p;
-    proto_item				*ti;
-    proto_tree				*rsync_tree;
-    enum rsync_who			me;
-    int					offset = 0;
-    guint				buff_length;
+    conversation_t                 *conversation;
+    struct rsync_conversation_data *conversation_data;
+    struct rsync_frame_data        *rsync_frame_data_p;
+    proto_item                     *ti;
+    proto_tree                     *rsync_tree;
+    enum rsync_who                  me;
+    int                             offset = 0;
+    guint                           buff_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSYNC");
 
@@ -312,19 +313,19 @@ proto_register_rsync(void)
 {
 #ifndef HAVE_HFI_SECTION_INIT
     static header_field_info *hfi[] = {
-	&hfi_rsync_hdr_magic,
-	&hfi_rsync_hdr_version,
-	&hfi_rsync_query_string,
-	&hfi_rsync_module_list_string,
-	&hfi_rsync_motd_string,
-	&hfi_rsync_rsyncdok_string,
-	&hfi_rsync_command_string,
-	&hfi_rsync_data,
+        &hfi_rsync_hdr_magic,
+        &hfi_rsync_hdr_version,
+        &hfi_rsync_query_string,
+        &hfi_rsync_module_list_string,
+        &hfi_rsync_motd_string,
+        &hfi_rsync_rsyncdok_string,
+        &hfi_rsync_command_string,
+        &hfi_rsync_data,
     };
 #endif
 
     static gint *ett[] = {
-	&ett_rsync,
+        &ett_rsync,
     };
 
     module_t *rsync_module;
@@ -340,14 +341,15 @@ proto_register_rsync(void)
 
     rsync_module = prefs_register_protocol(proto_rsync, proto_reg_handoff_rsync);
     prefs_register_uint_preference(rsync_module, "tcp_port",
-				   "rsync TCP Port",
-				   "Set the TCP port for RSYNC messages",
-				   10,
-				   &glb_rsync_tcp_port);
+                                   "rsync TCP Port",
+                                   "Set the TCP port for RSYNC messages",
+                                   10,
+                                   &glb_rsync_tcp_port);
     prefs_register_bool_preference(rsync_module, "desegment",
                                    "Reassemble RSYNC messages spanning multiple TCP segments",
                                    "Whether the RSYNC dissector should reassemble messages spanning multiple TCP segments."
-                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                   " To use this option, you must also enable"
+                                   " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &rsync_desegment);
 
     rsync_handle = new_create_dissector_handle(dissect_rsync, proto_rsync);
@@ -356,7 +358,7 @@ void
 proto_reg_handoff_rsync(void)
 {
     static gboolean initialized = FALSE;
-    static guint saved_rsync_tcp_port;
+    static guint    saved_rsync_tcp_port;
 
     if (!initialized) {
         initialized = TRUE;
