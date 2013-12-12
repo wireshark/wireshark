@@ -31,6 +31,9 @@
 
 #include "packet-hpext.h"
 
+void proto_register_rmp(void);
+void proto_reg_handoff_rmp(void);
+
 static dissector_handle_t data_handle;
 
 static int proto_rmp = -1;

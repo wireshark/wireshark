@@ -36,6 +36,9 @@
 #include <epan/wmem/wmem.h>
 #include <packet-tcp.h>
 
+void proto_register_reload_framing(void);
+void proto_reg_handoff_reload_framing(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_reload_framing = -1;
 

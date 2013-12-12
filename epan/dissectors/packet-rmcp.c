@@ -37,6 +37,8 @@
  *      http://www.dmtf.org/standards/documents/ASF/DSP0136.pdf
  * (the ASF specification includes RMCP)
  */
+void proto_register_rmcp(void);
+void proto_reg_handoff_rmcp(void);
 
 static int proto_rmcp = -1;
 static int hf_rmcp_version = -1;

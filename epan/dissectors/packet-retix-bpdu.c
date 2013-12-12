@@ -37,6 +37,9 @@
 #endif
 #include <epan/addr_resolv.h>
 
+void proto_register_retix_bpdu(void);
+void proto_reg_handoff_retix_bpdu(void);
+
 static gint ett_retix_bpdu = -1;
 static int proto_retix_bpdu = -1;
 

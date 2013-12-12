@@ -34,6 +34,9 @@
 
 #include "packet-rmi.h"
 
+void proto_register_rmi(void);
+void proto_reg_handoff_rmi(void);
+
 static void
 dissect_ser(tvbuff_t *tvb, proto_tree *tree);
 

@@ -33,6 +33,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 
+void proto_register_redbackli(void);
+void proto_reg_handoff_redbackli(void);
+
 static int proto_redbackli = -1;
 
 static int hf_redbackli_seqno = -1;		/* Sequence No */

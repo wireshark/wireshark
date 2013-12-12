@@ -35,6 +35,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 
+void proto_register_ripng(void);
+void proto_reg_handoff_ripng(void);
+
 static int proto_ripng = -1;
 static int hf_ripng_cmd = -1;
 static int hf_ripng_version = -1;

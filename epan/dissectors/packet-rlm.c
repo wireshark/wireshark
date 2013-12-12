@@ -54,6 +54,9 @@
 #include <epan/packet.h>
 #include <epan/xdlc.h>
 
+void proto_register_rlm(void);
+void proto_reg_handoff_rlm(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_rlm = -1;
 

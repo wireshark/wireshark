@@ -39,6 +39,9 @@
 
 #define RLOGIN_PORT 513
 
+void proto_register_rlogin(void);
+void proto_reg_handoff_rlogin(void);
+
 static int proto_rlogin = -1;
 
 static int ett_rlogin = -1;

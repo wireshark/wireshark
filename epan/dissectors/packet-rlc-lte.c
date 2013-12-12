@@ -52,6 +52,9 @@
      to SN 0. Maybe add cell-id to context and add to channel/result key?
 */
 
+void proto_register_rlc_lte(void);
+void proto_reg_handoff_rlc_lte(void);
+
 /********************************/
 /* Preference settings          */
 

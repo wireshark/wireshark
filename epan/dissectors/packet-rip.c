@@ -41,6 +41,8 @@
 #define	RIPv1	1
 #define	RIPv2	2
 
+void proto_register_rip(void);
+
 static const value_string version_vals[] = {
 	{ RIPv1, "RIPv1" },
 	{ RIPv2, "RIPv2" },

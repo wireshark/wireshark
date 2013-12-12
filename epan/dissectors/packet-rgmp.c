@@ -40,6 +40,7 @@
 #include "packet-igmp.h"
 #include "packet-rgmp.h"
 
+void proto_register_rgmp(void);
 
 static int proto_rgmp      = -1;
 static int hf_type         = -1;

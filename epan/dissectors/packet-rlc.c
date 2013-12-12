@@ -54,6 +54,9 @@
 
 #define ROL16(a,b) (guint16)((a<<b)|(a>>(16-b)))
 
+void proto_register_rlc(void);
+void proto_reg_handoff_rlc(void);
+
 int proto_rlc = -1;
 
 extern int proto_fp;

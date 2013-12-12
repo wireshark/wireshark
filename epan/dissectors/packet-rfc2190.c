@@ -44,6 +44,9 @@
 
 #include "packet-h263.h"
 
+void proto_register_rfc2190(void);
+void proto_reg_handoff_rfc2190(void);
+
 /* H.263 header fields             */
 static int proto_rfc2190		= -1;
 
