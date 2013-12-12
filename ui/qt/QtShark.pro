@@ -339,7 +339,7 @@ unix: {
             ../../wsutil/.libs/libwsutil*$$QMAKE_EXTENSION_SHLIB*
     } else:exists(../../run/libw*) {
         EXTRA_BINFILES += \
-            ../../dumpcap
+            ../../run/dumpcap
         EXTRA_LIBFILES += ../../run/libwireshark*$$QMAKE_EXTENSION_SHLIB* \
                         ../../run/libwiretap*$$QMAKE_EXTENSION_SHLIB* \
                         ../../run/libwsutil*$$QMAKE_EXTENSION_SHLIB*
