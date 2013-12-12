@@ -734,7 +734,7 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
         proto_item_append_text(pitem, " (%s)", rval_to_str(value_guard(tag), dynamic_tag_rvals, "Unknown"));
         offset += 8;
 
-        if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
+        if (tag < (sizeof(tag_to_type)/sizeof(int)) && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
             proto_tree_add_item(entry_tree, hf_elf64_dynamic_value, tvb, offset, 8, machine_encoding);
         else if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_POINTER)
             proto_tree_add_item(entry_tree, hf_elf64_dynamic_pointer, tvb, offset, 8, machine_encoding);
