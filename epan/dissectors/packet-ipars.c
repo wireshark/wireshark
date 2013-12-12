@@ -23,8 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* NOTE:	This should be rewritten to be more in line with how packet-uts.c is
- *			written so that there are filterable fields available for IPARS too.
+/* NOTE:    This should be rewritten to be more in line with how packet-uts.c is
+ *          written so that there are filterable fields available for IPARS too.
  */
 
 #include "config.h"
@@ -50,15 +50,13 @@ static gint     ett_ipars       = -1;
 static void
 dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 {
-    proto_tree  *ipars_tree = NULL;
-    proto_item  *ti;
-    int         bytes;
-    guint8      ia = 0, ta = 0, cmd = 0, la = 0;
-    tvbuff_t    *next_tvb;
-    int         offset = 0;
-    gchar       *eom_msg;
+    int       bytes;
+    guint8    ia     = 0, ta = 0, cmd = 0, la = 0;
+    tvbuff_t *next_tvb;
+    int       offset = 0;
+    gchar    *eom_msg;
 
-    eom_msg = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_EOM_MSG_SIZE);
+    eom_msg    = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_EOM_MSG_SIZE);
     eom_msg[0] = 0;
 
     col_clear(pinfo->cinfo, COL_INFO);
@@ -105,6 +103,9 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
     if (tree) {
         bytes = tvb_length_remaining(tvb, 0);
         if (bytes > 0) {
+            proto_tree  *ipars_tree;
+            proto_item  *ti;
+
             ia = tvb_get_guint8(tvb, 0) & 0x3f;
 
             ti = proto_tree_add_protocol_format(tree, proto_ipars, tvb, 0, -1, "Ipars");
@@ -176,10 +177,10 @@ proto_register_ipars(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
