@@ -253,6 +253,8 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define LEASEQUERY_REPLY        15
 #define LEASEQUERY_DONE         16
 #define LEASEQUERY_DATA         17
+#define RECONFIGURE_REQUEST     18
+#define RECONFIGURE_REPLY       19
 
 #define OPTION_CLIENTID          1
 #define OPTION_SERVERID          2
@@ -288,6 +290,7 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define OPTION_LIFETIME         32
 #define OPTION_BCMCS_SERVER_D   33
 #define OPTION_BCMCS_SERVER_A   34
+/* 35 - Unassigned */
 #define OPTION_GEOCONF_CIVIC    36
 #define OPTION_REMOTE_ID        37
 #define OPTION_SUBSCRIBER_ID    38
@@ -301,11 +304,44 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define OPTION_CLT_TIME         46
 #define OPTION_LQ_RELAY_DATA    47
 #define OPTION_LQ_CLIENT_LINK   48
+#define OPTION_MIP6_HNIDF       49
+#define OPTION_MIP6_VDINF       50
+#define OPTION_V6_LOST          51
 #define OPTION_CAPWAP_AC_V6     52
 #define OPTION_RELAYID          53
+#define OPTION_IPV6_ADDRESS_MOS 54 /* OPTION-IPv6_Address-MoS */
+#define OPTION_IPV6_FQDN_MOS    55 /* OPTION-IPv6_FQDN-MoS */
 #define OPTION_NTP_SERVER       56
+#define OPTION_V6_ACCESS_DOMAIN 57
+#define OPTION_SIP_UA_CS_LIST   58
+#define OPTION_BOOTFILE_URL     59 /* OPT_BOOTFILE_URL */
+#define OPTION_BOOTFILE_PARAM   60 /* OPT_BOOTFILE_PARAM */
+#define OPTION_CLIENT_ARCH_TYPE 61
+#define OPTION_NII              62
+#define OPTION_GEOLOCATION      63
 #define OPTION_AFTR_NAME        64
+#define OPTION_ERP_LOCAL_DOMAIN_NAME 65
+#define OPTION_RSOO             66
 #define OPTION_PD_EXCLUDE       67
+#define OPTION_VSS              68
+#define OPTION_MIP6_IDINF       69
+#define OPTION_MIP6_UDINF       70
+#define OPTION_MIP6_HNP         71
+#define OPTION_MIP6_HAA         72
+#define OPTION_MIP6_HAF         73
+#define OPTION_RDNSS_SELECTION  74
+#define OPTION_KRB_PRINCIPAL_NAME     75
+#define OPTION_KRB_REALM_NAME         76
+#define OPTION_KRB_DEFAULT_REALM_NAME 77
+#define OPTION_KRB_KDC                78
+#define OPTION_CLIENT_LINKLAYER_ADDR  79
+#define OPTION_LINK_ADDRESS     80
+#define OPTION_RADIUS           81
+#define OPTION_SOL_MAX_RT       82
+#define OPTION_INF_MAX_RT       83
+/* drafts */
+#define OPTION_ADDRSEL          84
+#define OPTION_ADDRSEL_TABLE    85
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA          165
@@ -335,6 +371,8 @@ static const value_string msgtype_vals[] = {
     { LEASEQUERY_REPLY,        "Leasequery-reply" },
     { LEASEQUERY_DONE,         "Leasequery-done" },
     { LEASEQUERY_DATA,         "Leasequery-data" },
+    { RECONFIGURE_REQUEST,     "Reconfigure-request" },
+    { RECONFIGURE_REPLY,       "Reconfigure-reply" },
     { 0, NULL }
 };
 
@@ -386,9 +424,43 @@ static const value_string opttype_vals[] = {
     { OPTION_CLT_TIME,         "Client Last Transaction Time" },
     { OPTION_LQ_RELAY_DATA,    "Leasequery Relay Data" },
     { OPTION_LQ_CLIENT_LINK,   "Leasequery Client Link Address List" },
+    { OPTION_MIP6_HNIDF,       "Home Network Identifier FQDN" },
+    { OPTION_MIP6_VDINF,       "Visited Home Network Information" },
+    { OPTION_V6_LOST,          "LoST Server" },
     { OPTION_CAPWAP_AC_V6,     "CAPWAP Access Controllers" },
+    { OPTION_RELAYID,          "Relay-ID" },
+    { OPTION_IPV6_ADDRESS_MOS, "MoS IPv6 Address" },
+    { OPTION_IPV6_FQDN_MOS,    "MoS Domain Name List" },
+    { OPTION_NTP_SERVER,       "NTP Server" },
+    { OPTION_V6_ACCESS_DOMAIN, "Access Network Domain Name" },
+    { OPTION_SIP_UA_CS_LIST,   "SIP User Agent Configuration Service Domains" },
+    { OPTION_BOOTFILE_URL,     "Boot File URL" },
+    { OPTION_BOOTFILE_PARAM,   "Boot File Parameters" },
+    { OPTION_CLIENT_ARCH_TYPE, "Client System Architecture Type" },
+    { OPTION_NII,              "Client Network Interface Identifier" },
+    { OPTION_GEOLOCATION,      "Geolocation" },
     { OPTION_AFTR_NAME,        "Dual-Stack Lite AFTR Name" },
+    { OPTION_ERP_LOCAL_DOMAIN_NAME, "ERP Local Domain Name" },
+    { OPTION_RSOO,             "Relay-Supplied Options" },
     { OPTION_PD_EXCLUDE,       "Prefix Exclude" },
+    { OPTION_VSS,              "Virtual Subnet Selection" },
+    { OPTION_MIP6_IDINF,       "Identified Home Network Information" },
+    { OPTION_MIP6_UDINF,       "Unrestricted Home Network Information" },
+    { OPTION_MIP6_HNP,         "Home Network Prefix" },
+    { OPTION_MIP6_HAA,         "Home Agent Address" },
+    { OPTION_MIP6_HAF,         "Home Agent FQDN" },
+    { OPTION_RDNSS_SELECTION,  "RDNSS Selection" },
+    { OPTION_KRB_PRINCIPAL_NAME,     "Kerberos Principal Name" },
+    { OPTION_KRB_REALM_NAME,         "Kerberos Realm Name" },
+    { OPTION_KRB_DEFAULT_REALM_NAME, "Kerberos Default Realm Name" },
+    { OPTION_KRB_KDC,                "Kerberos KDC" },
+    { OPTION_CLIENT_LINKLAYER_ADDR,  "Client Link-Layer Address" },
+    { OPTION_LINK_ADDRESS,     "Link Address" },
+    { OPTION_RADIUS,           "RADIUS" },
+    { OPTION_SOL_MAX_RT,       "SOL_MAX_RT" },
+    { OPTION_INF_MAX_RT,       "INF_MAX_RT" },
+    { OPTION_ADDRSEL,          "Address Selection" },
+    { OPTION_ADDRSEL_TABLE,    "Address Selection table" },
     { OPTION_MIP6_HA,          "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,         "Mobile IPv6 Home Address" },
     { OPTION_NAI,              "Network Access Identifier" },
