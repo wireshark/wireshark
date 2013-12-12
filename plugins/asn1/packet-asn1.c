@@ -747,6 +747,10 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct tcpinfo
   static guint lastseq;
   gint delta;
 
+  /* Reject the packet if info is NULL under conditions where it'll be used. */
+  if (is_tcp && info == NULL)
+    return 0;
+
   pcount++;
   boffset = 0;
 
