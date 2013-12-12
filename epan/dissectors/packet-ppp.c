@@ -3757,35 +3757,35 @@ dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_vsncp_apn_ambr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+                           int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_item *tf;
     proto_tree *field_tree;
 
-	if (tree) {
+    if (tree) {
 
-		tf = proto_tree_add_text(tree, tvb, offset, length, "%s: (%d byte%s)",
-			optp->name, length, plurality(length, "", "s"));
-		field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+        tf = proto_tree_add_text(tree, tvb, offset, length, "%s: (%d byte%s)",
+                                 optp->name, length, plurality(length, "", "s"));
+        field_tree = proto_item_add_subtree(tf, ett_lcp_options);
 
-		/*de_esm_apn_aggr_max_br(tvb, field_tree, pinfo, offset, length, NULL, 0);*/
-		proto_tree_add_text(field_tree, tvb, offset, length, "AMBR Data");
+        /*de_esm_apn_aggr_max_br(tvb, field_tree, pinfo, offset, length, NULL, 0);*/
+        proto_tree_add_text(field_tree, tvb, offset, length, "AMBR Data");
     }
 }
 
 static void
 dissect_vsncp_ipv6_hsgw_lla_iid_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+                                    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_item *tf;
     proto_tree *field_tree;
 
-	if (tree) {
-		tf = proto_tree_add_text(tree, tvb, offset, length, "%s: (%d byte%s)",
-			optp->name, length, plurality(length, "", "s"));
-		field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+    if (tree) {
+        tf = proto_tree_add_text(tree, tvb, offset, length, "%s: (%d byte%s)",
+                                 optp->name, length, plurality(length, "", "s"));
+        field_tree = proto_item_add_subtree(tf, ett_lcp_options);
 
-		proto_tree_add_text(field_tree, tvb, offset, length, "IPv6 interface identifier");
+        proto_tree_add_text(field_tree, tvb, offset, length, "IPv6 interface identifier");
     }
 }
 
@@ -4110,7 +4110,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str_const(code, cp_vals, "Unknown"), code);
         proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x", id);
         proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u", length);
-		proto_tree_add_item(fh_tree, hf_ppp_oui, tvb, 4, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fh_tree, hf_ppp_oui, tvb, 4, 3, ENC_BIG_ENDIAN);
 
     }
     offset = 7;

@@ -735,7 +735,7 @@ decode_dcerpc_binding_free(void *binding_in)
 
     g_free((void *) binding->addr_a.data);
     g_free((void *) binding->addr_b.data);
-    if(binding->ifname)
+    if (binding->ifname)
         g_string_free(binding->ifname, TRUE);
     g_free(binding);
 }
@@ -754,7 +754,7 @@ decode_dcerpc_reset_all(void)
 {
     decode_dcerpc_bind_values_t *binding;
 
-    while(decode_dcerpc_bindings) {
+    while (decode_dcerpc_bindings) {
         binding = (decode_dcerpc_bind_values_t *)decode_dcerpc_bindings->data;
 
         decode_dcerpc_binding_free(binding);
@@ -778,7 +778,7 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
             *address_str = g_string_new("");
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
-    switch(pinfo->ptype) {
+    switch (pinfo->ptype) {
     case(PT_TCP):
         g_string_append(address_str, "Address: ToBeDone TCP port");
         break;
@@ -837,7 +837,7 @@ decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
     /*dcerpc_uuid_key *k = key;*/
     dcerpc_uuid_value *v = (dcerpc_uuid_value *)value;
 
-    if(strcmp(v->name, "(none)"))
+    if (strcmp(v->name, "(none)"))
         populate->add_to_list("DCE-RPC", v->name, key, populate->ui_element);
 }
 
@@ -861,7 +861,7 @@ decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
 
 
     /* don't compare uuid and ver! */
-    if(
+    if (
         ADDRESSES_EQUAL(&binding_a->addr_a, &binding_b->addr_a) &&
         ADDRESSES_EQUAL(&binding_a->addr_b, &binding_b->addr_b) &&
         binding_a->ptype == binding_b->ptype &&
@@ -890,7 +890,7 @@ decode_dcerpc_binding_reset(const char *name _U_, const gpointer pattern)
     le = g_slist_find_custom(decode_dcerpc_bindings,
                                              binding,
                                              decode_dcerpc_binding_cmp);
-    if(le == NULL)
+    if (le == NULL)
         return FALSE;
 
     old_binding = (decode_dcerpc_bind_values_t *)le->data;
@@ -912,9 +912,9 @@ dcerpc_decode_as_change(const char *name, const gpointer pattern, gpointer handl
     dcerpc_uuid_key     *key = *((dcerpc_uuid_key**)handle);
 
 
-	binding->ifname = g_string_new(list_name);
-	binding->uuid = key->uuid;
-	binding->ver = key->ver;
+    binding->ifname = g_string_new(list_name);
+    binding->uuid = key->uuid;
+    binding->ver = key->ver;
 
     /* remove a probably existing old binding */
     decode_dcerpc_binding_reset(name, binding);
@@ -987,43 +987,43 @@ static reassembly_table dcerpc_co_reassembly_table;
 static reassembly_table dcerpc_cl_reassembly_table;
 
 typedef struct _dcerpc_fragment_key {
-	address src;
-	address dst;
-	guint32 id;
-	e_uuid_t act_id;
+    address src;
+    address dst;
+    guint32 id;
+    e_uuid_t act_id;
 } dcerpc_fragment_key;
 
 static guint
 dcerpc_fragment_hash(gconstpointer k)
 {
-	const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
-	guint hash_val;
+    const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
+    guint hash_val;
 
-	hash_val = 0;
+    hash_val = 0;
 
-	hash_val += key->id;
-	hash_val += key->act_id.Data1;
-	hash_val += key->act_id.Data2 << 16;
-	hash_val += key->act_id.Data3;
+    hash_val += key->id;
+    hash_val += key->act_id.Data1;
+    hash_val += key->act_id.Data2 << 16;
+    hash_val += key->act_id.Data3;
 
-	return hash_val;
+    return hash_val;
 }
 
 static gint
 dcerpc_fragment_equal(gconstpointer k1, gconstpointer k2)
 {
-	const dcerpc_fragment_key* key1 = (const dcerpc_fragment_key*) k1;
-	const dcerpc_fragment_key* key2 = (const dcerpc_fragment_key*) k2;
+    const dcerpc_fragment_key* key1 = (const dcerpc_fragment_key*) k1;
+    const dcerpc_fragment_key* key2 = (const dcerpc_fragment_key*) k2;
 
-	/*key.id is the first item to compare since item is most
-	  likely to differ between sessions, thus shortcircuiting
-	  the comparison of addresses.
-	*/
-	return (((key1->id == key2->id)
-		  && (ADDRESSES_EQUAL(&key1->src, &key2->src))
-		  && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
-		  && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_uuid_t)) == 0))
-		 ? TRUE : FALSE);
+    /*key.id is the first item to compare since item is most
+      likely to differ between sessions, thus shortcircuiting
+      the comparison of addresses.
+    */
+    return (((key1->id == key2->id)
+             && (ADDRESSES_EQUAL(&key1->src, &key2->src))
+             && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
+             && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_uuid_t)) == 0))
+            ? TRUE : FALSE);
 }
 
 /* allocate a persistent dcerpc fragment key to insert in the hash */
@@ -1031,15 +1031,15 @@ static void *
 dcerpc_fragment_temporary_key(const packet_info *pinfo, const guint32 id,
                               const void *data)
 {
-	dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
-	e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
+    dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
+    e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
 
-	key->src = pinfo->src;
-	key->dst = pinfo->dst;
-	key->id = id;
-	key->act_id = hdr->act_id;
+    key->src = pinfo->src;
+    key->dst = pinfo->dst;
+    key->id = id;
+    key->act_id = hdr->act_id;
 
-	return key;
+    return key;
 }
 
 /* allocate a persistent dcerpc fragment key to insert in the hash */
@@ -1047,49 +1047,49 @@ static void *
 dcerpc_fragment_persistent_key(const packet_info *pinfo, const guint32 id,
                                const void *data)
 {
-	dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
-	e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
+    dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
+    e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
 
-	COPY_ADDRESS(&key->src, &pinfo->src);
-	COPY_ADDRESS(&key->dst, &pinfo->dst);
-	key->id = id;
-	key->act_id = hdr->act_id;
+    COPY_ADDRESS(&key->src, &pinfo->src);
+    COPY_ADDRESS(&key->dst, &pinfo->dst);
+    key->id = id;
+    key->act_id = hdr->act_id;
 
-	return key;
+    return key;
 }
 
 static void
 dcerpc_fragment_free_temporary_key(gpointer ptr)
 {
-	dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
+    dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
 
-	if(key)
-		g_slice_free(dcerpc_fragment_key, key);
+    if (key)
+        g_slice_free(dcerpc_fragment_key, key);
 }
 
 static void
 dcerpc_fragment_free_persistent_key(gpointer ptr)
 {
-	dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
+    dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
 
-	if(key){
-		/*
-		 * Free up the copies of the addresses from the old key.
-		 */
-		g_free((gpointer)key->src.data);
-		g_free((gpointer)key->dst.data);
+    if (key) {
+        /*
+         * Free up the copies of the addresses from the old key.
+         */
+        g_free((gpointer)key->src.data);
+        g_free((gpointer)key->dst.data);
 
-		g_slice_free(dcerpc_fragment_key, key);
-	}
+        g_slice_free(dcerpc_fragment_key, key);
+    }
 }
 
 static const reassembly_table_functions dcerpc_cl_reassembly_table_functions = {
-	dcerpc_fragment_hash,
-	dcerpc_fragment_equal,
-	dcerpc_fragment_temporary_key,
-	dcerpc_fragment_persistent_key,
-	dcerpc_fragment_free_temporary_key,
-	dcerpc_fragment_free_persistent_key
+    dcerpc_fragment_hash,
+    dcerpc_fragment_equal,
+    dcerpc_fragment_temporary_key,
+    dcerpc_fragment_persistent_key,
+    dcerpc_fragment_free_temporary_key,
+    dcerpc_fragment_free_persistent_key
 };
 
 static void
@@ -1767,7 +1767,7 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, conformance_size, di->array_max_count);
 
         /* real run, dissect the elements */
-        for(i=0; i<di->array_max_count; i++) {
+        for (i=0; i<di->array_max_count; i++) {
             offset = (*fnct)(tvb, offset, pinfo, tree, di, drep);
         }
     }
@@ -1826,7 +1826,7 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (fnct_block) {
                 offset = (*fnct_block)(tvb, offset, di->array_actual_count, pinfo, tree, drep);
         } else {
-            for(i=0 ;i<di->array_actual_count; i++) {
+            for (i=0 ;i<di->array_actual_count; i++) {
                 old_offset = offset;
                 offset = (*fnct_bytes)(tvb, offset, pinfo, tree, di, drep);
                 if (offset <= old_offset)
@@ -1891,7 +1891,7 @@ dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
 
         /* real run, dissect the elements */
-        for(i=0; i<di->array_actual_count; i++) {
+        for (i=0; i<di->array_actual_count; i++) {
             offset = (*fnct)(tvb, offset, pinfo, tree, di, drep);
         }
     }
@@ -2327,7 +2327,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
 
         found_new_pointer = 0;
         len = g_slist_length(ndr_pointer_list);
-        for(i=next_pointer; i<len; i++) {
+        for (i=next_pointer; i<len; i++) {
             ndr_pointer_data_t *tnpd = (ndr_pointer_data_t *)g_slist_nth_data(ndr_pointer_list, i);
             if (tnpd->fnct) {
                 dcerpc_dissect_fnct_t *fnct;
@@ -2463,7 +2463,7 @@ find_pointer_index(guint32 id)
     int                 i,len;
 
     len = g_slist_length(ndr_pointer_list);
-    for(i=0; i<len; i++) {
+    for (i=0; i<len; i++) {
         npd = (ndr_pointer_data_t *)g_slist_nth_data(ndr_pointer_list, i);
         if (npd) {
             if (npd->id == id) {

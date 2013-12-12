@@ -564,7 +564,7 @@ static int
 dissect_knet_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_knet(tvb, pinfo, tree, KNET_TCP_PACKET);
-	return tvb_length(tvb);
+    return tvb_length(tvb);
 }
 
 static int

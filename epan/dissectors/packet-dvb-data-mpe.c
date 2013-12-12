@@ -96,18 +96,18 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mac_bytes_tvb[4] = tvb_new_subset(tvb, offset, 1, 1);
     offset += 1;
 
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_reserved,				   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_reserved,                   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_payload_scrambling_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_address_scrambling_control, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_llc_snap_flag,			   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_current_next_indicator,	   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_llc_snap_flag,              tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_current_next_indicator,     tvb, offset, 1, ENC_BIG_ENDIAN);
     llc_snap_flag = tvb_get_guint8(tvb, offset) & DVB_DATA_MPE_LLC_SNAP_FLAG_MASK;
     offset += 1;
 
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_section_number,			   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_section_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_last_section_number,		   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_last_section_number,        tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     for (i = 3; i >= 0; i--) {

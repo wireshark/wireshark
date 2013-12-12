@@ -4684,9 +4684,9 @@ dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     int offset = 0;
 
     if(instance == 0){
-		proto_tree_add_item(tree, hf_gtpv2_subscriber_rfsp, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_subscriber_rfsp, tvb, offset, 2, ENC_BIG_ENDIAN);
     }else if(instance == 1){
-    		proto_tree_add_item(tree, hf_gtpv2_rfsp_inuse, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_rfsp_inuse, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
 }
 
@@ -5653,38 +5653,38 @@ void proto_register_gtpv2(void)
          {"MSV (MS Validated)", "gtpv2.msv",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
-		{&hf_gtpv2_spare1,
-		 {"Spare", "gtpv2.spare",
-		  FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
-		},
-		{&hf_gtpv2_spare2,
-		 {"Spare", "gtpv2.spare",
-		  FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
-		},
-		{&hf_gtpv2_spare3,
-		 {"Spare", "gtpv2.spare",
-		  FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
-		},
-		{&hf_gtpv2_s6af,
-		 {"S6AF (Static IPv6 Address Flag)", "gtpv2.s6af",
-		  FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
-		},
-		{&hf_gtpv2_s4af,
-		 {"S4AF (Static IPv4 Address Flag))", "gtpv2.s4af",
-		  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
-		},
-		{&hf_gtpv2_mbmdt,
-		 {"MBMDT (Management Based MDT allowed flag)", "gtpv2.mbmdt",
-		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
-		},
-		{&hf_gtpv2_israu,
-		 {"ISRAU (ISR is activated for the UE)", "gtpv2.israu",
-		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
-		},
-		{&hf_gtpv2_ccrsi,
-		 {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
-		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
-		},
+        {&hf_gtpv2_spare1,
+         {"Spare", "gtpv2.spare",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_gtpv2_spare2,
+         {"Spare", "gtpv2.spare",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        {&hf_gtpv2_spare3,
+         {"Spare", "gtpv2.spare",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        {&hf_gtpv2_s6af,
+         {"S6AF (Static IPv6 Address Flag)", "gtpv2.s6af",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_gtpv2_s4af,
+         {"S4AF (Static IPv4 Address Flag))", "gtpv2.s4af",
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
+        },
+        {&hf_gtpv2_mbmdt,
+         {"MBMDT (Management Based MDT allowed flag)", "gtpv2.mbmdt",
+          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+        },
+        {&hf_gtpv2_israu,
+         {"ISRAU (ISR is activated for the UE)", "gtpv2.israu",
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+        {&hf_gtpv2_ccrsi,
+         {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
         { &hf_gtpv2_pdn_type,
           {"PDN Type", "gtpv2.pdn_type",
            FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
@@ -6556,9 +6556,9 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
         { &hf_gtpv2_ue_time_zone_dst,
-         {"Daylight Saving Time", "gtpv2.ue_time_zone_dst",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_ue_time_zone_dst_vals), 0x03,
-          NULL, HFILL}
+          {"Daylight Saving Time", "gtpv2.ue_time_zone_dst",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_ue_time_zone_dst_vals), 0x03,
+           NULL, HFILL}
         },
         { &hf_gtpv2_fq_csid_type,
           {"Node-ID Type", "gtpv2.fq_csid_type",
@@ -6757,38 +6757,38 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mbms_service_area_nr,
           {"Number of MBMS Service Area codes", "gtpv2.mbms_service_area_nr",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_service_area_id,
           {"MBMS Service Area code (Service Area Identity)", "gtpv2.mbms_service_area_id",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_session_id,
           {"MBMS Session Identifier", "gtpv2.mbms_session_id",
-          FT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL}
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_flow_id,
           {"MBMS Flow Identifier", "gtpv2.mbms_flow_id",
-          FT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL}
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_cteid,
           {"Common Tunnel Endpoint Identifier", "gtpv2.cetid",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_ip_addr_type,
           {"IP Address Type", "gtpv2.ip_addr_type",
-          FT_UINT8, BASE_DEC, NULL, 0xc0,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, NULL, 0xc0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_ip_addr_len,
           {"IP Address Length", "gtpv2.ip_addr_len",
-          FT_UINT8, BASE_DEC, NULL, 0x3f,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_ip_mc_dist_addrv4,
           {"MBMS IP Multicast Distribution Address (IPv4)", "gtpv2.mbms_ip_mc_dist_addrv4",
@@ -6812,43 +6812,43 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mbms_hc_indicator,
           {"MBMS HC Indicator", "gtpv2.mbms_hc_indicator",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_hc_indicator_vals), 0x0,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_hc_indicator_vals), 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_dist_indication,
           {"MBMS Distribution Indication", "gtpv2.mbms_dist_indication",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_dist_indication_vals), 0x03,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_dist_indication_vals), 0x03,
+           NULL, HFILL}
         },
         { &hf_gtpv2_subscriber_rfsp,
           {"Subscribed RFSP Index", "gtpv2.subscriber_rfsp",
-          FT_INT16, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+           FT_INT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_rfsp_inuse,
           {"RFSP Index in Use", "gtpv2.rfsp_inuse",
-          FT_INT16, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+           FT_INT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_service_id,
           {"MBMS Service ID", "gtpv2.mbms_service_id",
-          FT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL}
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_add_flags_for_srvcc_ics,
           {"ICS (IMS Centralized Service)", "gtpv2.add_flags_for_srvcc_ics",
-          FT_BOOLEAN, 8, NULL, 0x01,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_vsrvcc_flag,
           {"VF (vSRVCC Flag)", "gtpv2.vsrvcc_flag",
-          FT_BOOLEAN, 8, NULL, 0x02,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
         },
         { &hf_gtpv2_henb_info_report_fti,
           {"FTI", "gtpv2.henb_info_report_fti",
-          FT_BOOLEAN, 8, TFS(&gtpv2_henb_info_report_fti_vals), 0x01,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, TFS(&gtpv2_henb_info_report_fti_vals), 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_ip4cp_subnet_prefix_len,
           {"Subnet Prefix Length", "gtpv2.ip4cp_subnet_prefix_len",
@@ -6862,13 +6862,13 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_change_report_flags_sncr,
           {"SNCR (Service Network Change to Report)", "gtpv2.change_report_flags_sncr",
-          FT_BOOLEAN, 8, NULL, 0x01,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_change_report_flags_tzcr,
           {"TZCR (Time Zone Change to Report)", "gtpv2.change_report_flags_tzcr",
-          FT_BOOLEAN, 8, NULL, 0x02,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
         },
         {&hf_gtpv2_action_indication_val,
          {"Action Indication", "gtpv2.action_indication_val",
@@ -6877,88 +6877,88 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_abs_time_mbms_data,
           {"Absolute Time of MBMS Data Transfer", "gtpv2.abs_time_mbms_data",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL}
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_session_duration_days,
           {"MBMS Session Duration (days)", "gtpv2.mbms_session_duration_days",
-          FT_UINT24, BASE_DEC, NULL, 0x00007F,
-          NULL, HFILL}
+           FT_UINT24, BASE_DEC, NULL, 0x00007F,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_session_duration_secs,
           {"MBMS Session Duration (seconds)", "gtpv2.mbms_session_duration_secs",
-          FT_UINT24, BASE_DEC, NULL, 0xFFFF80,
-          NULL, HFILL}
+           FT_UINT24, BASE_DEC, NULL, 0xFFFF80,
+           NULL, HFILL}
         },
         { &hf_gtpv2_node_features_prn,
           {"PGW Restart Notification (PRN)", "gtpv2.node_features_prn",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_node_features_mabr,
           {"Modify Access Bearers Request (MABR)", "gtpv2.node_features_mabr",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
+           NULL, HFILL}
         },
         { &hf_gtpv2_node_features_ntsr,
           {"Network Triggered Service Restoration (NTSR)", "gtpv2.node_features_ntsr",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
+           NULL, HFILL}
         },
         { &hf_gtpv2_time_to_data_xfer,
           {"MBMS Time to Data Transfer", "gtpv2.time_to_data_xfer",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL}
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_arp_pvi,
           {"Pre-emption Vulnerability (PVI)", "gtpv2.arp_pvi",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_arp_pl,
           {"Priority Level", "gtpv2.arp_pl",
-          FT_UINT8, BASE_DEC, NULL, 0x3c,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, NULL, 0x3c,
+           NULL, HFILL}
         },
         { &hf_gtpv2_arp_pci,
           {"Pre-emption Capability (PCI)", "gtpv2.arp_pci",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
+           NULL, HFILL}
         },
         { &hf_gtpv2_timer_unit,
           {"Timer unit", "gtpv2.timer_unit",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_timer_unit_vals), 0xe0,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, VALS(gtpv2_timer_unit_vals), 0xe0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_timer_value,
           {"Timer value", "gtpv2.timer_value",
-          FT_UINT8, BASE_DEC, NULL, 0x1f,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, NULL, 0x1f,
+           NULL, HFILL}
         },
         { &hf_gtpv2_lapi,
           {"LAPI (Low Access Priority Indication)", "gtpv2.lapi",
-          FT_BOOLEAN, 8, NULL, 0x01,
-          NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_higher_br_16mb_flg_len,
           {"Length of Higher bitrates than 16 Mbps flag", "gtpv2.mm_context_higher_br_16mb_flg_len",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_higher_br_16mb_flg,
           {"Higher bitrates than 16 Mbps flag", "gtpv2.mm_context_higher_br_16mb_flg",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_higher_br_16mb_flg_vals), 0x0,
-          NULL, HFILL}
+           FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_higher_br_16mb_flg_vals), 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mmbr_ul,
-         {"Max MBR/APN-AMBR for uplink", "gtpv2.mmbr_ul",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+          {"Max MBR/APN-AMBR for uplink", "gtpv2.mmbr_ul",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_mmbr_dl,
-         {"Max MBR/APN-AMBR for downlink", "gtpv2.mmbr_dl",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+          {"Max MBR/APN-AMBR for downlink", "gtpv2.mmbr_dl",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
         },
     };
 

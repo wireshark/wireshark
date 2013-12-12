@@ -8681,17 +8681,17 @@ enum vs_nintendo_type {
 };
 
 static const value_string ieee80211_vs_nintendo_type_vals[] = {
-  { NINTENDO_SERVICES,		"Services"},
-  { NINTENDO_CONSOLEID,		"ConsoleID"},
-  { 0,				NULL }
+  { NINTENDO_SERVICES,  "Services"},
+  { NINTENDO_CONSOLEID, "ConsoleID"},
+  { 0, NULL }
 };
 
 static proto_tree*
 dissect_vendor_ie_nintendo_tlv(const int hfindex, proto_tree *ietree,
                           tvbuff_t *tvb, int offset, guint32 sublen)
 {
-  proto_item	*nintendo_item;
-  proto_tree	*nintendo_tree;
+  proto_item *nintendo_item;
+  proto_tree *nintendo_tree;
 
   nintendo_item = proto_tree_add_item(ietree, hfindex, tvb, offset, sublen, ENC_NA);
   nintendo_tree = proto_item_add_subtree(nintendo_item, ett_nintendo);
@@ -8706,11 +8706,11 @@ static void
 dissect_vendor_ie_nintendo(proto_item *item _U_, proto_tree *ietree,
                           tvbuff_t *tvb, int offset, guint32 tag_len)
 {
-  proto_tree	*nintendo_tree;
+  proto_tree *nintendo_tree;
 
-  guint8	subtype;
-  guint8	sublength;
-  guint32	length = tag_len;
+  guint8      subtype;
+  guint8      sublength;
+  guint32     length = tag_len;
 
   /* Skip OUI type for now - the code is for type 1 (StreetPass) only */
   /* http://3dbrew.org/wiki/StreetPass */
@@ -12951,26 +12951,26 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_MESH_CONFIGURATION:
       {
-	proto_item *item;
-	proto_tree *subtree;
+        proto_item *item;
+        proto_tree *subtree;
         offset += 2;
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_protocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_metric, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_congestion_control, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_sync_method, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_auth_protocol, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
-	item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
-	subtree = proto_item_add_subtree(item, ett_mesh_formation_info_tree);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_form_info_num_of_peerings, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
-	item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	subtree = proto_item_add_subtree(item, ett_mesh_config_cap_tree);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_accepting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mcca_support, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mcca_enabled, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_forwarding, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mbca_enabled, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_tbtt_adjusting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_power_save_level, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
+        subtree = proto_item_add_subtree(item, ett_mesh_formation_info_tree);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_form_info_num_of_peerings, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
+        item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        subtree = proto_item_add_subtree(item, ett_mesh_config_cap_tree);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_accepting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mcca_support, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mcca_enabled, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_forwarding, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mbca_enabled, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_tbtt_adjusting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_power_save_level, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
         break;
       }
 

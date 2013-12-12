@@ -6785,3285 +6785,3285 @@ void proto_register_r3 (void)
 
   /* Setup list of header fields */
   static hf_register_info hf [] =
-  {
-    { &hf_r3_tildex3ds,
-      { "DPAC Attention", "r3.dpac_attention",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }
-    },
-
-    { &hf_r3_header,
-      { "Header", "r3.header",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_payload,
-      { "Payload", "r3.payload",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_tail,
-      { "Tail", "r3.tail",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-
-    { &hf_r3_sigil,
-      { "Sigil", "r3.sigil",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_address,
-      { "Address", "r3.address",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_packetnumber,
-      { "Packet Number", "r3.packetnumber",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_packetlength,
-      { "Packet Length", "r3.packetlength",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_encryption,
-      { "Crypt Type", "r3.encryption",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_encryptionschemenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_crc,
-      { "CRC", "r3.crc",
-	  FT_UINT16, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_crc_bad,
-      { "Bad CRC", "r3.crc_bad",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_xor,
-      { "XOR", "r3.xor",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_xor_bad,
-      { "Bad XOR", "r3.xor_bad",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-
-    { &hf_r3_commandlength,
-      { "Command Length", "r3.command.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_command,
-      { "Command", "r3.command.command",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_commanddata,
-      { "Command Data", "r3.command.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-
-    { &hf_r3_commandmfglength,
-      { "Mfg Command Length", "r3.commandmfg.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_commandmfg,
-      { "Mfg Command", "r3.commandmfg.command",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdmfgnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-  #if 0
-    { &hf_r3_commandmfgdata,
-      { "Mfg Command Data", "r3.commandmfg.data",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
+    {
+      { &hf_r3_tildex3ds,
+        { "DPAC Attention", "r3.dpac_attention",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
       },
-  #endif
 
-    { &hf_r3_responselength,
-      { "Response Length", "r3.response.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_responsecommand,
-      { "Response Command", "r3.response.command",
-	FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0,
-	NULL, HFILL }
-    },
-    { &hf_r3_responsetype,
-      { "Response Type", "r3.response.responsetype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_responsetypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_responsetocommand,
-      { "Response To Command", "r3.response.to_command",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-  #if 0
-    { &hf_r3_responsedata,
-      { "Response Data", "r3.response.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-  #endif
+      { &hf_r3_header,
+        { "Header", "r3.header",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_payload,
+        { "Payload", "r3.payload",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_tail,
+        { "Tail", "r3.tail",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_upstreamcommand,
-      { "Upstream Command", "r3.upstreamcommand.command",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_upstreamcommandnames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_sigil,
+        { "Sigil", "r3.sigil",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_address,
+        { "Address", "r3.address",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_packetnumber,
+        { "Packet Number", "r3.packetnumber",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_packetlength,
+        { "Packet Length", "r3.packetlength",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_encryption,
+        { "Crypt Type", "r3.encryption",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_encryptionschemenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_crc,
+        { "CRC", "r3.crc",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_crc_bad,
+        { "Bad CRC", "r3.crc_bad",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_xor,
+        { "XOR", "r3.xor",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_xor_bad,
+        { "Bad XOR", "r3.xor_bad",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_upstreamfield,
-      { "Upstream Field", "r3.upstreamfield",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldlength,
-      { "Field Length", "r3.upstreamfield.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldtype,
-      { "Field Type", "r3.upstreamfield.type",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_upstreamfieldnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-  #if 0
-    { &hf_r3_upstreamfielddatalen,
-      { "Data Length", "r3.upstreamfield.datalen",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-  #endif
-    { &hf_r3_upstreamfielderror,
-      { "Error", "r3.upstreamfield.error",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_SERIALNUMBER],
-      { "Serial Number", "r3.upstreamfield.serialnumber",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_NAR],
-      { "Next Available Record", "r3.upstreamfield.nar",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ENTRYDEVICE],
-      { "Entry Device", "r3.upstreamfield.entrydevice",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PPMIFIELDTYPE],
-      { "PPMI Field Type", "r3.upstreamfield.ppmifieldtype",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PIN],
-      { "PIN", "r3.upstreamfield.pin",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_SEQUENCENUMBER],
-      { "Sequence Number", "r3.upstreamfield.sequencenumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_RESPONSEWINDOW],
-      { "Response Window", "r3.upstreamfield.responsewindow",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_USERNUMBER],
-      { "User Number", "r3.upstreamfield.usernumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_VERSION],
-      { "Version", "r3.upstreamfield.version",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EVENTLOGRECORD],
-      { "Event Log Record", "r3.upstreamfield.eventlogrecord",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_DATETIME],
-      { "Date/Time", "r3.upstreamfield.datetime",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EVENTLOGRECORDCOUNT],
-      { "Event Log Record Count", "r3.upstreamfield.eventlogrecordcount",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_DECLINEDRECORDCOUNT],
-      { "Declined Log Record", "r3.upstreamfield.declinedlogrecord",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_DECLINEDRECORD],
-      { "Declined Log", "r3.upstreamfield.declinedlog",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_USERTYPE],
-      { "User Type", "r3.upstreamfield.usertype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_usertypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ACCESSALWAYS],
-      { "Access Always", "r3.upstreamfield.accessalways",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_CACHED],
-      { "Cached", "r3.upstreamfield.cached",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PRIMARYFIELDTYPE],
-      { "Primary Field Type", "r3.upstreamfield.primaryfieldtype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_AUXFIELDTYPE],
-      { "Aux Field Type", "r3.upstreamfield.auxfieldtype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ACCESSMODE],
-      { "Access Mode", "r3.upstreamfield.accessmode",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_accessmodenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EXPIREON],
-      { "Expire On", "r3.upstreamfield.expireon",
-	  FT_UINT24, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_USECOUNT],
-      { "Use Count", "r3.upstreamfield.usecount",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_TIMEZONE],
-      { "Timezone", "r3.upstreamfield.timezone",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EXCEPTIONGROUP],
-      { "Exception Group", "r3.upstreamfield.exceptiongroup",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PRIMARYPIN],
-      { "Primary PIN", "r3.upstreamfield.primarypin",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_AUXPIN],
-      { "Aux PIN", "r3.upstreamfield.auxpin",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ALARMRECORDCOUNT],
-      { "Alarm Record Count", "r3.upstreamfield.alarmrecordcount",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ALARMRECORD],
-      { "Alarm Record", "r3.upstreamfield.alarmrecord",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_AUXCTLRVERSION],
-      { "Aux Controller Version", "r3.upstreamfield.auxctlrversion",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_commandlength,
+        { "Command Length", "r3.command.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_command,
+        { "Command", "r3.command.command",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_commanddata,
+        { "Command Data", "r3.command.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_configitems,
-      { "Configuration Item List", "r3.configitems",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitem,
-      { "Configuration Item", "r3.configitem",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_configitemnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-  #if 0
-    { &hf_r3_configfield,
-      { "Config Field", "r3.configfield",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-  #endif
-    { &hf_r3_configitemlength,
-      { "Configuration Item Length", "r3.configitem.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemtype,
-      { "Configuration Item Type", "r3.configitem.type",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_configtypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemdata,
-      { "Configuration Item Data", "r3.configitem.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemdata_bool,
-      { "Configuration Item Boolean", "r3.configitem.data_boolean",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemdata_8,
-      { "Configuration Item 8-bit", "r3.configitem.data_8",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemdata_16,
-      { "Configuration Item 16-bit", "r3.configitem.data_16",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemdata_32,
-      { "Configuration Item 32-bit", "r3.configitem.data_32",
-	  FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_configitemdata_string,
-      { "Configuration Item String", "r3.configitem.data_string",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_commandmfglength,
+        { "Mfg Command Length", "r3.commandmfg.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_commandmfg,
+        { "Mfg Command", "r3.commandmfg.command",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdmfgnames_ext, 0x0,
+          NULL, HFILL }
+      },
+#if 0
+      { &hf_r3_commandmfgdata,
+        { "Mfg Command Data", "r3.commandmfg.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
 
-    { &hf_r3_timezonearray [ 0],
-      { "Timezone  0", "r3.timezone.0",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000001,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 1],
-      { "Timezone  1", "r3.timezone.1",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000002,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 2],
-      { "Timezone  2", "r3.timezone.2",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000004,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 3],
-      { "Timezone  3", "r3.timezone.3",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000008,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 4],
-      { "Timezone  4", "r3.timezone.4",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000010,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 5],
-      { "Timezone  5", "r3.timezone.5",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000020,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 6],
-      { "Timezone  6", "r3.timezone.6",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000040,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 7],
-      { "Timezone  7", "r3.timezone.7",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000080,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 8],
-      { "Timezone  8", "r3.timezone.8",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000100,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [ 9],
-      { "Timezone  9", "r3.timezone.9",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000200,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [10],
-      { "Timezone 10", "r3.timezone.10",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000400,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [11],
-      { "Timezone 11", "r3.timezone.11",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000800,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [12],
-      { "Timezone 12", "r3.timezone.12",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00001000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [13],
-      { "Timezone 13", "r3.timezone.13",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00002000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [14],
-      { "Timezone 14", "r3.timezone.14",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00004000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [15],
-      { "Timezone 15", "r3.timezone.15",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00008000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [16],
-      { "Timezone 16", "r3.timezone.16",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00010000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [17],
-      { "Timezone 17", "r3.timezone.17",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00020000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [18],
-      { "Timezone 18", "r3.timezone.18",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00040000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [19],
-      { "Timezone 19", "r3.timezone.19",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00080000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [20],
-      { "Timezone 20", "r3.timezone.20",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00100000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [21],
-      { "Timezone 21", "r3.timezone.21",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00200000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [22],
-      { "Timezone 22", "r3.timezone.22",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00400000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [23],
-      { "Timezone 23", "r3.timezone.23",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00800000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [24],
-      { "Timezone 24", "r3.timezone.24",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x01000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [25],
-      { "Timezone 25", "r3.timezone.25",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x02000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [26],
-      { "Timezone 26", "r3.timezone.26",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x04000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [27],
-      { "Timezone 27", "r3.timezone.27",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x08000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [28],
-      { "Timezone 28", "r3.timezone.28",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x10000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [29],
-      { "Timezone 29", "r3.timezone.29",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x20000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [30],
-      { "Timezone 30", "r3.timezone.30",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x40000000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timezonearray [31],
-      { "Timezone 31", "r3.timezone.31",
-	  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x80000000,
-	  NULL, HFILL }
-    },
+      { &hf_r3_responselength,
+        { "Response Length", "r3.response.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_responsecommand,
+        { "Response Command", "r3.response.command",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_responsetype,
+        { "Response Type", "r3.response.responsetype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_responsetypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_responsetocommand,
+        { "Response To Command", "r3.response.to_command",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0,
+          NULL, HFILL }
+      },
+#if 0
+      { &hf_r3_responsedata,
+        { "Response Data", "r3.response.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
 
-    { &hf_r3_expireon_year,
-      { "Expiration Year", "r3.expireon.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_expireon_month,
-      { "Expiration Month", "r3.expireon.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_expireon_day,
-      { "Expiration Day", "r3.expireon.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_upstreamcommand,
+        { "Upstream Command", "r3.upstreamcommand.command",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_upstreamcommandnames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_datetime_year,
-      { "Date/Time Year", "r3.datetime.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_month,
-      { "Date/Time Month", "r3.datetime.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_day,
-      { "Date/Time Day", "r3.datetime.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_dow,
-      { "Date/Time DOW", "r3.datetime.dow",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_daynames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_hours,
-      { "Date/Time Hours", "r3.datetime.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_minutes,
-      { "Date/Time Minutes", "r3.datetime.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_seconds,
-      { "Date/Time Seconds", "r3.datetime.seconds",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_datetime_dst,
-      { "Date/Time DST", "r3.datetime.dst",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_upstreamfield,
+        { "Upstream Field", "r3.upstreamfield",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldlength,
+        { "Field Length", "r3.upstreamfield.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldtype,
+        { "Field Type", "r3.upstreamfield.type",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_upstreamfieldnames_ext, 0x0,
+          NULL, HFILL }
+      },
+#if 0
+      { &hf_r3_upstreamfielddatalen,
+        { "Data Length", "r3.upstreamfield.datalen",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
+      { &hf_r3_upstreamfielderror,
+        { "Error", "r3.upstreamfield.error",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_SERIALNUMBER],
+        { "Serial Number", "r3.upstreamfield.serialnumber",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_NAR],
+        { "Next Available Record", "r3.upstreamfield.nar",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ENTRYDEVICE],
+        { "Entry Device", "r3.upstreamfield.entrydevice",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PPMIFIELDTYPE],
+        { "PPMI Field Type", "r3.upstreamfield.ppmifieldtype",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PIN],
+        { "PIN", "r3.upstreamfield.pin",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_SEQUENCENUMBER],
+        { "Sequence Number", "r3.upstreamfield.sequencenumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_RESPONSEWINDOW],
+        { "Response Window", "r3.upstreamfield.responsewindow",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_USERNUMBER],
+        { "User Number", "r3.upstreamfield.usernumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_VERSION],
+        { "Version", "r3.upstreamfield.version",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EVENTLOGRECORD],
+        { "Event Log Record", "r3.upstreamfield.eventlogrecord",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_DATETIME],
+        { "Date/Time", "r3.upstreamfield.datetime",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EVENTLOGRECORDCOUNT],
+        { "Event Log Record Count", "r3.upstreamfield.eventlogrecordcount",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_DECLINEDRECORDCOUNT],
+        { "Declined Log Record", "r3.upstreamfield.declinedlogrecord",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_DECLINEDRECORD],
+        { "Declined Log", "r3.upstreamfield.declinedlog",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_USERTYPE],
+        { "User Type", "r3.upstreamfield.usertype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_usertypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ACCESSALWAYS],
+        { "Access Always", "r3.upstreamfield.accessalways",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_CACHED],
+        { "Cached", "r3.upstreamfield.cached",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PRIMARYFIELDTYPE],
+        { "Primary Field Type", "r3.upstreamfield.primaryfieldtype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_AUXFIELDTYPE],
+        { "Aux Field Type", "r3.upstreamfield.auxfieldtype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ACCESSMODE],
+        { "Access Mode", "r3.upstreamfield.accessmode",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_accessmodenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EXPIREON],
+        { "Expire On", "r3.upstreamfield.expireon",
+          FT_UINT24, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_USECOUNT],
+        { "Use Count", "r3.upstreamfield.usecount",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_TIMEZONE],
+        { "Timezone", "r3.upstreamfield.timezone",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_EXCEPTIONGROUP],
+        { "Exception Group", "r3.upstreamfield.exceptiongroup",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_PRIMARYPIN],
+        { "Primary PIN", "r3.upstreamfield.primarypin",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_AUXPIN],
+        { "Aux PIN", "r3.upstreamfield.auxpin",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ALARMRECORDCOUNT],
+        { "Alarm Record Count", "r3.upstreamfield.alarmrecordcount",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_ALARMRECORD],
+        { "Alarm Record", "r3.upstreamfield.alarmrecord",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_AUXCTLRVERSION],
+        { "Aux Controller Version", "r3.upstreamfield.auxctlrversion",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_eventlog_recordnumber,
-      { "Record Number", "r3.eventlog.recordnumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_year,
-      { "Year", "r3.eventlog.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_month,
-      { "Month", "r3.eventlog.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_day,
-      { "Day", "r3.eventlog.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_hour,
-      { "Hours", "r3.eventlog.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_minute,
-      { "Minutes", "r3.eventlog.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_second,
-      { "Seconds", "r3.eventlog.seconds",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_usernumber,
-      { "User Number", "r3.eventlog.usernumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlog_event,
-      { "ID", "r3.eventlog.id",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_eventnames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_configitems,
+        { "Configuration Item List", "r3.configitems",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitem,
+        { "Configuration Item", "r3.configitem",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_configitemnames_ext, 0x0,
+          NULL, HFILL }
+      },
+#if 0
+      { &hf_r3_configfield,
+        { "Config Field", "r3.configfield",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
+      { &hf_r3_configitemlength,
+        { "Configuration Item Length", "r3.configitem.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemtype,
+        { "Configuration Item Type", "r3.configitem.type",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_configtypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemdata,
+        { "Configuration Item Data", "r3.configitem.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemdata_bool,
+        { "Configuration Item Boolean", "r3.configitem.data_boolean",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemdata_8,
+        { "Configuration Item 8-bit", "r3.configitem.data_8",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemdata_16,
+        { "Configuration Item 16-bit", "r3.configitem.data_16",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemdata_32,
+        { "Configuration Item 32-bit", "r3.configitem.data_32",
+          FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_configitemdata_string,
+        { "Configuration Item String", "r3.configitem.data_string",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_declinedlog_recordnumber,
-      { "Record Number", "r3.declinedlog.recordnumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_year,
-      { "Year", "r3.declinedlog.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_month,
-      { "Month", "r3.declinedlog.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_day,
-      { "Day", "r3.declinedlog.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_hour,
-      { "Hours", "r3.declinedlog.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_minute,
-      { "Minutes", "r3.declinedlog.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_second,
-      { "Seconds", "r3.declinedlog.seconds",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_usernumber,
-      { "User Number", "r3.declinedlog.usernumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_cred1type,
-      { "Credential 1 Type", "r3.declinedlog.cred1type",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_fieldtypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_cred2type,
-      { "Credential 2 Type", "r3.declinedlog.cred2type",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_fieldtypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_cred1,
-      { "Credential 1", "r3.declinedlog.cred1",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlog_cred2,
-      { "Credential 2", "r3.declinedlog.cred2",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_timezonearray [ 0],
+        { "Timezone  0", "r3.timezone.0",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000001,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 1],
+        { "Timezone  1", "r3.timezone.1",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000002,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 2],
+        { "Timezone  2", "r3.timezone.2",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000004,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 3],
+        { "Timezone  3", "r3.timezone.3",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000008,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 4],
+        { "Timezone  4", "r3.timezone.4",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000010,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 5],
+        { "Timezone  5", "r3.timezone.5",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000020,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 6],
+        { "Timezone  6", "r3.timezone.6",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000040,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 7],
+        { "Timezone  7", "r3.timezone.7",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000080,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 8],
+        { "Timezone  8", "r3.timezone.8",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000100,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [ 9],
+        { "Timezone  9", "r3.timezone.9",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000200,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [10],
+        { "Timezone 10", "r3.timezone.10",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000400,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [11],
+        { "Timezone 11", "r3.timezone.11",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000800,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [12],
+        { "Timezone 12", "r3.timezone.12",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00001000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [13],
+        { "Timezone 13", "r3.timezone.13",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00002000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [14],
+        { "Timezone 14", "r3.timezone.14",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00004000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [15],
+        { "Timezone 15", "r3.timezone.15",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00008000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [16],
+        { "Timezone 16", "r3.timezone.16",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00010000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [17],
+        { "Timezone 17", "r3.timezone.17",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00020000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [18],
+        { "Timezone 18", "r3.timezone.18",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00040000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [19],
+        { "Timezone 19", "r3.timezone.19",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00080000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [20],
+        { "Timezone 20", "r3.timezone.20",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00100000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [21],
+        { "Timezone 21", "r3.timezone.21",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00200000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [22],
+        { "Timezone 22", "r3.timezone.22",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00400000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [23],
+        { "Timezone 23", "r3.timezone.23",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00800000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [24],
+        { "Timezone 24", "r3.timezone.24",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x01000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [25],
+        { "Timezone 25", "r3.timezone.25",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x02000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [26],
+        { "Timezone 26", "r3.timezone.26",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x04000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [27],
+        { "Timezone 27", "r3.timezone.27",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x08000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [28],
+        { "Timezone 28", "r3.timezone.28",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x10000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [29],
+        { "Timezone 29", "r3.timezone.29",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x20000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [30],
+        { "Timezone 30", "r3.timezone.30",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x40000000,
+          NULL, HFILL }
+      },
+      { &hf_r3_timezonearray [31],
+        { "Timezone 31", "r3.timezone.31",
+          FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x80000000,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_alarmlog_recordnumber,
-      { "Record Number", "r3.alarmlog.recordnumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_year,
-      { "Year", "r3.alarmlog.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_month,
-      { "Month", "r3.alarmlog.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_day,
-      { "Day", "r3.alarmlog.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_hour,
-      { "Hours", "r3.alarmlog.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_minute,
-      { "Minutes", "r3.alarmlog.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_second,
-      { "Seconds", "r3.alarmlog.seconds",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_id,
-      { "ID", "r3.alarmlog.id",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_alarmidnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlog_usernumber,
-      { "User Number", "r3.alarmlog.usernumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_expireon_year,
+        { "Expiration Year", "r3.expireon.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_expireon_month,
+        { "Expiration Month", "r3.expireon.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_expireon_day,
+        { "Expiration Day", "r3.expireon.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_debugmsg,
-      { "Debug Message", "r3.debug",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_datetime_year,
+        { "Date/Time Year", "r3.datetime.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_month,
+        { "Date/Time Month", "r3.datetime.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_day,
+        { "Date/Time Day", "r3.datetime.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_dow,
+        { "Date/Time DOW", "r3.datetime.dow",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_daynames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_hours,
+        { "Date/Time Hours", "r3.datetime.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_minutes,
+        { "Date/Time Minutes", "r3.datetime.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_seconds,
+        { "Date/Time Seconds", "r3.datetime.seconds",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_datetime_dst,
+        { "Date/Time DST", "r3.datetime.dst",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_setdate_year,
-      { "Year", "r3.setdate.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_setdate_month,
-      { "Month", "r3.setdate.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_setdate_day,
-      { "Day", "r3.setdate.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_setdate_dow,
-      { "Day-Of-Week", "r3.setdate.dow",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_daynames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_setdate_hours,
-      { "Hours", "r3.setdate.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_setdate_minutes,
-      { "Minutes", "r3.setdate.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_setdate_seconds,
-      { "Seconds", "r3.setdate.seconds",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_eventlog_recordnumber,
+        { "Record Number", "r3.eventlog.recordnumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_year,
+        { "Year", "r3.eventlog.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_month,
+        { "Month", "r3.eventlog.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_day,
+        { "Day", "r3.eventlog.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_hour,
+        { "Hours", "r3.eventlog.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_minute,
+        { "Minutes", "r3.eventlog.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_second,
+        { "Seconds", "r3.eventlog.seconds",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_usernumber,
+        { "User Number", "r3.eventlog.usernumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlog_event,
+        { "ID", "r3.eventlog.id",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_eventnames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_deleteusers,
-      { "Delete Users", "r3.deleteusers",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_deleteusersnames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_declinedlog_recordnumber,
+        { "Record Number", "r3.declinedlog.recordnumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_year,
+        { "Year", "r3.declinedlog.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_month,
+        { "Month", "r3.declinedlog.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_day,
+        { "Day", "r3.declinedlog.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_hour,
+        { "Hours", "r3.declinedlog.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_minute,
+        { "Minutes", "r3.declinedlog.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_second,
+        { "Seconds", "r3.declinedlog.seconds",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_usernumber,
+        { "User Number", "r3.declinedlog.usernumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_cred1type,
+        { "Credential 1 Type", "r3.declinedlog.cred1type",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_fieldtypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_cred2type,
+        { "Credential 2 Type", "r3.declinedlog.cred2type",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_fieldtypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_cred1,
+        { "Credential 1", "r3.declinedlog.cred1",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlog_cred2,
+        { "Credential 2", "r3.declinedlog.cred2",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_defineexception_number,
-      { "Exception Number", "r3.defineexception.number",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_startdate_month,
-      { "Start Month", "r3.defineexception.start.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_startdate_day,
-      { "Start Day", "r3.defineexception.start.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_startdate_hours,
-      { "Start Hours", "r3.defineexception.start.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_startdate_minutes,
-      { "Start Minutes", "r3.defineexception.start.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_enddate_month,
-      { "End Month", "r3.defineexception.end.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_enddate_day,
-      { "End Day", "r3.defineexception.end.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_enddate_hours,
-      { "End Hours", "r3.defineexception.end.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexception_enddate_minutes,
-      { "End Minutes", "r3.defineexception.end.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_alarmlog_recordnumber,
+        { "Record Number", "r3.alarmlog.recordnumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_year,
+        { "Year", "r3.alarmlog.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_month,
+        { "Month", "r3.alarmlog.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_day,
+        { "Day", "r3.alarmlog.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_hour,
+        { "Hours", "r3.alarmlog.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_minute,
+        { "Minutes", "r3.alarmlog.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_second,
+        { "Seconds", "r3.alarmlog.seconds",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_id,
+        { "ID", "r3.alarmlog.id",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_alarmidnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlog_usernumber,
+        { "User Number", "r3.alarmlog.usernumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_defineexceptiongroup_number,
-      { "Define Exception Group Number", "r3.defineexceptiongroup.number",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_defineexceptiongroup_bits,
-      { "Define Exception Group Bit Field", "r3.defineexceptiongroup.field",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_debugmsg,
+        { "Debug Message", "r3.debug",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_definecalendar_number,
-      { "Define Calendar Number", "r3.definecalendar.number",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definecalendar_bits,
-      { "Define Calendar Bit Field", "r3.definecalendar.field",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_setdate_year,
+        { "Year", "r3.setdate.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_setdate_month,
+        { "Month", "r3.setdate.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_setdate_day,
+        { "Day", "r3.setdate.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_setdate_dow,
+        { "Day-Of-Week", "r3.setdate.dow",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_daynames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_setdate_hours,
+        { "Hours", "r3.setdate.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_setdate_minutes,
+        { "Minutes", "r3.setdate.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_setdate_seconds,
+        { "Seconds", "r3.setdate.seconds",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_definetimezone_number,
-      { "Timezone Number", "r3.definetimezone.number",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_starttime_hours,
-      { "Start Hours", "r3.definetimezone.start.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_starttime_minutes,
-      { "Start Minutes", "r3.definetimezone.start.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_endtime_hours,
-      { "End Hours", "r3.definetimezone.end.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_endtime_minutes,
-      { "End Minutes", "r3.definetimezone.end.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [0],
-      { "Sunday", "r3.definetimezone.daymap.sunday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000001,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [1],
-      { "Monday", "r3.definetimezone.daymap.monday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000002,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [2],
-      { "Tuesday", "r3.definetimezone.daymap.tuesday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000004,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [3],
-      { "Wednesday", "r3.definetimezone.daymap.wednesday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000008,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [4],
-      { "Thursday", "r3.definetimezone.daymap.thursday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000010,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [5],
-      { "Friday", "r3.definetimezone.daymap.friday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000020,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_daymap [6],
-      { "Saturday", "r3.definetimezone.daymap.saturday",
-	  FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000040,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_exceptiongroup,
-      { "Exception Group", "r3.definetimezone.exceptiongroup",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_mode,
-      { "Mode", "r3.definetimezone.mode",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_timezonemodenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_definetimezone_calendar,
-      { "Calendar", "r3.definetimezone.calendar",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_deleteusers,
+        { "Delete Users", "r3.deleteusers",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_deleteusersnames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_rmtauthretry_sequence,
-      { "Remote Auth Retry Sequence", "r3.rmtauthretry.sequence",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_rmtauthretry_retry,
-      { "Remote Auth Retry Mode", "r3.rmtauthretry.mode",
-	  FT_BOOLEAN, BASE_NONE, TFS (&tfs_rmtauthretry_flags), 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_defineexception_number,
+        { "Exception Number", "r3.defineexception.number",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_startdate_month,
+        { "Start Month", "r3.defineexception.start.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_startdate_day,
+        { "Start Day", "r3.defineexception.start.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_startdate_hours,
+        { "Start Hours", "r3.defineexception.start.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_startdate_minutes,
+        { "Start Minutes", "r3.defineexception.start.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_enddate_month,
+        { "End Month", "r3.defineexception.end.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_enddate_day,
+        { "End Day", "r3.defineexception.end.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_enddate_hours,
+        { "End Hours", "r3.defineexception.end.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexception_enddate_minutes,
+        { "End Minutes", "r3.defineexception.end.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_eventlogdump_starttime_year,
-      { "Start Year", "r3.eventlogdump.start.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_starttime_month,
-      { "Start Month", "r3.eventlogdump.start.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_starttime_day,
-      { "Start Day", "r3.eventlogdump.start.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_starttime_hours,
-      { "Start Hours", "r3.eventlogdump.start.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_starttime_minutes,
-      { "Start Minutes", "r3.eventlogdump.start.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_endtime_year,
-      { "End Year", "r3.eventlogdump.end.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_endtime_month,
-      { "End Month", "r3.eventlogdump.end.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_endtime_day,
-      { "End Day", "r3.eventlogdump.end.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_endtime_hours,
-      { "End Hours", "r3.eventlogdump.end.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_endtime_minutes,
-      { "End Minutes", "r3.eventlogdump.end.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_eventlogdump_user,
-      { "Filter User", "r3.eventlogdump.user",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_defineexceptiongroup_number,
+        { "Define Exception Group Number", "r3.defineexceptiongroup.number",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_defineexceptiongroup_bits,
+        { "Define Exception Group Bit Field", "r3.defineexceptiongroup.field",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_declinedlogdump_starttime_year,
-      { "Start Year", "r3.declinedlogdump.start.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_starttime_month,
-      { "Start Month", "r3.declinedlogdump.start.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_starttime_day,
-      { "Start Day", "r3.declinedlogdump.start.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_starttime_hours,
-      { "Start Hours", "r3.declinedlogdump.start.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_starttime_minutes,
-      { "Start Minutes", "r3.declinedlogdump.start.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_endtime_year,
-      { "End Year", "r3.declinedlogdump.end.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_endtime_month,
-      { "End Month", "r3.declinedlogdump.end.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_endtime_day,
-      { "End Day", "r3.declinedlogdump.end.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_endtime_hours,
-      { "End Hours", "r3.declinedlogdump.end.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_declinedlogdump_endtime_minutes,
-      { "End Minutes", "r3.declinedlogdump.end.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_definecalendar_number,
+        { "Define Calendar Number", "r3.definecalendar.number",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definecalendar_bits,
+        { "Define Calendar Bit Field", "r3.definecalendar.field",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_alarmlogdump_starttime_year,
-      { "Start Year", "r3.alarmlogdump.start.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_starttime_month,
-      { "Start Month", "r3.alarmlogdump.start.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_starttime_day,
-      { "Start Day", "r3.alarmlogdump.start.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_starttime_hours,
-      { "Start Hours", "r3.alarmlogdump.start.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_starttime_minutes,
-      { "Start Minutes", "r3.alarmlogdump.start.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_endtime_year,
-      { "End Year", "r3.alarmlogdump.end.year",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_endtime_month,
-      { "End Month", "r3.alarmlogdump.end.month",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_endtime_day,
-      { "End Day", "r3.alarmlogdump.end.day",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_endtime_hours,
-      { "End Hours", "r3.alarmlogdump.end.hours",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarmlogdump_endtime_minutes,
-      { "End Minutes", "r3.alarmlogdump.end.minutes",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_definetimezone_number,
+        { "Timezone Number", "r3.definetimezone.number",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_starttime_hours,
+        { "Start Hours", "r3.definetimezone.start.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_starttime_minutes,
+        { "Start Minutes", "r3.definetimezone.start.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_endtime_hours,
+        { "End Hours", "r3.definetimezone.end.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_endtime_minutes,
+        { "End Minutes", "r3.definetimezone.end.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [0],
+        { "Sunday", "r3.definetimezone.daymap.sunday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000001,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [1],
+        { "Monday", "r3.definetimezone.daymap.monday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000002,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [2],
+        { "Tuesday", "r3.definetimezone.daymap.tuesday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000004,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [3],
+        { "Wednesday", "r3.definetimezone.daymap.wednesday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000008,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [4],
+        { "Thursday", "r3.definetimezone.daymap.thursday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000010,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [5],
+        { "Friday", "r3.definetimezone.daymap.friday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000020,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap [6],
+        { "Saturday", "r3.definetimezone.daymap.saturday",
+          FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000040,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_exceptiongroup,
+        { "Exception Group", "r3.definetimezone.exceptiongroup",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_mode,
+        { "Mode", "r3.definetimezone.mode",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_timezonemodenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_calendar,
+        { "Calendar", "r3.definetimezone.calendar",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_nvramclearoptions [ 0],
-      { "NVRAMCLEAROPTIONS_CFGINSTALLER", "r3.nvramclear.cfginstaller",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000001,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 1],
-      { "NVRAMCLEAROPTIONS_CFGADMIN", "r3.nvramclear.cfgadmin",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000002,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 2],
-      { "NVRAMCLEAROPTIONS_EXCEPTIONS", "r3.nvramclear.exceptions",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000004,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 3],
-      { "NVRAMCLEAROPTIONS_EXCEPTIONGROUPS", "r3.nvramclear.exceptiongroups",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000008,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 4],
-      { "NVRAMCLEAROPTIONS_CALENDARS", "r3.nvramclear.calendars",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000010,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 5],
-      { "NVRAMCLEAROPTIONS_TIMEZONES", "r3.nvramclear.timezones",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000020,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 6],
-      { "NVRAMCLEAROPTIONS_FILTERS", "r3.nvramclear.filters",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000040,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 7],
-      { "NVRAMCLEAROPTIONS_EVENTLOG", "r3.nvramclear.eventlog",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000080,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 8],
-      { "NVRAMCLEAROPTIONS_USERDATA", "r3.nvramclear.userdata",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000100,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [ 9],
-      { "NVRAMCLEAROPTIONS_DECLINEDLOG", "r3.nvramclear.declinedlog",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000200,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [10],
-      { "NVRAMCLEAROPTIONS_ALARMLOG", "r3.nvramclear.alarmlog",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000400,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [11],
-      { "NVRAMCLEAROPTIONS_LRUCACHE", "r3.nvramclear.lrucache",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000800,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [12],
-      { "NVRAMCLEAROPTIONS_DBHASH", "r3.nvramclear.dbhash",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00001000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [13],
-      { "NVRAMCLEAROPTIONS_CFGSYSTEM", "r3.nvramclear.cfgsystem",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00002000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [14],
-      { "NVRAMCLEAROPTIONS_UNUSED", "r3.nvramclear.unused",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00004000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramclearoptions [15],
-      { "NVRAMCLEAROPTIONS_USEBACKUP", "r3.nvramclear.usebackup",
-	  FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00008000,
-	  NULL, HFILL }
-    },
+      { &hf_r3_rmtauthretry_sequence,
+        { "Remote Auth Retry Sequence", "r3.rmtauthretry.sequence",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_rmtauthretry_retry,
+        { "Remote Auth Retry Mode", "r3.rmtauthretry.mode",
+          FT_BOOLEAN, BASE_NONE, TFS (&tfs_rmtauthretry_flags), 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_writeeventlog_user,
-      { "User", "r3.writeeventlog.user",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_writeeventlog_event,
-      { "Event", "r3.writeeventlog.event",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_eventnames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_eventlogdump_starttime_year,
+        { "Start Year", "r3.eventlogdump.start.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_starttime_month,
+        { "Start Month", "r3.eventlogdump.start.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_starttime_day,
+        { "Start Day", "r3.eventlogdump.start.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_starttime_hours,
+        { "Start Hours", "r3.eventlogdump.start.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_starttime_minutes,
+        { "Start Minutes", "r3.eventlogdump.start.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_endtime_year,
+        { "End Year", "r3.eventlogdump.end.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_endtime_month,
+        { "End Month", "r3.eventlogdump.end.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_endtime_day,
+        { "End Day", "r3.eventlogdump.end.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_endtime_hours,
+        { "End Hours", "r3.eventlogdump.end.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_endtime_minutes,
+        { "End Minutes", "r3.eventlogdump.end.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_eventlogdump_user,
+        { "Filter User", "r3.eventlogdump.user",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_powertableselection,
-      { "Table", "r3.powertableselection",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_powertablenames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_declinedlogdump_starttime_year,
+        { "Start Year", "r3.declinedlogdump.start.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_starttime_month,
+        { "Start Month", "r3.declinedlogdump.start.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_starttime_day,
+        { "Start Day", "r3.declinedlogdump.start.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_starttime_hours,
+        { "Start Hours", "r3.declinedlogdump.start.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_starttime_minutes,
+        { "Start Minutes", "r3.declinedlogdump.start.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_endtime_year,
+        { "End Year", "r3.declinedlogdump.end.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_endtime_month,
+        { "End Month", "r3.declinedlogdump.end.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_endtime_day,
+        { "End Day", "r3.declinedlogdump.end.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_endtime_hours,
+        { "End Hours", "r3.declinedlogdump.end.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_declinedlogdump_endtime_minutes,
+        { "End Minutes", "r3.declinedlogdump.end.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_filter_type,
-      { "Type", "r3.filter.type",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_filtertypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_filter_list,
-      { "Event", "r3.filter.event",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_filtereventnames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_alarmlogdump_starttime_year,
+        { "Start Year", "r3.alarmlogdump.start.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_starttime_month,
+        { "Start Month", "r3.alarmlogdump.start.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_starttime_day,
+        { "Start Day", "r3.alarmlogdump.start.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_starttime_hours,
+        { "Start Hours", "r3.alarmlogdump.start.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_starttime_minutes,
+        { "Start Minutes", "r3.alarmlogdump.start.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_endtime_year,
+        { "End Year", "r3.alarmlogdump.end.year",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_endtime_month,
+        { "End Month", "r3.alarmlogdump.end.month",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_endtime_day,
+        { "End Day", "r3.alarmlogdump.end.day",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_endtime_hours,
+        { "End Hours", "r3.alarmlogdump.end.hours",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarmlogdump_endtime_minutes,
+        { "End Minutes", "r3.alarmlogdump.end.minutes",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_alarm_length,
-      { "Length", "r3.alarm.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarm_id,
-      { "ID", "r3.alarm.id",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_alarmidnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_alarm_state,
-      { "State", "r3.alarm.state",
-	  FT_BOOLEAN, BASE_NONE, TFS (&tfs_enabled_disabled), 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_nvramclearoptions [ 0],
+        { "NVRAMCLEAROPTIONS_CFGINSTALLER", "r3.nvramclear.cfginstaller",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000001,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 1],
+        { "NVRAMCLEAROPTIONS_CFGADMIN", "r3.nvramclear.cfgadmin",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000002,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 2],
+        { "NVRAMCLEAROPTIONS_EXCEPTIONS", "r3.nvramclear.exceptions",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000004,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 3],
+        { "NVRAMCLEAROPTIONS_EXCEPTIONGROUPS", "r3.nvramclear.exceptiongroups",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000008,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 4],
+        { "NVRAMCLEAROPTIONS_CALENDARS", "r3.nvramclear.calendars",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000010,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 5],
+        { "NVRAMCLEAROPTIONS_TIMEZONES", "r3.nvramclear.timezones",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000020,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 6],
+        { "NVRAMCLEAROPTIONS_FILTERS", "r3.nvramclear.filters",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000040,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 7],
+        { "NVRAMCLEAROPTIONS_EVENTLOG", "r3.nvramclear.eventlog",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000080,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 8],
+        { "NVRAMCLEAROPTIONS_USERDATA", "r3.nvramclear.userdata",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000100,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [ 9],
+        { "NVRAMCLEAROPTIONS_DECLINEDLOG", "r3.nvramclear.declinedlog",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000200,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [10],
+        { "NVRAMCLEAROPTIONS_ALARMLOG", "r3.nvramclear.alarmlog",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000400,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [11],
+        { "NVRAMCLEAROPTIONS_LRUCACHE", "r3.nvramclear.lrucache",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000800,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [12],
+        { "NVRAMCLEAROPTIONS_DBHASH", "r3.nvramclear.dbhash",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00001000,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [13],
+        { "NVRAMCLEAROPTIONS_CFGSYSTEM", "r3.nvramclear.cfgsystem",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00002000,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [14],
+        { "NVRAMCLEAROPTIONS_UNUSED", "r3.nvramclear.unused",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00004000,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions [15],
+        { "NVRAMCLEAROPTIONS_USEBACKUP", "r3.nvramclear.usebackup",
+          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00008000,
+          NULL, HFILL }
+      },
 
-    /* XXX: start: Originally missing: Best guess */
-    { &hf_r3_dpac_action,
-      { "Dpac Action", "r3.dpac.action",
-	FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	NULL, HFILL }
-    },
+      { &hf_r3_writeeventlog_user,
+        { "User", "r3.writeeventlog.user",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_writeeventlog_event,
+        { "Event", "r3.writeeventlog.event",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_eventnames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dpac_waittime,
-      { "Dpac Waittime", "r3.dpac.waittime",
-	FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	NULL, HFILL }
-    },
+      { &hf_r3_powertableselection,
+        { "Table", "r3.powertableselection",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_powertablenames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dpac_command,
-      { "Dpac Command", "r3.dpac.command",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }
-    },
+      { &hf_r3_filter_type,
+        { "Type", "r3.filter.type",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_filtertypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_filter_list,
+        { "Event", "r3.filter.event",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_filtereventnames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dpacreply_stuff,
-      { "Dpac Reply Stuff", "r3.dpacreply.stuff",
-	FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	NULL, HFILL }
-    },
+      { &hf_r3_alarm_length,
+        { "Length", "r3.alarm.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarm_id,
+        { "ID", "r3.alarm.id",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_alarmidnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_alarm_state,
+        { "State", "r3.alarm.state",
+          FT_BOOLEAN, BASE_NONE, TFS (&tfs_enabled_disabled), 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dpacreply_length,
-      { "Dpac Reply Length", "r3.dpacreply.length",
-	FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	NULL, HFILL }
-    },
+      /* XXX: start: Originally missing: Best guess */
+      { &hf_r3_dpac_action,
+        { "Dpac Action", "r3.dpac.action",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dpacreply_reply,
-      { "Dpac Reply", "r3.dpacreply.reply",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }
-    },
-    /* XXX: end: Originally missing --- */
+      { &hf_r3_dpac_waittime,
+        { "Dpac Waittime", "r3.dpac.waittime",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_mfgfield_length,
-      { "Field Length", "r3.mfgfield.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mfgfield,
-      { "Field", "r3.mfgfield.field",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgfieldnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-  #if 0
-    { &hf_r3_mfgfield_data,
-      { "Field Data", "r3.mfgfield.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-  #endif
+      { &hf_r3_dpac_command,
+        { "Dpac Command", "r3.dpac.command",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_mfgsetserialnumber,
-      { "Serial Number", "r3.mfgsetserialnumber",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mfgsetcryptkey,
-      { "Crypt Key", "r3.mfgsetcryptkey",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mfgdumpnvram,
-      { "NVRAM Section", "r3.mfgnvramdump",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgnvramdumpnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mfgremoteunlock,
-      { "Remote Unlock", "r3.mfgremoteunlock",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgremoteunlocknames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mfgtestpreserve,
-      { "Preserve Mode", "r3.mfgtestpreserve",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgtestpreservenames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_dpacreply_stuff,
+        { "Dpac Reply Stuff", "r3.dpacreply.stuff",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_adc [0],
-      { "ADC 0", "r3.adc.0",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [1],
-      { "ADC 1", "r3.adc.1",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [2],
-      { "ADC 2", "r3.adc.2",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [3],
-      { "ADC 3", "r3.adc.3",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [4],
-      { "ADC 4", "r3.adc.4",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [5],
-      { "ADC 5", "r3.adc.5",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [6],
-      { "ADC 6", "r3.adc.6",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adc [7],
-      { "ADC 7", "r3.adc.7",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_dpacreply_length,
+        { "Dpac Reply Length", "r3.dpacreply.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_hardwareid_board,
-      { "Board ID", "r3.hardwareid.board",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_hardwareid_cpuid,
-      { "CPU ID", "r3.hardwareid.cpuid",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_hardwareid_cpurev,
-      { "CPU Rev", "r3.hardwareid.cpurev",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_dpacreply_reply,
+        { "Dpac Reply", "r3.dpacreply.reply",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      /* XXX: end: Originally missing --- */
 
-    { &hf_r3_testkeypad,
-      { "Keypad Char", "r3.test.keypad",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_testmagcard,
-      { "Mag Card", "r3.test.magcard",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_testproxcard,
-      { "Prox Card", "r3.test.proxcard",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_mfgfield_length,
+        { "Field Length", "r3.mfgfield.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mfgfield,
+        { "Field", "r3.mfgfield.field",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgfieldnames_ext, 0x0,
+          NULL, HFILL }
+      },
+#if 0
+      { &hf_r3_mfgfield_data,
+        { "Field Data", "r3.mfgfield.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
 
-    { &hf_r3_nvramdump_record,
-      { "Record Number", "r3.nvramdump.record",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramdump_length,
-      { "Record Length", "r3.nvramdump.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramdump_data,
-      { "Record Data", "r3.nvramdump.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_mfgsetserialnumber,
+        { "Serial Number", "r3.mfgsetserialnumber",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mfgsetcryptkey,
+        { "Crypt Key", "r3.mfgsetcryptkey",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mfgdumpnvram,
+        { "NVRAM Section", "r3.mfgnvramdump",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgnvramdumpnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mfgremoteunlock,
+        { "Remote Unlock", "r3.mfgremoteunlock",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgremoteunlocknames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mfgtestpreserve,
+        { "Preserve Mode", "r3.mfgtestpreserve",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgtestpreservenames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_nvramdumprle_record,
-      { "Record Number", "r3.nvramdumprle.record",
-	  FT_UINT24, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramdumprle_length,
-      { "Record Length", "r3.nvramdumprle.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramdumprle_data,
-      { "Record Data", "r3.nvramdumprle.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_adc [0],
+        { "ADC 0", "r3.adc.0",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [1],
+        { "ADC 1", "r3.adc.1",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [2],
+        { "ADC 2", "r3.adc.2",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [3],
+        { "ADC 3", "r3.adc.3",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [4],
+        { "ADC 4", "r3.adc.4",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [5],
+        { "ADC 5", "r3.adc.5",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [6],
+        { "ADC 6", "r3.adc.6",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adc [7],
+        { "ADC 7", "r3.adc.7",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_iopins_lat,
-      { "LAT", "r3.iopins.lat",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_iopins_port,
-      { "PORT", "r3.iopins.port",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_iopins_tris,
-      { "TRIS", "r3.iopins.tris",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_hardwareid_board,
+        { "Board ID", "r3.hardwareid.board",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_hardwareid_cpuid,
+        { "CPU ID", "r3.hardwareid.cpuid",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_hardwareid_cpurev,
+        { "CPU Rev", "r3.hardwareid.cpurev",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_mortisepins_s1,
-      { "Mortise Pin S1", "r3.mortisepins.s1",
-	  FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000001,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisepins_s2,
-      { "Mortise Pin S2", "r3.mortisepins.s2",
-	  FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000002,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisepins_s3,
-      { "Mortise Pin S3", "r3.mortisepins.s3",
-	  FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000004,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisepins_s4,
-      { "Mortise Pin S4", "r3.mortisepins.s4",
-	  FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000008,
-	  NULL, HFILL }
-    },
+      { &hf_r3_testkeypad,
+        { "Keypad Char", "r3.test.keypad",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_testmagcard,
+        { "Mag Card", "r3.test.magcard",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_testproxcard,
+        { "Prox Card", "r3.test.proxcard",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_checksumresults ,
-      { "Checksum Results", "r3.checksumresults",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_checksumresults_field,
-      { "Field", "r3.checksumresults.field",
-	  FT_UINT8, BASE_HEX|BASE_EXT_STRING, & r3_checksumresultnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_checksumresults_length,
-      { "Length", "r3.checksumresults.length",
-	  FT_UINT8, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_checksumresults_state,
-      { "State", "r3.checksumresults.state",
-	  FT_BOOLEAN, BASE_NONE, TFS (&tfs_errornoerror_flags), 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_nvramdump_record,
+        { "Record Number", "r3.nvramdump.record",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramdump_length,
+        { "Record Length", "r3.nvramdump.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramdump_data,
+        { "Record Data", "r3.nvramdump.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_forceoptions_item,
-      { "Item", "r3.forceoptions.item",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_forceitemnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_forceoptions_length,
-      { "Length", "r3.forceoptions.length",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_forceoptions_state_8,
-      { "State", "r3.forceoptions.state",
-	  FT_BOOLEAN, BASE_NONE, TFS (&tfs_enabled_disabled), 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_forceoptions_state_16,
-      { "State", "r3.forceoptions.state",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_forceoptions_state_24,
-      { "State", "r3.forceoptions.state",
-	  FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_forceoptions_state_32,
-      { "State", "r3.forceoptions.state",
-	  FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_nvramdumprle_record,
+        { "Record Number", "r3.nvramdumprle.record",
+          FT_UINT24, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramdumprle_length,
+        { "Record Length", "r3.nvramdumprle.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramdumprle_data,
+        { "Record Data", "r3.nvramdumprle.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_peekpoke_operation,
-      { "Operation", "r3.peekpoke.operation",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_peekpokenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_address,
-      { "Address", "r3.peekpoke.address",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_length,
-      { "Length", "r3.peekpoke.length",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_poke8,
-      { "8 Bit Value", "r3.peekpoke.poke8",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_poke16,
-      { "16 Bit Value", "r3.peekpoke.poke16",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_poke24,
-      { "24 Bit Value", "r3.peekpoke.poke24",
-	  FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_poke32,
-      { "32 Bit Value", "r3.peekpoke.poke32",
-	  FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_peekpoke_pokestring,
-      { "String Value", "r3.peekpoke.pokestring",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_iopins_lat,
+        { "LAT", "r3.iopins.lat",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_iopins_port,
+        { "PORT", "r3.iopins.port",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_iopins_tris,
+        { "TRIS", "r3.iopins.tris",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_firmwaredownload_length,
-      { "Length", "r3.firmwaredownload.length",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_record,
-      { "Record Number", "r3.firmwaredownload.record",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_action,
-      { "Action", "r3.firmwaredownload.action",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_downloadfirmwarenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_timeout,
-      { "Timeout", "r3.firmwaredownload.timeout",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_nvram,
-      { "NVRAM", "r3.firmwaredownload.nvram",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_address,
-      { "Address", "r3.firmwaredownload.address",
-	  FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_bytes,
-      { "Bytes", "r3.firmwaredownload.bytes",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_data,
-      { "Data", "r3.firmwaredownload.data",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_crc,
-      { "CRC", "r3.firmwaredownload.crc",
-	  FT_UINT16, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_firmwaredownload_crc_bad,
-      { "Bad CRC", "r3.firmwaredownload.crc_bad",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_mortisepins_s1,
+        { "Mortise Pin S1", "r3.mortisepins.s1",
+          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000001,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisepins_s2,
+        { "Mortise Pin S2", "r3.mortisepins.s2",
+          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000002,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisepins_s3,
+        { "Mortise Pin S3", "r3.mortisepins.s3",
+          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000004,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisepins_s4,
+        { "Mortise Pin S4", "r3.mortisepins.s4",
+          FT_BOOLEAN, 8, TFS (&tfs_mortisepins_flags), 0x00000008,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_nvramchecksumvalue,
-      { "Value", "r3.nvramchecksum.value",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_nvramchecksumvalue_fixup,
-      { "Fixup", "r3.nvramchecksum.fixup",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_checksumresults ,
+        { "Checksum Results", "r3.checksumresults",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_checksumresults_field,
+        { "Field", "r3.checksumresults.field",
+          FT_UINT8, BASE_HEX|BASE_EXT_STRING, & r3_checksumresultnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_checksumresults_length,
+        { "Length", "r3.checksumresults.length",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_checksumresults_state,
+        { "State", "r3.checksumresults.state",
+          FT_BOOLEAN, BASE_NONE, TFS (&tfs_errornoerror_flags), 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_capabilities,
-      { "Capability", "r3.capabilities",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_capabilities_length,
-      { "Length", "r3.capabilities.length",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_capabilities_type,
-      { "Type", "r3.capabilities.type",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_capabilitiesnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_capabilities_value,
-      { "Value", "r3.capabilities.value",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_forceoptions_item,
+        { "Item", "r3.forceoptions.item",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_forceitemnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_forceoptions_length,
+        { "Length", "r3.forceoptions.length",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_forceoptions_state_8,
+        { "State", "r3.forceoptions.state",
+          FT_BOOLEAN, BASE_NONE, TFS (&tfs_enabled_disabled), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_forceoptions_state_16,
+        { "State", "r3.forceoptions.state",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_forceoptions_state_24,
+        { "State", "r3.forceoptions.state",
+          FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_forceoptions_state_32,
+        { "State", "r3.forceoptions.state",
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_lockstate_passage,
-      { "Passage", "r3.lockstate.passage",
-	  FT_BOOLEAN, 24, NULL, 0x00000001,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_panic,
-      { "Panic", "r3.lockstate.panic",
-	  FT_BOOLEAN, 24, NULL, 0x00000002,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_lockout,
-      { "Lockout", "r3.lockstate.lockout",
-	  FT_BOOLEAN, 24, NULL, 0x00000004,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_relock,
-      { "Relock", "r3.lockstate.relock",
-	  FT_BOOLEAN, 24, NULL, 0x00000008,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_autoopen,
-      { "Auto Open", "r3.lockstate.autoopen",
-	  FT_BOOLEAN, 24, NULL, 0x00000010,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_nextauto,
-      { "Next Auto", "r3.lockstate.nextauto",
-	  FT_BOOLEAN, 24, NULL, 0x00000020,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_lockstate,
-      { "Lock State", "r3.lockstate.lockstate",
-	  FT_BOOLEAN, 24, NULL, 0x00000040,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_wantstate,
-      { "Want State", "r3.lockstate.wantstate",
-	  FT_BOOLEAN, 24, NULL, 0x00000080,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_remote,
-      { "Remote", "r3.lockstate.remote",
-	  FT_BOOLEAN, 24, NULL, 0x00000100,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_update,
-      { "Update", "r3.lockstate.update",
-	  FT_BOOLEAN, 24, NULL, 0x00000200,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_exceptionspresent,
-      { "Exceptions Present", "r3.lockstate.exceptionspresent",
-	  FT_BOOLEAN, 24, NULL, 0x00000400,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_exceptionsactive,
-      { "Exceptions Active", "r3.lockstate.exceptionsactive",
-	  FT_BOOLEAN, 24, NULL, 0x00000800,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_timezonespresent,
-      { "Timezones Presents", "r3.lockstate.timezonespresent",
-	  FT_BOOLEAN, 24, NULL, 0x00001000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_timezonesactive,
-      { "Timezones Active", "r3.lockstate.timezonesactive",
-	  FT_BOOLEAN, 24, NULL, 0x00002000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_autounlockspresent,
-      { "Auto Unlocks Present", "r3.lockstate.autounlockspresent",
-	  FT_BOOLEAN, 24, NULL, 0x00004000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_autounlocksactive,
-      { "Auto Unlocks Active", "r3.lockstate.autounlocksactive",
-	  FT_BOOLEAN, 24, NULL, 0x00008000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_uapmspresent,
-      { "UAPMs Present", "r3.lockstate.uapmspresent",
-	  FT_BOOLEAN, 24, NULL, 0x00010000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_uapmsactive,
-      { "UAPMs Active", "r3.lockstate.uapmsactive",
-	  FT_BOOLEAN, 24, NULL, 0x00020000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_uapmrelockspresent,
-      { "UAPM Relocks Present", "r3.lockstate.uapmrelockspresent",
-	  FT_BOOLEAN, 24, NULL, 0x00040000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_uapmreslocksactive,
-      { "UAPM Relocks Active", "r3.lockstate.uapmreslocksactive",
-	  FT_BOOLEAN, 24, NULL, 0x00080000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_nvramprotect,
-      { "NVRAM Protect", "r3.lockstate.nvramprotect",
-	  FT_BOOLEAN, 24, NULL, 0x00100000,
-	  NULL, HFILL }
-    },
-    { &hf_r3_lockstate_nvramchecksum,
-      { "MVRAM Checksum", "r3.lockstate.nvramchecksum",
-	  FT_BOOLEAN, 24, NULL, 0x00200000,
-	  NULL, HFILL }
-    },
+      { &hf_r3_peekpoke_operation,
+        { "Operation", "r3.peekpoke.operation",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_peekpokenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_address,
+        { "Address", "r3.peekpoke.address",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_length,
+        { "Length", "r3.peekpoke.length",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_poke8,
+        { "8 Bit Value", "r3.peekpoke.poke8",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_poke16,
+        { "16 Bit Value", "r3.peekpoke.poke16",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_poke24,
+        { "24 Bit Value", "r3.peekpoke.poke24",
+          FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_poke32,
+        { "32 Bit Value", "r3.peekpoke.poke32",
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_peekpoke_pokestring,
+        { "String Value", "r3.peekpoke.pokestring",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-  #if 0
-    { &hf_r3_mortisestatelog,
-      { "Mortise State Log", "r3.mortisestatelog",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-  #endif
-    { &hf_r3_mortisestatelog_pointer,
-      { "Event Pointer", "r3.mortisestatelog.pointer",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisestatelog_mortisetype,
-      { "Mortise Type", "r3.mortisestatelog.mortisetype",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortisetypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisestatelog_waiting,
-      { "Waiting For Door Closed", "r3.mortisestatelog.waiting",
-	  FT_BOOLEAN, BASE_NONE, TFS (&tfs_true_false ), 0x00,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisestatelog_state,
-      { "State", "r3.mortisestatelog.state",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisestatelog_last,
-      { "Last State", "r3.mortisestatelog.laststate",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_mortisestatelog_event,
-      { "Event", "r3.mortisestatelog.event",
-	  FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortiseeventnames_ext, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_firmwaredownload_length,
+        { "Length", "r3.firmwaredownload.length",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_record,
+        { "Record Number", "r3.firmwaredownload.record",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_action,
+        { "Action", "r3.firmwaredownload.action",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_downloadfirmwarenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_timeout,
+        { "Timeout", "r3.firmwaredownload.timeout",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_nvram,
+        { "NVRAM", "r3.firmwaredownload.nvram",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_address,
+        { "Address", "r3.firmwaredownload.address",
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_bytes,
+        { "Bytes", "r3.firmwaredownload.bytes",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_data,
+        { "Data", "r3.firmwaredownload.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_crc,
+        { "CRC", "r3.firmwaredownload.crc",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_firmwaredownload_crc_bad,
+        { "Bad CRC", "r3.firmwaredownload.crc_bad",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_timerchain_newtick,
-      { "New Tick", "r3.timerchain.newtick",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_currentboundary,
-      { "Current Boundary", "r3.timerchain.currentboundary",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_tasktag,
-      { "Task Tag", "r3.timerchain.tasktag",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_address,
-      { "Address", "r3.timerchain.address",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_reload,
-      { "Reload", "r3.timerchain.reload",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_boundary,
-      { "Boundary", "r3.timerchain.boundary",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_count,
-      { "Count", "r3.timerchain.count",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_timerchain_flags,
-      { "Flags", "r3.timerchain.flags",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_nvramchecksumvalue,
+        { "Value", "r3.nvramchecksum.value",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramchecksumvalue_fixup,
+        { "Fixup", "r3.nvramchecksum.fixup",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_taskflags_taskid,
-      { "Task ID", "r3.taskflags.taskid",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_taskflags_flags,
-      { "Flags", "r3.taskflags.flags",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_capabilities,
+        { "Capability", "r3.capabilities",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_capabilities_length,
+        { "Length", "r3.capabilities.length",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_capabilities_type,
+        { "Type", "r3.capabilities.type",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_capabilitiesnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_capabilities_value,
+        { "Value", "r3.capabilities.value",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_checkpointlog_entryptr,
-      { "Entry Pointer", "r3.checkpointlog.entrypointer",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_checkpointlog_rcon,
-      { "RCON", "r3.checkpointlog.rcon",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_checkpointlog_checkpoint,
-      { "Checkpoint", "r3.checkpointlog.checkpoint",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_lockstate_passage,
+        { "Passage", "r3.lockstate.passage",
+          FT_BOOLEAN, 24, NULL, 0x00000001,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_panic,
+        { "Panic", "r3.lockstate.panic",
+          FT_BOOLEAN, 24, NULL, 0x00000002,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_lockout,
+        { "Lockout", "r3.lockstate.lockout",
+          FT_BOOLEAN, 24, NULL, 0x00000004,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_relock,
+        { "Relock", "r3.lockstate.relock",
+          FT_BOOLEAN, 24, NULL, 0x00000008,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_autoopen,
+        { "Auto Open", "r3.lockstate.autoopen",
+          FT_BOOLEAN, 24, NULL, 0x00000010,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_nextauto,
+        { "Next Auto", "r3.lockstate.nextauto",
+          FT_BOOLEAN, 24, NULL, 0x00000020,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_lockstate,
+        { "Lock State", "r3.lockstate.lockstate",
+          FT_BOOLEAN, 24, NULL, 0x00000040,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_wantstate,
+        { "Want State", "r3.lockstate.wantstate",
+          FT_BOOLEAN, 24, NULL, 0x00000080,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_remote,
+        { "Remote", "r3.lockstate.remote",
+          FT_BOOLEAN, 24, NULL, 0x00000100,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_update,
+        { "Update", "r3.lockstate.update",
+          FT_BOOLEAN, 24, NULL, 0x00000200,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_exceptionspresent,
+        { "Exceptions Present", "r3.lockstate.exceptionspresent",
+          FT_BOOLEAN, 24, NULL, 0x00000400,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_exceptionsactive,
+        { "Exceptions Active", "r3.lockstate.exceptionsactive",
+          FT_BOOLEAN, 24, NULL, 0x00000800,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_timezonespresent,
+        { "Timezones Presents", "r3.lockstate.timezonespresent",
+          FT_BOOLEAN, 24, NULL, 0x00001000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_timezonesactive,
+        { "Timezones Active", "r3.lockstate.timezonesactive",
+          FT_BOOLEAN, 24, NULL, 0x00002000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_autounlockspresent,
+        { "Auto Unlocks Present", "r3.lockstate.autounlockspresent",
+          FT_BOOLEAN, 24, NULL, 0x00004000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_autounlocksactive,
+        { "Auto Unlocks Active", "r3.lockstate.autounlocksactive",
+          FT_BOOLEAN, 24, NULL, 0x00008000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_uapmspresent,
+        { "UAPMs Present", "r3.lockstate.uapmspresent",
+          FT_BOOLEAN, 24, NULL, 0x00010000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_uapmsactive,
+        { "UAPMs Active", "r3.lockstate.uapmsactive",
+          FT_BOOLEAN, 24, NULL, 0x00020000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_uapmrelockspresent,
+        { "UAPM Relocks Present", "r3.lockstate.uapmrelockspresent",
+          FT_BOOLEAN, 24, NULL, 0x00040000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_uapmreslocksactive,
+        { "UAPM Relocks Active", "r3.lockstate.uapmreslocksactive",
+          FT_BOOLEAN, 24, NULL, 0x00080000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_nvramprotect,
+        { "NVRAM Protect", "r3.lockstate.nvramprotect",
+          FT_BOOLEAN, 24, NULL, 0x00100000,
+          NULL, HFILL }
+      },
+      { &hf_r3_lockstate_nvramchecksum,
+        { "MVRAM Checksum", "r3.lockstate.nvramchecksum",
+          FT_BOOLEAN, 24, NULL, 0x00200000,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_cpuregisters_intcon,
-      { "INTCON", "r3.cpuregisters.intcon",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2,
-      { "INTCON2", "r3.cpuregisters.intcon2",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3,
-      { "INTCON3", "r3.cpuregisters.intcon3",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1,
-      { "PIR1", "r3.cpuregisters.pir1",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2,
-      { "PIR2", "r3.cpuregisters.pir2",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3,
-      { "PIR3", "r3.cpuregisters.pir3",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1,
-      { "PIE1", "r3.cpuregisters.pie1",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2,
-      { "PIE2", "r3.cpuregisters.pie2",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3,
-      { "PIE3", "r3.cpuregisters.pie3",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1,
-      { "IPR1", "r3.cpuregisters.ipr1",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2,
-      { "IPR2", "r3.cpuregisters.ipr2",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3,
-      { "IPR3", "r3.cpuregisters.ipr3",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon,
-      { "RCON", "r3.cpuregisters.rcon",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon,
-      { "OSCCON", "r3.cpuregisters.osccon",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta,
-      { "RCSTA", "r3.cpuregisters.rcsta",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta,
-      { "TXSTA", "r3.cpuregisters.txsta",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2,
-      { "RCSTA2", "r3.cpuregisters.rcsta2",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2,
-      { "TXSTA2", "r3.cpuregisters.txsta2",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon,
-      { "WDTCON", "r3.cpuregisters.wdtcon",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+#if 0
+      { &hf_r3_mortisestatelog,
+        { "Mortise State Log", "r3.mortisestatelog",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
+      { &hf_r3_mortisestatelog_pointer,
+        { "Event Pointer", "r3.mortisestatelog.pointer",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisestatelog_mortisetype,
+        { "Mortise Type", "r3.mortisestatelog.mortisetype",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortisetypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisestatelog_waiting,
+        { "Waiting For Door Closed", "r3.mortisestatelog.waiting",
+          FT_BOOLEAN, BASE_NONE, TFS (&tfs_true_false ), 0x00,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisestatelog_state,
+        { "State", "r3.mortisestatelog.state",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisestatelog_last,
+        { "Last State", "r3.mortisestatelog.laststate",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_mortisestatelog_event,
+        { "Event", "r3.mortisestatelog.event",
+          FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortiseeventnames_ext, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_cpuregisters_intcon_rbif,
-      { "INTCON.RBIF", "r3.cpuregisters.intcon.rbif",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_int0if,
-      { "INTCON.INT0IF", "r3.cpuregisters.intcon.int0if",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_tmr0if,
-      { "INTCON.TMR0IF", "r3.cpuregisters.intcon.tmr0if",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_rbie,
-      { "INTCON.RBIE", "r3.cpuregisters.intcon.rbie",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_int0ie,
-      { "INTCON.INT0IE", "r3.cpuregisters.intcon.int0ie",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_tmr0ie,
-      { "INTCON.TMR0IE", "r3.cpuregisters.intcon.tmr0ie",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_giel,
-      { "INTCON.GIEL", "r3.cpuregisters.intcon.giel",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon_gieh,
-      { "INTCON.GIEH", "r3.cpuregisters.intcon.gieh",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_rbip,
-      { "INTCON2.RBIP", "r3_cpuregisters_intcon2_rbip",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_int3ip,
-      { "INTCON2.INT3IP", "r3_cpuregisters_intcon2_int3ip",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_tmr0ip,
-      { "INTCON2.TMR0IP", "r3_cpuregisters_intcon2_tmr0ip",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_intedg3,
-      { "INTCON2.INTEDG3", "r3_cpuregisters_intcon2_intedg3",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_intedg2,
-      { "INTCON2.INTEDG2", "r3_cpuregisters_intcon2_intedg2",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_intedg1,
-      { "INTCON2.INTEDG1", "r3_cpuregisters_intcon2_intedg1",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_intedg0,
-      { "INTCON2.INTEDG0", "r3_cpuregisters_intcon2_intedg0",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon2_rbpu,
-      { "INTCON2.RBPU", "r3_cpuregisters_intcon2_rbpu",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int1if,
-      { "INTCON3.INT1IF", "r3.cpuregisters.intcon3.int1if",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int2if,
-      { "INTCON3.INT2IF", "r3.cpuregisters.intcon3.int2if",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int3if,
-      { "INTCON3.INT3IF", "r3.cpuregisters.intcon3.int3if",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int1ie,
-      { "INTCON3.INT1IE", "r3.cpuregisters.intcon3.int1ie",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int2ie,
-      { "INTCON3.INT2IE", "r3.cpuregisters.intcon3.int2ie",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int3ie,
-      { "INTCON3.INT3IE", "r3.cpuregisters.intcon3.int3ie",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int1ip,
-      { "INTCON3.INT1IP", "r3.cpuregisters.intcon3.int1ip",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_intcon3_int2ip,
-      { "INTCON3.INT2IP", "r3.cpuregisters.intcon3.int2ip",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_tmr1if,
-      { "PIR1.TMR1IF", "r3.cpuregisters.pir1.tmr1if",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_tmr2if,
-      { "PIR1.TMR2IF", "r3.cpuregisters.pir1.tmr2if",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_ccp1if,
-      { "PIR1.CCP1IF", "r3.cpuregisters.pir1.ccp1if",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_ssp1if,
-      { "PIR1.SSP1IF", "r3.cpuregisters.pir1.ssp1if",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_tx1if,
-      { "PIR1.TX1IF", "r3.cpuregisters.pir1.tx1if",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_rc1if,
-      { "PIR1.RC1IF", "r3.cpuregisters.pir1.rc1if",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_adif,
-      { "PIR1.ADIF", "r3.cpuregisters.pir1.adif",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir1_pspif,
-      { "PIR1.PSPIF", "r3.cpuregisters.pir1.pspif",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_ccp2if,
-      { "PIR2.CCP2IF", "r3.cpuregisters.pir2.ccp2if",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_tmr3if,
-      { "PIR2.TMR3IF", "r3.cpuregisters.pir2.tmr3if",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_hlvdif,
-      { "PIR2.HLVDIF", "r3.cpuregisters.pir2.hlvdif",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_bcl1if,
-      { "PIR2.BCL1IF", "r3.cpuregisters.pir2.bcl1if",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_eeif,
-      { "PIR2.EEIF", "r3.cpuregisters.pir2.eeif",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_unused5,
-      { "PIR2.UNUSED5", "r3.cpuregisters.pir2.unused5",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_cmif,
-      { "PIR2.CMIF", "r3.cpuregisters.pir2.cmif",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir2_oscfif,
-      { "PIR2.OSCFIF", "r3.cpuregisters.pir2.oscfif",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_ccp3if,
-      { "PIR3.CCP3IF", "r3.cpuregisters.pir3.ccp3if",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_ccp4if,
-      { "PIR3.CCP4IF", "r3.cpuregisters.pir3.ccp4if",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_ccp5if,
-      { "PIR3.CCP5IF", "r3.cpuregisters.pir3.ccp5if",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_tmr4if,
-      { "PIR3.TMR4IF", "r3.cpuregisters.pir3.tmr4if",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_tx2if,
-      { "PIR3.TX2IF", "r3.cpuregisters.pir3.tx2if",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_rc2if,
-      { "PIR3.RC2IF", "r3.cpuregisters.pir3.rc2if",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_bcl2if,
-      { "PIR3.BCL2IF", "r3.cpuregisters.pir3.bcl2if",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pir3_ssp2if,
-      { "PIR3.SSP2IF", "r3.cpuregisters.pir3.ssp2if",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_tmr1ie,
-      { "PIE1.TMR1IE", "r3.cpuregisters.pie1.tmr1ie",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_tmr2ie,
-      { "PIE1.TMR2IE", "r3.cpuregisters.pie1.tmr2ie",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_ccp1ie,
-      { "PIE1.CCP1IE", "r3.cpuregisters.pie1.ccp1ie",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_ssp1ie,
-      { "PIE1.SSP1IE", "r3.cpuregisters.pie1.ssp1ie",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_tx1ie,
-      { "PIE1.TX1IE", "r3.cpuregisters.pie1.tx1ie",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_rc1ie,
-      { "PIE1.RC1IE", "r3.cpuregisters.pie1.rc1ie",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_adie,
-      { "PIE1.ADIE", "r3.cpuregisters.pie1.adie",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie1_pspie,
-      { "PIE1.PSPIE", "r3.cpuregisters.pie1.pspie",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_oscfie,
-      { "PIE2.OSCFIE", "r3.cpuregisters.pie2.oscfie",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_cmie,
-      { "PIE2.CMIE", "r3.cpuregisters.pie2.cmie",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_unused2,
-      { "PIE2.UNUSED2", "r3.cpuregisters.pie2.unused2",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_eeie,
-      { "PIE2.EEIE", "r3.cpuregisters.pie2.eeie",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_bcl1ie,
-      { "PIE2.BCL1IE", "r3.cpuregisters.pie2.bcl1ie",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_hlvdie,
-      { "PIE2.HLVDIE", "r3.cpuregisters.pie2.hlvdie",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_tmr3ie,
-      { "PIE2.TMR3IE", "r3.cpuregisters.pie2.tmr3ie",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie2_ccp2ie,
-      { "PIE2.CCP2IE", "r3.cpuregisters.pie2.ccp2ie",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_ccp3ie,
-      { "PIE3.CCP3IE", "r3.cpuregisters.pie3.ccp3ie",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_ccp4ie,
-      { "PIE3.CCP4IE", "r3.cpuregisters.pie3.ccp4ie",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_ccp5ie,
-      { "PIE3.CCP5IE", "r3.cpuregisters.pie3.ccp5ie",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_tmr4ie,
-      { "PIE3.TMR4IE", "r3.cpuregisters.pie3.tmr4ie",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_tx2ie,
-      { "PIE3.TX2IE", "r3.cpuregisters.pie3.tx2ie",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_rc2ie,
-      { "PIE3.RC2IE", "r3.cpuregisters.pie3.rc2ie",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_bcl2ie,
-      { "PIE3.BCL2IE", "r3.cpuregisters.pie3.bcl2ie",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_pie3_ssp2ie,
-      { "PIE3.SSP2IE", "r3.cpuregisters.pie3.ssp2ie",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_tmr1ip,
-      { "IPR1.TMR1IP", "r3.cpuregisters.ipr1.tmr1ip",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_tmr2ip,
-      { "IPR1.TMR2IP", "r3.cpuregisters.ipr1.tmr2ip",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_ccp1ip,
-      { "IPR1.CCP1IP", "r3.cpuregisters.ipr1.ccp1ip",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_ssp1ip,
-      { "IPR1.SSP1IP", "r3.cpuregisters.ipr1.ssp1ip",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_tx1ip,
-      { "IPR1.TX1IP", "r3.cpuregisters.ipr1.tx1ip",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_rc1ip,
-      { "IPR1.RC1IP", "r3.cpuregisters.ipr1.rc1ip",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_adip,
-      { "IPR1.ADIP", "r3.cpuregisters.ipr1.adip",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr1_pspip,
-      { "IPR1.PSPIP", "r3.cpuregisters.ipr1.pspip",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_ccp2ip,
-      { "IPR2.CCP2IP", "r3.cpuregisters.ipr2.ccp2ip",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_tmr3ip,
-      { "IPR2.TMR3IP", "r3.cpuregisters.ipr2.tmr3ip",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_hlvdip,
-      { "IPR2.HLVDIP", "r3.cpuregisters.ipr2.hlvdip",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_bcl1ip,
-      { "IPR2.BCL1IP", "r3.cpuregisters.ipr2.bcl1ip",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_eeip,
-      { "IPR2.EEIP", "r3.cpuregisters.ipr2.eeip",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_unused5,
-      { "IPR2.UNUSED5", "r3.cpuregisters.ipr2.unused5",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_cmip,
-      { "IPR2.CMIP", "r3.cpuregisters.ipr2.cmip",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr2_oscfip,
-      { "IPR2.OSCFIP", "r3.cpuregisters.ipr2.oscfip",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_ccp2ip,
-      { "IPR3.CCP2IP", "r3.cpuregisters.ipr3.ccp2ip",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_ccp4ip,
-      { "IPR3.CCP4IP", "r3.cpuregisters.ipr3.ccp4ip",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_ccp5ip,
-      { "IPR3.CCP5IP", "r3.cpuregisters.ipr3.ccp5ip",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_tmr4ip,
-      { "IPR3.TMR4IP", "r3.cpuregisters.ipr3.tmr4ip",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_tx2ip,
-      { "IPR3.TX2IP", "r3.cpuregisters.ipr3.tx2ip",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_rc2ip,
-      { "IPR3.RC2IP", "r3.cpuregisters.ipr3.rc2ip",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_bcl2ip,
-      { "IPR3.BCL2IP", "r3.cpuregisters.ipr3.bcl2ip",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_ipr3_ssp2ip,
-      { "IPR3.SSP2IP", "r3.cpuregisters.ipr3.ssp2ip",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_bor,
-      { "RCON./BOR", "r3.cpuregisters.rcon.bor",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_por,
-      { "RCON./POR", "r3.cpuregisters.rcon.por",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_pd,
-      { "RCON./PD", "r3.cpuregisters.rcon.pd",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_to,
-      { "RCON./TO", "r3.cpuregisters.rcon.to",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_unused4,
-      { "RCON.UNUSED4", "r3.cpuregisters.rcon.unused4",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_ri,
-      { "RCON./RI", "r3.cpuregisters.rcon.ri",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_sboren,
-      { "RCON.SBOREN", "r3.cpuregisters.rcon.sboren",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcon_ipen,
-      { "RCON.IPEN", "r3.cpuregisters.rcon.ipen",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_scs0,
-      { "OSCCON.SCS0", "r3.cpuregisters.osccon.scs0",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_scs1,
-      { "OSCCON.SCS1", "r3.cpuregisters.osccon.scs1",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_iofs,
-      { "OSCCON.IOFS", "r3.cpuregisters.osccon.iofs",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_osts,
-      { "OSCCON.OSTS", "r3.cpuregisters.osccon.osts",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_ircf0,
-      { "OSCCON.IRCF0", "r3.cpuregisters.osccon.ircf0",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_ircf1,
-      { "OSCCON.IRCF1", "r3.cpuregisters.osccon.ircf1",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_ircf2,
-      { "OSCCON.IRCF2", "r3.cpuregisters.osccon.ircf2",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_osccon_idlen,
-      { "OSCCON.IDLEN", "r3.cpuregisters.osccon.idlen",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_rx9d,
-      { "RCSTA.RX9D", "r3.cpuregisters.rcsta.rx9d",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_oerr,
-      { "RCSTA.OERR", "r3.cpuregisters.rcsta.oerr",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_ferr,
-      { "RCSTA.FERR", "r3.cpuregisters.rcsta.ferr",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_adden,
-      { "RCSTA.ADDEN", "r3.cpuregisters.rcsta.adden",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_cren,
-      { "RCSTA.CREN", "r3.cpuregisters.rcsta.cren",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_sren,
-      { "RCSTA.SREN", "r3.cpuregisters.rcsta.sren",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_rx9,
-      { "RCSTA.RX9", "r3.cpuregisters.rcsta.rx9",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta_spen,
-      { "RCSTA.SPEN", "r3.cpuregisters.rcsta.spen",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_tx9d,
-      { "TXSTA.TX9D", "r3.cpuregisters.txsta.tx9d",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_trmt,
-      { "TXSTA.TRMT", "r3.cpuregisters.txsta.trmt",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_brgh,
-      { "TXSTA.BRGH", "r3.cpuregisters.txsta.brgh",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_sendb,
-      { "TXSTA.SENDB", "r3.cpuregisters.txsta.sendb",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_sync,
-      { "TXSTA.SYNC", "r3.cpuregisters.txsta.sync",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_txen,
-      { "TXSTA.TXEN", "r3.cpuregisters.txsta.txen",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_tx9,
-      { "TXSTA.TX9", "r3.cpuregisters.txsta.tx9",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta_csrc,
-      { "TXSTA.CSRC", "r3.cpuregisters.txsta.csrc",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_rx9d,
-      { "RCSTA2.RX9D", "r3.cpuregisters.rcsta2.rx9d",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_oerr,
-      { "RCSTA2.OERR", "r3.cpuregisters.rcsta2.oerr",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_ferr,
-      { "RCSTA2.FERR", "r3.cpuregisters.rcsta2.ferr",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_adden,
-      { "RCSTA2.ADDEN", "r3.cpuregisters.rcsta2.adden",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_cren,
-      { "RCSTA2.CREN", "r3.cpuregisters.rcsta2.cren",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_sren,
-      { "RCSTA2.SREN", "r3.cpuregisters.rcsta2.sren",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_rx9,
-      { "RCSTA2.RX9", "r3.cpuregisters.rcsta2.rx9",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_rcsta2_spen,
-      { "RCSTA2.SPEN", "r3.cpuregisters.rcsta2.spen",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_tx9d,
-      { "TXSTA2.TX9D", "r3.cpuregisters.txsta2.tx9d",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_trmt,
-      { "TXSTA2.TRMT", "r3.cpuregisters.txsta2.trmt",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_brgh,
-      { "TXSTA2.BRGH", "r3.cpuregisters.txsta2.brgh",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_sendb,
-      { "TXSTA2.SENDB", "r3.cpuregisters.txsta2.sendb",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_sync,
-      { "TXSTA2.SYNC", "r3.cpuregisters.txsta2.sync",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_txen,
-      { "TXSTA2.TXEN", "r3.cpuregisters.txsta2.txen",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_tx9,
-      { "TXSTA2.TX9", "r3.cpuregisters.txsta2.tx9",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_txsta2_csrc,
-      { "TXSTA2.CSRC", "r3.cpuregisters.txsta2.csrc",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_swdten,
-      { "WDTCON.SWDTEN", "r3.cpuregisters.wdtcon.swdten",
-	  FT_BOOLEAN, 8, NULL, 0x01,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused1,
-      { "WDTCON.UNUSED1", "r3.cpuregisters.wdtcon.unused1",
-	  FT_BOOLEAN, 8, NULL, 0x02,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused2,
-      { "WDTCON.UNUSED2", "r3.cpuregisters.wdtcon.unused2",
-	  FT_BOOLEAN, 8, NULL, 0x04,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused3,
-      { "WDTCON.UNUSED3", "r3.cpuregisters.wdtcon.unused3",
-	  FT_BOOLEAN, 8, NULL, 0x08,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused4,
-      { "WDTCON.UNUSED4", "r3.cpuregisters.wdtcon.unused4",
-	  FT_BOOLEAN, 8, NULL, 0x10,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused5,
-      { "WDTCON.UNUSED5", "r3.cpuregisters.wdtcon.unused5",
-	  FT_BOOLEAN, 8, NULL, 0x20,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused6,
-      { "WDTCON.UNUSED6", "r3.cpuregisters.wdtcon.unused6",
-	  FT_BOOLEAN, 8, NULL, 0x40,
-	  NULL, HFILL }
-    },
-    { &hf_r3_cpuregisters_wdtcon_unused7,
-      { "WDTCON.UNUSED7", "r3.cpuregisters.wdtcon.unused7",
-	  FT_BOOLEAN, 8, NULL, 0x80,
-	  NULL, HFILL }
-    },
+      { &hf_r3_timerchain_newtick,
+        { "New Tick", "r3.timerchain.newtick",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_currentboundary,
+        { "Current Boundary", "r3.timerchain.currentboundary",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_tasktag,
+        { "Task Tag", "r3.timerchain.tasktag",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_address,
+        { "Address", "r3.timerchain.address",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_reload,
+        { "Reload", "r3.timerchain.reload",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_boundary,
+        { "Boundary", "r3.timerchain.boundary",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_count,
+        { "Count", "r3.timerchain.count",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_timerchain_flags,
+        { "Flags", "r3.timerchain.flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dumpm41t81_reg00,
-      { "REG 0x00", "r3.m41t81.reg00",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg01,
-      { "REG 0x01", "r3.m41t81.reg01",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg02,
-      { "REG 0x02", "r3.m41t81.reg02",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg03,
-      { "REG 0x03", "r3.m41t81.reg03",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg04,
-      { "REG 0x04", "r3.m41t81.reg04",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg05,
-      { "REG 0x05", "r3.m41t81.reg05",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg06,
-      { "REG 0x06", "r3.m41t81.reg06",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg07,
-      { "REG 0x07", "r3.m41t81.reg07",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg08,
-      { "REG 0x08", "r3.m41t81.reg08",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg09,
-      { "REG 0x09", "r3.m41t81.reg09",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0a,
-      { "REG 0x0a", "r3.m41t81.reg0a",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0b,
-      { "REG 0x0b", "r3.m41t81.reg0b",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0c,
-      { "REG 0x0c", "r3.m41t81.reg0c",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0d,
-      { "REG 0x0d", "r3.m41t81.reg0d",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0e,
-      { "REG 0x0e", "r3.m41t81.reg0e",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0f,
-      { "REG 0x0f", "r3.m41t81.reg0f",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg10,
-      { "REG 0x10", "r3.m41t81.reg10",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg11,
-      { "REG 0x11", "r3.m41t81.reg11",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg12,
-      { "REG 0x12", "r3.m41t81.reg12",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg13,
-      { "REG 0x13", "r3.m41t81.reg13",
-	  FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_taskflags_taskid,
+        { "Task ID", "r3.taskflags.taskid",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_taskflags_flags,
+        { "Flags", "r3.taskflags.flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_dumpm41t81_reg00_sec1,
-      { ".1 Seconds", "r3.m41t81.reg00.sec1",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg00_sec01,
-      { ".01 Seconds", "r3.m41t81.reg00.sec01",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg01_st,
-      { "ST", "r3.m41t81.reg01.st",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg01_10sec,
-      { "10 Seconds", "r3.m41t81.reg01.10sec",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg01_1sec,
-      { "1 Seconds", "r3.m41t81.reg01.1sec",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg02_notused,
-      { "(not used)", "r3.m41t81.reg02.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg02_10min,
-      { "10 Minutes", "r3.m41t81.reg02.10min",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg02_1min,
-      { "1 Minutes", "r3.m41t81.reg02.1min",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg03_cbe,
-      { "CBE", "r3.m41t81.reg03.cbe",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg03_cb,
-      { "CB", "r3.m41t81.reg03.cb",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg03_10hour,
-      { "10 Hours", "r3.m41t81.reg03.10hour",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg03_1hour,
-      { "1 Hours", "r3.m41t81.reg03.1hour",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg04_notused,
-      { "(not used)", "r3.m41t81.reg04.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg04_dow,
-      { "DOW", "r3.m41t81.reg04.dow",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg05_notused,
-      { "(not used)", "r3.m41t81.reg05.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg05_10day,
-      { "10 Day", "r3.m41t81.reg05.10day",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg05_1day,
-      { "1 Day", "r3.m41t81.reg05.1day",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg06_notused,
-      { "(not used)", "r3.m41t81.reg06.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg06_10month,
-      { "10 Month", "r3.m41t81.reg06.10month",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg06_1month,
-      { "1 Month", "r3.m41t81.reg06.1month",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg07_10year,
-      { "10 Year", "r3.m41t81.reg07.10year",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg07_1year,
-      { "1 Year", "r3.m41t81.reg07.1year",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg08_out,
-      { "OUT", "r3.m41t81.reg08.out",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg08_ft,
-      { "FT", "r3.m41t81.reg08.ft",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg08_s,
-      { "S", "r3.m41t81.reg08.s",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg08_cal,
-      { "CAL", "r3.m41t81.reg08.cal",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg09_notused,
-      { "(not used)", "r3.m41t81.reg09.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg09_bmb,
-      { "BMB", "r3.m41t81.reg09.bmb",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg09_rb,
-      { "RB", "r3.m41t81.reg09.rb",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0a_afe,
-      { "AFE", "r3.m41t81.reg0a.afe",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0a_sqwe,
-      { "SQWE", "r3.m41t81.reg0a.sqwe",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0a_abe,
-      { "ABE", "r3.m41t81.reg0a.abe",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0a_10monthalm,
-      { "10 Month Alarm", "r3.m41t81.reg0a.10monthalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0a_1monthalm,
-      { "1 Month Alarm", "r3.m41t81.reg0a.1monthalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0b_rpt5,
-      { "RPT5", "r3.m41t81.reg0b.rpt5",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0b_rpt4,
-      { "RPT4", "r3.m41t81.reg0b.rpt4",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0b_10dayalm,
-      { "10 Day Alarm", "r3.m41t81.reg0b.10dayalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0b_1dayalm,
-      { "1 Day Alarm", "r3.m41t81.reg0b.1dayalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0c_rpt3,
-      { "RPT3", "r3.m41t81.reg0c.rpt3",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0c_ht,
-      { "HT", "r3.m41t81.reg0c.ht",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0c_10houralm,
-      { "10 Hour Alarm", "r3.m41t81.reg0c.10houralm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0c_1houralm,
-      { "1 Hour Alarm", "r3.m41t81.reg0c.1houralm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0d_rpt2,
-      { "RPT2", "r3.m41t81.reg0d.rpt2",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0d_10minalm,
-      { "10 Min Alarm", "r3.m41t81.reg0d.10minalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0d_1minalm,
-      { "1 Min Alarm", "r3.m41t81.reg0d.1minalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0e_rpt1,
-      { "RPT1", "r3.m41t81.reg0e.rpt1",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0e_10secalm,
-      { "10 Sec Alarm", "r3.m41t81.reg0e.10secalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0e_1secalm,
-      { "1 Sec Alarm", "r3.m41t81.reg0e.1secalm",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0f_wdf,
-      { "WDF", "r3.m41t81.reg0f.wdf",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0f_af,
-      { "AF", "r3.m41t81.reg0f.af",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg0f_notused,
-      { "(not used)", "r3.m41t81.reg0f.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg10_notused,
-      { "(not used)", "r3.m41t81.reg10.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg11_notused,
-      { "(not used)", "r3.m41t81.reg11.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg12_notused,
-      { "(not used)", "r3.m41t81.reg12.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg13_rs,
-      { "RS", "r3.m41t81.reg13.rs",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_dumpm41t81_reg13_notused,
-      { "(not used)", "r3.m41t81.reg13.notused",
-	  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_checkpointlog_entryptr,
+        { "Entry Pointer", "r3.checkpointlog.entrypointer",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_checkpointlog_rcon,
+        { "RCON", "r3.checkpointlog.rcon",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_checkpointlog_checkpoint,
+        { "Checkpoint", "r3.checkpointlog.checkpoint",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_debuglog_recordnumber,
-      { "Record Number", "r3.debuglog.recordnumber",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_debuglog_flags,
-      { "Flags", "r3.debuglog.flags",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_debuglog_tick,
-      { "Tick", "r3.debuglog.tick",
-	  FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-	  NULL, HFILL }
-    },
+      { &hf_r3_cpuregisters_intcon,
+        { "INTCON", "r3.cpuregisters.intcon",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2,
+        { "INTCON2", "r3.cpuregisters.intcon2",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3,
+        { "INTCON3", "r3.cpuregisters.intcon3",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1,
+        { "PIR1", "r3.cpuregisters.pir1",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2,
+        { "PIR2", "r3.cpuregisters.pir2",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3,
+        { "PIR3", "r3.cpuregisters.pir3",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1,
+        { "PIE1", "r3.cpuregisters.pie1",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2,
+        { "PIE2", "r3.cpuregisters.pie2",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3,
+        { "PIE3", "r3.cpuregisters.pie3",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1,
+        { "IPR1", "r3.cpuregisters.ipr1",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2,
+        { "IPR2", "r3.cpuregisters.ipr2",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3,
+        { "IPR3", "r3.cpuregisters.ipr3",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon,
+        { "RCON", "r3.cpuregisters.rcon",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon,
+        { "OSCCON", "r3.cpuregisters.osccon",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta,
+        { "RCSTA", "r3.cpuregisters.rcsta",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta,
+        { "TXSTA", "r3.cpuregisters.txsta",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2,
+        { "RCSTA2", "r3.cpuregisters.rcsta2",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2,
+        { "TXSTA2", "r3.cpuregisters.txsta2",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon,
+        { "WDTCON", "r3.cpuregisters.wdtcon",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
 
-    { &hf_r3_adduserparamtype,
-      { "Upstream Field", "r3.manageuser",
-	  FT_NONE, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypelength,
-      { "Field Length", "r3.manageuser.length",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypetype,
-      { "Field Type", "r3.manageuser.type",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_adduserparamtypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-  #if 0
-    { &hf_r3_adduserparamtypedatalen,
-      { "Data Length", "r3.manageuser.datalen",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypeerror,
-      { "Error", "r3.manageuser.error",
-	  FT_STRING, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-  #endif
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_DISPOSITION],
-      { "Disposition", "r3.manageuser.disposition",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_dispositionnames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USERNO],
-      { "User Number", "r3.manageuser.usernumber",
-	  FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_ACCESSALWAYS],
-      { "Access Always", "r3.manageuser.accessalways",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_ACCESSMODE],
-      { "Access Mode", "r3.manageuser.accessmode",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_accessmodenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_CACHED],
-      { "Cached", "r3.manageuser.cached",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USERTYPE],
-      { "User Type", "r3.manageuser.usertype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_usertypenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_PRIMARYFIELD],
-      { "Primary Field", "r3.manageuser.primaryfield",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_PRIMARYFIELDTYPE],
-      { "Primary Field Type", "r3.manageuser.primaryfieldtype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_AUXFIELD],
-      { "Aux Field", "r3.manageuser.auxfield",
-	  FT_BYTES, BASE_NONE, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_AUXFIELDTYPE],
-      { "Aux Field Type", "r3.manageuser.auxfieldtype",
-	  FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USECOUNT],
-      { "Use Count", "r3.manageuser.usecount",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_EXCEPTIONGROUP],
-      { "Exception Group", "r3.manageuser.exceptiongroup",
-	  FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_EXPIREON],
-      { "Expire On", "r3.manageuser.expireon",
-	  FT_UINT24, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    },
-    { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_TIMEZONE],
-      { "Timezone", "r3.manageuser.timezone",
-	  FT_UINT32, BASE_HEX, NULL, 0x0,
-	  NULL, HFILL }
-    }
-  };
+      { &hf_r3_cpuregisters_intcon_rbif,
+        { "INTCON.RBIF", "r3.cpuregisters.intcon.rbif",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_int0if,
+        { "INTCON.INT0IF", "r3.cpuregisters.intcon.int0if",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_tmr0if,
+        { "INTCON.TMR0IF", "r3.cpuregisters.intcon.tmr0if",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_rbie,
+        { "INTCON.RBIE", "r3.cpuregisters.intcon.rbie",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_int0ie,
+        { "INTCON.INT0IE", "r3.cpuregisters.intcon.int0ie",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_tmr0ie,
+        { "INTCON.TMR0IE", "r3.cpuregisters.intcon.tmr0ie",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_giel,
+        { "INTCON.GIEL", "r3.cpuregisters.intcon.giel",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon_gieh,
+        { "INTCON.GIEH", "r3.cpuregisters.intcon.gieh",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_rbip,
+        { "INTCON2.RBIP", "r3_cpuregisters_intcon2_rbip",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_int3ip,
+        { "INTCON2.INT3IP", "r3_cpuregisters_intcon2_int3ip",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_tmr0ip,
+        { "INTCON2.TMR0IP", "r3_cpuregisters_intcon2_tmr0ip",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_intedg3,
+        { "INTCON2.INTEDG3", "r3_cpuregisters_intcon2_intedg3",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_intedg2,
+        { "INTCON2.INTEDG2", "r3_cpuregisters_intcon2_intedg2",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_intedg1,
+        { "INTCON2.INTEDG1", "r3_cpuregisters_intcon2_intedg1",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_intedg0,
+        { "INTCON2.INTEDG0", "r3_cpuregisters_intcon2_intedg0",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon2_rbpu,
+        { "INTCON2.RBPU", "r3_cpuregisters_intcon2_rbpu",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int1if,
+        { "INTCON3.INT1IF", "r3.cpuregisters.intcon3.int1if",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int2if,
+        { "INTCON3.INT2IF", "r3.cpuregisters.intcon3.int2if",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int3if,
+        { "INTCON3.INT3IF", "r3.cpuregisters.intcon3.int3if",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int1ie,
+        { "INTCON3.INT1IE", "r3.cpuregisters.intcon3.int1ie",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int2ie,
+        { "INTCON3.INT2IE", "r3.cpuregisters.intcon3.int2ie",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int3ie,
+        { "INTCON3.INT3IE", "r3.cpuregisters.intcon3.int3ie",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int1ip,
+        { "INTCON3.INT1IP", "r3.cpuregisters.intcon3.int1ip",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_intcon3_int2ip,
+        { "INTCON3.INT2IP", "r3.cpuregisters.intcon3.int2ip",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_tmr1if,
+        { "PIR1.TMR1IF", "r3.cpuregisters.pir1.tmr1if",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_tmr2if,
+        { "PIR1.TMR2IF", "r3.cpuregisters.pir1.tmr2if",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_ccp1if,
+        { "PIR1.CCP1IF", "r3.cpuregisters.pir1.ccp1if",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_ssp1if,
+        { "PIR1.SSP1IF", "r3.cpuregisters.pir1.ssp1if",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_tx1if,
+        { "PIR1.TX1IF", "r3.cpuregisters.pir1.tx1if",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_rc1if,
+        { "PIR1.RC1IF", "r3.cpuregisters.pir1.rc1if",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_adif,
+        { "PIR1.ADIF", "r3.cpuregisters.pir1.adif",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir1_pspif,
+        { "PIR1.PSPIF", "r3.cpuregisters.pir1.pspif",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_ccp2if,
+        { "PIR2.CCP2IF", "r3.cpuregisters.pir2.ccp2if",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_tmr3if,
+        { "PIR2.TMR3IF", "r3.cpuregisters.pir2.tmr3if",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_hlvdif,
+        { "PIR2.HLVDIF", "r3.cpuregisters.pir2.hlvdif",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_bcl1if,
+        { "PIR2.BCL1IF", "r3.cpuregisters.pir2.bcl1if",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_eeif,
+        { "PIR2.EEIF", "r3.cpuregisters.pir2.eeif",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_unused5,
+        { "PIR2.UNUSED5", "r3.cpuregisters.pir2.unused5",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_cmif,
+        { "PIR2.CMIF", "r3.cpuregisters.pir2.cmif",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir2_oscfif,
+        { "PIR2.OSCFIF", "r3.cpuregisters.pir2.oscfif",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_ccp3if,
+        { "PIR3.CCP3IF", "r3.cpuregisters.pir3.ccp3if",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_ccp4if,
+        { "PIR3.CCP4IF", "r3.cpuregisters.pir3.ccp4if",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_ccp5if,
+        { "PIR3.CCP5IF", "r3.cpuregisters.pir3.ccp5if",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_tmr4if,
+        { "PIR3.TMR4IF", "r3.cpuregisters.pir3.tmr4if",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_tx2if,
+        { "PIR3.TX2IF", "r3.cpuregisters.pir3.tx2if",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_rc2if,
+        { "PIR3.RC2IF", "r3.cpuregisters.pir3.rc2if",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_bcl2if,
+        { "PIR3.BCL2IF", "r3.cpuregisters.pir3.bcl2if",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pir3_ssp2if,
+        { "PIR3.SSP2IF", "r3.cpuregisters.pir3.ssp2if",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_tmr1ie,
+        { "PIE1.TMR1IE", "r3.cpuregisters.pie1.tmr1ie",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_tmr2ie,
+        { "PIE1.TMR2IE", "r3.cpuregisters.pie1.tmr2ie",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_ccp1ie,
+        { "PIE1.CCP1IE", "r3.cpuregisters.pie1.ccp1ie",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_ssp1ie,
+        { "PIE1.SSP1IE", "r3.cpuregisters.pie1.ssp1ie",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_tx1ie,
+        { "PIE1.TX1IE", "r3.cpuregisters.pie1.tx1ie",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_rc1ie,
+        { "PIE1.RC1IE", "r3.cpuregisters.pie1.rc1ie",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_adie,
+        { "PIE1.ADIE", "r3.cpuregisters.pie1.adie",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie1_pspie,
+        { "PIE1.PSPIE", "r3.cpuregisters.pie1.pspie",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_oscfie,
+        { "PIE2.OSCFIE", "r3.cpuregisters.pie2.oscfie",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_cmie,
+        { "PIE2.CMIE", "r3.cpuregisters.pie2.cmie",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_unused2,
+        { "PIE2.UNUSED2", "r3.cpuregisters.pie2.unused2",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_eeie,
+        { "PIE2.EEIE", "r3.cpuregisters.pie2.eeie",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_bcl1ie,
+        { "PIE2.BCL1IE", "r3.cpuregisters.pie2.bcl1ie",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_hlvdie,
+        { "PIE2.HLVDIE", "r3.cpuregisters.pie2.hlvdie",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_tmr3ie,
+        { "PIE2.TMR3IE", "r3.cpuregisters.pie2.tmr3ie",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie2_ccp2ie,
+        { "PIE2.CCP2IE", "r3.cpuregisters.pie2.ccp2ie",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_ccp3ie,
+        { "PIE3.CCP3IE", "r3.cpuregisters.pie3.ccp3ie",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_ccp4ie,
+        { "PIE3.CCP4IE", "r3.cpuregisters.pie3.ccp4ie",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_ccp5ie,
+        { "PIE3.CCP5IE", "r3.cpuregisters.pie3.ccp5ie",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_tmr4ie,
+        { "PIE3.TMR4IE", "r3.cpuregisters.pie3.tmr4ie",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_tx2ie,
+        { "PIE3.TX2IE", "r3.cpuregisters.pie3.tx2ie",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_rc2ie,
+        { "PIE3.RC2IE", "r3.cpuregisters.pie3.rc2ie",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_bcl2ie,
+        { "PIE3.BCL2IE", "r3.cpuregisters.pie3.bcl2ie",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_pie3_ssp2ie,
+        { "PIE3.SSP2IE", "r3.cpuregisters.pie3.ssp2ie",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_tmr1ip,
+        { "IPR1.TMR1IP", "r3.cpuregisters.ipr1.tmr1ip",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_tmr2ip,
+        { "IPR1.TMR2IP", "r3.cpuregisters.ipr1.tmr2ip",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_ccp1ip,
+        { "IPR1.CCP1IP", "r3.cpuregisters.ipr1.ccp1ip",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_ssp1ip,
+        { "IPR1.SSP1IP", "r3.cpuregisters.ipr1.ssp1ip",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_tx1ip,
+        { "IPR1.TX1IP", "r3.cpuregisters.ipr1.tx1ip",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_rc1ip,
+        { "IPR1.RC1IP", "r3.cpuregisters.ipr1.rc1ip",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_adip,
+        { "IPR1.ADIP", "r3.cpuregisters.ipr1.adip",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr1_pspip,
+        { "IPR1.PSPIP", "r3.cpuregisters.ipr1.pspip",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_ccp2ip,
+        { "IPR2.CCP2IP", "r3.cpuregisters.ipr2.ccp2ip",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_tmr3ip,
+        { "IPR2.TMR3IP", "r3.cpuregisters.ipr2.tmr3ip",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_hlvdip,
+        { "IPR2.HLVDIP", "r3.cpuregisters.ipr2.hlvdip",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_bcl1ip,
+        { "IPR2.BCL1IP", "r3.cpuregisters.ipr2.bcl1ip",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_eeip,
+        { "IPR2.EEIP", "r3.cpuregisters.ipr2.eeip",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_unused5,
+        { "IPR2.UNUSED5", "r3.cpuregisters.ipr2.unused5",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_cmip,
+        { "IPR2.CMIP", "r3.cpuregisters.ipr2.cmip",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr2_oscfip,
+        { "IPR2.OSCFIP", "r3.cpuregisters.ipr2.oscfip",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_ccp2ip,
+        { "IPR3.CCP2IP", "r3.cpuregisters.ipr3.ccp2ip",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_ccp4ip,
+        { "IPR3.CCP4IP", "r3.cpuregisters.ipr3.ccp4ip",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_ccp5ip,
+        { "IPR3.CCP5IP", "r3.cpuregisters.ipr3.ccp5ip",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_tmr4ip,
+        { "IPR3.TMR4IP", "r3.cpuregisters.ipr3.tmr4ip",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_tx2ip,
+        { "IPR3.TX2IP", "r3.cpuregisters.ipr3.tx2ip",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_rc2ip,
+        { "IPR3.RC2IP", "r3.cpuregisters.ipr3.rc2ip",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_bcl2ip,
+        { "IPR3.BCL2IP", "r3.cpuregisters.ipr3.bcl2ip",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_ipr3_ssp2ip,
+        { "IPR3.SSP2IP", "r3.cpuregisters.ipr3.ssp2ip",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_bor,
+        { "RCON./BOR", "r3.cpuregisters.rcon.bor",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_por,
+        { "RCON./POR", "r3.cpuregisters.rcon.por",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_pd,
+        { "RCON./PD", "r3.cpuregisters.rcon.pd",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_to,
+        { "RCON./TO", "r3.cpuregisters.rcon.to",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_unused4,
+        { "RCON.UNUSED4", "r3.cpuregisters.rcon.unused4",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_ri,
+        { "RCON./RI", "r3.cpuregisters.rcon.ri",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_sboren,
+        { "RCON.SBOREN", "r3.cpuregisters.rcon.sboren",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcon_ipen,
+        { "RCON.IPEN", "r3.cpuregisters.rcon.ipen",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_scs0,
+        { "OSCCON.SCS0", "r3.cpuregisters.osccon.scs0",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_scs1,
+        { "OSCCON.SCS1", "r3.cpuregisters.osccon.scs1",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_iofs,
+        { "OSCCON.IOFS", "r3.cpuregisters.osccon.iofs",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_osts,
+        { "OSCCON.OSTS", "r3.cpuregisters.osccon.osts",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_ircf0,
+        { "OSCCON.IRCF0", "r3.cpuregisters.osccon.ircf0",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_ircf1,
+        { "OSCCON.IRCF1", "r3.cpuregisters.osccon.ircf1",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_ircf2,
+        { "OSCCON.IRCF2", "r3.cpuregisters.osccon.ircf2",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_osccon_idlen,
+        { "OSCCON.IDLEN", "r3.cpuregisters.osccon.idlen",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_rx9d,
+        { "RCSTA.RX9D", "r3.cpuregisters.rcsta.rx9d",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_oerr,
+        { "RCSTA.OERR", "r3.cpuregisters.rcsta.oerr",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_ferr,
+        { "RCSTA.FERR", "r3.cpuregisters.rcsta.ferr",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_adden,
+        { "RCSTA.ADDEN", "r3.cpuregisters.rcsta.adden",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_cren,
+        { "RCSTA.CREN", "r3.cpuregisters.rcsta.cren",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_sren,
+        { "RCSTA.SREN", "r3.cpuregisters.rcsta.sren",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_rx9,
+        { "RCSTA.RX9", "r3.cpuregisters.rcsta.rx9",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta_spen,
+        { "RCSTA.SPEN", "r3.cpuregisters.rcsta.spen",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_tx9d,
+        { "TXSTA.TX9D", "r3.cpuregisters.txsta.tx9d",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_trmt,
+        { "TXSTA.TRMT", "r3.cpuregisters.txsta.trmt",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_brgh,
+        { "TXSTA.BRGH", "r3.cpuregisters.txsta.brgh",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_sendb,
+        { "TXSTA.SENDB", "r3.cpuregisters.txsta.sendb",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_sync,
+        { "TXSTA.SYNC", "r3.cpuregisters.txsta.sync",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_txen,
+        { "TXSTA.TXEN", "r3.cpuregisters.txsta.txen",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_tx9,
+        { "TXSTA.TX9", "r3.cpuregisters.txsta.tx9",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta_csrc,
+        { "TXSTA.CSRC", "r3.cpuregisters.txsta.csrc",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_rx9d,
+        { "RCSTA2.RX9D", "r3.cpuregisters.rcsta2.rx9d",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_oerr,
+        { "RCSTA2.OERR", "r3.cpuregisters.rcsta2.oerr",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_ferr,
+        { "RCSTA2.FERR", "r3.cpuregisters.rcsta2.ferr",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_adden,
+        { "RCSTA2.ADDEN", "r3.cpuregisters.rcsta2.adden",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_cren,
+        { "RCSTA2.CREN", "r3.cpuregisters.rcsta2.cren",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_sren,
+        { "RCSTA2.SREN", "r3.cpuregisters.rcsta2.sren",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_rx9,
+        { "RCSTA2.RX9", "r3.cpuregisters.rcsta2.rx9",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_rcsta2_spen,
+        { "RCSTA2.SPEN", "r3.cpuregisters.rcsta2.spen",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_tx9d,
+        { "TXSTA2.TX9D", "r3.cpuregisters.txsta2.tx9d",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_trmt,
+        { "TXSTA2.TRMT", "r3.cpuregisters.txsta2.trmt",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_brgh,
+        { "TXSTA2.BRGH", "r3.cpuregisters.txsta2.brgh",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_sendb,
+        { "TXSTA2.SENDB", "r3.cpuregisters.txsta2.sendb",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_sync,
+        { "TXSTA2.SYNC", "r3.cpuregisters.txsta2.sync",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_txen,
+        { "TXSTA2.TXEN", "r3.cpuregisters.txsta2.txen",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_tx9,
+        { "TXSTA2.TX9", "r3.cpuregisters.txsta2.tx9",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_txsta2_csrc,
+        { "TXSTA2.CSRC", "r3.cpuregisters.txsta2.csrc",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_swdten,
+        { "WDTCON.SWDTEN", "r3.cpuregisters.wdtcon.swdten",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused1,
+        { "WDTCON.UNUSED1", "r3.cpuregisters.wdtcon.unused1",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused2,
+        { "WDTCON.UNUSED2", "r3.cpuregisters.wdtcon.unused2",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused3,
+        { "WDTCON.UNUSED3", "r3.cpuregisters.wdtcon.unused3",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused4,
+        { "WDTCON.UNUSED4", "r3.cpuregisters.wdtcon.unused4",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused5,
+        { "WDTCON.UNUSED5", "r3.cpuregisters.wdtcon.unused5",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused6,
+        { "WDTCON.UNUSED6", "r3.cpuregisters.wdtcon.unused6",
+          FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL }
+      },
+      { &hf_r3_cpuregisters_wdtcon_unused7,
+        { "WDTCON.UNUSED7", "r3.cpuregisters.wdtcon.unused7",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }
+      },
+
+      { &hf_r3_dumpm41t81_reg00,
+        { "REG 0x00", "r3.m41t81.reg00",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg01,
+        { "REG 0x01", "r3.m41t81.reg01",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg02,
+        { "REG 0x02", "r3.m41t81.reg02",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg03,
+        { "REG 0x03", "r3.m41t81.reg03",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg04,
+        { "REG 0x04", "r3.m41t81.reg04",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg05,
+        { "REG 0x05", "r3.m41t81.reg05",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg06,
+        { "REG 0x06", "r3.m41t81.reg06",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg07,
+        { "REG 0x07", "r3.m41t81.reg07",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg08,
+        { "REG 0x08", "r3.m41t81.reg08",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg09,
+        { "REG 0x09", "r3.m41t81.reg09",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0a,
+        { "REG 0x0a", "r3.m41t81.reg0a",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0b,
+        { "REG 0x0b", "r3.m41t81.reg0b",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0c,
+        { "REG 0x0c", "r3.m41t81.reg0c",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0d,
+        { "REG 0x0d", "r3.m41t81.reg0d",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0e,
+        { "REG 0x0e", "r3.m41t81.reg0e",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0f,
+        { "REG 0x0f", "r3.m41t81.reg0f",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg10,
+        { "REG 0x10", "r3.m41t81.reg10",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg11,
+        { "REG 0x11", "r3.m41t81.reg11",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg12,
+        { "REG 0x12", "r3.m41t81.reg12",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg13,
+        { "REG 0x13", "r3.m41t81.reg13",
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+
+      { &hf_r3_dumpm41t81_reg00_sec1,
+        { ".1 Seconds", "r3.m41t81.reg00.sec1",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg00_sec01,
+        { ".01 Seconds", "r3.m41t81.reg00.sec01",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg01_st,
+        { "ST", "r3.m41t81.reg01.st",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg01_10sec,
+        { "10 Seconds", "r3.m41t81.reg01.10sec",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg01_1sec,
+        { "1 Seconds", "r3.m41t81.reg01.1sec",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg02_notused,
+        { "(not used)", "r3.m41t81.reg02.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg02_10min,
+        { "10 Minutes", "r3.m41t81.reg02.10min",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg02_1min,
+        { "1 Minutes", "r3.m41t81.reg02.1min",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg03_cbe,
+        { "CBE", "r3.m41t81.reg03.cbe",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg03_cb,
+        { "CB", "r3.m41t81.reg03.cb",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg03_10hour,
+        { "10 Hours", "r3.m41t81.reg03.10hour",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg03_1hour,
+        { "1 Hours", "r3.m41t81.reg03.1hour",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg04_notused,
+        { "(not used)", "r3.m41t81.reg04.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg04_dow,
+        { "DOW", "r3.m41t81.reg04.dow",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg05_notused,
+        { "(not used)", "r3.m41t81.reg05.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg05_10day,
+        { "10 Day", "r3.m41t81.reg05.10day",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg05_1day,
+        { "1 Day", "r3.m41t81.reg05.1day",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg06_notused,
+        { "(not used)", "r3.m41t81.reg06.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg06_10month,
+        { "10 Month", "r3.m41t81.reg06.10month",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg06_1month,
+        { "1 Month", "r3.m41t81.reg06.1month",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg07_10year,
+        { "10 Year", "r3.m41t81.reg07.10year",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg07_1year,
+        { "1 Year", "r3.m41t81.reg07.1year",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg08_out,
+        { "OUT", "r3.m41t81.reg08.out",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg08_ft,
+        { "FT", "r3.m41t81.reg08.ft",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg08_s,
+        { "S", "r3.m41t81.reg08.s",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg08_cal,
+        { "CAL", "r3.m41t81.reg08.cal",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg09_notused,
+        { "(not used)", "r3.m41t81.reg09.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg09_bmb,
+        { "BMB", "r3.m41t81.reg09.bmb",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg09_rb,
+        { "RB", "r3.m41t81.reg09.rb",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0a_afe,
+        { "AFE", "r3.m41t81.reg0a.afe",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0a_sqwe,
+        { "SQWE", "r3.m41t81.reg0a.sqwe",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0a_abe,
+        { "ABE", "r3.m41t81.reg0a.abe",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0a_10monthalm,
+        { "10 Month Alarm", "r3.m41t81.reg0a.10monthalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0a_1monthalm,
+        { "1 Month Alarm", "r3.m41t81.reg0a.1monthalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0b_rpt5,
+        { "RPT5", "r3.m41t81.reg0b.rpt5",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0b_rpt4,
+        { "RPT4", "r3.m41t81.reg0b.rpt4",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0b_10dayalm,
+        { "10 Day Alarm", "r3.m41t81.reg0b.10dayalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0b_1dayalm,
+        { "1 Day Alarm", "r3.m41t81.reg0b.1dayalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0c_rpt3,
+        { "RPT3", "r3.m41t81.reg0c.rpt3",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0c_ht,
+        { "HT", "r3.m41t81.reg0c.ht",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0c_10houralm,
+        { "10 Hour Alarm", "r3.m41t81.reg0c.10houralm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0c_1houralm,
+        { "1 Hour Alarm", "r3.m41t81.reg0c.1houralm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0d_rpt2,
+        { "RPT2", "r3.m41t81.reg0d.rpt2",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0d_10minalm,
+        { "10 Min Alarm", "r3.m41t81.reg0d.10minalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0d_1minalm,
+        { "1 Min Alarm", "r3.m41t81.reg0d.1minalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0e_rpt1,
+        { "RPT1", "r3.m41t81.reg0e.rpt1",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0e_10secalm,
+        { "10 Sec Alarm", "r3.m41t81.reg0e.10secalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0e_1secalm,
+        { "1 Sec Alarm", "r3.m41t81.reg0e.1secalm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0f_wdf,
+        { "WDF", "r3.m41t81.reg0f.wdf",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0f_af,
+        { "AF", "r3.m41t81.reg0f.af",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg0f_notused,
+        { "(not used)", "r3.m41t81.reg0f.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg10_notused,
+        { "(not used)", "r3.m41t81.reg10.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg11_notused,
+        { "(not used)", "r3.m41t81.reg11.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg12_notused,
+        { "(not used)", "r3.m41t81.reg12.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg13_rs,
+        { "RS", "r3.m41t81.reg13.rs",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_dumpm41t81_reg13_notused,
+        { "(not used)", "r3.m41t81.reg13.notused",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+
+      { &hf_r3_debuglog_recordnumber,
+        { "Record Number", "r3.debuglog.recordnumber",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_debuglog_flags,
+        { "Flags", "r3.debuglog.flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_debuglog_tick,
+        { "Tick", "r3.debuglog.tick",
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+
+      { &hf_r3_adduserparamtype,
+        { "Upstream Field", "r3.manageuser",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypelength,
+        { "Field Length", "r3.manageuser.length",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypetype,
+        { "Field Type", "r3.manageuser.type",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_adduserparamtypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+#if 0
+      { &hf_r3_adduserparamtypedatalen,
+        { "Data Length", "r3.manageuser.datalen",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypeerror,
+        { "Error", "r3.manageuser.error",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+#endif
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_DISPOSITION],
+        { "Disposition", "r3.manageuser.disposition",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_dispositionnames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USERNO],
+        { "User Number", "r3.manageuser.usernumber",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_ACCESSALWAYS],
+        { "Access Always", "r3.manageuser.accessalways",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_ACCESSMODE],
+        { "Access Mode", "r3.manageuser.accessmode",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_accessmodenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_CACHED],
+        { "Cached", "r3.manageuser.cached",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USERTYPE],
+        { "User Type", "r3.manageuser.usertype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_usertypenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_PRIMARYFIELD],
+        { "Primary Field", "r3.manageuser.primaryfield",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_PRIMARYFIELDTYPE],
+        { "Primary Field Type", "r3.manageuser.primaryfieldtype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_AUXFIELD],
+        { "Aux Field", "r3.manageuser.auxfield",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_AUXFIELDTYPE],
+        { "Aux Field Type", "r3.manageuser.auxfieldtype",
+          FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_ppmisourcenames_ext, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USECOUNT],
+        { "Use Count", "r3.manageuser.usecount",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_EXCEPTIONGROUP],
+        { "Exception Group", "r3.manageuser.exceptiongroup",
+          FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_EXPIREON],
+        { "Expire On", "r3.manageuser.expireon",
+          FT_UINT24, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_TIMEZONE],
+        { "Timezone", "r3.manageuser.timezone",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      }
+    };
 
   /* Setup protocol subtree array */
   static gint *ett [] =
-  {
-    &ett_r3,
-    &ett_r3header,
-    &ett_r3tail,
-    &ett_r3payload,
-    &ett_r3cmd,
-    &ett_r3configitem,
-    &ett_r3upstreamcommand,
-    &ett_r3upstreamfield,
-    &ett_r3timezone,
-    &ett_r3expireon,
-    &ett_r3datetime,
-    &ett_r3eventlogrecord,
-    &ett_r3declinedlogrecord,
-    &ett_r3alarmlogrecord,
-    &ett_r3debugmsg,
-    &ett_r3defineexceptionstartdate,
-    &ett_r3defineexceptionenddate,
-    &ett_r3defineexceptiongroupbits,
-    &ett_r3definecalendarmonth [1],
-    &ett_r3definecalendarmonth [2],
-    &ett_r3definecalendarmonth [3],
-    &ett_r3definecalendarmonth [4],
-    &ett_r3definecalendarmonth [5],
-    &ett_r3definecalendarmonth [6],
-    &ett_r3definecalendarmonth [7],
-    &ett_r3definecalendarmonth [8],
-    &ett_r3definecalendarmonth [9],
-    &ett_r3definecalendarmonth [10],
-    &ett_r3definecalendarmonth [11],
-    &ett_r3definecalendarmonth [12],
-    &ett_r3definetimezonestarttime,
-    &ett_r3definetimezoneendtime,
-    &ett_r3definetimezonedaymap,
-    &ett_r3eventlogdumpstarttime,
-    &ett_r3eventlogdumpendtime,
-    &ett_r3declinedlogdumpstarttime,
-    &ett_r3declinedlogdumpendtime,
-    &ett_r3alarmlogdumpstarttime,
-    &ett_r3alarmlogdumpendtime,
-    &ett_r3clearnvram,
-    &ett_r3filters,
-    &ett_r3alarmlist,
-    &ett_r3alarmcfg,
-    &ett_r3commandmfg,
-    &ett_r3serialnumber,
-    &ett_r3iopins,
-    &ett_r3checksumresults,
-    &ett_r3checksumresultsfield,
-    &ett_r3forceoptions,
-    &ett_r3peekpoke,
-    &ett_r3downloadfirmware,
-    &ett_r3capabilities,
-    &ett_r3lockstate,
-    &ett_r3mortisestatelog,
-    &ett_r3timerchain,
-    &ett_r3taskflags,
-    &ett_r3taskflagsentry,
-    &ett_r3checkpointlog,
-    &ett_r3checkpointlogentry,
-    &ett_r3cpuregisters,
-    &ett_r3cpuregister,
-    &ett_r3m41t81registers,
-    &ett_r3m41t81register,
-    &ett_r3debuglogrecord,
-    &ett_r3setdatetime,
-    &ett_r3manageuser
-  };
+    {
+      &ett_r3,
+      &ett_r3header,
+      &ett_r3tail,
+      &ett_r3payload,
+      &ett_r3cmd,
+      &ett_r3configitem,
+      &ett_r3upstreamcommand,
+      &ett_r3upstreamfield,
+      &ett_r3timezone,
+      &ett_r3expireon,
+      &ett_r3datetime,
+      &ett_r3eventlogrecord,
+      &ett_r3declinedlogrecord,
+      &ett_r3alarmlogrecord,
+      &ett_r3debugmsg,
+      &ett_r3defineexceptionstartdate,
+      &ett_r3defineexceptionenddate,
+      &ett_r3defineexceptiongroupbits,
+      &ett_r3definecalendarmonth [1],
+      &ett_r3definecalendarmonth [2],
+      &ett_r3definecalendarmonth [3],
+      &ett_r3definecalendarmonth [4],
+      &ett_r3definecalendarmonth [5],
+      &ett_r3definecalendarmonth [6],
+      &ett_r3definecalendarmonth [7],
+      &ett_r3definecalendarmonth [8],
+      &ett_r3definecalendarmonth [9],
+      &ett_r3definecalendarmonth [10],
+      &ett_r3definecalendarmonth [11],
+      &ett_r3definecalendarmonth [12],
+      &ett_r3definetimezonestarttime,
+      &ett_r3definetimezoneendtime,
+      &ett_r3definetimezonedaymap,
+      &ett_r3eventlogdumpstarttime,
+      &ett_r3eventlogdumpendtime,
+      &ett_r3declinedlogdumpstarttime,
+      &ett_r3declinedlogdumpendtime,
+      &ett_r3alarmlogdumpstarttime,
+      &ett_r3alarmlogdumpendtime,
+      &ett_r3clearnvram,
+      &ett_r3filters,
+      &ett_r3alarmlist,
+      &ett_r3alarmcfg,
+      &ett_r3commandmfg,
+      &ett_r3serialnumber,
+      &ett_r3iopins,
+      &ett_r3checksumresults,
+      &ett_r3checksumresultsfield,
+      &ett_r3forceoptions,
+      &ett_r3peekpoke,
+      &ett_r3downloadfirmware,
+      &ett_r3capabilities,
+      &ett_r3lockstate,
+      &ett_r3mortisestatelog,
+      &ett_r3timerchain,
+      &ett_r3taskflags,
+      &ett_r3taskflagsentry,
+      &ett_r3checkpointlog,
+      &ett_r3checkpointlogentry,
+      &ett_r3cpuregisters,
+      &ett_r3cpuregister,
+      &ett_r3m41t81registers,
+      &ett_r3m41t81register,
+      &ett_r3debuglogrecord,
+      &ett_r3setdatetime,
+      &ett_r3manageuser
+    };
 
   static ei_register_info ei[] = {
-      { &ei_r3_malformed_length, { "r3.malformed_length", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
-      { &ei_r3_reserved_upstream_command_value, { "r3.reserved_upstream_command_value", PI_UNDECODED, PI_WARN, "\"Reserved\" Upstream Command value", EXPFILL }},
-      { &ei_r3_mfgfield, { "r3.mfgfield.field.unknown", PI_UNDECODED, PI_WARN, "Unknown manufacturing command value", EXPFILL }},
-      { &ei_r3_mfgfield_too_many_adc_values, { "r3.mfgfield.too_many_adc_values", PI_PROTOCOL, PI_WARN, "MFG Field: too many adc values", EXPFILL }},
-      { &ei_r3_peekpoke_operation, { "r3.peekpoke.operation.unknown", PI_UNDECODED, PI_WARN, "Unknown peekpoke operation value", EXPFILL }},
-      { &ei_r3_response_hasdata_octet_1, { "r3.response_hasdata.octet_1_not_cmd_response", PI_PROTOCOL, PI_WARN, "Octet 1 not CMD_RESPONSE", EXPFILL }},
-      { &ei_r3_response_hasdata_octet_2, { "r3.response_hasdata.octet_2_not_response_hasdata", PI_PROTOCOL, PI_WARN, "Octet 2 not RESPONSE_HASDATA", EXPFILL }},
-      { &ei_r3_response_hasdata_octet_3, { "r3.response_hasdata.octet_3_ge_upstreamcommand_last", PI_PROTOCOL, PI_WARN, "Octet 3 >= UPSTREAMCOMMAND_LAST", EXPFILL }},
-      { &ei_r3_firmwaredownload_action, { "r3.firmwaredownload.action.unknown", PI_PROTOCOL, PI_WARN, "Unknown Firmware download action", EXPFILL }},
-      { &ei_r3_cmd_downloadfirmwaretimeout, { "r3.r3.command.downloadfirmwaretimeout", PI_UNDECODED, PI_WARN, "Download Firmware Timeout", EXPFILL }},
-      { &ei_r3_unknown_command_value, { "r3.command.unknown", PI_UNDECODED, PI_WARN, "Unknown command value", EXPFILL }},
+    { &ei_r3_malformed_length, { "r3.malformed_length", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
+    { &ei_r3_reserved_upstream_command_value, { "r3.reserved_upstream_command_value", PI_UNDECODED, PI_WARN, "\"Reserved\" Upstream Command value", EXPFILL }},
+    { &ei_r3_mfgfield, { "r3.mfgfield.field.unknown", PI_UNDECODED, PI_WARN, "Unknown manufacturing command value", EXPFILL }},
+    { &ei_r3_mfgfield_too_many_adc_values, { "r3.mfgfield.too_many_adc_values", PI_PROTOCOL, PI_WARN, "MFG Field: too many adc values", EXPFILL }},
+    { &ei_r3_peekpoke_operation, { "r3.peekpoke.operation.unknown", PI_UNDECODED, PI_WARN, "Unknown peekpoke operation value", EXPFILL }},
+    { &ei_r3_response_hasdata_octet_1, { "r3.response_hasdata.octet_1_not_cmd_response", PI_PROTOCOL, PI_WARN, "Octet 1 not CMD_RESPONSE", EXPFILL }},
+    { &ei_r3_response_hasdata_octet_2, { "r3.response_hasdata.octet_2_not_response_hasdata", PI_PROTOCOL, PI_WARN, "Octet 2 not RESPONSE_HASDATA", EXPFILL }},
+    { &ei_r3_response_hasdata_octet_3, { "r3.response_hasdata.octet_3_ge_upstreamcommand_last", PI_PROTOCOL, PI_WARN, "Octet 3 >= UPSTREAMCOMMAND_LAST", EXPFILL }},
+    { &ei_r3_firmwaredownload_action, { "r3.firmwaredownload.action.unknown", PI_PROTOCOL, PI_WARN, "Unknown Firmware download action", EXPFILL }},
+    { &ei_r3_cmd_downloadfirmwaretimeout, { "r3.r3.command.downloadfirmwaretimeout", PI_UNDECODED, PI_WARN, "Download Firmware Timeout", EXPFILL }},
+    { &ei_r3_unknown_command_value, { "r3.command.unknown", PI_UNDECODED, PI_WARN, "Unknown command value", EXPFILL }},
   };
 
   expert_module_t* expert_r3;

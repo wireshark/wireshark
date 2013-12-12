@@ -278,9 +278,9 @@ static const gchar *get_type (guint8 value)
 /*Function checksum, found in ACP142 annex B-3 */
 static guint16 checksum (guint8 *buffer, gint len, gint offset)
 {
-  guint16 c0 = 0, c1 = 0, ret, ctmp;
-  gint16 cs;
-  guint8 *hpp, *pls;
+  guint16  c0 = 0, c1 = 0, ret, ctmp;
+  gint16   cs;
+  guint8  *hpp, *pls;
 
   if (len < offset+2) {
     /* Buffer to small */
@@ -1615,14 +1615,14 @@ void proto_register_p_mul (void)
 
 void proto_reg_handoff_p_mul (void)
 {
-  static gboolean p_mul_prefs_initialized = FALSE;
-  static range_t *p_mul_port_range;
+  static gboolean  p_mul_prefs_initialized = FALSE;
+  static range_t  *p_mul_port_range;
 
   if (!p_mul_prefs_initialized) {
     p_mul_prefs_initialized = TRUE;
     data_handle = find_dissector ("data");
   } else {
-	dissector_delete_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
+    dissector_delete_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
     g_free (p_mul_port_range);
   }
 

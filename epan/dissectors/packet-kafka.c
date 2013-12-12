@@ -267,14 +267,14 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
 
             if (raw) {
                 payload = tvb_child_uncompress(tvb, raw, 0, tvb_length(raw));
-		if (payload) {
-			add_new_data_source(pinfo, payload, "Uncompressed Message");
-			proto_tree_add_item(subtree, hf_kafka_message_value, payload, 0, -1, ENC_NA);
-		} else {
-			/* TODO make this an expert item */
-			proto_tree_add_text(subtree, tvb, 0, tvb_length(raw), "[Failed to decompress message!]");
-			proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
-		}
+                if (payload) {
+                    add_new_data_source(pinfo, payload, "Uncompressed Message");
+                    proto_tree_add_item(subtree, hf_kafka_message_value, payload, 0, -1, ENC_NA);
+                } else {
+                    /* TODO make this an expert item */
+                    proto_tree_add_text(subtree, tvb, 0, tvb_length(raw), "[Failed to decompress message!]");
+                    proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+                }
                 offset += tvb_length(raw);
             }
             else {
