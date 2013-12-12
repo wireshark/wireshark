@@ -1383,7 +1383,7 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
         *time_until_expires = 0;
         return TRUE;
     }
-    
+
     if (state_to_use->currentTicks > *pTimer) {
         *time_until_expires = 0;
     }
@@ -3357,7 +3357,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Update DRX state of UE */
     if (global_mac_lte_show_drx) {
-    	if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->flags.visited) {
 
             /* Update UE state to this subframe (but before this event is processed) */
             update_drx_info(pinfo, p_mac_lte_info);
