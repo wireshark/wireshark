@@ -994,7 +994,7 @@ test_wassp(tvbuff_t *tvb)
 
 #if 0
 static gboolean
-dissect_wassp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wassp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_wassp(tvb) ) {
 		return FALSE;
