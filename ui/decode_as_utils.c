@@ -119,7 +119,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
         sub_dissectors = find_dissector_table(values[0]);
         if (sub_dissectors != NULL) {
             lookup_entry_t lookup;
-            ftenum_t selector_type = dissector_table_get_type(sub_dissectors);
+            ftenum_t selector_type;
 
             lookup.dissector_short_name = values[3];
             lookup.handle = NULL;
