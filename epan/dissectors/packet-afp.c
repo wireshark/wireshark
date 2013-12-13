@@ -1058,15 +1058,16 @@ spotlight_ntohieee_double(tvbuff_t *tvb, gint offset, guint encoding)
 }
 
 /*
-* Returns the UTF-16 string encoding, by checking the 2-byte byte order mark.
-* If there is no byte order mark, -1 is returned.
+* Returns the UTF-16 byte order, as an ENC_xxx_ENDIAN value,
+* by checking the 2-byte byte order mark.
+* If there is no byte order mark, 0xFFFFFFFF is returned.
 */
 static guint
-spotlight_get_utf16_string_encoding(tvbuff_t *tvb, gint offset, gint query_length, guint encoding) {
-	guint utf16_encoding;
+spotlight_get_utf16_string_byte_order(tvbuff_t *tvb, gint offset, gint query_length, guint encoding) {
+	guint byte_order;
 
 	/* check for byte order mark */
-	utf16_encoding = ENC_BIG_ENDIAN;
+	byte_order = 0xFFFFFFFF;
 	if (query_length >= 2) {
 		guint16 byte_order_mark;
 		if (encoding == ENC_LITTLE_ENDIAN)
@@ -1075,14 +1076,14 @@ spotlight_get_utf16_string_encoding(tvbuff_t *tvb, gint offset, gint query_lengt
 			byte_order_mark = tvb_get_ntohs(tvb, offset);
 
 		if (byte_order_mark == 0xFFFE) {
-			utf16_encoding = ENC_BIG_ENDIAN | ENC_UTF_16;
+			byte_order = ENC_BIG_ENDIAN;
 		}
 		else if (byte_order_mark == 0xFEFF) {
-			utf16_encoding = ENC_LITTLE_ENDIAN | ENC_UTF_16;
+			byte_order = ENC_LITTLE_ENDIAN;
 		}
 	}
 
-	return utf16_encoding;
+	return byte_order;
 }
 
 /* Hash Functions */
@@ -4204,7 +4205,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	gint query_length;
 	guint64 query_type;
 	guint64 complex_query_type;
-	guint unicode_encoding;
+	guint byte_order;
 	gboolean mark_exists;
 
 	proto_item *item_query;
@@ -4261,22 +4262,26 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				* Dissections show the typical byte order mark 0xFFFE or 0xFEFF, respectively.
 				* However the existence of such a mark can not be assumed.
 				* If the mark is missing, big endian encoding is assumed.
+				* XXX - assume the encoding given by "encoding"?
 				*/
 
 				subquery_count = 1;
 				query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding);
 				query_length = ((gint)query_data64 & 0xffff) * 8;
 
-				unicode_encoding = spotlight_get_utf16_string_encoding(tvb, offset + 16, query_length - 8, encoding);
-				mark_exists = (unicode_encoding & ENC_UTF_16);
-				unicode_encoding &= ~ENC_UTF_16;
+				byte_order = spotlight_get_utf16_string_byte_order(tvb, offset + 16, query_length - 8, encoding);
+				if (byte_order == 0xFFFFFFFF) {
+					byte_order = ENC_BIG_ENDIAN;
+					mark_exists = FALSE;
+				} else
+					mark_exists = TRUE;
 
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length + 8,
 								 "%s, toc index: %u, utf-16 string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
-								 tvb_get_unicode_string(wmem_packet_scope(), tvb, offset + (mark_exists ? 18 : 16),
-								 query_length - (mark_exists? 10 : 8), unicode_encoding));
+								 tvb_get_string_enc(wmem_packet_scope(), tvb, offset + (mark_exists ? 18 : 16),
+								 query_length - (mark_exists? 10 : 8), ENC_UTF_16 | byte_order));
 				break;
 			default:
 				subquery_count = 1;
@@ -4347,13 +4352,16 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				break;
 			case SQ_CPX_TYPE_UTF16_STRING: {
 				/* description see above */
-				unicode_encoding = spotlight_get_utf16_string_encoding(tvb, offset + 8, query_length, encoding);
-				mark_exists = (unicode_encoding & ENC_UTF_16);
-				unicode_encoding &= ~ENC_UTF_16;
+				byte_order = spotlight_get_utf16_string_byte_order(tvb, offset + 16, query_length - 8, encoding);
+				if (byte_order == 0xFFFFFFFF) {
+					byte_order = ENC_BIG_ENDIAN;
+					mark_exists = FALSE;
+				} else
+					mark_exists = TRUE;
 
 				proto_tree_add_text(tree, tvb, offset, query_length, "utf-16 string: '%s'",
-						    tvb_get_unicode_string(wmem_packet_scope(), tvb, offset + (mark_exists ? 10 : 8),
-								query_length - (mark_exists? 10 : 8), unicode_encoding));
+						    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + (mark_exists ? 10 : 8),
+								query_length - (mark_exists? 10 : 8), ENC_UTF_16 | byte_order));
 				break;
 			}
 			case SQ_CPX_TYPE_FILEMETA:
