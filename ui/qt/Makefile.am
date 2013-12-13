@@ -181,7 +181,7 @@ sctp_chunk_statistics_dialog.cpp sctp_chunk_statistics_dialog.h: ui_sctp_chunk_s
 
 sctp_graph_dialog.cpp sctp_graph_dialog.h: ui_sctp_graph_dialog.h
 
-sctp_graph_arwnd_dialog.cpp sctp_graph_arwnd_dialog.h: uisctp_graph_arwnd_dialog.h
+sctp_graph_arwnd_dialog.cpp sctp_graph_arwnd_dialog.h: ui_sctp_graph_arwnd_dialog.h
 
 sctp_graph_byte_dialog.cpp sctp_graph_byte_dialog.h: ui_sctp_graph_byte_dialog.h
 
