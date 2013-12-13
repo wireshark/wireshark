@@ -622,7 +622,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 
 static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (tvb_length(tvb) >= 36)
+    if (data && tvb_length(tvb) >= 36)
     {
         mq_parm_t *p_mq_parm = (mq_parm_t *)data;
         if (strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_ADMIN, 8) == 0
