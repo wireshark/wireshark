@@ -190,7 +190,10 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
         fclose(fp);
     }
 #else
-    all = TRUE;
+    // FIXME IRENE
+    if (all) {
+    	all = FALSE;
+    }
 #endif
 }
 
