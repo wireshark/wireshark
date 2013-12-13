@@ -605,12 +605,14 @@ value_string_ext_validate(const value_string_ext *vse)
 {
     if (vse == NULL)
         return FALSE;
-    if ((vse->_vs_match2 == _try_val_to_str_ext_init) ||
-            (vse->_vs_match2 == _try_val_to_str_linear)   ||
-            (vse->_vs_match2 == _try_val_to_str_bsearch)  ||
-            (vse->_vs_match2 == _try_val_to_str_index))
-        return TRUE;
-    return FALSE;
+#ifndef _WIN32  /* doesn't work on Windows for refs from another DLL ?? */
+    if ((vse->_vs_match2 != _try_val_to_str_ext_init) &&
+        (vse->_vs_match2 != _try_val_to_str_linear)   &&
+        (vse->_vs_match2 != _try_val_to_str_bsearch)  &&
+        (vse->_vs_match2 != _try_val_to_str_index))
+        return FALSE;
+#endif
+    return TRUE;
 }
 
 const gchar *
