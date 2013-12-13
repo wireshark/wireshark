@@ -228,11 +228,14 @@ typedef struct _StringInfo {
 #define SSL_MASTER_SECRET       (1<<5)
 #define SSL_PRE_MASTER_SECRET   (1<<6)
 
-#define SSL_CIPHER_MODE_STREAM  0 /* GenericStreamCipher */
-#define SSL_CIPHER_MODE_CBC     1 /* GenericBlockCipher */
-#define SSL_CIPHER_MODE_GCM     2 /* GenericAEADCipher */
-#define SSL_CIPHER_MODE_CCM     3 /* AEAD_AES_{128,256}_CCM with 16 byte auth tag */
-#define SSL_CIPHER_MODE_CCM_8   4 /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
+/* SSL Cipher Suite modes */
+typedef enum {
+    MODE_STREAM,    /* GenericStreamCipher */
+    MODE_CBC,       /* GenericBlockCipher */
+    MODE_GCM,       /* GenericAEADCipher */
+    MODE_CCM,       /* AEAD_AES_{128,256}_CCM with 16 byte auth tag */
+    MODE_CCM_8      /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
+} ssl_cipher_mode_t;
 
 /* Explicit nonce length */
 #define SSL_EX_NONCE_LEN_GCM    8 /* RFC 5288 - section 3 */
@@ -244,13 +247,12 @@ typedef struct _StringInfo {
 typedef struct _SslCipherSuite {
     gint number;
     gint kex;
-    gint sig;
     gint enc;
     gint block; /* IV block size */
     gint bits;
     gint eff_bits;
     gint dig;
-    gint mode;
+    ssl_cipher_mode_t mode;
 } SslCipherSuite;
 
 typedef struct _SslFlow {
@@ -279,10 +281,6 @@ typedef struct _SslDecoder {
 #define KEX_PSK         0x12
 #define KEX_ECDH        0x13
 #define KEX_RSA_PSK     0x14
-
-#define SIG_RSA         0x20
-#define SIG_DSS         0x21
-#define SIG_NONE        0x22
 
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
