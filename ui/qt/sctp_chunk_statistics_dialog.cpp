@@ -13,8 +13,14 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
 {
     ui->setupUi(this);
     printf("selected_assoc id=%d\n", selected_assoc->assoc_id);
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+    ui->tableWidget->verticalHeader()->setClickable(true);
+    ui->tableWidget->verticalHeader()->setMovable(true);
+#else
     ui->tableWidget->verticalHeader()->setSectionsClickable(true);
     ui->tableWidget->verticalHeader()->setSectionsMovable(true);
+#endif
+
 
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
