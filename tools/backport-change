@@ -61,6 +61,12 @@ git ls-remote --heads gerrit 2> /dev/null
 if [ $? -ne 0 ] ; then exit_err "Can't find a remote named \"gerrit\"" ; fi
 
 #
+# Make sure our working directory is clean
+#
+
+git diff --quiet HEAD || exit_err "You have changes in your working directory. Please clean them up."
+
+#
 # Find our change
 #
 
