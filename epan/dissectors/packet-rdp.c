@@ -45,9 +45,12 @@
 #define PSNAME "RDP"
 #define PFNAME "rdp"
 
+
 static guint global_rdp_tcp_port = 3389;
 static dissector_handle_t tpkt_handle;
 
+void proto_register_rdp(void);
+void proto_reg_handoff_rdp(void);
 static void prefs_register_rdp(void);
 
 static int proto_rdp = -1;

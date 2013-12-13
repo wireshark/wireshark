@@ -58,6 +58,8 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
+void proto_register_rtp_midi(void);
+
 /* Definitions for protocol name during dissector-register */
 #define RTP_MIDI_DISSECTOR_NAME						"RFC 4695/6295 RTP-MIDI"
 #define RTP_MIDI_DISSECTOR_SHORTNAME					"RTP-MIDI"

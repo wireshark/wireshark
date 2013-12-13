@@ -68,7 +68,6 @@
 #include <epan/wmem/wmem.h>
 
 void proto_register_selfm(void);
-void proto_reg_handoff_selfm(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_selfm                        = -1;

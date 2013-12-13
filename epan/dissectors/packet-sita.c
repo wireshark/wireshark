@@ -37,6 +37,9 @@
 #include <wiretap/wtap.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_sita(void);
+void proto_reg_handoff_sita(void);
+
 static dissector_table_t    sita_dissector_table;
 static dissector_handle_t   data_handle;
 static gint                 ett_sita            = -1;

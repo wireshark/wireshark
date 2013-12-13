@@ -56,7 +56,6 @@
 #include "packet-rtcp.h"
 
 void proto_register_rtpproxy(void);
-void proto_reg_handoff_rtpproxy(void);
 
 static int proto_rtpproxy = -1;
 
