@@ -2091,7 +2091,7 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     proto_tree  *subtree_colour = NULL;
 
 
-    EXACT_DATA_CHECK(length, 4);
+    SHORT_DATA_CHECK(length, 3);
     oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_text(tree, tvb, offset, 1,
@@ -2176,6 +2176,9 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         oct & 0x80 , str);
 
     offset++;
+
+    if (length > 3)
+    {
     oct = tvb_get_guint8(tvb, offset);
     item_colour = proto_tree_add_text(tree, tvb, offset, 1, "Text Colour");
 
@@ -2193,6 +2196,8 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         "Background Colour : 0x%x %s",
                         (oct >> 4) & 0x0f , str);
 
+        offset++;
+    }
 }
 
 /* 9.2.3.24.10.1.2 */
@@ -2584,7 +2589,7 @@ dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
     guint8 oct;
     proto_item *udh_item;
     proto_tree *udh_subtree = NULL;
-    static guint8 fill_bits_mask[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
+    static const guint8 fill_bits_mask[7] = { 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
 
     /* step over header */
 
@@ -3727,7 +3732,7 @@ proto_register_gsm_sms(void)
         };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_PARMS        12
+#define NUM_INDIVIDUAL_PARMS        14
     gint *ett[NUM_INDIVIDUAL_PARMS/*+NUM_MSGS*/+NUM_UDH_IEIS+2];
 
     ett[0]  = &ett_gsm_sms;
@@ -3742,6 +3747,8 @@ proto_register_gsm_sms(void)
     ett[9]  = &ett_dcs;
     ett[10] = &ett_ud;
     ett[11] = &ett_udh;
+    ett[12] = &ett_udh_tfm;
+    ett[13] = &ett_udh_tfc;
 
     last_offset = NUM_INDIVIDUAL_PARMS;
 

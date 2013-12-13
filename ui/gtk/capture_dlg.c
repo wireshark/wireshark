@@ -338,7 +338,7 @@ gint col_title_to_index(gchar *name)
   if (strcmp(name, "Prom. Mode") == 0) return PMODE;
   if (strcmp(name, "Snaplen [B]") == 0) return SNAPLEN;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  if (strcmp(name, "Buffer [MB]") == 0) return BUFFER;
+  if (strcmp(name, "Buffer [MiB]") == 0) return BUFFER;
 #endif
 #if defined (HAVE_PCAP_CREATE)
   if (strcmp(name, "Mon. Mode") == 0) return MONITOR;
@@ -955,9 +955,9 @@ guint32 value)
 #define SIZE_UNIT_GIGABYTES 2
 #define MAX_SIZE_UNITS 3
 static const char *size_unit_name[MAX_SIZE_UNITS] = {
-  "kibibyte(s)",
-  "mebibyte(s)",
-  "gibibyte(s)"
+  "kilobyte(s)",
+  "megabyte(s)",
+  "gigabyte(s)"
 };
 
 /* create one of the size options */
@@ -973,11 +973,11 @@ static GtkWidget *size_unit_combo_box_new(guint32 value) {
   /* the selected combo_box item can't be changed, once the combo_box
      is created, so set the matching combo_box item now */
   /* gigabytes */
-  if (value >= 1024 * 1024) {
+  if (value >= 1000 * 1000) {
     gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), SIZE_UNIT_GIGABYTES);
   } else {
     /* megabytes */
-    if (value >= 1024) {
+    if (value >= 1000) {
       gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), SIZE_UNIT_MEGABYTES);
     } else {
       /* kilobytes */
@@ -987,18 +987,18 @@ static GtkWidget *size_unit_combo_box_new(guint32 value) {
   return unit_combo_box;
 }
 
-/* convert size value from raw to displayed (e.g. 1024 Bytes -> 1 KB) */
+/* convert size value from raw to displayed (e.g. 1000 Bytes -> 1 kB) */
 static guint32 size_unit_combo_box_set_value(
 guint32 value)
 {
   /* gigabytes */
-  if (value >= 1024 * 1024) {
-    return value / (1024 * 1024);
+  if (value >= 1000 * 1000) {
+    return value / (1000 * 1000);
   }
 
   /* megabytes */
-  if (value >= 1024) {
-    return value / (1024);
+  if (value >= 1000) {
+    return value / (1000);
   }
 
   /* kilobytes */
@@ -1016,22 +1016,22 @@ guint32 value)
 
   switch(unit) {
   case(SIZE_UNIT_KILOBYTES):
-    if (value > (((guint32)G_MAXINT + 1) / 1024)) {
+    if (value > (((guint32)G_MAXINT + 1) / 1000)) {
         return 0;
     } else {
     return value;
     }
   case(SIZE_UNIT_MEGABYTES):
-    if (value > (((guint32)G_MAXINT + 1) / (1024 * 1024))) {
+    if (value > (((guint32)G_MAXINT + 1) / (1000 * 1000))) {
       return 0;
     } else {
-      return value * 1024;
+      return value * 1000;
     }
   case(SIZE_UNIT_GIGABYTES):
-    if (value > (((guint32)G_MAXINT + 1) / (1024 * 1024 * 1024))) {
+    if (value > (((guint32)G_MAXINT + 1) / (1000 * 1000 * 1000))) {
       return 0;
     } else {
-      return value * 1024 * 1024;
+      return value * 1000 * 1000;
     }
   default:
     g_assert_not_reached();
@@ -2969,7 +2969,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
    "The memory buffer size used while capturing. If you notice packet drops, you can try to increase this size.");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_sb, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
-  buffer_size_lb = gtk_label_new("megabyte(s)");
+  buffer_size_lb = gtk_label_new("mebibyte(s)");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 3);
   gtk_misc_set_alignment(GTK_MISC(buffer_size_lb), 1, 0);
 #ifdef HAVE_PCAP_REMOTE
@@ -4718,7 +4718,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   renderer = gtk_cell_renderer_text_new();
-  column = gtk_tree_view_column_new_with_attributes("Buffer [MB]", renderer, "text", BUFFER, NULL);
+  column = gtk_tree_view_column_new_with_attributes("Buffer [MiB]", renderer, "text", BUFFER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_reorderable(column, TRUE);
   g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(BUFFER));

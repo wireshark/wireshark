@@ -55,13 +55,18 @@ The following bugs have been fixed:
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
 * "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
+* Tx MCS set is not interpreted properly in WLAN beacon frame. (ws-buglink:8894[])
 * VoIP Graph Analysis window - some calls are black. (ws-buglink:8966[])
 * Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses. (ws-buglink:9031[])
 * epan/follow.c - Incorrect "bytes missing in capture file" in "check_fragments" due to an unsigned int wraparound?. (ws-buglink:9112[])
 * gsm_map doesn't decode MAPv3 reportSM-DeliveryStatus result. (ws-buglink:9382[])
 * Incorrect NFSv4 FATTR4_SECURITY_LABEL value. (ws-buglink:9383[])
+* Timestamp decoded for Gigamon trailer is not padded correctly. (ws-buglink:9433[])
 * SEL Fast Message Bug-fix for Signed 16-bit Integer Fast Meter Messages. (ws-buglink:9435[])
 * DNP3 Bug Fix for Analog Data Sign Bit Handling. (ws-buglink:9442[])
+* WCDMA RLC dissector cannot assemble PDUs with SNs skipped and wrap-arounded. (ws-buglink:9505[])
+* [PATCH] Correct data length in SCSI_DATA_IN packets (within iSCSI). (ws-buglink:9521[])
+* GSM SMS UDH EMS control expects 4 octets instead of 3 with OPTIONAL 4th. (ws-buglink:9550[])
 
 === New and Updated Features
 
@@ -78,8 +83,12 @@ There are no new protocols in this release.
 ASN.1 PER
 DNP3
 GSM MAP
+GSM SMS
+IEEE 802.11
+iSCSI
 NFSv4
 NTLMSSP v2
+RLC
 SEL FM
 SIP
 

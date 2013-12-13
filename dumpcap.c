@@ -461,7 +461,7 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -I                       capture in monitor mode, if available\n");
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    fprintf(output, "  -B <buffer size>         size of kernel buffer in MB (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+    fprintf(output, "  -B <buffer size>         size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
     fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
     fprintf(output, "  -D                       print list of interfaces and exit\n");
@@ -2606,11 +2606,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             if (interface_opts.buffer_size > 1 &&
                 pcap_setbuff(pcap_opts->pcap_h, interface_opts.buffer_size * 1024 * 1024) != 0) {
                 sync_secondary_msg_str = g_strdup_printf(
-                    "The capture buffer size of %dMB seems to be too high for your machine,\n"
-                    "the default of 1MB will be used.\n"
+                    "The capture buffer size of %d MiB seems to be too high for your machine,\n"
+                    "the default of %d MiB will be used.\n"
                     "\n"
                     "Nonetheless, the capture is started.\n",
-                    interface_opts.buffer_size);
+                    interface_opts.buffer_size, DEFAULT_CAPTURE_BUFFER_SIZE);
                 report_capture_error("Couldn't set the capture buffer size!",
                                      sync_secondary_msg_str);
                 g_free(sync_secondary_msg_str);
@@ -3525,11 +3525,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     init_capture_stop_conditions();
     /* create stop conditions */
     if (capture_opts->has_autostop_filesize) {
-        if (capture_opts->autostop_filesize > (((guint32)INT_MAX + 1) / 1024)) {
-            capture_opts->autostop_filesize = ((guint32)INT_MAX + 1) / 1024;
+        if (capture_opts->autostop_filesize > (((guint32)INT_MAX + 1) / 1000)) {
+            capture_opts->autostop_filesize = ((guint32)INT_MAX + 1) / 1000;
         }
         cnd_autostop_size =
-            cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_filesize * 1024);
+            cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_filesize * 1000);
     }
     if (capture_opts->has_autostop_duration)
         cnd_autostop_duration =
