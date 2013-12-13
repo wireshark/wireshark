@@ -6360,6 +6360,7 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
     proto_tree_add_text(subtree, tvb, offset, 1,
                 "Unused bits: %u", unused);
+    memset(bf_arr, 0, 256);
     skip = 0;
     for (i = 0; i < numberOfBytes; i++) {
         tmp = tvb_get_guint8(tvb, (offset)+i+1);
