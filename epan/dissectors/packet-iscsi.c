@@ -556,6 +556,8 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
             /* looks like a ipv4 address */
             p = strchr(value, ':');
             if (p != NULL) {
+                char *addr_data;
+
                 *p++ = 0;
 
                 pgt = strchr(p, ',');
@@ -563,14 +565,16 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
                     *pgt++ = 0;
                 }
 
+                addr_data = (char *) wmem_alloc(wmem_packet_scope(), 4);
+                addr_data[0] = i0;
+                addr_data[1] = i1;
+                addr_data[2] = i2;
+                addr_data[3] = i3;
+
                 addr = wmem_new(wmem_packet_scope(), address);
                 addr->type = AT_IPv4;
                 addr->len  = 4;
-                addr->data = wmem_alloc(wmem_packet_scope(), 4);
-                ((char *)addr->data)[0] = i0;
-                ((char *)addr->data)[1] = i1;
-                ((char *)addr->data)[2] = i2;
-                ((char *)addr->data)[3] = i3;
+                addr->data = addr_data;
 
                 port = atoi(p);
             }

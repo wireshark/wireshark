@@ -67,9 +67,9 @@ typedef enum {
    DVB_ENCODING_EXT_ISO_8859_14 = DVB_ENCODING_EXT_BASE | 14,
    DVB_ENCODING_EXT_ISO_8859_15 = DVB_ENCODING_EXT_BASE | 15,
 
-   DVB_ENCODING_INVALID   = G_MAXUINT32-3, /* length invalid */
-   DVB_ENCODING_RESERVED  = G_MAXUINT32-2, /* reserved by spec */
-   DVB_ENCODING_UNKNOWN   = G_MAXUINT32-1, /* not defined by spec */
+   DVB_ENCODING_INVALID   = -4, /* length invalid */
+   DVB_ENCODING_RESERVED  = -3, /* reserved by spec */
+   DVB_ENCODING_UNKNOWN   = -2 /* not defined by spec */
 } dvb_encoding_e;
 
 extern const value_string dvb_string_encoding_vals[];

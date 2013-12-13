@@ -921,7 +921,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     tag_full_name = "UnknownTagName";
 
     if ( tagname && string_length == 1 ) {
-        tagname_value = *(guint8*)tagname;
+        tagname_value = *(const guint8*)tagname;
         /* lookup tagname */
         tag_full_name = val_to_str_const( tagname_value, kademlia_tags, tag_full_name );
     }
@@ -2360,7 +2360,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         tag_type = tvb_get_guint8( tvb, offset+2 );
         offset = dissect_kademlia_tagname( tvb, pinfo, offset, subtree, &tagname_string, &tagname_extended_string );
         if ( strlen( tagname_string ) == 1 ) {
-            const guint8 tagname_guint = *(guint8*)tagname_string;
+            const guint8 tagname_guint = *(const guint8*)tagname_string;
 
             proto_item_append_text( tag_node, " 0x%02X [%s] = ", tagname_guint, tagname_extended_string );
         }

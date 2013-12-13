@@ -483,9 +483,9 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                 /* Checksum - this is the same algorithm from UDP, ICMPv6 */
                 if (!pinfo->fragmented) {
                         /* IPv4 or IPv6 addresses */
-                        cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
+                        cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
                         cksum_vec[0].len = pinfo->src.len;
-                        cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
+                        cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
                         cksum_vec[1].len = pinfo->dst.len;
 
                         /* the rest of the pseudo-header */

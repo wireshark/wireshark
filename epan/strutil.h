@@ -31,8 +31,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* ... thus, config.h needs to be #included */
-
 /** @file
  * String handling and conversion utilities.
  */
