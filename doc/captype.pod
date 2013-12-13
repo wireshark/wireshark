@@ -1,0 +1,49 @@
+
+=head1 NAME
+
+captype - Prints the types of capture files
+
+=head1 SYNOPSIS
+
+B<capinfos>
+E<lt>I<infile>E<gt>
+I<...>
+
+=head1 DESCRIPTION
+
+B<Captypes> is a program that opens one or more capture files and
+prints the capture file type of each E<lt>I<infile>E<gt>.
+
+B<Capinfos> is able to detect and read the same capture files that are
+supported by B<Wireshark>.
+The input files don't need a specific filename extension; the file
+format and an optional gzip compression will be automatically detected.
+Near the beginning of the DESCRIPTION section of wireshark(1) or
+L<http://www.wireshark.org/docs/man-pages/wireshark.html>
+is a detailed description of the way B<Wireshark> handles this, which is
+the same way B<Capinfos> handles this.
+
+=head1 SEE ALSO
+
+pcap(3), wireshark(1), mergecap(1), editcap(1), tshark(1),
+dumpcap(1), capinfos(1), pcap-filter(7) or tcpdump(8)
+
+=head1 NOTES
+
+B<Captype> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<http://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<http://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Ian Schorr           <ian[AT]ianschorr.com>
+
+
+  Contributors
+  ------------
+  Gerald Combs         <gerald[AT]wireshark.org>
+  Jim Young            <jyoung[AT]gsu.edu>

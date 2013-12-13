@@ -62,6 +62,7 @@ rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
 mergecap_OBJECTS = $(mergecap_SOURCES:.c=.obj)
 editcap_OBJECTS = $(editcap_SOURCES:.c=.obj)
 capinfos_OBJECTS = $(capinfos_SOURCES:.c=.obj)
+captype_OBJECTS = $(captype_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
@@ -136,6 +137,11 @@ capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(GCRYPT_LIBS)
 
+captype_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib shell32.lib \
+	wsutil\libwsutil.lib \
+	$(GLIB_LIBS)
+
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib \
 	wsutil\libwsutil.lib \
@@ -185,8 +191,8 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS)
 
 EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
-	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe \
-	reordercap.exe dumpcap.exe dftest.exe
+	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
+	randpkt.exe reordercap.exe dumpcap.exe dftest.exe
 
 !IFDEF QT5_BASE_DIR
 EXECUTABLES=$(EXECUTABLES) qtshark.exe
@@ -194,9 +200,9 @@ EXECUTABLES=$(EXECUTABLES) qtshark.exe
 
 RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\libwireshark.res image\tshark.res image\capinfos.res \
-	image\editcap.res image\mergecap.res image\text2pcap.res \
-	image\wiretap.res image\dumpcap.res image\rawshark.res \
-	image\reordercap.res image\libwsutil.res
+	image\captype.res image\editcap.res image\mergecap.res \
+	image\text2pcap.res image\wiretap.res image\dumpcap.res \
+	image\rawshark.res image\reordercap.res image\libwsutil.res
 
 
 all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
@@ -320,8 +326,6 @@ rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan ui image\rawshark
 	mt.exe -nologo -manifest "rawshark.exe.manifest" -outputresource:rawshark.exe;1
 !ENDIF
 
-# XXX: This makefile does not properly handle doing a 'nmake ... capinfos.exe' directly since some of the .objs
-#      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
 # Linking with setargv.obj enables "wildcard expansion" of command-line arguments
 capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
@@ -332,8 +336,16 @@ capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib w
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
 !ENDIF
 
-# XXX: This makefile does not properly handle doing a 'nmake ... editcap.exe' directly since some of the .objs
-#      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
+# Linking with setargv.obj enables "wildcard expansion" of command-line arguments
+captype.exe	: $(LIBS_CHECK) config.h $(captype_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\captype.res
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:captype.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(captype_OBJECTS) $(captype_LIBS) setargv.obj image\captype.res
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "captype.exe.manifest" -outputresource:captype.exe;1
+!ENDIF
+
 editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -514,13 +526,15 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 # The following targets will rebuild their respective objs
 # if and when svnversion.h should change.
 #
-text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.obj: svnversion.h
+text2pcap.obj mergecap.obj capinfos.obj captype.obj editcap.obj reordercap.obj version_info.obj: svnversion.h
 
 
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
-		capinfos.obj capinfos.exp capinfos.lib editcap.obj editcap.exp editcap.lib \
+		capinfos.obj capinfos.exp capinfos.lib \
+		captype.obj captype.exp captype.lib \
+		editcap.obj editcap.exp editcap.lib \
 		mergecap.obj text2pcap.obj \
 		reordercap.obj nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c \
@@ -1097,6 +1111,8 @@ install-generated-files: doc
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
+	if exist captype.exe xcopy captype.exe $(INSTALL_DIR) /d
+	if exist captype.pdb xcopy captype.pdb $(INSTALL_DIR) /d
 	if exist dumpcap.exe xcopy dumpcap.exe $(INSTALL_DIR) /d
 	if exist dumpcap.pdb xcopy dumpcap.pdb $(INSTALL_DIR) /d
 	if exist editcap.exe xcopy editcap.exe $(INSTALL_DIR) /d

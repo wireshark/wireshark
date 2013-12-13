@@ -495,7 +495,7 @@ set(PACKAGELIST ${PACKAGELIST} YAPP)
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 
-set(PROGLIST text2pcap mergecap capinfos editcap reordercap dumpcap)
+set(PROGLIST text2pcap mergecap capinfos captype editcap reordercap dumpcap)
 
 #Sort the package list
 list(SORT PACKAGELIST)
@@ -842,6 +842,7 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	COPYING
 	${CMAKE_BINARY_DIR}/capinfos.html
+	${CMAKE_BINARY_DIR}/captype.html
 	cfilters
 	colorfilters
 	dfilters
@@ -1122,6 +1123,24 @@ if(BUILD_capinfos)
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+if(BUILD_captype)
+	set(captype_LIBS
+		wiretap
+		wsutil
+		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS}
+	)
+	set(captype_FILES
+		captype.c
+	)
+	add_executable(captype ${captype_FILES})
+	add_dependencies(captype svnversion)
+	set_target_properties(captype PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	set_target_properties(captype PROPERTIES FOLDER "Executables")
+	target_link_libraries(captype ${captype_LIBS})
+	install(TARGETS captype RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
 if(BUILD_editcap)
 	set(editcap_LIBS
 		wiretap
@@ -1210,6 +1229,7 @@ ADD_CUSTOM_COMMAND(
 )
 
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/captype 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dftest 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/editcap 1 )
@@ -1230,6 +1250,7 @@ add_custom_target(
 	DEPENDS
 		AUTHORS-SHORT
 		capinfos.html
+		captype.html
 		dftest.html
 		dumpcap.html
 		editcap.html
@@ -1249,6 +1270,7 @@ set_target_properties(auxiliary PROPERTIES FOLDER "Docs")
 
 set(MAN1_FILES
 	${CMAKE_BINARY_DIR}/capinfos.1
+	${CMAKE_BINARY_DIR}/captype.1
 	${CMAKE_BINARY_DIR}/dftest.1
 	${CMAKE_BINARY_DIR}/dumpcap.1
 	${CMAKE_BINARY_DIR}/editcap.1
@@ -1275,6 +1297,7 @@ set(CLEAN_FILES
 	${text2pcap_CLEAN_FILES}
 	${mergecap_FILES}
 	${capinfos_FILES}
+	${captype_FILES}
 	${editcap_FILES}
 	${dumpcap_FILES}
 )

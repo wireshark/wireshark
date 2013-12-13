@@ -158,6 +158,10 @@ reordercap_SOURCES = \
 capinfos_SOURCES = \
 	capinfos.c
 
+# captype specifics
+captype_SOURCES = \
+	captype.c
+
 # dftest specifics
 dftest_SOURCES =	\
 	dftest.c

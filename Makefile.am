@@ -41,6 +41,7 @@ bin_PROGRAMS = \
 	@text2pcap_bin@		\
 	@mergecap_bin@		\
 	@capinfos_bin@		\
+	@captype_bin@		\
 	@editcap_bin@		\
 	@randpkt_bin@		\
 	@dftest_bin@		\
@@ -49,9 +50,9 @@ bin_PROGRAMS = \
 	@rawshark_bin@		\
 	@echld_test_bin@
 
-EXTRA_PROGRAMS = wireshark wireshark-qt tshark capinfos editcap mergecap \
-	dftest randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx \
-	echld_test
+EXTRA_PROGRAMS = wireshark wireshark-qt tshark capinfos captype editcap \
+	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark \
+	wireshark_cxx echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -501,6 +502,13 @@ capinfos_LDADD = \
 	@LIBGCRYPT_LIBS@
 capinfos_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
+# Libraries with which to link captype.
+captype_LDADD = \
+	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@
+captype_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
@@ -671,6 +679,7 @@ EXTRA_DIST = \
 	adns_dll.rc		\
 	autogen.sh		\
 	capinfos.c		\
+	captype.c		\
 	capture_win_ifnames.c	\
 	capture_win_ifnames.h	\
 	capture-wpcap.c		\
@@ -759,6 +768,7 @@ EXTRA_DIST = \
 	idl/parlay/ui_data.idl	\
 	idl/parlay/ui_interfaces.idl	\
 	image/capinfos.rc.in	\
+	image/captype.rc.in	\
 	image/capture_comment.svg	\
 	image/capture_comment_add.png	\
 	image/capture_comment_disabled.png	\

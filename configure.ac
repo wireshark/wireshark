@@ -1803,6 +1803,24 @@ AC_SUBST(capinfos_bin)
 AC_SUBST(capinfos_man)
 
 
+# Enable/disable captype
+
+AC_ARG_ENABLE(captype,
+  AC_HELP_STRING( [--enable-captype],
+                  [build captype @<:@default=yes@:>@]),
+    enable_captype=$enableval,enable_captype=yes)
+
+if test "x$enable_captype" = "xyes" ; then
+	captype_bin="captype\$(EXEEXT)"
+	captype_man="captype.1"
+else
+	captype_bin=""
+	captype_man=""
+fi
+AC_SUBST(captype_bin)
+AC_SUBST(captype_man)
+
+
 # Enable/disable mergecap
 
 AC_ARG_ENABLE(mergecap,
@@ -2985,6 +3003,7 @@ echo "             Build wireshark (Gtk+) : $have_gtk""$gtk_lib_message"
 echo "                 Build wireshark-qt : $enable_qtshark"
 echo "                       Build tshark : $enable_tshark"
 echo "                     Build capinfos : $enable_capinfos"
+echo "                      Build captype : $enable_captype"
 echo "                      Build editcap : $enable_editcap"
 echo "                      Build dumpcap : $enable_dumpcap"
 echo "                     Build mergecap : $enable_mergecap"
