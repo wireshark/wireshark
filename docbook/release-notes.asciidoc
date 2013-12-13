@@ -28,7 +28,11 @@ since version 1.11.2:
 
 * Qt port:
 
-** A (statistics tree) dialog has been added.
+** The Capture Interfaces dialog has been added.
+** The Decode As dialog has been added.
+** Several SCTP dialogs have been added.
+** The statistics tree (the backend for many Statistics and Telephony menu
+items) dialog has been added.
 
 The following features are new (or have been significantly updated)
 since version 1.11.1:
