@@ -197,6 +197,8 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	return offset;
 }
 
+void proto_register_netlink_netfilter(void);
+
 void
 proto_register_netlink_netfilter(void)
 {
@@ -225,6 +227,8 @@ proto_register_netlink_netfilter(void)
 
 	netlink_netfilter = new_create_dissector_handle(dissect_netlink_netfilter, proto_netlink_netfilter);
 }
+
+void proto_reg_handoff_netlink_netfilter(void);
 
 void
 proto_reg_handoff_netlink_netfilter(void)

@@ -40,7 +40,7 @@
  */
 #define SLL_HEADER_SIZE	16		/* total header length */
 
-static const value_string family_vals[] = {
+static const value_string netlink_family_vals[] = {
 	{ WS_NETLINK_ROUTE,       "Route" },
 	{ WS_NETLINK_UNUSED,      "Unused" },
 	{ WS_NETLINK_USERSOCK,    "user-mode" },
@@ -65,6 +65,8 @@ static const value_string family_vals[] = {
 	{ 0, NULL }
 };
 
+value_string_ext netlink_family_vals_ext = VALUE_STRING_EXT_INIT(netlink_family_vals);
+
 static const value_string type_vals[] = {
 	{ WS_NLMSG_NOOP,	"nothing" },
 	{ WS_NLMSG_ERROR,	"error" },
@@ -85,8 +87,8 @@ static header_field_info hfi_netlink_hatype NETLINK_HFI_INIT =
 
 /* Linux netlink protocol type */
 static header_field_info hfi_netlink_family NETLINK_HFI_INIT =
-	{ "Family",	"netlink.family", FT_UINT16, BASE_HEX,
-	  VALS(family_vals), 0x00, NULL, HFILL };
+	{ "Family",	"netlink.family", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+	  &netlink_family_vals_ext, 0x00, NULL, HFILL };
 
 
 static header_field_info hfi_netlink_hdr_len NETLINK_HFI_INIT =

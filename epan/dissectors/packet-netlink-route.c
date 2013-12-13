@@ -906,6 +906,8 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	return offset;
 }
 
+void proto_register_netlink_route(void);
+
 void
 proto_register_netlink_route(void)
 {
@@ -976,6 +978,8 @@ proto_register_netlink_route(void)
 
 	netlink_route_handle = new_create_dissector_handle(dissect_netlink_route, proto_netlink_route);
 }
+
+void proto_reg_handoff_netlink_route(void);
 
 void
 proto_reg_handoff_netlink_route(void)

@@ -24,6 +24,8 @@
 #ifndef __PACKET_NETLINK_H__
 #define __PACKET_NETLINK_H__
 
+#include <epan/value_string.h>
+
 /* from <linux/netlink.h> prefixed with WS_ */
 enum {
 	WS_NETLINK_ROUTE = 0,
@@ -49,6 +51,8 @@ enum {
 	WS_NETLINK_RDMA = 20,
 	WS_NETLINK_CRYPTO = 21
 };
+
+extern value_string_ext netlink_family_vals_ext;
 
 enum {
 	WS_NLMSG_NOOP     = 0x01,
