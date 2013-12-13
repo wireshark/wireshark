@@ -1884,7 +1884,7 @@ tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 
 	strbuf = wmem_strbuf_new(scope, NULL);
 
-	for(i = 0; i < length; i += 2) {
+	for(i = 0; i + 1 < length; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
 			uchar = tvb_get_ntohs(tvb, offset + i);
 		else
@@ -1893,6 +1893,10 @@ tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
 
+	/*
+	 * XXX - if i < length, this means we were handed an odd
+	 * number of bytes, so we're not a valid UCS-2 string.
+	 */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
