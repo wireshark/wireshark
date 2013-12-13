@@ -130,6 +130,14 @@ static HDC get_printer_dc(short *width, short *height)
         /* http://msdn.microsoft.com/en-us/library/windows/desktop/dd162931%28v=vs.85%29.aspx */
         returnedDevmode = (PDEVMODE)GlobalLock(pdlg.hDevMode);
 
+        if (returnedDevmode == NULL) {
+            if (pdlg.hDevMode)
+                GlobalFree(pdlg.hDevMode);
+            if (pdlg.hDevNames)
+                GlobalFree(pdlg.hDevNames);
+            return NULL;
+        }
+
         if (returnedDevmode->dmOrientation == DMORIENT_LANDSCAPE) {
             *width = returnedDevmode->dmPaperLength;
             *height = returnedDevmode->dmPaperWidth;
