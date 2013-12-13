@@ -2903,7 +2903,7 @@ static tn5250_conv_info_t *tn5250_info_items;
 static guint32 dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset);
 
 typedef struct hf_items {
-  int hf;
+  int *phf;
   gint bitmask_ett;
   int length;
   const int **bitmask;
@@ -2965,22 +2965,22 @@ tn5250_is_valid_aid(gint aid)
 
 static guint32
 tn5250_add_hf_items(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
-                    hf_items *fields)
+                    const hf_items *fields)
 {
   int start=offset, byte;
   int i;
 
-  for (i = 0; fields[i].hf; ++i) {
+  for (i = 0; fields[i].phf; ++i) {
     if (fields[i].bitmask == 0) {
       /* Skip an 0xFF byte acting as an escape byte */
       byte = tvb_get_guint8(tvb,offset);
       if (byte == 0xFF) {
         offset++;
       }
-      proto_tree_add_item(tn5250_tree, fields[i].hf, tvb, offset,
+      proto_tree_add_item(tn5250_tree, *fields[i].phf, tvb, offset,
                           fields[i].length, fields[i].encoding);
     } else {
-      proto_tree_add_bitmask(tn5250_tree, tvb, offset, fields[i].hf,
+      proto_tree_add_bitmask(tn5250_tree, tvb, offset, *fields[i].phf,
                              fields[i].bitmask_ett, fields[i].bitmask, ENC_BIG_ENDIAN);
     }
     DISSECTOR_ASSERT(fields[i].length > 0);
@@ -3022,9 +3022,9 @@ dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items wcc_fields[] = {
-    { hf_tn5250_wtd_ccc1, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wtd_ccc2, ett_tn5250_wcc, 1, wcc_byte, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wtd_ccc1, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wtd_ccc2, ett_tn5250_wcc, 1, wcc_byte, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
  tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
@@ -3108,15 +3108,15 @@ dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items start_of_header_fields[] = {
-    { hf_tn5250_soh_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_soh_flags, ett_tn5250_soh_mask, 1, byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_soh_resq, 1, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_soh_err, 1, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_soh_pf24to17, ett_tn5250_soh_pf24to17_mask, 1, byte1, 0 },
-    { hf_tn5250_soh_pf16to9, ett_tn5250_soh_pf16to9_mask, 1, byte2, 0 },
-    { hf_tn5250_soh_pf8to1, ett_tn5250_soh_pf8to1_mask, 1, byte3, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_soh_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_soh_flags, ett_tn5250_soh_mask, 1, byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_soh_resq, 1, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_soh_err, 1, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_soh_pf24to17, ett_tn5250_soh_pf24to17_mask, 1, byte1, 0 },
+    { &hf_tn5250_soh_pf16to9, ett_tn5250_soh_pf16to9_mask, 1, byte2, 0 },
+    { &hf_tn5250_soh_pf8to1, ett_tn5250_soh_pf8to1_mask, 1, byte3, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
@@ -3226,9 +3226,9 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items outbound_text_header_fields[] = {
-    { hf_tn5250_ffw, ett_tn5250_soh_mask, 1, byte, 0 },
-    { hf_tn5250_ffw, ett_tn5250_soh_mask, 1, byte1, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_ffw, ett_tn5250_soh_mask, 1, byte, 0 },
+    { &hf_tn5250_ffw, ett_tn5250_soh_mask, 1, byte1, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
   ffw = tvb_get_guint8(tvb, offset);
@@ -3294,12 +3294,12 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items cw_fields[] = {
-    { hf_tn5250_wdsf_cw_flag1, ett_tn5250_wdsf_cw_mask, 1, byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_wd, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_ww, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_cw_flag1, ett_tn5250_wdsf_cw_mask, 1, byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_wd, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_ww, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *cw_bp_flag1[] = {
@@ -3310,20 +3310,20 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
 
   hf_items cwbp_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_bp_flag1, ett_tn5250_wdsf_cw_bp_mask, 1, cw_bp_flag1, 0 },
-    { hf_tn5250_wdsf_cw_bp_mba, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_bp_cba, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_bp_ulbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_tbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_urbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_lbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_rbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_llbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_bbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_cw_bp_lrbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_bp_flag1, ett_tn5250_wdsf_cw_bp_mask, 1, cw_bp_flag1, 0 },
+    { &hf_tn5250_wdsf_cw_bp_mba, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_bp_cba, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_bp_ulbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_tbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_urbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_lbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_rbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_llbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_bbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_cw_bp_lrbc, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *cw_tf_flag1[] = {
@@ -3335,13 +3335,13 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
 
   hf_items cw_tf_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_tf_flag, ett_tn5250_wdsf_cw_tf_mask, 1, cw_tf_flag1, 0 },
-    { hf_tn5250_wdsf_cw_tf_mba, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cw_tf_cba, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_tf_flag, ett_tn5250_wdsf_cw_tf_mask, 1, cw_tf_flag1, 0 },
+    { &hf_tn5250_wdsf_cw_tf_mba, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cw_tf_cba, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cw_fields);
@@ -3405,25 +3405,25 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_fields[] = {
-    { hf_tn5250_wdsf_ds_flag1, ett_tn5250_wdsf_ds_mask, 1, ds_flag1, 0 },
-    { hf_tn5250_wdsf_ds_flag2, ett_tn5250_wdsf_ds_mask, 1, ds_flag2, 0 },
-    { hf_tn5250_wdsf_ds_flag3, ett_tn5250_wdsf_ds_mask, 1, ds_flag3, 0 },
-    { hf_tn5250_wdsf_ds_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_gdc, ett_tn5250_wdsf_ds_mask, 1, ds_gdc, 0 },
-    { hf_tn5250_wdsf_ds_nws, ett_tn5250_wdsf_ds_mask, 1, ds_nws, 0 },
-    { hf_tn5250_wdsf_ds_nws_wout, ett_tn5250_wdsf_ds_mask, 1, ds_nws, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_textsize, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_rows, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_columns, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_padding, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_numeric_sep, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_country_sel, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_cancel_aid, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_totalrows, 0, 4, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sliderpos, 0, 4, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_ds_flag1, ett_tn5250_wdsf_ds_mask, 1, ds_flag1, 0 },
+    { &hf_tn5250_wdsf_ds_flag2, ett_tn5250_wdsf_ds_mask, 1, ds_flag2, 0 },
+    { &hf_tn5250_wdsf_ds_flag3, ett_tn5250_wdsf_ds_mask, 1, ds_flag3, 0 },
+    { &hf_tn5250_wdsf_ds_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_gdc, ett_tn5250_wdsf_ds_mask, 1, ds_gdc, 0 },
+    { &hf_tn5250_wdsf_ds_nws, ett_tn5250_wdsf_ds_mask, 1, ds_nws, 0 },
+    { &hf_tn5250_wdsf_ds_nws_wout, ett_tn5250_wdsf_ds_mask, 1, ds_nws, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_textsize, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_rows, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_columns, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_padding, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_numeric_sep, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_country_sel, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_cancel_aid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_totalrows, 0, 4, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sliderpos, 0, 4, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ds_ct_flag1[] = {
@@ -3448,16 +3448,16 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_ct_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_ct_flag1, ett_tn5250_wdsf_ds_ct_mask, 1, ds_ct_flag1, 0 },
-    { hf_tn5250_wdsf_ds_ct_flag2, ett_tn5250_wdsf_ds_ct_mask, 1, ds_ct_flag2, 0 },
-    { hf_tn5250_wdsf_ds_ct_flag3, ett_tn5250_wdsf_ds_ct_mask, 1, ds_ct_flag3, 0 },
-    { hf_tn5250_wdsf_ds_ct_mnemonic_offset, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_ct_aid, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_ct_numeric_onebyte, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_ct_numeric_twobyte, 0, 2, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_ct_flag1, ett_tn5250_wdsf_ds_ct_mask, 1, ds_ct_flag1, 0 },
+    { &hf_tn5250_wdsf_ds_ct_flag2, ett_tn5250_wdsf_ds_ct_mask, 1, ds_ct_flag2, 0 },
+    { &hf_tn5250_wdsf_ds_ct_flag3, ett_tn5250_wdsf_ds_ct_mask, 1, ds_ct_flag3, 0 },
+    { &hf_tn5250_wdsf_ds_ct_mnemonic_offset, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_ct_aid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_ct_numeric_onebyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_ct_numeric_twobyte, 0, 2, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ds_mbs_flag[] = {
@@ -3467,16 +3467,16 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_mbs_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_mbs_flag, ett_tn5250_wdsf_ds_mbs_mask, 1, ds_mbs_flag, 0 },
-    { hf_tn5250_wdsf_ds_mbs_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_mbs_end_column, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_mbs_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_mbs_monochrome_sep, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_mbs_color_sep, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_mbs_sep_char, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_mbs_flag, ett_tn5250_wdsf_ds_mbs_mask, 1, ds_mbs_flag, 0 },
+    { &hf_tn5250_wdsf_ds_mbs_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_mbs_end_column, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_mbs_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_mbs_monochrome_sep, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_mbs_color_sep, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_mbs_sep_char, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ds_cpda_flag[] = {
@@ -3486,26 +3486,26 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_cpda_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_flag1, ett_tn5250_wdsf_ds_cpda_mask, 1, ds_cpda_flag, 0 },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_sel_avail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_sel_avail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_sel_selected, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_sel_selected, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_sel_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_sel_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_avail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_avail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_selected, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_selected, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_monochrome_unavail_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_cpda_color_unavail_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_flag1, ett_tn5250_wdsf_ds_cpda_mask, 1, ds_cpda_flag, 0 },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_sel_avail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_sel_avail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_sel_selected, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_sel_selected, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_sel_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_sel_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_avail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_avail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_selected, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_selected, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_unavail, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_monochrome_unavail_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_cpda_color_unavail_indicator, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ds_ci_flag[] = {
@@ -3514,13 +3514,13 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_ci_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_ci_flag1, ett_tn5250_wdsf_ds_ci_mask, 1, ds_ci_flag, 0 },
-    { hf_tn5250_wdsf_ds_ci_left_push, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_ci_right_push, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_ci_first_choice, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_ci_flag1, ett_tn5250_wdsf_ds_ci_mask, 1, ds_ci_flag, 0 },
+    { &hf_tn5250_wdsf_ds_ci_left_push, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_ci_right_push, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_ci_first_choice, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ds_sbi_flag[] = {
@@ -3529,18 +3529,18 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_sbi_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_flag1, ett_tn5250_wdsf_ds_sbi_mask, 1, ds_sbi_flag, 0 },
-    { hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_color_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_color_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_top_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_sbi_bottom_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_sbi_empty_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_sbi_slider_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_flag1, ett_tn5250_wdsf_ds_sbi_mask, 1, ds_sbi_flag, 0 },
+    { &hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_color_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_color_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_top_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_sbi_bottom_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_sbi_empty_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_sbi_slider_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, ds_fields);
@@ -3598,12 +3598,12 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items dsb_fields[] = {
-    { hf_tn5250_wdsf_dsb_flag1, ett_tn5250_wdsf_dsb_mask, 1, dsb_byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_sbi_total_scroll, 0, 4, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_sbi_sliderpos, 0, 4, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_sbi_rowscols, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_dsb_flag1, ett_tn5250_wdsf_dsb_mask, 1, dsb_byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_sbi_total_scroll, 0, 4, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_sbi_sliderpos, 0, 4, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_sbi_rowscols, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ds_sbi_flag[] = {
@@ -3612,18 +3612,18 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items ds_sbi_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_flag1, ett_tn5250_wdsf_ds_sbi_mask, 1, ds_sbi_flag, 0 },
-    { hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_color_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_color_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_ds_sbi_top_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_sbi_bottom_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_sbi_empty_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_wdsf_ds_sbi_slider_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_flag1, ett_tn5250_wdsf_ds_sbi_mask, 1, ds_sbi_flag, 0 },
+    { &hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_color_top_highlight, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_monochrome_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_color_top_highlight_shaft, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_ds_sbi_top_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_sbi_bottom_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_sbi_empty_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_wdsf_ds_sbi_slider_character, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
@@ -3660,14 +3660,14 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   };
 
   hf_items deg_fields[] = {
-    { hf_tn5250_wdsf_deg_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_flag1, ett_tn5250_wdsf_deg_mask, 1, deg_byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_flag2, ett_tn5250_wdsf_deg_mask, 1, deg_byte2, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_default_color, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_default_line, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_deg_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_flag1, ett_tn5250_wdsf_deg_mask, 1, deg_byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_flag2, ett_tn5250_wdsf_deg_mask, 1, deg_byte2, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_default_color, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_default_line, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
@@ -3677,17 +3677,17 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   };
 
   hf_items deg_ms_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_flag1, ett_tn5250_wdsf_deg_ms_mask, 1, deg_ms_byte, 0 },
-    { hf_tn5250_wdsf_deg_ms_start_row, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_horizontal_dimension, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_vertical_dimension, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_default_color, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_line_repeat, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_deg_ms_line_interval, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_flag1, ett_tn5250_wdsf_deg_ms_mask, 1, deg_ms_byte, 0 },
+    { &hf_tn5250_wdsf_deg_ms_start_row, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_horizontal_dimension, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_vertical_dimension, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_default_color, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_line_repeat, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_deg_ms_line_interval, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, deg_fields);
@@ -3721,10 +3721,10 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
   int done = 0, ln_left = 0, i = 0;
 
   hf_items standard_fields[] = {
-    { hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *rgw_byte[] = {
@@ -3735,10 +3735,10 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
   };
 
   hf_items rgw_fields[] = {
-    { hf_tn5250_wdsf_rgw_flag1, ett_tn5250_wdsf_rgw_mask, 1, rgw_byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_rgw_flag1, ett_tn5250_wdsf_rgw_mask, 1, rgw_byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *ragc_byte[] = {
@@ -3748,10 +3748,10 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
   };
 
   hf_items ragc_fields[] = {
-    { hf_tn5250_wdsf_ragc_flag1, ett_tn5250_wdsf_ragc_mask, 1, ragc_byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_ragc_flag1, ett_tn5250_wdsf_ragc_mask, 1, ragc_byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *wdf_byte[] = {
@@ -3761,9 +3761,9 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
   };
 
   hf_items wdf_fields[] = {
-    { hf_tn5250_wdsf_wdf_flag1, ett_tn5250_wdsf_wdf_mask, 1, wdf_byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_wdf_flag1, ett_tn5250_wdsf_wdf_mask, 1, wdf_byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *pmb_byte[] = {
@@ -3774,20 +3774,20 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
   };
 
   hf_items pmb_fields[] = {
-    { hf_tn5250_wdsf_pmb_flag1, ett_tn5250_wdsf_pmb_mask, 1, pmb_byte, 0 },
-    { hf_tn5250_wdsf_pmb_first_mouse_event, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_pmb_second_mouse_event, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_aid, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_pmb_flag1, ett_tn5250_wdsf_pmb_mask, 1, pmb_byte, 0 },
+    { &hf_tn5250_wdsf_pmb_first_mouse_event, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_pmb_second_mouse_event, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_aid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items cgl_fields[] = {
-    { hf_tn5250_wdsf_cgl_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cgl_start_row, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cgl_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cgl_rectangle_width, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wdsf_cgl_rectangle_height, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wdsf_cgl_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cgl_start_row, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cgl_start_column, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cgl_rectangle_width, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wdsf_cgl_rectangle_height, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   length = tvb_get_ntohs(tvb,offset);
@@ -3989,13 +3989,13 @@ dissect_save_partial_screen(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items save_partial_screen_fields[] = {
-    { hf_tn5250_soh_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sps_flag1, ett_tn5250_sps_mask, 1, byte, 0 },
-    { hf_tn5250_sps_top_row, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sps_left_column, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sps_window_depth, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sps_window_width, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_soh_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sps_flag1, ett_tn5250_sps_mask, 1, byte, 0 },
+    { &hf_tn5250_sps_top_row, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sps_left_column, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sps_window_depth, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sps_window_width, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   length = tvb_get_guint8(tvb, offset);
@@ -4022,10 +4022,10 @@ dissect_roll(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items roll_fields[] = {
-    { hf_tn5250_roll_flag1, ett_tn5250_roll_mask, 1, byte, 0 },
-    { hf_tn5250_roll_top_line, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_roll_bottom_line, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_roll_flag1, ett_tn5250_roll_mask, 1, byte, 0 },
+    { &hf_tn5250_roll_top_line, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_roll_bottom_line, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
@@ -4058,17 +4058,17 @@ dissect_write_single_structured_field_minor_fields(proto_tree *tn5250_tree,
   };
 
   hf_items wsc_customization_kbc_fields[] = {
-    { hf_tn5250_sf_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_wsc_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_kbc_flag1, ett_tn5250_wssf_kbc_mask, 1, byte_wssf_kbc_flag1, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_sf_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_wsc_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_kbc_flag1, ett_tn5250_wssf_kbc_mask, 1, byte_wssf_kbc_flag1, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items wsc_customization_cc_fields[] = {
-    { hf_tn5250_sf_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_wsc_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_cc_flag1, ett_tn5250_wssf_cc_mask, 1, byte_wssf_cc_flag1, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_sf_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_wsc_minor_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_cc_flag1, ett_tn5250_wssf_cc_mask, 1, byte_wssf_cc_flag1, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
@@ -4138,44 +4138,44 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
 
 
   hf_items standard_fields[] = {
-    { hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items wsc_customization_fields[] = {
-    { hf_tn5250_wssf_flag1, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_flag2, ett_tn5250_wssf_mask, 1, byte, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wssf_flag1, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_flag2, ett_tn5250_wssf_mask, 1, byte, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items wsc_image_control_fields[] = {
-    { hf_tn5250_wssf_ifc_flag1, ett_tn5250_wssf_ifc_mask, 1, ifc_byte, 0 },
-    { hf_tn5250_wssf_ifc_flag2, ett_tn5250_wssf_ifc_mask, 1, ifc_byte2, 0 },
-    { hf_tn5250_wssf_ifc_image_format, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_viewport_location_row, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_viewport_location_col, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_viewport_size_row, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_viewport_size_col, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_scaling, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_viewimage_location_row, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_viewimage_location_col, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_rotation, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_foreground_color, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wssf_ifc_background_color, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wssf_ifc_flag1, ett_tn5250_wssf_ifc_mask, 1, ifc_byte, 0 },
+    { &hf_tn5250_wssf_ifc_flag2, ett_tn5250_wssf_ifc_mask, 1, ifc_byte2, 0 },
+    { &hf_tn5250_wssf_ifc_image_format, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_viewport_location_row, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_viewport_location_col, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_viewport_size_row, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_viewport_size_col, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_scaling, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_viewimage_location_row, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_viewimage_location_col, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_rotation, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_foreground_color, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wssf_ifc_background_color, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items wsc_image_download_fields[] = {
-    { hf_tn5250_wssf_ifd_flag1, ett_tn5250_wssf_ifd_mask, 1, ifd_byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_length, 0, 2, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wssf_ifd_flag1, ett_tn5250_wssf_ifd_mask, 1, ifd_byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_length, 0, 2, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   length = tvb_get_ntohs(tvb,offset);
@@ -4246,10 +4246,10 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   int length, type, done = 0, used = 0;
 
   hf_items standard_fields[] = {
-    { hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *qss_byte1[] = {
@@ -4265,22 +4265,22 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items qss_fields[] = {
-    { hf_tn5250_wsf_qss_flag1, ett_tn5250_wsf_qss_mask, 1, qss_byte1, 0 },
-    { hf_tn5250_wsf_qss_flag2, ett_tn5250_wsf_qss_mask, 1, qss_byte2, 0 },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wsf_qss_flag1, ett_tn5250_wsf_qss_mask, 1, qss_byte1, 0 },
+    { &hf_tn5250_wsf_qss_flag2, ett_tn5250_wsf_qss_mask, 1, qss_byte2, 0 },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items dawt_fields[] = {
-    { hf_tn5250_dawt_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dawt_char, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dawt_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dawt_char, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items dckf_fields[] = {
-    { hf_tn5250_dckf_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dckf_key_code, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dckf_function_code, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dckf_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dckf_key_code, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dckf_function_code, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *rts_byte1[] = {
@@ -4290,11 +4290,11 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items rts_fields[] = {
-    { hf_tn5250_rts_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_rts_flag1, ett_tn5250_wsf_rts_mask, 1, rts_byte1, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_rts_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_rts_flag1, ett_tn5250_wsf_rts_mask, 1, rts_byte1, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *dpo_byte1[] = {
@@ -4316,13 +4316,13 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items dpo_fields[] = {
-    { hf_tn5250_dpo_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dpo_flag1, ett_tn5250_wsf_dpo_mask, 1, dpo_byte1, 0 },
-    { hf_tn5250_dpo_flag2, ett_tn5250_wsf_dpo_mask, 1, dpo_byte2, 0 },
-    { hf_tn5250_dpo_displace_characters, 0, 3, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_dpo_start_location_row, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dpo_start_location_col, 0, 2, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dpo_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dpo_flag1, ett_tn5250_wsf_dpo_mask, 1, dpo_byte1, 0 },
+    { &hf_tn5250_dpo_flag2, ett_tn5250_wsf_dpo_mask, 1, dpo_byte2, 0 },
+    { &hf_tn5250_dpo_displace_characters, 0, 3, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_dpo_start_location_row, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dpo_start_location_col, 0, 2, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *dtsf_byte1[] = {
@@ -4347,15 +4347,15 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items dtsf_fields[] = {
-    { hf_tn5250_dtsf_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dtsf_flag1, ett_tn5250_wsf_dtsf_mask, 1, dtsf_byte1, 0 },
-    { hf_tn5250_dtsf_flag2, ett_tn5250_wsf_dtsf_mask, 1, dtsf_byte2, 0 },
-    { hf_tn5250_dtsf_text_body_height, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dtsf_text_body_width, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dtsf_line_cmd_field_size, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dtsf_location_of_pitch, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dtsf_first_line, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dtsf_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dtsf_flag1, ett_tn5250_wsf_dtsf_mask, 1, dtsf_byte1, 0 },
+    { &hf_tn5250_dtsf_flag2, ett_tn5250_wsf_dtsf_mask, 1, dtsf_byte2, 0 },
+    { &hf_tn5250_dtsf_text_body_height, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dtsf_text_body_width, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dtsf_line_cmd_field_size, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dtsf_location_of_pitch, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dtsf_first_line, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *dsl_byte1[] = {
@@ -4367,20 +4367,20 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items dsl_fields[] = {
-    { hf_tn5250_dsl_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsl_rtl_offset, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsl_offset, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dsl_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsl_rtl_offset, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsl_offset, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items dsl_fields2[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsl_flag1, ett_tn5250_wsf_dsl_mask, 1, dsl_byte1, 0 },
-    { hf_tn5250_dsl_id, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsl_location, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsl_function, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsl_flag1, ett_tn5250_wsf_dsl_mask, 1, dsl_byte1, 0 },
+    { &hf_tn5250_dsl_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsl_location, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsl_function, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *wts_byte1[] = {
@@ -4412,13 +4412,13 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items wts_fields[] = {
-    { hf_tn5250_wts_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wts_flag1, ett_tn5250_wts_mask, 1, wts_byte1, 0 },
-    { hf_tn5250_wts_flag2, ett_tn5250_wts_mask, 1, wts_byte2, 0 },
-    { hf_tn5250_wts_flag3, ett_tn5250_wts_mask, 1, wts_byte3, 0 },
-    { hf_tn5250_wts_home_position_row, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wts_home_position_col, 0, 2, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_wts_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wts_flag1, ett_tn5250_wts_mask, 1, wts_byte1, 0 },
+    { &hf_tn5250_wts_flag2, ett_tn5250_wts_mask, 1, wts_byte2, 0 },
+    { &hf_tn5250_wts_flag3, ett_tn5250_wts_mask, 1, wts_byte3, 0 },
+    { &hf_tn5250_wts_home_position_row, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wts_home_position_col, 0, 2, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   static const int *wts_cld_byte1[] = {
@@ -4456,32 +4456,32 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items wts_line_data_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN }, /*FIXME: Could be one or two bytes! */
-    { hf_tn5250_wts_cld_flag1, ett_tn5250_wts_mask, 1, wts_cld_byte1, 0 },
-    { hf_tn5250_wts_cld_flag2, ett_tn5250_wts_mask, 1, wts_cld_byte2, 0 },
-    { hf_tn5250_wts_cld_row, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wts_cld_flag3, ett_tn5250_wts_mask, 1, wts_cld_byte3, 0 },
-    { hf_tn5250_wts_cld_page_num, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wts_cld_lmo, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wts_cld_io, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_wts_cld_sli, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN }, /*FIXME: Could be one or two bytes! */
+    { &hf_tn5250_wts_cld_flag1, ett_tn5250_wts_mask, 1, wts_cld_byte1, 0 },
+    { &hf_tn5250_wts_cld_flag2, ett_tn5250_wts_mask, 1, wts_cld_byte2, 0 },
+    { &hf_tn5250_wts_cld_row, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wts_cld_flag3, ett_tn5250_wts_mask, 1, wts_cld_byte3, 0 },
+    { &hf_tn5250_wts_cld_page_num, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wts_cld_lmo, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wts_cld_io, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_wts_cld_sli, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
   hf_items dsc_fields[] = {
-    { hf_tn5250_dsc_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsc_sk, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dsc_ev, 0, 1, 0, ENC_EBCDIC|ENC_NA },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dsc_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsc_sk, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dsc_ev, 0, 1, 0, ENC_EBCDIC|ENC_NA },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items dorm_fields[] = {
-    { hf_tn5250_dorm_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dorm_ec, 0, 2, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dorm_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dorm_ec, 0, 2, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
@@ -4534,28 +4534,28 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
   };
 
   hf_items dfdpck_fields[] = {
-    { hf_tn5250_dfdpck_partition, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_dfdpck_partition, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items dfdpck_core_area_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dfdpck_data_field, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dfdpck_coreflag, ett_tn5250_dfdpck_mask, 1, dfdpck_coreflag, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dfdpck_data_field, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dfdpck_coreflag, ett_tn5250_dfdpck_mask, 1, dfdpck_coreflag, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   hf_items dfdpck_top_row_fields[] = {
-    { hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dfdpck_data_field, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_dfdpck_toprowflag1, ett_tn5250_dfdpck_mask, 1, dfdpck_toprowflag1, 0 },
-    { hf_tn5250_dfdpck_toprowflag2, ett_tn5250_dfdpck_mask, 1, dfdpck_toprowflag2, 0 },
-    { hf_tn5250_dfdpck_toprowflag3, ett_tn5250_dfdpck_mask, 1, dfdpck_toprowflag3, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dfdpck_data_field, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_dfdpck_toprowflag1, ett_tn5250_dfdpck_mask, 1, dfdpck_toprowflag1, 0 },
+    { &hf_tn5250_dfdpck_toprowflag2, ett_tn5250_dfdpck_mask, 1, dfdpck_toprowflag2, 0 },
+    { &hf_tn5250_dfdpck_toprowflag3, ett_tn5250_dfdpck_mask, 1, dfdpck_toprowflag3, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
@@ -4718,52 +4718,52 @@ dissect_query_reply(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items qr_fields[] = {
-    { hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_flag, ett_tn5250_qr_mask, 1, byte, 0 },
-    { hf_tn5250_qr_chc, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_ccl, 0, 3, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_dt, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_dtc, 0, 4, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_qr_dm, 0, 3, 0, ENC_EBCDIC|ENC_NA },
-    { hf_tn5250_qr_ki, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_eki, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_dsn, 0, 4, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_mni, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_flag1, ett_tn5250_qr_mask, 1, byte1, 0 },
-    { hf_tn5250_qr_flag2, ett_tn5250_qr_mask, 1, byte2, 0 },
-    { hf_tn5250_qr_flag3, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_qr_flag4, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_sf_length, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_class, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sf_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_flag, ett_tn5250_qr_mask, 1, byte, 0 },
+    { &hf_tn5250_qr_chc, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_ccl, 0, 3, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_dt, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_dtc, 0, 4, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_qr_dm, 0, 3, 0, ENC_EBCDIC|ENC_NA },
+    { &hf_tn5250_qr_ki, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_eki, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_dsn, 0, 4, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_mni, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_flag1, ett_tn5250_qr_mask, 1, byte1, 0 },
+    { &hf_tn5250_qr_flag2, ett_tn5250_qr_mask, 1, byte2, 0 },
+    { &hf_tn5250_qr_flag3, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_qr_flag4, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
 
@@ -4792,14 +4792,14 @@ dissect_tn5250_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   };
 
   hf_items fields[] = {
-    { hf_tn5250_logical_record_length, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_sna_record_type, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_reserved, 0, 2, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_variable_record_length, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_header_flags, ett_tn5250_header_flags, 1, byte, 0 },
-    { hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
-    { hf_tn5250_operation_code, 0, 1, 0, ENC_BIG_ENDIAN },
-    { 0, 0, 0, 0, 0 }
+    { &hf_tn5250_logical_record_length, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_sna_record_type, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_reserved, 0, 2, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_variable_record_length, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_header_flags, ett_tn5250_header_flags, 1, byte, 0 },
+    { &hf_tn5250_reserved, 0, 1, 0, ENC_BIG_ENDIAN },
+    { &hf_tn5250_operation_code, 0, 1, 0, ENC_BIG_ENDIAN },
+    { NULL, 0, 0, 0, 0 }
   };
 
   error_flag = tvb_get_guint8(tvb, offset+8);
