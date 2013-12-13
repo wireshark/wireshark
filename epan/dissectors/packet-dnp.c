@@ -2775,7 +2775,7 @@ static int
 dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8        al_ctl, al_seq, al_func, al_class = 0, i;
-  guint16       bytes, obj_type;
+  guint16       bytes, obj_type = 0;
   guint         data_len = 0, offset = 0;
   proto_item   *ti, *tc, *t_robj;
   proto_tree   *al_tree, *field_tree, *robj_tree;
