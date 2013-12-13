@@ -302,6 +302,13 @@
      <addaction name="actionAnalyzePAFAndNotSelected"/>
      <addaction name="actionAnalyzePAFOrNotSelected"/>
     </widget>
+    <widget class="QMenu" name="menuSCTP">
+     <property name="title">
+      <string>SCTP</string>
+     </property>
+     <addaction name="actionSCTPAnalyseThisAssociation"/>
+     <addaction name="actionSCTPShowAllAssociations"/>
+    </widget>
     <addaction name="actionDisplayFilters"/>
     <addaction name="actionDisplayFilterMacros"/>
     <addaction name="separator"/>
@@ -311,6 +318,7 @@
     <addaction name="separator"/>
     <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="separator"/>
+    <addaction name="menuSCTP"/>
     <addaction name="actionAnalyzeFollowTCPStream"/>
     <addaction name="actionAnalyzeFollowUDPStream"/>
     <addaction name="actionAnalyzeFollowSSLStream"/>
@@ -1358,6 +1366,16 @@
    </property>
    <property name="toolTip">
     <string>TCP time sequence graph (tcptrace)</string>
+   </property>
+  </action>
+  <action name="actionSCTPAnalyseThisAssociation">
+   <property name="text">
+    <string>Analyse this Association</string>
+   </property>
+  </action>
+  <action name="actionSCTPShowAllAssociations">
+   <property name="text">
+    <string>Show All Associations</string>
    </property>
   </action>
   <action name="actionStatisticsFlowGraph">

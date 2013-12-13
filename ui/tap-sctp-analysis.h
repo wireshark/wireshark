@@ -25,6 +25,10 @@
 #ifndef __TAP_SCTP_ANALYSIS_H__
 #define __TAP_SCTP_ANALYSIS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */ 
+
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
 #ifndef _WIN32
@@ -54,11 +58,13 @@
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
 #define SCTP_AUTH_CHUNK_ID              15
 #define SCTP_NR_SACK_CHUNK_ID           16
-#define SCTP_FORWARD_TSN_CHUNK_ID     0xc0
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
-#define SCTP_ASCONF_CHUNK_ID          0xc1
-#define SCTP_IETF_EXT                  255
+#define SCTP_RE_CONFIG_CHUNK_ID       0x82
+#define SCTP_PAD_CHUNK_ID             0x84
+#define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
+#define SCTP_ASCONF_CHUNK_ID          0xC1
+#define SCTP_IETF_EXT                 0xFF
 
 #define IS_SCTP_CHUNK_TYPE(t) \
         (((t) <= 16) || ((t) == 0xC0) || ((t) == 0xC1) || ((t) == 0x80) || ((t) == 0x81))
@@ -138,8 +144,35 @@
 #define INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET  (INIT_CHUNK_INITIAL_TSN_OFFSET + \
                                                       INIT_CHUNK_INITIAL_TSN_LENGTH )
 
-/* The below value is 256 */
-#define NUM_CHUNKS	0xff
+static const value_string chunk_type_values[] = {
+	{ SCTP_DATA_CHUNK_ID,              "DATA" },
+	{ SCTP_INIT_CHUNK_ID,              "INIT" },
+	{ SCTP_INIT_ACK_CHUNK_ID,          "INIT_ACK" },
+	{ SCTP_SACK_CHUNK_ID,              "SACK" },
+	{ SCTP_HEARTBEAT_CHUNK_ID,         "HEARTBEAT" },
+	{ SCTP_HEARTBEAT_ACK_CHUNK_ID,     "HEARTBEAT_ACK" },
+	{ SCTP_ABORT_CHUNK_ID,             "ABORT" },
+	{ SCTP_SHUTDOWN_CHUNK_ID,          "SHUTDOWN" },
+	{ SCTP_SHUTDOWN_ACK_CHUNK_ID,      "SHUTDOWN_ACK" },
+	{ SCTP_ERROR_CHUNK_ID,             "ERROR" },
+	{ SCTP_COOKIE_ECHO_CHUNK_ID,       "COOKIE_ECHO" },
+	{ SCTP_COOKIE_ACK_CHUNK_ID,        "COOKIE_ACK" },
+	{ SCTP_ECNE_CHUNK_ID,              "ECNE" },
+	{ SCTP_CWR_CHUNK_ID,               "CWR" },
+	{ SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
+	{ SCTP_AUTH_CHUNK_ID,              "AUTH" },
+	{ SCTP_NR_SACK_CHUNK_ID,           "NR-SACK" },
+	{ SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
+	{ SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
+	{ SCTP_RE_CONFIG_CHUNK_ID,         "RE_CONFIG" },
+	{ SCTP_PAD_CHUNK_ID,               "PAD" },
+	{ SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD_TSN" },
+	{ SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
+	{ SCTP_IETF_EXT,                   "IETF_EXTENSION" },
+	{ 0,                               NULL } };
+
+/* The below value is 255 */
+#define NUM_CHUNKS  0x100
 
 /* This variable is used as an index into arrays
  * which store the cumulative information corresponding
@@ -165,6 +198,8 @@ typedef struct _tsn {
 } tsn_t;
 
 typedef struct _sctp_tmp_info {
+	guint16 assoc_id;
+	guint16 direction;
 	address src;
 	address dst;
 	guint16 port1;
@@ -207,6 +242,7 @@ typedef struct _sctp_addr_chunk {
 } sctp_addr_chunk;
 
 typedef struct _sctp_assoc_info {
+	guint16   assoc_id;
 	address   src;
 	address   dst;
 	guint16   port1;
@@ -247,6 +283,8 @@ typedef struct _sctp_assoc_info {
 	guint32   n_array_tsn2;
 	guint32   max_window1;
 	guint32   max_window2;
+	guint32   arwnd1;
+	guint32   arwnd2;
 	gboolean  init;
 	gboolean  initack;
 	guint8    initack_dir;
@@ -310,7 +348,9 @@ void remove_tap_listener_sctp_stat(void);
 
 const sctp_assoc_info_t* get_selected_assoc(void);
 
-
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 
 #endif /* __TAP_SCTP_ANALYSIS_H__ */

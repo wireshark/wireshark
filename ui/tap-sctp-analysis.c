@@ -36,68 +36,6 @@
 
 #include "ui/simple_dialog.h"
 
-#define SCTP_ABORT_CHUNK_T_BIT        0x01
-
-#define PARAMETER_TYPE_LENGTH            2
-#define PARAMETER_LENGTH_LENGTH          2
-#define PARAMETER_HEADER_LENGTH          (PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_LENGTH)
-
-#define PARAMETER_HEADER_OFFSET          0
-#define PARAMETER_TYPE_OFFSET            PARAMETER_HEADER_OFFSET
-#define PARAMETER_LENGTH_OFFSET          (PARAMETER_TYPE_OFFSET + PARAMETER_TYPE_LENGTH)
-#define PARAMETER_VALUE_OFFSET           (PARAMETER_LENGTH_OFFSET + PARAMETER_LENGTH_LENGTH)
-
-#define IPV6_ADDRESS_LENGTH 16
-#define IPV6_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
-#define IPV4_ADDRESS_LENGTH 4
-#define IPV4_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
-#define IPV4ADDRESS_PARAMETER_ID             0x0005
-#define IPV6ADDRESS_PARAMETER_ID             0x0006
-
-#define SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH    4
-#define SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET (CHUNK_VALUE_OFFSET + 0)
-#define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH 4
-#define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET (SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET + \
-                                                 SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH)
-
-#define INIT_CHUNK_INITIAL_TSN_LENGTH                4
-#define INIT_CHUNK_FIXED_PARAMTERS_LENGTH            (INIT_CHUNK_INITIATE_TAG_LENGTH + \
-                                                      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH + \
-                                                      INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH + \
-                                                      INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH + \
-                                                      INIT_CHUNK_INITIAL_TSN_LENGTH)
-#define CHUNK_HEADER_LENGTH           (CHUNK_TYPE_LENGTH + \
-                                       CHUNK_FLAGS_LENGTH + \
-                                       CHUNK_LENGTH_LENGTH)
-#define INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET  (INIT_CHUNK_INITIAL_TSN_OFFSET + \
-                                                      INIT_CHUNK_INITIAL_TSN_LENGTH )
-
-static const value_string chunk_type_values[] = {
-  { SCTP_DATA_CHUNK_ID,              "DATA" },
-  { SCTP_INIT_CHUNK_ID,              "INIT" },
-  { SCTP_INIT_ACK_CHUNK_ID,          "INIT_ACK" },
-  { SCTP_SACK_CHUNK_ID,              "SACK" },
-  { SCTP_HEARTBEAT_CHUNK_ID,         "HEARTBEAT" },
-  { SCTP_HEARTBEAT_ACK_CHUNK_ID,     "HEARTBEAT_ACK" },
-  { SCTP_ABORT_CHUNK_ID,             "ABORT" },
-  { SCTP_SHUTDOWN_CHUNK_ID,          "SHUTDOWN" },
-  { SCTP_SHUTDOWN_ACK_CHUNK_ID,      "SHUTDOWN_ACK" },
-  { SCTP_ERROR_CHUNK_ID,             "ERROR" },
-  { SCTP_COOKIE_ECHO_CHUNK_ID,       "COOKIE_ECHO" },
-  { SCTP_COOKIE_ACK_CHUNK_ID,        "COOKIE_ACK" },
-  { SCTP_ECNE_CHUNK_ID,              "ECNE" },
-  { SCTP_CWR_CHUNK_ID,               "CWR" },
-  { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
-  { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD TSN" },
-  { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
-  { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
-  { SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
-  { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
-  { SCTP_NR_SACK_CHUNK_ID,           "NR_SACK" },
-  { SCTP_AUTH_CHUNK_ID,              "AUTH" },
-  { 0,                               NULL } };
-
-
 #define FORWARD_STREAM                     0
 #define BACKWARD_STREAM                    1
 #define FORWARD_ADD_FORWARD_VTAG           2
@@ -272,145 +210,20 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 }
 
 
-static gint sctp_assoc_vtag_cmp(const sctp_tmp_info_t *a, const sctp_assoc_info_t *b)
-{
-
-	if (a == NULL || b == NULL)
-		return(ASSOC_NOT_FOUND);
-
-	if ((a->port1 == b->port1) &&
-	    (a->port2 == b->port2) &&
-	    (a->verification_tag1 == b->verification_tag1) && a->verification_tag1==0 && a->initiate_tag != 0 &&
-	    (a->initiate_tag != b->initiate_tag ))
-		return(ASSOC_NOT_FOUND);   /* two INITs that belong to different assocs */
-
-	/* assoc known*/
-	if ((a->port1 == b->port1) &&
-	    (a->port2 == b->port2) &&
-	    (a->verification_tag1 == b->verification_tag1) &&
-	    ((a->verification_tag1 != 0 ||
-	     (b->verification_tag2 != 0))))
-		return(FORWARD_STREAM);
-
-	/* ABORT, vtag reflected */
-	if ((a->port1 == b->port1) &&
-	    (a->port2 == b->port2) &&
-	    (a->verification_tag2 == b->verification_tag2) &&
-	    (a->verification_tag1 == 0 && b->verification_tag1 != 0))
-		return(FORWARD_STREAM);
-
-	if ((a->port1 == b->port2) &&
-	    (a->port2 == b->port1) &&
-	    (a->verification_tag1 == b->verification_tag2) &&
-	    (a->verification_tag1 != 0))
-		return(BACKWARD_STREAM);
-
-	if ((a->port1 == b->port2) &&
-	    (a->port2 == b->port1) &&
-	    (a->verification_tag2 == b->verification_tag1) &&
-	    (a->verification_tag2 != 0))
-		return(BACKWARD_STREAM);
-
-	/* ABORT, vtag reflected */
-	if ((a->port1 == b->port2) &&
-	    (a->port2 == b->port1) &&
-	    (a->verification_tag2 == b->verification_tag1) &&
-	    (a->verification_tag1 == 0 && b->verification_tag2 != 0))
-		return(BACKWARD_STREAM);
-
-	/*forward stream verifivation tag can be added*/
-	if ((a->port1 == b->port1) &&
-	    (a->port2 == b->port2) &&
-	    (a->verification_tag1 != 0) &&
-	    (b->verification_tag1 == 0) &&
-	    (b->verification_tag2 !=0))
-		return (FORWARD_ADD_FORWARD_VTAG);
-
-	if ((a->port1 == b->port2) &&
-	    (a->port2 == b->port1) &&
-	    (a->verification_tag1 == b->verification_tag2) &&
-	    (b->verification_tag1 == 0))
-		return (BACKWARD_ADD_FORWARD_VTAG);
-
-	/*backward stream verification tag can be added */
-	if ((a->port1 == b->port2) &&
-	    (a->port2 == b->port1) &&
-	    (a->verification_tag1 !=0) &&
-	    (b->verification_tag1 != 0) &&
-	    (b->verification_tag2 == 0))
-		return(BACKWARD_ADD_BACKWARD_VTAG);
-
-	return(ASSOC_NOT_FOUND);
-}
-
 static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 {
 	sctp_allassocs_info_t *assoc_info;
 	sctp_assoc_info_t *info = NULL;
 	GList* list;
-	guint8 cmp;
 
 	assoc_info = &sctp_tapinfo_struct;
 	if ((list = g_list_last(assoc_info->assoc_info_list))!=NULL)
 	{
 		while (list)
 		{
-			cmp=sctp_assoc_vtag_cmp(needle, (sctp_assoc_info_t*)(list->data));
-
-			switch (cmp)
-			{
-			case FORWARD_STREAM:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->direction = 1;
-				return info;
-			case BACKWARD_STREAM:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->direction = 2;
-				return info;
-			case FORWARD_ADD_FORWARD_VTAG:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->verification_tag1=needle->verification_tag1;
-				info->direction = 1;
-				return info;
-			case BACKWARD_ADD_FORWARD_VTAG:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->verification_tag1=needle->verification_tag1;
-				info->direction = 2;
-				return info;
-			case BACKWARD_ADD_BACKWARD_VTAG:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->verification_tag2=needle->verification_tag1;
-				info->direction = 2;
-				return info;
-			case ADDRESS_FORWARD_STREAM:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->direction = 1;
-				info->check_address=TRUE;
-				return info;
-			case ADDRESS_BACKWARD_STREAM:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->direction = 2;
-				info->check_address=TRUE;
-				return info;
-			case ADDRESS_FORWARD_ADD_FORWARD_VTAG:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->verification_tag1=needle->verification_tag1;
-				info->direction = 1;
-				info->check_address=TRUE;
-				return info;
-			case ADDRESS_BACKWARD_ADD_FORWARD_VTAG:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->verification_tag1=needle->verification_tag1;
-				info->direction = 2;
-				info->check_address=TRUE;
-				return info;
-			case ADDRESS_BACKWARD_ADD_BACKWARD_VTAG:
-				info = (sctp_assoc_info_t*)(list->data);
-				info->verification_tag2=needle->verification_tag1;
-				info->direction = 2;
-				info->check_address=TRUE;
-				return info;
-			}
+		    info = (sctp_assoc_info_t*)(list->data);
+		    if (needle->assoc_id == info->assoc_id)
+		        return info;
 
 			list = g_list_previous(list);
 		}
@@ -590,6 +403,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.initiate_tag = 0;
 	}
 
+    tmp_info.direction = sctp_info->direction;
+    tmp_info.assoc_id = sctp_info->assoc_index;
 	info = find_assoc(&tmp_info);
 	if (!info)
 	{
@@ -600,6 +415,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		{
 			info = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
 			memset(info, 0, sizeof(sctp_assoc_info_t));
+		    info->assoc_id = sctp_info->assoc_index;
 			info->src.type = tmp_info.src.type;
 			info->src.len  = tmp_info.src.len;
 			addr = (guint8 *)g_malloc(tmp_info.dst.len);
@@ -651,6 +467,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			info->sort_tsn2         = g_ptr_array_new();
 			info->sort_sack1        = g_ptr_array_new();
 			info->sort_sack2        = g_ptr_array_new();
+			
 			for (i=0; i < NUM_CHUNKS; i++)
 			{
 				info->chunk_count[i] = 0;
@@ -720,6 +537,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				info->verification_tag2 = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
 				info->instream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
+				info->arwnd1 = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 				for (chunk_number = 1; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
 				type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
@@ -943,6 +761,13 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	} /* endif (!info) */
 	else
 	{
+	    info->direction = sctp_info->direction;
+
+	    if (info->verification_tag1 == 0 && info->verification_tag2 != sctp_info->verification_tag) {
+	            info->verification_tag1 = sctp_info->verification_tag;
+	    } else if (info->verification_tag2 == 0 && info->verification_tag1 != sctp_info->verification_tag) {
+	            info->verification_tag2 = sctp_info->verification_tag;
+	    }
 		if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID) ||
 		    ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
@@ -1037,7 +862,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn2 = tsnumber;
 				info->instream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-				/*info->initack_dir=2;*/
+	            info->arwnd2 = tvb_get_ntohl(sctp_info->tvb[0],INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 				info->tsn2 = g_list_prepend(info->tsn2, tsn);
 			}
 			else if (info->direction == 1)
@@ -1048,7 +873,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn1 = tsnumber;
 				info->instream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-				/*info->initack_dir=1;*/
+				info->arwnd1 = tvb_get_ntohl(sctp_info->tvb[0],INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 				info->tsn1 = g_list_prepend(info->tsn1, tsn);
 			}
 
@@ -1366,13 +1191,6 @@ const sctp_allassocs_info_t* sctp_stat_get_info(void)
 	return &sctp_tapinfo_struct;
 }
 
-
-/*static void
-sctp_update(void *dummy _U_)
-{
-	if (get_stat_dlg()!=NULL)
-		sctp_stat_dlg_update();
-}*/
 
 void
 register_tap_listener_sctp_stat(void)

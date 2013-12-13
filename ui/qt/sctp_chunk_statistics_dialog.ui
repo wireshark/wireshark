@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SCTPChunkStatisticsDialog</class>
+ <widget class="QDialog" name="SCTPChunkStatisticsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>519</width>
+    <height>504</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>470</y>
+     <width>191</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Close</set>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableWidget">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>30</y>
+     <width>471</width>
+     <height>431</height>
+    </rect>
+   </property>
+   <property name="editTriggers">
+    <set>QAbstractItemView::NoEditTriggers</set>
+   </property>
+   <property name="alternatingRowColors">
+    <bool>true</bool>
+   </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::SingleSelection</enum>
+   </property>
+   <property name="selectionBehavior">
+    <enum>QAbstractItemView::SelectRows</enum>
+   </property>
+   <property name="rowCount">
+    <number>0</number>
+   </property>
+   <attribute name="horizontalHeaderCascadingSectionResizes">
+    <bool>false</bool>
+   </attribute>
+   <attribute name="horizontalHeaderStretchLastSection">
+    <bool>true</bool>
+   </attribute>
+   <attribute name="verticalHeaderCascadingSectionResizes">
+    <bool>false</bool>
+   </attribute>
+   <column>
+    <property name="text">
+     <string>Association</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Endpoint 1</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Endpoint 2</string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>470</y>
+     <width>181</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Save Chunk Type Order</string>
+   </property>
+  </widget>
+  <action name="actionHideChunkType">
+   <property name="text">
+    <string>Hide Chunk Type</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the chunk type from the table</string>
+   </property>
+  </action>
+  <action name="actionChunkTypePreferences">
+   <property name="text">
+    <string>Chunk Type Preferences</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the chunk type preferences dialog to show or hide other chunk types</string>
+   </property>
+  </action>
+  <action name="actionShowAllChunkTypes">
+   <property name="text">
+    <string>Show All Registered Chunk Types</string>
+   </property>
+   <property name="toolTip">
+    <string>Show all chunk types with defined names</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>SCTPChunkStatisticsDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>456</x>
+     <y>483</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>563</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>SCTPChunkStatisticsDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>486</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>542</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

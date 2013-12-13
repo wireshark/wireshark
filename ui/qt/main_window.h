@@ -326,6 +326,9 @@ private slots:
     void on_actionStatisticsTcpStreamThroughput_triggered();
     void on_actionStatisticsTcpStreamRoundTripTime_triggered();
     void on_actionStatisticsTcpStreamWindowScaling_triggered();
+    void openSCTPAllAssocsDialog();
+    void on_actionSCTPShowAllAssociations_triggered();
+    void on_actionSCTPAnalyseThisAssociation_triggered();
 
 #ifdef HAVE_LIBPCAP
     void on_actionCaptureInterfaces_triggered();
@@ -349,9 +352,7 @@ private slots:
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();
-
 };
-
 #endif // MAINWINDOW_H
 
 /*

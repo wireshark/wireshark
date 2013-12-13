@@ -35,6 +35,7 @@
 #include "packet_list.h"
 #include "proto_tree.h"
 #include "wireshark_application.h"
+#include "epan/ipproto.h"
 
 #include "qt_ui_utils.h"
 
@@ -258,7 +259,12 @@ PacketList::PacketList(QWidget *parent) :
     //    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
     //    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
     //    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
-
+    submenu = new QMenu(tr("SCTP"));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPChunkCounter"));
+    filter_actions_ << submenu->actions();
     ctx_menu_.addSeparator();
 //    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
     ctx_menu_.addSeparator();
@@ -473,6 +479,18 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     {
         act->setEnabled(true);
 
+        // check SCTP
+        if (act->objectName().contains("SCTP"))
+        {
+            if (cap_file_->edt->pi.ipproto == IP_PROTO_SCTP)
+            {
+                act->setEnabled(true);
+            }
+            else
+            {
+                act->setEnabled(false);
+            }
+        }
 
         // check follow stream
         if (act->text().contains("TCP"))

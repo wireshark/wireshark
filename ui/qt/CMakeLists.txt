@@ -70,6 +70,12 @@ set(WIRESHARK_QT_HEADERS
 	proto_tree.h
 	qcustomplot.h
 	recent_file_status.h
+	sctp_all_assocs_dialog.h
+	sctp_assoc_analyse_dialog.h
+	sctp_chunk_statistics_dialog.h
+	sctp_graph_dialog.h
+	sctp_graph_arwnd_dialog.h
+	sctp_graph_byte_dialog.h
 	search_frame.h
 	sequence_diagram.h
 	sequence_dialog.h
@@ -141,6 +147,12 @@ set(WIRESHARK_QT_SRC
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
+	sctp_all_assocs_dialog.cpp
+	sctp_assoc_analyse_dialog.cpp
+	sctp_chunk_statistics_dialog.cpp
+	sctp_graph_dialog.cpp
+	sctp_graph_arwnd_dialog.cpp
+	sctp_graph_byte_dialog.cpp
 	search_frame.cpp
 	sequence_diagram.cpp
 	sequence_dialog.cpp
@@ -190,6 +202,12 @@ set(WIRESHARK_QT_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
+	sctp_all_assocs_dialog.ui
+	sctp_assoc_analyse_dialog.ui
+	sctp_chunk_statistics_dialog.ui
+	sctp_graph_dialog.ui
+	sctp_graph_arwnd_dialog.ui
+	sctp_graph_byte_dialog.ui
 	search_frame.ui
 	sequence_dialog.ui
 	splash_overlay.ui

@@ -77,6 +77,9 @@
 #include "print_dialog.h"
 #include "profile_dialog.h"
 #include "qt_ui_utils.h"
+#include "sctp_all_assocs_dialog.h"
+#include "sctp_assoc_analyse_dialog.h"
+#include "sctp_graph_dialog.h"
 #include "sequence_dialog.h"
 #include "stats_tree_dialog.h"
 #include "tcp_stream_dialog.h"
@@ -729,7 +732,7 @@ void MainWindow::setMenusForSelectedPacket()
 #if 0
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
 #else
-    gboolean is_tcp = FALSE;
+    gboolean is_tcp = FALSE, is_sctp = FALSE;;
 #endif
 
 //    /* Making the menu context-sensitive allows for easier selection of the
@@ -773,7 +776,7 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (cap_file_->edt)
         {
-            proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, NULL, NULL);
+            proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, NULL, &is_sctp);
         }
     }
 //    if (cfile.edt && cfile.edt->tree) {
@@ -922,6 +925,9 @@ void MainWindow::setMenusForSelectedPacket()
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
 //                         frame_selected);
     main_ui_->menuTcpStreamGraphs->setEnabled(is_tcp);
+    main_ui_->menuSCTP->setEnabled(is_sctp);
+    main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
+    main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
 
 //    while (list_entry != NULL) {
 //        dissector_filter_t *filter_entry;
@@ -1741,6 +1747,52 @@ void MainWindow::on_actionAnalyzeFollowUDPStream_triggered()
 void MainWindow::on_actionAnalyzeFollowSSLStream_triggered()
 {
     openFollowStreamDialog(FOLLOW_SSL);
+}
+
+void MainWindow::openSCTPAllAssocsDialog()
+{
+    SCTPAllAssocsDialog *sctp_dialog = new SCTPAllAssocsDialog(this, cap_file_);
+    connect(sctp_dialog, SIGNAL(filterPackets(QString&,bool)),
+            this, SLOT(filterPackets(QString&,bool)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            sctp_dialog, SLOT(setCaptureFile(capture_file*)));
+    sctp_dialog->fillTable();
+
+    if (sctp_dialog->isMinimized() == true)
+    {
+        sctp_dialog->showNormal();
+    }
+    else
+    {
+        sctp_dialog->show();
+    }
+
+    sctp_dialog->raise();
+    sctp_dialog->activateWindow();
+}
+
+void MainWindow::on_actionSCTPShowAllAssociations_triggered()
+{
+    openSCTPAllAssocsDialog();
+}
+
+void MainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
+{
+    SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, NULL, cap_file_);
+    connect(sctp_analyse, SIGNAL(filterPackets(QString&,bool)),
+            this, SLOT(filterPackets(QString&,bool)));
+
+    if (sctp_analyse->isMinimized() == true)
+    {
+        sctp_analyse->showNormal();
+    }
+    else
+    {
+        sctp_analyse->show();
+    }
+
+    sctp_analyse->raise();
+    sctp_analyse->activateWindow();
 }
 
 // Next / previous / first / last slots in packet_list

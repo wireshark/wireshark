@@ -4671,11 +4671,11 @@ proto_register_sctp(void)
     UAT_FLD_VS(type_fields, type_enable, "Visibility", chunk_enabled, "Hide or show the type in the chunk statistics"),
     UAT_END_FIELDS
   };
-  
+
   module_t *sctp_module;
   expert_module_t* expert_sctp;
   uat_t* chunk_types_uat;
-  
+
   chunk_types_uat = uat_new("Chunk types for the statistics dialog",
                             sizeof(type_field_t),
                             "statistics_chunk_types",
@@ -4689,8 +4689,7 @@ proto_register_sctp(void)
                             sctp_chunk_type_free_cb,
                             NULL,
                             custom_types_uat_fields
-  );
-                            
+);
 
   /* Register the protocol name and description */
   proto_sctp = proto_register_protocol("Stream Control Transmission Protocol", "SCTP", "sctp");

@@ -25,6 +25,10 @@
 #ifndef __VALUE_STRING_H__
 #define __VALUE_STRING_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */ 
+
 #include <glib.h>
 #include "ws_symbol_export.h"
 
@@ -250,8 +254,11 @@ WS_DLL_LOCAL
 const gchar *
 value_string_ext_match_type_str(const value_string_ext *vse);
 
-#endif /* __VALUE_STRING_H__ */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
+#endif /* __VALUE_STRING_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

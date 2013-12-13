@@ -52,6 +52,12 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_preferences_dialog.h \
 	ui_print_dialog.h \
 	ui_profile_dialog.h \
+	ui_sctp_all_assocs_dialog.h	\
+	ui_sctp_assoc_analyse_dialog.h  \
+	ui_sctp_chunk_statistics_dialog.h  \
+	ui_sctp_graph_dialog.h  \
+	ui_sctp_graph_arwnd_dialog.h  \
+	ui_sctp_graph_byte_dialog.h  \
 	ui_stats_tree_dialog.h \
 	ui_search_frame.h \
 	ui_sequence_dialog.h \
@@ -143,6 +149,12 @@ MOC_HDRS = \
 	recent_file_status.h \
 	related_packet_delegate.h \
 	search_frame.h \
+	sctp_all_assocs_dialog.h	\
+	sctp_assoc_analyse_dialog.h  \
+	sctp_chunk_statistics_dialog.h  \
+	sctp_graph_dialog.h  \
+	sctp_graph_arwnd_dialog.h  \
+	sctp_graph_byte_dialog.h  \
 	sequence_diagram.h \
 	sequence_dialog.h \
 	simple_dialog_qt.h \
@@ -182,6 +194,12 @@ UI_FILES = \
 	preferences_dialog.ui		\
 	print_dialog.ui			\
 	profile_dialog.ui		\
+	sctp_all_assocs_dialog.ui	\
+	sctp_assoc_analyse_dialog.ui  \
+	sctp_chunk_statistics_dialog.ui  \
+	sctp_graph_dialog.ui  \
+	sctp_graph_arwnd_dialog.ui  \
+	sctp_graph_byte_dialog.ui  \
 	search_frame.ui			\
 	sequence_dialog.ui		\
 	splash_overlay.ui		\
@@ -291,6 +309,12 @@ WIRESHARK_QT_SRC = \
 	qt_ui_utils.cpp \
 	recent_file_status.cpp \
 	related_packet_delegate.cpp \
+	sctp_all_assocs_dialog.cpp  \
+	sctp_assoc_analyse_dialog.cpp  \
+	sctp_chunk_statistics_dialog.cpp  \
+	sctp_graph_dialog.cpp  \
+	sctp_graph_arwnd_dialog.cpp  \
+	sctp_graph_byte_dialog.cpp  \
 	search_frame.cpp \
 	sequence_diagram.cpp \
 	sequence_dialog.cpp \
