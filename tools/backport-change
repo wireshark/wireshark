@@ -57,7 +57,7 @@ fi
 # Make sure we have a destination
 #
 
-git ls-remote --heads gerrit 2> /dev/null
+git ls-remote --heads gerrit &> /dev/null
 if [ $? -ne 0 ] ; then exit_err "Can't find a remote named \"gerrit\"" ; fi
 
 #
