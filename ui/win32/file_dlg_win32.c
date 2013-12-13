@@ -492,7 +492,7 @@ gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
     return gsfn_ok;
 }
 
-							
+
 gboolean
 win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
                                     GString *file_name,
@@ -830,7 +830,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
     OPENFILENAME *ofn;
     TCHAR         file_name[MAX_PATH] = _T("");
     char         *dirname;
-    gchar        *keylist;
+    gchar        *keylist = NULL;
     char         *file_name8;
     int           fd;
     int           ofnsize;
