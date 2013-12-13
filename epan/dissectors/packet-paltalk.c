@@ -78,7 +78,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
-dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 src32, dst32;
 
