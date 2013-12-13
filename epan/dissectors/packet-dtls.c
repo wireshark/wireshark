@@ -573,6 +573,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       switch(*conv_version) {
       case SSL_VER_DTLS:
+      case SSL_VER_DTLS_OPENSSL:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
                                      offset, conv_version, conv_cipher,
                                      ssl_session);
@@ -872,20 +873,16 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       && dtls_is_authoritative_version_message(content_type, next_byte))
     {
       if (version == DTLSV1DOT0_VERSION ||
-          version == DTLSV1DOT0_VERSION_NOT)
+          version == DTLSV1DOT0_VERSION_NOT ||
+          version == DTLSV1DOT2_VERSION)
         {
+          if (version == DTLSV1DOT0_VERSION)
+              *conv_version = SSL_VER_DTLS;
+          if (version == DTLSV1DOT0_VERSION_NOT)
+              *conv_version = SSL_VER_DTLS_OPENSSL;
+          if (version == DTLSV1DOT2_VERSION)
+              *conv_version = SSL_VER_DTLS1DOT2;
 
-          *conv_version = SSL_VER_DTLS;
-          if (ssl) {
-            ssl->version_netorder = version;
-            ssl->state |= SSL_VERSION;
-          }
-          /*ssl_set_conv_version(pinfo, ssl->version);*/
-        }
-      if (version == DTLSV1DOT2_VERSION)
-        {
-
-          *conv_version = SSL_VER_DTLS1DOT2;
           if (ssl) {
             ssl->version_netorder = version;
             ssl->state |= SSL_VERSION;
@@ -897,6 +894,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   {
      col_set_str(pinfo->cinfo, COL_PROTOCOL,
            val_to_str_const(SSL_VER_DTLS, ssl_version_short_names, "SSL"));
+  }
+  else if (version == DTLSV1DOT0_VERSION_NOT)
+  {
+     col_set_str(pinfo->cinfo, COL_PROTOCOL,
+           val_to_str_const(SSL_VER_DTLS_OPENSSL, ssl_version_short_names, "SSL"));
   }
   else if (version == DTLSV1DOT2_VERSION)
   {
@@ -2753,6 +2755,7 @@ dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 
   switch(*conv_version) {
   case SSL_VER_DTLS:
+  case SSL_VER_DTLS_OPENSSL:
     proto_tree_add_item(tree, hf_dtls_handshake_finished,
                         tvb, offset, 12, ENC_NA);
     break;

@@ -63,6 +63,7 @@
 #define SSL_VER_TLSv1DOT1                 4
 #define SSL_VER_DTLS                      5
 #define SSL_VER_DTLS1DOT2                 8
+#define SSL_VER_DTLS_OPENSSL              9
 #define SSL_VER_PCT                       6
 #define SSL_VER_TLSv1DOT2                 7
 

@@ -53,6 +53,7 @@ const value_string ssl_version_short_names[] = {
     { SSL_VER_TLSv1DOT1,  "TLSv1.1" },
     { SSL_VER_DTLS,       "DTLSv1.0" },
     { SSL_VER_DTLS1DOT2,  "DTLSv1.2" },
+    { SSL_VER_DTLS_OPENSSL, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { SSL_VER_PCT,        "PCT" },
     { SSL_VER_TLSv1DOT2,  "TLSv1.2" },
     { 0x00, NULL }
