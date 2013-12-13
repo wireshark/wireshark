@@ -3333,14 +3333,8 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	* dissect_smb_fid()   called from the response.
 	*/
 	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
-		fsi			= wmem_new(wmem_file_scope(), smb_fid_saved_info_t);
+		fsi			= wmem_new0(wmem_file_scope(), smb_fid_saved_info_t);
 		fsi->filename		= wmem_strdup(wmem_file_scope(), fn);
-		fsi->create_flags	= 0;
-		fsi->access_mask	= 0;
-		fsi->file_attributes	= 0;
-		fsi->share_access	= 0;
-		fsi->create_options	= 0;
-		fsi->create_disposition = 0;
 
 		si->sip->extra_info_type = SMB_EI_FILEDATA;
 		si->sip->extra_info      = fsi;
@@ -3626,7 +3620,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", fid);
 
 	if ((!pinfo->fd->flags.visited) && is_created) {
-		fid_info = (smb_fid_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_fid_info_t));
+		fid_info = wmem_new(wmem_file_scope(), smb_fid_info_t);
 		fid_info->opened_in = pinfo->fd->num;
 		fid_info->closed_in = 0;
 		fid_info->type = SMB_FID_TYPE_UNKNOWN;
@@ -3954,14 +3948,9 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	* dissect_smb_fid()   called from the response.
 	*/
 	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
-		fsi			= wmem_new(wmem_file_scope(), smb_fid_saved_info_t);
+		fsi			= wmem_new0(wmem_file_scope(), smb_fid_saved_info_t);
 		fsi->filename		= wmem_strdup(wmem_file_scope(), fn);
-		fsi->create_flags	= 0;
-		fsi->access_mask	= 0;
 		fsi->file_attributes	= file_attributes;
-		fsi->share_access	= 0;
-		fsi->create_options	= 0;
-		fsi->create_disposition	= 0;
 
 		si->sip->extra_info_type = SMB_EI_FILEDATA;
 		si->sip->extra_info      = fsi;
@@ -6278,7 +6267,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
 		smb_fid_saved_info_t *fsi;
 
-		fsi = (smb_fid_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_fid_saved_info_t));
+		fsi = wmem_new0(wmem_file_scope(), smb_fid_saved_info_t);
 		fsi->filename = wmem_strdup(wmem_file_scope(), fn);
 
 		si->sip->extra_info_type = SMB_EI_FILEDATA;
@@ -10245,7 +10234,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
 		smb_fid_saved_info_t *fsi;
 
-		fsi			 = (smb_fid_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_fid_saved_info_t));
+		fsi			 = wmem_new(wmem_file_scope(), smb_fid_saved_info_t);
 		fsi->filename		 = wmem_strdup(wmem_file_scope(), fn);
 		fsi->create_flags	 = create_flags;
 		fsi->access_mask	 = access_mask;
