@@ -46,6 +46,7 @@
 
 #include <wsutil/privileges.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
