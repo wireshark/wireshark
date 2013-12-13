@@ -338,7 +338,7 @@ static void cotp_frame_end(void)
 static gboolean is_all_printable(const guchar *stringtocheck, int length)
 {
   gboolean allprintable;
-  int i;
+  int      i;
 
   allprintable=TRUE;
   for (i=0;i<length;i++) {
@@ -354,9 +354,9 @@ static gboolean is_all_printable(const guchar *stringtocheck, int length)
 static gchar *print_tsap(const guchar *tsap, int length)
 {
 
-  gchar *cur;
-  gboolean allprintable;
-  gint idx = 0, returned_length;
+  gchar    *cur;
+  gboolean  allprintable;
+  gint      idx = 0, returned_length;
 
   cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
@@ -389,18 +389,18 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                                       int class_option, int tpdu_len,
                                       packet_info *pinfo, proto_tree *tree)
 {
-  guint8  code, length;
-  guint8  c1;
-  guint16 s, s1,s2,s3,s4;
-  guint32 t1, t2, t3, t4;
-  guint32 offset_iso8073_checksum = 0;
-  gint32 i = 0;
-  guint8 tmp_code = 0;
-  guint tmp_len = 0;
-  cksum_status_t cksum_status;
-  gboolean checksum_ok = FALSE;
-  guint32 pref_max_tpdu_size;
-  proto_item *hidden_item;
+  guint8          code, length;
+  guint8          c1;
+  guint16         s, s1,s2,s3,s4;
+  guint32         t1, t2, t3, t4;
+  guint32         offset_iso8073_checksum = 0;
+  gint32          i                       = 0;
+  guint8          tmp_code                = 0;
+  guint           tmp_len                 = 0;
+  cksum_status_t  cksum_status;
+  gboolean        checksum_ok             = FALSE;
+  guint32         pref_max_tpdu_size;
+  proto_item     *hidden_item;
 
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
@@ -844,11 +844,11 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                            packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
-  proto_item *ti = NULL;
-  guint16 dst_ref, src_ref;
-  guchar  reason;
+  proto_item *ti        = NULL;
+  guint16     dst_ref, src_ref;
+  guchar      reason;
   const char *str;
-  guint   tpdu_len;
+  guint       tpdu_len;
 
   /* ATN TPDU's tend to be larger than normal OSI,
    * so nothing to do with respect to LI checks */
@@ -934,19 +934,19 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                            gboolean uses_inactive_subset,
                            gboolean *subdissector_found)
 {
-  proto_tree *cotp_tree = NULL;
-  proto_item *ti;
-  gboolean is_extended;
-  gboolean is_class_234;
-  guint32  dst_ref;
-  guint32 *prev_dst_ref;
-  guint    tpdu_nr;
-  gboolean fragment = FALSE;
-  guint32  fragment_length = 0;
-  tvbuff_t *next_tvb;
-  fragment_head *fd_head;
+  proto_tree     *cotp_tree       = NULL;
+  proto_item     *ti;
+  gboolean        is_extended;
+  gboolean        is_class_234;
+  guint32         dst_ref;
+  guint32        *prev_dst_ref;
+  guint           tpdu_nr;
+  gboolean        fragment        = FALSE;
+  guint32         fragment_length = 0;
+  tvbuff_t       *next_tvb;
+  fragment_head  *fd_head;
   conversation_t *conv;
-  guint     tpdu_len;
+  guint           tpdu_len;
 
   /* DT TPDUs have user data, so they run to the end of the containing PDU */
   tpdu_len = tvb_reported_length_remaining(tvb, offset);
@@ -1261,11 +1261,11 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  gboolean is_extended;
-  guint16  dst_ref;
-  guint    tpdu_nr;
-  tvbuff_t *next_tvb;
-  guint    tpdu_len;
+  gboolean    is_extended;
+  guint16     dst_ref;
+  guint       tpdu_nr;
+  tvbuff_t   *next_tvb;
+  guint       tpdu_len;
 
   /* ED TPDUs have user data, so they run to the end of the containing PDU */
   tpdu_len = tvb_reported_length_remaining(tvb, offset);
@@ -2490,11 +2490,11 @@ proto_reg_handoff_cotp(void)
  *
  * Local variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab:
- * :indentSize=2:tabSize=2:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
 

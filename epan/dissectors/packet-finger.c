@@ -46,8 +46,8 @@ static expert_field ei_finger_nocrlf = EI_INIT;
 static gint ett_finger = -1;
 
 typedef struct _finger_transaction_t {
-    guint32 req_frame;
-    guint32 rep_frame;
+    guint32  req_frame;
+    guint32  rep_frame;
     nstime_t req_time;
 } finger_transaction_t;
 
@@ -55,12 +55,12 @@ static int
 dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data _U_)
 {
-    proto_item *ti, *expert_ti;
-    proto_tree *finger_tree;
-    conversation_t *conversation;
+    proto_item           *ti, *expert_ti;
+    proto_tree           *finger_tree;
+    conversation_t       *conversation;
     finger_transaction_t *finger_trans;
-    gboolean is_query;
-    guint len;
+    gboolean              is_query;
+    guint                 len;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FINGER");
 
@@ -213,11 +213,11 @@ proto_reg_handoff_finger(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
 

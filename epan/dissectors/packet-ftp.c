@@ -526,8 +526,8 @@ static void
 dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gboolean        is_request;
-    proto_tree     *ftp_tree          = NULL;
-    proto_tree     *reqresp_tree      = NULL;
+    proto_tree     *ftp_tree;
+    proto_tree     *reqresp_tree;
     proto_item     *ti, *hidden_item;
     gint            offset;
     const guchar   *line;
@@ -1080,10 +1080,10 @@ proto_reg_handoff_ftp(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

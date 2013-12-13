@@ -325,7 +325,7 @@ dissect_session_init(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
 {
   if (bodylen == 5) {
     proto_tree_add_item(body_tree, hf_hartip_master_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
 
     proto_tree_add_item(body_tree, hf_hartip_inactivity_close_timer, tvb, offset, 4, ENC_BIG_ENDIAN);
   } else {
@@ -736,8 +736,8 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
     delimiter = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_uint(body_tree, hf_hartip_pt_delimiter, tvb, offset, 1,
                              delimiter);
-    offset++;
-    length--;
+    offset += 1;
+    length -= 1;
 
     if ((delimiter & 0x7) == 2) {
       frame_type_str = "STX";
@@ -759,8 +759,8 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
   if (is_short == 1) {
     if (length > 0) {
       proto_tree_add_item(body_tree, hf_hartip_pt_short_addr, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
-      length--;
+      offset += 1;
+      length -= 1;
     }
   } else {
     if (length > 4) {
@@ -776,25 +776,25 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
   if (length > 0) {
     cmd = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(body_tree, hf_hartip_pt_command, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    length--;
+    offset += 1;
+    length -= 1;
   }
   if (length > 0) {
     proto_tree_add_item(body_tree, hf_hartip_pt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    length--;
+    offset += 1;
+    length -= 1;
   }
 
   if (is_rsp == 1) {
     if (length > 0) {
       proto_tree_add_item(body_tree, hf_hartip_pt_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
-      length--;
+      offset += 1;
+      length -= 1;
     }
     if (length > 0) {
       proto_tree_add_item(body_tree, hf_hartip_pt_device_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
-      length--;
+      offset += 1;
+      length -= 1;
     }
   }
 
@@ -868,17 +868,17 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   hdr_tree = proto_item_add_subtree(ti, ett_hartip_hdr);
 
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset++;
+  offset += 1;
 
   message_type = tvb_get_guint8(tvb, offset);
   msg_type_str = val_to_str(message_type, hartip_message_type_values, "Unknown message type %d");
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset++;
+  offset += 1;
 
   message_id = tvb_get_guint8(tvb, offset);
   msg_id_str = val_to_str(message_id, hartip_message_id_values, "Unknown message %d");
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset++;
+  offset += 1;
 
   /* Setup statistics for tap. */
   tapinfo = wmem_new(wmem_packet_scope(), hartip_tap_info);
@@ -891,7 +891,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset++;
+  offset += 1;
 
   transaction_id = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -947,37 +947,37 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static guint
 get_dissect_hartip_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-   return tvb_get_ntohs(tvb, offset+6);
+  return tvb_get_ntohs(tvb, offset+6);
 }
 
 static int
 dissect_hartip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    return dissect_hartip_common(tvb, pinfo, tree, 0);
+  return dissect_hartip_common(tvb, pinfo, tree, 0);
 }
 
 static int
 dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data)
 {
-   if (!tvb_bytes_exist(tvb, 0, HARTIP_HEADER_LENGTH))
-      return 0;
+  if (!tvb_bytes_exist(tvb, 0, HARTIP_HEADER_LENGTH))
+    return 0;
 
-   tcp_dissect_pdus(tvb, pinfo, tree, hartip_desegment, HARTIP_HEADER_LENGTH,
-                    get_dissect_hartip_len, dissect_hartip_pdu, data);
-   return tvb_reported_length(tvb);
+  tcp_dissect_pdus(tvb, pinfo, tree, hartip_desegment, HARTIP_HEADER_LENGTH,
+                   get_dissect_hartip_len, dissect_hartip_pdu, data);
+  return tvb_reported_length(tvb);
 }
 
 static int
 dissect_hartip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data _U_)
 {
-    gint offset = 0;
+  gint offset = 0;
 
-    while (tvb_reported_length_remaining(tvb, offset) >= HARTIP_HEADER_LENGTH)
-        offset += dissect_hartip_common(tvb, pinfo, tree, offset);
+  while (tvb_reported_length_remaining(tvb, offset) >= HARTIP_HEADER_LENGTH)
+    offset += dissect_hartip_common(tvb, pinfo, tree, offset);
 
-    return offset;
+  return offset;
 }
 
 void
@@ -1560,11 +1560,11 @@ proto_reg_handoff_hartip(void)
  *
  * Local variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab:
- * :indentSize=2:tabSize=2:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
 

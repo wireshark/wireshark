@@ -47,8 +47,8 @@ static expert_field ei_whois_nocrlf = EI_INIT;
 static gint ett_whois = -1;
 
 typedef struct _whois_transaction_t {
-    guint32 req_frame;
-    guint32 rep_frame;
+    guint32  req_frame;
+    guint32  rep_frame;
     nstime_t req_time;
 } whois_transaction_t;
 
@@ -56,12 +56,12 @@ static int
 dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data _U_)
 {
-    proto_item *ti, *expert_ti;
-    proto_tree *whois_tree;
-    conversation_t *conversation;
+    proto_item          *ti, *expert_ti;
+    proto_tree          *whois_tree;
+    conversation_t      *conversation;
     whois_transaction_t *whois_trans;
-    gboolean is_query;
-    guint len;
+    gboolean             is_query;
+    guint                len;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHOIS");
 
@@ -215,11 +215,11 @@ proto_reg_handoff_whois(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
 
