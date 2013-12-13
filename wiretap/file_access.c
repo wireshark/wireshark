@@ -353,10 +353,14 @@ static wtap_open_routine_t open_routines_base[] = {
 	 * I put VWR *after* ERF, because there were some cases where
 	 * ERF files were misidentified as vwr files (Stephen
 	 * Donnelly, August 2013; see bug 9054)
+	 *
+	 * I put VWR *after* Peek Classic and NetScaler, because
+	 * there were some cases where Peek Classic and NetScaler
+	 * files were misidentified as vwr files (Guy Harris,
+	 * December 2013)
 	 */
 	netscreen_open,
 	erf_open,
-	vwr_open,
 	ipfix_open,
 	k12text_open,
 	peekclassic_open,
@@ -372,6 +376,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	hcidump_open,
 	commview_open,
 	nstrace_open,
+	vwr_open,
 	camins_open
 };
 
