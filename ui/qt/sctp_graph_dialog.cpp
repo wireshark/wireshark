@@ -220,16 +220,15 @@ void SCTPGraphDialog::drawTSNGraph()
     tsn_t *tsn;
     guint8 type;
     guint32 tsnumber=0;
-    guint32 minTSN;
+    // guint32 minTSN;
 
     if (direction == 1) {
-        minTSN = selected_assoc->min_tsn1;
+        // minTSN = selected_assoc->min_tsn1;
         listTSN = g_list_last(selected_assoc->tsn1);
     } else {
-        minTSN = selected_assoc->min_tsn2;
+        // minTSN = selected_assoc->min_tsn2;
         listTSN = g_list_last(selected_assoc->tsn2);
     }
-
 
     while (listTSN) {
         tsn = (tsn_t*) (listTSN->data);
@@ -269,16 +268,17 @@ void SCTPGraphDialog::drawTSNGraph()
 
 void SCTPGraphDialog::drawGraph(int which)
 {
-    guint32 minTSN, maxTSN;
+    // guint32 minTSN, maxTSN;
+    guint32 maxTSN;
 
     gIsSackChunkPresent = false;
     gIsNRSackChunkPresent = false;
 
     if (direction == 1) {
-        minTSN = selected_assoc->min_tsn1;
+        // minTSN = selected_assoc->min_tsn1;
         maxTSN = selected_assoc->max_tsn1;
     } else {
-        minTSN = selected_assoc->min_tsn2;
+        // minTSN = selected_assoc->min_tsn2;
         maxTSN = selected_assoc->max_tsn2;
     }
 
