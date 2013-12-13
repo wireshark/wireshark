@@ -23,14 +23,15 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include "capture_interfaces_dialog.h"
 #include "ui_capture_interfaces_dialog.h"
 
+#include "wireshark_application.h"
+
 #ifdef HAVE_LIBPCAP
 
-#include <glib.h>
-
-#include <QSpacerItem>
 #include <QTimer>
 
 #include "capture_ui_utils.h"
@@ -56,6 +57,14 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
 
     stat_timer_ = NULL;
     stat_cache_ = NULL;
+
+    // XXX - Enable / disable as needed
+    start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::YesRole);
+    connect(start_bt_, SIGNAL(clicked()), this, SLOT(on_bStart_clicked()));
+
+    stop_bt_ = ui->buttonBox->addButton(tr("Stop"), QDialogButtonBox::NoRole);
+    stop_bt_->setEnabled(false);
+    connect(stop_bt_, SIGNAL(clicked()), this, SLOT(on_bStop_clicked()));
 
     //connect(ui->tbInterfaces,SIGNAL(itemPressed(QTableWidgetItem *)),this,SLOT(tableItemPressed(QTableWidgetItem *)));
     connect(ui->tbInterfaces,SIGNAL(itemClicked(QTableWidgetItem *)),this,SLOT(tableItemClicked(QTableWidgetItem *)));
@@ -106,12 +115,12 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
     prefs.capture_prom_mode = checked;
 }
 
-void CaptureInterfacesDialog::on_cbStopCaptureAuto_toggled(bool checked)
+void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
 {
     global_capture_opts.has_file_duration = checked;
 }
 
-void CaptureInterfacesDialog::on_cbNewFileAuto_toggled(bool checked)
+void CaptureInterfacesDialog::on_gbNewFileAuto_toggled(bool checked)
 {
     global_capture_opts.multi_files_on = checked;
 }
@@ -153,7 +162,7 @@ void CaptureInterfacesDialog::on_bStart_clicked()
 
     emit startCapture();
 
-    this->close();
+    accept();
 }
 
 void CaptureInterfacesDialog::on_bStop_clicked()
@@ -163,13 +172,29 @@ void CaptureInterfacesDialog::on_bStop_clicked()
     emit stopCapture();
 }
 
+// Not sure why we have to do this manually.
+void CaptureInterfacesDialog::on_buttonBox_rejected()
+{
+    reject();
+}
+
+void CaptureInterfacesDialog::on_buttonBox_helpRequested()
+{
+    // Probably the wrong URL.
+    wsApp->helpTopicAction(HELP_CAPTURE_INTERFACES_DIALOG);
+}
+
 void CaptureInterfacesDialog::UpdateInterfaces()
 {
-    ui->cbPcap->setCurrentIndex(!prefs.capture_pcap_ng);
+    if(prefs.capture_pcap_ng) {
+        ui->rbPcapng->setChecked(true);
+    } else {
+        ui->rbPcap->setChecked(true);
+    }
     ui->capturePromModeCheckBox->setChecked(prefs.capture_prom_mode);
 
-    ui->cbStopCaptureAuto->setChecked(global_capture_opts.has_file_duration);
-    ui->cbNewFileAuto->setChecked(global_capture_opts.multi_files_on);
+    ui->gbStopCaptureAuto->setChecked(global_capture_opts.has_file_duration);
+    ui->gbNewFileAuto->setChecked(global_capture_opts.multi_files_on);
 
     ui->cbUpdatePacketsRT->setChecked(global_capture_opts.real_time_mode);
     ui->cbAutoScroll->setChecked(true);
@@ -180,7 +205,6 @@ void CaptureInterfacesDialog::UpdateInterfaces()
     ui->cbResolveTransportNames->setChecked(gbl_resolv_flags.transport_name);
 
     ui->tbInterfaces->setRowCount(0);
-
 
     GList *if_list;
     int err;

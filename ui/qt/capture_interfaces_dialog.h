@@ -30,6 +30,7 @@
 #ifdef HAVE_LIBPCAP
 
 #include <QDialog>
+#include <QPushButton>
 #include <QTableWidget>
 
 typedef struct if_stat_cache_s if_stat_cache_t;
@@ -77,16 +78,18 @@ public:
 
 private slots:
     void on_capturePromModeCheckBox_toggled(bool checked);
-    void on_cbStopCaptureAuto_toggled(bool checked);
+    void on_gbStopCaptureAuto_toggled(bool checked);
     void on_cbUpdatePacketsRT_toggled(bool checked);
     void on_cbAutoScroll_toggled(bool checked);
-    void on_cbNewFileAuto_toggled(bool checked);
+    void on_gbNewFileAuto_toggled(bool checked);
     void on_cbExtraCaptureInfo_toggled(bool checked);
     void on_cbResolveMacAddresses_toggled(bool checked);
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
     void on_bStart_clicked();
     void on_bStop_clicked();
+    void on_buttonBox_rejected();
+    void on_buttonBox_helpRequested();
     void tableItemClicked(QTableWidgetItem * item);
     void updateStatistics(void);
     //void on_tbInterfaces_hideEvent(QHideEvent *evt);
@@ -101,6 +104,8 @@ private:
     Ui::CaptureInterfacesDialog *ui;
     Qt::CheckState m_pressedItemState;
 
+    QPushButton *start_bt_;
+    QPushButton *stop_bt_;
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
 };
