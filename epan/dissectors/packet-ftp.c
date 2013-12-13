@@ -279,13 +279,12 @@ static gboolean
 isvalid_rfc2428_delimiter(const guchar c)
 {
     /* RFC2428 sect. 2 states rules for a valid delimiter */
-    static const gchar forbidden[] = {"0123456789abcdef.:"};
+    const gchar *forbidden = "0123456789abcdef.:";
     if (c < 33 || c > 126)
         return FALSE;
-    else if (strchr(forbidden, tolower(c)))
+    if (strchr(forbidden, tolower(c)))
         return FALSE;
-    else
-        return TRUE;
+    return TRUE;
 }
 
 
