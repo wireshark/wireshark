@@ -83,9 +83,9 @@ void SCTPAssocAnalyseDialog::fillTabs()
 
     /* Tab Endpoint 1 */
 
-    if (selected_assoc->init == TRUE)
+    if (selected_assoc->init)
             ui->labelEP1->setText(QString("Complete list of IP-Addresses as provided in the INIT-Chunk"));
-        else if ((selected_assoc->initack == TRUE) && (selected_assoc->initack_dir == 1))
+        else if ((selected_assoc->initack) && (selected_assoc->initack_dir == 1))
             ui->labelEP1->setText(QString("Complete list of IP-Addresses as provided in the INITACK-Chunk"));
         else
             ui->labelEP1->setText(QString("List of used IP-Addresses"));
@@ -114,8 +114,8 @@ void SCTPAssocAnalyseDialog::fillTabs()
     ui->label_221->setText(QString("%1").arg(selected_assoc->port1));
     ui->label_222->setText(QString("0x%1").arg(selected_assoc->verification_tag1, 0, 16));
 
-    if ((selected_assoc->init == TRUE) ||
-        ((selected_assoc->initack == TRUE) && (selected_assoc->initack_dir == 1))) {
+    if ((selected_assoc->init) ||
+        ((selected_assoc->initack) && (selected_assoc->initack_dir == 1))) {
         ui->label_213->setText(QString("Requested Number of Inbound Streams:"));
         ui->label_223->setText(QString("%1").arg(selected_assoc->instream1));
         ui->label_214->setText(QString("Minimum Number of Inbound Streams:"));
@@ -139,7 +139,7 @@ void SCTPAssocAnalyseDialog::fillTabs()
 
     /* Tab Endpoint 2 */
 
-    if ((selected_assoc->initack == TRUE) && (selected_assoc->initack_dir == 2))
+    if ((selected_assoc->initack) && (selected_assoc->initack_dir == 2))
         ui->labelEP2->setText(QString("Complete list of IP-Addresses as provided in the INITACK-Chunk"));
     else
         ui->labelEP2->setText(QString("List of used IP-Addresses"));
@@ -168,7 +168,7 @@ void SCTPAssocAnalyseDialog::fillTabs()
     ui->label_321->setText(QString("%1").arg(selected_assoc->port2));
     ui->label_322->setText(QString("0x%1").arg(selected_assoc->verification_tag2, 0, 16));
 
-    if (selected_assoc->initack == TRUE) {
+    if (selected_assoc->initack) {
         ui->label_313->setText(QString("Requested Number of Inbound Streams:"));
         ui->label_323->setText(QString("%1").arg(selected_assoc->instream2));
         ui->label_314->setText(QString("Minimum Number of Inbound Streams:"));
