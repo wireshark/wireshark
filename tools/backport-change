@@ -106,9 +106,12 @@ PUSH_CMD="git push gerrit HEAD:refs/for/$UPSTREAM_NAME"
 #
 
 echo "Backporting $LONG_HASH"
-git cherry-pick $LONG_HASH
+git cherry-pick -x --strategy=recursive -Xtheirs $LONG_HASH
 
 if [ $? -eq 0 ] ; then
+    echo "Running diff"
+    git diff
+    
     # XXX We might want to install Gerrit's commit-msg hook instead, e.g.
     # scp -p -P 29418 <user>@code.wireshark.org:hooks/commit-msg .git/hooks/
 
