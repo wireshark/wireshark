@@ -135,7 +135,7 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  if ((argc - optind) < 1) {
+  if (argc < 2) {
     usage();
     return 1;
   }
