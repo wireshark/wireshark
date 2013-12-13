@@ -65,8 +65,8 @@ typedef struct {
 	 * set aside to time to do so. */
 	gpointer	data;
 	gint32		value;
-	gboolean        inside_brackets;
-        const char      *deprecated_token;
+	gboolean	inside_brackets;
+	const char	*deprecated_token;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -120,15 +120,12 @@ const char *
 stnode_deprecated(stnode_t *node);
 
 #define assert_magic(obj, mnum) \
-        g_assert((obj)); \
-        if ((obj)->magic != (mnum)) { \
-                g_print("\nMagic num is 0x%08x, but should be 0x%08x", \
-                                (obj)->magic, (mnum)); \
-                g_assert((obj)->magic == (mnum)); \
-        }
-
-
-
+	g_assert((obj)); \
+	if ((obj)->magic != (mnum)) { \
+		g_print("\nMagic num is 0x%08x, but should be 0x%08x", \
+			(obj)->magic, (mnum)); \
+			g_assert((obj)->magic == (mnum)); \
+	}
 
 #define STTYPE_ACCESSOR(ret,type,attr,magicnum) \
 	ret \
