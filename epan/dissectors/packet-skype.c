@@ -315,7 +315,7 @@ test_skype_udp(tvbuff_t *tvb)
 }
 
 static gboolean
-dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (pinfo->ptype == PT_UDP) {
 		if ( !test_skype_udp(tvb) ) {
