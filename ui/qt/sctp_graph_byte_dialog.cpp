@@ -33,15 +33,16 @@ void SCTPGraphByteDialog::drawBytesGraph()
     GList *listTSN = NULL,*tlist;
     tsn_t *tsn;
     guint8 type;
-    guint32 minBytes, maxBytes;
+    guint32 maxBytes;
+    // guint32 minBytes, maxBytes;
     long sumBytes = 0;
  //   printf("drawBytesGraph\n");
     if (direction == 1) {
-        minBytes = 0; //selected_assoc->min_tsn1;
+        //minBytes = 0; //selected_assoc->min_tsn1;
         maxBytes = selected_assoc->n_data_bytes_ep1;
         listTSN = g_list_last(selected_assoc->tsn1);
     } else {
-        minBytes = 0; //selected_assoc->min_tsn2;
+        //minBytes = 0; //selected_assoc->min_tsn2;
         maxBytes = selected_assoc->n_data_bytes_ep2;
         listTSN = g_list_last(selected_assoc->tsn2);
     }
