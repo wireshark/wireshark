@@ -3526,7 +3526,9 @@ BACnetBinaryPV [] = {
 };
 
 
-#define ANSI_X3_4      0 /* ANSI X3.4, a/k/a "ASCII"; full UTF-8 since 2010? */
+#define ANSI_X3_4      0 /* ANSI X3.4, a/k/a "ASCII"; full UTF-8 since 2010 */
+                         /* See, for example, ANSI/ASHRAE Addendum k to ANSI/ASHRAE Standard 135-2008 */
+                         /* XXX - I've seen captures using this for ISO 8859-1 */
 #define IBM_MS_DBCS    1 /* "IBM/Microsoft DBCS"; was there only one such DBCS? */
 #define JIS_C_6226     2 /* JIS C 6226 */
 #define ISO_10646_UCS4 3 /* ISO 10646 (UCS-4) - 4-byte Unicode */
