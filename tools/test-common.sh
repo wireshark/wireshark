@@ -164,5 +164,5 @@ function exit_error() {
     echo -e "stderr follows:\n"
     cat $TMP_DIR/$ERR_FILE
 
-    exit 1
+    exit 255
 }
