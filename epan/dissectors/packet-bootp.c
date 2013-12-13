@@ -3014,9 +3014,9 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 		return RFC3825_LATITUDE_UNCERTAINTY_OUTOFRANGE;
 	}
 	if (fixpoint->latitude_res > 8 ) {
-		decimal->latitude_res = (double) 1  / (1 << (fixpoint->latitude_res - 8));
+		decimal->latitude_res = (double) 1  / (G_GUINT64_CONSTANT(1) << (fixpoint->latitude_res - 8));
 	} else {
-		decimal->latitude_res = 1 << (8 - fixpoint->latitude_res);
+		decimal->latitude_res = (double) (G_GUINT64_CONSTANT(1) << (8 - fixpoint->latitude_res));
 	}
 
 	/* Longitude */
@@ -3030,9 +3030,9 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 		return RFC3825_LONGITUDE_UNCERTAINTY_OUTOFRANGE;
 	}
 	if (fixpoint->longitude_res > 8 ) {
-		decimal->longitude_res = (double) 1 / (1 << (fixpoint->longitude_res - 8));
+		decimal->longitude_res = (double) 1 / (G_GUINT64_CONSTANT(1) << (fixpoint->longitude_res - 8));
 	} else {
-		decimal->longitude_res = 1 << (8 - fixpoint->longitude_res);
+		decimal->longitude_res = (double) (G_GUINT64_CONSTANT(1) << (8 - fixpoint->longitude_res));
 	}
 
 	/* Altitude Type */
@@ -3052,9 +3052,9 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 			return RFC3825_ALTITUDE_UNCERTAINTY_OUTOFRANGE;
 		}
 		if (fixpoint->altitude_res > 21 ) {
-			decimal->altitude_res = (double) 1 / (1 << (fixpoint->altitude_res - 21));
+			decimal->altitude_res = (double) 1 / (G_GUINT64_CONSTANT(1) << (fixpoint->altitude_res - 21));
 		} else {
-			decimal->altitude_res = 1 << (21 - fixpoint->altitude_res);
+			decimal->altitude_res = (double) (G_GUINT64_CONSTANT(1) << (21 - fixpoint->altitude_res));
 		}
 	} else if (decimal->altitude_type == 2) { /* Floors */
 		/* Altitude */
