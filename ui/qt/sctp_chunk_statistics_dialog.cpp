@@ -189,6 +189,8 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
         }
         fclose(fp);
     }
+#else
+    all = TRUE;
 #endif
 }
 
