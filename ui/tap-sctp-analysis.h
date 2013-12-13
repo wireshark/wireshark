@@ -288,7 +288,7 @@ typedef struct _sctp_assoc_info {
 	gboolean  init;
 	gboolean  initack;
 	guint8    initack_dir;
-	guint8    direction;
+	guint16    direction;
 	guint32   min_secs;
 	guint32   min_usecs;
 	guint32   max_secs;
