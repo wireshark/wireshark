@@ -1076,7 +1076,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 static int
 dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  guint32 pduType2;
+  guint32 pduType2 = 0;
   guint32 compressedType;
   guint32 action = 0;
 
@@ -1240,7 +1240,7 @@ static int
 dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
   guint32 lengthSourceDescriptor;
-  guint32 numberCapabilities;
+  guint32 numberCapabilities = 0;
 
   rdp_field_info_t fields[] = {
     {hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
@@ -1269,7 +1269,7 @@ static int
 dissect_rdp_confirmActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
   guint32 lengthSourceDescriptor;
-  guint32 numberCapabilities;
+  guint32 numberCapabilities = 0;
 
   rdp_field_info_t fields[] = {
     {hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
@@ -1311,7 +1311,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int              offset       = 0;
   guint32          flags        = 0;
   guint32          cbDomain, cbUserName, cbPassword, cbAlternateShell, cbWorkingDir,
-                   cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, pduType;
+                   cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, pduType = 0;
   guint32          bMsgType;
   guint32          encryptedLen = 0;
   conversation_t  *conversation;
