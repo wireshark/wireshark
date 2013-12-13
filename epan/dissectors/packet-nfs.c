@@ -8843,6 +8843,8 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 58, NFS4_OP_RECLAIM_COMPLETE */
 };
 
+#define NFS4_OPERATION_TIER(op) \
+	((op) < G_N_ELEMENTS(nfs4_operation_tiers) ? nfs4_operation_tiers[(op)] : 0)
 
 static int
 dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
@@ -9397,7 +9399,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	/* Detect which tiers are present in this packet */
 	for (summary_counter=0; summary_counter < ops_counter; summary_counter++)
 	{
-		current_tier = nfs4_operation_tiers[op_summary[summary_counter].opcode];
+		current_tier = NFS4_OPERATION_TIER(op_summary[summary_counter].opcode);
 		if (current_tier < highest_tier)
 			highest_tier = current_tier;
 	}
@@ -9409,7 +9411,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		proto_item *main_op_item = NULL;
 
 		main_opcode = op_summary[summary_counter].opcode;
-		current_tier = nfs4_operation_tiers[op_summary[summary_counter].opcode];
+		current_tier = NFS4_OPERATION_TIER(op_summary[summary_counter].opcode);
 
 		/* Display summary info only for operations that are "most significant".
 		   Controlled by a user option. */
@@ -9836,7 +9838,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	/* Detect which tiers are present in this packet */
 	for (summary_counter = 0; summary_counter < ops_counter; summary_counter++)
 	{
-		current_tier = nfs4_operation_tiers[op_summary[summary_counter].opcode];
+		current_tier = NFS4_OPERATION_TIER(op_summary[summary_counter].opcode);
 		if (current_tier < highest_tier)
 			highest_tier = current_tier;
 	}
@@ -9848,7 +9850,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		proto_item *main_op_item = NULL;
 
 		main_opcode = op_summary[summary_counter].opcode;
-		current_tier = nfs4_operation_tiers[op_summary[summary_counter].opcode];
+		current_tier = NFS4_OPERATION_TIER(op_summary[summary_counter].opcode);
 
 		/* Display summary info only for operations that are "most significant".
 		 Controlled by a user option.
