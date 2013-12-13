@@ -19,22 +19,34 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2013-66[]
 +
-Something is up with a dissector.
-// Fixed in trunk: rXXXXX
-// Fixed in trunk-1.10: rXXXXX
-// Fixed in trunk-1.8: rXXXXX
-(ws-buglink:XXXX[])
+The SIP dissector could go into an infinite loop. Discovered by Alain Botti.
+// Fixed in trunk-1.10: r53195
+// Fixed in trunk-1.8: r53197
+(ws-buglink:9388[])
 +
 Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
 //+
 //cve-idlink:2013-XXXX[]
 
+* ws-salink:2013-67[]
++
+The ASN.1 PER dissector could crash. Discovered by Laurent Butti.
+// Fixed in trunk-1.10: r53803
+(ws-buglink:9488[])
++
+Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
+//+
+//cve-idlink:2013-XXXX[]
 
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
 * "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
+* Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses. (ws-buglink:9031[])
+* Incorrect NFSv4 FATTR4_SECURITY_LABEL value. (ws-buglink:9383[])
+* gsm_map doesn't decode MAPv3 reportSM-DeliveryStatus result. (ws-buglink:9382[])
+* VoIP Graph Analysis window - some calls are black. (ws-buglink:8966[])
 
 === New and Updated Features
 
@@ -48,7 +60,10 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+ASN.1 PER
+GSM MAP
+NFSv4
+SIP
 
 --sort-and-group--
 

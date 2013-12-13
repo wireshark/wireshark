@@ -631,7 +631,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	static GdkRGBA background_color[MAX_NUM_COL_CONV+1] = {
 		/* Red, Green, Blue Alpha */
 		{0.0039, 0.0039, 1.0000, 1.0},
-		{0.5664, 0.6289, 0.5664, 1.0},
+		{0.5664, 0.9336, 0.5664, 1.0},
 		{1.0000, 0.6289, 0.4805, 1.0},
 		{1.0000, 0.7148, 0.7578, 1.0},
 		{0.9805, 0.9805, 0.8242, 1.0},
@@ -639,7 +639,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		{0.4023, 0.8046, 0.6680, 1.0},
 		{0.8789, 1.0000, 1.0000, 1.0},
 		{0.6914, 0.7695, 0.8710, 1.0},
-		{0.8281, 0.8281, 0.8281, 1.0},
+		{0.5312, 0.8086, 0.9957, 1.0},
+		{0.8281, 0.8281, 0.8281, 1.0}
 	};
 
 	/* XXX can't we just set the background color ? */

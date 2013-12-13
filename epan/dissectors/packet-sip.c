@@ -1551,12 +1551,13 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 			queried_offset = tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, '"');
 			if(queried_offset==-1){
 				/* We have an opening quote but no closing quote. */
-				queried_offset = line_end_offset;
-			}
-			current_offset =  tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ';');
-			if(current_offset==-1){
-				/* Last parameter, line end */
 				current_offset = line_end_offset;
+			} else {
+				current_offset = tvb_pbrk_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ",;", &c);
+				if(current_offset==-1){
+					/* Last parameter, line end */
+					current_offset = line_end_offset;
+				}
 			}
 		}else{
 			current_offset = queried_offset;
