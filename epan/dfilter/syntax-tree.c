@@ -59,10 +59,10 @@ sttype_register(sttype_t *type)
 	/* Check input */
 	g_assert(type_id < STTYPE_NUM_TYPES);
 
-        /* Don't re-register. */
-        g_assert(type_list[type_id] == NULL);
+	/* Don't re-register. */
+	g_assert(type_list[type_id] == NULL);
 
-        type_list[type_id] = type;
+	type_list[type_id] = type;
 }
 
 static sttype_t*
@@ -76,9 +76,9 @@ sttype_lookup(sttype_id_t type_id)
 	result = type_list[type_id];
 
 	/* Check output. */
-        g_assert(result != NULL);
+	g_assert(result != NULL);
 
-        return result;
+	return result;
 }
 
 
@@ -90,7 +90,7 @@ stnode_new(sttype_id_t type_id, gpointer data)
 
 	node = g_new(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
-        node->deprecated_token = NULL;
+	node->deprecated_token = NULL;
 	node->inside_brackets = FALSE;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
