@@ -283,7 +283,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 	return info;
 }
 
-static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint8 direction)
+static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint16 direction)
 {
 	GList *list;
 	address *v=NULL;
