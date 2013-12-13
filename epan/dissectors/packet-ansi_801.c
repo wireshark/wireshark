@@ -782,7 +782,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	case 0x1e: str = "> 12288.00 meters"; break;
 	case 0x1f: str = "Not computable"; break;
 	default:
-		fl_value = (float)(0.5 * (1 << (value >> 1)));
+		fl_value = (float)(0.5f * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5f;
 		str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
@@ -798,7 +798,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	case 0x1e: str = "> 12288.00 meters"; break;
 	case 0x1f: str = "Not computable"; break;
 	default:
-		fl_value = (float)(0.5 * (1 << (value >> 1)));
+		fl_value = (float)(0.5f * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5f;
 		str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
@@ -877,7 +877,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		case 0x1e: str = "> 12288.00 meters"; break;
 		case 0x1f: str = "Not computable"; break;
 		default:
-			fl_value = (float)(0.5 * (1 << (value >> 1)));
+			fl_value = (float)(0.5f * (1 << (value >> 1)));
 			if (value & 0x01)
 				fl_value *= 1.5f;
 			str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
