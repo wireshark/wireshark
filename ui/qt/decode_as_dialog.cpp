@@ -52,7 +52,6 @@ const char *default_table_ = "TCP port";
 const char *default_proto_ = "HTTP";
 const char *default_int_selector_ = "0"; // Arbitrary
 const char *default_str_selector_ = "foo"; // Arbitrary
-const int max_name_em_width_ = 10; // Some table names are a tad long.
 
 DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_new) :
     QDialog(parent),
@@ -157,11 +156,11 @@ void DecodeAsDialog::fillTable()
     dissector_all_tables_foreach_changed(buildChangedList, this);
     decode_dcerpc_add_show_list(buildDceRpcChangedList, this);
 
-    ui->decodeAsTreeWidget->resizeColumnToContents(table_col_);
-    ui->decodeAsTreeWidget->resizeColumnToContents(selector_col_);
-    ui->decodeAsTreeWidget->resizeColumnToContents(type_col_);
-    ui->decodeAsTreeWidget->resizeColumnToContents(default_col_);
-    ui->decodeAsTreeWidget->resizeColumnToContents(proto_col_);
+    if (ui->decodeAsTreeWidget->topLevelItemCount() > 0) {
+        for (int i = 0; i < ui->decodeAsTreeWidget->columnCount(); i++) {
+            ui->decodeAsTreeWidget->resizeColumnToContents(i);
+        }
+    }
 }
 
 void DecodeAsDialog::activateLastItem()
@@ -265,10 +264,6 @@ void DecodeAsDialog::on_decodeAsTreeWidget_itemActivated(QTreeWidgetItem *item, 
             this, SLOT(tableNamesCurrentIndexChanged(const QString &)));
     connect(table_names_combo_box_, SIGNAL(destroyed()), this, SLOT(tableNamesDestroyed()));
     table_names_combo_box_->setFocus();
-
-    QFontMetrics fm(font());
-    ui->decodeAsTreeWidget->setColumnWidth(table_col_, fm.height() * max_name_em_width_);
-    ui->decodeAsTreeWidget->setColumnWidth(selector_col_, fm.height() * max_name_em_width_);
 }
 
 void DecodeAsDialog::on_decodeAsTreeWidget_itemSelectionChanged()
