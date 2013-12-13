@@ -183,8 +183,8 @@ fill_lapd_byte_state(lapd_byte_state_t *ptr, enum lapd_bitstream_states state, c
 	ptr->bit_offset = bit_offset;
 	ptr->ones = ones;
 
-	memcpy(ptr->data, data, data_len);
-	ptr->data_len = data_len;
+	ptr->data_len = MIN(sizeof(ptr->data), data_len);
+	memcpy(ptr->data, data, ptr->data_len);
 }
 
 typedef struct lapd_convo_data {
