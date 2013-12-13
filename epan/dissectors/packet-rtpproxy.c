@@ -233,11 +233,6 @@ static const string_string errortypenames[] = {
 	{ 0, NULL }
 };
 
-static const value_string flowcontroltypenames[] = {
-	{ '\n', "Yes"},
-	{ 0, NULL }
-};
-
 static gint ett_rtpproxy = -1;
 
 static gint ett_rtpproxy_request = -1;
@@ -1235,9 +1230,9 @@ proto_register_rtpproxy(void)
 			{
 				"LF",
 				"rtpproxy.lf",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(flowcontroltypenames),
+				FT_NONE,
+				BASE_NONE,
+				NULL,
 				0x0,
 				NULL,
 				HFILL
