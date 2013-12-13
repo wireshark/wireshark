@@ -785,9 +785,13 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	tvbuff_t *next_tvb = NULL;
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
-	struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
+	struct tcpinfo *tcpinfo;
 	guint8 endpoint = 3;
 	guint16 ulpdu_length = 0;
+
+	if (data == NULL)
+		return FALSE;
+	tcpinfo = (struct tcpinfo *)data;
 
 	/* FPDU */
 	if (tvb_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
