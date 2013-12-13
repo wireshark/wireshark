@@ -1106,7 +1106,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         break;
     }
 
-    return(curr_offset-offset);
+    return (curr_offset - offset);
 }
 
 const char* get_gsm_a_msg_string(int pdu_type, int idx)
@@ -1258,7 +1258,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
 
         /* idx is out of range */
         if (elem_name == NULL)
-            return(consumed);
+            return consumed;
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1299,7 +1299,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
         consumed += 1 + lengt_length;
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -1351,7 +1351,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
 
         /* idx is out of range */
         if (elem_name == NULL)
-            return(consumed);
+            return consumed;
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1394,7 +1394,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
         consumed += 1 + lengt_length;
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -1434,7 +1434,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
 
         /* idx is out of range */
         if (elem_name == NULL)
-            return(consumed);
+            return consumed;
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1475,7 +1475,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
         consumed += 1 + 2;
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -1514,7 +1514,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
 
         /* idx is out of range */
         if (elem_name == NULL)
-            return(consumed);
+            return consumed;
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1551,7 +1551,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
         proto_item_set_len(item, consumed);
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -1593,7 +1593,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
         /* idx is out of range */
         if (elem_name == NULL)
-            return(consumed);
+            return consumed;
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1630,7 +1630,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         proto_item_set_len(item, consumed);
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -1667,7 +1667,7 @@ guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 i
         consumed = 1;
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -1703,7 +1703,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
 
     /* idx is out of range */
     if (elem_name == NULL)
-        return(consumed);
+        return consumed;
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1737,7 +1737,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
         }
     }
 
-    return(consumed + 1);
+    return (consumed + 1);
 }
 
 /*
@@ -1770,7 +1770,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
 
     /* idx is out of range */
     if (elem_name == NULL)
-        return(consumed);
+        return consumed;
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1804,7 +1804,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
         }
     }
 
-    return(consumed + 2);
+    return (consumed + 2);
 }
 /*
  * Value (V) element dissector
@@ -1862,7 +1862,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
         proto_item_set_len(item, consumed);
     }
 
-    return(consumed);
+    return (consumed);
 }
 
 /*
@@ -1897,7 +1897,7 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
 
     /* idx is out of range */
     if (elem_name == NULL)
-        return(consumed);
+        return consumed;
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
@@ -1920,7 +1920,7 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
     }
     proto_item_set_len(item, consumed);
 
-    return(consumed);
+    return consumed;
 }
 
 
@@ -1975,14 +1975,14 @@ my_dgt_tbcd_unpack(
         if (i == 0x0f)  /* odd number bytes - hit filler */
             break;
 
-        *out++ = dgt->out[i];
+        *out++ = dgt->out[i & 0xf];   /* ( '& 0xf' added to keep VS Code Analysis happy ) */
         cnt++;
         num_octs--;
     }
 
     *out = '\0';
 
-    return(cnt);
+    return cnt;
 }
 
 /*
@@ -2078,12 +2078,12 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     curr_offset = offset;
 
     curr_offset +=
-    /* 0x02 CI */
-    be_cell_id_aux(tvb, tree, pinfo, offset, len, add_string, string_len, 0x02);
+        /* 0x02 CI */
+        be_cell_id_aux(tvb, tree, pinfo, offset, len, add_string, string_len, 0x02);
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 /*
  * 10.5.1.2 Ciphering Key Sequence Number
@@ -2129,7 +2129,7 @@ de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     proto_tree_add_bits_item(tree, hf_gsm_a_key_seq, tvb, (curr_offset<<3)+bit_offset+1, 3, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 
@@ -2174,7 +2174,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -2369,7 +2369,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -2405,7 +2405,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -2472,7 +2472,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -2484,7 +2484,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     if (bits_left < (n)) { \
         if (bits_left) \
             proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, ENC_BIG_ENDIAN); \
-        return(len); \
+        return len; \
     }
 
 guint16
@@ -2701,14 +2701,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
         /* Check if Power Capability 1 is present */
         tmp_bit_offset++;
-        if(tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
-            psk_struct_len+=2;
-            tmp_bit_offset+=2;
+        if (tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
+            psk_struct_len += 2;
+            tmp_bit_offset += 2;
         }
         tmp_bit_offset++;
         /* Check if Power Capability 2 is present */
-        if(tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
-            psk_struct_len+=2;
+        if (tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
+            psk_struct_len += 2;
         }
         /* Extract 8-PSK struct */
         item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, psk_struct_len, ENC_BIG_ENDIAN);
@@ -3218,7 +3218,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     curr_offset = bit_offset >> 3;
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(len);
+    return len;
 }
 /*
  * [3] 10.5.1.8
@@ -3237,7 +3237,7 @@ guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
    proto_tree_add_bits_item(tree, hf_gsm_a_spare_nibble, tvb, (curr_offset<<3)+bit_offset, 4, ENC_BIG_ENDIAN);
    curr_offset = curr_offset + 1;
 
-   return(curr_offset - offset);
+   return (curr_offset - offset);
 }
 
 /*
@@ -3309,7 +3309,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3358,7 +3358,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3389,7 +3389,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3407,7 +3407,7 @@ de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3433,7 +3433,7 @@ de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3465,7 +3465,7 @@ de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3509,7 +3509,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
@@ -3545,7 +3545,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
-    return(curr_offset - offset);
+    return (curr_offset - offset);
 }
 
 /*
