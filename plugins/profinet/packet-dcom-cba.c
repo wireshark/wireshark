@@ -429,6 +429,8 @@ dissect_get_BSTR_resp(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hfindex, szStr, u32MaxStr);
+    } else {
+        szStr[0] = '\0';
     }
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
