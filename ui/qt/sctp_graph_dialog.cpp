@@ -363,7 +363,7 @@ void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent*
 {
     if (plottable->name().contains("Graph", Qt::CaseInsensitive)) {
       //  double tsn = round(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()));
-        int index = yt.indexOf(round(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y())));
+        int index = yt.indexOf((ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()))); // FIXME IRENE
       //  double time = xt.at(index);
         frame_num = ft.at(index);
         if (cap_file_ && frame_num > 0) {
@@ -374,7 +374,7 @@ void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent*
     ui->hintLabel->setText(QString("<small><i>%1: %2: %3 Time: %4 secs </i></small>")
                            .arg(plottable->name())
                            .arg(typeStrings[num-1])
-                           .arg(round(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y())))
+                           .arg((ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()))) // FIXME IRENE
                            .arg(ui->sctpPlot->xAxis->pixelToCoord(event->pos().x())));
 }
 

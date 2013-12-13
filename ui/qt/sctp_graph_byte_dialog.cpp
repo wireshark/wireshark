@@ -143,7 +143,7 @@ void SCTPGraphByteDialog::on_pushButton_4_clicked()
 void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent* event)
 {
     if (plottable->name().contains("Bytes", Qt::CaseInsensitive)) {
-        double bytes = round(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()));
+        double bytes = (ui->sctpPlot->yAxis->pixelToCoord(event->pos().y())); // FIXME IRENE
         int i;
         for (i = 0; i < yb.size(); i++) {
             if (bytes <= yb.value(i)) {
