@@ -164,44 +164,47 @@ void proto_reg_handoff_vrt(void);
 
 static void dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
-    guint8 type;
-    guint8 sidflag;
-    guint8 cidflag;
-    guint8 tflag;
-    guint8 tsiflag;
-    guint8 tsfflag;
-    guint16 len;
-    gint16 nsamps;
-
-    proto_tree *vrt_tree;
-    proto_item *ti;
+    int     offset = 0;
+    guint8  type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VITA 49");
     col_clear(pinfo->cinfo,COL_INFO);
 
     /* HACK to support UHD's weird header offset on data packets. */
-    if (tvb_get_guint8(tvb, 0) == 0) offset += 4;
+    if (tvb_get_guint8(tvb, 0) == 0)
+        offset += 4;
 
     /* get packet type */
     type = tvb_get_guint8(tvb, offset) >> 4;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, packet_types, "Reserved packet type (0x%02x)"));
 
-    /* get SID, CID, T, TSI, and TSF flags */
-    sidflag = (type & 1) || (type == 4);
-    cidflag = (tvb_get_guint8(tvb, offset) >> 3) & 0x01;
-    /* tflag is in data packets but not context packets */
-    tflag =   (tvb_get_guint8(tvb, offset) >> 2) & 0x01;
-    if(type == 4) tflag = 0; /* this should be unnecessary but we do it
-                                just in case */
-    /* tsmflag is in context packets but not data packets
-       tsmflag = (tvb_get_guint8(tvb, offset) >> 0) & 0x01; */
-    tsiflag = (tvb_get_guint8(tvb, offset+1) >> 6) & 0x03;
-    tsfflag = (tvb_get_guint8(tvb, offset+1) >> 4) & 0x03;
-    len = tvb_get_ntohs(tvb, offset+2);
-    nsamps = len - 1 - sidflag - cidflag*2 - tsiflag - tsfflag*2 - tflag;
-
     if (tree) { /* we're being asked for details */
+        guint8  sidflag;
+        guint8  cidflag;
+        guint8  tflag;
+        guint8  tsitype;
+        guint8  tsftype;
+        guint16 len;
+        guint16 nsamps;
+
+        proto_tree *vrt_tree;
+        proto_item *ti;
+
+        /* get SID, CID, T flags and TSI, TSF types */
+        sidflag = (((type & 0x01) != 0) || (type == 4)) ? 1 : 0;
+        cidflag = (tvb_get_guint8(tvb, offset) >> 3) & 0x01;
+        /* tflag is in data packets but not context packets */
+        tflag =   (tvb_get_guint8(tvb, offset) >> 2) & 0x01;
+        if (type == 4)
+            tflag = 0; /* this should be unnecessary but we do it just in case */
+        /* tsmflag is in context packets but not data packets
+           tsmflag = (tvb_get_guint8(tvb, offset) >> 0) & 0x01; */
+        tsitype = (tvb_get_guint8(tvb, offset+1) >> 6) & 0x03;
+        tsftype = (tvb_get_guint8(tvb, offset+1) >> 4) & 0x03;
+        len     = tvb_get_ntohs(tvb, offset+2);
+
+        nsamps  = len - 1;  /* (Before adjusting word count for optional fields) */
+
         ti = proto_tree_add_item(tree, proto_vrt, tvb, offset, -1, ENC_NA);
         vrt_tree = proto_item_add_subtree(ti, ett_vrt);
 
@@ -209,74 +212,75 @@ static void dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 4;
 
         /* header's done! if SID (last bit of type), put the stream ID here */
-        if(sidflag) {
+        if (sidflag) {
             proto_tree_add_item(vrt_tree, hf_vrt_sid, tvb, offset, 4, ENC_BIG_ENDIAN);
+            nsamps -= 1;
             offset += 4;
+
         }
 
         /* if there's a class ID (cidflag), put the class ID here */
-        if(cidflag) {
+        if (cidflag) {
             dissect_cid(tvb, vrt_tree, offset);
+            nsamps -= 2;
             offset += 8;
         }
 
         /* if TSI and/or TSF, populate those here */
-        if(tsiflag != 0) {
+        if (tsitype != 0) {
             proto_tree_add_item(vrt_tree, hf_vrt_ts_int, tvb, offset, 4, ENC_BIG_ENDIAN);
+            nsamps -= 1;
             offset += 4;
         }
-        if(tsfflag != 0) {
-            if(tsfflag == 1 || tsfflag == 3) {
+        if (tsftype != 0) {
+            if (tsftype == 1 || tsftype == 3) {
                 proto_tree_add_item(vrt_tree, hf_vrt_ts_frac_sample, tvb, offset, 8, ENC_BIG_ENDIAN);
-            } else if(tsfflag == 2) {
+            } else if (tsftype == 2) {
                 proto_tree_add_item(vrt_tree, hf_vrt_ts_frac_picosecond, tvb, offset, 8, ENC_BIG_ENDIAN);
             }
+            nsamps -= 2;
             offset += 8;
+        }
+
+        if (tflag) {
+            nsamps -= 1;
         }
 
         /* now we've got either a context packet or a data packet
            TODO: parse context packet fully instead of just spewing data */
 
         /* we're into the data */
-        if(nsamps > 0)
-        {
+        if (nsamps != 0) {
             proto_tree_add_item(vrt_tree, hf_vrt_data, tvb, offset, nsamps*4, ENC_NA);
         }
 
         offset += nsamps*4;
 
-        if(tflag) {
+        if (tflag) {
             dissect_trailer(tvb, vrt_tree, offset);
         }
-
-
-    } else { /* we're being asked for a summary */
-
     }
 }
 
-void dissect_header(tvbuff_t *tvb, proto_tree *tree, int type, int _offset)
+void dissect_header(tvbuff_t *tvb, proto_tree *tree, int type, int offset)
 {
-    int offset;
     proto_item *hdr_item;
     proto_tree *hdr_tree;
-
-    offset = _offset;
 
     hdr_item = proto_tree_add_item(tree, hf_vrt_header, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     hdr_tree = proto_item_add_subtree(hdr_item, ett_header);
-    proto_tree_add_item(hdr_tree, hf_vrt_type, tvb, offset, 1, ENC_NA);
-    proto_tree_add_bits_item(hdr_tree, hf_vrt_cidflag, tvb, (offset * 8) + 5, 1, ENC_NA);
-    if(type == 4) {
-        proto_tree_add_item(hdr_tree, hf_vrt_tsmflag, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(hdr_tree, hf_vrt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(hdr_tree, hf_vrt_cidflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (type == 4) {
+        proto_tree_add_item(hdr_tree, hf_vrt_tsmflag, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
-        proto_tree_add_bits_item(hdr_tree, hf_vrt_tflag, tvb, (offset * 8) + 6, 1, ENC_NA);
+        proto_tree_add_item(hdr_tree, hf_vrt_tflag, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset += 1;
-    proto_tree_add_item(hdr_tree, hf_vrt_tsi, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(hdr_tree, hf_vrt_tsf, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(hdr_tree, hf_vrt_seq, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(hdr_tree, hf_vrt_tsi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(hdr_tree, hf_vrt_tsf, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(hdr_tree, hf_vrt_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(hdr_tree, hf_vrt_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
@@ -287,34 +291,35 @@ void dissect_trailer(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree *enable_tree;
     proto_tree *ind_tree;
     proto_tree *trailer_tree;
-    guint16 en_bits;
-    gint16 i;
+    guint16     en_bits;
+    gint16      i;
 
     trailer_item = proto_tree_add_item(tree, hf_vrt_trailer, tvb, offset, 4, ENC_BIG_ENDIAN);
     trailer_tree = proto_item_add_subtree(trailer_item, ett_trailer);
 
-    /* grab the indicator enables and the indicators
+    /* grab the indicator enables and the indicators;
        only display enables, indicators which are enabled */
-    enable_item = proto_tree_add_item(trailer_tree, hf_vrt_trailer_enables, tvb, offset, 2, ENC_NA);
-    ind_item = proto_tree_add_item(trailer_tree, hf_vrt_trailer_ind, tvb, offset + 1, 2, ENC_NA);
+    enable_item = proto_tree_add_item(trailer_tree, hf_vrt_trailer_enables, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ind_item = proto_tree_add_item(trailer_tree, hf_vrt_trailer_ind, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
     /* grab enable bits */
     en_bits = (tvb_get_ntohs(tvb, offset) & 0xFFF0) >> 4;
 
     /* if there's any enables, start trees for enable bits and for indicators
        only enables and indicators which are enabled get printed. */
-    if(en_bits) {
+    if (en_bits) {
         enable_tree = proto_item_add_subtree(enable_item, ett_ind_enables);
         ind_tree = proto_item_add_subtree(ind_item, ett_indicators);
-        for(i = 11; i >= 0; i--) {
-            if(en_bits & (1<<i)) {
-                proto_tree_add_bits_item(enable_tree, *enable_hfs[i], tvb, (offset+(i<3)) * 8 + (i+1), 1, ENC_NA);
-                proto_tree_add_bits_item(ind_tree, *ind_hfs[i], tvb, (offset+(i<8)+1) * 8 + (i+5), 1, ENC_NA);
+        for (i = 11; i >= 0; i--) {
+            if (en_bits & (1<<i)) {
+                /* XXX: Display needs to be improved ... */
+                proto_tree_add_item(enable_tree, *enable_hfs[i], tvb, offset,   2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ind_tree, *ind_hfs[i],       tvb, offset+1, 2, ENC_BIG_ENDIAN);
             }
         }
     }
     offset += 3;
-    proto_tree_add_bits_item(trailer_tree, hf_vrt_trailer_e, tvb, offset * 8, 1, ENC_NA);
-    proto_tree_add_item(trailer_tree, hf_vrt_trailer_acpc, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(trailer_tree, hf_vrt_trailer_e,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(trailer_tree, hf_vrt_trailer_acpc, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 void dissect_cid(tvbuff_t *tvb, proto_tree *tree, int offset)
@@ -345,43 +350,43 @@ proto_register_vrt(void)
         },
         { &hf_vrt_type,
             { "Packet type", "vrt.type",
-            FT_UINT8, 4,
+            FT_UINT8, BASE_DEC,
             VALS(packet_types), 0xF0,
             NULL, HFILL }
         },
         { &hf_vrt_cidflag,
             { "Class ID included", "vrt.cidflag",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 8,
+            NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_vrt_tflag,
             { "Trailer included", "vrt.tflag",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_vrt_tsmflag,
             { "Timestamp mode", "vrt.tsmflag",
-            FT_UINT8, 1,
+            FT_UINT8, BASE_DEC,
             VALS(tsm_types), 0x01,
             NULL, HFILL }
         },
         { &hf_vrt_tsi,
             { "Integer timestamp type", "vrt.tsi",
-            FT_UINT8, 2,
+            FT_UINT8, BASE_DEC,
             VALS(tsi_types), 0xC0,
             NULL, HFILL }
         },
         { &hf_vrt_tsf,
             { "Fractional timestamp type", "vrt.tsf",
-            FT_UINT8, 2,
+            FT_UINT8, BASE_DEC,
             VALS(tsf_types), 0x30,
             NULL, HFILL }
         },
         { &hf_vrt_seq,
             { "Sequence number", "vrt.seq",
-            FT_UINT8, 4,
+            FT_UINT8, BASE_DEC,
             NULL, 0x0F,
             NULL, HFILL }
         },
@@ -447,8 +452,8 @@ proto_register_vrt(void)
         },
         { &hf_vrt_trailer_e,
             { "Associated context packet count enabled", "vrt.e",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_acpc,
@@ -459,146 +464,146 @@ proto_register_vrt(void)
         },
         { &hf_vrt_trailer_ind_caltime,
             { "Calibrated time indicator", "vrt.caltime",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0800,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_valid,
             { "Valid signal indicator", "vrt.valid",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0400,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_reflock,
             { "Reference lock indicator", "vrt.reflock",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0200,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_agc,
             { "AGC/MGC indicator", "vrt.agc",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_sig,
             { "Signal detected indicator", "vrt.sig",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_inv,
             { "Spectral inversion indicator", "vrt.inv",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0040,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_overrng,
             { "Overrange indicator", "vrt.overrng",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0020,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_sampleloss,
             { "Lost sample indicator", "vrt.sampleloss",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0010,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user0,
             { "User indicator 0", "vrt.user0",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x000,
+            FT_BOOLEAN, 16,
+            NULL, 0x00008,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user1,
             { "User indicator 1", "vrt.user1",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0004,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user2,
             { "User indicator 2", "vrt.user2",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x000,
+            FT_BOOLEAN, 16,
+            NULL, 0x00002,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user3,
             { "User indicator 3", "vrt.user3",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_caltime,
             { "Calibrated time indicator enable", "vrt.caltime_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x8000,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_valid,
             { "Valid signal indicator enable", "vrt.valid_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x4000,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_reflock,
             { "Reference lock indicator enable", "vrt.reflock_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x2000,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_agc,
             { "AGC/MGC indicator enable", "vrt.agc_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x1000,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_sig,
             { "Signal detected indicator enable", "vrt.sig_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0800,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_inv,
             { "Spectral inversion indicator enable", "vrt.inv_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0400,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_overrng,
             { "Overrange indicator enable", "vrt.overrng_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0200,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_sampleloss,
             { "Lost sample indicator enable", "vrt.sampleloss_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user0,
             { "User indicator 0 enable", "vrt.user0_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user1,
             { "User indicator 1 enable", "vrt.user1_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0040,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user2,
             { "User indicator 2 enable", "vrt.user2_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0020,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user3,
             { "User indicator 3 enable", "vrt.user3_en",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x00,
+            FT_BOOLEAN, 16,
+            NULL, 0x0010,
             NULL, HFILL }
         },
         { &hf_vrt_cid_oui,
