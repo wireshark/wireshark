@@ -114,7 +114,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
   if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-    g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+    g_warning("captype: init_progfile_dir(): %s", init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   } else {
     /* Register all the plugin types we have. */
@@ -145,7 +145,7 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[i], &err, &err_info, FALSE);
 
     if (!wth) {
-      fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[i],
+      fprintf(stderr, "captype: Can't open %s: %s\n", argv[i],
           wtap_strerror(err));
       switch (err) {
 
