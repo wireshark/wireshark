@@ -173,6 +173,18 @@ search_frame.cpp search_frame.h: ui_search_frame.h
 
 sequence_dialog.cpp sequence_dialog.h: ui_sequence_dialog.h
 
+sctp_all_assocs_dialog.cpp sctp_all_assocs_dialog.h: ui_sctp_all_assocs_dialog.h
+
+sctp_assoc_analyse_dialog.cpp sctp_assoc_analyse_dialog.h: ui_sctp_assoc_analyse_dialog.h
+
+sctp_chunk_statistics_dialog.cpp sctp_chunk_statistics_dialog.h: ui_sctp_chunk_statistics_dialog.h
+
+sctp_graph_dialog.cpp sctp_graph_dialog.h: ui_sctp_graph_dialog.h
+
+sctp_graph_arwnd_dialog.cpp sctp_graph_arwnd_dialog.h: uisctp_graph_arwnd_dialog.h
+
+sctp_graph_byte_dialog.cpp sctp_graph_byte_dialog.h: ui_sctp_graph_byte_dialog.h
+
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
 stats_tree_dialog.cpp stats_tree_dialog.h: ui_stats_tree_dialog.h
