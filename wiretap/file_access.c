@@ -354,10 +354,10 @@ static wtap_open_routine_t open_routines_base[] = {
 	 * ERF files were misidentified as vwr files (Stephen
 	 * Donnelly, August 2013; see bug 9054)
 	 *
-	 * I put VWR *after* Peek Classic and NetScaler, because
-	 * there were some cases where Peek Classic and NetScaler
-	 * files were misidentified as vwr files (Guy Harris,
-	 * December 2013)
+	 * I put VWR *after* Peek Classic, CommView, iSeries text,
+	 * Toshiba text, VMS tcpiptrace text, and NetScaler, because
+	 * there were some cases where files of those types were
+	 * misidentified as vwr files (Guy Harris, December 2013)
 	 */
 	netscreen_open,
 	erf_open,
