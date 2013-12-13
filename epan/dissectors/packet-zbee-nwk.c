@@ -306,7 +306,8 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     ieee802154_packet   *packet = (ieee802154_packet *)data;
 
     /* All ZigBee frames must always have a 16-bit source address. */
-    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) {
+    if ( (packet == NULL) ||
+         (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) ) {
         return FALSE;
     }
     /* ZigBee MAC frames must always contain a 16-bit destination address. */
