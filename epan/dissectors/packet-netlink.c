@@ -35,6 +35,9 @@
 
 #include "packet-netlink.h"
 
+void proto_register_netlink(void);
+void proto_reg_handoff_netlink(void);
+
 /*
  * A DLT_LINUX_SLL fake link-layer header.
  */
@@ -206,8 +209,6 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 	proto_tree_add_item(fh_tree, &hfi_netlink_family, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	pinfo->p2p_dir = P2P_DIR_SENT; /* XXX */
-
 	/* DISSECTOR_ASSERT(offset == 16); */
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 16) {
@@ -215,6 +216,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 
 		int pkt_end_offset;
 		guint32 pkt_len;
+		guint32 port_id;
 
 		proto_tree *fh_msg;
 		proto_tree *fh_hdr;
@@ -245,7 +247,14 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 		offset += 4;
 
 		proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_pid, tvb, offset, 4, encoding);
+		port_id = tvb_get_letohl(tvb, offset);
 		offset += 4;
+
+		/* XXX */
+		if (port_id == 0x00)
+			pinfo->p2p_dir = P2P_DIR_SENT; /* userspace -> kernel */
+		else
+			pinfo->p2p_dir = P2P_DIR_RECV; /* userspace or kernel -> userspace */
 
 		if (pkt_len > 16) {
 			data.magic = PACKET_NETLINK_MAGIC;

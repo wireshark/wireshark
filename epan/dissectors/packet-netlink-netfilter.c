@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include "packet-netlink.h"
 
+void proto_register_netlink_netfilter(void);
+void proto_reg_handoff_netlink_netfilter(void);
+
 typedef struct {
 	packet_info *pinfo;
 	struct packet_netlink_data *data;
@@ -90,7 +93,7 @@ static header_field_info hfi_netlink_netfilter_queue_type NETLINK_NETFILTER_HFI_
 	  VALS(netlink_netfilter_queue_type_vals), 0x00FF, NULL, HFILL };
 
 static int
-dissect_netlink_netfilter_queue(tvbuff_t *tvb _U_, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
+dissect_netfilter_queue(tvbuff_t *tvb _U_, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
 {
 	enum ws_nfqnl_msg_types type = (enum ws_nfqnl_msg_types) (info->data->type & 0xff);
 
@@ -103,7 +106,6 @@ dissect_netlink_netfilter_queue(tvbuff_t *tvb _U_, netlink_netfilter_info_t *inf
 
 	return offset;
 }
-
 
 /* ULOG */
 
@@ -118,7 +120,7 @@ static header_field_info hfi_netlink_netfilter_ulog_type NETLINK_NETFILTER_HFI_I
 	  VALS(netlink_netfilter_ulog_type_vals), 0x00FF, NULL, HFILL };
 
 static int
-dissect_netlink_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
+dissect_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
 {
 	enum ws_nfulnl_msg_types type = (enum ws_nfulnl_msg_types) (info->data->type & 0xff);
 
@@ -186,18 +188,16 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 	switch (data->type >> 8) {
 		case WS_NFNL_SUBSYS_QUEUE:
-			offset = dissect_netlink_netfilter_queue(tvb, &info, tree, offset);
+			offset = dissect_netfilter_queue(tvb, &info, tree, offset);
 			break;
 
 		case WS_NFNL_SUBSYS_ULOG:
-			offset = dissect_netlink_netfilter_ulog(tvb, &info, tree, offset);
+			offset = dissect_netfilter_ulog(tvb, &info, tree, offset);
 			break;
 	}
 
 	return offset;
 }
-
-void proto_register_netlink_netfilter(void);
 
 void
 proto_register_netlink_netfilter(void)
@@ -227,8 +227,6 @@ proto_register_netlink_netfilter(void)
 
 	netlink_netfilter = new_create_dissector_handle(dissect_netlink_netfilter, proto_netlink_netfilter);
 }
-
-void proto_reg_handoff_netlink_netfilter(void);
 
 void
 proto_reg_handoff_netlink_netfilter(void)
