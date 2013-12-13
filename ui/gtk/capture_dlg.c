@@ -245,6 +245,9 @@ static remote_options global_remote_opts;
 static guint num_selected = 0;
 #endif
 
+static gulong capture_all_handler_id;
+static gulong promisc_all_handler_id;
+
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 
@@ -4478,10 +4481,10 @@ update_properties_all(void)
 
   /* If all interfaces are selected, check the "capture on all interfaces"
      checkbox, otherwise un-check it. */
-  if (capture_all) {
-    capture_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), TRUE);
-  }
+  capture_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL);
+  g_signal_handler_block(capture_b, capture_all_handler_id);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), capture_all);
+  g_signal_handler_unblock(capture_b, capture_all_handler_id);
 
   /* If all selected interfaces are in promiscuous mode, check the global
      "promiscuous mode" checkbox, otherwise un-check it. */
@@ -4598,7 +4601,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
   /* If we don't get a list don't do any thing.
-   * If the error is AIRPCAP_NOT_LOADED it avoids a unneccessay rescan of the packet list
+   * If the error is AIRPCAP_NOT_LOADED it avoids an unnecessary rescan of the packet list
    * ( see airpcap_loader.h for error codes).
    */
   if (airpcap_if_list == NULL) {
@@ -4608,7 +4611,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     }
   }else{
     decryption_cb = (GtkWidget *)g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-    /* XXXX update_decryption_mode_list() trigers a rescan, should only be done if the mode is changed */
+    /* XXXX update_decryption_mode_list() triggers a rescan, should only be done if the mode is changed */
     update_decryption_mode_list(decryption_cb);
     /* select the first as default (THIS SHOULD BE CHANGED) */
     airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
@@ -4788,7 +4791,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   all_cb = gtk_check_button_new_with_mnemonic( "Capture on all interfaces");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_cb), FALSE);
-  g_signal_connect(all_cb, "toggled", G_CALLBACK(capture_all_cb), NULL);
+  capture_all_handler_id = g_signal_connect(all_cb, "toggled", G_CALLBACK(capture_all_cb), NULL);
   gtk_widget_set_tooltip_text(all_cb, "Activate the box to capture on all interfaces. "
     "Deactivate it to capture on none and set the interfaces individually.");
   gtk_box_pack_start(GTK_BOX(left_vb), all_cb, TRUE, TRUE, 0);
@@ -4801,7 +4804,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), get_all_prom_mode());
   }
-  g_signal_connect(promisc_cb, "button-press-event", G_CALLBACK(promisc_mode_callback), NULL);
+  promisc_all_handler_id = g_signal_connect(promisc_cb, "toggled", G_CALLBACK(promisc_mode_callback), NULL);
 
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
@@ -5701,7 +5704,7 @@ create_and_fill_model(GtkTreeView *view)
       hassnap = capture_dev_user_hassnap_find(device.name);
       snaplen = capture_dev_user_snaplen_find(device.name);
       if(snaplen != -1 && hassnap != -1) {
-        /* Default snap lenght set in preferences */
+        /* Default snap length set in preferences */
         device.snaplen = snaplen;
         device.has_snaplen = hassnap;
       } else {

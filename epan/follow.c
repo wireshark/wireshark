@@ -363,7 +363,7 @@ reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
   }
   else {
     /* out of order packet */
-    if(data_length > 0 && ((glong)(sequence - seq[src_index]) > 0) ) {
+    if(data_length > 0 && GT_SEQ(sequence, seq[src_index]) ) {
       tmp_frag = (tcp_frag *)g_malloc( sizeof( tcp_frag ) );
       tmp_frag->data = (gchar *)g_malloc( data_length );
       tmp_frag->seq = sequence;
@@ -393,7 +393,7 @@ check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
   if( current ) {
     lowest_seq = current->seq;
     while( current ) {
-      if( (glong)(lowest_seq - current->seq) > 0 ) {
+      if( GT_SEQ(lowest_seq, current->seq) ) {
         lowest_seq = current->seq;
       }
 
@@ -452,7 +452,7 @@ check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
       prev = current;
       current = current->next;
     }
-    if( (glong)(acknowledged - lowest_seq) > 0 ) {
+    if( GT_SEQ(acknowledged, lowest_seq) ) {
       /* There are frames missing in the capture file that were seen
        * by the receiving host. Add dummy stream chunk with the data
        * "[xxx bytes missing in capture file]".
