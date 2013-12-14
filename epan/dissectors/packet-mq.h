@@ -30,7 +30,8 @@
 
 #define GET_VALSV(A) mq_##A##_vals
 #define DEF_VALSX(A) extern const value_string GET_VALSV(A)[]
-#define GET_VALSP(F) (gchar *)GET_VALSV(F)
+/* XXX WTF: this is broken it's used to cast value_string array to char * */
+#define GET_VALSP(F) (const gchar *)GET_VALSV(F)
 #define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
 {
 #define DEF_VALSBX(A) const value_string GET_VALSV(A)[] = \
