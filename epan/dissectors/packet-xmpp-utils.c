@@ -802,7 +802,7 @@ proto_item_get_text(proto_item *item)
 
 
 void
-xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info *attrs, guint n)
+xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, const xmpp_attr_info *attrs, guint n)
 {
     proto_item *item = proto_tree_get_parent(tree);
     xmpp_attr_t *attr;
@@ -818,12 +818,12 @@ xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo
         attr = xmpp_get_attr(element, attrs[i].name);
         if(attr)
         {
-            if(attrs[i].hf != -1)
+            if(attrs[i].phf != NULL)
             {
                 if(attr->name)
-                    proto_tree_add_string_format(tree, attrs[i].hf, tvb, attr->offset, attr->length, attr->value,"%s: %s", attr->name, attr->value);
+                    proto_tree_add_string_format(tree, *attrs[i].phf, tvb, attr->offset, attr->length, attr->value,"%s: %s", attr->name, attr->value);
                 else
-                    proto_tree_add_string(tree, attrs[i].hf, tvb, attr->offset, attr->length, attr->value);
+                    proto_tree_add_string(tree, *attrs[i].phf, tvb, attr->offset, attr->length, attr->value);
             }
             else
             {
@@ -860,7 +860,7 @@ xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo
 }
 
 void
-xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info_ext *attrs, guint n)
+xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, const xmpp_attr_info_ext *attrs, guint n)
 {
     proto_item *item = proto_tree_get_parent(tree);
     xmpp_attr_t *attr;
@@ -886,11 +886,11 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
                     attr = xmpp_get_attr_ext(element, attrs[i].info.name, "");
 
                 if (attr) {
-                    if (attrs[i].info.hf != -1) {
+                    if (attrs[i].info.phf != NULL) {
                         if (attr->name)
-                            proto_tree_add_string_format(tree, attrs[i].info.hf, tvb, attr->offset, attr->length, attr->value, "%s: %s", attr->name, attr->value);
+                            proto_tree_add_string_format(tree, *attrs[i].info.phf, tvb, attr->offset, attr->length, attr->value, "%s: %s", attr->name, attr->value);
                         else
-                            proto_tree_add_string(tree, attrs[i].info.hf, tvb, attr->offset, attr->length, attr->value);
+                            proto_tree_add_string(tree, *attrs[i].info.phf, tvb, attr->offset, attr->length, attr->value);
                     } else {
                         proto_tree_add_text(tree, tvb, attr->offset, attr->length, "%s: %s", attr->name ? attr->name : attrs[i].info.name, attr->value);
                     }

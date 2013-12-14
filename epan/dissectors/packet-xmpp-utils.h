@@ -78,7 +78,7 @@ typedef struct _xmpp_element_t{
 /*informations about attributes that are displayed in proto tree*/
 typedef struct _xmpp_attr_info{
     const gchar *name;
-    gint hf;
+    const gint *phf;
     gboolean is_required;
     gboolean in_short_list;
 
@@ -239,7 +239,7 @@ extern gpointer xmpp_name_attr_struct(const gchar *name, const gchar *attr_name,
  * - val_func - validate function
  * - data - data passes to the val_func
  */
-extern void xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info *attrs, guint n);
+extern void xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, const xmpp_attr_info *attrs, guint n);
 
 /** Function does the same as shown above. It takes attrs(XMPP_ATTR_INFO_EXT) argument
  * that contains XMPP_ATTR_INFO struct and string with namespace. It is used when packet
@@ -253,7 +253,7 @@ extern void xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet
  * </auth>
  * @endcode
  */
-extern void xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info_ext *attrs, guint n);
+extern void xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, const xmpp_attr_info_ext *attrs, guint n);
 
 /** Displays elements from parent element in a way described in elems(XMPP_ELEM_INFO).
  * XMPP_ELEM_INFO describes how to find particular element and what action should be done

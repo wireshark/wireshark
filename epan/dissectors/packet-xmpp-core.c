@@ -101,12 +101,12 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
     xmpp_attr_t *attr_id, *attr_type;
 
     xmpp_attr_info attrs_info[] = {
-        {"xmlns", hf_xmpp_xmlns, FALSE, FALSE, NULL, NULL},
-        {"id", hf_xmpp_id, TRUE, TRUE, NULL, NULL},
-        {"type", hf_xmpp_type, TRUE, TRUE, NULL, NULL},
-        {"from", hf_xmpp_from, FALSE, TRUE, NULL, NULL},
-        {"to", hf_xmpp_to, FALSE, TRUE, NULL, NULL},
-        {"xml:lang", -1, FALSE, FALSE, NULL, NULL}
+        {"xmlns", &hf_xmpp_xmlns, FALSE, FALSE, NULL, NULL},
+        {"id", &hf_xmpp_id, TRUE, TRUE, NULL, NULL},
+        {"type", &hf_xmpp_type, TRUE, TRUE, NULL, NULL},
+        {"from", &hf_xmpp_from, FALSE, TRUE, NULL, NULL},
+        {"to", &hf_xmpp_to, FALSE, TRUE, NULL, NULL},
+        {"xml:lang", NULL, FALSE, FALSE, NULL, NULL}
     };
 
     conversation_t     *conversation;
@@ -224,9 +224,9 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     xmpp_element_t *text_element, *cond_element;
 
     xmpp_attr_info attrs_info[] = {
-        {"type", hf_xmpp_error_type, TRUE, TRUE, NULL, NULL},
-        {"code", hf_xmpp_error_code, FALSE, TRUE, NULL, NULL},
-        {"condition", hf_xmpp_error_condition, TRUE, TRUE, NULL, NULL} /*TODO: validate list to the condition element*/
+        {"type", &hf_xmpp_error_type, TRUE, TRUE, NULL, NULL},
+        {"code", &hf_xmpp_error_code, FALSE, TRUE, NULL, NULL},
+        {"condition", &hf_xmpp_error_condition, TRUE, TRUE, NULL, NULL} /*TODO: validate list to the condition element*/
     };
 
     gchar *error_info;
@@ -283,13 +283,13 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     xmpp_array_t *show_array = xmpp_ep_init_array_t(show_enums, array_length(show_enums));
 
     xmpp_attr_info attrs_info[] = {
-        {"from", hf_xmpp_from, FALSE, FALSE, NULL, NULL},
-        {"id", hf_xmpp_id, FALSE, TRUE, NULL, NULL},
-        {"to", hf_xmpp_to, FALSE, FALSE, NULL, NULL},
-        {"type", hf_xmpp_type, FALSE, TRUE, xmpp_val_enum_list, type_array},
-        {"xml:lang",-1, FALSE, FALSE, NULL,NULL},
-        {"show", hf_xmpp_presence_show, FALSE, TRUE, xmpp_val_enum_list, show_array},
-        {"priority", -1, FALSE, FALSE, NULL, NULL}
+        {"from", &hf_xmpp_from, FALSE, FALSE, NULL, NULL},
+        {"id", &hf_xmpp_id, FALSE, TRUE, NULL, NULL},
+        {"to", &hf_xmpp_to, FALSE, FALSE, NULL, NULL},
+        {"type", &hf_xmpp_type, FALSE, TRUE, xmpp_val_enum_list, type_array},
+        {"xml:lang", NULL, FALSE, FALSE, NULL,NULL},
+        {"show", &hf_xmpp_presence_show, FALSE, TRUE, xmpp_val_enum_list, show_array},
+        {"priority", NULL, FALSE, FALSE, NULL, NULL}
     };
 
     xmpp_elem_info elems_info[] = {
@@ -335,8 +335,8 @@ xmpp_presence_status(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     proto_tree *status_tree;
 
     xmpp_attr_info attrs_info[] = {
-        {"xml:lang", -1, FALSE, TRUE, NULL, NULL},
-        {"value", -1, TRUE, TRUE, NULL, NULL}
+        {"xml:lang", NULL, FALSE, TRUE, NULL, NULL},
+        {"value", NULL, TRUE, TRUE, NULL, NULL}
     };
 
     xmpp_attr_t *fake_value;
@@ -368,12 +368,12 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
-        {"from", hf_xmpp_from, FALSE, FALSE, NULL, NULL},
-        {"id", hf_xmpp_id, FALSE, TRUE, NULL, NULL},
-        {"to", hf_xmpp_to, FALSE, FALSE, NULL, NULL},
-        {"type", hf_xmpp_type, FALSE, TRUE, xmpp_val_enum_list, type_array},
-        {"xml:lang",-1, FALSE, FALSE, NULL,NULL},
-        {"chatstate", hf_xmpp_message_chatstate, FALSE, TRUE, NULL, NULL}
+        {"from", &hf_xmpp_from, FALSE, FALSE, NULL, NULL},
+        {"id", &hf_xmpp_id, FALSE, TRUE, NULL, NULL},
+        {"to", &hf_xmpp_to, FALSE, FALSE, NULL, NULL},
+        {"type", &hf_xmpp_type, FALSE, TRUE, xmpp_val_enum_list, type_array},
+        {"xml:lang", NULL, FALSE, FALSE, NULL,NULL},
+        {"chatstate", &hf_xmpp_message_chatstate, FALSE, TRUE, NULL, NULL}
     };
 
     xmpp_elem_info elems_info [] = {
@@ -437,8 +437,8 @@ xmpp_message_body(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elem
     proto_tree *body_tree;
 
     xmpp_attr_info attrs_info[] = {
-        {"xml:lang", -1, FALSE, TRUE, NULL, NULL},
-        {"value", -1, TRUE, TRUE, NULL, NULL}
+        {"xml:lang", NULL, FALSE, TRUE, NULL, NULL},
+        {"value", NULL, TRUE, TRUE, NULL, NULL}
     };
 
     xmpp_attr_t *fake_data_attr;
@@ -461,8 +461,8 @@ xmpp_message_subject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     proto_tree *subject_tree;
 
     xmpp_attr_info attrs_info[] = {
-        {"xml:lang", -1, FALSE, TRUE, NULL, NULL},
-        {"value", -1, TRUE, FALSE, NULL, NULL}
+        {"xml:lang", NULL, FALSE, TRUE, NULL, NULL},
+        {"value", NULL, TRUE, FALSE, NULL, NULL}
     };
 
     xmpp_attr_t *fake_data_attr;
@@ -486,8 +486,8 @@ xmpp_message_thread(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_el
     proto_tree *thread_tree;
 
     xmpp_attr_info attrs_info[] = {
-        {"parent", hf_xmpp_message_thread_parent, FALSE, TRUE, NULL, NULL},
-        {"value", -1, TRUE, TRUE, NULL, NULL}
+        {"parent", &hf_xmpp_message_thread_parent, FALSE, TRUE, NULL, NULL},
+        {"value", NULL, TRUE, TRUE, NULL, NULL}
     };
 
     xmpp_attr_t *fake_value;
@@ -511,10 +511,10 @@ xmpp_auth(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *p
     proto_tree *auth_tree;
 
     xmpp_attr_info_ext attrs_info[]={
-        {"urn:ietf:params:xml:ns:xmpp-sasl", {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}},
-        {"urn:ietf:params:xml:ns:xmpp-sasl", {"mechanism", -1, TRUE, TRUE, NULL, NULL}},
-        {"http://www.google.com/talk/protocol/auth", {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}},
-        {"http://www.google.com/talk/protocol/auth", {"client-uses-full-bind-result", -1, TRUE, TRUE, NULL, NULL}},
+        {"urn:ietf:params:xml:ns:xmpp-sasl", {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}},
+        {"urn:ietf:params:xml:ns:xmpp-sasl", {"mechanism", NULL, TRUE, TRUE, NULL, NULL}},
+        {"http://www.google.com/talk/protocol/auth", {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}},
+        {"http://www.google.com/talk/protocol/auth", {"client-uses-full-bind-result", NULL, TRUE, TRUE, NULL, NULL}},
     };
 
     col_set_str(pinfo->cinfo, COL_INFO, "AUTH");
@@ -537,7 +537,7 @@ xmpp_challenge_response_success(proto_tree *tree, tvbuff_t *tvb,
     proto_tree *subtree;
 
     xmpp_attr_info attrs_info[] = {
-        {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}
+        {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}
     };
 
     col_set_str(pinfo->cinfo, COL_INFO, col_info);
@@ -558,8 +558,8 @@ xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     proto_tree *fail_tree;
 
     xmpp_attr_info attrs_info[] = {
-        {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
-        {"condition", -1, FALSE, TRUE, NULL, NULL}
+        {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
+        {"condition", NULL, FALSE, TRUE, NULL, NULL}
     };
 
     static const gchar *fail_names[] = {"aborted","account-disabled", "credentials-expired",
@@ -615,13 +615,13 @@ xmpp_stream(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t 
     proto_tree *stream_tree;
 
     xmpp_attr_info_ext attrs_info [] = {
-        {"http://etherx.jabber.org/streams",{"xmlns", hf_xmpp_xmlns, FALSE, TRUE, NULL, NULL}},
-        {"http://etherx.jabber.org/streams",{"version", -1, FALSE, TRUE, NULL, NULL}},
-        {"http://etherx.jabber.org/streams",{"from",-1, FALSE, TRUE, NULL, NULL}},
-        {"http://etherx.jabber.org/streams",{"to",-1, FALSE, TRUE, NULL, NULL}},
-        {"http://etherx.jabber.org/streams",{"id",-1, FALSE, TRUE, NULL, NULL}},
-        {"http://etherx.jabber.org/streams",{"xml:lang",-1, FALSE, TRUE, NULL, NULL}},
-        {"jabber:client",{"xmlns", hf_xmpp_xmlns, FALSE, TRUE, NULL, NULL}},
+        {"http://etherx.jabber.org/streams",{"xmlns", &hf_xmpp_xmlns, FALSE, TRUE, NULL, NULL}},
+        {"http://etherx.jabber.org/streams",{"version", NULL, FALSE, TRUE, NULL, NULL}},
+        {"http://etherx.jabber.org/streams",{"from", NULL, FALSE, TRUE, NULL, NULL}},
+        {"http://etherx.jabber.org/streams",{"to", NULL, FALSE, TRUE, NULL, NULL}},
+        {"http://etherx.jabber.org/streams",{"id", NULL, FALSE, TRUE, NULL, NULL}},
+        {"http://etherx.jabber.org/streams",{"xml:lang", NULL, FALSE, TRUE, NULL, NULL}},
+        {"jabber:client",{"xmlns", &hf_xmpp_xmlns, FALSE, TRUE, NULL, NULL}},
 
     };
 
@@ -680,7 +680,7 @@ xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xm
     proto_tree *mechanisms_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}
+        {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}
     };
 
     xmpp_elem_info elems_info [] = {
@@ -702,7 +702,7 @@ xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tls_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
+        {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
     };
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "STARTTLS ");
@@ -729,7 +729,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *proceed_tree;
 
     xmpp_attr_info attrs_info [] = {
-        {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
+        {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
     };
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "PROCEED ");
