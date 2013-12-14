@@ -285,7 +285,7 @@ decode_sap_value_as_bitfield(gchar *buffer, guint32 sap)
 
 	memset (buffer, '\0', ITEM_LABEL_LENGTH);
 	p = decode_bitfield_value (buffer, sap, SAP_MASK, 8);
-	g_snprintf(p, ITEM_LABEL_LENGTH-strlen(buffer)-1, "SAP: %s",
+	g_snprintf(p, (gulong)(ITEM_LABEL_LENGTH-strlen(buffer)-1), "SAP: %s",
 		val_to_str_const(sap, sap_vals, "Unknown"));
 
 	return buffer;
