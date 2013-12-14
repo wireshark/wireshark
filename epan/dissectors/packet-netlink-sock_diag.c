@@ -784,12 +784,10 @@ static header_field_info hfi_netlink_sock_diag_netlink_dst_port_id NETLINK_SOCK_
 static int
 dissect_sock_diag_netlink_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, proto_tree *tree, int offset)
 {
-	proto_item *ti;
-
 	proto_tree_add_item(tree, &hfi_netlink_sock_diag_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	ti = proto_tree_add_item(tree, &hfi_netlink_sock_diag_type, tvb, offset, 1, ENC_NA);
+	/* ti = */ proto_tree_add_item(tree, &hfi_netlink_sock_diag_type, tvb, offset, 1, ENC_NA);
 	switch (tvb_get_guint8(tvb, offset)) {
 		case WS_SOCK_DGRAM:
 		case WS_SOCK_RAW:

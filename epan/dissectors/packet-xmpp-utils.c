@@ -385,9 +385,9 @@ xmpp_ep_string_upcase(const gchar* string)
 gint
 xmpp_element_t_cmp(gconstpointer a, gconstpointer b)
 {
-    gint result = strcmp(((xmpp_element_t*)a)->name,((xmpp_element_t*)b)->name);
+    gint result = strcmp(((const xmpp_element_t*)a)->name,((const xmpp_element_t*)b)->name);
 
-    if(result == 0 && ((xmpp_element_t*)a)->was_read)
+    if(result == 0 && ((const xmpp_element_t*)a)->was_read)
         result = -1;
 
     return result;

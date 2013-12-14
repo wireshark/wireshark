@@ -1877,7 +1877,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 return 0;
             }
 
-            srcfc = (guint8 *)pinfo->src.data;
+            srcfc = (const guint8 *)pinfo->src.data;
             if (srcfc[2]) {
                 /* If it is a loop port, we'll need to remember the ALPA */
                 options = NO_PORT2;
@@ -1941,7 +1941,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 return 0;
             }
 
-            dstfc = (guint8 *)pinfo->dst.data;
+            dstfc = (const guint8 *)pinfo->dst.data;
 
             addrdata[0] = addrdata[1] = 0;
             addrdata[2] = dstfc[2];

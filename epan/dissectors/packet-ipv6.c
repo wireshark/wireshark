@@ -735,8 +735,8 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             /* IPv6 source address used for strict checking */
             struct e_in6_addr srcAddr;
             offset += 4;
-            memcpy((guint8 *)&dstAddr, (guint8 *)pinfo->dst.data, pinfo->dst.len);
-            memcpy((guint8 *)&srcAddr, (guint8 *)pinfo->src.data, pinfo->src.len);
+            memcpy((guint8 *)&dstAddr, pinfo->dst.data, pinfo->dst.len);
+            memcpy((guint8 *)&srcAddr, pinfo->src.data, pinfo->src.len);
 
             /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
             if(g_ipv6_rpl_srh_strict_rfc_checking && in6_is_addr_multicast(&dstAddr)){

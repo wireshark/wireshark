@@ -179,9 +179,9 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         switch(hi_nibble(ver_type)) {
             case 3:
                 /* Set up the fields of the pseudo-header. */
-                cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
+                cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
                 cksum_vec[0].len = pinfo->src.len;
-                cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
+                cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
                 cksum_vec[1].len = pinfo->dst.len;
                 cksum_vec[2].ptr = (const guint8 *)&phdr;
                 phdr[0] = g_htonl(vrrp_len);

@@ -2172,26 +2172,26 @@ ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint 
 /* Key hash function. */
 guint ieee802154_short_addr_hash(gconstpointer key)
 {
-    return (((ieee802154_short_addr *)key)->addr) | (((ieee802154_short_addr *)key)->pan << 16);
+    return (((const ieee802154_short_addr *)key)->addr) | (((const ieee802154_short_addr *)key)->pan << 16);
 }
 
 /* Key equal function. */
 gboolean ieee802154_short_addr_equal(gconstpointer a, gconstpointer b)
 {
-    return (((ieee802154_short_addr *)a)->pan == ((ieee802154_short_addr *)b)->pan) &&
-           (((ieee802154_short_addr *)a)->addr == ((ieee802154_short_addr *)b)->addr);
+    return (((const ieee802154_short_addr *)a)->pan == ((const ieee802154_short_addr *)b)->pan) &&
+           (((const ieee802154_short_addr *)a)->addr == ((const ieee802154_short_addr *)b)->addr);
 }
 
 /* Key hash function. */
 guint ieee802154_long_addr_hash(gconstpointer key)
 {
-    return (guint)(((ieee802154_long_addr *)key)->addr) & 0xFFFFFFFF;
+    return (guint)(((const ieee802154_long_addr *)key)->addr) & 0xFFFFFFFF;
 }
 
 /* Key equal function. */
 gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b)
 {
-    return (((ieee802154_long_addr *)a)->addr == ((ieee802154_long_addr *)b)->addr);
+    return (((const ieee802154_long_addr *)a)->addr == ((const ieee802154_long_addr *)b)->addr);
 }
 
 /*FUNCTION:------------------------------------------------------

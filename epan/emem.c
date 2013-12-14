@@ -606,7 +606,7 @@ print_alloc_stats(void)
 static gboolean
 emem_verify_pointer_list(const emem_chunk_t *chunk_list, const void *ptr)
 {
-	const gchar *cptr = (gchar *)ptr;
+	const gchar *cptr = (const gchar *)ptr;
 	const emem_chunk_t *chunk;
 
 	for (chunk = chunk_list; chunk; chunk = chunk->next) {
