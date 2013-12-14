@@ -266,7 +266,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     int offset=0;
     proto_tree *tree=NULL;
     proto_item *item=NULL;
-    char token[4];
+    char buf[13];
     guint32 parameter;
 
 
@@ -280,39 +280,33 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         tree = proto_item_add_subtree(item, ett_distcc);
     }
 
-    while(1){
-        /* we must have at least 12 bytes so we can read the
-           token and the parameter */
-        if(tvb_length_remaining(tvb, offset)<12){
+    while (TRUE) {
+        /* read the raw token (4 bytes) and parameter (8 bytes) */
+        tvb_memcpy(tvb, buf, offset, 12);
+        buf[12] = '\0';
+        offset+=12;
+
+        /* scan the parameter */
+        if (sscanf(buf + 4, "%08x", &parameter) != 1)
             return;
-        }
 
-        /* read the token */
-        tvb_memcpy(tvb, token, offset, 4);
-        offset+=4;
-
-        /* read the parameter */
-        if (sscanf(tvb_get_ptr(tvb, offset, 8), "%08x", &parameter) != 1)
-            return;
-        offset+=8;
-
-        if(!strncmp(token, "DIST", 4)){
+        if(!strncmp(buf, "DIST", 4)){
             offset=dissect_distcc_dist(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "ARGC", 4)){
+        } else if(!strncmp(buf, "ARGC", 4)){
             offset=dissect_distcc_argc(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "ARGV", 4)){
+        } else if(!strncmp(buf, "ARGV", 4)){
             offset=dissect_distcc_argv(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "DOTI", 4)){
+        } else if(!strncmp(buf, "DOTI", 4)){
             offset=dissect_distcc_doti(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "DONE", 4)){
+        } else if(!strncmp(buf, "DONE", 4)){
             offset=dissect_distcc_done(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "STAT", 4)){
+        } else if(!strncmp(buf, "STAT", 4)){
             offset=dissect_distcc_stat(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "SERR", 4)){
+        } else if(!strncmp(buf, "SERR", 4)){
             offset=dissect_distcc_serr(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "SOUT", 4)){
+        } else if(!strncmp(buf, "SOUT", 4)){
             offset=dissect_distcc_sout(tvb, pinfo, tree, offset, parameter);
-        } else if(!strncmp(token, "DOTO", 4)){
+        } else if(!strncmp(buf, "DOTO", 4)){
             offset=dissect_distcc_doto(tvb, pinfo, tree, offset, parameter);
         } else {
             call_dissector(data_handle, tvb, pinfo, tree);
