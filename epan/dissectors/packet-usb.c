@@ -188,6 +188,7 @@ static gint ett_endpoint_bmAttributes = -1;
 static gint ett_endpoint_wMaxPacketSize = -1;
 
 static expert_field ei_usb_bLength_even = EI_INIT;
+static expert_field ei_usb_bLength_too_short = EI_INIT;
 static expert_field ei_usb_desc_length_invalid = EI_INIT;
 
 static const int *usb_endpoint_fields[] = {
@@ -1271,15 +1272,16 @@ dissect_usb_setup_get_configuration_response(packet_info *pinfo _U_, proto_tree 
  * for URB_CONTROL_INPUT / GET DESCRIPTOR
  */
 
-void dissect_usb_descriptor_header(proto_tree *tree,
-                                   tvbuff_t *tvb, int offset,
-                                   value_string_ext *type_val_str)
+proto_item * dissect_usb_descriptor_header(proto_tree *tree,
+                                           tvbuff_t *tvb, int offset,
+                                           value_string_ext *type_val_str)
 {
     guint8      desc_type;
-    proto_item *type_item = NULL;
+    proto_item *length_item;
+    proto_item *type_item;
 
 
-    proto_tree_add_item(tree, hf_usb_bLength,
+    length_item = proto_tree_add_item(tree, hf_usb_bLength,
           tvb, offset, 1,  ENC_LITTLE_ENDIAN);
     offset++;
 
@@ -1292,6 +1294,8 @@ void dissect_usb_descriptor_header(proto_tree *tree,
           type_val_str = &std_descriptor_type_vals_ext;
     proto_item_append_text(type_item, " (%s)",
              val_to_str_ext(desc_type, type_val_str, "unknown"));
+
+    return length_item;
 }
 
 /* 9.6.2 */
@@ -1533,6 +1537,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     proto_tree *tree       = NULL;
     int         old_offset = offset;
     guint8      len;
+    proto_item *len_item;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "STRING DESCRIPTOR");
@@ -1543,8 +1548,6 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     /* The USB spec says that the languages / the string are UTF16 and not
        0-terminated, i.e. the length field must contain an even number */
     if (len & 0x1) {
-        proto_item *len_item;
-
         /* bLength */
         len_item = proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         expert_add_info(pinfo, len_item, &ei_usb_bLength_even);
@@ -1553,9 +1556,14 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
         proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
     }
     else
-       dissect_usb_descriptor_header(tree, tvb, offset, NULL);
-
+       len_item = dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
+
+    /* Report an error, and give up, if the length is < 2 */
+    if (len < 2) {
+        expert_add_info(pinfo, len_item, &ei_usb_bLength_too_short);
+        return offset;
+    }
 
     if (!usb_trans_info->u.get_descriptor.index) {
         /* list of languanges */
@@ -1565,18 +1573,8 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
             offset+=2;
         }
     } else {
-        char   *str;
-        guint8  str_len;
-
-        /* Make sure that tvb_get_unicode_string() gets an even
-           string length even if the length field contains an (invalid)
-           odd number.
-         */
-        str_len = (len-2) & ~0x1;
-
-        /* unicode string */
-        str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, str_len, ENC_LITTLE_ENDIAN);
-        proto_tree_add_string(tree, hf_usb_bString, tvb, offset, len-2, str);
+        /* UTF-16 string */
+        proto_tree_add_item(tree, hf_usb_bString, tvb, offset, len-2, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
         offset += len-2;
     }
 
@@ -4122,6 +4120,7 @@ proto_register_usb(void)
 
     static ei_register_info ei[] = {
         { &ei_usb_bLength_even, { "usb.bLength.even", PI_PROTOCOL, PI_WARN, "Invalid STRING DESCRIPTOR Length (must be even)", EXPFILL }},
+        { &ei_usb_bLength_too_short, { "usb.bLength.too_short", PI_MALFORMED, PI_ERROR, "Invalid STRING DESCRIPTOR Length (must be 2 or larger)", EXPFILL }},
         { &ei_usb_desc_length_invalid, { "usb.desc_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid descriptor length", EXPFILL }},
     };
 

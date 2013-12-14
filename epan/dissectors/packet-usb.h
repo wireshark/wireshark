@@ -188,9 +188,9 @@ typedef struct _usb_tap_data_t {
 
 usb_conv_info_t *get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num);
 
-void dissect_usb_descriptor_header(proto_tree *tree,
-                                   tvbuff_t *tvb, int offset,
-                                   value_string_ext *type_val_str);
+proto_item * dissect_usb_descriptor_header(proto_tree *tree,
+                                           tvbuff_t *tvb, int offset,
+                                           value_string_ext *type_val_str);
 void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
 
 #endif
