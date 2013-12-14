@@ -528,12 +528,12 @@ typedef struct rdp_conv_info_t {
 #define RDP_FI_SUBTREE       0x10
 
 typedef struct rdp_field_info_t {
-  int      field;
+  const int *pfield;
   gint32   fixedLength;
   guint32 *variableLength;
   int      offsetOrTree;
   guint32  flags;
-  struct rdp_field_info_t *subfields;
+  const struct rdp_field_info_t *subfields;
 } rdp_field_info_t;
 
 #define FI_FIXEDLEN(_hf_, _len_) { _hf_, _len_, NULL, 0, 0, NULL }
@@ -541,7 +541,7 @@ typedef struct rdp_field_info_t {
 #define FI_VALUE(_hf_, _len_, _value_) { _hf_, _len_, &_value_, 0, 0, NULL }
 #define FI_VARLEN(_hf, _length_) { _hf_, 0, &_length_, 0, 0, NULL }
 #define FI_SUBTREE(_hf_, _len_, _ett_, _sf_) { _hf_, _len_, NULL, _ett_, RDP_FI_SUBTREE, _sf_ }
-#define FI_TERMINATOR {-1, 0, NULL, 0, 0, NULL}
+#define FI_TERMINATOR {NULL, 0, NULL, 0, 0, NULL}
 
 static const value_string rdp_headerType_vals[] = {
   { CS_CORE,     "clientCoreData" },
@@ -805,14 +805,14 @@ static const value_string rdp_wMonth_vals[] = {
 
 
 static int
-dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_field_info_t *fields, int totlen)
+dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const rdp_field_info_t *fields, int totlen)
 {
-  rdp_field_info_t *c;
+  const rdp_field_info_t *c;
   gint              len;
   char             *string;
   int               base_offset = offset;
 
-  while (((c = fields++)->field) != -1) {
+  while (((c = fields++)->pfield) != NULL) {
     if ((c->fixedLength == 0) && (c->variableLength)) {
       len = *(c->variableLength);
     } else {
@@ -840,9 +840,9 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     if (len) {
       proto_item *pi;
       if (c->flags & RDP_FI_STRING)
-        pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_ASCII|ENC_NA);
+        pi = proto_tree_add_item(tree, *c->pfield, tvb, offset, len, ENC_ASCII|ENC_NA);
       else
-        pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_LITTLE_ENDIAN);
+        pi = proto_tree_add_item(tree, *c->pfield, tvb, offset, len, ENC_LITTLE_ENDIAN);
 
       if (c->flags & RDP_FI_UNICODE) {
         string = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN);
@@ -876,7 +876,7 @@ static int
 dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t nyi_fields[] = {
-    {hf_rdp_notYetImplemented,      -1, NULL, 0, 0, NULL },
+    {&hf_rdp_notYetImplemented,      -1, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
@@ -892,7 +892,7 @@ static int
 dissect_rdp_encrypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t enc_fields[] = {
-    {hf_rdp_encrypted,      -1, NULL, 0, 0, NULL },
+    {&hf_rdp_encrypted,      -1, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
@@ -915,32 +915,32 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
   guint32     channelCount = 0;
 
   rdp_field_info_t net_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    FI_VALUE(hf_rdp_channelCount, 4, channelCount),
+    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    FI_VALUE(&hf_rdp_channelCount, 4, channelCount),
     FI_TERMINATOR
   };
   rdp_field_info_t option_fields[] = {
-    {hf_rdp_optionsInitialized,  4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsEncryptRDP,   4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsEncryptSC,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsEncryptCS,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsPriHigh,      4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsPriMed,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsPriLow,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsCompressRDP,  4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsCompress,     4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsShowProtocol, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_optionsRemoteControlPersistent, 4, NULL, 0, 0, NULL },
+    {&hf_rdp_optionsInitialized,  4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsEncryptRDP,   4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsEncryptSC,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsEncryptCS,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsPriHigh,      4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsPriMed,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsPriLow,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsCompressRDP,  4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsCompress,     4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsShowProtocol, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_optionsRemoteControlPersistent, 4, NULL, 0, 0, NULL },
     FI_TERMINATOR,
   };
   rdp_field_info_t channel_fields[] = {
-    FI_FIXEDLEN_STRING(hf_rdp_name, 8),
-    FI_SUBTREE(hf_rdp_options, 4, ett_rdp_options, option_fields),
+    FI_FIXEDLEN_STRING(&hf_rdp_name, 8),
+    FI_SUBTREE(&hf_rdp_options, 4, ett_rdp_options, option_fields),
     FI_TERMINATOR
   };
   rdp_field_info_t def_fields[] = {
-    FI_SUBTREE(hf_rdp_channelDef, 12, ett_rdp_channelDef, channel_fields),
+    FI_SUBTREE(&hf_rdp_channelDef, 12, ett_rdp_channelDef, channel_fields),
     FI_TERMINATOR
   };
 
@@ -981,19 +981,19 @@ dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, p
   guint32 flags = 0;
 
   rdp_field_info_t secFlags_fields[] = {
-    {hf_rdp_flagsPkt,           2, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsEncrypt,       2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsResetSeqno,    2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsIgnoreSeqno,   2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsLicenseEncrypt,2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsSecureChecksum,2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsFlagsHiValid,  2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsPkt,           2, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsEncrypt,       2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsResetSeqno,    2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsIgnoreSeqno,   2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsLicenseEncrypt,2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsSecureChecksum,2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsFlagsHiValid,  2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
     FI_TERMINATOR
   };
 
   rdp_field_info_t flags_fields[] = {
-    FI_SUBTREE(hf_rdp_flags, 2, ett_rdp_flags, secFlags_fields),
-    FI_FIXEDLEN(hf_rdp_flagsHi, 2),
+    FI_SUBTREE(&hf_rdp_flags, 2, ett_rdp_flags, secFlags_fields),
+    FI_FIXEDLEN(&hf_rdp_flagsHi, 2),
     FI_TERMINATOR
   };
 
@@ -1010,17 +1010,17 @@ static int
 dissect_rdp_securityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_conv_info_t *rdp_info, gboolean alwaysBasic, guint32 *flags_ptr) {
 
   rdp_field_info_t fips_fields[] = {
-    {hf_rdp_fipsLength,        2, NULL, 0, 0, NULL },
-    {hf_rdp_fipsVersion,       1, NULL, 0, 0, NULL },
-    {hf_rdp_padlen,            1, NULL, 0, 0, NULL },
-    {hf_rdp_dataSignature,     8, NULL, 0, 0, NULL },
+    {&hf_rdp_fipsLength,        2, NULL, 0, 0, NULL },
+    {&hf_rdp_fipsVersion,       1, NULL, 0, 0, NULL },
+    {&hf_rdp_padlen,            1, NULL, 0, 0, NULL },
+    {&hf_rdp_dataSignature,     8, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t enc_fields[] = {
-    {hf_rdp_dataSignature,     8, NULL, 0, 0, NULL },
+    {&hf_rdp_dataSignature,     8, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
-  rdp_field_info_t *fields = NULL;
+  const rdp_field_info_t *fields = NULL;
 
   if (rdp_info) {
 
@@ -1047,27 +1047,27 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   guint32 length = 0;
 
   rdp_field_info_t flag_fields[] = {
-    {hf_rdp_channelFlagFirst,        4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelFlagLast,         4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelFlagShowProtocol, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelFlagSuspend,      4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelFlagResume,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelPacketCompressed, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelPacketAtFront,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelPacketFlushed,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_channelPacketCompressionType,  4, NULL, 0, 0, NULL },
+    {&hf_rdp_channelFlagFirst,        4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelFlagLast,         4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelFlagShowProtocol, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelFlagSuspend,      4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelFlagResume,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelPacketCompressed, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelPacketAtFront,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelPacketFlushed,    4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelPacketCompressionType,  4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
   rdp_field_info_t channel_fields[] =   {
-    FI_VALUE(hf_rdp_length, 4, length),
-    FI_SUBTREE(hf_rdp_channelFlags, 4, ett_rdp_channelFlags, flag_fields),
+    FI_VALUE(&hf_rdp_length, 4, length),
+    FI_SUBTREE(&hf_rdp_channelFlags, 4, ett_rdp_channelFlags, flag_fields),
     FI_TERMINATOR
   };
 
   rdp_field_info_t channelPDU_fields[] =   {
-    FI_SUBTREE(hf_rdp_channelPDUHeader, 8, ett_rdp_channelPDUHeader, channel_fields),
-    FI_FIXEDLEN(hf_rdp_virtualChannelData, -1),
+    FI_SUBTREE(&hf_rdp_channelPDUHeader, 8, ett_rdp_channelPDUHeader, channel_fields),
+    FI_FIXEDLEN(&hf_rdp_virtualChannelData, -1),
     FI_TERMINATOR
   };
 
@@ -1084,63 +1084,63 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   guint32 action = 0;
 
   rdp_field_info_t compressed_fields[] =   {
-    {hf_rdp_compressedTypeType, 1, &compressedType, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_compressedTypeCompressed, 1, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_compressedTypeAtFront,    1, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_compressedTypeFlushed,    1, NULL, 0, 0, NULL },
+    {&hf_rdp_compressedTypeType, 1, &compressedType, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_compressedTypeCompressed, 1, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_compressedTypeAtFront,    1, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_compressedTypeFlushed,    1, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t share_fields[] =   {
-    {hf_rdp_shareId,            4, NULL, 0, 0, NULL },
-    {hf_rdp_pad1,               1, NULL, 0, 0, NULL },
-    {hf_rdp_streamId,           1, NULL, 0, 0, NULL },
-    {hf_rdp_uncompressedLength, 2, NULL, 0, 0, NULL },
-    {hf_rdp_pduType2,           1, &pduType2, 0, 0, NULL },
-    FI_SUBTREE(hf_rdp_compressedType, 1, ett_rdp_compressedType, compressed_fields),
-    {hf_rdp_compressedLength,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_shareId,            4, NULL, 0, 0, NULL },
+    {&hf_rdp_pad1,               1, NULL, 0, 0, NULL },
+    {&hf_rdp_streamId,           1, NULL, 0, 0, NULL },
+    {&hf_rdp_uncompressedLength, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_pduType2,           1, &pduType2, 0, 0, NULL },
+    FI_SUBTREE(&hf_rdp_compressedType, 1, ett_rdp_compressedType, compressed_fields),
+    {&hf_rdp_compressedLength,   2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t control_fields[] = {
-    {hf_rdp_action,             2, &action, 0, 0, NULL },
-    {hf_rdp_grantId,            2, NULL, 0, 0, NULL },
-    {hf_rdp_controlId,          4, NULL, 0, 0, NULL },
+    {&hf_rdp_action,             2, &action, 0, 0, NULL },
+    {&hf_rdp_grantId,            2, NULL, 0, 0, NULL },
+    {&hf_rdp_controlId,          4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t sync_fields[] = {
-    {hf_rdp_messageType,        2, NULL, 0, 0, NULL },
-    {hf_rdp_targetUser,         2, NULL, 0, 0, NULL },
+    {&hf_rdp_messageType,        2, NULL, 0, 0, NULL },
+    {&hf_rdp_targetUser,         2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t mapflags_fields[] = {
-    {hf_rdp_fontMapFirst, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_fontMapLast, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_fontMapFirst, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_fontMapLast, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t fontmap_fields[] = {
-    {hf_rdp_numberEntries,      2, NULL, 0, 0, NULL },
-    {hf_rdp_totalNumberEntries, 2, NULL, 0, 0, NULL },
-    FI_SUBTREE(hf_rdp_mapFlags, 2, ett_rdp_mapFlags, mapflags_fields),
-    {hf_rdp_entrySize,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_numberEntries,      2, NULL, 0, 0, NULL },
+    {&hf_rdp_totalNumberEntries, 2, NULL, 0, 0, NULL },
+    FI_SUBTREE(&hf_rdp_mapFlags, 2, ett_rdp_mapFlags, mapflags_fields),
+    {&hf_rdp_entrySize,          2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t persistent_fields[] = {
-    {hf_rdp_numEntriesCache0,   2, NULL, 0, 0, NULL },
-    {hf_rdp_numEntriesCache1,   2, NULL, 0, 0, NULL },
-    {hf_rdp_numEntriesCache2,   2, NULL, 0, 0, NULL },
-    {hf_rdp_numEntriesCache3,   2, NULL, 0, 0, NULL },
-    {hf_rdp_numEntriesCache4,   2, NULL, 0, 0, NULL },
-    {hf_rdp_totalEntriesCache0, 2, NULL, 0, 0, NULL },
-    {hf_rdp_totalEntriesCache1, 2, NULL, 0, 0, NULL },
-    {hf_rdp_totalEntriesCache2, 2, NULL, 0, 0, NULL },
-    {hf_rdp_totalEntriesCache3, 2, NULL, 0, 0, NULL },
-    {hf_rdp_totalEntriesCache4, 2, NULL, 0, 0, NULL },
-    {hf_rdp_bBitMask,           1, NULL, 0, 0, NULL },
-    {hf_rdp_Pad2,               1, NULL, 0, 0, NULL },
-    {hf_rdp_Pad3,               2, NULL, 0, 0, NULL },
+    {&hf_rdp_numEntriesCache0,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_numEntriesCache1,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_numEntriesCache2,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_numEntriesCache3,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_numEntriesCache4,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_totalEntriesCache0, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_totalEntriesCache1, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_totalEntriesCache2, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_totalEntriesCache3, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_totalEntriesCache4, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_bBitMask,           1, NULL, 0, 0, NULL },
+    {&hf_rdp_Pad2,               1, NULL, 0, 0, NULL },
+    {&hf_rdp_Pad3,               2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
-  rdp_field_info_t *fields;
+  const rdp_field_info_t *fields;
 
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields, 0);
 
@@ -1221,14 +1221,14 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
   guint32 lengthCapability;
 
   rdp_field_info_t cs_fields[] = {
-    {hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
-    {hf_rdp_lengthCapability, 2, &lengthCapability, -4, 0, NULL },
-    {hf_rdp_capabilityData, 0, &lengthCapability, 0, 0, NULL },
+    {&hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_lengthCapability, 2, &lengthCapability, -4, 0, NULL },
+    {&hf_rdp_capabilityData, 0, &lengthCapability, 0, 0, NULL },
     FI_TERMINATOR
   };
 
   rdp_field_info_t set_fields[] = {
-    FI_SUBTREE(hf_rdp_capabilitySet, 0, ett_rdp_capabilitySet, cs_fields),
+    FI_SUBTREE(&hf_rdp_capabilitySet, 0, ett_rdp_capabilitySet, cs_fields),
     FI_TERMINATOR
   };
 
@@ -1246,16 +1246,16 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   guint32 numberCapabilities = 0;
 
   rdp_field_info_t fields[] = {
-    {hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
-    {hf_rdp_lengthSourceDescriptor,     2, &lengthSourceDescriptor, 0, 0, NULL },
-    {hf_rdp_lengthCombinedCapabilities, 2, NULL, 0, 0, NULL },
-    {hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, RDP_FI_STRING, NULL },
-    {hf_rdp_numberCapabilities,         2, &numberCapabilities, 0, 0, NULL },
-    {hf_rdp_pad2Octets,                 2, NULL, 0, 0, NULL },
+    {&hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
+    {&hf_rdp_lengthSourceDescriptor,     2, &lengthSourceDescriptor, 0, 0, NULL },
+    {&hf_rdp_lengthCombinedCapabilities, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_numberCapabilities,         2, &numberCapabilities, 0, 0, NULL },
+    {&hf_rdp_pad2Octets,                 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t final_fields[] = {
-    {hf_rdp_sessionId,                    4, NULL, 0, 0, NULL },
+    {&hf_rdp_sessionId,                    4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
@@ -1275,13 +1275,13 @@ dissect_rdp_confirmActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
   guint32 numberCapabilities = 0;
 
   rdp_field_info_t fields[] = {
-    {hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
-    {hf_rdp_originatorId,               2, NULL, 0, 0, NULL },
-    {hf_rdp_lengthSourceDescriptor,     2, &lengthSourceDescriptor, 0, 0, NULL },
-    {hf_rdp_lengthCombinedCapabilities, 2, NULL, 0, 0, NULL },
-    {hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, 0, NULL },
-    {hf_rdp_numberCapabilities,         2, &numberCapabilities, 0, 0, NULL },
-    {hf_rdp_pad2Octets,                 2, NULL, 0, 0, NULL },
+    {&hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
+    {&hf_rdp_originatorId,               2, NULL, 0, 0, NULL },
+    {&hf_rdp_lengthSourceDescriptor,     2, &lengthSourceDescriptor, 0, 0, NULL },
+    {&hf_rdp_lengthCombinedCapabilities, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, 0, NULL },
+    {&hf_rdp_numberCapabilities,         2, &numberCapabilities, 0, 0, NULL },
+    {&hf_rdp_pad2Octets,                 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
@@ -1321,98 +1321,98 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t secFlags_fields[] = {
-    {hf_rdp_flagsPkt,           2, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsEncrypt,       2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsResetSeqno,    2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsIgnoreSeqno,   2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsLicenseEncrypt,2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsSecureChecksum,2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsFlagsHiValid,  2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsPkt,           2, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsEncrypt,       2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsResetSeqno,    2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsIgnoreSeqno,   2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsLicenseEncrypt,2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsSecureChecksum,2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_flagsFlagsHiValid,  2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
     FI_TERMINATOR
   };
 
   rdp_field_info_t se_fields[] = {
-    FI_SUBTREE(hf_rdp_flags, 2, ett_rdp_flags, secFlags_fields),
-    FI_FIXEDLEN(hf_rdp_flagsHi, 2),
-    {hf_rdp_length,                4, &encryptedLen, 0, 0, NULL },
-    {hf_rdp_encryptedClientRandom, 0, &encryptedLen, 0, 0, NULL },
+    FI_SUBTREE(&hf_rdp_flags, 2, ett_rdp_flags, secFlags_fields),
+    FI_FIXEDLEN(&hf_rdp_flagsHi, 2),
+    {&hf_rdp_length,                4, &encryptedLen, 0, 0, NULL },
+    {&hf_rdp_encryptedClientRandom, 0, &encryptedLen, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t systime_fields [] = {
-    FI_FIXEDLEN(hf_rdp_wYear        , 2),
-    FI_FIXEDLEN(hf_rdp_wMonth       , 2),
-    FI_FIXEDLEN(hf_rdp_wDayOfWeek   , 2),
-    FI_FIXEDLEN(hf_rdp_wDay         , 2),
-    FI_FIXEDLEN(hf_rdp_wHour        , 2),
-    FI_FIXEDLEN(hf_rdp_wMinute      , 2),
-    FI_FIXEDLEN(hf_rdp_wSecond      , 2),
-    FI_FIXEDLEN(hf_rdp_wMilliseconds, 2),
+    FI_FIXEDLEN(&hf_rdp_wYear        , 2),
+    FI_FIXEDLEN(&hf_rdp_wMonth       , 2),
+    FI_FIXEDLEN(&hf_rdp_wDayOfWeek   , 2),
+    FI_FIXEDLEN(&hf_rdp_wDay         , 2),
+    FI_FIXEDLEN(&hf_rdp_wHour        , 2),
+    FI_FIXEDLEN(&hf_rdp_wMinute      , 2),
+    FI_FIXEDLEN(&hf_rdp_wSecond      , 2),
+    FI_FIXEDLEN(&hf_rdp_wMilliseconds, 2),
     FI_TERMINATOR,
   };
   rdp_field_info_t tz_info_fields [] = {
-    FI_FIXEDLEN(hf_rdp_Bias, 4),
-    {hf_rdp_StandardName,           64, NULL, 0, RDP_FI_UNICODE, NULL },
-    FI_SUBTREE(hf_rdp_StandardDate, 16, ett_rdp_StandardDate, systime_fields),
-    FI_FIXEDLEN(hf_rdp_StandardBias, 4),
-    {hf_rdp_DaylightName,           64, NULL, 0, RDP_FI_UNICODE, NULL },
-    FI_SUBTREE(hf_rdp_DaylightDate, 16, ett_rdp_DaylightDate, systime_fields),
-    FI_FIXEDLEN(hf_rdp_DaylightBias, 4),
+    FI_FIXEDLEN(&hf_rdp_Bias, 4),
+    {&hf_rdp_StandardName,           64, NULL, 0, RDP_FI_UNICODE, NULL },
+    FI_SUBTREE(&hf_rdp_StandardDate, 16, ett_rdp_StandardDate, systime_fields),
+    FI_FIXEDLEN(&hf_rdp_StandardBias, 4),
+    {&hf_rdp_DaylightName,           64, NULL, 0, RDP_FI_UNICODE, NULL },
+    FI_SUBTREE(&hf_rdp_DaylightDate, 16, ett_rdp_DaylightDate, systime_fields),
+    FI_FIXEDLEN(&hf_rdp_DaylightBias, 4),
     FI_TERMINATOR,
   };
 
   rdp_field_info_t ue_fields[] = {
-    {hf_rdp_codePage,           4, NULL, 0, 0, NULL },
-    {hf_rdp_optionFlags,        4, NULL, 0, 0, NULL },
-    {hf_rdp_cbDomain,           2, &cbDomain, 2, 0, NULL },
-    {hf_rdp_cbUserName,         2, &cbUserName, 2, 0, NULL },
-    {hf_rdp_cbPassword,         2, &cbPassword, 2, 0, NULL },
-    {hf_rdp_cbAlternateShell,   2, &cbAlternateShell, 2, 0, NULL },
-    {hf_rdp_cbWorkingDir,       2, &cbWorkingDir, 2, 0, NULL },
-    {hf_rdp_domain,             0, &cbDomain, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_userName,           0, &cbUserName, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_password,           0, &cbPassword, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_alternateShell,     0, &cbAlternateShell, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_workingDir,         0, &cbWorkingDir, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_clientAddressFamily,2, NULL, 0, 0, NULL },
-    {hf_rdp_cbClientAddress,    2, &cbClientAddress, 0, 0, NULL },
-    {hf_rdp_clientAddress,      0, &cbClientAddress, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_cbClientDir,        2, &cbClientDir, 0, 0, NULL },
-    {hf_rdp_clientDir,          0, &cbClientDir, 0, RDP_FI_UNICODE, NULL },
-    FI_SUBTREE(hf_rdp_clientTimeZone, 172, ett_rdp_clientTimeZone, tz_info_fields),
-    {hf_rdp_clientSessionId,    4, NULL, 0, 0, NULL },
-    {hf_rdp_performanceFlags,   4, NULL, 0, 0, NULL },
-    {hf_rdp_cbAutoReconnectLen, 2, &cbAutoReconnectLen, 0, 0, NULL },
-    {hf_rdp_autoReconnectCookie,0, &cbAutoReconnectLen, 0, 0, NULL },
-    {hf_rdp_reserved1,          2, NULL, 0, 0, NULL },
-    {hf_rdp_reserved2,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_codePage,           4, NULL, 0, 0, NULL },
+    {&hf_rdp_optionFlags,        4, NULL, 0, 0, NULL },
+    {&hf_rdp_cbDomain,           2, &cbDomain, 2, 0, NULL },
+    {&hf_rdp_cbUserName,         2, &cbUserName, 2, 0, NULL },
+    {&hf_rdp_cbPassword,         2, &cbPassword, 2, 0, NULL },
+    {&hf_rdp_cbAlternateShell,   2, &cbAlternateShell, 2, 0, NULL },
+    {&hf_rdp_cbWorkingDir,       2, &cbWorkingDir, 2, 0, NULL },
+    {&hf_rdp_domain,             0, &cbDomain, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_userName,           0, &cbUserName, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_password,           0, &cbPassword, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_alternateShell,     0, &cbAlternateShell, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_workingDir,         0, &cbWorkingDir, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_clientAddressFamily,2, NULL, 0, 0, NULL },
+    {&hf_rdp_cbClientAddress,    2, &cbClientAddress, 0, 0, NULL },
+    {&hf_rdp_clientAddress,      0, &cbClientAddress, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_cbClientDir,        2, &cbClientDir, 0, 0, NULL },
+    {&hf_rdp_clientDir,          0, &cbClientDir, 0, RDP_FI_UNICODE, NULL },
+    FI_SUBTREE(&hf_rdp_clientTimeZone, 172, ett_rdp_clientTimeZone, tz_info_fields),
+    {&hf_rdp_clientSessionId,    4, NULL, 0, 0, NULL },
+    {&hf_rdp_performanceFlags,   4, NULL, 0, 0, NULL },
+    {&hf_rdp_cbAutoReconnectLen, 2, &cbAutoReconnectLen, 0, 0, NULL },
+    {&hf_rdp_autoReconnectCookie,0, &cbAutoReconnectLen, 0, 0, NULL },
+    {&hf_rdp_reserved1,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_reserved2,          2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t msg_fields[] = {
-    {hf_rdp_bMsgType,           1, &bMsgType, 0, 0, NULL },
-    {hf_rdp_bVersion,           1, NULL, 0, 0, NULL },
-    {hf_rdp_wMsgSize,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_bMsgType,           1, &bMsgType, 0, 0, NULL },
+    {&hf_rdp_bVersion,           1, NULL, 0, 0, NULL },
+    {&hf_rdp_wMsgSize,           2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t error_fields[] = {
-    {hf_rdp_wErrorCode,         4, NULL, 0, 0, NULL },
-    {hf_rdp_wStateTransition,   4, NULL, 0, 0, NULL },
-    {hf_rdp_wBlobType,          2, NULL, 0, 0, NULL },
-    {hf_rdp_wBlobLen,           2, &wBlobLen, 0, 0, NULL },
-    {hf_rdp_blobData,           0, &wBlobLen, 0, 0, NULL },
+    {&hf_rdp_wErrorCode,         4, NULL, 0, 0, NULL },
+    {&hf_rdp_wStateTransition,   4, NULL, 0, 0, NULL },
+    {&hf_rdp_wBlobType,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_wBlobLen,           2, &wBlobLen, 0, 0, NULL },
+    {&hf_rdp_blobData,           0, &wBlobLen, 0, 0, NULL },
     FI_TERMINATOR
   };
 
   rdp_field_info_t pdu_fields[] = {
-    {hf_rdp_pduTypeType,        2, &pduType, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_pduTypeVersionLow,  2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_pduTypeVersionHigh, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_pduTypeType,        2, &pduType, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_pduTypeVersionLow,  2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_pduTypeVersionHigh, 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t ctrl_fields[] = {
-    {hf_rdp_totalLength,        2, NULL, 0, 0, NULL },
-    {hf_rdp_pduType,            2, NULL, ett_rdp_pduType, RDP_FI_SUBTREE,
+    {&hf_rdp_totalLength,        2, NULL, 0, 0, NULL },
+    {&hf_rdp_pduType,            2, NULL, ett_rdp_pduType, RDP_FI_SUBTREE,
      pdu_fields },
-    {hf_rdp_pduSource,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_pduSource,          2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
@@ -1575,55 +1575,55 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t header_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t core_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {hf_rdp_versionMajor,           2, NULL, 0, 0, NULL },
-    {hf_rdp_versionMinor,           2, NULL, 0, 0, NULL },
-    {hf_rdp_desktopWidth,           2, NULL, 0, 0, NULL },
-    {hf_rdp_desktopHeight,          2, NULL, 0, 0, NULL },
-    {hf_rdp_colorDepth,             2, NULL, 0, 0, NULL },
-    {hf_rdp_SASSequence,            2, NULL, 0, 0, NULL },
-    {hf_rdp_keyboardLayout,         4, NULL, 0, 0, NULL },
-    {hf_rdp_clientBuild,            4, NULL, 0, 0, NULL },
-    {hf_rdp_clientName,            32, NULL, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_keyboardType,           4, NULL, 0, 0, NULL },
-    {hf_rdp_keyboardSubType,        4, NULL, 0, 0, NULL },
-    {hf_rdp_keyboardFunctionKey,    4, NULL, 0, 0, NULL },
-    {hf_rdp_imeFileName,           64, NULL, 0, 0, NULL },
+    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_versionMajor,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_versionMinor,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_desktopWidth,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_desktopHeight,          2, NULL, 0, 0, NULL },
+    {&hf_rdp_colorDepth,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_SASSequence,            2, NULL, 0, 0, NULL },
+    {&hf_rdp_keyboardLayout,         4, NULL, 0, 0, NULL },
+    {&hf_rdp_clientBuild,            4, NULL, 0, 0, NULL },
+    {&hf_rdp_clientName,            32, NULL, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_keyboardType,           4, NULL, 0, 0, NULL },
+    {&hf_rdp_keyboardSubType,        4, NULL, 0, 0, NULL },
+    {&hf_rdp_keyboardFunctionKey,    4, NULL, 0, 0, NULL },
+    {&hf_rdp_imeFileName,           64, NULL, 0, 0, NULL },
     /* The following fields are *optional*.                   */
     /*  I.E., a sequence of one or more of the trailing       */
     /*  fields at the end of the Data Block need not be       */
     /*  present. The length from the header field determines  */
     /*  the actual number of fields which are present.        */
-    {hf_rdp_postBeta2ColorDepth,    2, NULL, 0, 0, NULL },
-    {hf_rdp_clientProductId,        2, NULL, 0, 0, NULL },
-    {hf_rdp_serialNumber,           4, NULL, 0, 0, NULL },
-    {hf_rdp_highColorDepth,         2, NULL, 0, 0, NULL },
-    {hf_rdp_supportedColorDepths,   2, NULL, 0, 0, NULL },
-    {hf_rdp_earlyCapabilityFlags,   2, NULL, 0, 0, NULL },
-    {hf_rdp_clientDigProductId,    64, NULL, 0, RDP_FI_UNICODE, NULL},
-    {hf_rdp_connectionType,         1, NULL, 0, 0, NULL },
-    {hf_rdp_pad1octet,              1, NULL, 0, 0, NULL },
-    {hf_rdp_serverSelectedProtocol, 4, NULL, 0, 0, NULL },
+    {&hf_rdp_postBeta2ColorDepth,    2, NULL, 0, 0, NULL },
+    {&hf_rdp_clientProductId,        2, NULL, 0, 0, NULL },
+    {&hf_rdp_serialNumber,           4, NULL, 0, 0, NULL },
+    {&hf_rdp_highColorDepth,         2, NULL, 0, 0, NULL },
+    {&hf_rdp_supportedColorDepths,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_earlyCapabilityFlags,   2, NULL, 0, 0, NULL },
+    {&hf_rdp_clientDigProductId,    64, NULL, 0, RDP_FI_UNICODE, NULL},
+    {&hf_rdp_connectionType,         1, NULL, 0, 0, NULL },
+    {&hf_rdp_pad1octet,              1, NULL, 0, 0, NULL },
+    {&hf_rdp_serverSelectedProtocol, 4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t security_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {hf_rdp_encryptionMethods,      4, NULL, 0, 0, NULL },
-    {hf_rdp_extEncryptionMethods,   4, NULL, 0, 0, NULL },
+    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_encryptionMethods,      4, NULL, 0, 0, NULL },
+    {&hf_rdp_extEncryptionMethods,   4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t cluster_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {hf_rdp_cluster_flags,          4, NULL, 0, 0, NULL },
-    {hf_rdp_redirectedSessionId,    4, NULL, 0, 0, NULL },
+    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_cluster_flags,          4, NULL, 0, 0, NULL },
+    {&hf_rdp_redirectedSessionId,    4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
@@ -1717,59 +1717,59 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t header_fields[] = {
-    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t sc_fields[] = {
-    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
-    {hf_rdp_versionMajor,             2, NULL, 0, 0, NULL },
-    {hf_rdp_versionMinor,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_versionMajor,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_versionMinor,             2, NULL, 0, 0, NULL },
     /* The following fields are *optional*.                   */
     /*  I.E., a sequence of one or more of the trailing       */
     /*  fields at the end of the Data Block need not be       */
     /*  present. The length from the header field determines  */
     /*  the actual number of fields which are present.        */
-    {hf_rdp_clientRequestedProtocols, 4, NULL, 0, 0, NULL },
-    {hf_rdp_earlyCapabilityFlags,     2, NULL, 0, 0, NULL },
+    {&hf_rdp_clientRequestedProtocols, 4, NULL, 0, 0, NULL },
+    {&hf_rdp_earlyCapabilityFlags,     2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t ss_fields[] = {
-    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
-    {hf_rdp_encryptionMethod,         4, &encryptionMethod, 0, 0, NULL },
-    {hf_rdp_encryptionLevel,          4, &encryptionLevel,  0, 0, NULL },
+    {&hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_encryptionMethod,         4, &encryptionMethod, 0, 0, NULL },
+    {&hf_rdp_encryptionLevel,          4, &encryptionLevel,  0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t ss_encryption_len_unused_fields[] = {
-    {hf_rdp_unused,                   4, NULL,  0, 0, NULL },
-    {hf_rdp_unused,                   4, NULL,  0, 0, NULL },
+    {&hf_rdp_unused,                   4, NULL,  0, 0, NULL },
+    {&hf_rdp_unused,                   4, NULL,  0, 0, NULL },
   };
   rdp_field_info_t encryption_fields[] = {
-    {hf_rdp_serverRandomLen,          4, &serverRandomLen,  0, 0, NULL },
-    {hf_rdp_serverCertLen,            4, &serverCertLen,    0, 0, NULL },
-    {hf_rdp_serverRandom,             0, &serverRandomLen,  0, 0, NULL },
-    {hf_rdp_serverCertificate,        0, &serverCertLen,    0, 0, NULL },
+    {&hf_rdp_serverRandomLen,          4, &serverRandomLen,  0, 0, NULL },
+    {&hf_rdp_serverCertLen,            4, &serverCertLen,    0, 0, NULL },
+    {&hf_rdp_serverRandom,             0, &serverRandomLen,  0, 0, NULL },
+    {&hf_rdp_serverCertificate,        0, &serverCertLen,    0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t sn_fields[] = {
-    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
-    {hf_rdp_MCSChannelId,             2, &channelId, 0, 0, NULL },
-    {hf_rdp_channelCount,             2, &channelCount, 0, 0, NULL },
+    {&hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_MCSChannelId,             2, &channelId, 0, 0, NULL },
+    {&hf_rdp_channelCount,             2, &channelCount, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t array_fields[] = {
-      {hf_rdp_channelIdArray, 0 /*(channelCount * 2)*/, NULL, 0, 0, NULL },
+      {&hf_rdp_channelIdArray, 0 /*(channelCount * 2)*/, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t channel_fields[] = {
-    {hf_rdp_MCSChannelId, 2, &channelId, 0, 0, NULL },
+    {&hf_rdp_MCSChannelId, 2, &channelId, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t pad_fields[] = {
-    {hf_rdp_Pad, 2, NULL, 0, 0, NULL },
+    {&hf_rdp_Pad, 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
