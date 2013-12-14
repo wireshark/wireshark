@@ -119,23 +119,23 @@ static expert_field ei_olsrorg_ns_version = EI_INIT;
 static expert_field ei_olsr_data_misaligned = EI_INIT;
 
 static const value_string message_type_vals[] = {
-    { HELLO, "HELLO" },
-    { TC, "TC" },
-    { MID, "MID" },
-    { HNA, "HNA" },
-    { OLSR_ORG_LQ_HELLO, "HELLO (LQ, olsr.org)" },
-    { OLSR_ORG_LQ_TC, "TC (LQ, olsr.org)" },
+    { HELLO,                "HELLO" },
+    { TC,                   "TC" },
+    { MID,                  "MID" },
+    { HNA,                  "HNA" },
+    { OLSR_ORG_LQ_HELLO,    "HELLO (LQ, olsr.org)" },
+    { OLSR_ORG_LQ_TC,       "TC (LQ, olsr.org)" },
     { OLSR_ORG_NAMESERVICE, "Nameservice (olsr.org)" },
-    { NRLOLSR_TC_EXTRA, "TC (LQ, nrlolsr)" },
+    { NRLOLSR_TC_EXTRA,     "TC (LQ, nrlolsr)" },
     { 0, NULL }
 };
 
 static const value_string link_type_vals[] = {
-    { 0, "Unspecified Link" },
-    { 1, "Asymmetric Link" },
-    { 3, "Lost Link" },
-    { 5, "Pending Link" },
-    { 6, "Symmetric Link" },
+    {  0, "Unspecified Link" },
+    {  1, "Asymmetric Link" },
+    {  3, "Lost Link" },
+    {  5, "Pending Link" },
+    {  6, "Symmetric Link" },
     { 10, "MPR Link" },
     { 0, NULL }
 };
@@ -161,8 +161,8 @@ static double getOlsrTime(guint8 timeval) {
   int high_bits, low_bits;
 
   high_bits = ((timeval & 0xF0) >> 4);
-  low_bits = (timeval & 0x0F);
-  return ((1 << low_bits) / 16.0) * (1 + (high_bits / 16.0));
+  low_bits  = (timeval & 0x0F);
+  return ((G_GUINT64_CONSTANT(1) << low_bits) / 16.0) * (1 + (high_bits / 16.0));
 }
 
 /*------------------------- TC Dissecting Code-------------------------*/
@@ -288,11 +288,11 @@ static int dissect_nrlolsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
 /*------------------------- Hello Dissecting Code-------------------------*/
 static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset, int message_end,
     int(*handleNeighbors)(tvbuff_t *, packet_info *, proto_tree *, int, int)) {
-  double hTime;
+  double      hTime;
   proto_item *ti;
   proto_tree *link_type_tree;
 
-  guint16 message_size = 0;
+  guint16     message_size = 0;
 
   if (message_end - offset < 4) {
     proto_tree_add_expert_format(olsr_tree, pinfo, &ei_olsr_not_enough_bytes, tvb, offset, message_end - offset,
@@ -306,7 +306,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
   hTime = getOlsrTime(tvb_get_guint8(tvb, offset));
   proto_tree_add_double_format_value(olsr_tree, hf_olsr_htime, tvb, offset, 1, hTime,
       "%.3f (in seconds)", hTime);
-  offset++;
+  offset += 1;
 
   /*-------------------------Dissect Willingness---------------------------*/
   proto_tree_add_item(olsr_tree, hf_olsr_willingness, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -323,7 +323,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
     link_type_tree = proto_item_add_subtree(ti, ett_olsr_message_linktype);
 
     /* reserved byte */
-    offset++;
+    offset += 1;
 
     /*----------------------Dissect Link Message Size--------------------------*/
     message_size = tvb_get_ntohs(tvb, offset);
@@ -368,7 +368,7 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   while (offset < link_message_end) {
     proto_item *address_group;
     proto_tree *address_tree;
-    guint8 lq, nlq;
+    guint8      lq, nlq;
 
     if (link_message_end - offset < pinfo->src.len + 4) {
       proto_tree_add_expert_format(olsr_tree, pinfo, &ei_olsr_not_enough_bytes, tvb, offset, link_message_end - offset,
@@ -459,7 +459,7 @@ static int dissect_olsr_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_
 /*------------------------- MID Dissecting Code-------------------------*/
 static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset,
     int message_end) {
-  guint16 version, count;
+  guint16     version, count;
 
   proto_item *olsr_ns_item, *ti;
   proto_tree *olsr_ns_tree;
@@ -532,8 +532,8 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   proto_item *ti;
   proto_tree *olsr_tree;
 
-  int offset, message_len, message_end;
-  guint message_type;
+  int    offset, message_len, message_end;
+  guint  message_type;
   double vTime;
 
   guint16 packet_len;
@@ -592,12 +592,12 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       message_tree = proto_item_add_subtree(message_item, ett_olsr_message[message_type]);
 
       proto_tree_add_uint(message_tree, hf_olsr_message_type, tvb, offset, 1, message_type);
-      offset++;
+      offset += 1;
 
       /*-------------Dissect Validity Time-------------------------*/
       proto_tree_add_double_format_value(message_tree, hf_olsr_vtime, tvb, offset, 1, vTime,
           "%.3f (in seconds)", vTime);
-      offset++;
+      offset += 1;
 
       /*-------------Dissect Message Size---------------------------*/
       ti = proto_tree_add_item(message_tree, hf_olsr_message_size, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -962,15 +962,15 @@ void proto_register_olsr(void) {
 
   static ei_register_info ei[] = {
     { &ei_olsr_not_enough_bytes, { "olsr.not_enough_bytes", PI_MALFORMED, PI_ERROR, "Not enough bytes for field", EXPFILL }},
-    { &ei_olsrorg_ns_version, { "olsr.ns.version.unknown", PI_PROTOCOL, PI_WARN, "Unknown nameservice protocol version", EXPFILL }},
-    { &ei_olsr_data_misaligned, { "olsr.data.misaligned", PI_PROTOCOL, PI_WARN, "Must be aligned on 32 bits", EXPFILL }},
+    { &ei_olsrorg_ns_version,    { "olsr.ns.version.unknown", PI_PROTOCOL, PI_WARN, "Unknown nameservice protocol version", EXPFILL }},
+    { &ei_olsr_data_misaligned,  { "olsr.data.misaligned", PI_PROTOCOL, PI_WARN, "Must be aligned on 32 bits", EXPFILL }},
   };
 
   gint *ett[array_length(ett_base) + (G_MAXUINT8+1)];
 
-  module_t *olsr_module;
+  module_t        *olsr_module;
   expert_module_t *expert_olsr;
-  int i,j;
+  int              i,j;
 
   memcpy(ett, ett_base, sizeof(ett_base));
   j = array_length(ett_base);
@@ -1001,3 +1001,16 @@ void proto_reg_handoff_olsr(void) {
   olsr_handle = new_create_dissector_handle(dissect_olsr, proto_olsr);
   dissector_add_uint("udp.port", UDP_PORT_OLSR, olsr_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
