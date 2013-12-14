@@ -40,6 +40,8 @@
 #include <epan/conversation.h>
 #include "packet-tn5250.h"
 
+void proto_register_tn5250(void);
+
 typedef struct tn5250_conv_info_t {
   struct tn5250_conv_info_t *next;
   address outbound_addr;

@@ -49,6 +49,9 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 
+void proto_register_mint(void);
+void proto_reg_handoff_mint(void);
+
 #define PROTO_SHORT_NAME "MiNT"
 #define PROTO_LONG_NAME "Media indepentend Network Transport"
 

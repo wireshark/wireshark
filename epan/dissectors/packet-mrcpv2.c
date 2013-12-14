@@ -49,6 +49,9 @@
 
 #include <wsutil/str_util.h>
 
+void proto_register_mrcpv2(void);
+void proto_reg_handoff_mrcpv2(void);
+
 /* mrcp-version SP message-length */
 /*   mrcp-version = "MRCP" "/" 1*2DIGIT "." 1*2DIGIT  ==> up to 10 chars */
 /*   SP ==> whitespace, 1 char */
@@ -268,9 +271,6 @@ static const value_string header_type_vals[] = {
     { WEIGHT,                               "weight" },
     { 0,    NULL }
 };
-
-/* Forward declaration we need below (if using proto_reg_handoff... as a prefs callback) */
-void proto_reg_handoff_mrcpv2(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_mrcpv2 = -1;

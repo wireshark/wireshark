@@ -34,6 +34,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_nasdaq_soup(void);
+void proto_reg_handoff_nasdaq_soup(void);
+
 static const value_string message_types_val[] = {
       { 'S', "Sequenced Data" },
       { 'R', "Client Heartbeat" },

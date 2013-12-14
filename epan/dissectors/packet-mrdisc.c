@@ -46,6 +46,7 @@
 #include "packet-igmp.h"
 #include "packet-mrdisc.h"
 
+void proto_register_mrdisc(void);
 
 static int proto_mrdisc = -1;
 static int hf_checksum = -1;

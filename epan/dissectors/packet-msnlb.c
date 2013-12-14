@@ -29,6 +29,9 @@
 #include <epan/etypes.h>
 #include "packet-smb-common.h"
 
+void proto_register_msnlb(void);
+void proto_reg_handoff_msnlb(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_msnlb = -1;
 

@@ -33,6 +33,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_media(void);
+
 /* proto_media cannot be static because it's referenced in the
  * print routines
  */

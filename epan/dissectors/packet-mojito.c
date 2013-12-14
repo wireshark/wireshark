@@ -31,6 +31,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_mojito(void);
+void proto_reg_handoff_mojito(void);
+
 #define MOJITO_HEADER_LENGTH    38
 
 /* All the Defines for OpCodes */

@@ -89,6 +89,9 @@
 #include "packet-tcp.h"
 #include "packet-mq.h"
 
+void proto_register_mq(void);
+void proto_reg_handoff_mq(void);
+
 static int proto_mq = -1;
 static int hf_mq_tsh_StructID = -1;
 static int hf_mq_tsh_mqseglen = -1;

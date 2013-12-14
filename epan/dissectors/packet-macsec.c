@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_macsec(void);
+void proto_reg_handoff_macsec(void);
+
 #define TCI_V_MASK   0x80
 #define TCI_ES_MASK  0x40
 #define TCI_SC_MASK  0x20

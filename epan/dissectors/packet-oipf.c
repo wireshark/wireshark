@@ -32,6 +32,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_oipf(void);
+void proto_reg_handoff_oipf(void);
+
 static int proto_oipf_ciplus = -1;
 
 static gint ett_oipf_ciplus = -1;

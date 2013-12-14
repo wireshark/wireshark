@@ -39,6 +39,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_nat_pmp(void);
+void proto_reg_handoff_nat_pmp(void);
+
 #define PCP_STATUS_PORT  5350
 #define PCP_PORT         5351
 

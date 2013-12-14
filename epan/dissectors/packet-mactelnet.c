@@ -35,9 +35,10 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#define PROTO_TAG_MACTELNET "MAC-Telnet"
-
+void proto_register_mactelnet(void);
 void proto_reg_handoff_mactelnet(void);
+
+#define PROTO_TAG_MACTELNET "MAC-Telnet"
 
 /* Initialize the protocol and registered fields */
 static gint proto_mactelnet = -1;

@@ -58,6 +58,9 @@
 
 #include "packet-ntlmssp.h"
 
+void proto_register_ntlmssp(void);
+void proto_reg_handoff_ntlmssp(void);
+
 static int ntlmssp_tap = -1;
 
 #define CLIENT_SIGN_TEXT "session key to client-to-server signing key magic constant"

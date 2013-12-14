@@ -49,6 +49,9 @@
 #include "packet-cdt.h"
 #include "packet-ber.h"
 
+void proto_register_p_mul(void);
+void proto_reg_handoff_p_mul(void);
+
 #define PNAME  "P_Mul (ACP142)"
 #define PSNAME "P_MUL"
 #define PFNAME "p_mul"
@@ -74,8 +77,6 @@
 #define DECODE_NONE      0
 #define DECODE_BER       1
 #define DECODE_CDT       2
-
-void proto_reg_handoff_p_mul (void);
 
 static int proto_p_mul = -1;
 

@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_manolito(void);
+void proto_reg_handoff_manolito(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_manolito = -1;
 static int hf_manolito_checksum = -1;

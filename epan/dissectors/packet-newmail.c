@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_newmail(void);
 void proto_reg_handoff_newmail(void);
 
 /* Variables for preferences */

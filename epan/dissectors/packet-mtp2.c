@@ -36,6 +36,9 @@
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 
+void proto_register_mtp2(void);
+void proto_reg_handoff_mtp2(void);
+
 static dissector_handle_t mtp2_handle;
 
 /* Initialize the protocol and registered fields */

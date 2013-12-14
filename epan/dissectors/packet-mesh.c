@@ -30,6 +30,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_mesh(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_mesh = -1;
 static int hf_mesh_ttl = -1;

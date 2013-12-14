@@ -47,6 +47,9 @@
 
 #include "packet-mpls.h"
 
+void proto_register_mpls_y1711(void);
+void proto_reg_handoff_mpls_y1711(void);
+
 static gint proto_mpls_y1711 = -1;
 
 static int hf_mpls_y1711_function_type = -1;

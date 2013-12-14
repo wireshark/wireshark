@@ -39,6 +39,9 @@
 
 #include "packet-ntp.h"
 
+void proto_register_ntp(void);
+void proto_reg_handoff_ntp(void);
+
 /*
  * Dissecting NTP packets version 3 and 4 (RFC5905, RFC2030, RFC1769, RFC1361,
  * RFC1305).

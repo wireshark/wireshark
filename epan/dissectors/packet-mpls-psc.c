@@ -35,6 +35,8 @@
 #include <epan/packet.h>
 #include <packet-ip.h>
 
+void proto_register_mpls_psc(void);
+
 static gint proto_mpls_psc = -1;
 
 static gint ett_mpls_psc = -1;

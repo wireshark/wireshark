@@ -39,6 +39,9 @@ Protocol information comes from the book
 #include "packet-pcnfsd.h"
 #include <epan/wmem/wmem.h>
 
+void proto_register_pcnfsd(void);
+void proto_reg_handoff_pcnfsd(void);
+
 static int proto_pcnfsd = -1;
 static int hf_pcnfsd_procedure_v1 = -1;
 static int hf_pcnfsd_procedure_v2 = -1;

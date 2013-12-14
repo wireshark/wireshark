@@ -35,6 +35,9 @@
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
+void proto_register_negoex(void);
+void proto_reg_handoff_negoex(void);
+
 static int proto_negoex = -1;
 static int hf_negoex_sig = -1;
 static int hf_negoex_message_type = -1;
@@ -515,11 +518,6 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-static void
-negoex_init_protocol(void)
-{
-}
-
 void
 proto_register_negoex(void)
 {
@@ -628,7 +626,6 @@ proto_register_negoex(void)
     );
   proto_register_field_array(proto_negoex, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(&negoex_init_protocol);
 
   /* negoex_module = prefs_register_protocol(proto_negoex, NULL);*/
 

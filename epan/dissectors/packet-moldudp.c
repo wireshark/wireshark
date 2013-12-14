@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_moldudp(void);
 void proto_reg_handoff_moldudp(void);
 
 /* Initialize the protocol and registered fields */

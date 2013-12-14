@@ -39,6 +39,9 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_omron_fins(void);
+void proto_reg_handoff_omron_fins(void);
+
 #define OMRON_FINS_UDP_PORT 9600
 
 static int proto_omron_fins = -1;

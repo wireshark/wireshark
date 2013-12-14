@@ -45,6 +45,10 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 
+void proto_register_cotp(void);
+void proto_register_cltp(void);
+void proto_reg_handoff_cotp(void);
+
 /* protocols and fields */
 
 static int  proto_clnp;

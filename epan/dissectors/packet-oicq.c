@@ -37,6 +37,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_oicq(void);
+void proto_reg_handoff_oicq(void);
+
 /*
         Protocol Flag:     8bit unsigned
         Sender Flag:       16bit unsigned

@@ -54,6 +54,9 @@
 
 #include "packet-netrom.h"
 
+void proto_register_netrom(void);
+void proto_reg_handoff_netrom(void);
+
 #define STRLEN 80
 
 #define AX25_ADDR_LEN		   7	/* length of an AX.25 address */
@@ -74,9 +77,6 @@
 #define	NETROM_CHOKE_FLAG	0x80
 
 #define NETROM_PROTO_IP		0x0C
-
-/* Forward declaration we need below */
-void proto_reg_handoff_netrom(void);
 
 /* Dissector handles - all the possibles are listed */
 static dissector_handle_t ip_handle;

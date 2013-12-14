@@ -29,6 +29,11 @@
 #include "packet-rpc.h"
 #include "packet-nisplus.h"
 
+void proto_register_nis(void);
+void proto_reg_handoff_nis(void);
+void proto_register_niscb(void);
+void proto_reg_handoff_niscb(void);
+
 static int proto_nisplus = -1;
 static int hf_nisplus_procedure_v3 = -1;
 static int hf_nisplus_object = -1;

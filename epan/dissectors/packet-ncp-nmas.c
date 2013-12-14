@@ -32,6 +32,8 @@
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
 
+void proto_register_nmas(void);
+
 static gint ett_nmas = -1;
 
 static int proto_nmas = -1;

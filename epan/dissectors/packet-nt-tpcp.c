@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h> /* this is for get_hostname and get_udp_port */
 
+void proto_register_tpcp(void);
+void proto_reg_handoff_tpcp(void);
+
 #define UDP_PORT_TPCP   3121
 
 /* TPCP version1/2 PDU format */

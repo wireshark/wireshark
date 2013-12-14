@@ -38,6 +38,9 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_mndp(void);
+void proto_reg_handoff_mndp(void);
+
 /* protocol handles */
 static int proto_mndp = -1;
 
@@ -369,4 +372,3 @@ proto_reg_handoff_mndp(void)
 	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
 	/* heur_dissector_add("udp", dissect_mndp_heur, proto_mndp); */
 }
-

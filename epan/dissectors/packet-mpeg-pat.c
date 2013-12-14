@@ -31,6 +31,9 @@
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_mpeg_pat(void);
+void proto_reg_handoff_mpeg_pat(void);
+
 static int proto_mpeg_pat = -1;
 static int hf_mpeg_pat_transport_stream_id = -1;
 static int hf_mpeg_pat_reserved = -1;

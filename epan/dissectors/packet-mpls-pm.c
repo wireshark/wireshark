@@ -35,6 +35,9 @@
 #include <epan/packet.h>
 #include <packet-ip.h>
 
+void proto_register_mpls_pm(void);
+void proto_reg_handoff_mpls_pm(void);
+
 /* message control flags */
 #define MPLS_PM_FLAGS_R     0x08
 #define MPLS_PM_FLAGS_T     0x04

@@ -31,13 +31,14 @@
 
 #include <prefs.h>
 
+void proto_register_nsip(void);
+void proto_reg_handoff_nsip(void);
+
 #define NSIP_DEBUG 0
 #define NSIP_SEP ", " /* Separator string */
 
 static range_t *global_nsip_udp_port_range;
 #define DEFAULT_NSIP_PORT_RANGE "2157,19999"
-
-void proto_reg_handoff_nsip(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_nsip = -1;

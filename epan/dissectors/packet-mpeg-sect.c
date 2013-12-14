@@ -33,6 +33,8 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_mpeg_sect(void);
+
 static int proto_mpeg_sect = -1;
 static int hf_mpeg_sect_table_id = -1;
 static int hf_mpeg_sect_syntax_indicator = -1;

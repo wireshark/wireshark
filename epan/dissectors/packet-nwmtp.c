@@ -30,6 +30,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_mwmtp(void);
+void proto_reg_handoff_nwmtp(void);
 
 static dissector_handle_t mtp_handle;
 static gint proto_nwmtp = -1;

@@ -51,6 +51,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_nsrp(void);
+void proto_reg_handoff_nsrp(void);
+
 #define NSRP_MIN_LEN    32
 
 /* Initialize the protocol and registered fields */

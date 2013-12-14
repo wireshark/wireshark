@@ -38,6 +38,9 @@
 
 #include <epan/rtp_pt.h>
 
+void proto_register_mpeg1(void);
+void proto_reg_handoff_mpeg1(void);
+
 #define RTP_MPG_MBZ(word) ( word >> 11)
 #define RTP_MPG_T(word)   ( (word >> 10) & 1 )
 #define RTP_MPG_TR(word)   ( word & 0x3ff )

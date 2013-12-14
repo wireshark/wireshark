@@ -70,6 +70,9 @@
 
 #include "packet-imf.h"
 
+void proto_register_multipart(void);
+void proto_reg_handoff_multipart(void);
+
 /* Dissector table for media requiring special attention in multipart
  * encapsulation. */
 static dissector_table_t multipart_media_subdissector_table;

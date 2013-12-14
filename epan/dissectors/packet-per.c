@@ -46,6 +46,7 @@ proper helper routines
 #include <epan/expert.h>
 #include "packet-per.h"
 
+void proto_register_per(void);
 
 static int proto_per = -1;
 static int hf_per_GeneralString_length = -1;
@@ -2673,11 +2674,6 @@ proto_register_per(void)
 		"Whether the dissector should put the internal PER data in the tree or if it should hide it",
 		&display_internal_per_fields);
 
-}
-
-void
-proto_reg_handoff_per(void)
-{
 }
 
 /*

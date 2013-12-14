@@ -31,6 +31,9 @@
 #include <epan/to_str.h>
 #include "packet-ipx.h"
 
+void proto_register_nlsp(void);
+void proto_reg_handoff_nlsp(void);
+
 /* NLSP base header */
 static int proto_nlsp                    = -1;
 

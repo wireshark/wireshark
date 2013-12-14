@@ -66,6 +66,9 @@
 #include "packet-pw-common.h"
 #include "packet-bfd.h"
 
+void proto_register_mpls(void);
+void proto_reg_handoff_mpls(void);
+
 /* As per RFC 6428 http://tools.ietf.org/html/rfc6428, Section: 3.3 */
 #define ACH_TYPE_BFD_CC               0x0022
 #define ACH_TYPE_BFD_CV               0x0023

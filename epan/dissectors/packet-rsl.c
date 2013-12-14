@@ -43,6 +43,7 @@
 #include "packet-rtcp.h"
 
 void proto_register_rsl(void);
+void proto_reg_handoff_rsl(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_rsl        = -1;
@@ -3927,8 +3928,6 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 /* Register the protocol with Wireshark */
 void proto_register_rsl(void)
 {
-    void proto_reg_handoff_rsl(void);
-
     /* Setup list of header fields */
     static hf_register_info hf[] = {
         { &hf_rsl_msg_dsc,

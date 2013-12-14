@@ -45,7 +45,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-wap.h"
 #include "packet-wsp.h"
-/* #include "packet-mmse.h" */		/* We autoregister	*/
+
+void proto_register_mmse(void);
+void proto_reg_handoff_mmse(void);
 
 #define	MM_QUOTE		0x7F	/* Quoted string	*/
 

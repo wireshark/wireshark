@@ -40,6 +40,9 @@
 #include <wsutil/crc32.h>
 #include <epan/expert.h>
 
+void proto_register_nfs(void);
+void proto_reg_handoff_nfs(void);
+
 /* NON-NFS-version-specific hf variables */
 static int proto_nfs = -1;
 static int hf_nfs_access_check  = -1;

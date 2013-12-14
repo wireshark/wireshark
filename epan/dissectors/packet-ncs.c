@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 
+void proto_register_ncs(void);
+void proto_reg_handoff_ncs(void);
+
 static gint ett_ncs = -1;
 
 static int proto_ncs = -1;

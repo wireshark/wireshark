@@ -42,6 +42,8 @@
 #include <epan/etypes.h>
 #include <glib.h>
 
+void proto_register_mih(void);
+void proto_reg_handoff_mih(void);
 
 #define MIH_PORT 4551
 

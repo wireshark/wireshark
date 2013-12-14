@@ -34,6 +34,9 @@
 #include <epan/crc32-tvb.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_dsmcc(void);
+void proto_reg_handoff_dsmcc(void);
+
 /* NOTE: Please try to keep this status comment up to date until the spec is
  * completely implemented - there are a large number of tables in the spec.
  *

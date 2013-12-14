@@ -33,13 +33,14 @@
 
 #include "config.h"
 
-
-
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 #include "packet-nlm.h"
 #include <epan/prefs.h>
 #include <string.h>
+
+void proto_register_nlm(void);
+void proto_reg_handoff_nlm(void);
 
 /*
  * NFS Lock Manager protocol specs can only be found in actual

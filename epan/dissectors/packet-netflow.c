@@ -134,6 +134,8 @@
 #include "packet-ntp.h"
 #include <epan/expert.h>
 
+void proto_register_netflow(void);
+void proto_reg_handoff_netflow(void);
 
 #if 0
 #define ipfix_debug0(str) g_warning(str)
@@ -1533,8 +1535,6 @@ nbar_fmt_id(gchar *result, guint32 nbar_id)
                "NBAR Application ID: %d:%d (type:id)", nbar_id_type, nbar_id);
 }
 
-
-void            proto_reg_handoff_netflow(void);
 
 typedef struct _hdrinfo_t {
     guint8  vspec;

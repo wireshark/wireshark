@@ -33,6 +33,8 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
+void proto_register_npmp(void);
+void proto_reg_handoff_npmp(void);
 
 static int  proto_npmp      = -1;
 static gint ett_npmp        = -1;

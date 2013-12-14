@@ -35,6 +35,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
+void proto_register_mim(void);
+void proto_reg_handoff_fabricpath(void);
+
 static int proto_fp = -1 ;
 static gint ett_mim = -1 ;
 static gint ett_hmac = -1 ;
@@ -117,7 +120,6 @@ static dissector_handle_t eth_dissector ;
 
 
 static int dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ );
-void proto_reg_handoff_fabricpath(void);
 
 
 static gboolean

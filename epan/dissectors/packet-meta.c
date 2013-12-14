@@ -35,6 +35,9 @@
 #include "packet-sscop.h"
 #include "packet-gsm_a_common.h"
 
+void proto_register_meta(void);
+void proto_reg_handoff_meta(void);
+
 /* schemas */
 #define META_SCHEMA_PCAP        1
 #define META_SCHEMA_DXT         2

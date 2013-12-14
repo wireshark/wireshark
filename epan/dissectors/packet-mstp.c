@@ -43,6 +43,9 @@
 #include "packet-llc.h"
 #include "packet-mstp.h"
 
+void proto_register_mstp(void);
+void proto_reg_handoff_mstp(void);
+
 /* Probably should be a preference, but here for now */
 #define BACNET_MSTP_SUMMARY_IN_TREE
 #define BACNET_MSTP_CHECKSUM_VALIDATE

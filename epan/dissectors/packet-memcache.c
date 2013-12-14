@@ -44,6 +44,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_memcache (void);
+void proto_reg_handoff_memcache(void);
+
 #define PNAME  "Memcache Protocol"
 #define PSNAME "MEMCACHE"
 #define PFNAME "memcache"
@@ -104,8 +107,6 @@
 #define DT_RAW_BYTES          0x00
 
 static int proto_memcache = -1;
-
-void proto_reg_handoff_memcache(void);
 
 static range_t *memcache_tcp_port_range = NULL;
 static range_t *memcache_udp_port_range = NULL;

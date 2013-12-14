@@ -81,7 +81,11 @@
 #include "packet-mbtcp.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/crc16-tvb.h> /* For CRC verification */\
+#include <epan/crc16-tvb.h> /* For CRC verification */
+
+void proto_register_modbus(void);
+void proto_reg_handoff_mbtcp(void);
+void proto_reg_handoff_mbrtu(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_mbtcp = -1;
@@ -1375,9 +1379,6 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
 /* Register the protocol with Wireshark */
-
-void proto_reg_handoff_mbtcp(void);
-void proto_reg_handoff_mbrtu(void);
 
 void
 proto_register_modbus(void)

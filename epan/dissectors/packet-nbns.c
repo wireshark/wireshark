@@ -40,6 +40,9 @@
 #include "packet-netbios.h"
 #include "packet-tcp.h"
 
+void proto_register_nbt(void);
+void proto_reg_handoff_nbt(void);
+
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;
 static int hf_nbns_flags_response = -1;

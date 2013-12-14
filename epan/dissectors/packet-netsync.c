@@ -35,6 +35,9 @@
 #include "dwarf.h"
 #include "packet-tcp.h"
 
+void proto_register_netsync(void);
+void proto_reg_handoff_netsync(void);
+
 /*
  * See
  *
@@ -89,8 +92,6 @@ static const value_string netsync_cmd_vals[] = {
 };
 
 #define NETSNYC_MERKLE_HASH_LENGTH 20
-
-void proto_reg_handoff_netsync(void);
 
 /* Define the monotone netsync proto */
 static int proto_netsync = -1;

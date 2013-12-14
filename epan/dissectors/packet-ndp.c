@@ -39,6 +39,9 @@
 #include <epan/packet.h>
 #include <epan/nlpid.h>
 
+void proto_register_ndp(void);
+void proto_reg_handoff_ndps(void);
+
 /* Although this protocol is proprietary it is documented in the SynOptics MIB's
  * So I'm not giving anything away :-)
  * The only thing I have not done is decode the segment identifier;

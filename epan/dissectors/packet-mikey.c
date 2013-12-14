@@ -47,6 +47,9 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 
+void proto_register_mikey(void);
+void proto_reg_handoff_mikey(void);
+
 #define PORT_MIKEY 2269
 static guint global_mikey_tcp_port = PORT_MIKEY;
 
@@ -604,7 +607,6 @@ struct mikey_dissector_entry {
 };
 
 /* Forward declaration we need below */
-void proto_reg_handoff_mikey(void);
 static int dissect_payload(int payload, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 

@@ -44,6 +44,7 @@
 #include <epan/sigcomp_state_hdlr.h>
 
 void proto_register_sigcomp(void);
+void proto_reg_handoff_sigcomp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_sigcomp                            = -1;
@@ -2243,8 +2244,6 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 void
 proto_register_sigcomp(void)
 {
-    void proto_reg_handoff_sigcomp(void);
-
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_sigcomp_t_bit,

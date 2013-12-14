@@ -43,9 +43,10 @@
 #include "packet-ldp.h"
 #include "packet-mpls.h"
 
-#define UDP_PORT_MPLS_ECHO 3503
-
+void proto_register_mpls_echo(void);
 void proto_reg_handoff_mpls_echo(void);
+
+#define UDP_PORT_MPLS_ECHO 3503
 
 static int proto_mpls_echo = -1;
 static int hf_mpls_echo_version = -1;

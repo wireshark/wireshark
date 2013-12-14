@@ -32,6 +32,9 @@
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
 
+void proto_reg_handoff_adwin(void);
+void proto_register_adwin(void);
+
 /* This is registered to a different protocol */
 #define ADWIN_COMM_PORT 6543
 

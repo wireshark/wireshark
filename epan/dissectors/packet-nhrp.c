@@ -48,6 +48,9 @@
 #include <epan/dissectors/packet-llc.h>
 #include "packet-nhrp.h"
 
+void proto_register_nhrp(void);
+void proto_reg_handoff_nhrp(void);
+
 /* forward reference */
 static void _dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean nested, gboolean codeinfo);

@@ -32,6 +32,9 @@
 
 #include "packet-mpeg-descriptor.h"
 
+void proto_register_mpeg_pmt(void);
+void proto_reg_handoff_mpeg_pmt(void);
+
 static int proto_mpeg_pmt = -1;
 static int hf_mpeg_pmt_program_number = -1;
 static int hf_mpeg_pmt_reserved1 = -1;

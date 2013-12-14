@@ -36,6 +36,9 @@
 #include <epan/prefs.h>
 #include "packet-netbios.h"
 
+void proto_register_netbios(void);
+void proto_reg_handoff_netbios(void);
+
 /* Netbios command numbers */
 #define NB_ADD_GROUP		0x00
 #define NB_ADD_NAME		0x01

@@ -71,6 +71,9 @@
 #include <epan/addr_resolv.h>
 #include "packet-rsvp.h"
 
+void proto_register_ospf(void);
+void proto_reg_handoff_ospf(void);
+
 #define OSPF_VERSION_2 2
 #define OSPF_VERSION_3 3
 #define OSPF_AF_4 4

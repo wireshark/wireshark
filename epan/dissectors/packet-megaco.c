@@ -64,6 +64,9 @@
 #include <epan/gcp.h>
 #include <epan/tap.h>
 
+void proto_register_megaco(void);
+void proto_reg_handoff_megaco(void);
+
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 
@@ -3355,8 +3358,6 @@ static gint megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlength){
         return pos;
     }
 }
-
-void proto_reg_handoff_megaco(void);
 
 void
 proto_register_megaco(void)

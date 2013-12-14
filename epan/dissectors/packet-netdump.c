@@ -31,7 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-/* forward reference */
+void proto_register_netdump(void);
 void proto_reg_handoff_netdump(void);
 
 /* Initialize the protocol and registered fields */

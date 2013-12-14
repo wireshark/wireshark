@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 
+void proto_register_msdp(void);
+void proto_reg_handoff_msdp(void);
+
 /* MSDP message types. The messages are TLV (Type-Length-Value) encoded */
 enum { MSDP_SA     = 1,
        MSDP_SA_REQ,
@@ -575,6 +578,4 @@ proto_reg_handoff_msdp(void)
         dissector_add_uint("tcp.port", 639, msdp_handle);
 
         ip_handle = find_dissector("ip");
-
-        return;
 }

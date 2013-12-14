@@ -64,6 +64,9 @@
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 
+void proto_register_mip6(void);
+void proto_reg_handoff_mip6(void);
+
 #define UDP_PORT_PMIP6_CNTL 5436
 
 static dissector_table_t mip6_vsm_dissector_table;

@@ -30,6 +30,9 @@
 
 #include "tvbuff-int.h"
 
+void proto_register_mime_encap(void);
+void proto_reg_handoff_mime_encap(void);
+
 static int proto_mime_encap = -1;
 
 static heur_dissector_list_t heur_subdissector_list;

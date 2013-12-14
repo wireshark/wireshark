@@ -39,6 +39,8 @@
 #include <epan/dissectors/packet-smb.h>
 #include "packet-smb-sidsnooping.h"
 
+void proto_register_smb_sidsnooping(void);
+
 #if 0
 static int hf_lsa = -1;
 static int hf_lsa_opnum = -1;
@@ -411,9 +413,3 @@ proto_register_smb_sidsnooping(void)
 {
   	register_init_routine(sid_snooping_init);
 }
-
-void
-proto_reg_handoff_smb_sidsnooping(void)
-{
-}
-

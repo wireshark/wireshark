@@ -39,6 +39,9 @@
 #include "packet-e212.h"
 #include "packet-lcsap.h"
 
+void proto_register_nas_eps(void);
+void proto_reg_handoff_nas_eps(void);
+
 #define PNAME  "Non-Access-Stratum (NAS)PDU"
 #define PSNAME "NAS-EPS"
 #define PFNAME "nas-eps"
@@ -4984,7 +4987,8 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_register_nas_eps(void) {
+proto_register_nas_eps(void)
+{
     guint     i;
     guint     last_offset;
     module_t *nas_eps_module;

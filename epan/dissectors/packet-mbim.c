@@ -43,6 +43,7 @@
 #include "packet-gsm_sms.h"
 #include "packet-usb.h"
 
+void proto_register_mbim(void);
 void proto_reg_handoff_mbim(void);
 
 /* Initialize the protocol and registered fields */

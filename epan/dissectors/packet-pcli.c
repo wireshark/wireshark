@@ -38,11 +38,12 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 
+void proto_register_pcli(void);
+void proto_reg_handoff_pcli(void);
+
 /* Define udp_port for lawful intercept */
 
 #define UDP_PORT_PCLI 9000
-
-void proto_reg_handoff_pcli(void);
 
 /* Define the pcli proto */
 

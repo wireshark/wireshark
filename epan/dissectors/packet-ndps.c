@@ -41,6 +41,9 @@
 #include "packet-tcp.h"
 #include "packet-ndps.h"
 
+void proto_register_ndps(void);
+void proto_reg_handoff_ndps(void);
+
 /* Limit the number of items we can add to the tree. */
 #define NDPS_MAX_ITEMS 100
 

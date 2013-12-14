@@ -28,6 +28,8 @@
 #include "packet-llc.h"
 #include <epan/oui.h>
 
+void proto_register_nortel_oui(void);
+
 static int hf_llc_nortel_pid = -1;
 
 static const value_string nortel_pid_vals[] = {

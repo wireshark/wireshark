@@ -44,6 +44,7 @@
 #include "packet-igmp.h"
 #include "packet-msnip.h"
 
+void proto_register_msnip(void);
 
 static int proto_msnip = -1;
 static int hf_checksum = -1;

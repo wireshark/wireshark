@@ -29,6 +29,9 @@
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
 
+void proto_register_usb_hid(void);
+void proto_reg_handoff_usb_hid(void);
+
 /* protocols and header fields */
 static int proto_usb_hid = -1;
 static int hf_usb_hid_item_bSize = -1;
@@ -1140,7 +1143,8 @@ proto_register_usb_hid(void)
 }
 
 void
-proto_reg_handoff_usb_hid(void) {
+proto_reg_handoff_usb_hid(void)
+{
     dissector_handle_t usb_hid_control_handle, usb_hid_descr_handle;
 
     usb_hid_control_handle = new_create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);

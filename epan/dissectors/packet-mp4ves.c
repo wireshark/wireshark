@@ -38,6 +38,9 @@
 
 #include <epan/prefs.h>
 
+void proto_register_mp4ves(void);
+void proto_reg_handoff_mp4ves(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_mp4ves	= -1;
 
@@ -892,9 +895,6 @@ dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, voi
 
 	return tvb_length(tvb);
 }
-
-void
-proto_reg_handoff_mp4ves(void);
 
 void
 proto_register_mp4ves(void)

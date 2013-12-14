@@ -33,6 +33,8 @@
 #include "packet-ncp-sss.h"
 #include "isprint.h"
 
+void proto_register_sss(void);
+
 static gint ett_sss = -1;
 
 static int proto_sss = -1;

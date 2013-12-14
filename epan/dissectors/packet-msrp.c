@@ -42,6 +42,9 @@
 
 #include "packet-msrp.h"
 
+void proto_register_msrp(void);
+void proto_reg_handoff_msrp(void);
+
 #define TCP_PORT_MSRP 0
 
 #define MSRP_HDR "MSRP"

@@ -33,6 +33,9 @@
 #include <packet-ip.h>
 #include <epan/dissectors/packet-bfd.h>
 
+void proto_register_mplstp_lock(void);
+void proto_register_mplstp_fm(void);
+
 /* MPLS-TP FM protocol specific variables */
 static gint proto_mplstp_fm     = -1;
 static gint ett_mplstp_fm       = -1;

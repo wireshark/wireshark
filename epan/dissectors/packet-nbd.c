@@ -34,6 +34,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
+void proto_register_nbd(void);
+void proto_reg_handoff_nbd(void);
+
 static gint proto_nbd = -1;
 static int hf_nbd_magic = -1;
 static int hf_nbd_type = -1;

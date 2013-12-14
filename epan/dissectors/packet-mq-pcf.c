@@ -47,6 +47,9 @@
 #include "packet-mq.h"
 #include "wmem/wmem.h"
 
+void proto_register_mqpcf(void);
+void proto_reg_handoff_mqpcf(void);
+
 #define PCF_MAX_PARM 999
 #define PCF_MAX_LIST 20000
 

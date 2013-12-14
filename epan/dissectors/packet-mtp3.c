@@ -50,6 +50,9 @@
 #include "packet-sccp.h"
 #include "packet-frame.h"
 
+void proto_register_mtp3(void);
+void proto_reg_handoff_mtp3(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
 

@@ -58,6 +58,9 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
+void proto_register_ncp(void);
+void proto_reg_handoff_ncp(void);
+
 int proto_ncp = -1;
 static int hf_ncp_ip_ver = -1;
 static int hf_ncp_ip_length = -1;

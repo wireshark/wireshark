@@ -45,6 +45,9 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 
+void proto_register_ndmp(void);
+void proto_reg_handoff_ndmp(void);
+
 #define TCP_PORT_NDMP 10000
 
 static  dissector_handle_t ndmp_handle;

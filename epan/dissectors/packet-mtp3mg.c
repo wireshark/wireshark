@@ -45,6 +45,9 @@
 
 #include <packet-mtp3.h>
 
+void proto_register_mtp3mg(void);
+void proto_reg_handoff_mtp3mg(void);
+
 #define H0H1_LENGTH 1
 #define H0_MASK     0x0f
 #define H1_MASK     0xf0

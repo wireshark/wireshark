@@ -33,6 +33,9 @@
 #include <epan/packet.h>
 #include "packet-usb.h"
 
+void proto_register_usb_hub(void);
+void proto_reg_handoff_usb_hub(void);
+
 /* protocols and header fields */
 static int proto_usb_hub = -1;
 
@@ -818,7 +821,8 @@ proto_register_usb_hub(void)
 }
 
 void
-proto_reg_handoff_usb_hub(void) {
+proto_reg_handoff_usb_hub(void)
+{
 	dissector_handle_t usb_hub_control_handle;
 
 	usb_hub_control_handle = new_create_dissector_handle(dissect_usb_hub_control, proto_usb_hub);

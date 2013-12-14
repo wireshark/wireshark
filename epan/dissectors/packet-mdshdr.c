@@ -32,6 +32,9 @@
 #include <epan/prefs.h>
 #include "packet-fc.h"
 
+void proto_register_mdshdr(void);
+void proto_reg_handoff_mdshdr(void);
+
 #define MDSHDR_VERSION_OFFSET             0
 
 /* Mdshdr Control bits */
@@ -128,8 +131,6 @@ static const value_string eof_vals[] = {
     /*{MDSHDR_EOF_UNKNOWN,         ""}, intentionally removed*/
     {0,                          NULL},
 };
-
-void proto_reg_handoff_mdshdr(void);
 
 static void
 dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

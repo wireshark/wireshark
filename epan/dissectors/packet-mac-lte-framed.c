@@ -30,6 +30,7 @@
 
 #include "packet-mac-lte.h"
 
+void proto_register_mac_lte_framed(void);
 
 /* Initialize the protocol and registered fields. */
 static int proto_mac_lte_framed = -1;

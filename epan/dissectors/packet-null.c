@@ -41,6 +41,9 @@
 #include <epan/etypes.h>
 #include <epan/aftypes.h>
 
+void proto_register_null(void);
+void proto_reg_handoff_null(void);
+
 static dissector_table_t null_dissector_table;
 static dissector_table_t ethertype_dissector_table;
 

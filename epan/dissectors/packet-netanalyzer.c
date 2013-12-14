@@ -65,9 +65,8 @@
 #include <epan/wmem/wmem.h>
 #include <expert.h>
 
-
+void proto_register_netanalyzer(void);
 void proto_reg_handoff_netanalyzer(void);
-
 
 #define HEADER_SIZE  4
 #define INFO_TYPE_OFFSET    18
