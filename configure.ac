@@ -801,7 +801,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		#
 		# All the registration functions block these for now.
 		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes, C)
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-declarations)
 		#
 		# A bunch of "that might not work on SPARC" code blocks
