@@ -566,6 +566,9 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
+
+    szStr[0] ='\0';
+
     if (u32Pointer) {
         offset = dissect_dcom_BSTR(tvb, offset, pinfo, tree, di, drep,
             hf_cba_name, szStr, u32MaxStr);
