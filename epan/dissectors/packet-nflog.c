@@ -186,9 +186,11 @@ nflog_tvb_byte_order(tvbuff_t *tvb, int tlv_offset)
 			return ENC_LITTLE_ENDIAN;
 
 		case BYTE_ORDER_HOST:
-			return (G_BYTE_ORDER == G_LITTLE_ENDIAN) ?
-					ENC_LITTLE_ENDIAN :
-					ENC_BIG_ENDIAN;
+#if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
+                    return ENC_LITTLE_ENDIAN;
+#else
+                    return ENC_BIG_ENDIAN;
+#endif
 	}
 
 	if (nflog_tvb_test_order(tvb, tlv_offset, tvb_get_ntohs))
