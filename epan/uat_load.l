@@ -113,8 +113,8 @@ static guint parse_str_pos;
 #define YY_INPUT(buf,result,max_size) \
 	if ( parse_str ) \
 		{ \
-		int n = 0; \
-		guint pslen = strlen(parse_str); \
+		size_t n = 0; \
+		size_t pslen = strlen(parse_str); \
 		if (parse_str_pos < pslen) \
 			{ \
 			n = pslen - parse_str_pos; \
@@ -180,11 +180,11 @@ comment #[^\n]*\n
 
 	BEGIN END_OF_RECORD;
 
-	yyless(yyleng);
+	yyless((int) yyleng);
 }
 
 <START_OF_LINE,NEXT_FIELD>{quoted_string} {
-	ptrx = uat_undquote(yytext,yyleng,&len);
+	ptrx = uat_undquote(yytext, (guint) yyleng, &len);
 
 
 	if (colnum < uat->ncols - 1) {
@@ -197,7 +197,7 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{binstring} {
-	ptrx = uat_unbinstring(yytext,yyleng,&len);
+	ptrx = uat_unbinstring(yytext,  (guint) yyleng, &len);
 
 	if (!ptrx) {
 		ERROR(("uneven hexstring for field %s",uat->fields[colnum].name));

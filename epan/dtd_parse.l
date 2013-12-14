@@ -70,7 +70,7 @@
 	static gchar* location;
 	static gchar* attr_name;
 
-	static int my_yyinput(char* buff,guint size);
+	static size_t my_yyinput(char* buff,size_t size);
 
 	static dtd_token_data_t* new_token(gchar*);
 
@@ -310,7 +310,7 @@ static dtd_token_data_t* new_token(gchar* text) {
 }
 
 
-static int my_yyinput(char* buff, guint size) {
+static size_t my_yyinput(char* buff, size_t size) {
 
 	if (offsetx >= len ) {
 		return YY_NULL;

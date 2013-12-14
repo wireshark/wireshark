@@ -114,7 +114,7 @@ static char** attr_str;
 static unsigned* attr_uint;
 
 static void ddict_debug(const char* fmt, ...);
-static void append_to_buffer(const char* txt, int len);
+static void append_to_buffer(const char* txt, unsigned len);
 static FILE* ddict_open(const char*, const char*);
 
 %}
@@ -257,11 +257,11 @@ description_attr description=\042
 
 <LOADING>{whitespace} APPEND(" ",1);
 
-<LOADING>{dquoted} APPEND(yytext,yyleng);
+<LOADING>{dquoted} APPEND(yytext, (unsigned) yyleng);
 
 <LOADING>{equals} APPEND("=",1);
 
-<LOADING>{any} APPEND(yytext,yyleng);
+<LOADING>{any} APPEND(yytext, (unsigned) yyleng);
 
 <LOADING>{entity} {
 	char* p = ++yytext;
@@ -330,7 +330,7 @@ description_attr description=\042
 }
 
 <GET_UINT_ATTR>{number} {
-	*attr_uint = strtoul(yytext,NULL,10);
+	*attr_uint = (unsigned) strtoul(yytext,NULL,10);
 	D(("%s\n",yytext););
 	attr_uint = NULL;
 	BEGIN END_ATTR;
@@ -561,7 +561,7 @@ void ddict_unused(void) {
 	yy_top_state();
 }
 
-static void append_to_buffer(const char* txt, int len) {
+static void append_to_buffer(const char* txt, unsigned len) {
 
 	if (strbuf == NULL) {
 		read_ptr = write_ptr = strbuf = (char*)g_malloc(size_strbuf);
@@ -672,7 +672,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	BEGIN LOADING;
 	yylex();
 
-	D(("\n---------------\n%s\n------- %d -------\n",strbuf,len_strbuf));
+	D(("\n---------------\n%s\n------- %u -------\n",strbuf,len_strbuf));
 
 	current_yyinput = string_input;
 
