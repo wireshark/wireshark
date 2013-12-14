@@ -28,6 +28,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-dssetup.h"
 
+void proto_register_dcerpc_dssetup(void);
+void proto_reg_handoff_dcerpc_dssetup(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_dssetup = -1;
 static gint ett_dssetup_dssetup_DsRoleFlags = -1;

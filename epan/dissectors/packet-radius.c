@@ -78,6 +78,7 @@
 
 #include "packet-radius.h"
 
+void proto_register_radius(void);
 void proto_reg_handoff_radius(void);
 
 typedef struct _e_radiushdr {

@@ -47,6 +47,11 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_linx(void);
+void proto_reg_handoff_linx(void);
+void proto_register_linx_tcp(void);
+void proto_reg_handoff_linx_tcp(void);
+
 /* forward reference */
 static void dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -974,7 +979,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-	void
+void
 proto_register_linx_tcp(void)
 {
 	static hf_register_info hf[] = {

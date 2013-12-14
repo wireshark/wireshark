@@ -33,6 +33,9 @@
 #include <epan/crc8-tvb.h>
 #include <expert.h>
 
+void proto_register_mux27010(void);
+void proto_reg_handoff_mux27010(void);
+
 #define PROTO_TAG_MUX27010  "MUX27010"
 
 /*Extended Header*/

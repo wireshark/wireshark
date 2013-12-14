@@ -29,6 +29,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-wkssvc.h"
 
+void proto_register_dcerpc_wkssvc(void);
+void proto_reg_handoff_dcerpc_wkssvc(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_wkssvc = -1;
 static gint ett_wkssvc_lsa_String = -1;

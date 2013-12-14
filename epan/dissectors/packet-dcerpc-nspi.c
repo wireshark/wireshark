@@ -22,6 +22,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-nspi.h"
 
+void proto_register_dcerpc_nspi(void);
+void proto_reg_handoff_dcerpc_nspi(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_nspi = -1;
 static gint ett_nspi_MAPIUID = -1;

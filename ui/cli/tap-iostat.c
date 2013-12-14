@@ -847,7 +847,7 @@ iostat_draw(void *arg)
 
                 do {
                     if (len_filt > max_w) {
-                        sfilter1 = g_strndup( (gchar *) filter, (gsize) max_w);
+                        sfilter1 = g_strndup(filter, (gsize) max_w);
                         /*
                         * Find the pos of the last space in sfilter1. If a space is found, set
                         * sfilter2 to the string prior to that space and print it; otherwise, wrap
@@ -1478,7 +1478,7 @@ iostat_init(const char *opt_arg, void* userdata _U_)
                 register_io_tap(io, i, NULL);
             } else if (pos==NULL) {
                 str = (const char*) g_strstrip((gchar*)str);
-                filter = g_strdup((gchar*) str);
+                filter = g_strdup(str);
                 if (*filter)
                     register_io_tap(io, i, filter);
                 else

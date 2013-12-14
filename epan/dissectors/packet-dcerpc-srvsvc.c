@@ -29,6 +29,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-srvsvc.h"
 
+void proto_register_dcerpc_srvsvc(void);
+void proto_reg_handoff_dcerpc_srvsvc(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_srvsvc = -1;
 static gint ett_srvsvc_srvsvc_NetCharDevInfo0 = -1;

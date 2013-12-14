@@ -35,6 +35,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_pktgen(void);
+void proto_reg_handoff_pktgen(void);
+
 /* magic num used for heuristic */
 #define PKTGEN_MAGIC 0xbe9be955
 

@@ -31,6 +31,11 @@
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 
+void proto_register_nbipx(void);
+void proto_reg_handoff_nbipx(void);
+void proto_register_nmpi(void);
+void proto_reg_handoff_nmpi(void);
+
 static int proto_nbipx = -1;
 static int hf_nbipx_packettype = -1;
 static int hf_nbipx_name_flags = -1;

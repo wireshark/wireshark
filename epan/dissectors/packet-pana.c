@@ -36,6 +36,9 @@
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_pana(void);
+void proto_reg_handoff_pana(void);
+
 #if 0
 #define PANA_UDP_PORT 3001
 #endif

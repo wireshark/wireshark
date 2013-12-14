@@ -30,6 +30,9 @@
 #include "packet-usb.h"
 #include "packet-scsi.h"
 
+void proto_register_usb_ms(void);
+void proto_reg_handoff_usb_ms(void);
+
 /* protocols and header fields */
 static int proto_usb_ms = -1;
 static int hf_usb_ms_dCBWSignature = -1;

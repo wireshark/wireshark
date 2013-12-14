@@ -33,6 +33,8 @@
 
 #include "packet-tcp.h"
 
+void proto_register_pgsql(void);
+void proto_reg_handoff_pgsql(void);
 
 static int proto_pgsql = -1;
 static int hf_frontend = -1;
@@ -664,9 +666,6 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                      pgsql_length, dissect_pgsql_msg, data);
     return tvb_length(tvb);
 }
-
-void
-proto_reg_handoff_pgsql(void);
 
 void
 proto_register_pgsql(void)

@@ -42,6 +42,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_winsrepl(void);
+void proto_reg_handoff_winsrepl(void);
+
 static gboolean winsrepl_reassemble = TRUE;
 
 static int proto_winsrepl = -1;

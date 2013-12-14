@@ -40,6 +40,9 @@
 #include "packet-giop.h"
 #include "packet-tcp.h"
 
+void proto_register_miop(void);
+void proto_reg_handoff_miop(void);
+
 /*
  * Useful visible data/structs
  */

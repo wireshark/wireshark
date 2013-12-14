@@ -28,6 +28,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-efs.h"
 
+void proto_register_dcerpc_efs(void);
+void proto_reg_handoff_dcerpc_efs(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_efs = -1;
 static gint ett_efs_EFS_HASH_BLOB = -1;

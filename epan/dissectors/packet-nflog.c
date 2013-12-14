@@ -32,6 +32,9 @@
 #include <epan/prefs.h>
 #include <epan/aftypes.h>
 
+void proto_register_nflog(void);
+void proto_reg_handoff_nflog(void);
+
 /* nfulnl_attr_type enum from <linux/netfilter/nfnetlink_log.h> */
 enum ws_nfulnl_attr_type {
 	WS_NFULA_UNSPEC,

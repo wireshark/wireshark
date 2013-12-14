@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 
+void proto_register_pagp(void);
+void proto_reg_handoff_pagp(void);
+
 /* Offsets of fields within a PagP PDU */
 
 #define PAGP_VERSION_NUMBER		0

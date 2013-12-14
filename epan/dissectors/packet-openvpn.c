@@ -39,6 +39,9 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/ipproto.h>
 
+void proto_register_openvpn(void);
+void proto_reg_handoff_openvpn(void);
+
 #define PFNAME "openvpn"
 #define PNAME  "OpenVPN Protocol"
 #define PSNAME "OpenVPN"
@@ -92,8 +95,6 @@ static gboolean pref_tls_auth_override = FALSE;
 static guint    pref_tcp_port          = OPENVPN_PORT;
 static guint    pref_udp_port          = OPENVPN_PORT;
 static guint    tls_auth_hmac_size     = 20; /* Default SHA-1 160 Bits */
-
-void proto_reg_handoff_openvpn(void); /* forward declaration for use in preferences registration */
 
 static const value_string openvpn_message_types[] =
 {

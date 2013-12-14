@@ -57,6 +57,8 @@
 #include <wsutil/wsgcrypt.h>
 #endif
 
+void proto_register_dvbci(void);
+void proto_reg_handoff_dvbci(void);
 
 #define AES_BLOCK_LEN 16
 #define AES_KEY_LEN 16
@@ -445,8 +447,6 @@ typedef struct _apdu_info_t {
             tvbuff_t *, gint, circuit_t *, packet_info *, proto_tree *);
 } apdu_info_t;
 
-
-void proto_reg_handoff_dvbci(void);
 
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,

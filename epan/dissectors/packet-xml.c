@@ -51,6 +51,9 @@
 
 #include "packet-xml.h"
 
+void proto_register_xml(void);
+void proto_reg_handoff_xml(void);
+
 struct _attr_reg_data {
     wmem_array_t *hf;
     const gchar *basename;

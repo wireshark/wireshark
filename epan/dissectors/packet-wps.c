@@ -43,6 +43,8 @@
 
 #include "packet-wps.h"
 
+void proto_register_wps(void);
+
 static int  hf_eapwps_opcode     = -1;
 static int  hf_eapwps_flags      = -1;
 static int  hf_eapwps_flag_mf    = -1;

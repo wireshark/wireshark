@@ -28,6 +28,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-wzcsvc.h"
 
+void proto_register_dcerpc_wzcsvc(void);
+void proto_reg_handoff_dcerpc_wzcsvc(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_wzcsvc = -1;
 

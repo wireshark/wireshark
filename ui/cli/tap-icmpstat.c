@@ -82,8 +82,8 @@ static gint compare_doubles(gconstpointer a, gconstpointer b)
 {
     double ad, bd;
 
-    ad = *(double *)a;
-    bd = *(double *)b;
+    ad = *(const double *)a;
+    bd = *(const double *)b;
 
     if (ad < bd)
         return -1;

@@ -57,6 +57,9 @@
 #include <epan/geoip_db.h>
 #endif /* HAVE_GEOIP_V6 */
 
+void proto_register_ipv6(void);
+void proto_reg_handoff_ipv6(void);
+
 /* Option types and related macros */
 #define IP6OPT_PAD1                     0x00    /* 00 0 00000 */
 #define IP6OPT_PADN                     0x01    /* 00 0 00001 */

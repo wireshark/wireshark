@@ -4833,7 +4833,7 @@ dissect_gspm(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 #ifdef HAVE_LIBGCRYPT
 static guint
 isakmp_hash_func(gconstpointer c) {
-  const guint8 *i_cookie = (guint8 *) c;
+  const guint8 *i_cookie = (const guint8 *) c;
   guint   val = 0, keychunk, i;
 
   /* XOR our icookie down to the size of a guint */

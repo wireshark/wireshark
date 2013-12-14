@@ -35,6 +35,9 @@
 #include <epan/ipv4.h>
 #include "packet-wccp.h"
 
+void proto_register_wccp(void);
+void proto_reg_handoff_wccp(void);
+
 static int proto_wccp = -1;
 static int hf_wccp_message_type = -1;   /* the message type */
 static int hf_wccp_version = -1;        /* protocol version */

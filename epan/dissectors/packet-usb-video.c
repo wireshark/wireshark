@@ -32,6 +32,8 @@
 #include <epan/conversation.h>
 #include "packet-usb.h"
 
+void proto_register_usb_vid(void);
+
 /* References are to sections in USB Video Class specifications -
  * specifically V1.5, but versions have tended to keep
  * the same numbering (as of this writing).

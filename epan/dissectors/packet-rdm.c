@@ -47,6 +47,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_rdm(void);
+
 #define RDM_SC_RDM				0xCC
 #define RDM_SC_SUB_MESSAGE			0x01
 

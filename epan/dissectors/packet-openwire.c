@@ -51,6 +51,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
+void proto_register_openwire(void);
+void proto_reg_handoff_openwire(void);
+
 static int proto_openwire = -1;
 static int hf_openwire_none = -1;
 static int hf_openwire_length = -1;

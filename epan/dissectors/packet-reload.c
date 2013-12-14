@@ -46,6 +46,8 @@
 #include <packet-ssl-utils.h>
 #include <packet-reload.h>
 
+void proto_register_reload(void);
+void proto_reg_handoff_reload(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_reload = -1;

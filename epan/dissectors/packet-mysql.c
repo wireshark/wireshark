@@ -47,6 +47,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_mysql(void);
+void proto_reg_handoff_mysql(void);
+
 /* port for protocol registration */
 #define TCP_PORT_MySQL   3306
 

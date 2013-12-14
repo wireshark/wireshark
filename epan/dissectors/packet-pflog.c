@@ -41,6 +41,11 @@ http://www.openbsd.org/cgi-bin/cvsweb/src/sys/net/if_pflog.h
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 
+void proto_register_pflog(void);
+void proto_reg_handoff_pflog(void);
+void proto_register_old_pflog(void);
+void proto_reg_handoff_old_pflog(void);
+
 static dissector_handle_t  data_handle, ip_handle, ipv6_handle;
 
 /* header fields */

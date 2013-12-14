@@ -29,6 +29,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-frstrans.h"
 
+void proto_register_dcerpc_frstrans(void);
+void proto_reg_handoff_dcerpc_frstrans(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_frstrans = -1;
 static gint ett_frstrans_frstrans_TransportFlags = -1;

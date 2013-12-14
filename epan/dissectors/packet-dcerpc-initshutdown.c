@@ -28,6 +28,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-initshutdown.h"
 
+void proto_register_dcerpc_initshutdown(void);
+void proto_reg_handoff_dcerpc_initshutdown(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_initshutdown = -1;
 static gint ett_initshutdown_initshutdown_ReasonFlags = -1;

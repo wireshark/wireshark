@@ -66,6 +66,9 @@
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 
+void proto_register_diameter(void);
+void proto_reg_handoff_diameter(void);
+
 /* Diameter Header Flags */
 /* RPETrrrrCCCCCCCCCCCCCCCCCCCCCCCC  */
 #define DIAM_FLAGS_R 0x80
@@ -1744,9 +1747,6 @@ dictionary_load(void)
 
 	return 1;
 }
-
-/* registration with the filtering engine */
-void proto_reg_handoff_diameter(void);
 
 /*
  * This does most of the registration work; see proto_register_diameter()

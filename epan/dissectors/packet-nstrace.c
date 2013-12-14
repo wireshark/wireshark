@@ -30,6 +30,9 @@
 #include <epan/wmem/wmem.h>
 #include <wiretap/netscaler.h>
 
+void proto_register_ns(void);
+void proto_reg_handoff_ns(void);
+
 static int proto_nstrace = -1;
 
 static int hf_ns_nicno = -1;

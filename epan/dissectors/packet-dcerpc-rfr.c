@@ -29,6 +29,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-rfr.h"
 
+void proto_register_dcerpc_rfr(void);
+void proto_reg_handoff_dcerpc_rfr(void);
+
 /* Ett declarations */
 static gint ett_dcerpc_rfr = -1;
 

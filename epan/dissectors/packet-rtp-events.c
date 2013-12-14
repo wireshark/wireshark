@@ -45,8 +45,8 @@
 #include "packet-rtp.h"
 #include <epan/tap.h>
 
-void proto_register_rtp_event(void);
-void proto_reg_handoff_rtp_event(void);
+void proto_register_rtp_events(void);
+void proto_reg_handoff_rtp_events(void);
 
 /*  rtp_event_payload_type_value is the value used globally
 	to set the appropriate payload type
@@ -74,9 +74,6 @@ static int hf_rtp_events_duration = -1; /* sixteen bits */
 /* RTP Events fields defining a subtree */
 
 static gint ett_rtp_events           = -1;
-
-void
-proto_reg_handoff_rtp_events(void);
 
 static struct _rtp_event_info rtp_event_info;
 

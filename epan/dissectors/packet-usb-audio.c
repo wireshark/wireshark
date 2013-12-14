@@ -29,6 +29,9 @@
 #include <epan/reassemble.h>
 #include "packet-usb.h"
 
+void proto_register_usb_audio(void);
+void proto_reg_handoff_usb_audio(void);
+
 /* protocols and header fields */
 static int proto_usb_audio = -1;
 static int hf_midi_cable_number = -1;

@@ -39,6 +39,9 @@
 
 #include "packet-ber.h"
 
+void proto_register_jpeg(void);
+void proto_reg_handoff_jpeg(void);
+
 static dissector_handle_t jpeg_handle;
 
 static header_field_info *hfi_jpeg = NULL;

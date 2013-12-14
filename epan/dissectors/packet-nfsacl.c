@@ -32,6 +32,9 @@
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 
+void proto_register_nfsacl(void);
+void proto_reg_handoff_nfsacl(void);
+
 static int proto_nfsacl = -1;
 static int hf_nfsacl_mask = -1;
 static int hf_nfsacl_mask_acl_entry = -1;

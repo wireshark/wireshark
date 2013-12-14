@@ -42,6 +42,9 @@
 
 #include <epan/tvbuff-int.h> /* XXX, for tvb_new_proxy() */
 
+void proto_register_mp2t(void);
+void proto_reg_handoff_mp2t(void);
+
 /* The MPEG2 TS packet size */
 #define MP2T_PACKET_SIZE 188
 #define MP2T_SYNC_BYTE   0x47

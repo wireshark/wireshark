@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 
+void proto_register_json(void);
+void proto_reg_handoff_json(void);
+
 static dissector_handle_t json_handle;
 
 static gint ett_json = -1;
@@ -560,7 +563,8 @@ static void init_json_parser(void) {
 }
 
 void
-proto_register_json(void) {
+proto_register_json(void)
+{
 	static gint *ett[] = {
 		&ett_json,
 		&ett_json_array,

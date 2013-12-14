@@ -49,6 +49,8 @@
 #include "packet-pw-atm.h"
 #include "packet-pw-common.h"
 
+void proto_register_pw_atm_ata(void);
+void proto_reg_handoff_pw_atm_ata(void);
 void proto_register_pw_atm(void);
 void proto_reg_handoff_pw_atm(void);
 
