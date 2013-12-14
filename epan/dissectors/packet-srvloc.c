@@ -415,14 +415,10 @@ static void
 add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     guint16 encoding)
 {
-        char *unicode_str;
-
         switch (encoding) {
 
         case CHARSET_ISO_10646_UCS_2:
-                unicode_str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length, ENC_BIG_ENDIAN);
-                proto_tree_add_string(tree, hf, tvb, offset, length,
-                                    unicode_str);
+                proto_tree_add_item(tree, hf, tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
                 break;
 
         default:
@@ -444,7 +440,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
  *	does not specify (it is a 16-bit integer space)
  *
  * Does that mean that in SRVLOC, ISO-10646-UCS-2 is always big-endian?
- * If so, can we just use "tvb_get_unicode_string()" and be
+ * If so, can we just use "tvb_get_string_enc()" and be
  * done with it?
  *
  * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
@@ -550,14 +546,14 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 break;
             }
             /* Parse the attribute name */
-            tmp = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length-offset, ENC_BIG_ENDIAN);
+            tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
             type_len = (int)strcspn(tmp, "=");
-            attr_type = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, type_len*2, ENC_BIG_ENDIAN);
+            attr_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len*2, ENC_UCS_2|ENC_BIG_ENDIAN);
             proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
             offset += (type_len*2)+2;
             if (strcmp(attr_type, "svcname-ws")==0) {
                 /* This is the attribute svcname */
-                tmp = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length-offset, ENC_BIG_ENDIAN);
+                tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
                 type_len = (int)strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;
