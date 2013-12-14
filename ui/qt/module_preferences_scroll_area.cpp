@@ -58,13 +58,17 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     QVBoxLayout *vb = static_cast<QVBoxLayout *>(layout_ptr);
 
     if (!pref || !vb) return 0;
+    QString tooltip = QString("<span>%1</span>").arg(pref->description);
 
     switch (pref->type) {
     case PREF_UINT:
     {
         QHBoxLayout *hb = new QHBoxLayout();
-        hb->addWidget(new QLabel(pref->title));
+        QLabel *label = new QLabel(pref->title);
+        label->setToolTip(tooltip);
+        hb->addWidget(label);
         QLineEdit *uint_le = new QLineEdit();
+        uint_le->setToolTip(tooltip);
         uint_le->setProperty(pref_prop_, qVariantFromValue(pref));
         uint_le->setMinimumWidth(uint_le->fontMetrics().height() * 8);
         hb->addWidget(uint_le);
@@ -75,6 +79,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     case PREF_BOOL:
     {
         QCheckBox *bool_cb = new QCheckBox(pref->title);
+        bool_cb->setToolTip(tooltip);
         bool_cb->setProperty(pref_prop_, qVariantFromValue(pref));
         vb->addWidget(bool_cb);
         break;
@@ -85,10 +90,13 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         if (!pref->info.enum_info.enumvals) return 0;
 
         if (pref->info.enum_info.radio_buttons) {
-            vb->addWidget(new QLabel(pref->title));
+            QLabel *label = new QLabel(pref->title);
+            label->setToolTip(tooltip);
+            vb->addWidget(label);
             QButtonGroup *enum_bg = new QButtonGroup();
             for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
                 QRadioButton *enum_rb = new QRadioButton(ev->description);
+                enum_rb->setToolTip(tooltip);
                 QStyleOption style_opt;
                 enum_rb->setProperty(pref_prop_, qVariantFromValue(pref));
                 enum_rb->setStyleSheet(QString(
@@ -103,6 +111,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         } else {
             QHBoxLayout *hb = new QHBoxLayout();
             QComboBox *enum_cb = new QComboBox();
+            enum_cb->setToolTip(tooltip);
             enum_cb->setProperty(pref_prop_, qVariantFromValue(pref));
             for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
                 enum_cb->addItem(ev->description, QVariant(ev->value));
@@ -117,8 +126,11 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     case PREF_STRING:
     {
         QHBoxLayout *hb = new QHBoxLayout();
-        hb->addWidget(new QLabel(pref->title));
+        QLabel *label = new QLabel(pref->title);
+        label->setToolTip(tooltip);
+        hb->addWidget(label);
         QLineEdit *string_le = new QLineEdit();
+        string_le->setToolTip(tooltip);
         string_le->setProperty(pref_prop_, qVariantFromValue(pref));
         string_le->setMinimumWidth(string_le->fontMetrics().height() * 20);
         hb->addWidget(string_le);
@@ -129,8 +141,11 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     case PREF_RANGE:
     {
         QHBoxLayout *hb = new QHBoxLayout();
-        hb->addWidget(new QLabel(pref->title));
+        QLabel *label = new QLabel(pref->title);
+        label->setToolTip(tooltip);
+        hb->addWidget(label);
         SyntaxLineEdit *range_se = new SyntaxLineEdit();
+        range_se->setToolTip(tooltip);
         range_se->setProperty(pref_prop_, qVariantFromValue(pref));
         range_se->setMinimumWidth(range_se->fontMetrics().height() * 20);
         hb->addWidget(range_se);
@@ -140,14 +155,19 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     }
     case PREF_STATIC_TEXT:
     {
-        vb->addWidget(new QLabel(pref->title));
+        QLabel *label = new QLabel(pref->title);
+        label->setToolTip(tooltip);
+        vb->addWidget(label);
         break;
     }
     case PREF_UAT:
     {
         QHBoxLayout *hb = new QHBoxLayout();
-        hb->addWidget(new QLabel(pref->title));
+        QLabel *label = new QLabel(pref->title);
+        label->setToolTip(tooltip);
+        hb->addWidget(label);
         QPushButton *uat_pb = new QPushButton(QObject::tr("Edit..."));
+        uat_pb->setToolTip(tooltip);
         uat_pb->setProperty(pref_prop_, qVariantFromValue(pref));
         hb->addWidget(uat_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -157,9 +177,12 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     case PREF_FILENAME:
     case PREF_DIRNAME:
     {
-        vb->addWidget(new QLabel(pref->title));
+        QLabel *label = new QLabel(pref->title);
+        label->setToolTip(tooltip);
+        vb->addWidget(label);
         QHBoxLayout *hb = new QHBoxLayout();
         QLineEdit *path_le = new QLineEdit();
+        path_le->setToolTip(tooltip);
         QStyleOption style_opt;
         path_le->setProperty(pref_prop_, qVariantFromValue(pref));
         path_le->setMinimumWidth(path_le->fontMetrics().height() * 20);
