@@ -1311,7 +1311,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	sb = wmem_strbuf_new_label(wmem_packet_scope());
 
 	if (dti != '!')
-		wmem_strbuf_append(sb, val_to_str_ext_const(dti, &aprs_description_ext, ""));;
+		wmem_strbuf_append(sb, val_to_str_ext_const(dti, &aprs_description_ext, ""));
 
 	switch ( dti )
 		{

@@ -6483,7 +6483,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             offset++;
                             /* [RFC 3006] hint */
                             proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_hint, tvb, offset, 4, ENC_BIG_ENDIAN);
-                            offset+=4;;
+                            offset+=4;
                         }
                         proto_item_set_len(ti, item_len);
                     }

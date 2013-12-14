@@ -7921,7 +7921,7 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *paramet
         ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
       }
       offset += 1;
-      length -= 1;;
+      length -= 1;
     }
     ca_number[digit_index++] = '\0';
     proto_item_set_text(digits_item, "Charge Area : %s", ca_number);
@@ -7957,7 +7957,7 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *paramet
         proto_tree_add_uint(digits_tree, hf_isup_charging_info_maca_even_digits, parameter_tvb, 0, 1, octet);
       }
       offset += 1;
-      length -= 1;;
+      length -= 1;
     }
 
   }

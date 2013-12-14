@@ -8462,7 +8462,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[1].mvtype = 0;
             pvalues[1].hfname= hf_nds_class_def_type;
             nds_offset = nds_offset + pvalues[1].vlength;
-            pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);;
+            pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
             pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
             pvalues[2].vdesc = "Class Definitions %u";
             pvalues[2].vlength = 0;

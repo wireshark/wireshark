@@ -2450,7 +2450,7 @@ dissect_openflow_port_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     return offset;
 #endif
-};
+}
 
 
 
@@ -3553,7 +3553,7 @@ dissect_openflow_switch_description_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     /* char dp_desc[DESC_STR_LEN]; */
     proto_tree_add_item(tree, hf_openflow_v5_switch_description_dp_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
     /*offset+=DESC_STR_LEN;*/
-};
+}
 
 
 static int
@@ -3781,7 +3781,7 @@ dissect_openflow_port_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     return offset;
-};
+}
 
 
 static int

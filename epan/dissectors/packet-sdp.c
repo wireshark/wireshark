@@ -1355,7 +1355,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
         if (port_end_offset == -1) {
             /* No "/" look for the ";" */
-            port_end_offset = tvb_find_guint8(tvb, port_offset, -1, ';');;
+            port_end_offset = tvb_find_guint8(tvb, port_offset, -1, ';');
         }
         /* Attempt to convert address */
         if (inet_pton(AF_INET,

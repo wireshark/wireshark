@@ -443,7 +443,7 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 
     /* SubType */
     offset  = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_profinet_subtype, &subType);
-    length -= 1;;
+    length -= 1;
 
     switch (subType) {
     case 1: /* RTData */

@@ -1924,7 +1924,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			call_dissector(data_handle,
 			    tvb_new_subset_remaining(tvb, offset),
 			    pinfo, rtp_tree);
-			return tvb_length(tvb);;
+			return tvb_length(tvb);
 		}
 
 		padding_count = tvb_get_guint8( tvb,

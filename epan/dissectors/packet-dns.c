@@ -3285,7 +3285,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
 
       proto_tree_add_item(rr_tree, hf_dns_tkey_other_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);;
+      tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);
       cur_offset += 2;
 
       if (tkey_otherlen != 0) {

@@ -1301,7 +1301,7 @@ static void dissect_noe(tvbuff_t    *tvb,
         1,
         server);
     offset += 1;
-    length -= 1;;
+    length -= 1;
 
     /* update text of the main proto item */
     proto_item_append_text(noe_item, ", %s",

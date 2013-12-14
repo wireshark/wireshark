@@ -2230,7 +2230,7 @@ mbim_dissect_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint o
 {
     gint base_offset;
     guint32 access_string_offset, access_string_size, user_name_offset, user_name_size,
-            password_offset, password_size, provider_id_offset = 0, provider_id_size = 0;;
+            password_offset, password_size, provider_id_offset = 0, provider_id_size = 0;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_context_context_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);

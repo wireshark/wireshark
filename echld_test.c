@@ -143,7 +143,7 @@ static char* new_child_cmd(char** params, char** err) {
 		return NULL;
 	}
 
-	return g_strdup_printf("New chld_id=%d\n",child);;
+	return g_strdup_printf("New chld_id=%d\n",child);
 }
 
 

@@ -535,7 +535,7 @@ void WiresharkApplication::cleanup()
 
 void WiresharkApplication::itemStatusFinished(const QString &filename, qint64 size, bool accessible) {
     recent_item_status *ri;
-    RecentFileStatus *rf_status = qobject_cast<RecentFileStatus *>(QObject::sender());;
+    RecentFileStatus *rf_status = qobject_cast<RecentFileStatus *>(QObject::sender());
 
 //    g_log(NULL, G_LOG_LEVEL_DEBUG, "rf isf %d", recent_items.count());
     foreach (ri, recent_items) {

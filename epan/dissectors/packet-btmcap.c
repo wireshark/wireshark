@@ -200,7 +200,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 if (bluetooth_clock_sync_time == 0xFFFFFFFF)
                     proto_item_append_text(pitem, " (Instant Synchronization)");
                 else
-                    proto_item_append_text(pitem, " (Baseband Half-Slot Instant)");;
+                    proto_item_append_text(pitem, " (Baseband Half-Slot Instant)");
                 offset += 4;
 
                 pitem = proto_tree_add_item(main_tree, hf_btmcap_timestamp_sync_time, tvb, offset, 8, ENC_BIG_ENDIAN);

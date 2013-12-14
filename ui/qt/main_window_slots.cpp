@@ -732,7 +732,7 @@ void MainWindow::setMenusForSelectedPacket()
 #if 0
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
 #else
-    gboolean is_tcp = FALSE, is_sctp = FALSE;;
+    gboolean is_tcp = FALSE, is_sctp = FALSE;
 #endif
 
 //    /* Making the menu context-sensitive allows for easier selection of the

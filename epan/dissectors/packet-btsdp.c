@@ -4220,7 +4220,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
             PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, &new_tvb, &is_first,
             &is_continued, &uuid_array, NULL, l2cap_data);
 
-    uuid = get_most_specified_uuid(uuid_array);;
+    uuid = get_most_specified_uuid(uuid_array);
 
     if (is_first && !is_continued) {
         dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo,

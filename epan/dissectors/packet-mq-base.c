@@ -39,7 +39,7 @@ guint64 tvb_get_guint64_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep)
     else
         iResult =  tvb_get_ntoh64(a_tvb, a_iOffset);
     return iResult;
-};
+}
 guint32 tvb_get_guint32_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep)
 {
     guint32 iResult;
@@ -48,7 +48,7 @@ guint32 tvb_get_guint32_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep)
     else
         iResult =  tvb_get_ntohl(a_tvb, a_iOffset);
     return iResult;
-};
+}
 guint16 tvb_get_guint16_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep)
 {
     guint16 sResult;
@@ -57,7 +57,7 @@ guint16 tvb_get_guint16_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep)
     else
         sResult =  tvb_get_ntohs(a_tvb, a_iOffset);
     return sResult;
-};
+}
 /* This routine truncates the string at the first blank space */
 gint32 strip_trailing_blanks(guint8* a_str, guint32 a_size)
 {
