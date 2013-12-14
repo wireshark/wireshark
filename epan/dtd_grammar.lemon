@@ -61,7 +61,8 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 
 %extra_argument { dtd_build_data_t *bd }
 
-%token_destructor { 
+%token_destructor {
+	(void) bd; /* Mark unused, similar to Q_UNUSED */
 	if ($$) {
 		if ($$->text) g_free($$->text);
 		if ($$->location) g_free($$->location);

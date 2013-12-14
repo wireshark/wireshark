@@ -28,7 +28,10 @@
 
 /* Terminal and Non-Terminal types and destructors */
 %token_type			{stnode_t*}
-%token_destructor		{stnode_free($$);}
+%token_destructor		{
+	(void) dfw; /* Mark unused, similar to Q_UNUSED */
+	stnode_free($$);
+}
 
 %type		sentence	{stnode_t*}
 

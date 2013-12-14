@@ -178,7 +178,10 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 %token_prefix TOKEN_
 
 %token_type { gchar* }
-%token_destructor { if ($$) g_free($$); }
+%token_destructor {
+	(void) mc; /* Mark unused, similar to Q_UNUSED */
+	if ($$) g_free($$);
+}
 
 %extra_argument { mate_config* mc }
 
