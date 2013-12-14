@@ -713,9 +713,9 @@ static proto_item* get_InfoObjectAddress(guint32 *asdu_info_obj_addr, tvbuff_t *
 static guint8 get_TypeIdLength(guint8 TypeId)
 {
   guint8 ret = 0;
-  td_asdu_length *item;
+  const td_asdu_length *item;
 
-  item = (td_asdu_length *)asdu_length;
+  item = asdu_length;
   while (item->value)
   {
     if (item->value == TypeId)

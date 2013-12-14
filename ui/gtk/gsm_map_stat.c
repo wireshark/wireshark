@@ -291,7 +291,7 @@ gsm_map_stat_packet(
     const void      *data)
 {
     gsm_map_stat_t  *stat_p = (gsm_map_stat_t *)tapdata;
-    const gsm_map_tap_rec_t *data_p = (gsm_map_tap_rec_t *)data;
+    const gsm_map_tap_rec_t *data_p = (const gsm_map_tap_rec_t *)data;
 
 #if 0   /* always false because message_type is 8 bit value */
     if (data_p->opr_code_idx > sizeof(stat_p->opr_code))

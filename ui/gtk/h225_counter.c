@@ -160,7 +160,7 @@ static int
 h225counter_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225counter_t *hs=(h225counter_t *)phs;
-	const h225_packet_info *pi=(h225_packet_info *)phi;
+	const h225_packet_info *pi=(const h225_packet_info *)phi;
 
 	switch (pi->msg_type) {
 

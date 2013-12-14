@@ -145,7 +145,7 @@ static int
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225rassrt_t *hs=(h225rassrt_t *)phs;
-	const h225_packet_info *pi=(h225_packet_info *)phi;
+	const h225_packet_info *pi=(const h225_packet_info *)phi;
 
 	ras_type rasmsg_type = RAS_OTHER;
 	ras_category rascategory = RAS_OTHERS;

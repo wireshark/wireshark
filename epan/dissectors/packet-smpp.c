@@ -1124,7 +1124,7 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                            epan_dissect_t *edt _U_,
                            const void *p) /* Used for getting SMPP command_id values */
 {
-    smpp_tap_rec_t* tap_rec = (smpp_tap_rec_t*)p;
+    const smpp_tap_rec_t* tap_rec = (const smpp_tap_rec_t*)p;
 
     tick_stat_node(st, "SMPP Operations", 0, TRUE);
 

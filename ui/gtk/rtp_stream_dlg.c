@@ -189,8 +189,8 @@ rtpstream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 /****************************************************************************/
 static gint rtp_stream_info_cmp_reverse(gconstpointer aa, gconstpointer bb)
 {
-	const struct _rtp_stream_info* a = (struct _rtp_stream_info *)aa;
-	const struct _rtp_stream_info* b = (struct _rtp_stream_info *)bb;
+	const struct _rtp_stream_info* a = (const struct _rtp_stream_info *)aa;
+	const struct _rtp_stream_info* b = (const struct _rtp_stream_info *)bb;
 
 	if (a==NULL || b==NULL)
 		return 1;

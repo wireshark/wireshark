@@ -1120,7 +1120,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 
             if (hash_info->dst_addr.type == AT_IPv4) {
                 ti = proto_tree_add_ipv4( socks_tree, hf_socks_ip_dst, tvb,
-                    offset, 0, *((guint32*)hash_info->dst_addr.data));
+                    offset, 0, *((const guint32*)hash_info->dst_addr.data));
                 PROTO_ITEM_SET_GENERATED(ti);
             } else if (hash_info->dst_addr.type == AT_IPv6) {
                 ti = proto_tree_add_ipv6( socks_tree, hf_socks_ip6_dst, tvb,

@@ -42,7 +42,7 @@ static int
 wlan_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
         hostlist_table *hosts=(hostlist_table *)pit;
-        const wlan_hdr *whdr=(wlan_hdr *)vip;
+        const wlan_hdr *whdr=(const wlan_hdr *)vip;
 
         /* Take two "add" passes per packet, adding for each direction, ensures that all
         packets are counted properly (even if address is sending to itself)

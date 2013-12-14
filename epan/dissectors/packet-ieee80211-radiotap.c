@@ -872,14 +872,14 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 	guint16 it_len;
 	guint32 present, xpresent;
 	guint8  rflags;
-	struct ieee80211_radiotap_header *hdr;
+	const struct ieee80211_radiotap_header *hdr;
 
 	if (!BYTES_ARE_IN_FRAME(offset, len,
 				sizeof(struct ieee80211_radiotap_header))) {
 		ld->other++;
 		return;
 	}
-	hdr = (struct ieee80211_radiotap_header *)pd;
+	hdr = (const struct ieee80211_radiotap_header *)pd;
 	it_len = pletoh16(&hdr->it_len);
 	if (!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
 		ld->other++;

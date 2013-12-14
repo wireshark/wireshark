@@ -191,7 +191,7 @@ static char *fld_tostr(void *rec, uat_field_t *f) {
 			GString *s = g_string_sized_new( len*2 + 1 );
 			guint i;
 
-			for (i=0; i<len;i++) g_string_append_printf(s, "%.2X", ((guint8*)ptr)[i]);
+			for (i=0; i<len;i++) g_string_append_printf(s, "%.2X", ((const guint8*)ptr)[i]);
 
 			out = ep_strdup(s->str);
 
@@ -349,7 +349,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 			}
 			case PT_TXTMOD_ENUM: {
 				gint idx = *(int*)e;
-				text = (idx >= 0) ? ((value_string *)(f[colnum].fld_data))[idx].strptr : "";
+				text = (idx >= 0) ? ((const value_string *)(f[colnum].fld_data))[idx].strptr : "";
 				len = (unsigned) strlen(text);
 				break;
 			}

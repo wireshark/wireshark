@@ -297,9 +297,9 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                                    hartip_message_id_values,
                                    "Unknown message %d");
 
-  tick_stat_node(st, (guint8*)st_str_packets, 0, FALSE);
-  tick_stat_node(st, (guint8*)message_type_node_str, st_node_packets, FALSE);
-  tick_stat_node(st, (guint8*)message_id_node_str, message_type_node, FALSE);
+  tick_stat_node(st, st_str_packets, 0, FALSE);
+  tick_stat_node(st, message_type_node_str, st_node_packets, FALSE);
+  tick_stat_node(st, message_id_node_str, message_type_node, FALSE);
 
   return 1;
 }

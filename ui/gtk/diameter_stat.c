@@ -77,7 +77,7 @@ diameterstat_reset(void *pdiameter)
 static int
 diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi)
 {
-	const diameter_req_ans_pair_t *diameter=(diameter_req_ans_pair_t *)pdi;
+	const diameter_req_ans_pair_t *diameter=(const diameter_req_ans_pair_t *)pdi;
 	diameterstat_t *fs=(diameterstat_t *)pdiameter;
 	int* idx = NULL;
 

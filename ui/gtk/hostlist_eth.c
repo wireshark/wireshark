@@ -43,7 +43,7 @@ static int
 eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	const eth_hdr *ehdr=(eth_hdr *)vip;
+	const eth_hdr *ehdr=(const eth_hdr *)vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)

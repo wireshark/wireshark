@@ -7522,7 +7522,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u) - TableRef follows!\n", peek, off));
 				idx = tvb_get_guintvar (tvb, off+1, &tag_len);
 				str_len = tvb_strsize (tvb, str_tbl+idx);
-				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
+				tag_new_literal = (const gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
@@ -7908,7 +7908,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					  " - TableRef follows!\n", peek, off));
 				idx = tvb_get_guintvar (tvb, off+1, &tag_len);
 				str_len = tvb_strsize (tvb, str_tbl+idx);
-				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
+				tag_new_literal = (const gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;

@@ -103,7 +103,7 @@ static gboolean
 rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
 	rpcstat_t *rs = (rpcstat_t *)arg;
-	const rpc_call_info_value *ri = (rpc_call_info_value *)arg2;
+	const rpc_call_info_value *ri = (const rpc_call_info_value *)arg2;
 
 	/* we are only interested in reply packets */
 	if(ri->request){

@@ -670,7 +670,7 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                                       epan_dissect_t *edt _U_,
                                       const void *p) /* Used for getting UCP stats */
 {
-    ucp_tap_rec_t *tap_rec = (ucp_tap_rec_t*)p;
+    const ucp_tap_rec_t *tap_rec = (const ucp_tap_rec_t*)p;
 
     tick_stat_node(st, st_str_ucp, 0, TRUE);
 

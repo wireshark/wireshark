@@ -490,7 +490,7 @@ static int
 rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtpinfo_arg)
 {
 	user_data_t	       *user_data    = (user_data_t *)user_data_arg;
-	const struct _rtp_info *rtpinfo	     = (struct _rtp_info *)rtpinfo_arg;
+	const struct _rtp_info *rtpinfo	     = (const struct _rtp_info *)rtpinfo_arg;
 	gboolean		rtp_selected = FALSE;
 
 	/* we ignore packets that are not displayed */

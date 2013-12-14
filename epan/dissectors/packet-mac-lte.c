@@ -1243,15 +1243,18 @@ static GHashTable *mac_lte_drx_frame_result = NULL;
 
 static gint mac_lte_framenum_instance_hash_equal(gconstpointer v, gconstpointer v2)
 {
-    drx_state_key_t *p1 = (drx_state_key_t*)v;
-    drx_state_key_t *p2 = (drx_state_key_t*)v2;
+    const drx_state_key_t *p1 = (const drx_state_key_t*)v;
+    const drx_state_key_t *p2 = (const drx_state_key_t*)v2;
+
     return ((p1->frameNumber == p2->frameNumber) &&
             (p1->pdu_instance == p2->pdu_instance));
 }
 
 static guint mac_lte_framenum_instance_hash_func(gconstpointer v)
 {
-    drx_state_key_t *p1 = (drx_state_key_t*)v;
+    const drx_state_key_t *p1 = (const drx_state_key_t*)v;
+
+    /* XXX which one return ? */
     return p1->frameNumber + (p1->pdu_instance >> 8);
     return GPOINTER_TO_UINT(v);
 }

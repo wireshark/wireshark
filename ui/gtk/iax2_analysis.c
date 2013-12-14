@@ -448,7 +448,7 @@ static gboolean
 iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2info_arg)
 {
 	user_data_t *user_data = (user_data_t *)user_data_arg;
-	const struct _iax2_info_t *iax2info = (struct _iax2_info_t *)iax2info_arg;
+	const struct _iax2_info_t *iax2info = (const struct _iax2_info_t *)iax2info_arg;
 
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)

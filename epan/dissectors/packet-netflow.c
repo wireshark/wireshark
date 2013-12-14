@@ -5562,8 +5562,8 @@ static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_in
 static gboolean
 v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
 {
-    const v9_v10_tmplt_t *ta = (v9_v10_tmplt_t *)k1;
-    const v9_v10_tmplt_t *tb = (v9_v10_tmplt_t *)k2;
+    const v9_v10_tmplt_t *ta = (const v9_v10_tmplt_t *)k1;
+    const v9_v10_tmplt_t *tb = (const v9_v10_tmplt_t *)k2;
 
     return (
         (CMP_ADDRESS(&ta->src_addr, &tb->src_addr) == 0) &&
@@ -5578,7 +5578,7 @@ v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
 static guint
 v9_v10_tmplt_table_hash(gconstpointer k)
 {
-    const v9_v10_tmplt_t *tmplt_p = (v9_v10_tmplt_t *)k;
+    const v9_v10_tmplt_t *tmplt_p = (const v9_v10_tmplt_t *)k;
     guint32               val;
 
     val = tmplt_p->src_id + (tmplt_p->tmplt_id << 9) + tmplt_p->src_port + tmplt_p->dst_port;

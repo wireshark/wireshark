@@ -204,7 +204,7 @@ add_new_program(rpc_program_t *rp)
 static gboolean
 rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg)
 {
-	const rpc_call_info_value *ri = (rpc_call_info_value *)arg;
+	const rpc_call_info_value *ri = (const rpc_call_info_value *)arg;
 	nstime_t       delta;
 	rpc_program_t *rp;
 

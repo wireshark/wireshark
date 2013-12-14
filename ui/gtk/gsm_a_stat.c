@@ -204,7 +204,7 @@ gsm_a_stat_packet(
     const void      *data)
 {
     gsm_a_stat_t    *stat_p = (gsm_a_stat_t *)tapdata;
-    const gsm_a_tap_rec_t   *data_p = (gsm_a_tap_rec_t *)data;
+    const gsm_a_tap_rec_t   *data_p = (const gsm_a_tap_rec_t *)data;
 
     switch (data_p->pdu_type)
     {

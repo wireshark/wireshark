@@ -361,7 +361,7 @@ sipstat_reset(void *psp)
 static int
 sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-    const sip_info_value_t *value = (sip_info_value_t *)pri;
+    const sip_info_value_t *value = (const sip_info_value_t *)pri;
     sipstat_t *sp = (sipstat_t *)psp;
 
     /* Total number of packets, including continuation packets */

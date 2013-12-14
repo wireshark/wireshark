@@ -146,7 +146,7 @@ set_address_hf(address *addr, address_type addr_type, int addr_len, const void *
  */
 #define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) \
     do {                            \
-        const void *TVB_SET_ADDRESS_data = (void *) tvb_get_ptr(tvb, offset, addr_len); \
+        const void *TVB_SET_ADDRESS_data = (const void *) tvb_get_ptr(tvb, offset, addr_len); \
         set_address_hf((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data, (addr_hf)); \
     } while (0)
 
