@@ -27,6 +27,7 @@
 
 #include <glib.h>
 
+#include <epan/to_str.h>
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
@@ -83,6 +84,8 @@ static int hf_llc_xid_types = -1;
 static int hf_llc_xid_wsize = -1;
 
 static gint ett_llc = -1;
+static gint ett_llc_dsap = -1;
+static gint ett_llc_ssap = -1;
 static gint ett_llc_ctrl = -1;
 static gint ett_llc_basicxid = -1;
 
@@ -255,6 +258,38 @@ static const value_string type_vals[] = {
  * Hash table for translating OUIs to an oui_info_t.
  */
 static GHashTable *oui_info_table = NULL;
+
+/*
+ * Decode the SAP value as a bitfield into a string, skipping the GI/CR bit.
+ * Ordinarily, this could be done easily by specifying a bitmask in the
+ * corresponding hf_ entry for the DSAP/SSAP value and simply using a
+ * proto_tree_add_... function to add the item into a proto tree. The
+ * problem is that the proto_tree_add_... functions always bitshift the
+ * value if a bitmask is specified. A SAP value always comprises the entire
+ * octet, however, and must not be shifted. Therefore, using a simple
+ * proto_tree_add_... function to display the topmost 7 bits of the SAP
+ * value as a bitfield produces incorrect results (while the bitfield is
+ * displayed correctly, Wireshark uses the bitshifted value to display the
+ * associated name and for filtering purposes). This function calls the
+ * Wireshark routine to decode the SAP value as a bitfield into a given
+ * string without performing any bitshift of the original value.
+ *
+ * The string passed to this function must be of ITEM_LABEL_LENGTH size.
+ * The SAP value passed to this function must be complete (not masked).
+ *
+ */
+static gchar *
+decode_sap_value_as_bitfield(gchar *buffer, guint32 sap)
+{
+	char *p;
+
+	memset (buffer, '\0', ITEM_LABEL_LENGTH);
+	p = decode_bitfield_value (buffer, sap, SAP_MASK, 8);
+	g_snprintf(p, ITEM_LABEL_LENGTH-strlen(buffer)-1, "SAP: %s",
+		val_to_str_const(sap, sap_vals, "Unknown"));
+
+	return buffer;
+}
 
 /*
  * Add an entry for a new OUI.
@@ -460,6 +495,7 @@ static void
 dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*llc_tree = NULL;
+	proto_tree	*field_tree = NULL;
 	proto_item	*ti = NULL;
 	int		is_snap;
 	guint16		control;
@@ -472,21 +508,29 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dsap = tvb_get_guint8(tvb, 0);
 	if (tree) {
+		proto_item *dsap_item;
+		gchar label[ITEM_LABEL_LENGTH];
+		
 		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
-		proto_tree_add_uint(llc_tree, hf_llc_dsap, tvb, 0,
-			1, dsap & SAP_MASK);
-		proto_tree_add_boolean(llc_tree, hf_llc_dsap_ig, tvb, 0,
-			1, dsap & DSAP_GI_BIT);
+		dsap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_NA);
+		field_tree = proto_item_add_subtree(dsap_item, ett_llc_dsap);
+		proto_tree_add_text(field_tree, tvb, 0, 1, "%s",
+			decode_sap_value_as_bitfield(label, dsap));
+		proto_tree_add_item(field_tree, hf_llc_dsap_ig, tvb, 0, 1, ENC_NA);
 	} else
 		llc_tree = NULL;
 
 	ssap = tvb_get_guint8(tvb, 1);
 	if (tree) {
-		proto_tree_add_uint(llc_tree, hf_llc_ssap, tvb, 1,
-			1, ssap & SAP_MASK);
-		proto_tree_add_boolean(llc_tree, hf_llc_ssap_cr, tvb, 1,
-			1, ssap & SSAP_CR_BIT);
+		proto_item *ssap_item;
+		gchar label[ITEM_LABEL_LENGTH];
+		
+		ssap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_NA);
+		field_tree = proto_item_add_subtree(ssap_item, ett_llc_ssap);
+		proto_tree_add_text(field_tree, tvb, 1, 1, "%s",
+			decode_sap_value_as_bitfield(label, ssap));
+		proto_tree_add_item(field_tree, hf_llc_ssap_cr, tvb, 1, 1, ENC_NA);
 	} else
 		llc_tree = NULL;
 
@@ -791,19 +835,19 @@ proto_register_llc(void)
 	static hf_register_info hf[] = {
 		{ &hf_llc_dsap,
 		{ "DSAP",	"llc.dsap", FT_UINT8, BASE_HEX,
-			VALS(sap_vals), 0x0, "DSAP - 7 Most Significant Bits only", HFILL }},
+			VALS(sap_vals), 0x0, "Destination Service Access Point", HFILL }},
 
 		{ &hf_llc_dsap_ig,
-		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, BASE_NONE,
-			TFS(&ig_bit), 0x0, "Individual/Group - Least Significant Bit only", HFILL }},
+		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, 8,
+			TFS(&ig_bit), DSAP_GI_BIT, "Individual/Group", HFILL }},
 
 		{ &hf_llc_ssap,
 		{ "SSAP", "llc.ssap", FT_UINT8, BASE_HEX,
-			VALS(sap_vals), 0x0, "SSAP - 7 Most Significant Bits only", HFILL }},
+			VALS(sap_vals), 0x0, "Source Service Access Point", HFILL }},
 
 		{ &hf_llc_ssap_cr,
-		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, BASE_NONE,
-			TFS(&cr_bit), 0x0, "Command/Response - Least Significant Bit only", HFILL }},
+		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, 8,
+			TFS(&cr_bit), SSAP_CR_BIT, "Command/Response", HFILL }},
 
 		{ &hf_llc_ctrl,
 		{ "Control", "llc.control", FT_UINT16, BASE_HEX,
@@ -872,7 +916,9 @@ proto_register_llc(void)
 	};
 	static gint *ett[] = {
 		&ett_llc,
-		&ett_llc_ctrl
+		&ett_llc_dsap,
+		&ett_llc_ssap,		
+		&ett_llc_ctrl,
 	};
 
 	proto_llc = proto_register_protocol("Logical-Link Control", "LLC", "llc");
