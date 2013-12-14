@@ -185,7 +185,9 @@ WDD_TYPE    "type "[^\n\r\t ]+
     if (pseudo_header != NULL) {
       g_strlcpy(pseudo_header->user, NO_USER, ASCEND_MAX_STR_LEN);
     }
-    ascendlval.d = strtol(ascendtext, NULL, 10);
+    /* Are valid values ever > 2^32? If so we need to adjust YYSTYPE and a lot of */
+    /* upstream code accordingly. */
+    ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
     retval = DECNUM;
   }
   g_free (atcopy);
@@ -194,13 +196,13 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wds_sess>{D}* {
   BEGIN(sc_gen_task);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
 <sc_gen_task>(0x|0X)?{H}{2,8} {
   BEGIN(sc_gen_time_s);
-  ascendlval.d = strtoul(ascendtext, NULL, 16);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 16);
   return HEXNUM;
 }
 
@@ -210,7 +212,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_gen_time_s>{D}{1,10} {
   BEGIN(sc_gen_time_u);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
@@ -220,14 +222,14 @@ WDD_TYPE    "type "[^\n\r\t ]+
   /* only want the most significant 2 digits. convert to usecs */
   if (strlen(atcopy) > 2)
     atcopy[2] = '\0';
-  ascendlval.d = strtol(atcopy, NULL, 10) * 10000;
+  ascendlval.d = (guint32) strtoul(atcopy, NULL, 10) * 10000;
   g_free(atcopy);
   return DECNUM;
 }
 
 <sc_gen_octets>{D}{1,10} {
   BEGIN(sc_gen_counter);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
@@ -237,7 +239,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_gen_byte>{H}{2} {
-  ascendlval.b = (guint8)strtol(ascendtext, NULL, 16);
+  ascendlval.b = (guint8)(guint32) strtoul(ascendtext, NULL, 16);
   return HEXBYTE;
 }
 
@@ -256,19 +258,19 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wdd_date_d>{D}{2} {
   BEGIN(sc_wdd_date_m);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
 <sc_wdd_date_m>{D}{2} {
   BEGIN(sc_wdd_date_y);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
 <sc_wdd_date_y>{D}{4} {
   BEGIN(sc_wdd_time);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
@@ -279,19 +281,19 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wdd_time_h>{D}{2} {
   BEGIN(sc_wdd_time_m);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
 <sc_wdd_time_m>{D}{2} {
   BEGIN(sc_wdd_time_s);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
 <sc_wdd_time_s>{D}{2} {
   BEGIN(sc_wdd_cause);
-  ascendlval.d = strtol(ascendtext, NULL, 10);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 10);
   return DECNUM;
 }
 
@@ -315,7 +317,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wdd_chunknum>{H}{1,8} {
   BEGIN(sc_wdd_type);
-  ascendlval.d = strtoul(ascendtext, NULL, 16);
+  ascendlval.d = (guint32) strtoul(ascendtext, NULL, 16);
   return HEXNUM;
 }
 
