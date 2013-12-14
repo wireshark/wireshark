@@ -238,89 +238,89 @@ static const value_string type_vals[] = {
 };
 
 static const value_string machine_vals[] = {
-    {  0,  "No machine" },
-    {  1,  "AT&T WE 32100" },
-    {  2,  "SPARC" },
-    {  3,  "Intel 80386" },
-    {  4,  "Motorola 68000" },
-    {  5,  "Motorola 88000" },
-    {  7,  "Intel 80860" },
+    {   0,  "No machine" },
+    {   1,  "AT&T WE 32100" },
+    {   2,  "SPARC" },
+    {   3,  "Intel 80386" },
+    {   4,  "Motorola 68000" },
+    {   5,  "Motorola 88000" },
+    {   7,  "Intel 80860" },
     /* From Draft */
-    {  8,  "MIPS I Architecture" },
-    {  9,  "IBM System/370 Processor" },
-    { 10,  "MIPS RS3000 Little-endian" },
-    { 15,  "Hewlett-Packard PA-RISC" },
-    { 17,  "Fujitsu VPP500" },
-    { 18,  "Enhanced instruction set SPARC" },
-    { 19,  "Intel 80960" },
-    { 20,  "PowerPC" },
-    { 21,  "64-bit PowerPC" },
-    { 22,  "IBM System/390 Processor" },
-    { 23,  "IBM SPU/SPC" },
-    { 36,  "NEC V800" },
-    { 37,  "Fujitsu FR20" },
-    { 38,  "TRW RH-32" },
-    { 39,  "Motorola RCE" },
-    { 40,  "ARM 32-bit architecture (AARCH32)" },
-    { 41,  "Digital Alpha" },
-    { 42,  "Hitachi SH" },
-    { 43,  "SPARC Version 9" },
-    { 44,  "Siemens TriCore embedded processor" },
-    { 45,  "Argonaut RISC Core, Argonaut Technologies Inc." },
-    { 46,  "Hitachi H8/300" },
-    { 47,  "Hitachi H8/300H" },
-    { 48,  "Hitachi H8S" },
-    { 49,  "Hitachi H8/500" },
-    { 50,  "Intel IA-64 processor architecture" },
-    { 51,  "Stanford MIPS-X" },
-    { 52,  "Motorola ColdFire" },
-    { 53,  "Motorola M68HC12" },
-    { 54,  "Fujitsu MMA Multimedia Accelerator" },
-    { 55,  "Siemens PCP" },
-    { 56,  "Sony nCPU embedded RISC processor" },
-    { 57,  "Denso NDR1 microprocessor" },
-    { 58,  "Motorola Star*Core processor" },
-    { 59,  "Toyota ME16 processor" },
-    { 60,  "STMicroelectronics ST100 processor" },
-    { 61,  "Advanced Logic Corp. TinyJ embedded processor family" },
-    { 62,  "AMD x86-64 architecture" },
-    { 63,  "Sony DSP Processor" },
-    { 64,  "Digital Equipment Corp. PDP-10" },
-    { 65,  "Digital Equipment Corp. PDP-11" },
-    { 66,  "Siemens FX66 microcontroller" },
-    { 67,  "STMicroelectronics ST9+ 8/16 bit microcontroller" },
-    { 68,  "STMicroelectronics ST7 8-bit microcontroller" },
-    { 69,  "Motorola MC68HC16 Microcontroller" },
-    { 70,  "Motorola MC68HC11 Microcontroller" },
-    { 71,  "Motorola MC68HC08 Microcontroller" },
-    { 72,  "Motorola MC68HC05 Microcontroller" },
-    { 73,  "Silicon Graphics SVx" },
-    { 74,  "STMicroelectronics ST19 8-bit microcontroller" },
-    { 75,  "Digital VAX" },
-    { 76,  "Axis Communications 32-bit embedded processor" },
-    { 77,  "Infineon Technologies 32-bit embedded processor" },
-    { 78,  "Element 14 64-bit DSP Processor" },
-    { 79,  "LSI Logic 16-bit DSP Processor" },
-    { 80,  "Donald Knuth's educational 64-bit processor" },
-    { 81,  "Harvard University machine-independent object files" },
-    { 82,  "SiTera Prism" },
-    { 83,  "Atmel AVR 8-bit microcontroller" },
-    { 84,  "Fujitsu FR30" },
-    { 85,  "Mitsubishi D10V" },
-    { 86,  "Mitsubishi D30V" },
-    { 87,  "NEC v850" },
-    { 88,  "Mitsubishi M32R" },
-    { 89,  "Matsushita MN10300" },
-    { 90,  "Matsushita MN10200" },
-    { 91,  "picoJava" },
-    { 92,  "OpenRISC 32-bit embedded processor" },
-    { 93,  "ARC International ARCompact processor (old spelling/synonym: EM_ARC_A5)" },
-    { 94,  "Tensilica Xtensa Architecture" },
-    { 95,  "Alphamosaic VideoCore processor" },
-    { 96,  "Thompson Multimedia General Purpose Processor" },
-    { 97,  "National Semiconductor 32000 series" },
-    { 98,  "Tenor Network TPC processor" },
-    { 99,  "Trebia SNP 1000 processor" },
+    {   8,  "MIPS I Architecture" },
+    {   9,  "IBM System/370 Processor" },
+    {  10,  "MIPS RS3000 Little-endian" },
+    {  15,  "Hewlett-Packard PA-RISC" },
+    {  17,  "Fujitsu VPP500" },
+    {  18,  "Enhanced instruction set SPARC" },
+    {  19,  "Intel 80960" },
+    {  20,  "PowerPC" },
+    {  21,  "64-bit PowerPC" },
+    {  22,  "IBM System/390 Processor" },
+    {  23,  "IBM SPU/SPC" },
+    {  36,  "NEC V800" },
+    {  37,  "Fujitsu FR20" },
+    {  38,  "TRW RH-32" },
+    {  39,  "Motorola RCE" },
+    {  40,  "ARM 32-bit architecture (AARCH32)" },
+    {  41,  "Digital Alpha" },
+    {  42,  "Hitachi SH" },
+    {  43,  "SPARC Version 9" },
+    {  44,  "Siemens TriCore embedded processor" },
+    {  45,  "Argonaut RISC Core, Argonaut Technologies Inc." },
+    {  46,  "Hitachi H8/300" },
+    {  47,  "Hitachi H8/300H" },
+    {  48,  "Hitachi H8S" },
+    {  49,  "Hitachi H8/500" },
+    {  50,  "Intel IA-64 processor architecture" },
+    {  51,  "Stanford MIPS-X" },
+    {  52,  "Motorola ColdFire" },
+    {  53,  "Motorola M68HC12" },
+    {  54,  "Fujitsu MMA Multimedia Accelerator" },
+    {  55,  "Siemens PCP" },
+    {  56,  "Sony nCPU embedded RISC processor" },
+    {  57,  "Denso NDR1 microprocessor" },
+    {  58,  "Motorola Star*Core processor" },
+    {  59,  "Toyota ME16 processor" },
+    {  60,  "STMicroelectronics ST100 processor" },
+    {  61,  "Advanced Logic Corp. TinyJ embedded processor family" },
+    {  62,  "AMD x86-64 architecture" },
+    {  63,  "Sony DSP Processor" },
+    {  64,  "Digital Equipment Corp. PDP-10" },
+    {  65,  "Digital Equipment Corp. PDP-11" },
+    {  66,  "Siemens FX66 microcontroller" },
+    {  67,  "STMicroelectronics ST9+ 8/16 bit microcontroller" },
+    {  68,  "STMicroelectronics ST7 8-bit microcontroller" },
+    {  69,  "Motorola MC68HC16 Microcontroller" },
+    {  70,  "Motorola MC68HC11 Microcontroller" },
+    {  71,  "Motorola MC68HC08 Microcontroller" },
+    {  72,  "Motorola MC68HC05 Microcontroller" },
+    {  73,  "Silicon Graphics SVx" },
+    {  74,  "STMicroelectronics ST19 8-bit microcontroller" },
+    {  75,  "Digital VAX" },
+    {  76,  "Axis Communications 32-bit embedded processor" },
+    {  77,  "Infineon Technologies 32-bit embedded processor" },
+    {  78,  "Element 14 64-bit DSP Processor" },
+    {  79,  "LSI Logic 16-bit DSP Processor" },
+    {  80,  "Donald Knuth's educational 64-bit processor" },
+    {  81,  "Harvard University machine-independent object files" },
+    {  82,  "SiTera Prism" },
+    {  83,  "Atmel AVR 8-bit microcontroller" },
+    {  84,  "Fujitsu FR30" },
+    {  85,  "Mitsubishi D10V" },
+    {  86,  "Mitsubishi D30V" },
+    {  87,  "NEC v850" },
+    {  88,  "Mitsubishi M32R" },
+    {  89,  "Matsushita MN10300" },
+    {  90,  "Matsushita MN10200" },
+    {  91,  "picoJava" },
+    {  92,  "OpenRISC 32-bit embedded processor" },
+    {  93,  "ARC International ARCompact processor (old spelling/synonym: EM_ARC_A5)" },
+    {  94,  "Tensilica Xtensa Architecture" },
+    {  95,  "Alphamosaic VideoCore processor" },
+    {  96,  "Thompson Multimedia General Purpose Processor" },
+    {  97,  "National Semiconductor 32000 series" },
+    {  98,  "Tenor Network TPC processor" },
+    {  99,  "Trebia SNP 1000 processor" },
     { 100,  "STMicroelectronics (www.st.com) ST200 microcontroller" },
     { 101,  "Ubicom IP2xxx microcontroller family" },
     { 102,  "MAX Processor" },
@@ -493,9 +493,9 @@ static const value_string symbol_table_other_vals[] = {
 
 
 static const value_string symbol_table_info_bind_vals[] = {
-    { 0,    "Local" },
-    { 1,    "Global" },
-    { 2,    "Weak" },
+    {  0,   "Local" },
+    {  1,   "Global" },
+    {  2,   "Weak" },
     { 10,   "Operating System Specific" },
     { 11,   "Operating System Specific" },
     { 12,   "Operating System Specific" },
@@ -506,13 +506,13 @@ static const value_string symbol_table_info_bind_vals[] = {
 };
 
 static const value_string symbol_table_info_type_vals[] = {
-    { 0,   "No Type" },
-    { 1,   "Object" },
-    { 2,   "Function" },
-    { 3,   "Section" },
-    { 4,   "File" },
-    { 5,   "Common" },
-    { 6,   "Thread-Local Storage" },
+    {  0,   "No Type" },
+    {  1,   "Object" },
+    {  2,   "Function" },
+    {  3,   "Section" },
+    {  4,   "File" },
+    {  5,   "Common" },
+    {  6,   "Thread-Local Storage" },
     { 10,   "Operating System Specific" },
     { 11,   "Operating System Specific" },
     { 12,   "Operating System Specific" },
@@ -609,9 +609,9 @@ dissect_dwarf_encoding(tvbuff_t *tvb, gint offset, proto_item *item)
     value = tvb_get_guint8(tvb, offset);
 
     if (value == 0xFF) {
-        proto_tree_add_item(tree, hf_dwarf_omit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dwarf_omit,   tvb, offset, 1, ENC_NA);
     } else {
-        proto_tree_add_item(tree, hf_dwarf_upper, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dwarf_upper,  tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_dwarf_format, tvb, offset, 1, ENC_NA);
     }
 
@@ -734,11 +734,11 @@ dissect_dynamic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tree, p
         proto_item_append_text(pitem, " (%s)", rval_to_str(value_guard(tag), dynamic_tag_rvals, "Unknown"));
         offset += 8;
 
-        if (tag < (sizeof(tag_to_type)/sizeof(int)) && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
+        if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_VALUE)
             proto_tree_add_item(entry_tree, hf_elf64_dynamic_value, tvb, offset, 8, machine_encoding);
-        else if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_POINTER)
+        else if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_POINTER)
             proto_tree_add_item(entry_tree, hf_elf64_dynamic_pointer, tvb, offset, 8, machine_encoding);
-        else if (tag < sizeof(tag_to_type) && tag_to_type[tag] == DYNAMIC_TYPE_IGNORED)
+        else if (tag < MAX_TAG_TO_TYPE && tag_to_type[tag] == DYNAMIC_TYPE_IGNORED)
             proto_tree_add_item(entry_tree, hf_elf64_dynamic_ignored, tvb, offset, 8, machine_encoding);
         else
             proto_tree_add_item(entry_tree, hf_elf64_dynamic_unspecified, tvb, offset, 8, machine_encoding);
@@ -760,10 +760,10 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *entry_tr
     proto_tree   *info_tree;
     guint16       shndx;
     guint32       name_index;
-    const guint8  *section_name;
-    const guint8  *name;
-    guint8         info_bind;
-    guint8         info_type;
+    const guint8 *section_name;
+    const guint8 *name;
+    guint8        info_bind;
+    guint8        info_type;
 
     pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_name_index, tvb, offset, 4, machine_encoding);
     if (strtab_offset) {
