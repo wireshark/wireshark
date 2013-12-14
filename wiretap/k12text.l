@@ -103,11 +103,11 @@ static gboolean ok_frame;
 static FILE_T yy_fh;
 
 #define KERROR(text) do { error_str = g_strdup(text); yyterminate(); } while(0)
-#define SET_HOURS(text) g_h = strtoul(text,NULL,10)
-#define SET_MINUTES(text) g_m = strtoul(text,NULL,10)
-#define SET_SECONDS(text) g_s = strtoul(text,NULL,10)
-#define SET_MS(text) g_ms = strtoul(text,NULL,10)
-#define SET_NS(text) g_ns = strtoul(text,NULL,10)
+#define SET_HOURS(text) g_h = (guint) strtoul(text,NULL,10)
+#define SET_MINUTES(text) g_m = (guint) strtoul(text,NULL,10)
+#define SET_SECONDS(text) g_s = (guint) strtoul(text,NULL,10)
+#define SET_MS(text) g_ms = (guint) strtoul(text,NULL,10)
+#define SET_NS(text) g_ns = (guint) strtoul(text,NULL,10)
 #define ADD_BYTE(text) do {if (ii >= WTAP_MAX_PACKET_SIZE) {KERROR("frame too large");} bb[ii++] = (guint8)strtoul(text,NULL,16); } while(0)
 #define FINALIZE_FRAME() finalize_frame()
 /*~ #define ECHO*/
