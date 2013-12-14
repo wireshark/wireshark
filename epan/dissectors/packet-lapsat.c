@@ -40,6 +40,8 @@
 #include <epan/reassemble.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_lapsat(void);
+void proto_reg_handoff_lapsat(void);
 
 static int proto_lapsat = -1;
 

@@ -37,6 +37,9 @@
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 
+void proto_register_enc(void);
+void proto_reg_handoff_enc(void);
+
 #ifndef offsetof
 /* Can't trust stddef.h to be there for us */
 # define offsetof(type, member) ((size_t)(&((type *)0)->member))

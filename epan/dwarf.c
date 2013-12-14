@@ -26,6 +26,8 @@
 
 #include <epan/tvbuff.h>
 
+#include "dwarf.h"
+
 gint
 dissect_uleb128(tvbuff_t *tvb, gint offset, guint64 *value)
 {

@@ -30,6 +30,9 @@
 #include "packet-idp.h"
 #include <epan/etypes.h>
 
+void proto_register_idp(void);
+void proto_reg_handoff_idp(void);
+
 static int proto_idp = -1;
 static int hf_idp_checksum = -1;
 static int hf_idp_len = -1;

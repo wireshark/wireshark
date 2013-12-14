@@ -38,6 +38,9 @@
 
 #include "packet-ieee8023.h"
 
+void proto_register_gmhdr(void);
+void proto_reg_handoff_gmhdr(void);
+
 #define GMHDR_FTYPE_PKTSIZE             1
 #define GMHDR_FTYPE_SRCPORT_G           2
 #define GMHDR_FTYPE_TIMESTAMP_LOCAL     3

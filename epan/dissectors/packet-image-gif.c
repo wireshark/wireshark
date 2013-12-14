@@ -45,6 +45,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_gif(void);
+void proto_reg_handoff_gif(void);
+
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
  *

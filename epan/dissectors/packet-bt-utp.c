@@ -29,6 +29,9 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
+void proto_register_bt_utp(void);
+void proto_reg_handoff_bt_utp(void);
+
 enum {
   ST_DATA  = 0,
   ST_FIN   = 1,
@@ -151,8 +154,6 @@ static int hf_bt_utp_data = -1;
 
 static gint ett_bt_utp = -1;
 static gint ett_bt_utp_extension = -1;
-
-void proto_reg_handoff_bt_utp(void);
 
 static gint
 get_utp_version(tvbuff_t *tvb) {

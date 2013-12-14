@@ -35,6 +35,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-pim.h"
 
+void proto_register_pim(void);
+void proto_reg_handoff_pim(void);
+
 #define PIM_TYPE(x)     ((x) & 0x0f)
 #define PIM_VER(x)      (((x) & 0xf0) >> 4)
 

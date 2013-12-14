@@ -60,6 +60,8 @@
 #include <epan/geoip_db.h>
 #endif /* HAVE_GEOIP */
 
+void proto_register_ip(void);
+void proto_reg_handoff_ip(void);
 
 static int ip_tap = -1;
 

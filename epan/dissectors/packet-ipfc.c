@@ -41,6 +41,9 @@
 #include "packet-ipfc.h"
 #include "packet-llc.h"
 
+void proto_register_ipfc(void);
+void proto_reg_handoff_ipfc(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ipfc              = -1;
 static int hf_ipfc_network_da = -1;

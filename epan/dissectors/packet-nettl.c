@@ -34,6 +34,9 @@
 #include <epan/ipproto.h>
 #include <wiretap/nettl.h>
 
+void proto_register_nettl(void);
+void proto_reg_handoff_nettl(void);
+
 /* Initialize the protocol and registered fields */
 
 static int proto_nettl = -1;

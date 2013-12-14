@@ -38,6 +38,8 @@
 
 #include "packet-ipmi.h"
 
+void proto_register_ipmi(void);
+
 /*
  * See the IPMI specifications at
  *
@@ -1358,10 +1360,6 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register IPMB protocol.
  */
-void
-proto_reg_handoff_ipmi(void)
-{
-}
 
 void
 proto_register_ipmi(void)

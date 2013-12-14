@@ -51,6 +51,9 @@
 #include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 
+void proto_register_icmp(void);
+void proto_reg_handoff_icmp(void);
+
 static int icmp_tap = -1;
 
 /* Conversation related data */

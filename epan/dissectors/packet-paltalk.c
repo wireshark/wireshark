@@ -33,6 +33,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_paltalk(void);
+void proto_reg_handoff_paltalk(void);
+
 #define INET_IPV4_ADDRESS_FROM_BYTES(a,b,c,d) g_htonl(((a)<<24) | ((b)<<16) | ((c)<<8) | (d)) /* *network* order */
 
 #define PALTALK_SERVERS_ADDRESS INET_IPV4_ADDRESS_FROM_BYTES(199,106,0,0)      /* 199.106.0.0 in *network* order */

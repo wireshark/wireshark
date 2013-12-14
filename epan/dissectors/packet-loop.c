@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_loop(void);
+void proto_reg_handoff_loop(void);
+
 static int proto_loop = -1;
 static int hf_loop_skipcount = -1;
 static int hf_loop_function = -1;

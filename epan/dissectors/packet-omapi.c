@@ -50,6 +50,9 @@
 #include <epan/packet.h>
 #include <epan/ptvcursor.h>
 
+void proto_register_omapi(void);
+void proto_reg_handoff_omapi(void);
+
 static int proto_omapi = -1;
 static int hf_omapi_version = -1;
 static int hf_omapi_hlength = -1;

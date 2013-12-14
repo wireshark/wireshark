@@ -33,6 +33,7 @@
 #include "packet-usb.h"
 
 void proto_register_usb_vid(void);
+void proto_reg_handoff_usb_vid(void);
 
 /* References are to sections in USB Video Class specifications -
  * specifically V1.5, but versions have tended to keep
@@ -215,9 +216,6 @@ void proto_register_usb_vid(void);
 #define USB_SETUP_GET_MAX_ALL       0x93    /* UVC 1.5 */
 #define USB_SETUP_GET_RES_ALL       0x94    /* UVC 1.5 */
 #define USB_SETUP_GET_DEF_ALL       0x97    /* UVC 1.5 */
-
-void proto_reg_handoff_usb_vid(void);
-void proto_reg_handoff_usb_vid(void);
 
 /* protocols and header fields */
 static int proto_usb_vid = -1;

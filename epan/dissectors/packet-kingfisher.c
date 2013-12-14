@@ -31,6 +31,9 @@
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 
+void proto_register_kingfisher(void);
+void proto_reg_handoff_kingfisher(void);
+
 #define SUPPORT_KINGFISHER_SERIES_2
 
 #define TCP_PORT_KINGFISHER         4058

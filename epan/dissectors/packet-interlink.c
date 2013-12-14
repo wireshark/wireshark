@@ -28,6 +28,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_interlink(void);
+void proto_reg_handoff_interlink(void);
 
 /*
  * No public information available.

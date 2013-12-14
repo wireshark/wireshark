@@ -33,6 +33,9 @@
 
 #include <string.h>
 
+void proto_reg_handoff_packetbb(void);
+void proto_register_packetbb(void);
+
 #define PACKET_HEADER_HASSEQNR     0x08
 #define PACKET_HEADER_HASTLV       0x04
 

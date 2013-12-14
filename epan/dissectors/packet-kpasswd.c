@@ -34,6 +34,9 @@
 #include "packet-ber.h"
 #include <epan/prefs.h>
 
+void proto_register_kpasswd(void);
+void proto_reg_handoff_kpasswd(void);
+
 /* Desegment Kerberos over TCP messages */
 static gboolean kpasswd_desegment = TRUE;
 

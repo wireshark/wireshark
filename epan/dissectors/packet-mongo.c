@@ -41,6 +41,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_mongo(void);
+void proto_reg_handoff_mongo(void);
+
 /* This is not IANA assigned nor registered */
 #define TCP_PORT_MONGO 27017
 
@@ -136,9 +139,6 @@ static const value_string binary_type_vals[] = {
   { 0, NULL }
 };
 #endif
-
-void proto_reg_handoff_mongo(void);
-
 
 static int proto_mongo = -1;
 static int hf_mongo_message_length = -1;

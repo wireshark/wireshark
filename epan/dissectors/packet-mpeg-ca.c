@@ -32,6 +32,9 @@
 
 #include "packet-mpeg-descriptor.h"
 
+void proto_register_mpeg_ca(void);
+void proto_reg_handoff_mpeg_ca(void);
+
 static int proto_mpeg_ca = -1;
 static int hf_mpeg_ca_reserved = -1;
 static int hf_mpeg_ca_version_number = -1;

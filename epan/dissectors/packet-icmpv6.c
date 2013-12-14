@@ -57,6 +57,9 @@
 #include "packet-6lowpan.h"
 #include "packet-ip.h"
 
+void proto_register_icmpv6(void);
+void proto_reg_handoff_icmpv6(void);
+
 /*
  * The information used comes from:
  * RFC 1885/2463/4443: Internet Control Message Protocol (ICMPv6) for the Internet Protocol Version 6 (IPv6) Specification

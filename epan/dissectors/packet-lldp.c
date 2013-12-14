@@ -38,6 +38,9 @@
 #include <epan/addr_resolv.h>
 #include "packet-lldp.h"
 
+void proto_register_lldp(void);
+void proto_reg_handoff_lldp(void);
+
 /* Sub Dissector Tables */
 static dissector_table_t oui_unique_code_table;
 

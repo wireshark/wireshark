@@ -37,6 +37,9 @@
 
 #include <epan/dissectors/packet-tcp.h>
 
+void proto_register_gadu_gadu(void);
+void proto_reg_handoff_gadu_gadu(void);
+
 #define TCP_PORT_GADU_GADU 8074	/* assigned by IANA */
 
 /* desegmentation of Gadu-Gadu over TCP */

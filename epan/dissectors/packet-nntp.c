@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
+void proto_register_nntp(void);
+void proto_reg_handoff_nntp(void);
+
 static int proto_nntp = -1;
 static int hf_nntp_response = -1;
 static int hf_nntp_request = -1;

@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/llcsaps.h>
 
+void proto_register_gvrp(void);
+void proto_reg_handoff_gvrp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_gvrp = -1;
 static int hf_gvrp_proto_id = -1;

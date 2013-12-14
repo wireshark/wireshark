@@ -30,9 +30,10 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
-#define FINGER_PORT     79  /* This is the registered IANA port */
-
+void proto_register_finger(void);
 void proto_reg_handoff_finger(void);
+
+#define FINGER_PORT     79  /* This is the registered IANA port */
 
 static int proto_finger = -1;
 static int hf_finger_query = -1;

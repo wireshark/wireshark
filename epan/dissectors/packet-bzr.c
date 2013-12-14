@@ -34,6 +34,9 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_bzr(void);
+void proto_reg_handoff_bzr(void);
+
 static int proto_bzr = -1;
 
 static gint ett_bzr = -1;

@@ -56,6 +56,9 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+void proto_register_peekremote(void);
+void proto_reg_handoff_peekremote(void);
+
 static int proto_peekremote = -1;
 static gint hf_peekremote_unknown1 = -1;
 static gint hf_peekremote_unknown2 = -1;

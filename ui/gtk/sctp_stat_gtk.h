@@ -119,8 +119,6 @@ struct sctp_udata {
 	guint16             dir;
 };
 
-const sctp_allassocs_info_t* sctp_stat_get_info(void);
-
 void assoc_analyse(sctp_assoc_info_t* assoc);
 
 void set_child(struct sctp_udata *child, struct sctp_analyse *parent);

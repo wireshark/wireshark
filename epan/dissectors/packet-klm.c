@@ -24,11 +24,12 @@
 
 #include "config.h"
 
-
-
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 #include "packet-klm.h"
+
+void proto_register_klm(void);
+void proto_reg_handoff_klm(void);
 
 static int proto_klm = -1;
 static int hf_klm_procedure_v1 = -1;

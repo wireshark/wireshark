@@ -31,6 +31,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_ipmi_session(void);
+void proto_reg_handoff_ipmi_session(void);
+
 #define RMCP_CLASS_IPMI 0x07
 
 static int proto_ipmi_session = -1;

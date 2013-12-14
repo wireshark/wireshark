@@ -36,9 +36,6 @@
    in a header file. If not, a header file is not needed at all. */
 #include "packet-wimaxmacphy.h"
 
-/* Forward declaration we need below */
-void proto_reg_handoff_wimaxmacphy(void);
-
 /* Initialize the protocol and registered fields */
 
 static int proto_wimaxmacphy                                         = -1;

@@ -37,6 +37,9 @@
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
+void proto_register_pdcp(void);
+void proto_reg_handoff_pdcp_lte(void);
+
 /* Described in:
  * 3GPP TS 36.323 Evolved Universal Terrestrial Radio Access (E-UTRA)
  *                Packet Data Convergence Protocol (PDCP) specification v11.0.0

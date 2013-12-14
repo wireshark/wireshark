@@ -41,6 +41,9 @@
 
 #include <epan/addr_resolv.h>
 
+void proto_register_fddi(void);
+void proto_reg_handoff_fddi(void);
+
 static int proto_fddi = -1;
 static int hf_fddi_fc = -1;
 static int hf_fddi_fc_clf = -1;

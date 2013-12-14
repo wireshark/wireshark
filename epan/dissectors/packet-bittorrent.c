@@ -35,6 +35,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_bittorrent(void);
+void proto_reg_handoff_bittorrent(void);
+
 /*
  * See
  *

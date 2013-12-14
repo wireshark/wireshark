@@ -40,6 +40,9 @@
 #include "packet-tcp.h"
 #include "packet-fc.h"
 
+void proto_register_ifcp(void);
+void proto_reg_handoff_ifcp(void);
+
 #define iFCP_ENCAP_HEADER_LEN                    28
 #define iFCP_MIN_HEADER_LEN                      16 /* upto frame len field */
 

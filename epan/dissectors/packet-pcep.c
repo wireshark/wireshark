@@ -38,6 +38,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_pcep(void);
+void proto_reg_handoff_pcep(void);
+
 /*differents types of objects*/
 #define PCEP_OPEN_OBJ                    1
 #define PCEP_RP_OBJ                      2
@@ -2625,8 +2628,8 @@ dissect_pcep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 /*Register the protocol with wireshark*/
 void
-proto_register_pcep(void) {
-
+proto_register_pcep(void)
+{
     static hf_register_info pcepf_info[] = {
 
         /* Message type number */

@@ -34,6 +34,8 @@
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 
+void proto_register_mac_lte(void);
+void proto_reg_handoff_mac_lte(void);
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)

@@ -33,6 +33,9 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 
+void proto_register_icp(void);
+void proto_reg_handoff_icp(void);
+
 static int proto_icp=-1;
 static int hf_icp_length=-1;
 static int hf_icp_opcode=-1;

@@ -55,8 +55,8 @@
 #include "packet-tcp.h"
 #include "packet-udp.h"
 
-extern void udp_hash_add(guint16 proto,
-        void (*dissect)(const guchar *, int, frame_data *, proto_tree *));
+void proto_register_msproxy(void);
+void proto_reg_handoff_msproxy(void);
 
 
 static int proto_msproxy = -1;

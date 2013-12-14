@@ -32,6 +32,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
+void proto_register_ccsds(void);
+void proto_reg_handoff_ccsds(void);
 
 /*
  * See

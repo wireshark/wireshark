@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
+void proto_register_msnms(void);
+void proto_reg_handoff_msnms(void);
+
 /*
  * The now-expired Internet-Draft for the MSN Messenger 1.0 protocol
  * can, as of the time of the writing of this comment, be found at:

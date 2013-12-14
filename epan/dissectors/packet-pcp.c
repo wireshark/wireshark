@@ -28,6 +28,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_pcp(void);
+void proto_reg_handoff_pcp(void);
+
 #define PCP_PORT 44321
 #define PCP_HEADER_LEN 12
 

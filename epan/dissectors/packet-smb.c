@@ -53,6 +53,9 @@
 #include "packet-ntlmssp.h"
 #include "packet-smb2.h"
 
+void proto_register_smb(void);
+void proto_reg_handoff_smb(void);
+
 /*
  * Various specifications and documents about SMB can be found in
  *

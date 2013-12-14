@@ -212,8 +212,8 @@ gbl_symbols_array_append(guint32 hash, gchar *symbol)
 static gint
 gbl_symbols_compare_vs(gconstpointer  a, gconstpointer  b)
 {
-  value_string *vsa = (value_string *)a;
-  value_string *vsb = (value_string *)b;
+  const value_string *vsa = (const value_string *)a;
+  const value_string *vsb = (const value_string *)b;
 
   if(vsa->value > vsb->value)
     return 1;

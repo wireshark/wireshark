@@ -37,6 +37,9 @@
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
 
+void proto_register_igrp(void);
+void proto_reg_handoff_igrp(void);
+
 #define IGRP_HEADER_LENGTH 12
 #define IGRP_ENTRY_LENGTH 14
 

@@ -44,6 +44,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_glbp(void);
+void proto_reg_handoff_glbp(void);
+
 static int proto_glbp = -1;
 /* glbp header? */
 static gint hf_glbp_version = -1;

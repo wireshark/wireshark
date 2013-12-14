@@ -93,6 +93,8 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
+void proto_register_ipsec(void);
+void proto_reg_handoff_ipsec(void);
 
 static int proto_ah = -1;
 static int hf_ah_spi = -1;

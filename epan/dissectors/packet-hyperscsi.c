@@ -29,6 +29,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_hyperscsi(void);
+void proto_reg_handoff_hyperscsi(void);
+
 static int proto_hyperscsi;
 
 static int hf_hs_cmd = -1;
@@ -193,6 +196,7 @@ proto_register_hyperscsi(void)
   register_dissector("hyperscsi", dissect_hyperscsi, proto_hyperscsi);
 }
 
+/* XXX <epan/etypes.h> */
 #define ETHERTYPE_HYPERSCSI 0x889A
 
 void

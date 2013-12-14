@@ -55,6 +55,8 @@
 
 #include "packet-tcp.h"
 
+void proto_register_ouch(void);
+void proto_reg_handoff_ouch(void);
 
 static const value_string pkt_type_val[] = {
     { 'O', "Enter Order" },

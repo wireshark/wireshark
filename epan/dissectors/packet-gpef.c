@@ -33,6 +33,9 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 
+void proto_register_gpef(void);
+void proto_reg_handoff_gpef(void);
+
 static int proto_gpef = -1;
 static int hf_gpef_keycount = -1;
 static int hf_gpef_efskey = -1;

@@ -34,7 +34,8 @@
 #include "packet-mount.h"
 #include "packet-nfs.h"
 
-
+void proto_register_mount(void);
+void proto_reg_handoff_mount(void);
 
 static int proto_mount = -1;
 static int proto_sgi_mount = -1;

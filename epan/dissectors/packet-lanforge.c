@@ -37,6 +37,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_lanforge(void);
+void proto_reg_handoff_lanforge(void);
+
 /* magic num used for heuristic */
 #define LANFORGE_MAGIC 0x1a2b3c4d
 

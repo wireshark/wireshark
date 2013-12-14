@@ -37,12 +37,13 @@
 #include <epan/wmem/wmem.h>
 #include <epan/ptvcursor.h>
 
+void proto_register_pgm(void);
+void proto_reg_handoff_pgm(void);
+
 /*
  * Flag to control whether to check the PGM checksum.
  */
 static gboolean pgm_check_checksum = TRUE;
-
-void proto_reg_handoff_pgm(void);
 
 /* constants for hdr types */
 #define PGM_SPM_PCKT  0x00

@@ -40,6 +40,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_olsr(void);
+void proto_reg_handoff_olsr(void);
+
 #define UDP_PORT_OLSR   698
 #define HELLO   1
 #define TC      2

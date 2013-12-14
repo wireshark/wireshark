@@ -318,15 +318,15 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     switch (fix_fields[i].type) {
                     case 1: /* strings */
                         proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
-                            "%s (%s)", value, str_to_str(value, (string_string *)fix_fields[i].table, "unknown %s"));
+                            "%s (%s)", value, str_to_str(value, (const string_string *)fix_fields[i].table, "unknown %s"));
                         break;
                     case 2: /* char */
                         proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
-                            "%s (%s)", value, val_to_str(*value, (value_string *)fix_fields[i].table, "unknown %d"));
+                            "%s (%s)", value, val_to_str(*value, (const value_string *)fix_fields[i].table, "unknown %d"));
                         break;
                     default:
                         proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value,
-                            "%s (%s)", value, val_to_str(atoi(value), (value_string *)fix_fields[i].table, "unknown %d"));
+                            "%s (%s)", value, val_to_str(atoi(value), (const value_string *)fix_fields[i].table, "unknown %d"));
                         break;
                     }
                 }

@@ -34,6 +34,9 @@
 #include <epan/to_str.h>
 #include "packet-http.h"
 
+void proto_register_ipp(void);
+void proto_reg_handoff_ipp(void);
+
 static int proto_ipp = -1;
 static int hf_ipp_timestamp = -1;
 

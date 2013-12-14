@@ -33,6 +33,9 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_lisp(void);
+void proto_reg_handoff_lisp(void);
+
 #define INET_ADDRLEN        4
 #define INET6_ADDRLEN       16
 

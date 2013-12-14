@@ -35,6 +35,9 @@
 #include "packet-i2c.h"
 #include "packet-hdcp.h"
 
+void proto_register_i2c(void);
+void proto_reg_handoff_i2c(void);
+
 static int proto_i2c = -1;
 
 static int hf_i2c_bus = -1;

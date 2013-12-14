@@ -34,6 +34,9 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
 
+void proto_register_llrp(void);
+void proto_reg_handoff_llrp(void);
+
 #define LLRP_PORT 5084
 
 /* Initialize the protocol and registered fields */

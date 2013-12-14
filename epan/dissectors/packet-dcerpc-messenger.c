@@ -30,6 +30,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 
+void proto_register_dcerpc_messenger(void);
+void proto_reg_handoff_dcerpc_messenger(void);
 
 static int proto_dcerpc_messenger = -1;
 static int hf_messenger_opnum = -1;

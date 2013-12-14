@@ -42,6 +42,9 @@
 #include "packet-esis.h"
 #include "packet-tpkt.h"
 
+void proto_reg_handoff_osi(void);
+void proto_register_osi(void);
+
 static int  proto_osi         = -1;
 static dissector_handle_t osi_handle;
 

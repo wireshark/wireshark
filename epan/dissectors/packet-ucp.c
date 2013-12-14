@@ -47,6 +47,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_ucp(void);
+void proto_reg_handoff_ucp(void);
+
 /* Tap Record */
 typedef struct _ucp_tap_rec_t {
     guint message_type; /* 0 = Operation; 1 = Result */

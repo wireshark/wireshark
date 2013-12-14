@@ -36,6 +36,9 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_git(void);
+void proto_reg_handoff_git(void);
+
 static dissector_handle_t git_handle;
 
 static int proto_git = -1;

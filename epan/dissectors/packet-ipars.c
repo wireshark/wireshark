@@ -33,6 +33,8 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_ipars(void);
+
 static int      proto_ipars     = -1;
 static guint8   ipars_eomtype   = G_MAXUINT8;
 static gint     ett_ipars       = -1;
