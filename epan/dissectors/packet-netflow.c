@@ -2472,9 +2472,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             if (pen == REVPEN) { /* reverse PEN */
                 rev = 1;
             } else if (pen == 0) {
-                pen_type = (0xffff << 16) | pen_type;  /* hack to force "unknown" */
+                pen_type = (G_GUINT64_CONSTANT(0xffff) << 16) | pen_type;  /* hack to force "unknown" */
             } else {
-                pen_type = (pen << 16) | pen_type;
+                pen_type = (((guint64)pen) << 16) | pen_type;
             }
         }
 
