@@ -2698,7 +2698,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             {
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s", sApplicationName);
                             }
-                            sQMgr = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, p_mq_parm->mq_str_enc), 28, '.');
+                            sQMgr = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, p_mq_parm->mq_str_enc), 48, '.');
                             if (strip_trailing_blanks(sQMgr, 48) > 0)
                             {
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQMgr);
