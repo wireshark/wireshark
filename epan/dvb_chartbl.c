@@ -186,7 +186,6 @@ dvb_enc_to_item_enc(dvb_encoding_e encoding)
       e.g. 0x86 - turn emphasis on ; 0x87 - turn emphasis off */
 
    switch (encoding) {
-      case DVB_ENCODING_ISO_8859_9:
       case DVB_ENCODING_EXT_ISO_8859_2:
          return ENC_ISO_8859_2 | ENC_NA;
 
