@@ -286,11 +286,14 @@ rtpproxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint re
 		another_tree = proto_item_add_subtree(ti, ett_rtpproxy_tag);
 		ti = proto_tree_add_item(another_tree, hf_rtpproxy_mediaid, tvb, new_offset+1, 0, ENC_ASCII | ENC_NA);
 		proto_item_append_text(ti, "<skipped>");
+		PROTO_ITEM_SET_GENERATED(ti);
 	}
 	else{
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_tag, tvb, begin, new_offset - begin, ENC_ASCII | ENC_NA);
-		if ((guint)new_offset == begin)
+		if ((guint)new_offset == begin){
 			proto_item_append_text(ti, "<skipped>"); /* A very first Offer/Update command */
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
 		another_tree = proto_item_add_subtree(ti, ett_rtpproxy_tag);
 		proto_tree_add_item(another_tree, hf_rtpproxy_mediaid, tvb, new_offset+1, end - (new_offset+1), ENC_ASCII | ENC_NA);
 	}
@@ -463,6 +466,7 @@ rtpproxy_add_notify_addr(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, 
 		/* Only port is supplied */
 		ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, ENC_ASCII | ENC_NA);
 		proto_item_append_text(ti, "<skipped>");
+		PROTO_ITEM_SET_GENERATED(ti);
 		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin, ENC_ASCII | ENC_NA);
 	}
 }
