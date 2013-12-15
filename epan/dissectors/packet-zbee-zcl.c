@@ -149,10 +149,6 @@ static int hf_zbee_zcl_ias_zone_server_scn_tamper = -1;
 static int hf_zbee_zcl_ias_zone_server_scn_trouble = -1;
 static int hf_zbee_zcl_ias_zone_server_scn_zone_id = -1;
 static int hf_zbee_zcl_ias_zone_server_scn_zone_status = -1;
-static int hf_zbee_zcl_identify_client_cmd_id = -1;
-static int hf_zbee_zcl_identify_client_identify_time = -1;
-static int hf_zbee_zcl_identify_server_cmd_id = -1;
-static int hf_zbee_zcl_identify_server_iqr_timeout = -1;
 static int hf_zbee_zcl_ota_upgrade_client_cmd_id = -1;
 static int hf_zbee_zcl_ota_upgrade_client_ibr_brd = -1;
 static int hf_zbee_zcl_ota_upgrade_client_ibr_brdp = -1;
@@ -811,21 +807,6 @@ static const value_string zbee_zcl_ias_zone_server_cmd_names[] = {
     { 0, NULL }
 };
 
-/* ZCL Identify Client Commands */
-static const value_string zbee_zcl_identify_client_cmd_names[] = {
-    { ZBEE_ZCL_CSC_IDENTIFY_C_I, "Identify" },
-    { ZBEE_ZCL_CSC_IDENTIFY_C_IQ, "Identify Query" },
-
-    { 0, NULL }
-};
-
-/* ZCL Identify Server Commands */
-static const value_string zbee_zcl_identify_server_cmd_names[] = {
-    { ZBEE_ZCL_CSC_IDENTIFY_S_IQR, "Identify Query Response" },
-
-    { 0, NULL }
-};
-
 /* ZCL OTA Upgrade Client Commands */
 static const value_string zbee_zcl_ota_upgrade_client_cmd_names[] = {
     { ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR, "Image Block Request" },
@@ -1136,43 +1117,6 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     ENC_NA);
                                 offset += 1;
                                 proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_delay, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                break;
-                        }
-                    }
-                }
-                break;
-            case ZBEE_ZCL_CID_IDENTIFY:
-                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
-                    /* We have a client. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_identify_client_cmd_names, "Unknown Identify Client Command"), packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_identify_client_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_IDENTIFY_C_I:
-                                /* Identify. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_identify_client_identify_time, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                break;
-                        }
-                    }
-                } else {
-                    /* We have a server. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_identify_server_cmd_names, "Unknown Identify Server Command"), packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_identify_server_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_IDENTIFY_S_IQR:
-                                /* Identify Query Response. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_identify_server_iqr_timeout, tvb, offset, 2,
                                     ENC_LITTLE_ENDIAN);
                                 offset += 2;
                                 break;
@@ -3257,22 +3201,6 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_ias_zone_server_scn_zone_status,
             { "Zone Status", "zbee_zcl.ias_zone.server.scn.zone_status", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_identify_client_cmd_id,
-            { "Command", "zbee_zcl.identify.client.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_identify_client_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_identify_client_identify_time,
-            { "Identify Time (seconds)", "zbee_zcl.identify.client.identify.time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_identify_server_cmd_id,
-            { "Command", "zbee_zcl.identify.server.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_identify_server_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_identify_server_iqr_timeout,
-            { "Timeout (seconds)", "zbee_zcl.identify.server.iqr.timeout", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
 
         { &hf_zbee_zcl_ota_upgrade_client_cmd_id,
             { "Command", "zbee_zcl.ota_upgrade.client.cmd_id", FT_UINT8, BASE_HEX,
