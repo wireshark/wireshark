@@ -1212,7 +1212,7 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
 
     if (name_len>0) {
         enc_len = dvb_analyze_string_charset(tvb, offset, name_len, &encoding);
-        proto_tree_add_uint(tree, hf_mpeg_descr_short_event_name_encoding, tvb, offset, enc_len, encoding);
+        dvb_add_chartbl(tree, hf_mpeg_descr_short_event_name_encoding, tvb, offset, enc_len, encoding);
         proto_tree_add_item(tree, hf_mpeg_descr_short_event_name,
                 tvb, offset+enc_len, name_len-enc_len, dvb_enc_to_item_enc(encoding));
     }
@@ -3515,12 +3515,12 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_short_event_name_encoding, {
             "Event Name Encoding", "mpeg_descr.short_evt.name_enc",
-            FT_UINT32, BASE_HEX, VALS(dvb_string_encoding_vals), 0, NULL, HFILL
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_short_event_name, {
             "Event Name", "mpeg_descr.short_evt.name",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_short_event_text_length, {

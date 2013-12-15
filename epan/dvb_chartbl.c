@@ -33,6 +33,43 @@
 #include "dvb_chartbl.h"
 
 
+static const value_string dvb_string_encoding_vals[] = {
+   { DVB_ENCODING_INVALID,  "Incorrect length for encoding" },
+   { DVB_ENCODING_RESERVED, "Reserved for future use" },
+   { DVB_ENCODING_UNKNOWN,  "Value not specified by spec" },
+
+   { DVB_ENCODING_LATIN,    "Latin (default table)" },
+
+   { DVB_ENCODING_ISO_8859_5,  "ISO/IEC 8859-5 (Latin/Cyrillic)" },
+   { DVB_ENCODING_ISO_8859_6,  "ISO/IEC 8859-6 (Latin/Arabic)" },
+   { DVB_ENCODING_ISO_8859_7,  "ISO/IEC 8859-7 (Latin/Greek)" },
+   { DVB_ENCODING_ISO_8859_8,  "ISO/IEC 8859-8 (Latin/Hebrew)" },
+   { DVB_ENCODING_ISO_8859_9,  "ISO/IEC 8859-9 (West European & Turkish)" },
+   { DVB_ENCODING_ISO_8859_10, "ISO/IEC 8859-10 (North European)" },
+   { DVB_ENCODING_ISO_8859_11, "ISO/IEC 8859-11 (Thai)" },
+   { DVB_ENCODING_ISO_8859_13, "ISO/IEC 8859-13 (Baltic)" },
+   { DVB_ENCODING_ISO_8859_14, "ISO/IEC 8859-14 (Celtic)" },
+   { DVB_ENCODING_ISO_8859_15, "ISO/IEC 8859-15 (West European)" },
+
+   { DVB_ENCODING_EXT_ISO_8859_1,  "ISO/IEC 8859-1 (West European)" },
+   { DVB_ENCODING_EXT_ISO_8859_2,  "ISO/IEC 8859-2 (East European)" },
+   { DVB_ENCODING_EXT_ISO_8859_3,  "ISO/IEC 8859-3 (South European)" },
+   { DVB_ENCODING_EXT_ISO_8859_4,  "ISO/IEC 8859-4 (North and North-East European)" },
+   { DVB_ENCODING_EXT_ISO_8859_5,  "ISO/IEC 8859-5 (Latin/Cyrillic)" },
+   { DVB_ENCODING_EXT_ISO_8859_6,  "ISO/IEC 8859-6 (Latin/Arabic)" },
+   { DVB_ENCODING_EXT_ISO_8859_7,  "ISO/IEC 8859-7 (Latin/Greek)" },
+   { DVB_ENCODING_EXT_ISO_8859_8,  "ISO/IEC 8859-8 (Latin/Hebrew)" },
+   { DVB_ENCODING_EXT_ISO_8859_9,  "ISO/IEC 8859-9 (West European & Turkish)" },
+   { DVB_ENCODING_EXT_ISO_8859_10, "ISO/IEC 8859-10 (North European)" },
+   { DVB_ENCODING_EXT_ISO_8859_11, "ISO/IEC 8859-11 (Thai)" },
+   { DVB_ENCODING_EXT_ISO_8859_13, "ISO/IEC 8859-13 (Baltic)" },
+   { DVB_ENCODING_EXT_ISO_8859_14, "ISO/IEC 8859-14 (Celtic)" },
+   { DVB_ENCODING_EXT_ISO_8859_15, "ISO/IEC 8859-15 (West European)" },
+
+   { 0, NULL }
+};
+
+
 static dvb_encoding_e
 dvb_analyze_string_charset0(guint8 byte0)
 {
@@ -66,6 +103,7 @@ dvb_analyze_string_charset0(guint8 byte0)
             return DVB_ENCODING_UNKNOWN;
     }
 }
+
 
 static dvb_encoding_e
 dvb_analyze_string_charset0_10(guint16 byte12)
@@ -108,6 +146,7 @@ dvb_analyze_string_charset0_10(guint16 byte12)
             return DVB_ENCODING_UNKNOWN;
     }
 }
+
 
 static dvb_encoding_e
 dvb_analyze_string_charset0_1F(guint8 byte1)
@@ -195,41 +234,25 @@ dvb_enc_to_item_enc(dvb_encoding_e encoding)
 }
 
 
-const value_string dvb_string_encoding_vals[] = {
-   { DVB_ENCODING_INVALID,  "Incorrect length for encoding" },
-   { DVB_ENCODING_RESERVED, "Reserved for future use" },
-   { DVB_ENCODING_UNKNOWN,  "Value not specified by spec" },
+void
+dvb_add_chartbl(proto_tree *tree, int hf,
+        tvbuff_t *tvb, gint offset, gint length, dvb_encoding_e encoding)
+{
+    proto_item *pi;
 
-   { DVB_ENCODING_LATIN,    "Latin (default table)" },
+    pi = proto_tree_add_bytes_format_value(tree, hf,
+            tvb, offset, length, NULL, "%s",
+            val_to_str_const(encoding, dvb_string_encoding_vals, "Unknown"));
 
-   { DVB_ENCODING_ISO_8859_5,  "ISO/IEC 8859-5 (Latin/Cyrillic)" },
-   { DVB_ENCODING_ISO_8859_6,  "ISO/IEC 8859-6 (Latin/Arabic)" },
-   { DVB_ENCODING_ISO_8859_7,  "ISO/IEC 8859-7 (Latin/Greek)" },
-   { DVB_ENCODING_ISO_8859_8,  "ISO/IEC 8859-8 (Latin/Hebrew)" },
-   { DVB_ENCODING_ISO_8859_9,  "ISO/IEC 8859-9 (West European & Turkish)" },
-   { DVB_ENCODING_ISO_8859_10, "ISO/IEC 8859-10 (North European)" },
-   { DVB_ENCODING_ISO_8859_11, "ISO/IEC 8859-11 (Thai)" },
-   { DVB_ENCODING_ISO_8859_13, "ISO/IEC 8859-13 (Baltic)" },
-   { DVB_ENCODING_ISO_8859_14, "ISO/IEC 8859-14 (Celtic)" },
-   { DVB_ENCODING_ISO_8859_15, "ISO/IEC 8859-15 (West European)" },
-
-   { DVB_ENCODING_EXT_ISO_8859_1,  "ISO/IEC 8859-1 (West European)" },
-   { DVB_ENCODING_EXT_ISO_8859_2,  "ISO/IEC 8859-2 (East European)" },
-   { DVB_ENCODING_EXT_ISO_8859_3,  "ISO/IEC 8859-3 (South European)" },
-   { DVB_ENCODING_EXT_ISO_8859_4,  "ISO/IEC 8859-4 (North and North-East European)" },
-   { DVB_ENCODING_EXT_ISO_8859_5,  "ISO/IEC 8859-5 (Latin/Cyrillic)" },
-   { DVB_ENCODING_EXT_ISO_8859_6,  "ISO/IEC 8859-6 (Latin/Arabic)" },
-   { DVB_ENCODING_EXT_ISO_8859_7,  "ISO/IEC 8859-7 (Latin/Greek)" },
-   { DVB_ENCODING_EXT_ISO_8859_8,  "ISO/IEC 8859-8 (Latin/Hebrew)" },
-   { DVB_ENCODING_EXT_ISO_8859_9,  "ISO/IEC 8859-9 (West European & Turkish)" },
-   { DVB_ENCODING_EXT_ISO_8859_10, "ISO/IEC 8859-10 (North European)" },
-   { DVB_ENCODING_EXT_ISO_8859_11, "ISO/IEC 8859-11 (Thai)" },
-   { DVB_ENCODING_EXT_ISO_8859_13, "ISO/IEC 8859-13 (Baltic)" },
-   { DVB_ENCODING_EXT_ISO_8859_14, "ISO/IEC 8859-14 (Celtic)" },
-   { DVB_ENCODING_EXT_ISO_8859_15, "ISO/IEC 8859-15 (West European)" },
-
-   { 0, NULL }
-};
+    if (length==0) {
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+    else {
+        proto_item_append_text(pi, " (%s)",
+                bytes_to_str_punct(
+                    tvb_get_ptr(tvb, offset, length), length, ' '));
+    }
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

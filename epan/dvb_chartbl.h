@@ -26,6 +26,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/proto.h>
+#include <epan/to_str.h>
 #include <epan/tvbuff.h>
 #include <epan/value_string.h>
 
@@ -72,14 +74,17 @@ typedef enum {
    DVB_ENCODING_UNKNOWN   = G_MAXUINT32-1, /* not defined by spec */
 } dvb_encoding_e;
 
-extern const value_string dvb_string_encoding_vals[];
-
 WS_DLL_PUBLIC
 guint dvb_analyze_string_charset(tvbuff_t *tvb, int offset, int length,
       dvb_encoding_e *encoding);
 
 WS_DLL_PUBLIC
 guint dvb_enc_to_item_enc(dvb_encoding_e encoding);
+
+WS_DLL_PUBLIC
+void dvb_add_chartbl(proto_tree *tree, int hf,
+        tvbuff_t *tvb, gint offset, gint length,
+        dvb_encoding_e  encoding);
 
 #ifdef __cplusplus
 }

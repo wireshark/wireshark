@@ -2223,8 +2223,7 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
         return;
 
     enc_len = dvb_analyze_string_charset(tvb, offset, str_len, &encoding);
-    proto_tree_add_uint(tree, hf_dvbci_mmi_char_tbl,
-            tvb, offset, enc_len, encoding);
+    dvb_add_chartbl(tree, hf_dvbci_mmi_char_tbl, tvb, offset, enc_len, encoding);
 
     offset += enc_len;
     str_len -= enc_len;
@@ -2899,7 +2898,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                             &ei_dvbci_invalid_char_tbl, tvb, offset, msg_len);
                         break;
                     }
-                    proto_tree_add_uint(tree, hf_dvbci_mmi_char_tbl,
+                    dvb_add_chartbl(tree, hf_dvbci_mmi_char_tbl,
                             tvb, offset, enc_len, encoding);
                     offset += enc_len;
                  }
@@ -3720,7 +3719,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                       tvb_reported_length_remaining(tvb, offset));
               break;
           }
-          proto_tree_add_uint(tree, hf_dvbci_opp_char_tbl,
+          dvb_add_chartbl(tree, hf_dvbci_opp_char_tbl,
                   tvb, offset, enc_len, encoding);
           offset += enc_len;
 
@@ -5283,7 +5282,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_mmi_char_tbl,
           { "Character table", "dvb-ci.mmi.char_tbl",
-            FT_UINT32, BASE_HEX, VALS(dvb_string_encoding_vals), 0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_dvbci_blind_ans,
           { "Blind answer flag", "dvb-ci.mmi.blind_ans",
@@ -5654,7 +5653,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_opp_char_tbl,
           { "Character table", "dvb-ci.opp.char_tbl",
-            FT_UINT32, BASE_HEX, VALS(dvb_string_encoding_vals), 0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_dvbci_sdt_rst_trusted,
           { "SDT running status trusted", "dvb-ci.opp.sdt_rst_trusted",
