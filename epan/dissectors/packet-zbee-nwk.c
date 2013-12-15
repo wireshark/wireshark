@@ -1757,7 +1757,7 @@ void proto_register_zbee_nwk(void)
                 NULL, HFILL }},
 
             { &hf_zbee_beacon_router_capacity,
-            { "Router Capacity", "zbee_beacon.router", FT_BOOLEAN, BASE_NONE, NULL, ZBEE_NWK_BEACON_ROUTER_CAPACITY,
+            { "Router Capacity", "zbee_beacon.router", FT_BOOLEAN, 8, NULL, ZBEE_NWK_BEACON_ROUTER_CAPACITY,
                 "Whether the device can accept join requests from routing capable devices.", HFILL }},
 
             { &hf_zbee_beacon_depth,
@@ -1765,7 +1765,7 @@ void proto_register_zbee_nwk(void)
                 "The tree depth of the device, 0 indicates the network coordinator.", HFILL }},
 
             { &hf_zbee_beacon_end_device_capacity,
-            { "End Device Capacity",        "zbee_beacon.end_dev", FT_BOOLEAN, BASE_NONE, NULL, ZBEE_NWK_BEACON_END_DEVICE_CAPACITY,
+            { "End Device Capacity",        "zbee_beacon.end_dev", FT_BOOLEAN, 8, NULL, ZBEE_NWK_BEACON_END_DEVICE_CAPACITY,
                 "Whether the device can accept join requests from ZigBee end devices.", HFILL }},
 
             { &hf_zbee_beacon_epid,
