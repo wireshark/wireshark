@@ -413,27 +413,19 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         ti = proto_tree_add_text(nwk_tree, tvb, offset, 2, "Frame Control Field: %s (0x%04x)",
                 val_to_str_const(packet.type, zbee_nwk_frame_types, "Unknown"), fcf);
         field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_fcf);
-        proto_tree_add_uint(field_tree, hf_zbee_nwk_frame_type, tvb, offset, 1,
-                            fcf & ZBEE_NWK_FCF_FRAME_TYPE);
+        proto_tree_add_item(field_tree, hf_zbee_nwk_frame_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         /*  Add the rest of the fcf fields to the subtree */
-        proto_tree_add_uint(field_tree, hf_zbee_nwk_proto_version, tvb, offset, 1,
-                            fcf & ZBEE_NWK_FCF_VERSION);
-        proto_tree_add_uint(field_tree, hf_zbee_nwk_discover_route, tvb, offset, 1,
-                            fcf & ZBEE_NWK_FCF_DISCOVER_ROUTE);
+        proto_tree_add_item(field_tree, hf_zbee_nwk_proto_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(field_tree, hf_zbee_nwk_discover_route, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         if (packet.version >= ZBEE_VERSION_2007) {
-            proto_tree_add_boolean(field_tree, hf_zbee_nwk_multicast, tvb, offset+1,
-                            1, fcf & ZBEE_NWK_FCF_MULTICAST);
+            proto_tree_add_item(field_tree, hf_zbee_nwk_multicast, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         }
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_security, tvb, offset+1,
-                            1, fcf & ZBEE_NWK_FCF_SECURITY);
+        proto_tree_add_item(field_tree, hf_zbee_nwk_security, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         if (packet.version >= ZBEE_VERSION_2007) {
-            proto_tree_add_boolean(field_tree, hf_zbee_nwk_source_route, tvb, offset+1,
-                            1, fcf & ZBEE_NWK_FCF_SOURCE_ROUTE);
-            proto_tree_add_boolean(field_tree, hf_zbee_nwk_ext_dst, tvb, offset+1,
-                            1, fcf & ZBEE_NWK_FCF_EXT_DEST);
-            proto_tree_add_boolean(field_tree, hf_zbee_nwk_ext_src, tvb, offset+1,
-                            1, fcf & ZBEE_NWK_FCF_EXT_SOURCE);
+            proto_tree_add_item(field_tree, hf_zbee_nwk_source_route, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(field_tree, hf_zbee_nwk_ext_dst, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(field_tree, hf_zbee_nwk_ext_src, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         }
     }
     offset += 2;
@@ -1403,10 +1395,8 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree  *beacon_tree = NULL;
     guint       offset = 0;
 
-    guint8      temp;
     guint8      version;
     guint64     epid;
-    guint32     tx_offset;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -1429,33 +1419,25 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     offset += 1;
 
     /* Get and display the stack profile and protocol version. */
-    temp = tvb_get_guint8(tvb, offset);
-    version = zbee_get_bit_field(temp, ZBEE_NWK_BEACON_PROTOCOL_VERSION);
+    version = zbee_get_bit_field(tvb_get_guint8(tvb, offset), ZBEE_NWK_BEACON_PROTOCOL_VERSION);
     if (tree) {
-        proto_tree_add_uint(beacon_tree, hf_zbee_beacon_stack_profile, tvb, offset, 1,
-                zbee_get_bit_field(temp, ZBEE_NWK_BEACON_STACK_PROFILE));
-        proto_tree_add_uint(beacon_tree, hf_zbee_beacon_version, tvb, offset, 1, version);
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_stack_profile, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_version, tvb, offset, 1, ENC_NA);
     }
     offset += 1;
 
     /* Get and display the security level and flags. */
-    temp        = tvb_get_guint8(tvb, offset);
     if (tree) {
-        proto_tree_add_boolean(beacon_tree, hf_zbee_beacon_router_capacity, tvb, offset, 1,
-                zbee_get_bit_field(temp, ZBEE_NWK_BEACON_ROUTER_CAPACITY));
-        proto_tree_add_uint(beacon_tree, hf_zbee_beacon_depth, tvb, offset, 1,
-                zbee_get_bit_field(temp, ZBEE_NWK_BEACON_NETWORK_DEPTH));
-        proto_tree_add_boolean(beacon_tree, hf_zbee_beacon_end_device_capacity, tvb, offset, 1,
-                zbee_get_bit_field(temp, ZBEE_NWK_BEACON_END_DEVICE_CAPACITY));
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_router_capacity, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_depth, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_end_device_capacity, tvb, offset, 1, ENC_NA);
     }
     offset += 1;
 
     if (version >= ZBEE_VERSION_2007) {
         /* In ZigBee 2006 and later, the beacon contains an extended PAN ID. */
         epid = tvb_get_letoh64(tvb, offset);
-        if (tree) {
-            proto_tree_add_item(beacon_tree, hf_zbee_beacon_epid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-        }
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_epid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
 
         /* Update the Info Column with the EPID. */
@@ -1468,24 +1450,19 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
          * the Tx-Offset as well as the update ID as optional elements
          */
         if (tvb_bytes_exist(tvb, offset, 3)) {
-            tx_offset = tvb_get_letoh24(tvb, offset);
-            proto_tree_add_uint(beacon_tree, hf_zbee_beacon_tx_offset, tvb, offset, 3, tx_offset);
+            proto_tree_add_item(beacon_tree, hf_zbee_beacon_tx_offset, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
 
             /* Get and display the update ID. */
             if(tvb_length_remaining(tvb, offset)) {
-                temp = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(beacon_tree, hf_zbee_beacon_update_id, tvb, offset, 1, temp);
+                proto_tree_add_item(beacon_tree, hf_zbee_beacon_update_id, tvb, offset, 1, ENC_NA);
                 offset += 1;
             }
         }
     }
     else if (tvb_bytes_exist(tvb, offset, 3)) {
         /* In ZigBee 2004, the Tx-Offset is an optional value. */
-        tx_offset = tvb_get_letoh24(tvb, offset);
-        if (tree) {
-            proto_tree_add_uint(beacon_tree, hf_zbee_beacon_tx_offset, tvb, offset, 3, tx_offset);
-        }
+        proto_tree_add_item(beacon_tree, hf_zbee_beacon_tx_offset, tvb, offset, 3, ENC_LITTLE_ENDIAN);
         offset += 3;
 
         /* Update the info column with the PAN ID. */
@@ -1495,8 +1472,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Check for leftover bytes. */
     if (offset < tvb_length(tvb)) {
         /* Bytes leftover! */
-        guint       leftover_len    = tvb_length(tvb) - offset;
-        tvbuff_t    *leftover_tvb   = tvb_new_subset(tvb, offset, leftover_len, leftover_len);
+        tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root           = NULL;
 
         /* Correct the length of the beacon tree. */
@@ -1774,22 +1750,22 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_beacon_stack_profile,
             { "Stack Profile",          "zbee_beacon.profile", FT_UINT8, BASE_HEX,
-                VALS(zbee_nwk_stack_profiles), 0x0, NULL, HFILL }},
+                VALS(zbee_nwk_stack_profiles), ZBEE_NWK_BEACON_STACK_PROFILE, NULL, HFILL }},
 
             { &hf_zbee_beacon_version,
-            { "Protocol Version",       "zbee_beacon.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Protocol Version",       "zbee_beacon.version", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_BEACON_PROTOCOL_VERSION,
                 NULL, HFILL }},
 
             { &hf_zbee_beacon_router_capacity,
-            { "Router Capacity", "zbee_beacon.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            { "Router Capacity", "zbee_beacon.router", FT_BOOLEAN, BASE_NONE, NULL, ZBEE_NWK_BEACON_ROUTER_CAPACITY,
                 "Whether the device can accept join requests from routing capable devices.", HFILL }},
 
             { &hf_zbee_beacon_depth,
-            { "Device Depth",           "zbee_beacon.depth", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Device Depth",           "zbee_beacon.depth", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_BEACON_NETWORK_DEPTH,
                 "The tree depth of the device, 0 indicates the network coordinator.", HFILL }},
 
             { &hf_zbee_beacon_end_device_capacity,
-            { "End Device Capacity",        "zbee_beacon.end_dev", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            { "End Device Capacity",        "zbee_beacon.end_dev", FT_BOOLEAN, BASE_NONE, NULL, ZBEE_NWK_BEACON_END_DEVICE_CAPACITY,
                 "Whether the device can accept join requests from ZigBee end devices.", HFILL }},
 
             { &hf_zbee_beacon_epid,
@@ -1797,7 +1773,7 @@ void proto_register_zbee_nwk(void)
                 "Extended PAN identifier.", HFILL }},
 
             { &hf_zbee_beacon_tx_offset,
-            { "Tx Offset",              "zbee_beacon.tx_offset", FT_UINT32, BASE_DEC, NULL, 0x0,
+            { "Tx Offset",              "zbee_beacon.tx_offset", FT_UINT24, BASE_DEC, NULL, 0x0,
                 "The time difference between a device and its parent's beacon.", HFILL }},
 
             { &hf_zbee_beacon_update_id,
