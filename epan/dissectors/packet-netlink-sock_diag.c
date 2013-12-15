@@ -564,7 +564,7 @@ dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, proto_tree *tree, i
 				offset += 4;
 
 				proto_tree_add_item(tree, &hfi_netlink_sock_diag_wmem_alloc, tvb, offset, 4, info->encoding);
-				offset += 4;
+				/*offset += 4;*/
 
 				return 1;
 			}
