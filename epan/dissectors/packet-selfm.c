@@ -1,7 +1,7 @@
 /* packet-selfm.c
  * Routines for Schweitzer Engineering Laboratories Fast Message Protocol (SEL FM) Dissection
  * By Chris Bontje (cbontje[AT]gmail.com
- * Copyright Nov/Dec 2012,
+ * Copyright 2012-2013,
  *
  * $Id$
 
@@ -66,6 +66,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
+#include <epan/crc16-tvb.h>
 
 void proto_register_selfm(void);
 
@@ -110,6 +111,7 @@ static int hf_selfm_fmconfig_cblk_ic_idx      = -1;
 static int hf_selfm_fmconfig_cblk_va_idx      = -1;
 static int hf_selfm_fmconfig_cblk_vb_idx      = -1;
 static int hf_selfm_fmconfig_cblk_vc_idx      = -1;
+static int hf_selfm_fmconfig_ai_sf_float      = -1;
 static int hf_selfm_fmdata_len                = -1;
 static int hf_selfm_fmdata_flagbyte           = -1;
 static int hf_selfm_fmdata_dig_b0             = -1;
@@ -229,6 +231,9 @@ static gint ett_selfm_fastser_tag           = -1;
 static gint ett_selfm_fastser_element_list  = -1;
 static gint ett_selfm_fastser_element       = -1;
 
+/* Expert fields */
+static expert_field ei_selfm_crc16_incorrect = EI_INIT;
+
 #define PORT_SELFM    0
 
 #define CMD_FAST_SER            0xA546
@@ -320,23 +325,28 @@ static gint ett_selfm_fastser_element       = -1;
 static gboolean selfm_desegment = TRUE;
 static gboolean selfm_telnet_clean = TRUE;
 static guint global_selfm_tcp_port = PORT_SELFM; /* Port 0, by default */
+static gboolean selfm_crc16 = FALSE;             /* Default CRC16 valdiation to false */
 
 /***************************************************************************************/
 /* Fast Meter Message structs */
 /***************************************************************************************/
 /* Holds Configuration Information required to decode a Fast Meter analog value        */
 typedef struct {
-    gchar    name[FM_CONFIG_ANA_CHNAME_LEN+1];    /* Name of Analog Channel, 6 char + a null */
+    gchar   name[FM_CONFIG_ANA_CHNAME_LEN+1];     /* Name of Analog Channel, 6 char + a null */
     guint8  type;                                 /* Analog Channel Type, Int, FP, etc */
     guint8  sf_type;                              /* Analog Scale Factor Type, none, etc */
     guint16 sf_offset;                            /* Analog Scale Factor Offset */
+    gfloat  sf_fp;                                /* Scale factor, if present in Cfg message */
 } fm_analog_info;
+
 
 /* Holds Information from a single "Fast Meter Configuration" frame.  Required to dissect subsequent "Data" frames. */
 typedef struct {
     guint32  fnum;                   /* frame number */
     guint16  cfg_cmd;                /* holds ID of config command, ie: 0xa5c1 */
     guint8   num_flags;              /* Number of Flag Bytes           */
+    guint8   sf_loc;                 /* Scale Factor Location          */
+    guint8   sf_num;                 /* Number of Scale Factors        */
     guint8   num_ai;                 /* Number of Analog Inputs        */
     guint8   num_ai_samples;         /* Number samples per Analog Input */
     guint16  offset_ai;              /* Start Offset of Analog Inputs  */
@@ -379,7 +389,7 @@ typedef struct {
 typedef struct {
     wmem_list_t *fm_config_frames;      /* List contains a fm_config_data struct for each Fast Meter configuration frame */
     wmem_list_t *fastser_dataitems;     /* List contains a fastser_dataitem struct for each Fast SER Data Item */
-    wmem_tree_t  *fastser_dataregions;  /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
+    wmem_tree_t *fastser_dataregions;   /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
 } fm_conversation;
 
 
@@ -699,14 +709,6 @@ static const value_string selfm_fastser_func_code_vals[] = {
     { 0,                           NULL }
 };
 
-#if 0
-static const value_string selfm_fastser_seq_vals[] = {
-  { FAST_SER_SEQ_FIN,  "FIN" },
-  { FAST_SER_SEQ_FIR,  "FIR" },
-  { 0,  NULL }
-};
-#endif
-
 static const value_string selfm_fastser_tagtype_vals[] = {
   { FAST_SER_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },
   { FAST_SER_TAGTYPE_CHAR16,       "2 x 8-bit characters per item" },
@@ -840,8 +842,8 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
     frame->cfg_cmd        = tvb_get_ntohs(tvb, offset);
     /* skip length byte, position offset+2 */
     frame->num_flags      = tvb_get_guint8(tvb, offset+3);
-    /* skip scale factor location, position offset+4 */
-    /* skip number of scale factors, position offset+5 */
+    frame->sf_loc         = tvb_get_guint8(tvb, offset+4);
+    frame->sf_num         = tvb_get_guint8(tvb, offset+5);
     frame->num_ai         = tvb_get_guint8(tvb, offset+6);
     frame->num_ai_samples = tvb_get_guint8(tvb, offset+7);
     frame->num_dig        = tvb_get_guint8(tvb, offset+8);
@@ -868,6 +870,15 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
         analog->type = tvb_get_guint8(tvb, offset+6);
         analog->sf_type = tvb_get_guint8(tvb, offset+7);
         analog->sf_offset = tvb_get_ntohs(tvb, offset+8);
+
+        /* If Scale Factors are present in the cfg message, retrieve and store them per analog */
+        /* Otherwise, default to Scale Factor of 1 for now */
+        if (frame->sf_loc == FM_CONFIG_SF_LOC_CFG) {
+            analog->sf_fp = tvb_get_ntohieee_float(tvb, analog->sf_offset);
+        }
+        else {
+            analog->sf_fp = 1;
+        }
 
         offset += 10;
     }
@@ -1021,13 +1032,13 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item    *fmconfig_item, *fmconfig_ai_item=NULL, *fmconfig_calc_item=NULL;
     proto_tree    *fmconfig_tree, *fmconfig_ai_tree=NULL, *fmconfig_calc_tree=NULL;
     guint         count;
-    guint8        len, num_ai, num_calc;
+    guint8        len, sf_loc, num_sf, num_ai, num_calc;
     gchar         ai_name[FM_CONFIG_ANA_CHNAME_LEN+1]; /* 6 Characters + a Null */
 
     len = tvb_get_guint8(tvb, offset);
     /* skip num_flags, position offset+1 */
-    /* skip sf_loc,    position offset+2 */
-    /* skip num_sf,    position offset+3 */
+    sf_loc = tvb_get_guint8(tvb, offset+2);
+    num_sf = tvb_get_guint8(tvb, offset+3);
     num_ai = tvb_get_guint8(tvb, offset+4);
     /* skip num_samp,  position offset+5 */
     /* skip num_dig,   position offset+6 */
@@ -1099,6 +1110,14 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         offset += 14;
     }
 
+    /* Add Config Message Scale Factor(s) (if present) */
+    if ((num_sf != 0) && (sf_loc == FM_CONFIG_SF_LOC_CFG)) {
+        for (count = 0; count < num_sf; count++) {
+            proto_tree_add_item(fmconfig_tree, hf_selfm_fmconfig_ai_sf_float, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
+    }
+
     /* Add Pad byte (if present) and checksum */
     if (tvb_reported_length_remaining(tvb, offset) > 1) {
         proto_tree_add_item(fmconfig_tree, hf_selfm_padbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1120,16 +1139,17 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item       *fmdata_item, *fmdata_ai_item=NULL, *fmdata_dig_item=NULL, *fmdata_ai_ch_item=NULL, *fmdata_dig_ch_item=NULL;
+    proto_item       *fmdata_ai_sf_item=NULL;
     proto_tree       *fmdata_tree, *fmdata_ai_tree=NULL, *fmdata_dig_tree=NULL, *fmdata_ai_ch_tree=NULL, *fmdata_dig_ch_tree=NULL;
-    guint8           len, i=0, j=0, ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec;
+    guint8           len, idx=0, j=0, ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec;
     guint16          config_cmd, ts_msec;
     gint16           ai_int16val;
+    gint             cnt = 0, ch_size=0;
     gfloat           ai_fpval, ai_sf_fp;
     gdouble          ai_fpd_val;
     gboolean         config_found = FALSE;
     fm_conversation  *conv;
     fm_config_frame  *cfg_data;
-    gint             cnt = 0, ch_size=0;
 
     len = tvb_get_guint8(tvb, offset);
 
@@ -1201,9 +1221,9 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                         }
 
                         /* For each analog channel we encounter... */
-                        for (i = 0; i < cnt; i++) {
+                        for (idx = 0; idx < cnt; idx++) {
 
-                            fm_analog_info *ai = &(cfg_data->analogs[i]);
+                            fm_analog_info *ai = &(cfg_data->analogs[idx]);
 
                             /* Channel size (in bytes) determined by data type */
                             switch (ai->type) {
@@ -1221,7 +1241,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                             }
 
                             /* Build sub-tree for each Analog Channel */
-                            fmdata_ai_ch_item = proto_tree_add_text(fmdata_ai_tree, tvb, offset, ch_size, "Analog Channel %d: %s", i+1, ai->name);
+                            fmdata_ai_ch_item = proto_tree_add_text(fmdata_ai_tree, tvb, offset, ch_size, "Analog Channel %d: %s", idx+1, ai->name);
                             fmdata_ai_ch_tree = proto_item_add_subtree(fmdata_ai_ch_item, ett_selfm_fmdata_ai_ch);
 
                             /* XXX - Need more decoding options here for different data types, but I need packet capture examples first */
@@ -1231,11 +1251,19 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                 case FM_CONFIG_ANA_CHTYPE_INT16:
                                     ai_int16val = tvb_get_ntohs(tvb, offset);
 
-                                    /* If we've got a scale factor offset, apply it before printing the analog */
-                                    if ((ai->sf_offset != 0) && (ai->sf_type == FM_CONFIG_ANA_SFTYPE_FP)){
+                                    /* If we've got a scale factor, apply it before printing the analog */
+                                    /* For scale factors present in the Fast Meter Data message... */
+                                    if ((ai->sf_offset != 0) && (ai->sf_type == FM_CONFIG_ANA_SFTYPE_FP) && (cfg_data->sf_loc == FM_CONFIG_SF_LOC_FM)) {
                                         ai_sf_fp = tvb_get_ntohieee_float(tvb, ai->sf_offset);
                                         proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_sf_fp, tvb, ai->sf_offset, 4, ai_sf_fp);
                                     }
+                                    /* For scale factors present in the Fast Meter Configuration Message... */
+                                    else if (cfg_data->sf_loc == FM_CONFIG_SF_LOC_CFG) {
+                                        ai_sf_fp = ai->sf_fp;
+                                        fmdata_ai_sf_item = proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_sf_fp, tvb, offset, ch_size, ai_sf_fp);
+                                        PROTO_ITEM_SET_GENERATED(fmdata_ai_sf_item);
+                                    }
+                                    /* If there was no scale factor, default value to 1 */
                                     else {
                                         ai_sf_fp = 1;
                                     }
@@ -1287,9 +1315,9 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     fmdata_dig_item = proto_tree_add_text(fmdata_tree, tvb, offset, cfg_data->num_dig, "Digital Channels (%d)", cfg_data->num_dig);
                     fmdata_dig_tree = proto_item_add_subtree(fmdata_dig_item, ett_selfm_fmdata_dig);
 
-                    for (i=0; i < cfg_data->num_dig; i++) {
+                    for (idx=0; idx < cfg_data->num_dig; idx++) {
 
-                        fmdata_dig_ch_item = proto_tree_add_text(fmdata_dig_tree, tvb, offset, 1, "Digital Word Bit Row: %2d", i+1);
+                        fmdata_dig_ch_item = proto_tree_add_text(fmdata_dig_tree, tvb, offset, 1, "Digital Word Bit Row: %2d", idx+1);
                         fmdata_dig_ch_tree = proto_item_add_subtree(fmdata_dig_ch_item, ett_selfm_fmdata_dig_ch);
 
                         /* Display the bit pattern on the digital channel proto_item */
@@ -1801,14 +1829,14 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *fastser_item, *fastser_def_fc_item=NULL, *fastser_seq_item=NULL, *fastser_elementlist_item=NULL;
     proto_item    *fastser_element_item=NULL, *fastser_datareg_item=NULL, *fastser_tag_item=NULL;
-    proto_item    *pi_baseaddr=NULL;
+    proto_item    *pi_baseaddr=NULL, *fastser_crc16_item=NULL;
     proto_tree    *fastser_tree, *fastser_def_fc_tree=NULL, *fastser_seq_tree=NULL, *fastser_elementlist_tree=NULL;
     proto_tree    *fastser_element_tree=NULL, *fastser_datareg_tree=NULL, *fastser_tag_tree=NULL;
     gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
     guint8        len, funccode, seq, rx_num_fc, tx_num_fc;
     guint8        seq_cnt, seq_fir, seq_fin, elmt_idx, fc_enable;
     guint8        *fid_str_ptr, *rid_str_ptr, *region_name_ptr, *tag_name_ptr;
-    guint16       base_addr, num_addr, num_reg, addr1, addr2;
+    guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc;
     guint32       tod_ms, elmt_status32, elmt_ts_offset;
 
 
@@ -2105,13 +2133,12 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case FAST_SER_SOE_STATE_RESP: /* 0x96 - (resp to 0x16) SOE Present State Response */
 
-
             /* 16-bit field with number of blocks of present state data */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* XXX - With examples, need to loop through each one of these items based on the num_blocks */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_orig, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_orig, tvb, offset, 4, ENC_NA);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_numbits, tvb, offset+4, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_pad, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_doy, tvb, offset+6, 2, ENC_BIG_ENDIAN);
@@ -2125,7 +2152,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case FAST_SER_DEVDESC_RESP:  /* 0xB0 (resp to 0x30) - Device Description Response */
 
-            fid_str_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 50);  /* Add FID / RID ASCII data to tree */
+            /* Add FID / RID ASCII data to tree */
+            fid_str_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 50);
             rid_str_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset+50, 40);
             proto_tree_add_text(fastser_tree, tvb, offset, 50, "FID: %s", fid_str_ptr);
             proto_tree_add_text(fastser_tree, tvb, offset+50, 40, "RID: %s", rid_str_ptr);
@@ -2204,7 +2232,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 2;
 
             while ((tvb_reported_length_remaining(tvb, offset)) > 2) {
-                tag_name_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 10);  /* Data Item record name 10 bytes */
+                /* Data Item record name 10 bytes */
+                tag_name_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 10);
                 fastser_tag_item = proto_tree_add_text(fastser_tree, tvb, offset, 14, "Data Item Record Name: %s", tag_name_ptr);
                 fastser_tag_tree = proto_item_add_subtree(fastser_tag_item, ett_selfm_fastser_tag);
 
@@ -2238,8 +2267,21 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             break;
     } /* func_code */
 
-    /* XXX - Should eventually get a function here to validate this CRC16 */
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_crc16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /* Add CRC16 to Tree */
+    fastser_crc16_item = proto_tree_add_item(fastser_tree, hf_selfm_fastser_crc16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    crc16 = tvb_get_ntohs(tvb, offset);
+
+    /* If option is enabled, validate the CRC16 */
+    if (selfm_crc16) {
+        crc16_calc = crc16_plain_tvb_offset_seed(tvb, 0, len-2, 0xFFFF);
+        if (crc16_calc != crc16) {
+            expert_add_info_format(pinfo, fastser_crc16_item, &ei_selfm_crc16_incorrect, "Incorrect CRC - should be 0x%04x", crc16_calc);
+        }
+        else {
+            proto_item_append_text(fastser_crc16_item, " [OK]");
+        }
+
+    }
 
     return tvb_length(tvb);
 
@@ -2485,7 +2527,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     }
 
-    /* If this is a Telnet-encapsulated Ethernet, let's clean out the IAC 0xFF instances */
+    /* If this is a Telnet-encapsulated Ethernet packet, let's clean out the IAC 0xFF instances */
     /* before we attempt any kind of re-assembly of the message */
     if ((pinfo->srcport) && selfm_telnet_clean) {
         selfm_tvb = clean_telnet_iac(pinfo, tvb, 0, length);
@@ -2621,6 +2663,8 @@ proto_register_selfm(void)
         { "Analog Record Vb/Vbc Index Position", "selfm.fmconfig.cblk_vb_idx", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fmconfig_cblk_vc_idx,
         { "Analog Record Vc/Vca Index Position", "selfm.fmconfig.cblk_vc_idx", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmconfig_ai_sf_float,
+        { "AI Scale Factor (float)", "selfm.fmconfig.ai_sf_float", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         /* "Fast Meter Data" specific fields */
         { &hf_selfm_fmdata_len,
         { "Length", "selfm.fmdata.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2828,8 +2872,12 @@ proto_register_selfm(void)
         { &hf_selfm_fragment_reassembled_in,
         { "Reassembled PDU In Frame", "selfm.respdata.fragment.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "This PDU is reassembled in this frame", HFILL }},
         { &hf_selfm_fragment_reassembled_length,
-        { "Reassembled SEL Fast Msg length", "selfm.respdata.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }
-    }
+        { "Reassembled SEL Fast Msg length", "selfm.respdata.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }}
+    };
+
+    /* Register expert fields */
+    static ei_register_info selfm_ei[] = {
+        { &ei_selfm_crc16_incorrect, { "selfm.crc16.incorrect", PI_CHECKSUM, PI_WARN, "Incorrect CRC", EXPFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -2864,6 +2912,7 @@ proto_register_selfm(void)
    };
 
     module_t *selfm_module;
+    expert_module_t* expert_selfm;
 
     /* Register protocol init routine */
     register_init_routine(&selfm_init);
@@ -2877,6 +2926,8 @@ proto_register_selfm(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_selfm, selfm_hf, array_length(selfm_hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_selfm = expert_register_protocol(proto_selfm);
+    expert_register_field_array(expert_selfm, selfm_ei, array_length(selfm_ei));
 
 
     /* Register required preferences for SEL Protocol register decoding */
@@ -2899,6 +2950,11 @@ proto_register_selfm(void)
                        "Set the TCP port for SEL FM Protocol packets (if other"
                        " than the default of 0)",
                        10, &global_selfm_tcp_port);
+    /* SEL Protocol Preference - Disable/Enable CRC verification, */
+    prefs_register_bool_preference(selfm_module, "crc_verification", "Validate Fast SER CRC16",
+                                  "Perform CRC16 validation on Fast SER Messages",
+                                  &selfm_crc16);
+
 
 }
 
