@@ -625,7 +625,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 								 tvb, offset, digest_type_len, transfer_info->file->digest_type);
 					PROTO_ITEM_SET_GENERATED(tii);
 					tii = proto_tree_add_bytes(line_tree, hf_ldss_digest,
-								  tvb, offset+digest_type_len, linelen-digest_type_len,
+								  tvb, offset+digest_type_len, MIN(linelen-digest_type_len, DIGEST_LEN),
 								  transfer_info->file->digest);
 					PROTO_ITEM_SET_GENERATED(tii);
 				}
