@@ -643,7 +643,7 @@ netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
 
     return offset;
 }
-int
+static int
 dissect_ndr_lm_nt_hash_cb(tvbuff_t *tvb, int offset,
                           packet_info *pinfo, proto_tree *tree,
                           dcerpc_info *di, guint8 *drep, int hf_index,
@@ -675,7 +675,7 @@ dissect_ndr_lm_nt_hash_cb(tvbuff_t *tvb, int offset,
                                 hf_nt_cs_size, &size);
 
     offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, di, drep,
-                                    dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
+                                    dissect_ndr_byte_array, NDR_POINTER_UNIQUE,
                                     "Bytes Array", hf_index, callback, callback_args);
 
     return offset;

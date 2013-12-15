@@ -10613,7 +10613,7 @@ void proto_register_dcerpc_nspi(void)
 	{ &hf_nspi_SPropValue_CTR_MVszW, 
 	  { "Mvszw", "nspi.SPropValue_CTR.MVszW", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_LPSTR_lppszA, 
-	  { "Lppsza", "nspi.LPSTR.lppszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Lppsza", "nspi.LPSTR.lppszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_SPropValue_CTR_MVszA, 
 	  { "Mvsza", "nspi.SPropValue_CTR.MVszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_property_type, 

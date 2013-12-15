@@ -38,11 +38,19 @@ extern "C" {
  */
 #define DREP_LITTLE_ENDIAN	0x10
 
+#define DREP_EBCDIC		0x01
+
 /*
  * Data representation to integer byte order.
  */
 #define DREP_ENC_INTEGER(drep)	\
 	(((drep)[0] & DREP_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)
+
+/*
+ * Data representation to (octet-string) character encoding.
+ */
+#define DREP_ENC_CHAR(drep)	\
+	(((drep)[0] & DREP_EBCDIC) ? ENC_EBCDIC|ENC_NA : ENC_ASCII|ENC_NA)
 
 #ifdef PT_R4
 /* now glib always includes signal.h and on linux PPC

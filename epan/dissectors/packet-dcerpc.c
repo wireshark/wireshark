@@ -569,7 +569,6 @@ static int hf_dcerpc_dg_status = -1;
 static int hf_dcerpc_array_max_count = -1;
 static int hf_dcerpc_array_offset = -1;
 static int hf_dcerpc_array_actual_count = -1;
-static int hf_dcerpc_array_buffer = -1;
 static int hf_dcerpc_op = -1;
 static int hf_dcerpc_referent_id = -1;
 static int hf_dcerpc_fragments = -1;
@@ -1939,8 +1938,8 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
     DISSECTOR_ASSERT(len <= G_MAXUINT32);
     if (tree && len) {
         tvb_ensure_bytes_exist(tvb, offset, (guint32)len);
-        proto_tree_add_item(tree, hf_dcerpc_array_buffer,
-                            tvb, offset, (guint32)len, ENC_NA);
+        proto_tree_add_item(tree, di->hf_index, tvb, offset, (guint32)len,
+                            ENC_NA);
     }
 
     offset += (guint32)len;
@@ -1961,12 +1960,16 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      proto_tree *tree, dcerpc_info *di, guint8 *drep, int size_is,
                      int hfindex, gboolean add_subtree, char **data)
 {
+    header_field_info *hfinfo;
     proto_item        *string_item;
     proto_tree        *string_tree;
     guint64            len;
     guint32            buffer_len;
     char              *s;
-    header_field_info *hfinfo;
+
+    /* Make sure this really is a string field. */
+    hfinfo = proto_registrar_get_nth(hfindex);
+    DISSECTOR_ASSERT(hfinfo->type == FT_STRING);
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -2000,44 +2003,35 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (!di->no_align && (offset % size_is))
         offset += size_is - (offset % size_is);
 
+    /*
+     * "tvb_get_string_enc()" throws an exception if the entire string
+     * isn't in the tvbuff.  If the length is bogus, this should
+     * keep us from trying to allocate an immensely large buffer.
+     * (It won't help if the length is *valid* but immensely large,
+     * but that's another matter; in any case, that would happen only
+     * if we had an immensely large tvbuff....)
+     *
+     * XXX - so why are we doing tvb_ensure_bytes_exist()?
+     */
+    tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(guint16)) {
-        /* XXX - use drep to determine the byte order? */
-        /* XXX - once we have an ENC_ value for UTF-16, just use
-           proto_tree_add_item() with the appropriate ENC_ value? */
-        /* XXX - should this ever be used with something that's *not*
-           an FT_STRING? */
-        s = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
-        if (tree && buffer_len) {
-            hfinfo = proto_registrar_get_nth(hfindex);
-            tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-            if (hfinfo->type == FT_STRING) {
-                proto_tree_add_string(string_tree, hfindex, tvb, offset,
-                                      buffer_len, s);
-            } else {
-                proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                    buffer_len, DREP_ENC_INTEGER(drep));
-            }
-        }
-
+        /*
+         * Assume little-endian UTF-16.
+         *
+         * XXX - is this always little-endian?
+         */
+        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+                               ENC_UTF_16|ENC_LITTLE_ENDIAN);
     } else {
         /*
-         * "tvb_get_string()" throws an exception if the entire string
-         * isn't in the tvbuff.  If the length is bogus, this should
-         * keep us from trying to allocate an immensely large buffer.
-         * (It won't help if the length is *valid* but immensely large,
-         * but that's another matter; in any case, that would happen only
-         * if we had an immensely large tvbuff....)
-         *
-         * XXX - if this is an octet string, does the byte order
-         * matter?  Will this ever be anything *other* than an
-         * octet string?  What if size_is is neither 1 nor 2?
+         * XXX - what if size_is is neither 1 nor 2?
          */
-        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = tvb_get_string(wmem_packet_scope(), tvb, offset, buffer_len);
-        if (tree && buffer_len)
-            proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                buffer_len, DREP_ENC_INTEGER(drep));
+        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+                               DREP_ENC_CHAR(drep));
     }
+    if (tree && buffer_len)
+        proto_tree_add_string(string_tree, hfindex, tvb, offset,
+                              buffer_len, s);
 
     if (string_item != NULL)
         proto_item_append_text(string_item, ": %s", s);
@@ -2151,12 +2145,16 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, dcerpc_info *di, guint8 *drep, int size_is,
                     int hfindex, gboolean add_subtree, char **data)
 {
+    header_field_info *hfinfo;
     proto_item        *string_item;
     proto_tree        *string_tree;
     guint64            len;
     guint32            buffer_len;
     char              *s;
-    header_field_info *hfinfo;
+
+    /* Make sure this really is a string field. */
+    hfinfo = proto_registrar_get_nth(hfindex);
+    DISSECTOR_ASSERT(hfinfo->type == FT_STRING);
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -2186,44 +2184,35 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (!di->no_align && (offset % size_is))
         offset += size_is - (offset % size_is);
 
+    /*
+     * "tvb_get_string_enc()" throws an exception if the entire string
+     * isn't in the tvbuff.  If the length is bogus, this should
+     * keep us from trying to allocate an immensely large buffer.
+     * (It won't help if the length is *valid* but immensely large,
+     * but that's another matter; in any case, that would happen only
+     * if we had an immensely large tvbuff....)
+     *
+     * XXX - so why are we doing tvb_ensure_bytes_exist()?
+     */
+    tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(guint16)) {
-        /* XXX - use drep to determine the byte order? */
-        /* XXX - once we have an ENC_ value for UTF-16, just use
-           proto_tree_add_item() with the appropriate ENC_ value? */
-        /* XXX - should this ever be used with something that's *not*
-           an FT_STRING? */
-        s = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
-        if (tree && buffer_len) {
-            hfinfo = proto_registrar_get_nth(hfindex);
-            tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-            if (hfinfo->type == FT_STRING) {
-                proto_tree_add_string(string_tree, hfindex, tvb, offset,
-                                      buffer_len, s);
-            } else {
-                proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                    buffer_len, DREP_ENC_INTEGER(drep));
-            }
-        }
-
+        /*
+         * Assume little-endian UTF-16.
+         *
+         * XXX - is this always little-endian?
+         */
+        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+                               ENC_UTF_16|ENC_LITTLE_ENDIAN);
     } else {
         /*
-         * "tvb_get_string()" throws an exception if the entire string
-         * isn't in the tvbuff.  If the length is bogus, this should
-         * keep us from trying to allocate an immensely large buffer.
-         * (It won't help if the length is *valid* but immensely large,
-         * but that's another matter; in any case, that would happen only
-         * if we had an immensely large tvbuff....)
-         *
-         * XXX - if this is an octet string, does the byte order
-         * matter?  Will this ever be anything *other* than an
-         * octet string?  What if size_is is neither 1 nor 2?
+         * XXX - what if size_is is neither 1 nor 2?
          */
-        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = tvb_get_string(wmem_packet_scope(), tvb, offset, buffer_len);
-        if (tree && buffer_len)
-            proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                buffer_len, DREP_ENC_INTEGER(drep));
+        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
+                               DREP_ENC_CHAR(drep));
     }
+    if (tree && buffer_len)
+        proto_tree_add_string(string_tree, hfindex, tvb, offset,
+                              buffer_len, s);
 
     if (string_item != NULL)
         proto_item_append_text(string_item, ": %s", s);
@@ -6180,9 +6169,6 @@ proto_register_dcerpc(void)
 
         { &hf_dcerpc_array_actual_count,
           { "Actual Count", "dcerpc.array.actual_count", FT_UINT32, BASE_DEC, NULL, 0x0, "Actual Count: Actual number of elements in the array", HFILL }},
-
-        { &hf_dcerpc_array_buffer,
-          { "Buffer", "dcerpc.array.buffer", FT_BYTES, BASE_NONE, NULL, 0x0, "Buffer: Buffer containing elements of the array", HFILL }},
 
         { &hf_dcerpc_op,
           { "Operation", "dcerpc.op", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
