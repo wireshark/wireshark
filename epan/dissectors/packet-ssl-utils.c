@@ -4139,6 +4139,12 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
     /* allocate stringinfo chunks for session id and master secret data*/
     StringInfo* session_id;
     StringInfo* master_secret;
+
+    if (ssl->session_id.data_len == 0) {
+        ssl_debug_printf("ssl_save_session SessionID is empty!\n");
+        return;
+    }
+
     session_id = (StringInfo *)wmem_alloc0(wmem_file_scope(), sizeof(StringInfo) + ssl->session_id.data_len);
     master_secret = (StringInfo *)wmem_alloc0(wmem_file_scope(), 48 + sizeof(StringInfo));
 
@@ -4160,6 +4166,12 @@ gboolean
 ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
 {
     StringInfo* ms;
+
+    if (ssl->session_id.data_len == 0) {
+        ssl_debug_printf("ssl_restore_session Cannot restore using an empty SessionID\n");
+        return FALSE;
+    }
+
     ms = (StringInfo *)g_hash_table_lookup(session_hash, &ssl->session_id);
 
     if (!ms) {
