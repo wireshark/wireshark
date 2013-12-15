@@ -172,4 +172,4 @@ pidl rejects these with errors:
 	srvsvc.idl
 	wkssvc.cnf
 	mapi/mapi.idl
-	napi/napi.idl
+	nspi/nspi.idl
