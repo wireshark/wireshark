@@ -99,7 +99,7 @@ ansi_a_stat_packet(
     const void          *data)
 {
     ansi_a_stat_t       *stat_p = (ansi_a_stat_t *)tapdata;
-    const ansi_a_tap_rec_t      *data_p = (ansi_a_tap_rec_t *)data;
+    const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
 
     switch (data_p->pdu_type)
     {

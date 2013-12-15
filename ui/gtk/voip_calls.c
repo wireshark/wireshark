@@ -1390,7 +1390,7 @@ remove_tap_listener_isup_calls(void)
 static int
 mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info _U_)
 {
-	const mtp3_tap_rec_t *pi = (mtp3_tap_rec_t *)mtp3_info;
+	const mtp3_tap_rec_t *pi = (const mtp3_tap_rec_t *)mtp3_info;
 
 	/* keep the data in memory to use when the ISUP information arrives */
 
@@ -2139,7 +2139,7 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	GList *list2;
 	h245_address_t *h245_add = NULL;
 
-	const h245_packet_info *pi = (h245_packet_info *)H245info;
+	const h245_packet_info *pi = (const h245_packet_info *)H245info;
 
 	/* check if Tunneling is OFF and we have a call with this H245 add */
 	list = g_list_first(tapinfo->callsinfo_list);
@@ -2241,7 +2241,7 @@ static int
 SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
 {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
-	const sdp_packet_info *pi = (sdp_packet_info *)SDPinfo;
+	const sdp_packet_info *pi = (const sdp_packet_info *)SDPinfo;
 
 	/* There are protocols like MGCP/SIP where the SDP is called before the tap for the
 	   MGCP/SIP packet, in those cases we assign the SPD summary to global lastSDPsummary
@@ -2432,7 +2432,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	gboolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
 	gdouble diff_time;
 
-	const mgcp_info_t *pi = (mgcp_info_t *)MGCPinfo;
+	const mgcp_info_t *pi = (const mgcp_info_t *)MGCPinfo;
 
 
 	if ((pi->mgcp_type == MGCP_REQUEST) && !pi->is_duplicate ) {
@@ -2823,7 +2823,7 @@ static gboolean have_megaco_tap_listener = FALSE;
 
 static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
-	const gcp_cmd_t *cmd = (gcp_cmd_t *)prot_info;
+	const gcp_cmd_t *cmd = (const gcp_cmd_t *)prot_info;
 	GList *list;
 	voip_calls_info_t *callsinfo = NULL;
 	address *mgw;
@@ -3697,7 +3697,7 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 	GList* list;
 	voip_calls_info_t *callsinfo = NULL;
 	address* phone;
-	const skinny_info_t *si = (skinny_info_t *)skinny_info;
+	const skinny_info_t *si = (const skinny_info_t *)skinny_info;
 	skinny_calls_info_t *tmp_skinnyinfo;
 	gchar *comment;
 
@@ -3851,7 +3851,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	GList* list;
 	voip_calls_info_t *callsinfo = NULL;
 	address* phone;
-	const iax2_info_t *ii = (iax2_info_t *)iax2_info;
+	const iax2_info_t *ii = (const iax2_info_t *)iax2_info;
 	iax2_info_t *tmp_iax2info;
 
 	if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
@@ -3981,7 +3981,7 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	voip_calls_info_t *callsinfo = NULL;
 	voip_calls_info_t *tmp_listinfo;
 	GList *list = NULL;
-	const voip_packet_info_t *pi = (voip_packet_info_t *)VoIPinfo;
+	const voip_packet_info_t *pi = (const voip_packet_info_t *)VoIPinfo;
 
 	if (pi->call_id)
 		list = g_list_first(tapinfo->callsinfo_list);

@@ -1370,14 +1370,14 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 
 static guint dmp_id_hash (gconstpointer k)
 {
-  dmp_id_key *dmpx=(dmp_id_key *)k;
+  const dmp_id_key *dmpx=(const dmp_id_key *)k;
   return dmpx->id;
 }
 
 static gint dmp_id_hash_equal (gconstpointer k1, gconstpointer k2)
 {
-  dmp_id_key *dmp1=(dmp_id_key *)k1;
-  dmp_id_key *dmp2=(dmp_id_key *)k2;
+  const dmp_id_key *dmp1=(const dmp_id_key *)k1;
+  const dmp_id_key *dmp2=(const dmp_id_key *)k2;
   if (dmp1->id != dmp2->id)
     return 0;
 

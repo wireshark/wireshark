@@ -77,7 +77,7 @@ static int
 smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
-	const smb_info_t *si=(smb_info_t *)psi;
+	const smb_info_t *si=(const smb_info_t *)psi;
 
 	/* we are only interested in reply packets */
 	if(si->request){

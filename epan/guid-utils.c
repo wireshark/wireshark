@@ -82,7 +82,7 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 
 /* store a guid to name mapping */
 void
-guids_add_guid(e_guid_t *guid, const gchar *name)
+guids_add_guid(const e_guid_t *guid, const gchar *name)
 {
 	wmem_tree_key_t guidkey[2];
 	guint32 g[4];
@@ -119,7 +119,7 @@ guids_add_guid(e_guid_t *guid, const gchar *name)
 
 /* retrieve the registered name for this GUID */
 const gchar *
-guids_get_guid_name(e_guid_t *guid)
+guids_get_guid_name(const e_guid_t *guid)
 {
 	wmem_tree_key_t guidkey[2];
 	guint32 g[4];
@@ -184,7 +184,7 @@ guids_init(void)
    Formats uuid number and returns the resulting string, if name is unknown.
    (derived from val_to_str) */
 const gchar *
-guids_resolve_guid_to_str(e_guid_t *guid)
+guids_resolve_guid_to_str(const e_guid_t *guid)
 {
 	const gchar *name;
 

@@ -67,8 +67,8 @@ wmem_test_compare_guint32(const void *a, const void *b)
 {
     guint32 l, r;
 
-    l = *(guint32*)a;
-    r = *(guint32*)b;
+    l = *(const guint32*)a;
+    r = *(const guint32*)b;
 
     return l - r;
 }

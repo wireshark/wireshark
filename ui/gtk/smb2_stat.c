@@ -73,7 +73,7 @@ static int
 smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
 	smb2stat_t *ss=(smb2stat_t *)pss;
-	const smb2_info_t *si=(smb2_info_t *)psi;
+	const smb2_info_t *si=(const smb2_info_t *)psi;
 
 	/* we are only interested in response packets */
 	if(!(si->flags&SMB2_FLAGS_RESPONSE)){

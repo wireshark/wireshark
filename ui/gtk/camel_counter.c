@@ -91,7 +91,7 @@ static int gtk_camelcounter_packet(void *phs,
 				   const void *phi)
 {
   struct camelcounter_t * p_counter =(struct camelcounter_t *)phs;
-  const struct camelsrt_info_t * pi=(struct camelsrt_info_t *)phi;
+  const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)phi;
   if (pi->opcode != 255)
     p_counter->camel_msg[pi->opcode]++;
 

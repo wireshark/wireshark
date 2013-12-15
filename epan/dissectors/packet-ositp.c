@@ -442,8 +442,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         }
         checksum_ok = check_atn_ec_16(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
-                                      pinfo->dst.len, (guint8 *)pinfo->dst.data,
-                                      pinfo->src.len, (guint8 *)pinfo->src.data);
+                                      pinfo->dst.len, (const guint8 *)pinfo->dst.data,
+                                      pinfo->src.len, (const guint8 *)pinfo->src.data);
         proto_tree_add_text(tree, tvb, offset, length,
                             "ATN extended checksum : 0x%04x (%s)",
                             tvb_get_ntohs(tvb, offset),
@@ -475,8 +475,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         }
         checksum_ok = check_atn_ec_32(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
-                                      pinfo->dst.len, (guint8 *)pinfo->dst.data,
-                                      pinfo->src.len, (guint8 *)pinfo->src.data);
+                                      pinfo->dst.len, (const guint8 *)pinfo->dst.data,
+                                      pinfo->src.len, (const guint8 *)pinfo->src.data);
         proto_tree_add_text(tree, tvb, offset, length,
                             "ATN extended checksum : 0x%08x (%s)",
                             tvb_get_ntohl(tvb, offset),

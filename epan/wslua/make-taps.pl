@@ -124,7 +124,7 @@ sub dotap {
 		  $elems{$k} = $v;
 	}
 
-	my $code = "static void wslua_${tname}_to_table(lua_State* L, const void* p) { $sname* v _U_; v = ($sname*)p; lua_newtable(L);\n";
+	my $code = "static void wslua_${tname}_to_table(lua_State* L, const void* p) { const $sname* v _U_; v = (const $sname*)p; lua_newtable(L);\n";
 	my $doc = "Tap: $tname\n";
 
 	for my $n (sort keys %elems) {

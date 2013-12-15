@@ -163,7 +163,7 @@ static void reset(void *arg)
 }
 
 
-static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_assoc_info_t *data)
+static sctp_assoc_info_t *calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
 {
 	gboolean ok = FALSE;
 
@@ -314,7 +314,7 @@ static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, 
 static int
 packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const void *data)
 {
-	struct _sctp_info *sctp_info;
+	const struct _sctp_info *sctp_info = (const struct _sctp_info *) data;
 	guint32 chunk_number = 0, tsnumber,framenumber;
 	sctp_tmp_info_t tmp_info;
 	sctp_assoc_info_t *info = NULL;
@@ -331,8 +331,6 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	guint8* addr = NULL;
 	int i;
 	guint8 idx = 0;
-
-	sctp_info = (struct _sctp_info *) data;
 
 	framenumber=pinfo->fd->num;
 

@@ -258,7 +258,7 @@ static gboolean
 error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *prv)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
-    const expert_info_t *error_pkt=(expert_info_t *)prv;
+    const expert_info_t *error_pkt=(const expert_info_t *)prv;
 
     /* if return value is 0 then no error */
     if(error_pkt==NULL){

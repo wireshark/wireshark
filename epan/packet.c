@@ -1357,8 +1357,8 @@ dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 static gint
 dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
-	const dissector_handle_t a = (const dissector_handle_t)dissector_a;
-	const dissector_handle_t b = (const dissector_handle_t)dissector_b;
+	const struct dissector_handle *a = (const struct dissector_handle *)dissector_a;
+	const struct dissector_handle *b = (const struct dissector_handle *)dissector_b;
 	const char *a_name, *b_name;
 	gint ret;
 

@@ -43,14 +43,14 @@ typedef struct _e_guid_t {
 WS_DLL_PUBLIC void guids_init(void);
 
 /* add a GUID */
-WS_DLL_PUBLIC void guids_add_guid(e_guid_t *guid, const gchar *name);
+WS_DLL_PUBLIC void guids_add_guid(const e_guid_t *guid, const gchar *name);
 
 /* try to get registered name for this GUID */
-WS_DLL_PUBLIC const gchar *guids_get_guid_name(e_guid_t *guid);
+WS_DLL_PUBLIC const gchar *guids_get_guid_name(const e_guid_t *guid);
 
 /* resolve GUID to name (or if unknown to hex string) */
 /* (if you need hex string only, use guid_to_str instead) */
-WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(e_guid_t *guid);
+WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid);
 
 /* add a UUID (dcerpc_init_uuid() will call this too) */
 #define guids_add_uuid(uuid, name) guids_add_guid((e_guid_t *) (uuid), (name))

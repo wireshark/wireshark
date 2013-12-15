@@ -1451,7 +1451,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, const diam_vnd_t *vendor,
 		while (vs[i].strptr) {
 		  i++;
 		}
-		vs_ext = value_string_ext_new((value_string *)vs, i+1, wmem_strdup_printf(wmem_epan_scope(), "%s_vals_ext",name));
+		vs_ext = value_string_ext_new(vs, i+1, wmem_strdup_printf(wmem_epan_scope(), "%s_vals_ext",name));
 		base = (field_display_e)(base|BASE_EXT_STRING);
 	}
 

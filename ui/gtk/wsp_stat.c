@@ -159,7 +159,7 @@ static int
 wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	wspstat_t *sp = (wspstat_t *)psp;
-	const wsp_info_value_t *value = (wsp_info_value_t *)pri;
+	const wsp_info_value_t *value = (const wsp_info_value_t *)pri;
 	gint       idx   = pdut2index(value->pdut);
 	gboolean   retour = FALSE;
 

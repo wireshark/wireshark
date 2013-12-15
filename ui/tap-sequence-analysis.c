@@ -144,7 +144,7 @@ static gboolean
 seq_analysis_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
-    const struct tcpheader *tcph = (struct tcpheader *)tcp_info;
+    const struct tcpheader *tcph = (const struct tcpheader *)tcp_info;
 
     if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1)){
         /* copied from packet-tcp */
