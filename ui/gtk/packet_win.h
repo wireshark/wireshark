@@ -35,6 +35,7 @@
  *
  * @param widget parent widget (unused)
  * @param reference open current packet or reference packet
+ * @param editable packet window field are editable
  */
 extern void new_packet_window(GtkWidget *widget, gboolean reference, gboolean editable);
 

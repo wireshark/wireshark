@@ -44,6 +44,7 @@
  *
  *  @param capture_opts the options
  *  @param cap_session a handle for the capture session
+ *  @param update_cb update screen
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean

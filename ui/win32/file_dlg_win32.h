@@ -34,6 +34,8 @@ extern "C" {
 /** Open the "Open" dialog box.
  *
  * @param h_wnd HWND of the parent window.
+ * @param file_name File name
+ * @param display_filter a display filter
  */
 gboolean win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter);
 
@@ -68,6 +70,7 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
 /** Open the "Export Specified Packets" dialog box.
  *
  * @param h_wnd HWND of the parent window.
+ * @param cf capture_file Structure for the capture to be saved
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
  * @param compressed Compress the file with gzip.
@@ -86,12 +89,16 @@ gboolean win32_export_specified_packets_file(HWND h_wnd,
 /** Open the "Merge" dialog box.
  *
  * @param h_wnd HWND of the parent window.
+ * @param file_name File name
+ * @param display_filter a display filter
+ * @param merge_type type of merge
  */
 gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type);
 
 /** Open the "Export" dialog box.
  *
  * @param h_wnd HWND of the parent window.
+ * @param cf capture_file Structure for the capture to be saved
  * @param export_type The export type.
  */
 void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type);
@@ -99,6 +106,7 @@ void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type)
 /** Open the "Export raw bytes" dialog box.
  *
  * @param h_wnd HWND of the parent window.
+ * @param cf capture_file Structure for the capture to be saved
  */
 void win32_export_raw_file (HWND h_wnd, capture_file *cf);
 
@@ -111,6 +119,7 @@ void win32_export_sslkeys_file (HWND h_wnd);
 /** Open the "Export Color Filters" dialog box
  *
  * @param h_wnd HWND of the parent window
+ * @param cf capture_file Structure for the capture to be saved
  * @param filter_list the list to export
  */
 void win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list);

@@ -93,7 +93,7 @@ QString gchar_free_to_qstring(gchar *glib_string);
  * Round the current size of a font up to its next "smooth" size.
  * If a smooth size can't be found the font is left unchanged.
  *
- * @font The font to smooth.
+ * @param font The font to smooth.
  */
 void smooth_font_size(QFont &font);
 

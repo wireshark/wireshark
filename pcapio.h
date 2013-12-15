@@ -62,9 +62,9 @@ pcapng_write_session_header_block(FILE* pfile,  /**< Write information */
                                   const char *appname,  /**< Application name, Optinon 4 shb_userappl
                                                          * An UTF-8 string containing the name of the application  used to create this section.
                                                          */
-                                  guint64 section_length,
-                                  guint64 *bytes_written,
-                                  int *err);
+                                  guint64 section_length, /**< Length of section */
+                                  guint64 *bytes_written, /**< Number of written bytes */
+                                  int *err); /**< Error type */
 
 extern gboolean
 pcapng_write_interface_description_block(FILE* pfile,

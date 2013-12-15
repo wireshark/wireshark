@@ -87,6 +87,7 @@ extern void prefs_main_write(void);
  * @param fmt column format
  * @param title column title
  * @param custom_field column custom field
+ * @param custom_occurrence custom occurence
  */
 void column_prefs_add_custom(gint fmt, const gchar *title,
 			     const gchar *custom_field,
