@@ -35,8 +35,8 @@
 
 #include <glib.h>
 #include <epan/addr_resolv.h>
-#include <epan/charsets.h>
 #include <epan/circuit.h>
+#include <epan/dvb_chartbl.h>
 #include <epan/packet.h>
 #include <epan/exported_pdu.h>
 #include <epan/reassemble.h>

@@ -26,7 +26,7 @@
 #include "config.h"
 
 #include <glib.h>
-#include <epan/charsets.h>
+#include <epan/dvb_chartbl.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
