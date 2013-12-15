@@ -6393,26 +6393,16 @@ static gboolean dissect_rtps_submessage_v1(tvbuff_t *tvb, packet_info *pinfo, gi
 /***************************************************************************/
 /* The main packet dissector function
  */
-static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
   proto_item   *ti;
   proto_tree   *rtps_tree, *rtps_submessage_tree;
-  gint         offset = 0;
   guint8       submessageId, flags, majorRev;
   guint16      version, vendor_id;
   gboolean     little_endian, is_ping;
   gint         next_submsg, octets_to_next_header;
   int          sub_hf;
   const value_string* sub_vals;
-  const gboolean is_tcp = (pinfo->ptype == PT_TCP);
-
-  if (is_tcp) {
-    /* In RTPS over TCP the first 4 bytes are the packet length
-     * as 32-bit unsigned int coded as BIG ENDIAN
-    guint32 tcp_len  = tvb_get_ntohl(tvb, offset);
-     */
-    offset = 4;
-  }
 
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
@@ -6544,9 +6534,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   }
 
   /* offset behind RTPS's Header (need to be set in case tree=NULL)*/
-  offset = (version < 0x0200) ? 16 : 20;
-  if (is_tcp)
-    offset += 4;
+  offset += ((version < 0x0200) ? 16 : 20);
 
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     submessageId = tvb_get_guint8(tvb, offset);
@@ -6614,6 +6602,23 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 }  /* dissect_rtps(...) */
 
+static gboolean dissect_rtps_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  gint offset = 0;
+
+  return dissect_rtps(tvb, pinfo, tree, offset);
+}
+
+static gboolean dissect_rtps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  /* In RTPS over TCP the first 4 bytes are the packet length
+   * as 32-bit unsigned int coded as BIG ENDIAN
+   * guint32 tcp_len  = tvb_get_ntohl(tvb, offset);
+   */
+  gint offset = 4;
+
+  return dissect_rtps(tvb, pinfo, tree, offset);
+}
 
 void proto_register_rtps(void) {
 
@@ -7814,7 +7819,7 @@ void proto_register_rtps(void) {
 
 
 void proto_reg_handoff_rtps(void) {
- heur_dissector_add("udp", dissect_rtps, proto_rtps);
- heur_dissector_add("tcp", dissect_rtps, proto_rtps);
+ heur_dissector_add("udp", dissect_rtps_udp, proto_rtps);
+ heur_dissector_add("tcp", dissect_rtps_tcp, proto_rtps);
 }
 
