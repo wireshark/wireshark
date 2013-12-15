@@ -75,6 +75,7 @@ static int hf_nfs_fh_fsid = -1;
 static int hf_nfs_fh_export_fileid = -1;
 static int hf_nfs_fh_export_generation = -1;
 static int hf_nfs_fh_export_snapid = -1;
+static int hf_nfs_fh_exportid = -1;
 static int hf_nfs_fh_file_flag_mntpoint = -1;
 static int hf_nfs_fh_file_flag_snapdir = -1;
 static int hf_nfs_fh_file_flag_snapdir_ent = -1;
@@ -91,6 +92,7 @@ static int hf_nfs_fh_file_flag_aggr = -1;
 static int hf_nfs_fh_file_flag_striped = -1;
 static int hf_nfs_fh_file_flag_private = -1;
 static int hf_nfs_fh_file_flag_next_gen = -1;
+static int hf_nfs_fh_gfid = -1;
 static int hf_nfs_fh_handle_type = -1;
 static int hf_nfs_fh_fsid_major = -1;
 static int hf_nfs_fh_fsid_minor = -1;
@@ -733,6 +735,7 @@ static dissector_table_t nfs_fhandle_table;
 #define FHT_NETAPP_V4        6
 #define FHT_NETAPP_GX_V3     7
 #define FHT_CELERRA_VNX      8
+#define FHT_GLUSTER          9
 
 static const enum_val_t nfs_fhandle_types[] = {
 	{ "unknown",     "Unknown",     FHT_UNKNOWN },
@@ -744,6 +747,7 @@ static const enum_val_t nfs_fhandle_types[] = {
 	{ "ontap_v4",    "ONTAP_V4",    FHT_NETAPP_V4},
 	{ "ontap_gx_v3", "ONTAP_GX_V3", FHT_NETAPP_GX_V3},
 	{ "celerra_vnx", "CELERRA_VNX", FHT_CELERRA_VNX },
+	{ "gluster",     "GLUSTER",     FHT_GLUSTER },
 	{ NULL, NULL, 0 }
 };
 /* decode all nfs filehandles as this type */
@@ -1214,6 +1218,7 @@ static const value_string names_fhtype[] =
 	{	FHT_NETAPP_V4,	 	"ONTAP 7G nfs v4 file handle"		},
 	{	FHT_NETAPP_GX_V3,	"ONTAP GX nfs v3 file handle"		},
 	{	FHT_CELERRA_VNX,	"Celerra|VNX NFS file handle"		},
+	{	FHT_GLUSTER,		"GlusterFS/NFS file handle"		},
 	{	0,			NULL					}
 };
 static value_string_ext names_fhtype_ext = VALUE_STRING_EXT_INIT(names_fhtype);
@@ -2155,6 +2160,36 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 
 out:
 	;
+}
+
+
+/*
+ * Dissect GlusterFS/NFS NFSv3 File Handle - glusterfs-3.3+
+ * The filehandle is alway 32 bytes and first 4 bytes of ident ":OGL"
+ */
+static void
+dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint16 offset=0;
+	guint16	fhlen;
+	char *ident;
+
+	if (!tree)
+		return;
+
+	fhlen = tvb_reported_length(tvb);
+	if (fhlen != 36)
+		return;
+
+	ident = tvb_get_string(NULL, tvb, offset, 4);
+	if (strncmp(":OGL", ident, 4))
+		return;
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_nfs_fh_exportid, tvb, offset, 16, ENC_NA);
+	offset += 16;
+	proto_tree_add_item(tree, hf_nfs_fh_gfid, tvb, offset, 16, ENC_NA);
+	/*offset += 16;*/
 }
 
 
@@ -10590,6 +10625,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_export_snapid, {
 			"snapid", "nfs.fh.export.snapid", FT_UINT8, BASE_DEC,
 			NULL, 0, "export point snapid", HFILL }},
+		{ &hf_nfs_fh_exportid, {
+			"exportid", "nfs.fh.exportid", FT_GUID, BASE_NONE,
+			NULL, 0, "Gluster/NFS exportid", HFILL }},
 		{ &hf_nfs_fh_handle_type, {
 			"Handle type", "nfs.fh.handletype", FT_UINT32, BASE_DEC,
 			NULL, 0, "v4 handle type", HFILL }},
@@ -10650,6 +10688,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_fsid_inode, {
 			"inode", "nfs.fh.fsid.inode", FT_UINT32, BASE_DEC,
 			NULL, 0, "file system inode", HFILL }},
+		{ &hf_nfs_fh_gfid, {
+			"gfid", "nfs.fh.gfid", FT_GUID, BASE_NONE,
+			NULL, 0, "Gluster/NFS GFID", HFILL }},
 		{ &hf_nfs_fh_xfsid_major, {
 			"exported major", "nfs.fh.xfsid.major", FT_UINT32, BASE_DEC,
 			NULL, 0, "exported major file system ID", HFILL }},
@@ -12709,6 +12750,9 @@ proto_reg_handoff_nfs(void)
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_CELERRA_VNX, fhandle_handle);
+
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_GLUSTER, proto_nfs);
+	dissector_add_uint("nfs_fhandle.type", FHT_GLUSTER, fhandle_handle);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
