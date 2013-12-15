@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
+void proto_register_gift(void);
+void proto_reg_handoff_gift(void);
+
 #define TCP_PORT_GIFT 1213
 
 static int proto_gift = -1;

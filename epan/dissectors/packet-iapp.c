@@ -29,6 +29,9 @@
 #include <epan/to_str.h>
 #include <epan/oui.h>
 
+void proto_register_iapp(void);
+void proto_reg_handoff_iapp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_iapp = -1;
 static int hf_iapp_version = -1;

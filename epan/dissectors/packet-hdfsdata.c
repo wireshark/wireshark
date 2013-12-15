@@ -33,6 +33,8 @@
 #include <epan/prefs.h>
 #include "epan/dissectors/packet-tcp.h"
 
+void proto_register_hdfsdata(void);
+void proto_reg_handoff_hdfsdata(void);
 
 #if 0
 #define NAMENODE_PORT 8020
@@ -109,8 +111,6 @@ static int hf_hdfsdata_node = -1;
 static gint ett_hdfsdata = -1;
 
 static dissector_handle_t hdfsdata_handle;
-
-void proto_reg_handoff_hdfsdata(void);
 
 /* Taken from HDFS
    Parse the first byte of a vint/vlong to determine the number of bytes

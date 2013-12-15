@@ -57,6 +57,9 @@
 
 #include <epan/rtp_pt.h>
 
+void proto_register_flip(void);
+void proto_reg_handoff_flip(void);
+
 static int proto_flip = -1;
 
 /* BASIC */
@@ -135,8 +138,6 @@ static dissector_handle_t data_handle;
 static dissector_handle_t forced_handle;
 
 /* Forward declaration. */
-void
-proto_reg_handoff_flip(void);
 static gboolean
 is_payload_rtp(tvbuff_t *tvb);
 static gboolean

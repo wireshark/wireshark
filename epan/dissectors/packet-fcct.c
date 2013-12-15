@@ -35,6 +35,9 @@
 #include "packet-fc.h"
 #include "packet-fcct.h"
 
+void proto_register_fcct(void);
+void proto_reg_handoff_fcct(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_fcct           = -1;
 static int hf_fcct_revision     = -1;

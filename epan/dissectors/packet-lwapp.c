@@ -34,6 +34,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
+void proto_register_lwapp(void);
+void proto_reg_handoff_lwapp(void);
 
 #define LWAPP_FLAGS_T 0x04
 #define LWAPP_FLAGS_F 0x02
@@ -535,7 +537,7 @@ proto_register_lwapp(void)
                                    "Swap frame control bytes (needed for some APs",
                                    &swap_frame_control);
 
-} /* proto_register_diameter */
+}
 
 void
 proto_reg_handoff_lwapp(void)

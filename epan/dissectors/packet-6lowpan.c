@@ -57,6 +57,9 @@
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 
+void proto_register_6lowpan(void);
+void proto_reg_handoff_6lowpan(void);
+
 /* Definitions for 6lowpan packet disassembly structures and routines */
 
 /* 6LoWPAN Patterns */

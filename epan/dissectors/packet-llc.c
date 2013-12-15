@@ -50,6 +50,9 @@
 
 #include "packet-llc.h"
 
+void proto_register_basicxid(void);
+void proto_reg_handoff_llc(void);
+
 #define UDP_PORT_LLC1   12000
 #define UDP_PORT_LLC2   12001
 #define UDP_PORT_LLC3   12002

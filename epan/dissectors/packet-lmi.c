@@ -40,6 +40,9 @@
 #include <epan/packet.h>
 #include <epan/nlpid.h>
 
+void proto_register_lmi(void);
+void proto_reg_handoff_lmi(void);
+
 static int proto_lmi = -1;
 static int hf_lmi_call_ref = -1;
 static int hf_lmi_msg_type = -1;

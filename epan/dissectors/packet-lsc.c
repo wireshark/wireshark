@@ -32,7 +32,7 @@
 
 #include <packet-tcp.h>
 
-/* Forward declaration we need below */
+void proto_register_lsc(void);
 void proto_reg_handoff_lsc(void);
 
 #define LSC_PAUSE        0x01

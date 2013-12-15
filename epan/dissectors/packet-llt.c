@@ -31,13 +31,13 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 
+void proto_register_llt(void);
+void proto_reg_handoff_llt(void);
+
 static const value_string message_type_vs[] = {
   { 0x0a, "heartbeat" },
   { 0, NULL}
 };
-
-/* Forward declaration we need below */
-void proto_reg_handoff_llt(void);
 
 /* Variables for our preferences */
 static guint preference_alternate_ethertype = 0x0;

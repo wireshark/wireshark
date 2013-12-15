@@ -32,6 +32,9 @@
 
 #include "packet-rpc.h"
 
+void proto_register_kadm5(void);
+void proto_reg_handoff_kadm5(void);
+
 #define KADM5_PROGRAM			2112
 #define KADM5PROC_NULL			0
 #define KADM5PROC_CREATE_PRINCIPAL	1

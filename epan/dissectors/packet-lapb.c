@@ -31,6 +31,9 @@
 #include <wiretap/wtap.h>
 #include <epan/xdlc.h>
 
+void proto_register_lapb(void);
+void proto_reg_handoff_lapb(void);
+
 static int proto_lapb = -1;
 static int hf_lapb_address = -1;
 static int hf_lapb_control = -1;

@@ -39,6 +39,9 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
+void proto_register_isns(void);
+void proto_reg_handoff_isns(void);
+
 #define ISNS_PROTO_VER 0x1
 #define ISNS_HEADER_SIZE 12
 

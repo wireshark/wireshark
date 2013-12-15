@@ -38,6 +38,9 @@
 
 #include "packet-h263.h"
 
+void proto_reg_handoff_h263P(void);
+void proto_register_h263P(void);
+
 static int proto_h263P			= -1;
 
 /* H.263 RFC 4629 fields */

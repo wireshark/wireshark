@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+void proto_register_ipnet(void);
+void proto_reg_handoff_ipnet(void);
+
 static int proto_ipnet   = -1;
 static int hf_version    = -1;
 static int hf_family     = -1;

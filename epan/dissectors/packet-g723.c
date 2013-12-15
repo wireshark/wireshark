@@ -32,6 +32,8 @@
 #include <epan/packet.h>
 #include <epan/rtp_pt.h>
 
+void proto_reg_handoff_g723(void);
+void proto_register_g723(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_g723					= -1;

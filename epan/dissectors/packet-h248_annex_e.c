@@ -36,6 +36,9 @@
 /*****/
 
 #include "packet-h248.h"
+
+void proto_register_h248_annex_e(void);
+
 #define PNAME  "H.248 Annex E"
 #define PSNAME "H248E"
 #define PFNAME "h248e"

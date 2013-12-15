@@ -23,8 +23,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void proto_register_gnutella(void);
-
 #define GNUTELLA_TCP_PORT	6346
 
 /*

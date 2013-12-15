@@ -73,6 +73,9 @@
 
 #include "packet-l2tp.h"
 
+void proto_register_l2tp(void);
+void proto_reg_handoff_l2tp(void);
+
 static int proto_l2tp = -1;
 static int hf_l2tp_type = -1;
 static int hf_l2tp_length_bit = -1;

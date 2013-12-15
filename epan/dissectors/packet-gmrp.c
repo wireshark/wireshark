@@ -33,6 +33,9 @@
 #include <epan/packet.h>
 #include <epan/llcsaps.h>
 
+void proto_register_gmrp(void);
+void proto_reg_handoff_gmrp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_gmrp = -1;
 static int hf_gmrp_proto_id = -1;

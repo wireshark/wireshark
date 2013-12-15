@@ -32,6 +32,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 
+void proto_register_ISystemActivator(void);
+void proto_reg_handoff_ISystemActivator(void);
 
 static int proto_ISystemActivator = -1;
 

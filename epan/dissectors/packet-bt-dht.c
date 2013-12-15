@@ -35,6 +35,9 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_bt_dht(void);
+void proto_reg_handoff_bt_dht(void);
+
 /* Specifications: BEP-0005
  * http://www.bittorrent.org/beps/bep_0005.html
  */
@@ -494,8 +497,6 @@ gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
   }
   return FALSE;
 }
-
-void proto_reg_handoff_bt_dht(void);
 
 void
 proto_register_bt_dht(void)

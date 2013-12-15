@@ -33,8 +33,8 @@
 #include "packet-dcom.h"
 
 
-void proto_register_dcom_remact(void);
-void proto_reg_handoff_dcom_remact(void);
+void proto_register_remact(void);
+void proto_reg_handoff_remact(void);
 
 static int hf_remact_opnum = -1;
 

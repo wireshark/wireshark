@@ -34,6 +34,9 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
+void proto_register_icap(void);
+void proto_reg_handoff_icap(void);
+
 typedef enum _icap_type {
 	ICAP_OPTIONS,
 	ICAP_REQMOD,

@@ -39,6 +39,7 @@
 
 #include "packet-gmr1_common.h"
 
+void proto_register_gmr1_common(void);
 
 /* GMR-1 Common proto */
 static int proto_gmr1_common = -1;
@@ -369,10 +370,4 @@ proto_register_gmr1_common(void)
 	proto_gmr1_common = proto_register_protocol("GEO-Mobile Radio (1) Common", "GMR-1 Common", "gmr1.common");
 
 	proto_register_field_array(proto_gmr1_common, hf, array_length(hf));
-}
-
-void
-proto_reg_handoff_gmr1_common(void)
-{
-	/* Nothing to do */
 }

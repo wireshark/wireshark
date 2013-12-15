@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_mrp_msrp(void);
+void proto_reg_handoff_mrp_msrp(void);
+
 /* MSRP End Mark Sequence */
 #define MSRP_END_MARK       0x0000
 

@@ -47,6 +47,9 @@
 #include "color.h"
 #include "color_filters.h"
 
+void proto_register_frame(void);
+void proto_reg_handoff_frame(void);
+
 int proto_frame = -1;
 static int proto_pkt_comment = -1;
 int hf_frame_arrival_time = -1;

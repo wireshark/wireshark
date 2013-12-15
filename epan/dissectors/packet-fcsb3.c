@@ -35,6 +35,9 @@
 #include "packet-fc.h"
 #include "packet-fcsb3.h"
 
+void proto_register_fcsbccs(void);
+void proto_reg_handoff_fcsbccs(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_fc_sbccs = -1;
 static int hf_sbccs_chid = -1;

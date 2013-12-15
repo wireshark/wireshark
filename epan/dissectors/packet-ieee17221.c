@@ -39,6 +39,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_17221(void);
+void proto_reg_handoff_17221(void);
+
 /* 17221 Offsets */
 #define P1722_HEADER_OFFSET                 12
 

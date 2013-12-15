@@ -37,6 +37,9 @@
 #include "packet-fcct.h"
 #include "packet-fcfzs.h"
 
+void proto_register_fcfzs(void);
+void proto_reg_handoff_fcfzs(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_fcfzs                     = -1;
 static int hf_fcfzs_opcode                 = -1;

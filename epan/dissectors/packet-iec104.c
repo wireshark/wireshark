@@ -42,6 +42,10 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_iec104apci(void);
+void proto_register_iec104asdu(void);
+void proto_reg_handoff_iec104(void);
+
 /* IEC-104 comment: Fields are little endian. */
 
 #define MAXS 256

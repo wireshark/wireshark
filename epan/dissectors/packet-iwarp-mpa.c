@@ -36,6 +36,9 @@
 #include <epan/expert.h>
 #include <wsutil/crc32.h>
 
+void proto_register_mpa(void);
+void proto_reg_handoff_mpa(void);
+
 /* DEFINES */
 
 /* header field byte lengths */

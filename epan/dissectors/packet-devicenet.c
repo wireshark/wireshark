@@ -37,6 +37,8 @@
 #include <epan/reassemble.h>
 #include "packet-cip.h"
 
+void proto_register_devicenet(void);
+
 #define DEVICENET_CANID_MASK            0x7FF
 #define MESSAGE_GROUP_1_ID              0x3FF
 #define MESSAGE_GROUP_1_MSG_MASK        0x3C0

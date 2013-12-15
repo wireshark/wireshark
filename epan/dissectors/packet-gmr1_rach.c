@@ -41,6 +41,8 @@
 
 #include "packet-csn1.h"
 
+void proto_register_gmr1_rach(void);
+void proto_reg_handoff_gmr1_rach(void);
 
 /* GMR-1 RACH proto */
 static int proto_gmr1_rach = -1;

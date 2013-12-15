@@ -56,6 +56,9 @@
 #include "packet-p1.h"
 #include "packet-p22.h"
 
+void proto_register_dmp(void);
+void proto_reg_handoff_dmp(void);
+
 #define PNAME  "Direct Message Profile"
 #define PSNAME "DMP"
 #define PFNAME "dmp"
@@ -161,8 +164,6 @@
 
 /* Maximum lengths */
 #define MAX_SIC_LEN         30
-
-void proto_reg_handoff_dmp (void);
 
 static int proto_dmp = -1;
 

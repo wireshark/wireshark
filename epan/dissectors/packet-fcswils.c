@@ -37,6 +37,9 @@
 #include "packet-fcswils.h"
 #include "packet-fcct.h"
 
+void proto_register_fcswils(void);
+void proto_reg_handoff_fcswils(void);
+
 /*
  * See the FC-SW specifications.
  */

@@ -36,6 +36,9 @@
 #include "packet-gre.h"
 #include "packet-wccp.h"
 
+void proto_register_gre(void);
+void proto_reg_handoff_gre(void);
+
 /*
  * See RFC 1701 "Generic Routing Encapsulation (GRE)", RFC 1702
  * "Generic Routing Encapsulation over IPv4 networks", RFC 2637

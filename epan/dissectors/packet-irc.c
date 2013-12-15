@@ -47,6 +47,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_irc(void);
+void proto_reg_handoff_irc(void);
+
 static int proto_irc = -1;
 static int hf_irc_request = -1;
 static int hf_irc_request_prefix = -1;

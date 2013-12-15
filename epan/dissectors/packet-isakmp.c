@@ -64,6 +64,9 @@
 #include <epan/uat.h>
 #endif
 
+void proto_register_isakmp(void);
+void proto_reg_handoff_isakmp(void);
+
 /* Struct for the byte_to_str, match_bytestr_idx, and match_bytestr functions */
 
 typedef struct _byte_string {

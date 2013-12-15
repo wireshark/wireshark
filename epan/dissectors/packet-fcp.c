@@ -36,6 +36,9 @@
 #include "packet-fcp.h"
 #include "packet-fcels.h"
 
+void proto_register_fcp(void);
+void proto_reg_handoff_fcp(void);
+
 typedef struct _fcp_proto_data_t {
     guint16 lun;
 } fcp_proto_data_t;

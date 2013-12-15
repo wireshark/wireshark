@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_gopher(void);
+void proto_reg_handoff_gopher(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_gopher = -1;
 static int hf_gopher_request = -1;

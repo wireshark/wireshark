@@ -47,6 +47,9 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
+void proto_register_ipdc(void);
+void proto_reg_handoff_ipdc(void);
+
 #define	TCP_PORT_IPDC	6668
 #define	TRANS_ID_SIZE_IPDC	4
 
@@ -697,8 +700,6 @@ static gboolean ipdc_desegment = TRUE;
 static guint ipdc_port_pref = TCP_PORT_IPDC;
 
 static dissector_handle_t q931_handle;
-
-void proto_reg_handoff_ipdc(void);
 
 
 static guint

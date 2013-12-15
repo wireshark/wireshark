@@ -39,6 +39,8 @@
 
 #include "packet-h263.h"
 
+void proto_register_h263_data(void);
+
 static int proto_h263_data		= -1;
 
 /* Fields for the data section */

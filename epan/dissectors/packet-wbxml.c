@@ -58,6 +58,8 @@
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
 
+void proto_register_wbxml(void);
+void proto_reg_handoff_wbxml(void);
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
@@ -6931,9 +6933,6 @@ dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void
 dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     const wbxml_decoding *override_content_map);
-
-void
-proto_register_wbxml(void);
 
 /* Parse and display the WBXML string table */
 static void

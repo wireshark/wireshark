@@ -28,6 +28,9 @@
 #include "config.h"
 
 #include "packet-h248.h"
+
+void proto_register_h248_3gpp(void);
+
 #define PNAME  "H.248 3GPP"
 #define PSNAME "H2483GPP"
 #define PFNAME "h248.3gpp"

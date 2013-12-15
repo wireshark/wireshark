@@ -29,6 +29,9 @@
 #include <epan/prefs.h>
 #include <epan/circuit.h>
 
+void proto_register_isdn(void);
+void proto_reg_handoff_isdn(void);
+
 static int proto_isdn = -1;
 static int hf_isdn_channel = -1;
 

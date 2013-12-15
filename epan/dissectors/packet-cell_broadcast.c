@@ -38,6 +38,8 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
 
+void proto_register_cbs(void);
+
 #define GSM_CBS_PAGE_SIZE 88
 
 const value_string message_id_values[] = {

@@ -230,6 +230,9 @@
 
 #include "packet-dcm.h"
 
+void proto_register_dcm(void);
+void proto_reg_handoff_dcm(void);
+
 #define DICOM_DEFAULT_RANGE "104"
 
 /* Many thanks to http://medicalconnections.co.uk/ for the GUID */

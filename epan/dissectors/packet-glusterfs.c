@@ -44,6 +44,9 @@
 #include "packet-rpc.h"
 #include "packet-gluster.h"
 
+void proto_register_glusterfs(void);
+void proto_reg_handoff_glusterfs(void);
+
 /* Initialize the protocol and registered fields */
 static gint proto_glusterfs = -1;
 

@@ -38,6 +38,9 @@
 #include <epan/prefs.h>
 #include "packet-ndmp.h"
 
+void proto_register_tcpencap(void);
+void proto_reg_handoff_tcpencap(void);
+
 static int hf_tcpencap_unknown = -1;
 static int hf_tcpencap_zero = -1;
 static int hf_tcpencap_seq = -1;
@@ -225,8 +228,6 @@ proto_register_tcpencap(void)
 	};
 
 	module_t *tcpencap_module;
-
-	void proto_reg_handoff_tcpencap(void);
 
 	proto_tcpencap = proto_register_protocol(
 		"TCP Encapsulation of IPsec Packets", "TCPENCAP", "tcpencap");

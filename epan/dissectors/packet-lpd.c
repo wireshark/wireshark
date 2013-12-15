@@ -28,6 +28,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_lpd(void);
+void proto_reg_handoff_lpd(void);
+
 #define TCP_PORT_PRINTER		515
 
 static int proto_lpd = -1;

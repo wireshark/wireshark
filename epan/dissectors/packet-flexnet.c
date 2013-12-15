@@ -43,6 +43,9 @@
 #include <epan/packet.h>
 #include <epan/ax25_pids.h>
 
+void proto_register_flexnet(void);
+void proto_reg_handoff_flexnet(void);
+
 #define FLEXNET_ADRLEN  15
 #define FLEXNET_CTLLEN  15
 #define FLEXNET_HDRLEN  (FLEXNET_ADRLEN + FLEXNET_ADRLEN + FLEXNET_CTLLEN)

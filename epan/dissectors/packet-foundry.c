@@ -34,6 +34,10 @@
 #include "packet-llc.h"
 #include <epan/oui.h>
 
+void proto_register_fdp(void);
+void proto_reg_handoff_fdp(void);
+void proto_register_foundry_oui(void);
+
 static int hf_llc_foundry_pid = -1;
 
 static int proto_fdp = -1;

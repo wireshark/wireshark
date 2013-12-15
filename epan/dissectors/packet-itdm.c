@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_itdm(void);
+void proto_reg_handoff_itdm(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_itdm        = -1;
 static int hf_itdm_timestamp = -1;
@@ -377,8 +380,6 @@ dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		dissect_itdm_125usec(tvb, pinfo, tree);
 }
-
-void proto_reg_handoff_itdm(void);
 
 void
 proto_register_itdm(void)

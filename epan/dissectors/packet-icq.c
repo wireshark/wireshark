@@ -37,6 +37,9 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 
+void proto_register_icq(void);
+void proto_reg_handoff_icq(void);
+
 static int proto_icq = -1;
 static int hf_icq_version = -1;
 static int hf_icq_uin = -1;

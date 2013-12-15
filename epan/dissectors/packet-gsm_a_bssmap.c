@@ -60,6 +60,9 @@
 #include "packet-rtp.h"
 #include "packet-gsm_map.h"
 
+void proto_register_gsm_a_bssmap(void);
+void proto_reg_handoff_gsm_a_bssmap(void);
+
 /* PROTOTYPES/FORWARDS */
 
 /* TS 48.008 3.2.2.1 Message Type */

@@ -39,6 +39,9 @@
 #include <epan/show_exception.h>
 #include "packet-infiniband.h"
 
+void proto_register_infiniband(void);
+void proto_reg_handoff_infiniband(void);
+
 #define PROTO_TAG_INFINIBAND    "Infiniband"
 
 /* Wireshark ID */

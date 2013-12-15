@@ -36,6 +36,9 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
+void proto_register_m2tp(void);
+void proto_reg_handoff_m2tp(void);
+
 #define SCTP_PORT_M2TP        9908  /* unassigned port number (not assigned by IANA) */
 
 #define VERSION_LENGTH         1

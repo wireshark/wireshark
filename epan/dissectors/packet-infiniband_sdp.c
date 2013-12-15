@@ -50,12 +50,12 @@
 
 #include "packet-infiniband.h"
 
+void proto_register_ib_sdp(void);
+void proto_reg_handoff_ib_sdp(void);
+
 /* If the service-id is non-zero after being ANDed with the following mask then
    this is SDP traffic */
 #define SERVICE_ID_MASK 0x0000000000010000
-
-/* Forward declaration we need below (for using proto_reg_handoff as a prefs callback) */
-void proto_reg_handoff_ib_sdp(void);
 
 static int proto_infiniband = -1;   /* we'll need the Infiniband protocol index sometimes, so keep it here */
 

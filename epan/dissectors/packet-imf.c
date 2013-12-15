@@ -43,6 +43,9 @@
 #include "packet-ess.h"
 #include "packet-p1.h"
 
+void proto_register_imf(void);
+void proto_reg_handoff_imf(void);
+
 #define PNAME  "Internet Message Format"
 #define PSNAME "IMF"
 #define PFNAME "imf"

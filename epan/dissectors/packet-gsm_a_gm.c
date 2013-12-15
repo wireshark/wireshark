@@ -88,6 +88,9 @@
 #include "packet-ppp.h"
 #include "ipproto.h"
 
+void proto_register_gsm_a_gm(void);
+void proto_reg_handoff_gsm_a_gm(void);
+
 /* PROTOTYPES/FORWARDS */
 
 const value_string gsm_a_dtap_msg_gmm_strings[] = {

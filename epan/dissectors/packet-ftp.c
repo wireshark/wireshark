@@ -53,7 +53,8 @@
 #include "wsutil/inet_v6defs.h" /* if not a *NIX system */
 #endif
 
-
+void proto_register_ftp(void);
+void proto_reg_handoff_ftp(void);
 
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;

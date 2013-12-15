@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_lisp_data(void);
+void proto_reg_handoff_lisp_data(void);
+
 /* See RFC 6830 "Locator/ID Separation Protocol (LISP)" */
 
 /*  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

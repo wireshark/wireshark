@@ -50,6 +50,9 @@
 #include "packet-iax2.h"
 #include <epan/iax2_codec_type.h>
 
+void proto_register_iax2(void);
+void proto_reg_handoff_iax2(void);
+
 #define IAX2_PORT               4569
 #define PROTO_TAG_IAX2          "IAX2"
 

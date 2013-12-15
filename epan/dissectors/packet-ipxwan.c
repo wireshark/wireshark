@@ -29,6 +29,9 @@
 #include <epan/expert.h>
 #include "packet-ipx.h"
 
+void proto_register_ipxwan(void);
+void proto_reg_handoff_ipxwan(void);
+
 /*
  * See RFC 1362 for version 1 of this protocol; see the NetWare Link
  * Services Protocol Specification, chapter 3, for version 2.

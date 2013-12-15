@@ -58,6 +58,9 @@
 #include "packet-csn1.h"
 #include "packet-gsm_rlcmac.h"
 
+void proto_register_gsm_rlcmac(void);
+void proto_reg_handoff_gsm_rlcmac(void);
+
 /* private typedefs */
 typedef struct
 {

@@ -40,6 +40,7 @@
 #include <epan/wmem/wmem.h>
 #include "packet-hdcp.h"
 
+void proto_register_hdcp(void);
 
 static int proto_hdcp  = -1;
 

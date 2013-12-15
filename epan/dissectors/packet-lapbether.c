@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_lapbether(void);
+void proto_reg_handoff_lapbether(void);
+
 static int proto_lapbether = -1;
 
 static int hf_lapbether_length = -1;

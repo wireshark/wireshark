@@ -29,6 +29,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_gdsdb(void);
+void proto_reg_handoff_gdsdb(void);
+
 #define TCP_PORT	3050
 
 static int proto_gdsdb = -1;

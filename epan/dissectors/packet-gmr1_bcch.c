@@ -37,6 +37,7 @@
 
 #include "packet-csn1.h"
 
+void proto_register_gmr1_bcch(void);
 
 /* GMR-1 BCCH proto */
 static int proto_gmr1_bcch = -1;

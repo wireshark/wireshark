@@ -35,6 +35,9 @@
 
 #include <epan/ptvcursor.h>
 
+void proto_reg_handoff_homeplug(void);
+void proto_register_homeplug(void);
+
 static int proto_homeplug                     = -1;
 
 static int hf_homeplug_mctrl                  = -1;

@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_http_urlencoded(void);
+void proto_reg_handoff_http_urlencoded(void);
+
 static dissector_handle_t form_urlencoded_handle;
 
 static header_field_info *hfi_urlencoded = NULL;

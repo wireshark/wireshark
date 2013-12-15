@@ -32,7 +32,8 @@
 #include <epan/oui.h>
 #include <epan/nlpid.h>
 
-
+void proto_register_fefd(void);
+void proto_reg_handoff_fefd(void);
 
 /* Offsets in TLV structure. */
 #define TLV_TYPE        0

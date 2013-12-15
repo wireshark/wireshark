@@ -42,6 +42,9 @@
 #include "packet-fc.h"
 #include "packet-fcels.h"
 
+void proto_register_fcels(void);
+void proto_reg_handoff_fcels(void);
+
 #define FC_ELS_RPLY 0
 #define FC_ELS_REQ  1
 

@@ -52,6 +52,9 @@
 #include <epan/nlpid.h>
 #include <epan/greproto.h>
 
+void proto_register_fr(void);
+void proto_reg_handoff_fr(void);
+
 /*
  * Bits in the address field.
  */

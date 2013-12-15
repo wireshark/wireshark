@@ -34,6 +34,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_bvlc(void);
+void proto_reg_handoff_bvlc(void);
+
 /* Taken from add-135a (BACnet-IP-standard paper):
  *
  * The default UDP port for both directed messages and broadcasts shall
@@ -311,8 +314,6 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	}
 	return tvb_reported_length(tvb);
 }
-
-void proto_reg_handoff_bvlc(void);
 
 void
 proto_register_bvlc(void)

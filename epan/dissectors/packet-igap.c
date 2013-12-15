@@ -50,6 +50,7 @@
 #include "packet-igmp.h"
 #include "packet-igap.h"
 
+void proto_register_igap(void);
 
 static int proto_igap      = -1;
 static int hf_type         = -1;

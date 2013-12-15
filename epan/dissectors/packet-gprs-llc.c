@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_llcgprs(void);
+void proto_reg_handoff_llcgprs(void);
+
 #define I_FORMAT	1
 #define S_FORMAT	2
 #define UI_FORMAT	3

@@ -65,6 +65,9 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 
+void proto_register_gsm_sms_ud(void);
+void proto_reg_handoff_gsm_sms_ud(void);
+
 static void dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_gsm_sms_ud = -1;

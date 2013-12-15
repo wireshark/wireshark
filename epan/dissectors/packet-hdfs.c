@@ -35,6 +35,9 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
 
+void proto_register_hdfs(void);
+void proto_reg_handoff_hdfs(void);
+
 #if 0
 #define NAMENODE_PORT 8020
 #endif
@@ -119,8 +122,6 @@ static int hf_hdfs_service = -1;
 static gint ett_hdfs = -1;
 
 static dissector_handle_t hdfs_handle;
-
-void proto_reg_handoff_hdfs(void);
 
 /* Parses the parameters of a function.
    Parses the type length which is always in 2 bytes.

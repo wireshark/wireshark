@@ -87,6 +87,9 @@
 #include "packet-ieee802154.h"
 #include "packet-sll.h"
 
+void proto_register_ieee802154(void);
+void proto_reg_handoff_ieee802154(void);
+
 /* Dissection Options for dissect_ieee802154_common */
 #define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001  /* FCS field contains a TI CC24xx style FCS. */
 #define DISSECT_IEEE802154_OPTION_LINUX     0x00000002  /* Addressing fields are padded DLT_IEEE802_15_4_LINUX, not implemented. */
@@ -160,8 +163,6 @@ UAT_BUFFER_CB_DEF(addr_uat, eui64, static_addr_t, eui64, eui64_len)
  * Dissector Function Prototypes
  *-------------------------------------
  */
-/* Register Functions. Loads the dissector into Wireshark. */
-void proto_reg_handoff_ieee802154   (void);
 
 /* Dissection Routines. */
 static void dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tree *);

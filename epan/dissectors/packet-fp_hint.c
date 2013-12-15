@@ -35,6 +35,9 @@
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
 
+void proto_register_fp_hint(void);
+void proto_reg_handoff_fp_hint(void);
+
 static int proto_fp_hint = -1;
 extern int proto_fp;
 extern int proto_umts_mac;

@@ -38,6 +38,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_krb4(void);
+void proto_reg_handoff_krb4(void);
+
 static int proto_krb4 = -1;
 static int hf_krb4_version = -1;
 static int hf_krb4_auth_msg_type = -1;

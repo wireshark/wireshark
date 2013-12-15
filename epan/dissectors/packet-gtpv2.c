@@ -44,6 +44,9 @@
 #include "packet-bssgp.h"
 #include "packet-ntp.h"
 
+void proto_register_gtpv2(void);
+void proto_reg_handoff_gtpv2(void);
+
 static dissector_handle_t nas_eps_handle;
 static dissector_table_t gtpv2_priv_ext_dissector_table;
 

@@ -35,6 +35,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_register_lon(void);
+void proto_reg_handoff_lon(void);
 
 static const value_string pdu_fmt_vs[]=
 {
@@ -122,8 +124,6 @@ static const value_string nd_code_vs[]=
 	{0x54, "ND_QUERY_XCVR"},
 	{0, NULL}
 };
-
-void proto_reg_handoff_lon(void);
 
 static gint hf_lon_ppdu			= -1;
 static gint hf_lon_ppdu_prio		= -1;

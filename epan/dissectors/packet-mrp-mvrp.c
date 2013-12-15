@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_mrp_mvrp(void);
+void proto_reg_handoff_mrp_mvrp(void);
+
 /* MVRP End Mark Sequence */
 #define MVRP_END_MARK       0x0000
 

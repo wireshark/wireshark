@@ -27,6 +27,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_nonstd(void);
+void proto_reg_handoff_nonstd(void);
+
 /* Define the nonstd proto */
 static int proto_nonstd = -1;
 

@@ -29,6 +29,8 @@
 #include <epan/oui.h>
 #include <epan/iana_snap_pid.h>
 
+void proto_register_iana_oui(void);
+
 static int hf_llc_iana_pid = -1;
 
 static const value_string iana_pid_vals[] = {

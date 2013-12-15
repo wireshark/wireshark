@@ -35,6 +35,9 @@
 #include "packet-ieee802a.h"
 #include "packet-lldp.h"
 
+void proto_register_ecp_oui(void);
+void proto_reg_handoff_ecp(void);
+
 #define ECP_SUBTYPE	0
 
 #define VDP_TLV_TYPE	0x02
@@ -44,9 +47,6 @@
 #define VDP_FIF_MACVID			0x02
 #define VDP_FIF_GROUPVID		0x03
 #define VDP_FIF_GROUPVMACVID	0x04
-
-void proto_register_ecp_oui(void);
-void proto_reg_handoff_ecp_oui(void);
 
 static gint proto_ecp = -1;
 static gint hf_ecp_pid = -1;

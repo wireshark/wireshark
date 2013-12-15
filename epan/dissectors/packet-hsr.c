@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_hsr(void);
+void proto_reg_handoff_hsr(void);
+
 /**********************************************************/
 /* Lengths of fields within a HSR packet.                 */
 /**********************************************************/

@@ -62,6 +62,10 @@ typedef enum _http_type {
 
 #include <epan/tap.h>
 
+void proto_register_http(void);
+void proto_reg_handoff_http(void);
+void proto_register_message_http(void);
+void proto_reg_handoff_message_http(void);
 
 static int http_tap = -1;
 static int http_eo_tap = -1;

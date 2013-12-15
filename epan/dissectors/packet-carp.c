@@ -31,6 +31,9 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 
+void proto_register_carp(void);
+void proto_reg_handoff_carp(void);
+
 static gint proto_carp = -1;
 static gint ett_carp = -1;
 static gint ett_carp_ver_type = -1;

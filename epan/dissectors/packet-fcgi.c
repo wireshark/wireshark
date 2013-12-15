@@ -29,6 +29,9 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_fcgi(void);
+void proto_reg_handoff_fcgi(void);
+
 static int proto_fcgi = -1;
 
 static guint tcp_port = 0;
@@ -96,8 +99,6 @@ static const value_string protocol_statuses[] = {
    { 3, "FCGI_UNKNOWN_ROLE" },
    { 0, NULL }
 };
-
-void proto_reg_handoff_fcgi(void);
 
 static void
 dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)

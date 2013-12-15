@@ -41,6 +41,8 @@
 #include <wsutil/crc10.h>
 #include <wsutil/crc6.h>
 
+void proto_reg_handoff_iuup(void);
+void proto_register_iuup(void);
 
 typedef struct _iuup_rfci_t {
     guint id;

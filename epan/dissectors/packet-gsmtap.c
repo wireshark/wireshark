@@ -49,6 +49,9 @@
 #include "packet-tetra.h"
 #include "packet-rrc.h"
 
+void proto_register_gsmtap(void);
+void proto_reg_handoff_gsmtap(void);
+
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 /* The following types and definitions are imported from libosmocore,
  * the original source of the GSMTAP format.

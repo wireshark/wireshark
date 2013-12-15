@@ -35,6 +35,9 @@
 #include "packet-eth.h"
 #include "packet-tr.h"
 
+void proto_register_isl(void);
+void proto_reg_handoff_isl(void);
+
 /*
  * See
  *

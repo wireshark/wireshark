@@ -31,6 +31,9 @@
 #include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 
+void proto_register_knet(void);
+void proto_reg_handoff_knet(void);
+
 #define PROTO_TAG_KNET      "KNET"    /*!< Definition of kNet Protocol */
 #define PORT                2345
 
@@ -56,8 +59,6 @@
 
 #define UDP_DATAGRAM_RELIABLE_FLAG    0x40
 #define UDP_MSG_BLOCK_RELIABLE_FLAG   0x10
-
-void proto_reg_handoff_knet(void); /* Forward declaration for use in preferences registration */
 
 /**
  * @addtogroup protocols Protocol Variables

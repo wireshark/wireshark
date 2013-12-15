@@ -27,6 +27,8 @@
 #include "packet-llc.h"
 #include <epan/oui.h>
 
+void proto_register_force10_oui(void);
+
 static int hf_llc_force10_pid = -1;
 
 static const value_string force10_pid_vals[] = {

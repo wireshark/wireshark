@@ -141,6 +141,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 
+void proto_register_hsrp(void);
+void proto_reg_handoff_hsrp(void);
+
 static gint proto_hsrp = -1;
 static dissector_handle_t data_handle;
 

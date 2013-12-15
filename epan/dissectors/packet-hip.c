@@ -42,6 +42,9 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 
+void proto_register_hip(void);
+void proto_reg_handoff_hip(void);
+
 #define HI_ALG_DSA 3
 #define HI_ALG_RSA 5
 

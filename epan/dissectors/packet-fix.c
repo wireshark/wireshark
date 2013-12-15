@@ -42,6 +42,9 @@
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 
+void proto_register_fix(void);
+void proto_reg_handoff_fix(void);
+
 typedef struct _fix_parameter {
     int field_len;
     int tag_len;

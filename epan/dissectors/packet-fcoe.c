@@ -42,6 +42,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-fc.h"
 
+void proto_register_fcoe(void);
+void proto_reg_handoff_fcoe(void);
+
 #define FCOE_HEADER_LEN   14        /* header: version, SOF, and padding */
 #define FCOE_TRAILER_LEN   8        /* trailer: CRC, EOF, and padding */
 

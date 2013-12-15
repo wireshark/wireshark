@@ -35,6 +35,8 @@
 #include "packet-scsi.h"
 #include "packet-fc.h"
 
+void proto_register_fcsp(void);
+
 /* Message Codes */
 #define FC_AUTH_MSG_AUTH_REJECT        0x0A
 #define FC_AUTH_MSG_AUTH_NEGOTIATE     0x0B

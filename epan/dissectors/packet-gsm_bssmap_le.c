@@ -39,6 +39,9 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
+void proto_register_gsm_bssmap_le(void);
+void proto_reg_handoff_gsm_bssmap_le(void);
+
 /* PROTOTYPES/FORWARDS */
 
 /* Message Type definitions */

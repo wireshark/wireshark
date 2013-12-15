@@ -36,6 +36,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_png(void);
+void proto_reg_handoff_png(void);
+
 static header_field_info *hfi_png = NULL;
 
 #define PNG_HFI_INIT HFI_INIT(proto_png)

@@ -33,6 +33,8 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
+void proto_register_fractalgeneratorprotocol(void);
+void proto_reg_handoff_fractalgeneratorprotocol(void);
 
 #define FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097601
 

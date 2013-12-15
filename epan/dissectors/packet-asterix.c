@@ -34,6 +34,9 @@
 #include "wmem/wmem.h"
 #include <stdio.h>
 
+void proto_register_asterix(void);
+void proto_reg_handoff_asterix(void);
+
 #define PROTO_TAG_ASTERIX   "ASTERIX"
 #define ASTERIX_PORT        8600
 

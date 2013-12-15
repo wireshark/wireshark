@@ -37,6 +37,9 @@
 #include "packet-fcct.h"
 #include "packet-fcfcs.h"
 
+void proto_register_fcfcs(void);
+void proto_reg_handoff_fcfcs(void);
+
 /*
  * See the FC-GS3 specification.
  */

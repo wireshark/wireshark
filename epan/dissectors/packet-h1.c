@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+void proto_register_h1(void);
+void proto_reg_handoff_h1(void);
+
 static int proto_h1 = -1;
 static int hf_h1_header = -1;
 static int hf_h1_len = -1;

@@ -35,6 +35,9 @@
 #include <epan/lapd_sapi.h>
 #include <epan/prefs.h>
 
+void proto_register_gsm_sim(void);
+void proto_reg_handoff_gsm_sim(void);
+
 static int proto_gsm_sim = -1;
 
 /* ISO 7816-4 APDU */
@@ -1456,9 +1459,6 @@ dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_rsp_apdu_tvb(tvb, 0, pinfo, tree, NULL);
 }
-
-void
-proto_reg_handoff_gsm_sim(void);
 
 void
 proto_register_gsm_sim(void)

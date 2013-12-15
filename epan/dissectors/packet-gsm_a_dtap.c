@@ -120,6 +120,9 @@
 #include "expert.h"
 #include "packet-isup.h"
 
+void proto_register_gsm_a_dtap(void);
+void proto_reg_handoff_gsm_a_dtap(void);
+
 /* PROTOTYPES/FORWARDS */
 
 const value_string gsm_a_dtap_msg_mm_strings[] = {

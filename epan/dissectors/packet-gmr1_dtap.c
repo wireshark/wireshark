@@ -36,6 +36,8 @@
 
 #include "packet-gmr1_common.h"
 
+void proto_register_gmr1_dtap(void);
+void proto_reg_handoff_gmr1_dtap(void);
 
 /* GMR-1 DTAP proto */
 static int proto_gmr1_dtap = -1;

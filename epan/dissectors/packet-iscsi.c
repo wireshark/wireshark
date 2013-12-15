@@ -48,6 +48,9 @@
 #include <epan/range.h>
 #include <wsutil/crc32.h>
 
+void proto_register_iscsi(void);
+void proto_reg_handoff_iscsi(void);
+
 /* the absolute values of these constants don't matter as long as
  * latter revisions of the protocol are assigned a larger number */
 #define ISCSI_PROTOCOL_DRAFT08 1

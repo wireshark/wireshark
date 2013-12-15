@@ -38,6 +38,9 @@
 
 #include <epan/prefs.h>
 
+void proto_register_amr(void);
+void proto_reg_handoff_amr(void);
+
 #define AMR_NB_SID 8
 #define AMR_WB_SID 9
 #define AMR_NO_TRANS 15
@@ -616,8 +619,6 @@ dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* 
 
     return tvb_length(tvb);
 }
-
-void proto_reg_handoff_amr(void);
 
 void
 proto_register_amr(void)

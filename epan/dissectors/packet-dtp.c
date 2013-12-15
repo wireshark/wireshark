@@ -46,6 +46,7 @@
  * but it's all I could find....
  */
 void proto_register_dtp(void);
+void proto_reg_handoff_dtp(void);
 
 static int proto_dtp = -1;
 static int hf_dtp_version = -1;

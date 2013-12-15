@@ -29,6 +29,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_j1939(void);
+
 #define J1939_CANID_MASK        0x1FFFFFFF
 #define J1939_11BIT_ID          0x000003FF
 

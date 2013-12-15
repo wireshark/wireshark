@@ -49,7 +49,8 @@
 #include "packet-ff.h"
 #include "packet-tcp.h"
 
-
+void proto_register_ff(void);
+void proto_reg_handoff_ff(void);
 
 static int proto_ff = -1;
 static gint ett_ff  = -1;

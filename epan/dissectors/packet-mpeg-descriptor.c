@@ -30,6 +30,8 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_mpeg_descriptor(void);
+
 static int proto_mpeg_descriptor = -1;
 static int hf_mpeg_descriptor_tag = -1;
 static int hf_mpeg_descriptor_length = -1;

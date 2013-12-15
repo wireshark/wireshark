@@ -48,6 +48,8 @@
 
 #include "packet-gsm_sms.h"
 
+void proto_register_gsm_sms(void);
+
 #define MAX_SMS_FRAG_LEN      134
 
 /* PROTOTYPES/FORWARDS */
@@ -3830,12 +3832,6 @@ proto_register_gsm_sms(void)
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine (gsm_sms_defragment_init);
-}
-
-
-void
-proto_reg_handoff_gsm_sms(void)
-{
 }
 
 /*

@@ -28,6 +28,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_udpencap(void);
+void proto_reg_handoff_udpencap(void);
+
 static int proto_udpencap = -1;
 static gint ett_udpencap = -1;
 

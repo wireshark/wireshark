@@ -35,6 +35,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
+void proto_register_imap(void);
+void proto_reg_handoff_imap(void);
+
 static int proto_imap = -1;
 static int hf_imap_isrequest = -1;
 static int hf_imap_line = -1;

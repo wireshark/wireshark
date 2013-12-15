@@ -31,6 +31,9 @@
 #include "packet-gnutella.h"
 #include "packet-tcp.h"
 
+void proto_register_gnutella(void);
+void proto_reg_handoff_gnutella(void);
+
 /*
  * See
  *

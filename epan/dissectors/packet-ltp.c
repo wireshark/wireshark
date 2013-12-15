@@ -37,11 +37,12 @@
 
 #include "packet-dtn.h"
 
+void proto_register_ltp(void);
+void proto_reg_handoff_ltp(void);
+
 #define LTP_MIN_DATA_BUFFER  5
 #define LTP_MAX_HDR_EXTN    16
 #define LTP_MAX_TRL_EXTN    16
-
-void proto_reg_handoff_ltp(void);
 
 /* For reassembling LTP segments */
 static reassembly_table ltp_reassembly_table;

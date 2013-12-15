@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+void proto_register_netmon_802_11(void);
+void proto_reg_handoff_netmon_802_11(void);
+
 /* protocol */
 static int proto_netmon_802_11 = -1;
 

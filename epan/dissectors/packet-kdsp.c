@@ -32,6 +32,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_kdsp(void);
+void proto_reg_handoff_kdsp(void);
+
 #define KDSP_PORT 2502
 #define FRAME_HEADER_LEN 12
 
@@ -96,8 +99,6 @@
 
 #define DATALINK_WLAN 0x69
 #define DATALINK_RADIOTAP 0x7F
-
-void proto_reg_handoff_kdsp(void);
 
 static int proto_kdsp = -1;
 

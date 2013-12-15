@@ -108,6 +108,9 @@
 #include <epan/crypt/airpdcap_ws.h>
 /* Davide Schiera (2006-11-22) ---------------------------------------------- */
 
+void proto_register_ieee80211(void);
+void proto_reg_handoff_ieee80211(void);
+
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
 /* To Avoid Compilation warnings/errors because

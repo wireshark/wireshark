@@ -31,6 +31,9 @@
 #include "config.h"
 
 #include "packet-h248.h"
+
+void proto_register_h248_dot2(void);
+
 #define PNAME  "H.248.2"
 #define PSNAME "H248_2"
 #define PFNAME "h248.2"

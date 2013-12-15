@@ -33,6 +33,9 @@
 
 #include "packet-ieee80211.h"
 
+void proto_register_ieee80211_prism(void);
+void proto_reg_handoff_ieee80211_prism(void);
+
 #define SHORT_STR 256
 
 static dissector_handle_t wlancap_handle;

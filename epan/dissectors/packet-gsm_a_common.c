@@ -45,6 +45,7 @@
 #include "packet-gmr1_common.h"
 #include "packet-e212.h"
 
+void proto_register_gsm_a_common(void);
 
 static const value_string gsm_common_elem_strings[] = {
     /* Common Information Elements 10.5.1 */

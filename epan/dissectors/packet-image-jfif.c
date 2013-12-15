@@ -45,6 +45,9 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+void proto_register_jfif(void);
+void proto_reg_handoff_jfif(void);
+
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
  *

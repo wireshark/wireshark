@@ -36,6 +36,8 @@
 #include "packet-isis-hello.h"
 #include "packet-isis-snp.h"
 
+void proto_register_isis(void);
+void proto_reg_handoff_isis(void);
 
 /* isis base header */
 static int proto_isis               = -1;
@@ -254,7 +256,8 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *	void
  */
 void
-proto_register_isis(void) {
+proto_register_isis(void)
+{
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
       { "Intra Domain Routing Protocol Discriminator",	"isis.irpd",

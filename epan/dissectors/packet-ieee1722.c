@@ -36,6 +36,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_1722(void);
+void proto_reg_handoff_1722(void);
+
 /* 1722 Offsets */
 #define IEEE_1722_CD_OFFSET                  0
 #define IEEE_1722_VERSION_OFFSET             1

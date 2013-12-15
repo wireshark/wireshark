@@ -125,6 +125,9 @@
 #include "packet-igap.h"
 #include "packet-rgmp.h"
 
+void proto_register_igmp(void);
+void proto_reg_handoff_igmp(void);
+
 static int proto_igmp = -1;
 static int hf_type = -1;
 static int hf_version = -1;

@@ -30,6 +30,9 @@
 #include <epan/etypes.h>
 #include <epan/ptvcursor.h>
 
+void proto_register_homeplug_av(void);
+void proto_reg_handoff_homeplug_av(void);
+
 static int proto_homeplug_av                     = -1;
 
 static int hf_homeplug_av_mmhdr                  = -1;

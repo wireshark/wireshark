@@ -37,6 +37,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_hpfeeds(void);
+void proto_reg_handoff_hpfeeds(void);
+
 /* Preferences */
 static guint hpfeeds_port_pref = 0;
 static gboolean hpfeeds_desegment = TRUE;
@@ -115,8 +118,6 @@ static const value_string chan_vals[] = {
     { CH_GLASTOPF_EVENTS, "glastopf.events" },
     { CH_EINVAL, NULL }
 };
-
-void proto_reg_handoff_hpfeeds(void);
 
 static void
 dissect_hpfeeds_error_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)

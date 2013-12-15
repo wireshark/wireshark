@@ -32,6 +32,9 @@
 
 #include "packet-ieee80211.h"
 
+void proto_register_ieee80211_wlancap(void);
+void proto_reg_handoff_ieee80211_wlancap(void);
+
 static dissector_handle_t ieee80211_handle;
 
 static int proto_wlancap = -1;

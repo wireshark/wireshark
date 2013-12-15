@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_kafka(void);
 void proto_reg_handoff_kafka(void);
 
 static int proto_kafka                  = -1;

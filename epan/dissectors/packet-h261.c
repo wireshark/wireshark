@@ -40,6 +40,9 @@
 #include <epan/rtp_pt.h>
 #include <epan/iax2_codec_type.h>
 
+void proto_register_h261(void);
+void proto_reg_handoff_h261(void);
+
 /* H.261 header fields             */
 static int proto_h261          = -1;
 static int hf_h261_sbit        = -1;

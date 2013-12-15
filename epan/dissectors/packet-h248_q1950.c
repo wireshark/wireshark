@@ -32,6 +32,9 @@
 #include "packet-h248.h"
 #include "packet-isup.h"
 
+void proto_reg_handoff_q1950(void);
+void proto_register_q1950(void);
+
 #define PNAME  "H.248 Q.1950 Annex A"
 #define PSNAME "H248Q1950"
 #define PFNAME "h248q1950"

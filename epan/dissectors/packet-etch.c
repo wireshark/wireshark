@@ -44,6 +44,9 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_etch(void);
+void proto_reg_handoff_etch(void);
+
 /*
  * maximum numbers for symbols from config files
  */
@@ -162,7 +165,6 @@ static void read_struct(unsigned int *offset, tvbuff_t *tvb,
                         proto_tree *etch_tree, int add_type_field);
 static int read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
                       int asWhat);
-void proto_reg_handoff_etch(void);
 
 /************************************************************************
  * Symbol value-string functions

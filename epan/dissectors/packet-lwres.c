@@ -34,6 +34,9 @@
 #include <epan/prefs.h>
 #include "packet-dns.h"
 
+void proto_register_lwres(void);
+void proto_reg_handoff_lwres(void);
+
 #define LWRES_LWPACKET_LENGTH           (4 * 5 + 2 * 4)
 #define LWRES_LWPACKETFLAG_RESPONSE     0x0001U /* if set, pkt is a response */
 #define LWRES_LWPACKETVERSION_0         0
@@ -181,8 +184,6 @@ static int ett_ns_rec_item = -1;
 #define LWRES_UDP_PORT 921
 
 static guint global_lwres_port = LWRES_UDP_PORT;
-
-void proto_reg_handoff_lwres(void);
 
 
 /* Define the lwres proto */

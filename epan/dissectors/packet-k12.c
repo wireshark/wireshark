@@ -41,6 +41,9 @@
 #include "packet-sscop.h"
 #include "packet-umts_fp.h"
 
+void proto_reg_handoff_k12(void);
+void proto_register_k12(void);
+
 typedef struct _k12_hdls_t {
 	char* match;
 	char* protos;

@@ -40,6 +40,8 @@
 
 #include <stdio.h>
 
+void proto_register_abis_om2000(void);
+
 /* initialize the protocol and registered fields */
 static int proto_abis_om2000 = -1;
 

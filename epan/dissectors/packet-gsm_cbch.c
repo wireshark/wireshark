@@ -30,6 +30,9 @@
 #include <epan/reassemble.h>
 #include "packet-cell_broadcast.h"
 
+void proto_register_gsm_cbch(void);
+void proto_reg_handoff_gsm_cbch(void);
+
 #define CBCH_FRAGMENT_SIZE 22
 
 const value_string block_type_lpd_strings[] = {

@@ -44,6 +44,9 @@
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 
+void proto_register_fc(void);
+void proto_reg_handoff_fc(void);
+
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_VFT            0x50
 #define MDSHDR_TRAILER_SIZE    6

@@ -32,6 +32,9 @@
 
 #include "packet-hpext.h"
 
+void proto_register_hpsw(void);
+void proto_reg_handoff_hpsw(void);
+
 static int proto_hpsw = -1;
 
 static int hf_hpsw_version = -1;

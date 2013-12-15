@@ -105,6 +105,9 @@
 
 #include <wsutil/file_util.h>
 
+void proto_register_kerberos(void);
+void proto_reg_handoff_kerberos(void);
+
 #define UDP_PORT_KERBEROS               88
 #define TCP_PORT_KERBEROS               88
 

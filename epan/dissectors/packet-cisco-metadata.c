@@ -32,6 +32,9 @@
 #include "packet-ieee8023.h"
 #endif
 
+void proto_register_cmd(void);
+void proto_reg_handoff_cmd(void);
+
 static dissector_handle_t ethertype_handle;
 
 static int proto_cmd = -1;

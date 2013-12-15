@@ -31,6 +31,9 @@
 #include <epan/to_str.h>
 #include <epan/etypes.h>
 
+void proto_register_maap(void);
+void proto_reg_handoff_maap(void);
+
 /* MAAP starts after common 1722 header */
 #define MAAP_START_OFFSET                   1
 

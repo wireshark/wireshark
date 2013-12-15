@@ -30,6 +30,9 @@
 #include <epan/wmem/wmem.h>
 
 #include "packet-h248.h"
+
+void proto_register_h248_annex_c(void);
+
 #define PNAME  "H.248 Annex C"
 #define PSNAME "H248C"
 #define PFNAME "h248c"

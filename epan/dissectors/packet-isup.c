@@ -63,6 +63,11 @@
 #include <epan/reassemble.h>
 #include <packet-mtp3.h>
 
+void proto_register_isup(void);
+void proto_reg_handoff_isup(void);
+void proto_register_bicc(void);
+void proto_reg_handoff_bicc(void);
+
 #define ISUP_ITU_STANDARD_VARIANT 0
 #define ISUP_FRENCH_VARIANT       1
 #define ISUP_ISRAELI_VARIANT      2

@@ -33,6 +33,8 @@
 #include "packet-dcom.h"
 #include "packet-dcom-dispatch.h"
 
+void proto_register_dcom_dispatch(void);
+void proto_reg_handoff_dcom_dispatch(void);
 
 static int hf_dispatch_opnum = -1;
 

@@ -42,6 +42,11 @@
 #include "packet-rpc.h"
 #include "packet-gluster.h"
 
+void proto_register_gluster_hndsk(void);
+void proto_reg_handoff_gluster_hndsk(void);
+void proto_register_gluster_cbk(void);
+void proto_reg_handoff_gluster_cbk(void);
+
 /* Initialize the protocol and registered fields */
 static gint proto_gluster_cbk = -1;
 static gint proto_gluster_hndsk = -1;

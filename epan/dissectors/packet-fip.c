@@ -44,6 +44,9 @@
 #include <epan/expert.h>
 #include "packet-fc.h"
 
+void proto_register_fip(void);
+void proto_reg_handoff_fip(void);
+
 /*
  * FIP protocol information.
  */

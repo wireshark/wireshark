@@ -29,6 +29,8 @@
 #include "packet-fmp.h"
 #include "packet-rpc.h"
 
+void proto_register_fmp(void);
+void proto_reg_handoff_fmp(void);
 
 static int hf_fmp_procedure = -1;
 static int hf_fmp_fsID = -1;

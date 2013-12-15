@@ -50,6 +50,9 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_gvcp(void);
+void proto_reg_handoff_gvcp(void);
+
 #define GVCP_PORT 3956
 
 static int proto_gvcp = -1;

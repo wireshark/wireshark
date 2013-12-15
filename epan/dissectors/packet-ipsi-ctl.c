@@ -31,6 +31,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_ipsictl(void);
+void proto_reg_handoff_ipsictl(void);
+
 #define IPSICTL_PORT		5010
 #define IPSICTL_PDU_MAGIC	0x0300
 

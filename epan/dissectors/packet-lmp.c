@@ -59,6 +59,9 @@
 #include "packet-ip.h"
 #include "packet-rsvp.h"
 
+void proto_register_lmp(void);
+void proto_reg_handoff_lmp(void);
+
 static int proto_lmp = -1;
 
 #define UDP_PORT_LMP_DEFAULT 701

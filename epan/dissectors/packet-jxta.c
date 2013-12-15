@@ -48,6 +48,9 @@
 
 #include "packet-jxta.h"
 
+void proto_register_jxta(void);
+void proto_reg_handoff_jxta(void);
+
 #define JXTA_UDP_MAGIC 0x4a5a5441 /* JXTA */
 static const gchar JXTA_UDP_SIG[] = { 'J', 'X', 'T', 'A' };
 static const gchar JXTA_MSG_SIG[] = { 'j', 'x', 'm', 'g' };
@@ -210,8 +213,6 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint ns_count,
                                         const gchar ** namespaces);
 static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-
-void proto_reg_handoff_jxta(void);
 
 /**
 *   Heuristically dissect a tvbuff containing a JXTA UDP Message

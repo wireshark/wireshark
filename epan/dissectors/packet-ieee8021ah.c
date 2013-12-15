@@ -36,9 +36,11 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 
+void proto_register_ieee8021ah(void);
+void proto_reg_handoff_ieee8021ah(void);
+
 static dissector_handle_t ethertype_handle;
 
-void proto_reg_handoff_ieee8021ah(void);
 void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 			       proto_tree *tree, proto_tree *parent, int tree_index);
 

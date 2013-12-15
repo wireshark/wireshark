@@ -35,6 +35,9 @@
 #include "packet-ip.h"
 #include <epan/nlpid.h>
 
+void proto_register_juniper(void);
+void proto_reg_handoff_juniper(void);
+
 #define JUNIPER_FLAG_PKT_OUT        0x00     /* Outgoing packet */
 #define JUNIPER_FLAG_PKT_IN         0x01     /* Incoming packet */
 #define JUNIPER_FLAG_NO_L2          0x02     /* L2 header stripped */

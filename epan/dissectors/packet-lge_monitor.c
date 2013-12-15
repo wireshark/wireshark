@@ -32,6 +32,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_reg_handoff_lge_monitor(void);
+void proto_register_lge_monitor(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_lge_monitor		= -1;

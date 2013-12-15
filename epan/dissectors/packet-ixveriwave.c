@@ -35,6 +35,9 @@
 
 #include "packet-eth.h"
 
+void proto_register_ixveriwave(void);
+void proto_reg_handoff_ixveriwave(void);
+
 static void dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree);
 static void wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree);

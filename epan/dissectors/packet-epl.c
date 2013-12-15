@@ -54,6 +54,9 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 
+void proto_register_epl(void);
+void proto_reg_handoff_epl(void);
+
 #ifndef UDP_PORT_EPL
 #define UDP_PORT_EPL            3819
 #endif

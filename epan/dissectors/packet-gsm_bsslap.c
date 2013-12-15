@@ -33,6 +33,9 @@
 
 #include "packet-gsm_a_common.h"
 
+void proto_reg_handoff_gsm_bsslap(void);
+void proto_register_gsm_bsslap(void);
+
 static dissector_handle_t bsslap_rrlp_handle = NULL;
 
 /* Initialize the protocol and registered fields */

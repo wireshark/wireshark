@@ -45,6 +45,9 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-gssapi.h>
 
+void proto_register_gssapi(void);
+void proto_reg_handoff_gssapi(void);
+
 static int proto_gssapi = -1;
 
 static int hf_gssapi_oid = -1;

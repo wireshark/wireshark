@@ -38,6 +38,9 @@
 #include <epan/sctpppids.h>
 #include <epan/lapd_sapi.h>
 
+void proto_register_iua(void);
+void proto_reg_handoff_iua(void);
+
 static module_t *iua_module;
 
 static dissector_handle_t data_handle;

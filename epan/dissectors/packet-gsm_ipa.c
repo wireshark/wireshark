@@ -32,6 +32,9 @@
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 
+void proto_register_ipa(void);
+void proto_reg_handoff_gsm_ipa(void);
+
 /*
  * Protocol used by ip.access's nanoBTS/nanoGSM GSM picocells:
  *
@@ -370,8 +373,6 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += len + header_length;
 	}
 }
-
-void proto_reg_handoff_gsm_ipa(void);
 
 void proto_register_ipa(void)
 {

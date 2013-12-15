@@ -46,6 +46,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_http2(void);
+void proto_reg_handoff_http2(void);
+
 /* Packet Header */
 static int proto_http2 = -1;
 static int hf_http2 = -1;

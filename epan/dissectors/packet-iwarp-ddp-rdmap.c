@@ -34,6 +34,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_iwarp_ddp_rdmap(void);
+void proto_reg_handoff_iwarp_ddp_rdmap(void);
+
 /* DEFINES */
 
 /* header field byte lengths */

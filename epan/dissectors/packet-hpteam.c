@@ -33,6 +33,8 @@
 #include <epan/oui.h>
 #include <packet-llc.h>
 
+void proto_register_hpteam(void);
+void proto_reg_handoff_hpteam(void);
 
 static int proto_hpteam = -1;
 

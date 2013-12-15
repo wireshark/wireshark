@@ -51,6 +51,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_hp_erm(void);
+void proto_reg_handoff_hp_erm(void);
+
 #define PROTO_SHORT_NAME "HP_ERM"
 #define PROTO_LONG_NAME  "HP encapsulated remote mirroring"
 
@@ -119,8 +122,6 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_hp_erm(void)
 {
-    void proto_reg_handoff_hp_erm(void);
-
     static hf_register_info hf[] = {
 
         { &hf_hp_erm_unknown1,

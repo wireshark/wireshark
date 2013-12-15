@@ -35,6 +35,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_gearman(void);
+void proto_reg_handoff_gearman(void);
+
 static int proto_gearman = -1;
 
 static int hf_gearman_mgr_cmd = -1;

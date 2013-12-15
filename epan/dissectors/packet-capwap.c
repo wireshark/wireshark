@@ -34,6 +34,9 @@
 
 #include <epan/sminmpec.h>
 
+void proto_register_capwap_control(void);
+void proto_reg_handoff_capwap(void);
+
 #define UDP_PORT_CAPWAP_CONTROL 5246
 #define UDP_PORT_CAPWAP_DATA 5247
 
@@ -49,9 +52,6 @@ static reassembly_table capwap_reassembly_table;
 * add decryption of DLTS Message
 * add support of all Messages Element Type
 */
-
-/* Forward declaration we need below */
-void proto_reg_handoff_capwap(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_capwap = -1;

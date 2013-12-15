@@ -40,6 +40,9 @@
 #include "packet-gmr1_common.h"
 #include "packet-gsm_sms.h"
 
+void proto_register_gmr1_rr(void);
+void proto_reg_handoff_gmr1_rr(void);
+
 /* GMR-1 RR and CCCH proto */
 static int proto_gmr1_rr = -1;
 static int proto_gmr1_ccch = -1;

@@ -33,6 +33,9 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 
+void proto_register_ixiatrailer(void);
+void proto_reg_handoff_ixiatrailer(void);
+
 #define IXIA_PATTERN    0xAF12
 
 /* TODO: which of these typestamp types are currently supported?

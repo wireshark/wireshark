@@ -39,6 +39,8 @@
 #include <epan/etypes.h>
 #include <epan/emem.h>
 
+void proto_register_epl_v1(void);
+void proto_reg_handoff_epl_v1(void);
 
 /* Offsets of fields within an EPL_V1 packet. */
 #define EPL_V1_SERVICE_OFFSET                     0   /* same offset for all message types*/

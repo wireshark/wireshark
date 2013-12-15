@@ -65,6 +65,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_erspan(void);
+void proto_reg_handoff_erspan(void);
+
 static int proto_erspan = -1;
 
 static gint ett_erspan = -1;

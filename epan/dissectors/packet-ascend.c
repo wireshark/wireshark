@@ -29,7 +29,7 @@
 #include <wiretap/wtap.h>
 
 void proto_register_ascend(void);
-void proto_reg_handoff_acend(void);
+void proto_reg_handoff_ascend(void);
 
 static int proto_ascend  = -1;
 static int hf_link_type  = -1;

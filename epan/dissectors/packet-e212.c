@@ -38,6 +38,7 @@
 #include "packet-e212.h"
 #include "expert.h"
 
+void proto_register_e212(void);
 
 /*
  * Annex to ITU Operational Bulletin

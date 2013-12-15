@@ -33,6 +33,8 @@
 #include <epan/strutil.h>
 #include <epan/etypes.h>
 
+void proto_register_ismp(void);
+void proto_reg_handoff_ismp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_ismp = -1;

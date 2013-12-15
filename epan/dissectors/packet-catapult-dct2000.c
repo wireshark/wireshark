@@ -47,6 +47,9 @@
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
+void proto_reg_handoff_catapult_dct2000(void);
+void proto_register_catapult_dct2000(void);
+
 /* Protocol and registered fields. */
 static int proto_catapult_dct2000 = -1;
 
@@ -295,8 +298,6 @@ extern int proto_pdcp_lte;
 static dissector_handle_t mac_lte_handle;
 static dissector_handle_t rlc_lte_handle;
 static dissector_handle_t pdcp_lte_handle;
-
-void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
 static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length);

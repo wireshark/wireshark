@@ -36,6 +36,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
+void proto_register_hartip(void);
+void proto_reg_handoff_hartip(void);
+
 static dissector_handle_t hartip_tcp_handle;
 static dissector_handle_t hartip_udp_handle;
 

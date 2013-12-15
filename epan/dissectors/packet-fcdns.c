@@ -44,6 +44,9 @@
 #include "packet-fcdns.h"
 #include "packet-fcswils.h"
 
+void proto_register_fcdns(void);
+void proto_reg_handoff_fcdns(void);
+
 /*
  * See FC-GS-2.
  */

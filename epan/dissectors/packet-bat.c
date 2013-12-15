@@ -31,6 +31,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_bat(void);
+void proto_reg_handoff_bat(void);
+
 /* Start content from packet-bat.h */
 #define BAT_BATMAN_PORT  4305
 #define BAT_GW_PORT  4306
@@ -155,9 +158,6 @@ static const value_string vis_packettypenames[] = {
 	{ DATA_TYPE_HNA, "HNA" },
 	{ 0, NULL }
 };
-
-/* forward declaration */
-void proto_reg_handoff_bat(void);
 
 /* supported packet dissectors */
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

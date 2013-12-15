@@ -43,6 +43,9 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_ipx(void);
+void proto_reg_handoff_ipx(void);
+
 static int ipx_tap = -1;
 
 /* The information in this module (IPX, SPX, NCP) comes from:

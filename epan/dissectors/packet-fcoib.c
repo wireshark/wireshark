@@ -52,12 +52,12 @@
 # include "wsutil/inet_v6defs.h"
 #endif
 
+void proto_register_fcoib(void);
+void proto_reg_handoff_fcoib(void);
+
 #define FCOIB_HEADER_LEN   16        /* header: encap. header, SOF, and padding */
 #define FCOIB_TRAILER_LEN   8        /* trailer: FC-CRC, EOF and padding */
 #define FCOIB_VER_OFFSET    2        /* offset of ver field (in bytes) inside FCoIB Encap. header */
-
-/* Forward declaration we need below (for using proto_reg_handoff as a prefs callback) */
-void proto_reg_handoff_fcoib(void);
 
 typedef enum {
     FCOIB_EOFn    = 0x41,

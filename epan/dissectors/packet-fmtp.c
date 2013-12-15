@@ -33,6 +33,9 @@
 #include <epan/packet.h>
 #include "packet-tcp.h"
 
+void proto_register_fmtp(void);
+void proto_reg_handoff_fmtp(void);
+
 static int proto_fmtp = -1;
 static int hf_fmtp_pdu_version = -1;
 static int hf_fmtp_pdu_reserved = -1;

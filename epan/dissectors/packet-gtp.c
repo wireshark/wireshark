@@ -74,6 +74,9 @@
 #include "packet-e212.h"
 #include "packet-gtp.h"
 
+void proto_register_gtp(void);
+void proto_reg_handoff_gtp(void);
+
 static dissector_table_t ppp_subdissector_table;
 static dissector_table_t gtp_priv_ext_dissector_table;
 static dissector_table_t gtp_cdr_fmt_dissector_table;
@@ -100,8 +103,6 @@ static gboolean g_gtp_over_tcp = TRUE;
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
 static guint g_gtpv1u_port = GTPv1U_PORT;
-
-void proto_reg_handoff_gtp(void);
 
 static int proto_gtp = -1;
 

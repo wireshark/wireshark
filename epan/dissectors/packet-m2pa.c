@@ -40,11 +40,12 @@
 #include <epan/sctpppids.h>
 #include <epan/expert.h>
 
+void proto_register_m2pa(void);
+void proto_reg_handoff_m2pa(void);
+
 #define SCTP_PORT_M2PA              3565
 
 static guint global_sctp_port       = SCTP_PORT_M2PA;
-
-void proto_reg_handoff_m2pa(void);
 
 static int proto_m2pa      = -1;
 static module_t *m2pa_module;

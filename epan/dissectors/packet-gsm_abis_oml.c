@@ -36,6 +36,9 @@
 
 #include "packet-gsm_a_common.h"
 
+void proto_register_abis_oml(void);
+void proto_reg_handoff_abis_oml(void);
+
 /* From openbsc/include/openbsc/abis_nm.h */
 
 #define ABIS_OM_MDISC_FOM		0x80

@@ -32,6 +32,9 @@
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 
+void proto_register_oxid(void);
+void proto_reg_handoff_oxid(void);
+
 static int proto_oxid = -1;
 
 static int hf_oxid_opnum = -1;

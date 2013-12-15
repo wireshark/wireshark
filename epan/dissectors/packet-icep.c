@@ -48,6 +48,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
+void proto_register_icep(void);
+void proto_reg_handoff_icep(void);
+
 #if 0
 #define DBG(str, args...)       do {\
                                         fprintf(stdout, \

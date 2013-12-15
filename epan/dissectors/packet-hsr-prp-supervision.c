@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+void proto_register_hsr_prp_supervision(void);
+void proto_reg_handoff_hsr_prp_supervision(void);
+
 /**********************************************************/
 /* Channel values for the supervision type field          */
 /**********************************************************/

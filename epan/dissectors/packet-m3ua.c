@@ -46,6 +46,9 @@
 #include "packet-q708.h"
 #include <epan/tap.h>
 
+void proto_register_m3ua(void);
+void proto_reg_handoff_m3ua(void);
+
 static gint m3ua_pref_mtp3_standard;
 
 #define SCTP_PORT_M3UA         2905

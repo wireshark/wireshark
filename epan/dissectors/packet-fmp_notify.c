@@ -32,6 +32,9 @@
 #include "packet-rpc.h"
 #include "packet-fmp.h"
 
+void proto_register_fmp_notify(void);
+void proto_reg_handoff_fmp_notify(void);
+
 #define FMP_NOTIFY_PROG 	1001912
 #define FMP_NOTIFY_VERSION_2 	      2
 

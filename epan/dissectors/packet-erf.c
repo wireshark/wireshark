@@ -37,6 +37,9 @@
 */
 #include "wiretap/erf.h"
 
+void proto_register_erf(void);
+void proto_reg_handoff_erf(void);
+
 #define EXT_HDR_TYPE_CLASSIFICATION  3
 #define EXT_HDR_TYPE_INTERCEPTID     4
 #define EXT_HDR_TYPE_RAW_LINK        5

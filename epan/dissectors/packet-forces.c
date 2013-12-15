@@ -32,6 +32,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_forces(void);
+void proto_reg_handoff_forces(void);
+
 static dissector_handle_t ip_handle;
 
 /* Initialize the ForCES protocol and registered fields */
@@ -612,8 +615,6 @@ dissect_forces_not_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     dissect_forces(tvb, pinfo, tree, 0);
 }
-
-void proto_reg_handoff_forces(void);
 
 void
 proto_register_forces(void)

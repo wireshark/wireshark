@@ -32,6 +32,8 @@
 #include "packet-ieee8023.h"
 #include "packet-eth.h"
 
+void proto_reg_handoff_ieee802_3(void);
+
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ccsds_handle;

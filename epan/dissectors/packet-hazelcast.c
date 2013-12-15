@@ -38,6 +38,8 @@
 #include <epan/tap.h>
 #include <packet-tcp.h>
 
+void proto_register_hazelcast(void);
+void proto_reg_handoff_hazelcast(void);
 
 static int proto_hazelcast = -1;
 static int hazelcast_tap = -1;

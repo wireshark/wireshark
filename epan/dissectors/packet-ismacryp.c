@@ -36,6 +36,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_ismacryp(void);
+void proto_reg_handoff_ismacryp(void);
+
 /* keeps track of current position in buffer in terms of bit and byte offset */
 typedef struct Toffset_struct
 {
@@ -46,7 +49,6 @@ typedef struct Toffset_struct
 
 static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint ismacryp_version);
 static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, packet_info *pinfo, proto_tree *tree, guint set_version );
-void proto_reg_handoff_ismacryp(void);
 static void add_bits(offset_struct* poffset, gint len_bits);
 
 #define PROTO_TAG_ISMACRYP	"ISMACRYP"

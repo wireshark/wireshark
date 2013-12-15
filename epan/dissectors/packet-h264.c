@@ -40,6 +40,9 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_h264(void);
+void proto_reg_handoff_h264(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h264                                      = -1;
 static int hf_h264_type                                    = -1;
@@ -2129,8 +2132,6 @@ static void range_add_h264_rtp_pt_callback(guint32 rtp_pt) {
     if (rtp_pt >= 96 && rtp_pt <= 127)
         dissector_add_uint("rtp.pt", rtp_pt, h264_handle);
 }
-
-void proto_reg_handoff_h264(void);
 
 void
 proto_register_h264(void)

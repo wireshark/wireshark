@@ -39,12 +39,12 @@
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
 
+void proto_register_hdcp2(void);
+void proto_reg_handoff_hdcp2(void);
 
 static int proto_hdcp2 = -1;
 
 static gboolean  hdcp2_enable_dissector = FALSE;
-
-void proto_reg_handoff_hdcp2(void);
 
 static gint ett_hdcp2 = -1;
 static gint ett_hdcp2_cert = -1;

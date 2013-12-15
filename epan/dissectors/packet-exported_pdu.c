@@ -37,6 +37,7 @@
 #include "packet-mtp3.h"
 #include "packet-dvbci.h"
 
+void proto_register_exported_pdu(void);
 void proto_reg_handoff_exported_pdu(void);
 
 static int proto_exported_pdu = -1;

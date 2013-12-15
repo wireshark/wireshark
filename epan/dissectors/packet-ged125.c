@@ -49,6 +49,9 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
+void proto_register_ged125(void);
+void proto_reg_handoff_ged125(void);
+
 static int proto_ged125 = -1;
 
 static gint hf_ged125_length = -1;

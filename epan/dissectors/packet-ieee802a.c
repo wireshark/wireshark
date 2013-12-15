@@ -32,6 +32,9 @@
 
 #include "packet-ieee802a.h"
 
+void proto_register_ieee802a(void);
+void proto_reg_handoff_ieee802a(void);
+
 static int proto_ieee802a = -1;
 static int hf_ieee802a_oui = -1;
 static int hf_ieee802a_pid = -1;

@@ -51,6 +51,9 @@
 #include "packet-enip.h"
 #include "packet-cipsafety.h"
 
+void proto_register_enip(void);
+void proto_reg_handoff_enip(void);
+
 /* Communication Ports */
 #define ENIP_ENCAP_PORT    44818 /* EtherNet/IP located on port 44818    */
 #define ENIP_IO_PORT       2222  /* EtherNet/IP IO located on port 2222  */

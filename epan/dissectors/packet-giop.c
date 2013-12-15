@@ -302,6 +302,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
 
+void proto_register_giop(void);
+void proto_reg_handoff_giop(void);
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option

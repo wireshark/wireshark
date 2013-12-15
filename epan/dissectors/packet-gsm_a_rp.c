@@ -43,6 +43,9 @@
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 
+void proto_register_gsm_a_rp(void);
+void proto_reg_handoff_gsm_a_rp(void);
+
 /* PROTOTYPES/FORWARDS */
 
 static const value_string gsm_rp_msg_strings[] = {

@@ -45,6 +45,9 @@
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
+void proto_register_amqp(void);
+void proto_reg_handoff_amqp(void);
+
 /*  Generic data  */
 
 static int amqp_port = 5672;

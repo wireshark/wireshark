@@ -35,6 +35,9 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 
+void proto_register_m2ua(void);
+void proto_reg_handoff_m2ua(void);
+
 #define SCTP_PORT_M2UA                  2904
 
 /* Initialize the protocol and registered fields */

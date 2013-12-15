@@ -31,6 +31,9 @@
 #include <epan/etypes.h>
 #include <wiretap/wtap.h>
 
+void proto_register_ipoib(void);
+void proto_reg_handoff_ipoib(void);
+
 static int proto_ipoib = -1;
 static int hf_type     = -1;
 static int hf_reserved = -1;
