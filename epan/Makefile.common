@@ -45,7 +45,7 @@ LIBWIRESHARK_SRC =		\
 	decode_as.c		\
 	disabled_protos.c	\
 	dissector_filters.c	\
-	dvb_chartbl.c	\
+	dvb_chartbl.c		\
 	dwarf.c			\
 	emem.c			\
 	epan.c			\
@@ -177,7 +177,7 @@ LIBWIRESHARK_INCLUDES =		\
 	dissector_filters.h	\
 	dtd.h			\
 	dtd_parse.h		\
-	dvb_chartbl.h	\
+	dvb_chartbl.h		\
 	dwarf.h			\
 	eap.h			\
 	emem.h			\

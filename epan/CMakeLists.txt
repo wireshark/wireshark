@@ -1484,6 +1484,7 @@ set(LIBWIRESHARK_FILES
 	decode_as.c
 	disabled_protos.c
 	dissector_filters.c
+	dvb_chartbl.c
 	dwarf.c
 	emem.c
 	epan.c
