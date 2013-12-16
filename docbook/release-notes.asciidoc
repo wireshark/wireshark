@@ -73,7 +73,8 @@ There are no new protocols in this release.
 --sort-and-group--
 
 DTLS
-DVB BAT
+DVB-BAT
+DVB-CI
 GSM MAP
 iSCSI
 SCTP
