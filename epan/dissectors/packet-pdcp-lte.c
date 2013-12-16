@@ -53,7 +53,6 @@ void proto_reg_handoff_pdcp_lte(void);
 
 /* TODO:
    - Support for deciphering. Next steps are:
-       - lookup configured keys and show in security info
        - use gcrypt to decipher AES frames
        - separate preferences to control signalling/user-plane decryption?
        - Verify MAC authentication bytes for supported protocol(s)?
@@ -122,7 +121,7 @@ static int hf_pdcp_lte_security_ciphering_algorithm = -1;
 static int hf_pdcp_lte_security_bearer = -1;
 static int hf_pdcp_lte_security_direction = -1;
 static int hf_pdcp_lte_security_count = -1;
-/* TODO: RRC and UP keys */
+static int hf_pdcp_lte_security_key = -1;
 
 
 
@@ -146,7 +145,7 @@ static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
  */
 /* UAT entry structure. */
 typedef struct {
-   guint16 rnti;
+   guint16 ueid;
    gchar   *rrcKey;
    gchar   *upKey;
 } uat_ue_keys_record_t;
@@ -160,7 +159,7 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     uat_ue_keys_record_t* new_rec = (uat_ue_keys_record_t *)n;
     const uat_ue_keys_record_t* old_rec = (const uat_ue_keys_record_t *)o;
 
-    new_rec->rnti = old_rec->rnti;
+    new_rec->ueid = old_rec->ueid;
     new_rec->rrcKey = (old_rec->rrcKey) ? g_strdup(old_rec->rrcKey) : NULL;
     new_rec->upKey = (old_rec->upKey) ? g_strdup(old_rec->upKey) : NULL;
 
@@ -174,7 +173,7 @@ static void uat_ue_keys_record_free_cb(void*r) {
     g_free(rec->upKey);
 }
 
-UAT_DEC_CB_DEF(uat_ue_keys_records, rnti, uat_ue_keys_record_t)
+UAT_DEC_CB_DEF(uat_ue_keys_records, ueid, uat_ue_keys_record_t)
 UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcKey, uat_ue_keys_record_t)
 UAT_CSTRING_CB_DEF(uat_ue_keys_records, upKey,  uat_ue_keys_record_t)
 
@@ -481,8 +480,10 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 
             /* May also be able to add key inputs to security tree here */
             if (security_tree != NULL) {
-                guint32 hfn_multiplier;
-                guint32 count;
+                guint32              hfn_multiplier;
+                guint32              count;
+                gchar                *key = NULL;
+                guint                record_id;
 
                 /* BEARER */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
@@ -494,7 +495,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                          tvb, 0, 0, p_pdcp_lte_info->direction);
                 PROTO_ITEM_SET_GENERATED(ti);
         
-                /* Work out and show COUNT (HFN * snLength^2 + SN) */
+                /* COUNT (HFN * snLength^2 + SN) */
                 switch (p_pdcp_lte_info->seqnum_length) {
                     case PDCP_SN_LENGTH_5_BITS:
                         hfn_multiplier = 32;
@@ -512,11 +513,28 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         DISSECTOR_ASSERT_NOT_REACHED();
                         break;
                 }
-
                 count = (p->hfn * hfn_multiplier) + sequenceNumber;
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_count,
                                          tvb, 0, 0, count);
                 PROTO_ITEM_SET_GENERATED(ti);
+
+                /* KEY */
+                for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
+                    if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
+                        if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
+                            key = uat_ue_keys_records[record_id].rrcKey;
+                        }
+                        else {
+                            key = uat_ue_keys_records[record_id].upKey;
+                        }
+
+                        if (key != NULL) {
+                            ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_key,
+                                                       tvb, 0, 0, key);
+                            PROTO_ITEM_SET_GENERATED(ti);
+                        }
+                    }
+                }
             }
             break;
 
@@ -1931,6 +1949,12 @@ void proto_register_pdcp(void)
               NULL, HFILL
             }
         },
+        { &hf_pdcp_lte_security_key,
+            { "KEY",
+              "pdcp-lte.security-config.key", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
     };
 
     static gint *ett[] =
@@ -1966,7 +1990,7 @@ void proto_register_pdcp(void)
 
 #ifdef HAVE_LIBGCRYPT
   static uat_field_t ue_keys_uat_flds[] = {
-      UAT_FLD_DEC(uat_ue_keys_records, rnti, "RNTI", "RNTI of UE associated with keys"),
+      UAT_FLD_DEC(uat_ue_keys_records, ueid, "UEId", "UE Identifier of UE associated with keys"),
       UAT_FLD_CSTRING(uat_ue_keys_records, rrcKey, "RRC Key",        "Key for deciphering signalling messages"),
       UAT_FLD_CSTRING(uat_ue_keys_records, upKey,  "User-Plane Key", "Key for deciphering user-plane messages"),
       UAT_END_FIELDS
