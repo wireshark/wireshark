@@ -867,7 +867,7 @@ enip_conn_hash (gconstpointer v)
    return val;
 }
 
-void
+static void
 enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 {
    enip_conn_key_t  *conn_key;
@@ -1134,7 +1134,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
 }
 
 
-int
+static int
 dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                      int offset, int total_len)
 
@@ -1188,7 +1188,7 @@ dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item,
    return 4;
 }
 
-int
+static int
 dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
@@ -1211,7 +1211,7 @@ dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 4;
 }
 
-int
+static int
 dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                             int offset, int total_len)
 
@@ -1234,7 +1234,7 @@ dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *it
    return path_size+2;
 }
 
-int
+static int
 dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                int offset, int total_len)
 
@@ -1259,7 +1259,7 @@ dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item 
    return (22+domain_length);
 }
 
-int
+static int
 dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                            int offset, int total_len)
 
@@ -1277,7 +1277,7 @@ dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *ite
    return 8;
 }
 
-int
+static int
 dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                             int offset, int total_len)
 
@@ -1311,7 +1311,7 @@ dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *it
    return 35;
 }
 
-int
+static int
 dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                               int offset, int total_len)
 
@@ -1337,7 +1337,7 @@ dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *
    return 4;
 }
 
-int
+static int
 dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                  int offset, int total_len)
 
@@ -1362,7 +1362,7 @@ dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_ite
    return 44;
 }
 
-int
+static int
 dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
@@ -1388,7 +1388,7 @@ dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 48;
 }
 
-int
+static int
 dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                 int offset, int total_len)
 
@@ -1412,7 +1412,7 @@ dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item
    return 4;
 }
 
-int
+static int
 dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                    int offset, int total_len)
 
@@ -1431,7 +1431,7 @@ dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, proto_i
    return 12;
 }
 
-int
+static int
 dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                        int offset, int total_len)
 
@@ -1447,7 +1447,7 @@ dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree, pro
    return 10;
 }
 
-int
+static int
 dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                        int offset, int total_len)
 
@@ -1463,7 +1463,7 @@ dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree, pro
    return 10;
 }
 
-int
+static int
 dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                             int offset, int total_len)
 
@@ -1486,7 +1486,7 @@ dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *tree
    return total_len;
 }
 
-int
+static int
 dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                       int offset, int total_len)
 
@@ -1502,7 +1502,7 @@ dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, prot
    return 10;
 }
 
-int
+static int
 dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
@@ -1529,7 +1529,7 @@ dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 4;
 }
 
-int
+static int
 dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                      int offset, int total_len)
 
@@ -1548,7 +1548,7 @@ dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, proto
    return 11;
 }
 
-int
+static int
 dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                    int offset, int total_len)
 
