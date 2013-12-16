@@ -10971,7 +10971,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     static ansi_a_tap_rec_t     tap_rec[16];
     static ansi_a_tap_rec_t     *tap_p;
     static int                  tap_current = 0;
-    guint8                      oct, oct_1;
+    guint8                      oct, oct_1=0;
     guint32                     offset, saved_offset;
     guint32                     len;
     gint                        dec_idx;
