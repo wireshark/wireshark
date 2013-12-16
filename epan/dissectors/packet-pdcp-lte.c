@@ -493,9 +493,10 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             if (security_tree != NULL) {
                 guint32              hfn_multiplier;
                 guint32              count;
+#if HAVE_LIBGCRYPT
                 gchar                *key = NULL;
                 guint                record_id;
-
+#endif
                 /* BEARER */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
                                          tvb, 0, 0, p_pdcp_lte_info->channelId-1);
@@ -531,6 +532,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 PROTO_ITEM_SET_GENERATED(ti);
                 pdu_security->count = count;
 
+#if HAVE_LIBGCRYPT
                 /* KEY */
                 for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
                     if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
@@ -549,6 +551,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         }
                     }
                 }
+#endif
 
                 pdu_security->direction = p_pdcp_lte_info->direction;
             }
