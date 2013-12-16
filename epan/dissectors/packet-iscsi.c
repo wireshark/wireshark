@@ -1321,6 +1321,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         }
         proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
+        cdata->itlq.data_length=tvb_get_ntoh24(tvb, offset + 5);
         if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
             proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
         }
