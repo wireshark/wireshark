@@ -422,7 +422,7 @@ typedef struct pdu_security_settings_t
 {
     gboolean valid;
     enum security_ciphering_algorithm_e ciphering;
-    gchar   *key;
+    const gchar *key;
     guint32 count;
     guint8  bearer;
     guint8  direction;
@@ -1204,7 +1204,7 @@ static guchar hex_ascii_to_binary(gchar c)
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 tvbuff_t* decipher_payload(tvbuff_t *tvb, int *offset _U_, pdu_security_settings_t *pdu_security_settings)
 {
-    char *k = pdu_security_settings->key;
+    const char *k = pdu_security_settings->key;
     guint8 key[16];
     int n;
 
@@ -1598,15 +1598,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if (rrc_handle != 0) {
                 /* Call RRC dissector if have one */
-                tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
-                                                       tvb_length_remaining(tvb, offset) - 4,
-                                                       tvb_length_remaining(tvb, offset) - 4);
+                tvbuff_t *rrc_payload_tvb = tvb_new_subset(tvb, offset,
+                                                           tvb_length_remaining(tvb, offset) - 4,
+                                                           tvb_length_remaining(tvb, offset) - 4);
                 gboolean was_writable = col_get_writable(pinfo->cinfo);
 
                 /* We always want to see this in the info column */
                 col_set_writable(pinfo->cinfo, TRUE);
 
-                call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                call_dissector_only(rrc_handle, rrc_payload_tvb, pinfo, pdcp_tree, NULL);
 
                 /* Restore to whatever it was */
                 col_set_writable(pinfo->cinfo, was_writable);
@@ -1657,7 +1657,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     if (global_pdcp_dissect_user_plane_as_ip &&
                         ((pdu_security == NULL) || (pdu_security->ciphering == 0)))
                     {
-                        tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+                        tvbuff_t *ip_payload_tvb = tvb_new_subset_remaining(tvb, offset);
     
                         /* Don't update info column for ROHC unless configured to */
                         if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
@@ -1666,13 +1666,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     
                         switch (tvb_get_guint8(tvb, offset) & 0xf0) {
                             case 0x40:
-                                call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                                call_dissector_only(ip_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
                                 break;
                             case 0x60:
-                                call_dissector_only(ipv6_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                                call_dissector_only(ipv6_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
                                 break;
                             default:
-                                call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                                call_dissector_only(data_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
                                 break;
                         }
     
