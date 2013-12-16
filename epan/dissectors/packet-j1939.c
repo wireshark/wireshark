@@ -202,10 +202,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     can_tree = proto_item_add_subtree(ti, ett_j1939_can);
     can_id_item = proto_tree_add_uint(can_tree, hf_j1939_can_id, tvb, 0, 0, can_id.id);
     PROTO_ITEM_SET_GENERATED(can_id_item);
-
     ti = proto_tree_add_uint(can_tree, hf_j1939_priority, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
-    ti = proto_tree_add_uint(can_tree, hf_j1939_pgn, tvb, 0, 0, can_id.id);
     PROTO_ITEM_SET_GENERATED(ti);
     ti = proto_tree_add_uint(can_tree, hf_j1939_extended_data_page, tvb, 0, 0, can_id.id);
     PROTO_ITEM_SET_GENERATED(ti);
@@ -223,9 +220,13 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     *src_addr = (guint8)(can_id.id & 0xFF);
     SET_ADDRESS(&pinfo->src, AT_J1939, 1, (const void*)src_addr);
 
-    /* If PF < 240, PS is destination address */
-    if (!(can_id.id & 0x000F00000))
+    pgn = (can_id.id & 0x3FFFF00) >> 8;
+
+    /* If PF < 240, PS is destination address, last byte of PGN is cleared */
+    if (((can_id.id & 0xFF00) >> 8) < 240)
     {
+        pgn &= 0x3FF00;
+
         ti = proto_tree_add_uint(can_tree, hf_j1939_dst_addr, tvb, 0, 0, can_id.id);
         PROTO_ITEM_SET_GENERATED(ti);
     }
@@ -240,15 +241,17 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     *dest_addr = (guint8)((can_id.id & 0xFF00) >> 8);
     SET_ADDRESS(&pinfo->dst, AT_J1939, 1, (const void*)dest_addr);
 
-    pgn = (can_id.id & 0x3FFFF00) >> 8;
     col_add_fstr(pinfo->cinfo, COL_INFO, "PGN: %d", pgn);
 
     /* For now just include raw bytes */
     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(tvb, 0, data_length, ' '));
 
-
     ti = proto_tree_add_text(j1939_tree, tvb, 0, -1, "Message");
     msg_tree = proto_item_add_subtree(ti, ett_j1939_message);
+
+    ti = proto_tree_add_uint(msg_tree, hf_j1939_pgn, tvb, 0, 0, pgn);
+    PROTO_ITEM_SET_GENERATED(ti);
+
     if (!dissector_try_uint_new(subdissector_pgn_table, pgn, tvb, pinfo, msg_tree, TRUE, data))
     {
         proto_tree_add_item(msg_tree, hf_j1939_data, tvb, 0, -1, ENC_NA);
@@ -270,7 +273,7 @@ void proto_register_j1939(void)
         },
         { &hf_j1939_pgn,
             {"PGN", "j1939.pgn",
-            FT_UINT32, BASE_DEC, NULL, 0x03FFFF00, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0x3FFFFFF, NULL, HFILL }
         },
         { &hf_j1939_extended_data_page,
             {"Extended Data Page", "j1939.ex_data_page",
