@@ -60,20 +60,17 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "TIME %s",
             pinfo->srcport == pinfo->match_uint ? "Response":"Request");
 
-    if (tree) {
+    ti = proto_tree_add_item(tree, proto_time, tvb, 0, -1, ENC_NA);
+    time_tree = proto_item_add_subtree(ti, ett_time);
 
-        ti = proto_tree_add_item(tree, proto_time, tvb, 0, -1, ENC_NA);
-        time_tree = proto_item_add_subtree(ti, ett_time);
-
-        proto_tree_add_text(time_tree, tvb, 0, 0,
-                pinfo->srcport==pinfo->match_uint ? "Type: Response":"Type: Request");
-        if (pinfo->srcport == pinfo->match_uint) {
-            /* seconds since 1900-01-01 00:00:00 GMT, *not* 1970 */
-            guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
-            proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
-                    delta_seconds, "%s",
-                    abs_time_secs_to_str(delta_seconds-2208988800U, time_display_type, TRUE));
-        }
+    proto_tree_add_text(time_tree, tvb, 0, 0,
+            pinfo->srcport==pinfo->match_uint ? "Type: Response":"Type: Request");
+    if (pinfo->srcport == pinfo->match_uint) {
+        /* seconds since 1900-01-01 00:00:00 GMT, *not* 1970 */
+        guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
+        proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
+                delta_seconds, "%s",
+                abs_time_secs_to_str(delta_seconds-2208988800U, time_display_type, TRUE));
     }
 }
 
