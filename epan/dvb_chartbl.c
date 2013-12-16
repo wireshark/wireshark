@@ -242,19 +242,19 @@ void
 dvb_add_chartbl(proto_tree *tree, int hf,
         tvbuff_t *tvb, gint offset, gint length, dvb_encoding_e encoding)
 {
-    proto_item *pi;
-
-    pi = proto_tree_add_bytes_format_value(tree, hf,
-            tvb, offset, length, NULL, "%s",
-            val_to_str_const(encoding, dvb_string_encoding_vals, "Unknown"));
-
     if (length==0) {
+        proto_item *pi;
+
+        pi = proto_tree_add_text(tree, NULL, 0, 0,
+                "Default character table (Latin)");
         PROTO_ITEM_SET_GENERATED(pi);
     }
     else {
-        proto_item_append_text(pi, " (%s)",
-                bytes_to_str_punct(
-                    tvb_get_ptr(tvb, offset, length), length, ' '));
+        proto_tree_add_bytes_format_value(tree, hf,
+            tvb, offset, length, NULL, "%s (%s)",
+            val_to_str_const(encoding, dvb_string_encoding_vals, "Unknown"),
+            bytes_to_str_punct(
+                tvb_get_ptr(tvb, offset, length), length, ' '));
     }
 }
 
