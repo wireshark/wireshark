@@ -2965,7 +2965,7 @@ elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
     }
 
     proto_tree_add_uint_format_value(tree, hf_ansi_a_cic_ext_circuit_mode, tvb, curr_offset, 1,
-        oct, "%%s (%u)", str, oct);
+        oct, "%s (%u)", str, oct);
 
     curr_offset++;
 
@@ -3537,7 +3537,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
  * IOS 5 4.2.33
  */
 static guint8
-elem_auth_conf_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_auth_conf_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
