@@ -19,16 +19,26 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2013-66[]
 +
-Something is up with a dissector.
-// Fixed in trunk: rXXXXX
-// Fixed in trunk-1.10: rXXXXX
-// Fixed in trunk-1.8: rXXXXX
-(ws-buglink:XXXX[])
+The SIP dissector could go into an infinite loop. Discovered by Alain Botti.
+// Fixed in trunk-1.10: r53195
+// Fixed in trunk-1.8: r53197
+(ws-buglink:9388[])
 +
 Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
 //+
 //cve-idlink:2013-XXXX[]
 
+* ws-salink:2013-68[]
++
+The NTLMSSP v2 dissector could crash. Discovered by Garming Sam.
+// Fixed in trunk: r53626
+// Fixed in trunk-1.10: r54072
+// Fixed in trunk-1.8: r54146
+//(ws-buglink:9488[])
+//+
+Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
+//+
+//cve-idlink:2013-XXXX[]
 
 The following bugs have been fixed:
 
