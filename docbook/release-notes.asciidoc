@@ -25,8 +25,8 @@ The SIP dissector could go into an infinite loop. Discovered by Alain Botti.
 (ws-buglink:9388[])
 +
 Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
-//+
-//cve-idlink:2013-XXXX[]
++
+cve-idlink:2013-7112[]
 
 * ws-salink:2013-68[]
 +
@@ -37,8 +37,8 @@ The NTLMSSP v2 dissector could crash. Discovered by Garming Sam.
 (ws-buglink:9488[])
 +
 Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
-//+
-//cve-idlink:2013-XXXX[]
++
+cve-idlink:2013-7114[]
 
 The following bugs have been fixed:
 
@@ -56,6 +56,8 @@ The following bugs have been fixed:
 
 * Correct data length in SCSI_DATA_IN packets (within iSCSI). (ws-buglink:9521[])
 
+* Fix "decode as ..." for packet-time.c. (ws-buglink:9563[])
+
 === New and Updated Features
 
 There are no new features in this release.
@@ -68,10 +70,12 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+DVB BAT
 GSM MAP
 iSCSI
 SCTP
 SIP
+Time
 
 --sort-and-group--
 
