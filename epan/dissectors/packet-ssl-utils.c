@@ -1077,6 +1077,8 @@ const value_string tls_cert_status_type[] = {
     { 0, NULL }
 };
 
+#define DIGEST_MAX_SIZE 48
+
 /* we keep this internal to packet-ssl-utils, as there should be
    no need to access it any other way.
 
@@ -1337,6 +1339,7 @@ ssl_hmac_final(SSL_HMAC* md, guchar* data, guint* datalen)
 
     algo = gcry_md_get_algo (*(md));
     len  = gcry_md_get_algo_dlen(algo);
+    DISSECTOR_ASSERT(len <= *datalen);
     memcpy(data, gcry_md_read(*(md), algo), len);
     *datalen = len;
 }
@@ -1819,7 +1822,7 @@ tls_hash(StringInfo* secret, StringInfo* seed, gint md, StringInfo* out)
     guint     left;
     gint      tocpy;
     guint8   *A;
-    guint8    _A[48],tmp[48];
+    guint8    _A[DIGEST_MAX_SIZE],tmp[DIGEST_MAX_SIZE];
     guint     A_l,tmp_l;
     SSL_HMAC  hm;
     ptr  = out->data;
@@ -1834,6 +1837,7 @@ tls_hash(StringInfo* secret, StringInfo* seed, gint md, StringInfo* out)
     while(left){
         ssl_hmac_init(&hm,secret->data,secret->data_len,md);
         ssl_hmac_update(&hm,A,A_l);
+        A_l = sizeof(_A);
         ssl_hmac_final(&hm,_A,&A_l);
         ssl_hmac_cleanup(&hm);
         A=_A;
@@ -1841,6 +1845,7 @@ tls_hash(StringInfo* secret, StringInfo* seed, gint md, StringInfo* out)
         ssl_hmac_init(&hm,secret->data,secret->data_len,md);
         ssl_hmac_update(&hm,A,A_l);
         ssl_hmac_update(&hm,seed->data,seed->data_len);
+        tmp_l = sizeof(tmp);
         ssl_hmac_final(&hm,tmp,&tmp_l);
         ssl_hmac_cleanup(&hm);
 
@@ -2450,7 +2455,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     SSL_HMAC hm;
     gint     md;
     guint32  len;
-    guint8   buf[48];
+    guint8   buf[DIGEST_MAX_SIZE];
     gint16   temp;
 
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
@@ -2484,6 +2489,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     ssl_hmac_update(&hm,data,datalen);
 
     /* get digest and digest len*/
+    len = sizeof(buf);
     ssl_hmac_final(&hm,buf,&len);
     ssl_hmac_cleanup(&hm);
     ssl_print_data("Mac", buf, len);
@@ -2564,7 +2570,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     SSL_HMAC hm;
     gint     md;
     guint32  len;
-    guint8   buf[20];
+    guint8   buf[DIGEST_MAX_SIZE];
     gint16   temp;
 
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
@@ -2595,6 +2601,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     ssl_hmac_update(&hm,buf,2);
     ssl_hmac_update(&hm,data,datalen);
     /* get digest and digest len */
+    len = sizeof(buf);
     ssl_hmac_final(&hm,buf,&len);
     ssl_hmac_cleanup(&hm);
     ssl_print_data("Mac", buf, len);

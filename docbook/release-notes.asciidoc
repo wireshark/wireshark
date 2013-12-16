@@ -54,6 +54,8 @@ The following bugs have been fixed:
 
 * gsm_map doesn't decode MAPv3 reportSM-DeliveryStatus result. (ws-buglink:9382[])
 
+* DTLS: fix buffer overflow in mac check. (ws-buglink:9512[])
+
 * Correct data length in SCSI_DATA_IN packets (within iSCSI). (ws-buglink:9521[])
 
 * Fix "decode as ..." for packet-time.c. (ws-buglink:9563[])
@@ -70,6 +72,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+DTLS
 DVB BAT
 GSM MAP
 iSCSI
