@@ -417,6 +417,16 @@ typedef struct
    Maps pdcp_result_hash_key* -> pdcp_sequence_report_in_frame* */
 static GHashTable *pdcp_lte_sequence_analysis_report_hash = NULL;
 
+/* Gather together security settings in order to be able to do deciphering */
+typedef struct pdu_security_settings_t
+{
+    gboolean valid;
+    enum security_ciphering_algorithm_e ciphering;
+    gchar   *key;
+    guint32 count;
+    guint8  bearer;
+    guint8  direction;
+} pdu_security_settings_t;
 
 
 /* Add to the tree values associated with sequence analysis for this frame */
@@ -424,7 +434,8 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                    pdcp_lte_info *p_pdcp_lte_info,
                                    guint16   sequenceNumber,
                                    packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                                   proto_tree *security_tree)
+                                   proto_tree *security_tree,
+                                   pdu_security_settings_t *pdu_security)
 {
     proto_tree *seqnum_tree;
     proto_item *seqnum_ti;
@@ -489,6 +500,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
                                          tvb, 0, 0, p_pdcp_lte_info->channelId-1);
                 PROTO_ITEM_SET_GENERATED(ti);
+                pdu_security->bearer = p_pdcp_lte_info->channelId-1;
         
                 /* DIRECTION */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_direction,
@@ -517,6 +529,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_count,
                                          tvb, 0, 0, count);
                 PROTO_ITEM_SET_GENERATED(ti);
+                pdu_security->count = count;
 
                 /* KEY */
                 for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
@@ -532,9 +545,12 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                             ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_key,
                                                        tvb, 0, 0, key);
                             PROTO_ITEM_SET_GENERATED(ti);
+                            pdu_security->key = key;
                         }
                     }
                 }
+
+                pdu_security->direction = p_pdcp_lte_info->direction;
             }
             break;
 
@@ -606,7 +622,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      pdcp_lte_info *p_pdcp_lte_info,
                                      guint16 sequenceNumber,
                                      proto_tree *tree,
-                                     proto_tree *security_tree)
+                                     proto_tree *security_tree,
+                                     pdu_security_settings_t *pdu_security)
 {
     pdcp_channel_hash_key          channel_key;
     pdcp_channel_status           *p_channel_status;
@@ -625,7 +642,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         if (p_report_in_frame != NULL) {
             addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info,
                                    sequenceNumber,
-                                   pinfo, tree, tvb, security_tree);
+                                   pinfo, tree, tvb, security_tree, pdu_security);
             return;
         }
         else {
@@ -760,7 +777,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
     /* Add state report for this frame into tree */
     addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info, sequenceNumber,
-                           pinfo, tree, tvb, security_tree);
+                           pinfo, tree, tvb, security_tree, pdu_security);
 }
 
 
@@ -1171,6 +1188,50 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
     g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), p_security);
 }
 
+/* TODO: do this better! */
+static guchar hex_ascii_to_binary(gchar c)
+{
+    if ((c >= '0') && (c <= '9')) {
+        return c - '0';
+    }
+    else if ((c >= 'a') && (c <= 'f')) {
+        return c - 'a';
+    }
+    else
+        return 0;
+}
+
+/* Decipher payload if algorithm is supported and plausible inputs are available */
+tvbuff_t* decipher_payload(tvbuff_t *tvb, int *offset _U_, pdu_security_settings_t *pdu_security_settings)
+{
+    char *k = pdu_security_settings->key;
+    guint8 key[16];
+    int n;
+
+    /* Nothing to do if no ciphering algorithm was specified */
+    if (!pdu_security_settings->valid) {
+        return tvb;
+    }
+
+    /* Only EEA2 supported at the moment */
+    if (pdu_security_settings->ciphering != eea2) {
+        return tvb;
+    }
+
+    /* Key must be present and 16 bytes long */
+    if (strlen(k) != 32) {
+        return tvb;
+    }
+
+	/* And must be able to convert string into binary key */
+	for (n=0; n < 16; n += 2) {
+	    key[n] = (hex_ascii_to_binary(k[2*n]) << 4) + hex_ascii_to_binary(k[(2*n)+1]);
+	}
+
+    /* TODO: call AES and return result TVB !!!!! And set *offset. */
+    return tvb;
+}
+
 
 /******************************/
 /* Main dissection function.  */
@@ -1188,6 +1249,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     pdcp_security_info_t *pdu_security;              /* security in place for this PDU */
     proto_tree *security_tree = NULL;
     proto_item *security_ti;
+    tvbuff_t *payload_tvb;
+    pdu_security_settings_t  pdu_security_settings;
+
+    /* Initialise security settings */
+    pdu_security_settings.valid = FALSE;
+    pdu_security_settings.key = "";
+
 
     /* Set protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -1278,6 +1346,9 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_item_append_text(security_ti, " (ciphering=%s, integrity=%s)",
                                val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),
                                val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
+
+        pdu_security_settings.valid = TRUE;
+        pdu_security_settings.ciphering = pdu_security->ciphering;
     }
 
 
@@ -1496,7 +1567,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if (do_analysis) {
                 checkChannelSequenceInfo(pinfo, tvb, p_pdcp_info,
-                                         (guint16)seqnum, pdcp_tree, security_tree);
+                                         (guint16)seqnum, pdcp_tree, security_tree,
+                                         &pdu_security_settings);
             }
         }
     }
@@ -1508,6 +1580,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /*******************************************************/
     /* Now deal with the payload                           */
     /*******************************************************/
+
+    /* Check pdu_security_settings - may need to do deciphering before calling
+       further dissectors on payload */
+    payload_tvb = decipher_payload(tvb, &offset, &pdu_security_settings);
 
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
         guint32 data_length;
