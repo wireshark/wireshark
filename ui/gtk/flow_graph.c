@@ -524,7 +524,8 @@ flow_graph_dlg_create(void)
 	select_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_All packets");
 	gtk_widget_set_tooltip_text (select_all_rb, ("Process all packets"));
 	g_signal_connect(select_all_rb, "toggled", G_CALLBACK(toggle_select_all), NULL);
-	ws_gtk_grid_attach(GTK_GRID(range_grid), select_all_rb, 0, 0, 1, 1);
+	ws_gtk_grid_attach_extended(GTK_GRID(range_grid), select_all_rb, 0, 0, 1, 1,
+				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
 	if (type_of_packets == TYPE_OF_PACKETS_ALL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),TRUE);
 	}
@@ -535,7 +536,8 @@ flow_graph_dlg_create(void)
 									     "_Displayed packets");
 	gtk_widget_set_tooltip_text (select_displayed_rb, ("Process displayed packets"));
 	g_signal_connect(select_displayed_rb, "toggled", G_CALLBACK(toggle_select_displayed), NULL);
-	ws_gtk_grid_attach(GTK_GRID(range_grid), select_displayed_rb, 0, 1, 1, 1);
+	ws_gtk_grid_attach_extended(GTK_GRID(range_grid), select_displayed_rb, 0, 1, 1, 1,
+				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
 	if (type_of_packets == TYPE_OF_PACKETS_DISPLAYED) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_displayed_rb),TRUE);
 	}
@@ -556,7 +558,8 @@ flow_graph_dlg_create(void)
 	select_general_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_General flow");
 	gtk_widget_set_tooltip_text (select_general_rb,	("Show all packets, with general information"));
 	g_signal_connect(select_general_rb, "toggled", G_CALLBACK(toggle_select_general), NULL);
-	ws_gtk_grid_attach(GTK_GRID(flow_type_grid), select_general_rb, 0, 0, 1, 1);
+	ws_gtk_grid_attach_extended(GTK_GRID(flow_type_grid), select_general_rb, 0, 0, 1, 1,
+				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
 	if (type_of_flow == TYPE_OF_FLOW_GENERAL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_general_rb),TRUE);
 	}
@@ -567,7 +570,8 @@ flow_graph_dlg_create(void)
 								       "_TCP flow");
 	gtk_widget_set_tooltip_text (select_tcp_rb, ("Show only TCP packets, with TCP specific information"));
 	g_signal_connect(select_tcp_rb, "toggled", G_CALLBACK(toggle_select_tcp), NULL);
-	ws_gtk_grid_attach(GTK_GRID(flow_type_grid), select_tcp_rb, 0, 1, 1, 1);
+	ws_gtk_grid_attach_extended(GTK_GRID(flow_type_grid), select_tcp_rb, 0, 1, 1, 1,
+				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
 	if (type_of_flow == TYPE_OF_FLOW_TCP) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_tcp_rb),TRUE);
 	}
@@ -589,7 +593,8 @@ flow_graph_dlg_create(void)
 	gtk_widget_set_tooltip_text (src_dst_rb,
 		("Nodes in the diagram are identified with source and destination addresses"));
 	g_signal_connect(src_dst_rb, "toggled", G_CALLBACK(toggle_select_srcdst), NULL);
-	ws_gtk_grid_attach(GTK_GRID(node_addr_grid), src_dst_rb, 0, 0, 1, 1);
+	ws_gtk_grid_attach_extended(GTK_GRID(node_addr_grid), src_dst_rb, 0, 0, 1, 1,
+				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
 	if (node_addr_type == NODE_ADDR_TYPE_SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(src_dst_rb),TRUE);
 	}
@@ -601,7 +606,8 @@ flow_graph_dlg_create(void)
 	gtk_widget_set_tooltip_text (net_src_dst_rb,
 		("Nodes in the diagram are identified with network source and destination addresses"));
 	g_signal_connect(net_src_dst_rb, "toggled", G_CALLBACK(toggle_select_netsrcdst), NULL);
-	ws_gtk_grid_attach(GTK_GRID(node_addr_grid), net_src_dst_rb, 0, 1, 1, 1);
+	ws_gtk_grid_attach_extended(GTK_GRID(node_addr_grid), net_src_dst_rb, 0, 1, 1, 1,
+				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
 	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(net_src_dst_rb),TRUE);
 	}
