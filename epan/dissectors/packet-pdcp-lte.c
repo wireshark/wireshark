@@ -34,6 +34,11 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
 
+#ifdef HAVE_LIBGCRYPT
+#include <epan/uat.h>
+#include <wsutil/wsgcrypt.h>
+#endif /* HAVE_LIBGCRYPT */
+
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
@@ -47,9 +52,11 @@ void proto_reg_handoff_pdcp_lte(void);
 
 
 /* TODO:
-   - Support for deciphering
-       - Next step would be to maintain HFN for COUNT input
-   - Verify MAC authentication bytes
+   - Support for deciphering. Next steps are:
+       - lookup configured keys and show in security info
+       - use gcrypt to decipher AES frames
+       - separate preferences to control signalling/user-plane decryption?
+       - Verify MAC authentication bytes for supported protocol(s)?
    - Add Relay Node user plane data PDU dissection
 */
 
@@ -131,6 +138,47 @@ static expert_field ei_pdcp_lte_sequence_analysis_wrong_sequence_number = EI_INI
 static expert_field ei_pdcp_lte_reserved_bits_not_zero = EI_INIT;
 static expert_field ei_pdcp_lte_sequence_analysis_sn_repeated = EI_INIT;
 static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
+
+#ifdef HAVE_LIBGCRYPT
+/*-------------------------------------
+ * UAT for UE Keys
+ *-------------------------------------
+ */
+/* UAT entry structure. */
+typedef struct {
+   guint16 rnti;
+   gchar   *rrcKey;
+   gchar   *upKey;
+} uat_ue_keys_record_t;
+
+static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
+
+static uat_t * ue_keys_uat = NULL;
+static guint num_ue_keys_uat = 0;
+
+static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) {
+    uat_ue_keys_record_t* new_rec = (uat_ue_keys_record_t *)n;
+    const uat_ue_keys_record_t* old_rec = (const uat_ue_keys_record_t *)o;
+
+    new_rec->rnti = old_rec->rnti;
+    new_rec->rrcKey = (old_rec->rrcKey) ? g_strdup(old_rec->rrcKey) : NULL;
+    new_rec->upKey = (old_rec->upKey) ? g_strdup(old_rec->upKey) : NULL;
+
+    return new_rec;
+}
+
+static void uat_ue_keys_record_free_cb(void*r) {
+    uat_ue_keys_record_t* rec = (uat_ue_keys_record_t*)r;
+
+    g_free(rec->rrcKey);
+    g_free(rec->upKey);
+}
+
+UAT_DEC_CB_DEF(uat_ue_keys_records, rnti, uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcKey, uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, upKey,  uat_ue_keys_record_t)
+
+#endif
 
 static const value_string direction_vals[] =
 {
@@ -1916,6 +1964,15 @@ void proto_register_pdcp(void)
         {NULL, NULL, -1}
     };
 
+#ifdef HAVE_LIBGCRYPT
+  static uat_field_t ue_keys_uat_flds[] = {
+      UAT_FLD_DEC(uat_ue_keys_records, rnti, "RNTI", "RNTI of UE associated with keys"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, rrcKey, "RRC Key",        "Key for deciphering signalling messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, upKey,  "User-Plane Key", "Key for deciphering user-plane messages"),
+      UAT_END_FIELDS
+    };
+#endif
+
     module_t *pdcp_lte_module;
     expert_module_t* expert_pdcp_lte;
 
@@ -1968,6 +2025,29 @@ void proto_register_pdcp(void)
         "Which layer info to show in Info column",
         "Can show RLC, PDCP or Traffic layer info in Info column",
         &global_pdcp_lte_layer_to_show, show_info_col_vals, FALSE);
+
+#ifdef HAVE_LIBGCRYPT
+  ue_keys_uat = uat_new("PDCP UE security keys",
+            sizeof(uat_ue_keys_record_t),    /* record size */
+            "pdcp_lte_ue_keys",              /* filename */
+            TRUE,                            /* from_profile */
+            (void**) &uat_ue_keys_records,   /* data_ptr */
+            &num_ue_keys_uat,                /* numitems_ptr */
+            UAT_AFFECTS_DISSECTION,          /* affects dissection of packets, but not set of named fields */
+            NULL,                            /* help */
+            uat_ue_keys_record_copy_cb,      /* copy callback */
+            NULL,                            /* update callback */
+            uat_ue_keys_record_free_cb,      /* free callback */
+            NULL,                            /* post update callback */
+            ue_keys_uat_flds);               /* UAT field definitions */
+
+  prefs_register_uat_preference(pdcp_lte_module,
+                                "ue_keys_table",
+                                "PDCP UE Keys",
+                                "Preconfigured PDCP keys",
+                                ue_keys_uat);
+
+#endif
 
     register_init_routine(&pdcp_lte_init_protocol);
 }
