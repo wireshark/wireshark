@@ -9,7 +9,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -25,9 +24,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* The official Dokumentation for the Peer Name Resolution Protocol can be found at
- http://msdn.microsoft.com/en-us/library/cc239047(PROT.13).aspx
- This dissector is based on Revision 6.1.2
+/* The official Documentation for the Peer Name Resolution Protocol
+ * ([MS-PNRP]) can be found at
+ *
+ *    http://msdn.microsoft.com/en-us/library/cc239047.aspx
+ *
+ * This dissector is based on Revision 6.1.2
  */
 
 #include "config.h"
@@ -221,6 +223,7 @@ static const int *inquire_flags[] = {
 static gint hf_pnrp_message_classifier_unicodeCount = -1;
 static gint hf_pnrp_message_classifier_arrayLength = -1;
 static gint hf_pnrp_message_classifier_entryLength = -1;
+static gint hf_pnrp_message_classifier_string = -1;
 /* ACK Message Flags */
 static gint hf_pnrp_message_ack_flags_reserved = -1;
 static gint hf_pnrp_message_ack_flags_Nbit = -1;
@@ -685,7 +688,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         /* Entry Length: Must be 0x0002 */
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_classifier_entryLength, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
                         /* The actual classifier String */
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 12, tvb_get_ntohs(tvb,offset+6)-8, "Classifier: %s",tvb_get_unicode_string(wmem_packet_scope(), tvb, offset + 12, tvb_get_ntohs(tvb,offset+6)-8, ENC_BIG_ENDIAN));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_classifier_string, tvb, offset + 12, tvb_get_ntohs(tvb,offset+6)-8, ENC_UTF_16|ENC_BIG_ENDIAN);
                     }
 
                     /* There might be padding, so fill up to the next byte */
@@ -1152,6 +1155,9 @@ void proto_register_pnrp(void)
                 NULL, HFILL }},
         { &hf_pnrp_message_classifier_entryLength,
             { "Entry Length", "pnrp.segment.classifier.entryLength", FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_pnrp_message_classifier_string,
+            { "Classifier", "pnrp.segment.classifier.string", FT_STRING, STR_UNICODE, NULL, 0x0,
                 NULL, HFILL }},
         /* Ack Flags */
         { &hf_pnrp_message_ack_flags_reserved,

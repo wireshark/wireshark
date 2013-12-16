@@ -2,6 +2,12 @@
  *
  * Routines for MicroSoft MMS (Microsoft Media Server) message dissection
  *
+ * See
+ *
+ *    http://msdn.microsoft.com/en-us/library/cc234711.aspx
+ *
+ * for the [MS-MMSP] specification.
+ *
  * Copyright 2005
  * Written by Martin Mathieson
  *
@@ -760,7 +766,7 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
     offset += 4;
 
     /* Extract and show the string in tree and info column */
-    transport_info = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length_remaining - 20, ENC_LITTLE_ENDIAN);
+    transport_info = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length_remaining - 20, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
     proto_tree_add_string_format(tree, hf_msmms_command_client_transport_info, tvb,
                                  offset, length_remaining-20,
@@ -868,7 +874,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         THROW(ReportedBoundsError);
     if (server_version_length > 1)
     {
-        server_version = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, server_version_length*2, ENC_LITTLE_ENDIAN);
+        server_version = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, server_version_length*2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
         /* Server version string */
         proto_tree_add_item(tree, hf_msmms_command_server_version, tvb,
@@ -934,7 +940,7 @@ static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset += 4;
 
     /* Extract and show the string in tree and info column */
-    player_info = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length_remaining - 12, ENC_LITTLE_ENDIAN);
+    player_info = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length_remaining - 12, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(tree, hf_msmms_command_client_player_info, tvb,
                         offset, length_remaining-12,
@@ -1011,7 +1017,7 @@ static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto
     offset += 4;
 
     /* File path on server */
-    server_file = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length_remaining - 16, ENC_LITTLE_ENDIAN);
+    server_file = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length_remaining - 16, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(tree, hf_msmms_command_server_file, tvb,
                         offset, length_remaining-16,

@@ -11111,10 +11111,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
-		if (si->unicode)
-			fn = tvb_get_unicode_stringz(wmem_packet_scope(), tvb, offset, &fn_len, ENC_LITTLE_ENDIAN);
-		else
-			fn = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &fn_len);
+		fn = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
 
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,

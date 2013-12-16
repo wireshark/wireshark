@@ -234,7 +234,7 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 	guint32	wstring_padding = 0;
 
 	wstring_length = tvb_get_letohl(tvb, offset);
-	wstring_data = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset+4, wstring_length, ENC_LITTLE_ENDIAN);
+	wstring_data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, wstring_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	wstring_size = wstring_length;
 	if (wstring_size%4) {
 		wstring_padding = (4-wstring_size%4);

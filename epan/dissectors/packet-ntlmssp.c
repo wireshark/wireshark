@@ -1308,7 +1308,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       case NTLM_TARGET_INFO_DNS_DOMAIN_NAME:
       case NTLM_TARGET_INFO_DNS_TREE_NAME:
       case NTLM_TARGET_INFO_TARGET_NAME:
-        text = tvb_get_unicode_string(wmem_packet_scope(), tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
+        text = tvb_get_string_enc(wmem_packet_scope(), tvb, content_offset, content_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
         proto_tree_add_string(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, text);
         proto_item_append_text(target_info_tf, ": %s", text);
         break;

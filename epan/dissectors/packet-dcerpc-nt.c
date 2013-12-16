@@ -47,7 +47,6 @@ static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
 static int hf_nt_data_blob_len = -1;
 
-static gint ett_nt_unicode_string = -1;
 static gint ett_lsa_String = -1;
 static gint ett_nt_data_blob = -1;
 static expert_field ei_dcerpc_nt_badsid = EI_INIT;
@@ -108,71 +107,25 @@ dissect_null_term_string(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree,
 				guint8 *drep _U_, int hf_index, int levels _U_)
 {
-	guint8 data;
-	int tmp_offset = offset;
-	guint32 len = 0;
-	char *s;
+	guint len;
 
-	data = tvb_get_guint8 (tvb, tmp_offset);
-	for ( ;tvb_length_remaining (tvb, tmp_offset) > 0 && data; tmp_offset++) {
-		data = tvb_get_guint8 (tvb, tmp_offset);
-	}
+	len = tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_ASCII|ENC_NA);
 
-	/* Let's try to the terminator on the last char ...*/
-	if (data) {
-		tmp_offset++;
-		data = tvb_get_guint8 (tvb, tmp_offset);
-	}
-
-	if (data) {
-		proto_tree_add_string(tree, hf_nt_error, tvb, offset,
-			tmp_offset - offset, "Not a null terminated string");
-		return tmp_offset;
-	}
-
-	len = tmp_offset - offset;
-	/* tvb_get_string didn't want the length with the 0*/
-	s = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
-	proto_tree_add_string(tree, hf_index, tvb, offset, len + 1, s);
-
-	return tmp_offset;
+	return offset + len;
 }
 
 int
 dissect_null_term_wstring(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree,
-				guint8 *drep, int hf_index, int levels _U_)
+				guint8 *drep _U_, int hf_index, int levels _U_)
 {
-	guint16 data;
-	int tmp_offset = offset;
-	guint32 len = 0;
-	char *s;
+	guint len;
 
-	data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
-	for ( ; tvb_length_remaining (tvb, tmp_offset) > 1 && data; tmp_offset +=2) {
-		data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
-	}
+	len = tvb_unicode_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
-	/* Let's try to find the terminator on the last char ...*/
-
-	if (data) {
-		tmp_offset += 2;
-		data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
-	}
-
-	if (data) {
-		proto_tree_add_string(tree, hf_nt_error, tvb, offset,
-			tmp_offset - offset, "Not a null terminated string");
-		return tmp_offset;
-	}
-	len = tmp_offset - offset;
-
-	/* tvb_get_string didn't want the length with the 0*/
-	s = tvb_get_unicode_string(NULL, tvb, offset, len, ENC_LITTLE_ENDIAN);
-	proto_tree_add_string(tree, hf_index, tvb, offset, len, s);
-	g_free(s);
-
-	return tmp_offset;
+	return offset + len;
 }
 
 /* Parse some common RPC structures */
@@ -1275,9 +1228,9 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_unicode_string(wmem_packet_scope(),
+	s = tvb_get_string_enc(wmem_packet_scope(),
 		tvb, start_offset + 12, end_offset - start_offset - 12,
-		ENC_LITTLE_ENDIAN);
+		ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* Append string to COL_INFO */
 
@@ -1997,7 +1950,6 @@ void dcerpc_smb_init(int proto_dcerpc)
 	};
 
 	static gint *ett[] = {
-		&ett_nt_unicode_string,
 		&ett_nt_data_blob,
 		&ett_nt_counted_string,
 		&ett_nt_counted_byte_array,

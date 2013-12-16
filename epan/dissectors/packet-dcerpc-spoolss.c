@@ -498,7 +498,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 				hf_string_parm_size, &buffer_len);
 
-	s = tvb_get_unicode_stringz(wmem_packet_scope(), tvb, offset, &len, ENC_LITTLE_ENDIAN);
+	s = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	if (tree && buffer_len) {
 		tvb_ensure_bytes_exist(tvb, offset, buffer_len);
@@ -694,7 +694,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 		switch(type) {
 		case DCERPC_REG_SZ: {
-			char *data = tvb_get_unicode_string(NULL, tvb, offset - size, size, ENC_LITTLE_ENDIAN);
+			char *data = tvb_get_string_enc(NULL, tvb, offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 			proto_item_append_text(item, ": %s", data);
 
@@ -1083,7 +1083,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		return offset;
 	}
 
-	text = tvb_get_unicode_string(NULL, tvb, offset, remaining, ENC_LITTLE_ENDIAN);
+	text = tvb_get_string_enc(NULL, tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	len = (int)strlen(text);
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
@@ -5838,8 +5838,8 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	len = tvb_get_letohl(tvb, start_offset);
 
-	s = tvb_get_unicode_string(NULL,
-		tvb, start_offset + 4, (end_offset - start_offset - 4), ENC_LITTLE_ENDIAN);
+	s = tvb_get_string_enc(NULL,
+		tvb, start_offset + 4, (end_offset - start_offset - 4), ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* Append string to upper-level proto_items */
 

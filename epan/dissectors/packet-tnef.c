@@ -247,7 +247,7 @@ static const value_string tnef_Attribute_vals[] = {
 	{ 0, NULL }
 };
 
-static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packet_info *pinfo, proto_tree *tree, gboolean single, gboolean unicode, guint encoding)
+static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packet_info *pinfo, proto_tree *tree, gboolean single, guint encoding)
 {
 	 proto_item *item;
 	 guint32 length, count, i;
@@ -271,12 +271,7 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 		 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		 offset += 4;
 
-		 if (unicode) {
-			 char *unicode_str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length, ENC_LITTLE_ENDIAN);
-			 proto_tree_add_string(tree, hf_id, tvb, offset, length, unicode_str);
-		 } else {
-			 proto_tree_add_item(tree, hf_id, tvb, offset, length, encoding);
-		 }
+		 proto_tree_add_item(tree, hf_id, tvb, offset, length, encoding);
 		 offset += length;
 
 		 /* XXX: may be padding ? */
@@ -406,9 +401,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
-				name_string = tvb_get_unicode_string (wmem_packet_scope(), tvb, offset, tag_length, ENC_LITTLE_ENDIAN);
-				proto_tree_add_string_format_value(tag_tree, hf_tnef_property_tag_name_string, tvb, offset,
-							     tag_length, name_string, "%s", name_string);
+				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 				offset += tag_length;
 
 				if((padding = (4 - tag_length % 4)) != 4) {
@@ -437,14 +430,13 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				break;
 			case PT_STRING8:
 				/* XXX - code page? */
-				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, FALSE, ENC_ASCII|ENC_NA);
+				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, ENC_ASCII|ENC_NA);
 				break;
 			case PT_BINARY:
-				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, FALSE, ENC_NA);
+				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, ENC_NA);
 				break;
 			case PT_UNICODE:
-				/* XXX - UCS-2 and UTF-16 need ENC_ values */
-				offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, TRUE, ENC_NA);
+				offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, ENC_UTF_16|ENC_NA);
 				break;
 			case PT_CLSID:
 				offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_lpguid, 0);
