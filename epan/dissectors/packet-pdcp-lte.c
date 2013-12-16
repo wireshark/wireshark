@@ -1294,9 +1294,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /*****************************/
         /* Signalling plane messages */
         if (p_pdcp_info->plane == SIGNALING_PLANE) {
-            guint32 mac;
-            guint32 data_length;
-
             /* Verify 3 reserved bits are 0 */
             guint8 reserved = (first_byte & 0xe0) >> 5;
             proto_item *ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_plane_reserved,
@@ -1317,60 +1314,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /* Only PDCP header was captured, stop dissection here */
                 return;
             }
-
-            /* RRC data is all but last 4 bytes.
-               Call lte-rrc dissector (according to direction and channel type) */
-            if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
-                ((pdu_security == NULL) || (pdu_security->ciphering == 0) || !pdu_security->seen_next_ul_pdu)){
-                /* Get appropriate dissector handle */
-                dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
-
-                if (rrc_handle != 0) {
-                    /* Call RRC dissector if have one */
-                    tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
-                                                           tvb_length_remaining(tvb, offset) - 4,
-                                                           tvb_length_remaining(tvb, offset) - 4);
-                    gboolean was_writable = col_get_writable(pinfo->cinfo);
-
-                    /* We always want to see this in the info column */
-                    col_set_writable(pinfo->cinfo, TRUE);
-
-                    call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
-
-                    /* Restore to whatever it was */
-                    col_set_writable(pinfo->cinfo, was_writable);
-                }
-                else {
-                     /* Just show data */
-                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                            tvb_length_remaining(tvb, offset) - 4, ENC_NA);
-                }
-
-                if (!pinfo->fd->flags.visited &&
-                    (current_security != NULL) && !current_security->seen_next_ul_pdu &&
-                    p_pdcp_info->direction == DIRECTION_UPLINK)
-                {
-                    /* i.e. we have already seen SecurityModeResponse! */
-                    current_security->seen_next_ul_pdu = TRUE;
-                }
-
-            }
-            else {
-                /* Just show as unparsed data */
-                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                    tvb_length_remaining(tvb, offset) - 4, ENC_NA);
-            }
-
-            data_length = tvb_length_remaining(tvb, offset) - 4;
-            offset += data_length;
-
-            /* Last 4 bytes are MAC */
-            mac = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
-                            mac, data_length);
         }
         else if (p_pdcp_info->plane == USER_PLANE) {
 
@@ -1562,89 +1505,154 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         write_pdu_label_and_info(root_ti, pinfo, " No-Header ");
     }
 
-    /* If not compressed with ROHC, show as user-plane data */
-    if (!p_pdcp_info->rohc.rohc_compression) {
-        gint payload_length = tvb_length_remaining(tvb, offset);
-        if (payload_length > 0) {
-            if (p_pdcp_info->plane == USER_PLANE) {
+    /*******************************************************/
+    /* Now deal with the payload                           */
+    /*******************************************************/
 
-                /* Not attempting to decode payload if ciphering is enabled
-                   (and NULL ciphering is not being used) */
-                if (global_pdcp_dissect_user_plane_as_ip &&
-                    ((pdu_security == NULL) || (pdu_security->ciphering == 0)))
-                {
-                    tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (p_pdcp_info->plane == SIGNALING_PLANE) {
+        guint32 data_length;
+        guint32 mac;
 
-                    /* Don't update info column for ROHC unless configured to */
-                    if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
-                        col_set_writable(pinfo->cinfo, FALSE);
-                    }
+        /* RRC data is all but last 4 bytes.
+           Call lte-rrc dissector (according to direction and channel type) */
+        if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
+            ((pdu_security == NULL) || (pdu_security->ciphering == 0) || !pdu_security->seen_next_ul_pdu)){
+            /* Get appropriate dissector handle */
+            dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
 
-                    switch (tvb_get_guint8(tvb, offset) & 0xf0) {
-                        case 0x40:
-                            call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree, NULL);
-                            break;
-                        case 0x60:
-                            call_dissector_only(ipv6_handle, payload_tvb, pinfo, pdcp_tree, NULL);
-                            break;
-                        default:
-                            call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree, NULL);
-                            break;
-                    }
+            if (rrc_handle != 0) {
+                /* Call RRC dissector if have one */
+                tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
+                                                       tvb_length_remaining(tvb, offset) - 4,
+                                                       tvb_length_remaining(tvb, offset) - 4);
+                gboolean was_writable = col_get_writable(pinfo->cinfo);
 
-                    /* Freeze the columns again because we don't want other layers writing to info */
-                    if (global_pdcp_lte_layer_to_show == ShowTrafficLayer) {
-                        col_set_writable(pinfo->cinfo, FALSE);
-                    }
+                /* We always want to see this in the info column */
+                col_set_writable(pinfo->cinfo, TRUE);
 
-                }
-                else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, ENC_NA);
-                }
+                call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+
+                /* Restore to whatever it was */
+                col_set_writable(pinfo->cinfo, was_writable);
+            }
+            else {
+                 /* Just show data */
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+                                        tvb_length_remaining(tvb, offset) - 4, ENC_NA);
             }
 
-            write_pdu_label_and_info(root_ti, pinfo, "(%u bytes data)",
-                                     payload_length);
+            if (!pinfo->fd->flags.visited &&
+                (current_security != NULL) && !current_security->seen_next_ul_pdu &&
+                p_pdcp_info->direction == DIRECTION_UPLINK)
+            {
+                /* i.e. we have already seen SecurityModeResponse! */
+                current_security->seen_next_ul_pdu = TRUE;
+            }
+
+        }
+        else {
+            /* Just show as unparsed data */
+            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+                                tvb_length_remaining(tvb, offset) - 4, ENC_NA);
         }
 
-        /* (there will be no signalling data left at this point) */
+        data_length = tvb_length_remaining(tvb, offset) - 4;
+        offset += data_length;
 
-        /* Let RLC write to columns again */
-        col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
+        /* Last 4 bytes are MAC */
+        mac = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-        /* DROPPING OUT HERE IF NOT DOING ROHC! */
-        return;
-    }
-
-
-    /***************************/
-    /* ROHC packets            */
-    /***************************/
-
-
-    /* Only attempt ROHC if configured to */
-    if (!global_pdcp_dissect_rohc) {
-        col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-                        val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
-        return;
-    }
-
-    rohc_offset = offset;
-    rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
-
-    /* Only enable writing to column if configured to show ROHC */
-    if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
-        col_set_writable(pinfo->cinfo, FALSE);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
+                        mac, data_length);
     }
     else {
-        col_clear(pinfo->cinfo, COL_INFO);
+        /* User-plane payload here */
+
+        /* If not compressed with ROHC, show as user-plane data */
+        if (!p_pdcp_info->rohc.rohc_compression) {
+            gint payload_length = tvb_length_remaining(tvb, offset);
+            if (payload_length > 0) {
+                if (p_pdcp_info->plane == USER_PLANE) {
+    
+                    /* Not attempting to decode payload if ciphering is enabled
+                       (and NULL ciphering is not being used) */
+                    if (global_pdcp_dissect_user_plane_as_ip &&
+                        ((pdu_security == NULL) || (pdu_security->ciphering == 0)))
+                    {
+                        tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+    
+                        /* Don't update info column for ROHC unless configured to */
+                        if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
+                            col_set_writable(pinfo->cinfo, FALSE);
+                        }
+    
+                        switch (tvb_get_guint8(tvb, offset) & 0xf0) {
+                            case 0x40:
+                                call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                                break;
+                            case 0x60:
+                                call_dissector_only(ipv6_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                                break;
+                            default:
+                                call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree, NULL);
+                                break;
+                        }
+    
+                        /* Freeze the columns again because we don't want other layers writing to info */
+                        if (global_pdcp_lte_layer_to_show == ShowTrafficLayer) {
+                            col_set_writable(pinfo->cinfo, FALSE);
+                        }
+    
+                    }
+                    else {
+                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, ENC_NA);
+                    }
+                }
+    
+                write_pdu_label_and_info(root_ti, pinfo, "(%u bytes data)",
+                                         payload_length);
+            }
+    
+            /* (there will be no signalling data left at this point) */
+    
+            /* Let RLC write to columns again */
+            col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
+    
+            /* DROPPING OUT HERE IF NOT DOING ROHC! */
+            return;
+        }
+        else {
+            /***************************/
+            /* ROHC packets            */
+            /***************************/
+    
+            /* Only attempt ROHC if configured to */
+            if (!global_pdcp_dissect_rohc) {
+                col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
+                                val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
+                return;
+            }
+        
+            rohc_offset = offset;
+            rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
+        
+            /* Only enable writing to column if configured to show ROHC */
+            if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
+                col_set_writable(pinfo->cinfo, FALSE);
+            }
+            else {
+                col_clear(pinfo->cinfo, COL_INFO);
+            }
+        
+            /* Call the ROHC dissector */
+            call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
+        
+            /* Let RLC write to columns again */
+            col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
+        }
     }
-
-    /* Call the ROHC dissector */
-    call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
-
-    /* Let RLC write to columns again */
-    col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
 }
 
 /* Initializes the hash tables each time a new
