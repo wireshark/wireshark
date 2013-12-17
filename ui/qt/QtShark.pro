@@ -541,12 +541,6 @@ HEADERS += \
     qcustomplot.h \
     recent_file_status.h \
     related_packet_delegate.h \
-    sctp_all_assocs_dialog.h  \
-    sctp_assoc_analyse_dialog.h  \
-    sctp_chunk_statistics_dialog.h  \
-    sctp_graph_dialog.h  \
-    sctp_graph_arwnd_dialog.h  \
-    sctp_graph_byte_dialog.h  \
     sequence_diagram.h \
     sequence_dialog.h \
     simple_dialog_qt.h \
