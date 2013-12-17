@@ -176,6 +176,9 @@ UAT_DEC_CB_DEF(uat_ue_keys_records, ueid, uat_ue_keys_record_t)
 UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcKey, uat_ue_keys_record_t)
 UAT_CSTRING_CB_DEF(uat_ue_keys_records, upKey,  uat_ue_keys_record_t)
 
+static gboolean global_pdcp_decipher_signalling = FALSE;
+static gboolean global_pdcp_decipher_userplane = FALSE;
+
 #endif
 
 static const value_string direction_vals[] =
@@ -1209,7 +1212,7 @@ static guchar hex_ascii_to_binary(gchar c)
 #if HAVE_LIBGCRYPT
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset, pdu_security_settings_t *pdu_security_settings,
-                           gboolean *deciphered)
+                           enum pdcp_plane plane, gboolean *deciphered)
 {
     const char *k = pdu_security_settings->key;
     guint8 key[16];
@@ -1232,12 +1235,19 @@ tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset, pdu_s
         return tvb;
     }
 
+    /* Don't decipher if turned off in preferences */
+    if (((plane == SIGNALING_PLANE) &&  !global_pdcp_decipher_signalling) ||
+        ((plane == USER_PLANE) && !global_pdcp_decipher_userplane)) {
+        return tvb;
+    }
+
     /* Key must be present and 16 bytes long */
     if (strlen(k) != 32) {
         return tvb;
     }
 
     /* And must be able to convert string into binary key */
+    /* TODO: should do this only once per key!!! */
     for (n=0; n < 32; n += 2) {
         key[n/2] = (hex_ascii_to_binary(k[n]) << 4) + hex_ascii_to_binary(k[n+1]);
     }
@@ -1658,7 +1668,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Check pdu_security_settings - may need to do deciphering before calling
        further dissectors on payload */
-    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, &payload_deciphered);
+    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info->plane, &payload_deciphered);
 
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
         guint32 data_length;
@@ -2174,6 +2184,7 @@ void proto_register_pdcp(void)
     /* Obsolete preferences */
     prefs_register_obsolete_preference(pdcp_lte_module, "show_feedback_option_tag_length");
 
+
     /* Dissect uncompressed user-plane data as IP */
     prefs_register_bool_preference(pdcp_lte_module, "show_user_plane_as_ip",
         "Show uncompressed User-Plane data as IP",
@@ -2210,26 +2221,37 @@ void proto_register_pdcp(void)
         &global_pdcp_lte_layer_to_show, show_info_col_vals, FALSE);
 
 #ifdef HAVE_LIBGCRYPT
-  ue_keys_uat = uat_new("PDCP UE security keys",
-            sizeof(uat_ue_keys_record_t),    /* record size */
-            "pdcp_lte_ue_keys",              /* filename */
-            TRUE,                            /* from_profile */
-            (void**) &uat_ue_keys_records,   /* data_ptr */
-            &num_ue_keys_uat,                /* numitems_ptr */
-            UAT_AFFECTS_DISSECTION,          /* affects dissection of packets, but not set of named fields */
-            NULL,                            /* help */
-            uat_ue_keys_record_copy_cb,      /* copy callback */
-            NULL,                            /* update callback */
-            uat_ue_keys_record_free_cb,      /* free callback */
-            NULL,                            /* post update callback */
-            ue_keys_uat_flds);               /* UAT field definitions */
+    ue_keys_uat = uat_new("PDCP UE security keys",
+              sizeof(uat_ue_keys_record_t),    /* record size */
+              "pdcp_lte_ue_keys",              /* filename */
+              TRUE,                            /* from_profile */
+              (void**) &uat_ue_keys_records,   /* data_ptr */
+              &num_ue_keys_uat,                /* numitems_ptr */
+              UAT_AFFECTS_DISSECTION,          /* affects dissection of packets, but not set of named fields */
+              NULL,                            /* help */
+              uat_ue_keys_record_copy_cb,      /* copy callback */
+              NULL,                            /* update callback */
+              uat_ue_keys_record_free_cb,      /* free callback */
+              NULL,                            /* post update callback */
+              ue_keys_uat_flds);               /* UAT field definitions */
 
-  prefs_register_uat_preference(pdcp_lte_module,
-                                "ue_keys_table",
-                                "PDCP UE Keys",
-                                "Preconfigured PDCP keys",
-                                ue_keys_uat);
+    prefs_register_uat_preference(pdcp_lte_module,
+                                  "ue_keys_table",
+                                  "PDCP UE Keys",
+                                  "Preconfigured PDCP keys",
+                                  ue_keys_uat);
 
+    /* Attempt to decipher RRC messages */
+    prefs_register_bool_preference(pdcp_lte_module, "decipher_signalling",
+        "Attempt to decipher Signalling (RRC) SDUs",
+        "N.B. only possible if key available and configured",
+        &global_pdcp_decipher_signalling);
+
+    /* Attempt to decipher user-plane messages */
+    prefs_register_bool_preference(pdcp_lte_module, "decipher_userplane",
+        "Attempt to decipher User-plane (IP) SDUs",
+        "N.B. only possible if key available and configured",
+        &global_pdcp_decipher_userplane);
 #endif
 
     register_init_routine(&pdcp_lte_init_protocol);
