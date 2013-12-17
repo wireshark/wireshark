@@ -1930,7 +1930,7 @@ elem_is95_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_uint_format_value(tree, hf_ansi_a_is95_chan_id_frame_offset, tvb, curr_offset, 1,
-        oct & 0x0f, "%u (%.2f ms)", oct & 0x0f, (oct & 0x0f) * 1.25);
+        oct, "%u (%.2f ms)", oct & 0x0f, (oct & 0x0f) * 1.25);
 
     num_chans = (oct & 0x70) >> 4;
 
@@ -2458,7 +2458,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     case 6:     /* IMSI */
         proto_tree_add_uint_format_value(tree, hf_ansi_a_imsi_mid_digit_1, tvb, curr_offset, 1,
-            (oct & 0xf0) >> 4, "%c", Dgt_msid.out[(oct & 0xf0) >> 4]);
+            oct, "%c", Dgt_msid.out[(oct & 0xf0) >> 4]);
 
         proto_tree_add_item(tree, hf_ansi_a_mid_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2471,7 +2471,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt_msid);
 
-        proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset, len - (curr_offset - offset),
+        proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset - 1, len - (curr_offset - 1 - offset),
             a_bigbuf,
             "BCD Digits: %s",
             a_bigbuf);
@@ -2519,7 +2519,7 @@ elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_uint_format_value(tree, hf_ansi_a_sci, tvb, curr_offset, 1,
-        (oct & 0x07), "%s%u", (oct & 0x08) ? "-" : "", oct & 0x07);
+        oct, "%s%u", (oct & 0x08) ? "-" : "", oct & 0x07);
 
     g_snprintf(add_string, string_len, " - (%s%u)",
         (oct & 0x08) ? "-" : "", oct & 0x07);
@@ -2549,7 +2549,7 @@ elem_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offse
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_uint_format_value(tree, hf_ansi_a_prio_call_priority, tvb, curr_offset, 1,
-        (oct & 0x3c) >> 2, "Priority Level %u", (oct & 0x3c) >> 2);
+        oct, "Priority Level %u", (oct & 0x3c) >> 2);
 
     proto_tree_add_item(tree, hf_ansi_a_prio_queue_allowed, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_prio_preempt_allowed, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3400,7 +3400,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_uint_format_value(tree, hf_ansi_a_is2000_chan_id_frame_offset, tvb, curr_offset, 1,
-        oct & 0x0f, "%u (%.2f ms)", oct & 0x0f, (oct & 0x0f) * 1.25);
+        oct, "%u (%.2f ms)", oct & 0x0f, (oct & 0x0f) * 1.25);
 
     num_chans = (oct & 0x70) >> 4;
 
@@ -3860,7 +3860,7 @@ elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
     oct = tvb_get_guint8(tvb, curr_offset);
     str = val_to_str_const(oct & 0x0F, ansi_a_auth_chlg_param_rand_num_type_vals, "Reserved");
     proto_tree_add_uint_format_value(tree, hf_ansi_a_auth_chlg_param_rand_num_type, tvb, curr_offset, 1,
-        oct & 0x0f, "%s (%u)", str, oct & 0x0f);
+        oct, "%s (%u)", str, oct & 0x0f);
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -3899,7 +3899,7 @@ elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
     oct = tvb_get_guint8(tvb, curr_offset);
     str = val_to_str_const(oct & 0x0F, ansi_a_auth_resp_param_sig_type_vals, "Reserved");
     proto_tree_add_uint_format_value(tree, hf_ansi_a_auth_resp_param_sig_type, tvb, curr_offset, 1,
-        oct & 0x0f, "%s (%u)", str, oct & 0x0f);
+        oct, "%s (%u)", str, oct & 0x0f);
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
