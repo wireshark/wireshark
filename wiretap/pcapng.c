@@ -561,7 +561,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         /* We currently only suport one SHB */
         if (pn->shb_read == TRUE) {
                 *err = WTAP_ERR_UNSUPPORTED;
-                *err_info = g_strdup_printf("pcapng: multiple section header blocks not supported.");
+                *err_info = g_strdup_printf("pcapng: multiple section header blocks not supported");
                 return 0;
         }
 
@@ -1095,13 +1095,13 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         if (packet.cap_len > packet.packet_len) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than packet_len %u.",
+                *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than packet_len %u",
                     packet.cap_len, packet.packet_len);
                 return 0;
         }
         if (packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
+                *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u",
                     packet.cap_len, WTAP_MAX_PACKET_SIZE);
                 return 0;
         }
@@ -1112,7 +1112,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         if (packet.interface_id >= pn->number_of_interfaces) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
+                *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u",
                     packet.interface_id, pn->number_of_interfaces);
                 return 0;
         }
@@ -1389,7 +1389,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
         if (simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
+                *err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u",
                     simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
                 return 0;
         }
@@ -2311,7 +2311,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         /* We don't currently support multi-section files. */
                         wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
                         *err = WTAP_ERR_UNSUPPORTED;
-                        *err_info = g_strdup_printf("pcapng: multi-section files not currently supported.");
+                        *err_info = g_strdup_printf("pcapng: multi-section files not currently supported");
                         return FALSE;
 
                 case(BLOCK_TYPE_PB):
