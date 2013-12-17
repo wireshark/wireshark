@@ -854,10 +854,6 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     guint16       diagnostic_code;
     modbus_request_info_t *request_info;
 
-    /* Don't need to do anything if there's no tree */
-    if (tree == NULL)
-        return tvb_length(tvb);
-
     len = tvb_length_remaining(tvb, 0);
 
     /* If the packet is zero-length, we should not attempt to dissect any further */
