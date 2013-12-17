@@ -60,6 +60,8 @@ The following bugs have been fixed:
 
 * Fix "decode as ..." for packet-time.c. (ws-buglink:9563[])
 
+* GSM SMS UDH EMS control expects 4 octets instead of 3 with OPTIONAL 4th. (ws-buglink:9550[])
+
 === New and Updated Features
 
 There are no new features in this release.
