@@ -17,50 +17,23 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-66[]
-+
-The SIP dissector could go into an infinite loop. Discovered by Alain Botti.
-// Fixed in trunk-1.10: r53195
-// Fixed in trunk-1.8: r53197
-(ws-buglink:9388[])
-+
-Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
-+
-cve-idlink:2013-7112[]
-
 * ws-salink:2013-68[]
 +
-The NTLMSSP v2 dissector could crash. Discovered by Garming Sam.
-// Fixed in trunk: r53626
-// Fixed in trunk-1.10: r54072
-// Fixed in trunk-1.8: r54146
-(ws-buglink:9488[])
+A dissector could go awry.
+// Fixed in trunk: r00000
+// Fixed in trunk-1.10: r00000
+// Fixed in trunk-1.8: r00000
+(ws-buglink:0000[])
 +
-Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
+Versions affected: 1.10.0 to 1.10.4, 1.8.0 to 1.8.12
 +
-cve-idlink:2013-7114[]
+cve-idlink:2013-0000[]
 
 The following bugs have been fixed:
 
 //* Wireshark will strip the paint off your car, then apply a hideous
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
-
-* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
-
-* Crash when selecting "Decode As"  based on SCTP PPID. (ws-buglink:8976[])
-
-* Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses. (ws-buglink:9031[])
-
-* gsm_map doesn't decode MAPv3 reportSM-DeliveryStatus result. (ws-buglink:9382[])
-
-* DTLS: fix buffer overflow in mac check. (ws-buglink:9512[])
-
-* Correct data length in SCSI_DATA_IN packets (within iSCSI). (ws-buglink:9521[])
-
-* Fix "decode as ..." for packet-time.c. (ws-buglink:9563[])
-
-* GSM SMS UDH EMS control expects 4 octets instead of 3 with OPTIONAL 4th. (ws-buglink:9550[])
 
 === New and Updated Features
 
@@ -74,15 +47,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-DTLS
-DVB-BAT
-DVB-CI
-GSM MAP
-GSM SMS
-iSCSI
-SCTP
-SIP
-Time
+.
 
 --sort-and-group--
 
@@ -90,7 +55,7 @@ Time
 
 --sort-and-group--
 
-Pcap-ng.
+.
 
 --sort-and-group--
 

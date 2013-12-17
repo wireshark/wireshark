@@ -7,9 +7,9 @@
 /usr/bin/rawshark
 /usr/bin/text2pcap
 /usr/lib/wireshark/libwireshark.so.2
-/usr/lib/wireshark/libwireshark.so.2.0.12
+/usr/lib/wireshark/libwireshark.so.2.0.13
 /usr/lib/wireshark/libwiretap.so.2
-/usr/lib/wireshark/libwiretap.so.2.1.12
+/usr/lib/wireshark/libwiretap.so.2.1.13
 /usr/lib/wireshark/libwsutil.so.2
 /usr/lib/wireshark/libwsutil.so.2.0.0
 /usr/lib/wireshark/plugins/*
