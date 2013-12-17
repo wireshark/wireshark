@@ -191,7 +191,8 @@ void SCTPGraphDialog::drawSACKGraph()
 
     // Add SACK graph
     if (xs.size() > 0) {
-        ui->sctpPlot->addGraph();
+        QCPGraph *gr = ui->sctpPlot->addGraph();
+        gr->setName(QString("SACK"));
         myScatter.setPen(QPen(Qt::red));
         myScatter.setBrush(Qt::red);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -203,7 +204,8 @@ void SCTPGraphDialog::drawSACKGraph()
 
     // Add Gap Acks
     if (xg.size() > 0) {
-        ui->sctpPlot->addGraph();
+        QCPGraph *gr = ui->sctpPlot->addGraph();
+        gr->setName(QString("GAP"));
         myScatter.setPen(QPen(Qt::green));
         myScatter.setBrush(Qt::green);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -215,7 +217,8 @@ void SCTPGraphDialog::drawSACKGraph()
 
     // Add NR Gap Acks
     if (xn.size() > 0) {
-        ui->sctpPlot->addGraph();
+        QCPGraph *gr = ui->sctpPlot->addGraph();
+        gr->setName(QString("NR_GAP"));
         myScatter.setPen(QPen(Qt::blue));
         myScatter.setBrush(Qt::blue);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -227,7 +230,8 @@ void SCTPGraphDialog::drawSACKGraph()
 
     // Add Duplicates
     if (xd.size() > 0) {
-        ui->sctpPlot->addGraph();
+        QCPGraph *gr = ui->sctpPlot->addGraph();
+        gr->setName(QString("DUP"));
         myScatter.setPen(QPen(Qt::cyan));
         myScatter.setBrush(Qt::cyan);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -243,13 +247,10 @@ void SCTPGraphDialog::drawTSNGraph()
     tsn_t *tsn;
     guint8 type;
     guint32 tsnumber=0;
-    // guint32 minTSN;
 
     if (direction == 1) {
-        // minTSN = selected_assoc->min_tsn1;
         listTSN = g_list_last(selected_assoc->tsn1);
     } else {
-        // minTSN = selected_assoc->min_tsn2;
         listTSN = g_list_last(selected_assoc->tsn2);
     }
 
@@ -279,7 +280,8 @@ void SCTPGraphDialog::drawTSNGraph()
 
     // Add TSN graph
     if (xt.size() > 0) {
-        ui->sctpPlot->addGraph();
+        QCPGraph *gr = ui->sctpPlot->addGraph();
+        gr->setName(QString("TSN"));
         myScatter.setPen(QPen(Qt::black));
         myScatter.setBrush(Qt::black);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
@@ -291,20 +293,17 @@ void SCTPGraphDialog::drawTSNGraph()
 
 void SCTPGraphDialog::drawGraph(int which)
 {
-    // guint32 minTSN, maxTSN;
     guint32 maxTSN;
 
     gIsSackChunkPresent = false;
     gIsNRSackChunkPresent = false;
 
     if (direction == 1) {
-        // minTSN = selected_assoc->min_tsn1;
         maxTSN = selected_assoc->max_tsn1;
     } else {
-        // minTSN = selected_assoc->min_tsn2;
         maxTSN = selected_assoc->max_tsn2;
     }
-
+    ui->sctpPlot->clearGraphs();
     switch (which) {
     case 1: drawSACKGraph();
         drawNRSACKGraph();
@@ -361,20 +360,51 @@ void SCTPGraphDialog::on_pushButton_4_clicked()
 
 void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent* event)
 {
-    if (plottable->name().contains("Graph", Qt::CaseInsensitive)) {
-      //  double tsn = round(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()));
-        int index = yt.indexOf((ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()))); // FIXME IRENE
-      //  double time = xt.at(index);
-        frame_num = ft.at(index);
-        if (cap_file_ && frame_num > 0) {
-            cf_goto_frame(cap_file_, frame_num);
+    frame_num = 0;
+    int i=0;
+    double times = ui->sctpPlot->xAxis->pixelToCoord(event->pos().x());
+    if (plottable->name().contains("TSN", Qt::CaseInsensitive)) {
+        for (i = 0; i < xt.size(); i++) {
+            if (times <= xt.value(i)) {
+                frame_num = ft.at(i);
+                break;
+            }
+        }
+    } else if (plottable->name().contains("SACK", Qt::CaseInsensitive)) {
+        for (i = 0; i < xs.size(); i++) {
+            if (times <= xs.value(i)) {
+                frame_num = fs.at(i);
+                break;
+            }
+        }
+    } else if (plottable->name().contains("DUP", Qt::CaseInsensitive)) {
+        for (i = 0; i < xd.size(); i++) {
+            if (times <= xd.value(i)) {
+                frame_num = fd.at(i);
+                break;
+            }
+        }
+    } else if (plottable->name().contains("NR_GAP", Qt::CaseInsensitive)) {
+        for (i = 0; i < xn.size(); i++) {
+            if (times <= xn.value(i)) {
+                frame_num = fn.at(i);
+                break;
+            }
+        }
+    } else if (plottable->name().contains("GAP", Qt::CaseInsensitive)) {
+        for (i = 0; i < xs.size(); i++) {
+            if (times <= xs.value(i)) {
+                frame_num = fs.at(i);
+                break;
+            }
         }
     }
-    int num = plottable->name().remove("Graph ",Qt::CaseInsensitive).toInt();
-    ui->hintLabel->setText(QString("<small><i>%1: %2: %3 Time: %4 secs </i></small>")
+    if (cap_file_ && frame_num > 0) {
+        cf_goto_frame(cap_file_, frame_num);
+    }
+    ui->hintLabel->setText(QString("<small><i>%1: %2 Time: %3 secs </i></small>")
                            .arg(plottable->name())
-                           .arg(typeStrings[num-1])
-                           .arg((ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()))) // FIXME IRENE
+                           .arg(floor(ui->sctpPlot->yAxis->pixelToCoord(event->pos().y()) + 0.5))
                            .arg(ui->sctpPlot->xAxis->pixelToCoord(event->pos().x())));
 }
 

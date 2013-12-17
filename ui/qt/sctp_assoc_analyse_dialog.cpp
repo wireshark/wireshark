@@ -61,7 +61,7 @@ void SCTPAssocAnalyseDialog::findAssocForPacket()
     GList          *list, *framelist;
     sctp_assoc_info_t *assoc;
     bool           frame_found = false;
-    printf("findAssocForPacket\n");
+
     fdata = cap_file_->current_frame;
     list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
@@ -80,7 +80,6 @@ void SCTPAssocAnalyseDialog::findAssocForPacket()
         }
         if (frame_found) {
             selected_assoc = assoc;
-            printf("assoc_id =%d\n", selected_assoc->assoc_id);
             return;
         } else {
             list = g_list_next(list);

@@ -57,15 +57,12 @@ void SCTPGraphByteDialog::drawBytesGraph()
     tsn_t *tsn;
     guint8 type;
     guint32 maxBytes;
-    // guint32 minBytes, maxBytes;
     long sumBytes = 0;
- //   printf("drawBytesGraph\n");
+
     if (direction == 1) {
-        //minBytes = 0; //selected_assoc->min_tsn1;
         maxBytes = selected_assoc->n_data_bytes_ep1;
         listTSN = g_list_last(selected_assoc->tsn1);
     } else {
-        //minBytes = 0; //selected_assoc->min_tsn2;
         maxBytes = selected_assoc->n_data_bytes_ep2;
         listTSN = g_list_last(selected_assoc->tsn2);
     }
@@ -83,7 +80,6 @@ void SCTPGraphByteDialog::drawBytesGraph()
                 sumBytes += length;
                 yb.append(sumBytes);
                 xb.append(tsn->secs + tsn->usecs/1000000.0);
-          //      printf("x=%f y=%ld\n", tsn->secs + tsn->usecs/1000000.0, sumBytes);
                 fb.append(tsn->frame_number);
             }
             tlist = g_list_next(tlist);
@@ -143,7 +139,7 @@ void SCTPGraphByteDialog::on_pushButton_4_clicked()
 void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent* event)
 {
     if (plottable->name().contains("Bytes", Qt::CaseInsensitive)) {
-        double bytes = (ui->sctpPlot->yAxis->pixelToCoord(event->pos().y())); // FIXME IRENE
+        double bytes = ui->sctpPlot->yAxis->pixelToCoord(event->pos().y());
         int i;
         for (i = 0; i < yb.size(); i++) {
             if (bytes <= yb.value(i)) {
@@ -157,8 +153,8 @@ void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEv
 
         ui->hintLabel->setText(QString("<small><i>Graph %1: Received bytes=%2 Time=%3 secs </i></small>")
                                .arg(plottable->name())
-                .arg(yb.value(i))
-                .arg(xb.value(i)));
+                               .arg(yb.value(i))
+                               .arg(xb.value(i)));
     }
 }
 

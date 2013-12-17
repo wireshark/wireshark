@@ -78,7 +78,6 @@ void SCTPGraphArwndDialog::drawArwndGraph()
                 nr_sack_header =(struct nr_sack_chunk_header *)tlist->data;
                 arwnd = g_ntohl(nr_sack_header->a_rwnd);
             }
-         //   printf("frame %d arwnd=%d\n", tsn->frame_number, arwnd);
             ya.append(arwnd);
             xa.append(tsn->secs + tsn->usecs/1000000.0);
             fa.append(tsn->frame_number);
@@ -150,7 +149,7 @@ void SCTPGraphArwndDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseE
             cf_goto_frame(cap_file_, frame_num);
         }
 
-        ui->hintLabel->setText(QString("<small><i>Graph %1: arwnd=%2 Time=%3 secs </i></small>")
+        ui->hintLabel->setText(QString("<small><i>Graph %1: a_rwnd=%2 Time=%3 secs </i></small>")
                                .arg(plottable->name())
                                .arg(ya.value(i))
                                .arg(xa.value(i)));
