@@ -942,7 +942,7 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 
 /* 23 Encoding the object identifier type */
-guint32
+static guint32
 dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb,
                     gboolean is_absolute)
 {
@@ -986,7 +986,7 @@ dissect_per_relative_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
   return dissect_per_any_oid(tvb, offset, actx, tree, hf_index, value_tvb, FALSE);
 }
 
-guint32
+static guint32
 dissect_per_any_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx,
                         gboolean is_absolute)
 {

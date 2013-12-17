@@ -135,7 +135,7 @@ static const value_string str_nd[] = {
 #include "packet-q932-fn.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
-/*static*/ void
+static void
 dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
   gint8 appclass;
   gboolean pc;

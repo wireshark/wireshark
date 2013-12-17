@@ -286,7 +286,7 @@ static guint16 nhrp_checksum(const guint8 *ptr, int len)
     return in_cksum(&cksum_vec[0], 1);
 }
 
-void dissect_nhrp_hdr(tvbuff_t     *tvb,
+static void dissect_nhrp_hdr(tvbuff_t     *tvb,
                       packet_info  *pinfo,
                       proto_tree   *tree,
                       gint         *pOffset,
@@ -454,7 +454,7 @@ void dissect_nhrp_hdr(tvbuff_t     *tvb,
     }
 }
 
-void dissect_cie_list(tvbuff_t    *tvb,
+static void dissect_cie_list(tvbuff_t    *tvb,
                       packet_info *pinfo,
                       proto_tree  *tree,
                       gint         offset,
@@ -570,7 +570,7 @@ void dissect_cie_list(tvbuff_t    *tvb,
     }
 }
 
-void dissect_nhrp_mand(tvbuff_t    *tvb,
+static void dissect_nhrp_mand(tvbuff_t    *tvb,
                        packet_info *pinfo,
                        proto_tree  *tree,
                        gint        *pOffset,
@@ -821,7 +821,7 @@ void dissect_nhrp_mand(tvbuff_t    *tvb,
     *pOffset = mandEnd;
 }
 
-void dissect_nhrp_ext(tvbuff_t    *tvb,
+static void dissect_nhrp_ext(tvbuff_t    *tvb,
                       packet_info *pinfo,
                       proto_tree  *tree,
                       gint        *pOffset,
@@ -979,7 +979,7 @@ skip_switch:
     *pOffset = extEnd;
 }
 
-void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     _dissect_nhrp(tvb, pinfo, tree, FALSE, TRUE);
 }

@@ -932,7 +932,7 @@ static fastser_dataregion* fastser_dataregion_save(tvbuff_t *tvb, int offset)
 /********************************************************************************************************/
 /* Lookup region name using current base address & saved conversation data.  Return ptr to gchar string */
 /********************************************************************************************************/
-const gchar*
+static const gchar*
 region_lookup(packet_info *pinfo, guint32 base_addr)
 {
     fm_conversation    *conv;

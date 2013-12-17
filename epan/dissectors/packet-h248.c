@@ -47,6 +47,8 @@
 #define PSNAME "H248"
 #define PFNAME "h248"
 
+void proto_register_h248(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h248                   = -1;
 static int hf_248_magic_num             = -1;
@@ -398,7 +400,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 75 "../../asn1/h248/packet-h248-template.c"
+#line 77 "../../asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -563,7 +565,7 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 92 "../../asn1/h248/packet-h248-template.c"
+#line 94 "../../asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -1354,7 +1356,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
     return offset;
 }
 
-s_h248_package_t *s_find_package_id(guint16 pkgid) {
+static s_h248_package_t *s_find_package_id(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
     s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     return s_pkg;
@@ -1371,7 +1373,7 @@ static gint32 comparePkgID(gconstpointer a, gconstpointer b) {
     return GPOINTER_TO_UINT(b) - GPOINTER_TO_UINT(a);
 }
 
-gboolean is_pkg_default(guint16 pkgid) {
+static gboolean is_pkg_default(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
     s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     if(! s_pkg ) return TRUE;
@@ -5369,7 +5371,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1413 "../../asn1/h248/packet-h248-template.c"
+#line 1415 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6791,7 +6793,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1578 "../../asn1/h248/packet-h248-template.c"
+#line 1580 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6957,7 +6959,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1596 "../../asn1/h248/packet-h248-template.c"
+#line 1598 "../../asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {

@@ -67,6 +67,7 @@
 #define TCP_PORT_CS   1720
 #define TLS_PORT_CS   1300
 
+void proto_register_h225(void);
 static void reset_h225_packet_info(h225_packet_info *pi);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 

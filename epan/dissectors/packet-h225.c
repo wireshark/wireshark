@@ -75,6 +75,7 @@
 #define TCP_PORT_CS   1720
 #define TLS_PORT_CS   1300
 
+void proto_register_h225(void);
 static void reset_h225_packet_info(h225_packet_info *pi);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 
@@ -886,7 +887,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 107 "../../asn1/h225/packet-h225-template.c"
+#line 108 "../../asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1134,7 +1135,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 111 "../../asn1/h225/packet-h225-template.c"
+#line 112 "../../asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7511,7 +7512,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 135 "../../asn1/h225/packet-h225-template.c"
+#line 136 "../../asn1/h225/packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -10693,7 +10694,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 232 "../../asn1/h225/packet-h225-template.c"
+#line 233 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10943,7 +10944,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 238 "../../asn1/h225/packet-h225-template.c"
+#line 239 "../../asn1/h225/packet-h225-template.c"
   };
   module_t *h225_module;
 

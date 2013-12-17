@@ -649,7 +649,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 #line 136 "../../asn1/q932/packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
-/*static*/ void
+static void
 dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
   gint8 appclass;
   gboolean pc;

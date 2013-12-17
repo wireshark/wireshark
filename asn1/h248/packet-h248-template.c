@@ -39,6 +39,8 @@
 #define PSNAME "H248"
 #define PFNAME "h248"
 
+void proto_register_h248(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_h248                   = -1;
 static int hf_248_magic_num             = -1;
@@ -879,7 +881,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
     return offset;
 }
 
-s_h248_package_t *s_find_package_id(guint16 pkgid) {
+static s_h248_package_t *s_find_package_id(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
     s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     return s_pkg;
@@ -896,7 +898,7 @@ static gint32 comparePkgID(gconstpointer a, gconstpointer b) {
     return GPOINTER_TO_UINT(b) - GPOINTER_TO_UINT(a);
 }
 
-gboolean is_pkg_default(guint16 pkgid) {
+static gboolean is_pkg_default(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
     s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     if(! s_pkg ) return TRUE;

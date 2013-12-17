@@ -32,6 +32,7 @@
 #include <epan/wmem/wmem.h>
 
 #include "packet-per.h"
+#include "packet-h450-ros.h"
 
 #define PNAME  "H.450 Remote Operations Apdus"
 #define PSNAME "H450.ROS"

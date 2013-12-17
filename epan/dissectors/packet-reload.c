@@ -722,7 +722,7 @@ static kind_t * kindidlist_uats = NULL;
 
 static guint nreloadkinds = 0;
 
-kind_t * getKindFromId(guint32 id) {
+static kind_t * getKindFromId(guint32 id) {
   guint i;
   /* user defined kinds have precedence */
   for (i = 0; i < nreloadkinds; i++) {

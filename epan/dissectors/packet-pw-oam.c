@@ -57,7 +57,7 @@ static const value_string pw_oam_code[] = {
 };
 
 /* PW-Status TLV dissector */
-void
+static void
 dissect_pw_status_tlv (tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
   proto_item *ti;

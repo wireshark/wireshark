@@ -1210,7 +1210,7 @@ static guchar hex_ascii_to_binary(gchar c)
 
 #if HAVE_LIBGCRYPT
 /* Decipher payload if algorithm is supported and plausible inputs are available */
-tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset, pdu_security_settings_t *pdu_security_settings,
+static tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset, pdu_security_settings_t *pdu_security_settings,
                            enum pdcp_plane plane, gboolean *deciphered)
 {
     const char *k = pdu_security_settings->key;

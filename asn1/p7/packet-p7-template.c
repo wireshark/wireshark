@@ -35,6 +35,7 @@
 #include "packet-acse.h"
 #include "packet-ros.h"
 #include "packet-rtse.h"
+#include "packet-p7.h"
 
 #include "packet-p1.h"
 #include <epan/strutil.h>

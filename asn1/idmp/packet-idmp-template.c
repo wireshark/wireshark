@@ -49,6 +49,8 @@
 
 void proto_register_idmp(void);
 void proto_reg_handoff_idm(void);
+static void prefs_register_idmp(void); /* forward declaration for use in preferences registration */
+void register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name);
 
 static gboolean           idmp_desegment       = TRUE;
 static guint              global_idmp_tcp_port = 1102; /* made up for now */
@@ -60,8 +62,6 @@ static proto_tree *top_tree         = NULL;
 static const char *protocolID       = NULL;
 static const char *saved_protocolID = NULL;
 static guint32     opcode           = -1;
-
-static void prefs_register_idmp(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_idmp = -1;
