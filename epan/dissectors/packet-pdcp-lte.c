@@ -52,8 +52,7 @@ void proto_reg_handoff_pdcp_lte(void);
 
 
 /* TODO:
-   - Support for deciphering. Next steps are:
-       - use gcrypt to decipher AES frames
+   - More deciphering. Next steps are:
        - separate preferences to control signalling/user-plane decryption?
        - Verify MAC authentication bytes for supported protocol(s)?
    - Add Relay Node user plane data PDU dissection
@@ -1191,25 +1190,37 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
     g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), p_security);
 }
 
-/* TODO: do this better! */
+/* TODO: do this better, and only once when UAT updated! */
 static guchar hex_ascii_to_binary(gchar c)
 {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
     }
     else if ((c >= 'a') && (c <= 'f')) {
-        return c - 'a';
+        return 10 + c - 'a';
+    }
+    else if ((c >= 'A') && (c <= 'F')) {
+        return 10 + c - 'A';
     }
     else
         return 0;
 }
 
+#if HAVE_LIBGCRYPT
 /* Decipher payload if algorithm is supported and plausible inputs are available */
-tvbuff_t* decipher_payload(tvbuff_t *tvb, int *offset _U_, pdu_security_settings_t *pdu_security_settings)
+tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset, pdu_security_settings_t *pdu_security_settings,
+                           gboolean *deciphered)
 {
     const char *k = pdu_security_settings->key;
     guint8 key[16];
+    unsigned char ctr_block[16];
     int n;
+    gcry_cipher_hd_t cypher_hd;
+    int gcrypt_err;
+    guint8* encrypted_data;
+    guint8* decrypted_data;
+    gint payload_length;
+    tvbuff_t *decrypted_tvb;
 
     /* Nothing to do if no ciphering algorithm was specified */
     if (!pdu_security_settings->valid) {
@@ -1226,14 +1237,74 @@ tvbuff_t* decipher_payload(tvbuff_t *tvb, int *offset _U_, pdu_security_settings
         return tvb;
     }
 
-	/* And must be able to convert string into binary key */
-	for (n=0; n < 16; n += 2) {
-	    key[n] = (hex_ascii_to_binary(k[2*n]) << 4) + hex_ascii_to_binary(k[(2*n)+1]);
-	}
+    /* And must be able to convert string into binary key */
+    for (n=0; n < 32; n += 2) {
+        key[n/2] = (hex_ascii_to_binary(k[n]) << 4) + hex_ascii_to_binary(k[n+1]);
+    }
 
-    /* TODO: call AES and return result TVB !!!!! And set *offset. */
+    /* Set CTR */
+    memset(ctr_block, 0, 16);
+    /* Only first 5 bytes set */
+    ctr_block[0] = (pdu_security_settings->count & 0xff000000) >> 24;
+    ctr_block[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
+    ctr_block[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
+    ctr_block[3] = (pdu_security_settings->count & 0x000000ff);
+    ctr_block[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
+
+    /* Open gcrypt handle */
+    gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
+    if (gcrypt_err != 0) {
+        return tvb;
+    }
+
+    /* Set the key */
+    gcrypt_err = gcry_cipher_setkey(cypher_hd, key, 16);
+    if (gcrypt_err != 0) {
+        return tvb;
+    }
+
+    /* Set the CTR */
+    gcrypt_err = gcry_cipher_setctr(cypher_hd, ctr_block, 16);
+    if (gcrypt_err != 0) {
+        return tvb;
+    }
+
+    /* Extract the encrypted data into a buffer */
+    payload_length = tvb_length_remaining(tvb, *offset);
+    encrypted_data = (guint8 *)g_malloc0(payload_length);
+    tvb_memcpy(tvb, encrypted_data, *offset, payload_length);
+
+    /* Allocate memory to receive decrypted payload */
+    decrypted_data = (guint8 *)g_malloc0(payload_length);
+
+    /* Decrypt the actual data */
+    gcrypt_err = gcry_cipher_decrypt(cypher_hd,
+                                     decrypted_data, payload_length,
+                                     encrypted_data, payload_length);
+    if (gcrypt_err != 0) {
+        return tvb;
+    }
+
+    /* Create tvb for resulting deciphered sdu */
+    decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, payload_length, payload_length);
+    tvb_set_free_cb(decrypted_tvb, g_free);
+    add_new_data_source(pinfo, decrypted_tvb, "Deciphered Payload");
+
+    /* Free temp buffer */
+    g_free(encrypted_data);
+
+    /* Return deciphered data, i.e. beginning of new tvb */
+    *offset = 0;
+    *deciphered = TRUE;
+    return decrypted_tvb;
+}
+#else
+tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset _U_, pdu_security_settings_t *pdu_security_settings _U_,
+                           gboolean *deciphered _U_)
+{
     return tvb;
 }
+#endif
 
 
 /******************************/
@@ -1254,6 +1325,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *security_ti;
     tvbuff_t *payload_tvb;
     pdu_security_settings_t  pdu_security_settings;
+    gboolean payload_deciphered = FALSE;
 
     /* Initialise security settings */
     pdu_security_settings.valid = FALSE;
@@ -1586,7 +1658,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Check pdu_security_settings - may need to do deciphering before calling
        further dissectors on payload */
-    payload_tvb = decipher_payload(tvb, &offset, &pdu_security_settings);
+    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, &payload_deciphered);
 
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
         guint32 data_length;
@@ -1595,15 +1667,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* RRC data is all but last 4 bytes.
            Call lte-rrc dissector (according to direction and channel type) */
         if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
-            ((pdu_security == NULL) || (pdu_security->ciphering == 0) || !pdu_security->seen_next_ul_pdu)){
+            ((pdu_security == NULL) || (pdu_security->ciphering == 0) || payload_deciphered || !pdu_security->seen_next_ul_pdu)){
             /* Get appropriate dissector handle */
             dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
 
             if (rrc_handle != 0) {
                 /* Call RRC dissector if have one */
-                tvbuff_t *rrc_payload_tvb = tvb_new_subset(tvb, offset,
-                                                           tvb_length_remaining(tvb, offset) - 4,
-                                                           tvb_length_remaining(tvb, offset) - 4);
+                tvbuff_t *rrc_payload_tvb = tvb_new_subset(payload_tvb, offset,
+                                                           tvb_length_remaining(payload_tvb, offset) - 4,
+                                                           tvb_length_remaining(payload_tvb, offset) - 4);
                 gboolean was_writable = col_get_writable(pinfo->cinfo);
 
                 /* We always want to see this in the info column */
@@ -1616,7 +1688,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
             else {
                  /* Just show data */
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, payload_tvb, offset,
                                         tvb_length_remaining(tvb, offset) - 4, ENC_NA);
             }
 
@@ -1631,16 +1703,16 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         else {
             /* Just show as unparsed data */
-            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, payload_tvb, offset,
                                 tvb_length_remaining(tvb, offset) - 4, ENC_NA);
         }
 
-        data_length = tvb_length_remaining(tvb, offset) - 4;
+        data_length = tvb_length_remaining(payload_tvb, offset) - 4;
         offset += data_length;
 
         /* Last 4 bytes are MAC */
         mac = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
@@ -1651,23 +1723,23 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* If not compressed with ROHC, show as user-plane data */
         if (!p_pdcp_info->rohc.rohc_compression) {
-            gint payload_length = tvb_length_remaining(tvb, offset);
+            gint payload_length = tvb_length_remaining(payload_tvb, offset);
             if (payload_length > 0) {
                 if (p_pdcp_info->plane == USER_PLANE) {
     
                     /* Not attempting to decode payload if ciphering is enabled
                        (and NULL ciphering is not being used) */
                     if (global_pdcp_dissect_user_plane_as_ip &&
-                        ((pdu_security == NULL) || (pdu_security->ciphering == 0)))
+                        ((pdu_security == NULL) || (pdu_security->ciphering == 0) || payload_deciphered))
                     {
-                        tvbuff_t *ip_payload_tvb = tvb_new_subset_remaining(tvb, offset);
+                        tvbuff_t *ip_payload_tvb = tvb_new_subset_remaining(payload_tvb, offset);
     
                         /* Don't update info column for ROHC unless configured to */
                         if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
                             col_set_writable(pinfo->cinfo, FALSE);
                         }
     
-                        switch (tvb_get_guint8(tvb, offset) & 0xf0) {
+                        switch (tvb_get_guint8(ip_payload_tvb, offset) & 0xf0) {
                             case 0x40:
                                 call_dissector_only(ip_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
                                 break;
@@ -1686,7 +1758,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     
                     }
                     else {
-                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, ENC_NA);
+                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, payload_tvb, offset, -1, ENC_NA);
                     }
                 }
     
@@ -1715,7 +1787,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         
             rohc_offset = offset;
-            rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
+            rohc_tvb = tvb_new_subset_remaining(payload_tvb, rohc_offset);
         
             /* Only enable writing to column if configured to show ROHC */
             if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
