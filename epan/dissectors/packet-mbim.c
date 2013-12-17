@@ -2819,9 +2819,9 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  pdu_data_size, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
-        if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) {
+        if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
             call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
-        } else if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) {
+        } else if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
             call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
         }
     }
@@ -2958,9 +2958,9 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                  pdu_data_size, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
-        if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) {
+        if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
             call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
-        } else if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) {
+        } else if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
             call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
         }
     }
@@ -4650,13 +4650,15 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 proto_tree_add_item(subtree, hf_mbim_bulk_ndp_datagram, tvb,
                                     datagram_index, datagram_length, ENC_NA);
                 datagram_tvb = tvb_new_subset_length(tvb, datagram_index, datagram_length);
-                if (total) {
-                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "|");
-                    col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-                    col_set_str(pinfo->cinfo, COL_INFO, " | ");
-                    col_set_fence(pinfo->cinfo, COL_INFO);
+                if (dissector) {
+                    if (total) {
+                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "|");
+                        col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+                        col_set_str(pinfo->cinfo, COL_INFO, " | ");
+                        col_set_fence(pinfo->cinfo, COL_INFO);
+                    }
+                    call_dissector(dissector, datagram_tvb, pinfo, tree);
                 }
-                call_dissector(dissector, datagram_tvb, pinfo, tree);
                 col_set_fence(pinfo->cinfo, COL_PROTOCOL);
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 nb++;
@@ -7101,7 +7103,7 @@ proto_reg_handoff_mbim(void)
     if (!initialized) {
         proactive_handle = find_dissector("gsm_sim.bertlv");
         etsi_cat_handle = find_dissector("etsi_cat");
-        gsm_sms_handle = find_dissector("gsm_sms_handle");
+        gsm_sms_handle = find_dissector("gsm_sms");
         cdma_sms_handle = find_dissector("ansi_637_trans");
         eth_handle = find_dissector("eth_withoutfcs");
         eth_fcs_handle = find_dissector("eth_withfcs");
