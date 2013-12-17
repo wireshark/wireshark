@@ -74,6 +74,8 @@ The following bugs have been fixed:
 
 * DNP3 Bug Fix for Analog Data Sign Bit Handling. (ws-buglink:9442[])
 
+* GSM SMS User Data header fill bits are wrong when using a 7 bits ASCII / IA5 encoding. (ws-buglink:9478[])
+
 * WCDMA RLC dissector cannot assemble PDUs with SNs skipped and wrap-arounded. (ws-buglink:9505[])
 
 * DTLS: fix buffer overflow in mac check. (ws-buglink:9512[])
@@ -96,6 +98,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+ANSI IS-637-A
 BSSGP
 DNP3
 DVB-BAT
