@@ -79,6 +79,7 @@ static const true_false_string softKeyMapValues = {
 #define BASIC_MSG_TYPE 0x00
 #define CM7_MSG_TYPE_A 0x12
 #define CM7_MSG_TYPE_B 0x11
+#define CM7_MSG_TYPE_UNKNOWN 0x13
 #define CM7_MSG_TYPE_C 0x14
 #define CM7_MSG_TYPE_D 0x16
 
@@ -86,6 +87,7 @@ static const value_string header_version[] = {
   { BASIC_MSG_TYPE, "Basic" },
   { CM7_MSG_TYPE_A, "CM7 type A" },
   { CM7_MSG_TYPE_B, "CM7 type B" },
+  { CM7_MSG_TYPE_UNKNOWN, "CM7 type unknown (0x13)" },
   { CM7_MSG_TYPE_C, "CM7 type C" },
   { CM7_MSG_TYPE_D, "CM7 type SPCP" },
   { 0             , NULL }
@@ -3231,7 +3233,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     case 0x0147: /* DynLineStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, 4, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, ENC_ASCII|ENC_NA);
       break;
@@ -3490,6 +3492,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       ((hdr_version != BASIC_MSG_TYPE) &&
        (hdr_version != CM7_MSG_TYPE_A) &&
        (hdr_version != CM7_MSG_TYPE_B) &&
+       (hdr_version != CM7_MSG_TYPE_UNKNOWN) &&
        (hdr_version != CM7_MSG_TYPE_C) &&
        (hdr_version != CM7_MSG_TYPE_D))
      )
