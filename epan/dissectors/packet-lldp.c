@@ -2233,7 +2233,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	guint32 port_tx_delay_local;
 	guint32 port_tx_delay_remote;
 	guint32 cable_delay_local;
-	e_guid_t * uuid;
+	e_guid_t uuid;
 	guint16 mrrt_PortStatus;
 
 
@@ -2309,8 +2309,8 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	case 4:		/* LLDP_PNIO_MRPPORTSTATUS */
 	{
 		/* DomainUUID */
-		tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
-		proto_tree_add_guid(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+		tvb_get_ntohguid (tvb, offset, &uuid);
+		proto_tree_add_guid(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, &uuid);
 		offset += 16;
 
 		/* MRRT PortStatus */
@@ -2331,12 +2331,12 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		proto_tree_add_item(tree, hf_profinet_master_source_address, tvb, offset, 6, ENC_NA);
 		offset += 6;
 		/* SubdomainUUID */
-		tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
-		proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+		tvb_get_ntohguid (tvb, offset, &uuid);
+		proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, &uuid);
 		offset += 16;
 		/* IRDataUUID */
-		tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
-		proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+		tvb_get_ntohguid (tvb, offset, &uuid);
+		proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, &uuid);
 		offset += 16;
 		/* LengthOfPeriod */
 		offset = dissect_profinet_period(tvb, tree, offset, "LengthOfPeriod",
