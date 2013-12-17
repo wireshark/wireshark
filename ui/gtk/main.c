@@ -1940,8 +1940,8 @@ get_gui_compiled_info(GString *str)
     g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
     get_compiled_airpcap_version(str);
-#e  lse
-  g_string_append(str, "without AirPcap");
+#else
+    g_string_append(str, "without AirPcap");
 #endif
 }
 
