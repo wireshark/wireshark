@@ -40,6 +40,8 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 
+#include "packet-h264.h"
+
 void proto_register_h264(void);
 void proto_reg_handoff_h264(void);
 
@@ -384,7 +386,7 @@ h264_byte_aligned(int bit_offset)
  */
 #define cVALS(x) (const value_string*)(x)
 
-guint32
+static guint32
 dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint *start_bit_offset, h264_golomb_descriptors descriptor)
 /*(tvbuff_t *tvb, gint *start_bit_offset) */
 {

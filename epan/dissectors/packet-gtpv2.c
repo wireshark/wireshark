@@ -43,6 +43,7 @@
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
 #include "packet-ntp.h"
+#include "packet-gtpv2.h"
 
 void proto_register_gtpv2(void);
 void proto_reg_handoff_gtpv2(void);

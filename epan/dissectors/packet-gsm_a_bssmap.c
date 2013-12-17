@@ -3759,7 +3759,7 @@ be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 /*
  * 3.2.2.98 Application Data
  */
-guint16
+static guint16
 be_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
@@ -3773,7 +3773,7 @@ be_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 /*
  * 3.2.2.99 Data Identity
  */
-guint16
+static guint16
 be_app_data_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree_add_item(tree, hf_gsm_a_bssmap_data_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5673,7 +5673,7 @@ bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 /*
  * 3.2.1.24 RESET ACKNOWLEDGE
  */
-void
+static void
 bssmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
