@@ -109,18 +109,12 @@
 
 void proto_register_zbee_zcl_appl_idt(void);
 void proto_reg_handoff_zbee_zcl_appl_idt(void);
-void proto_register_zbee_zcl_met_idt(void);
-void proto_reg_handoff_zbee_zcl_met_idt(void);
-void proto_register_zbee_zcl_appl_evtalt(void);
-void proto_reg_handoff_zbee_zcl_appl_evtalt(void);
-void proto_register_zbee_zcl_appl_stats(void);
-void proto_reg_handoff_zbee_zcl_appl_stats(void);
 
 /* Command Dissector Helpers */
-
-/* Private functions prototype */
 static void dissect_zcl_appl_idt_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_appl_idt_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -415,7 +409,8 @@ proto_reg_handoff_zbee_zcl_appl_idt(void)
                             ett_zbee_zcl_appl_idt,
                             ZBEE_ZCL_CID_APPLIANCE_IDENTIFICATION,
                             (zbee_zcl_fn_attr_id)dissect_zcl_appl_idt_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_appl_idt_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_appl_idt_attr_data,
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_appl_idt*/
 
@@ -462,16 +457,18 @@ proto_reg_handoff_zbee_zcl_appl_idt(void)
 #define ZBEE_ZCL_MET_IDT_DATA_QLTY_ALL_CERTIF_WO_CUM_CONS       0x0002 /* Only Cumulated Consumption not Certified */
 #define ZBEE_ZCL_MET_IDT_DATA_QLTY_NOT_CERTIF_DATA              0x0003 /* Not Certified Data */
 
-
 /*************************/
 /* Function Declarations */
 /*************************/
 
-/* Command Dissector Helpers */
+void proto_register_zbee_zcl_met_idt(void);
+void proto_reg_handoff_zbee_zcl_met_idt(void);
 
-/* Private functions prototype */
+/* Command Dissector Helpers */
 static void dissect_zcl_met_idt_attr_id    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_met_idt_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -671,7 +668,8 @@ proto_reg_handoff_zbee_zcl_met_idt(void)
                             ett_zbee_zcl_met_idt,
                             ZBEE_ZCL_CID_METER_IDENTIFICATION,
                             (zbee_zcl_fn_attr_id)dissect_zcl_met_idt_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_met_idt_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_met_idt_attr_data,
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_met_idt*/
 
@@ -732,9 +730,14 @@ proto_reg_handoff_zbee_zcl_met_idt(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_appl_evtalt(void);
+void proto_reg_handoff_zbee_zcl_appl_evtalt(void);
+
 /* Command Dissector Helpers */
 static void dissect_zcl_appl_evtalt_get_alerts_rsp        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_evtalt_event_notif           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+static void dissect_zcl_appl_evtalt_cmd_id                (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
 /*************************/
 /* Global Variables      */
@@ -987,6 +990,31 @@ dissect_zcl_appl_evtalt_event_notif(tvbuff_t *tvb, proto_tree *tree, guint *offs
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      dissect_zcl_appl_evtalt_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_appl_evtalt_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_appl_evtalt_cmd_id*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      proto_register_zbee_zcl_appl_evtalt
  *  DESCRIPTION
  *      this function registers the ZCL Appliance Events and Alert dissector
@@ -1099,7 +1127,8 @@ proto_reg_handoff_zbee_zcl_appl_evtalt(void)
                             ett_zbee_zcl_appl_evtalt,
                             ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT,
                             NULL,
-                            NULL
+                            NULL,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_appl_evtalt_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_appl_evtalt*/
 
@@ -1138,14 +1167,19 @@ proto_reg_handoff_zbee_zcl_appl_evtalt(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_appl_stats(void);
+void proto_reg_handoff_zbee_zcl_appl_stats(void);
+
 /* Command Dissector Helpers */
 static void dissect_zcl_appl_stats_log_req              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_stats_log_rsp              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_stats_log_queue_rsp        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
+static void dissect_zcl_appl_stats_attr_id              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_appl_stats_cmd_id               (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
+
 /* Private functions prototype */
-static void dissect_zcl_appl_stats_attr_id      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
-static void decode_zcl_appl_stats_utc_time      (gchar *s, guint32 value);
+static void decode_zcl_appl_stats_utc_time              (gchar *s, guint32 value);
 
 /*************************/
 /* Global Variables      */
@@ -1406,6 +1440,30 @@ dissect_zcl_appl_stats_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
     proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_attr_id, tvb, *offset, 2, attr_id);
 } /*dissect_zcl_appl_stats_attr_id*/
 
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_appl_stats_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_appl_stats_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_appl_stats_cmd_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1531,6 +1589,7 @@ proto_reg_handoff_zbee_zcl_appl_stats(void)
                             ett_zbee_zcl_appl_stats,
                             ZBEE_ZCL_CID_APPLIANCE_STATISTICS,
                             (zbee_zcl_fn_attr_id)dissect_zcl_appl_stats_attr_id,
-                            NULL
+                            NULL,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_appl_stats_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_appl_stats*/

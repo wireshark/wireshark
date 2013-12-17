@@ -94,22 +94,15 @@
 /* Function Declarations */
 /*************************/
 
-/* Command Dissector Helpers */
 void proto_register_zbee_zcl_basic(void);
 void proto_reg_handoff_zbee_zcl_basic(void);
-void proto_register_zbee_zcl_identify(void);
-void proto_reg_handoff_zbee_zcl_identify(void);
-void proto_register_zbee_zcl_on_off(void);
-void proto_register_zbee_zcl_part(void);
-void proto_reg_handoff_zbee_zcl_part(void);
-void proto_register_zbee_zcl_pwr_prof(void);
-void proto_reg_handoff_zbee_zcl_pwr_prof(void);
-void proto_register_zbee_zcl_appl_ctrl(void);
-void proto_reg_handoff_zbee_zcl_appl_ctrl(void);
 
-/* Private functions prototype */
+/* Command Dissector Helpers */
 static void dissect_zcl_basic_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_basic_cmd_id         (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 cmd_dir);
+
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -332,6 +325,31 @@ dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guin
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      dissect_zcl_basic_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_basic_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_basic_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+
+} /*dissect_zcl_basic_cmd_id*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      proto_register_zbee_zcl_basic
  *  DESCRIPTION
  *      ZigBee ZCL Basic cluster protocol registration routine.
@@ -433,7 +451,8 @@ proto_reg_handoff_zbee_zcl_basic(void)
                             ett_zbee_zcl_basic,
                             ZBEE_ZCL_CID_BASIC,
                             (zbee_zcl_fn_attr_id)dissect_zcl_basic_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_basic_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_basic_attr_data,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_basic_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_basic*/
 
@@ -463,13 +482,18 @@ proto_reg_handoff_zbee_zcl_basic(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_identify(void);
+void proto_reg_handoff_zbee_zcl_identify(void);
+
 /* Command Dissector Helpers */
 static void dissect_zcl_identify_identify               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_identify_identifyqueryrsp       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-/* Private functions prototype */
 static void dissect_zcl_identify_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_identify_attr_data              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_identify_cmd_id                 (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
+
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -705,6 +729,31 @@ dissect_zcl_identify_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      dissect_zcl_identify_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_identify_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_identify_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_identify_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_identify_cmd_id*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      proto_register_zbee_zcl_identify
  *  DESCRIPTION
  *      ZigBee ZCL Identify cluster protocol registration routine.
@@ -781,7 +830,8 @@ proto_reg_handoff_zbee_zcl_identify(void)
                             ett_zbee_zcl_identify,
                             ZBEE_ZCL_CID_IDENTIFY,
                             (zbee_zcl_fn_attr_id)dissect_zcl_identify_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_identify_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_identify_attr_data,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_identify_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_identify*/
 
@@ -805,13 +855,15 @@ proto_reg_handoff_zbee_zcl_identify(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_on_off(void);
 void proto_reg_handoff_zbee_zcl_on_off(void);
 
 /* Command Dissector Helpers */
-
-/* Private functions prototype */
 static void dissect_zcl_on_off_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_on_off_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_on_off_cmd_id        (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
+
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -952,6 +1004,30 @@ dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      dissect_zcl_on_off_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_on_off_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_on_off_cmd_id*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      proto_register_zbee_zcl_on_off
  *  DESCRIPTION
  *      ZigBee ZCL OnOff cluster protocol registration routine.
@@ -1013,7 +1089,8 @@ proto_reg_handoff_zbee_zcl_on_off(void)
                             ett_zbee_zcl_on_off,
                             ZBEE_ZCL_CID_ON_OFF,
                             (zbee_zcl_fn_attr_id)dissect_zcl_on_off_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_on_off_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_on_off_attr_data,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_on_off_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_on_off*/
 
@@ -1065,6 +1142,9 @@ proto_reg_handoff_zbee_zcl_on_off(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_part(void);
+void proto_reg_handoff_zbee_zcl_part(void);
+
 /* Command Dissector Helpers */
 static void dissect_zcl_part_trasfpartframe         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_part_rdhandshakeparam       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -1072,8 +1152,10 @@ static void dissect_zcl_part_wrhandshakeparam       (tvbuff_t *tvb, packet_info 
 static void dissect_zcl_part_multiack               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_part_rdhandshakeparamrsp    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 
-/* Private functions prototype */
 static void dissect_zcl_part_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_part_cmd_id                 (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
+
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -1487,6 +1569,30 @@ dissect_zcl_part_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16
     proto_tree_add_item(tree, hf_zbee_zcl_part_attr_id, tvb, *offset, 2, attr_id);
 } /*dissect_zcl_part_attr_id*/
 
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_part_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_part_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_part_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_part_cmd_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1620,7 +1726,8 @@ void proto_reg_handoff_zbee_zcl_part(void)
                             ett_zbee_zcl_part,
                             ZBEE_ZCL_CID_PARTITION,
                             (zbee_zcl_fn_attr_id)dissect_zcl_part_attr_id,
-                            NULL
+                            NULL,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_part_cmd_id
                          );
 
 } /*proto_reg_handoff_zbee_zcl_part*/
@@ -1700,6 +1807,9 @@ void proto_reg_handoff_zbee_zcl_part(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_pwr_prof(void);
+void proto_reg_handoff_zbee_zcl_pwr_prof(void);
+
 /* Command Dissector Helpers */
 static void dissect_zcl_pwr_prof_pwrprofreq                 (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_pwr_prof_getpwrprofpricersp         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -1713,10 +1823,11 @@ static void dissect_zcl_pwr_prof_pwrprofstatersp            (tvbuff_t *tvb, prot
 static void dissect_zcl_pwr_prof_pwrprofschedcontrsnotif    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_pwr_prof_pwrprofpriceext            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-/* Private functions prototype */
 static void dissect_zcl_pwr_prof_attr_id    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_pwr_prof_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_pwr_prof_cmd_id     (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
+/* Private functions prototype */
 static void decode_power_profile_id     (gchar *s, guint8 id);
 static void decode_price_in_cents       (gchar *s, guint32 value);
 static void decode_power_in_watt        (gchar *s, guint16 value);
@@ -1830,14 +1941,6 @@ static const value_string zbee_zcl_pwr_prof_state_names[] = {
     { ZBEE_ZCL_PWR_PROF_STATE_ID_PWR_PROF_ENDED,                 "Power Profile Ended" },
     { 0, NULL }
 };
-
-#if 0
-/* Options Names */
-static const value_string zbee_zcl_options_types[] = {
-    { ZBEE_ZCL_OPT_PWRPROF_STIME_PRESENT,                        "PowerProfileStartTime Field Present" },
-    { 0, NULL }
-};
-#endif
 
 /*************************/
 /* Function Bodies       */
@@ -2468,6 +2571,30 @@ dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
     }
 } /*dissect_zcl_pwr_prof_attr_data*/
 
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_pwr_prof_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_pwr_prof_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_pwr_prof_cmd_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2785,7 +2912,8 @@ proto_reg_handoff_zbee_zcl_pwr_prof(void)
                             ett_zbee_zcl_pwr_prof,
                             ZBEE_ZCL_CID_POWER_PROFILE,
                             (zbee_zcl_fn_attr_id)dissect_zcl_pwr_prof_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_pwr_prof_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_pwr_prof_attr_data,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_pwr_prof_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_pwr_prof*/
 
@@ -2884,6 +3012,9 @@ proto_reg_handoff_zbee_zcl_pwr_prof(void)
 /* Function Declarations */
 /*************************/
 
+void proto_register_zbee_zcl_appl_ctrl(void);
+void proto_reg_handoff_zbee_zcl_appl_ctrl(void);
+
 /* Command Dissector Helpers */
 static void dissect_zcl_appl_ctrl_exec_cmd              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_ctrl_attr_func             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -2891,10 +3022,11 @@ static void dissect_zcl_appl_ctrl_wr_funcs              (tvbuff_t *tvb, proto_tr
 static void dissect_zcl_appl_ctrl_ovrl_warning          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_ctrl_signal_state_rsp      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-/* Private functions prototype */
 static void dissect_zcl_appl_ctrl_attr_id               (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_appl_ctrl_attr_data             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_appl_ctrl_cmd_id                (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
+/* Private functions prototype */
 
 /*************************/
 /* Global Variables      */
@@ -3352,6 +3484,30 @@ dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
     }
 } /*dissect_zcl_appl_ctrl_attr_data*/
 
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_appl_ctrl_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_appl_ctrl_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_appl_ctrl_cmd_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -3478,6 +3634,7 @@ proto_reg_handoff_zbee_zcl_appl_ctrl(void)
                             ett_zbee_zcl_appl_ctrl,
                             ZBEE_ZCL_CID_APPLIANCE_CONTROL,
                             (zbee_zcl_fn_attr_id)dissect_zcl_appl_ctrl_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_appl_ctrl_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_appl_ctrl_attr_data,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_appl_ctrl_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_appl_ctrl*/

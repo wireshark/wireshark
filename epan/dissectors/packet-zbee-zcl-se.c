@@ -85,6 +85,7 @@ void proto_reg_handoff_zbee_zcl_msg(void);
 static void dissect_zcl_msg_display             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_msg_cancel              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_msg_confirm             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_msg_cmd_id              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 cmd_dir);
 
 /* Private functions prototype */
 static void decode_zcl_msg_duration             (gchar *s, guint16 value);
@@ -409,6 +410,31 @@ decode_zcl_msg_start_time(gchar *s, guint32 value)
     }
 } /* decode_zcl_msg_start_time */
 
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_msg_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_msg_cmd_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+
+} /*dissect_zcl_msg_cmd_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -520,7 +546,8 @@ proto_reg_handoff_zbee_zcl_msg(void)
                             ett_zbee_zcl_msg,
                             ZBEE_ZCL_CID_MESSAGE,
                             NULL,
-                            NULL
+                            NULL,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_msg_cmd_id
                          );
 } /*proto_reg_handoff_zbee_zcl_msg*/
 

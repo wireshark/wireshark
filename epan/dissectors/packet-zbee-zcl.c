@@ -56,7 +56,7 @@ static void dissect_zcl_read_report_config (tvbuff_t *tvb, packet_info *pinfo, p
                 guint *offset);
 static void dissect_zcl_read_report_config_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint *offset);
-static void dissect_zcl_default_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+static void dissect_zcl_default_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint8 dir);
 static void dissect_zcl_discover_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 static void dissect_zcl_discover_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint *offset);
@@ -1035,6 +1035,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 packet.tran_seqno);
         }
 
+        col_set_str(pinfo->cinfo, COL_INFO, "ZCL: ");
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_ext_const(packet.cmd_id, &zbee_zcl_cmd_names_ext, "Unknown Command"),
             packet.tran_seqno);
@@ -1630,7 +1631,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case ZBEE_ZCL_CMD_DEFAULT_RESP:
-                dissect_zcl_default_resp(tvb, pinfo, zcl_tree, &offset);
+                dissect_zcl_default_resp(tvb, pinfo, zcl_tree, &offset, packet.direction);
                 break;
 
             case ZBEE_ZCL_CMD_DISCOVER_ATTR:
@@ -2042,18 +2043,23 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
+ *      dir                 - direction
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
+static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint8 dir)
 {
-    guint cmd_id;
+    zbee_zcl_cluster_desc *desc;
 
-    /* Dissect the command identifier */
-    cmd_id = tvb_get_guint8(tvb, *offset);
-
-    proto_tree_add_uint(tree, hf_zbee_zcl_cmd_id, tvb, *offset, (int)1, cmd_id);
+    /* Call the specific cluster function retrieves the command id */
+    desc = zbee_zcl_get_cluster_desc(zcl_cluster_id);
+    if ((desc != NULL) && (desc->fn_cmd_id != NULL)) {
+        desc->fn_cmd_id(tree, tvb, offset, dir);
+    }
+    else {
+        proto_tree_add_item(tree, hf_zbee_zcl_cmd_id, tvb, *offset, 1, ENC_NA);
+    }
     *offset += (int)1;
 
     /* Dissect the status */
@@ -3543,12 +3549,13 @@ void proto_reg_handoff_zbee_zcl(void)
  *      cluster_id       - cluster id
  *      fn_attr_id       - specific cluster attribute id decode function
  *      fn_attr_data     - specific cluster attribute data decode function
+ *      fn_cmd_id        - specific cluster command id decode function
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 void
-zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data)
+zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data, zbee_zcl_fn_cmd_id fn_cmd_id)
 {
     zbee_zcl_cluster_desc *cluster_desc;
     cluster_desc  = g_new(zbee_zcl_cluster_desc, 1);
@@ -3558,6 +3565,7 @@ zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_
     cluster_desc->cluster_id = cluster_id;
     cluster_desc->fn_attr_id = fn_attr_id;
     cluster_desc->fn_attr_data = fn_attr_data;
+    cluster_desc->fn_cmd_id = fn_cmd_id;
     acluster_desc = g_list_append(acluster_desc, cluster_desc);
 
     cluster_desc->proto_id = proto;

@@ -77,21 +77,15 @@
 /*************************/
 /* Function Declarations */
 /*************************/
+
 void proto_register_zbee_zcl_illum_meas(void);
 void proto_reg_handoff_zbee_zcl_illum_meas(void);
-void proto_register_zbee_zcl_temp_meas(void);
-void proto_reg_handoff_zbee_zcl_temp_meas(void);
-void proto_register_zbee_zcl_press_meas(void);
-void proto_reg_handoff_zbee_zcl_press_meas(void);
-void proto_register_zbee_zcl_relhum_meas(void);
-void proto_reg_handoff_zbee_zcl_relhum_meas(void);
 
 /* Command Dissector Helpers */
-
-/* Private functions prototype */
 static void dissect_zcl_illum_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_illum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Private functions prototype */
 static void decode_illum_meas_value              (gchar *s, guint16 value);
 static void decode_illum_meas_min_value          (gchar *s, guint16 value);
 static void decode_illum_meas_max_value          (gchar *s, guint16 value);
@@ -396,7 +390,8 @@ proto_reg_handoff_zbee_zcl_illum_meas(void)
                             ett_zbee_zcl_illum_meas,
                             ZBEE_ZCL_CID_ILLUMINANCE_MEASUREMENT,
                             (zbee_zcl_fn_attr_id)dissect_zcl_illum_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_illum_meas_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_illum_meas_attr_data,
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_illum_meas*/
 
@@ -433,17 +428,18 @@ proto_reg_handoff_zbee_zcl_illum_meas(void)
 #define ZBEE_ZCL_ATTR_ID_TEMP_MEAS_TOL_LO_VALUE         0x0000  /* Tolerance (Low Bound) */
 #define ZBEE_ZCL_ATTR_ID_TEMP_MEAS_TOL_HI_VALUE         0x0800  /* Tolerance (Low Bound) */
 
-
 /*************************/
 /* Function Declarations */
 /*************************/
 
-/* Command Dissector Helpers */
+void proto_register_zbee_zcl_temp_meas(void);
+void proto_reg_handoff_zbee_zcl_temp_meas(void);
 
-/* Private functions prototype */
+/* Command Dissector Helpers */
 static void dissect_zcl_temp_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_temp_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Private functions prototype */
 static void decode_temp_meas_value              (gchar *s, gint16 value);
 static void decode_temp_meas_min_value          (gchar *s, gint16 value);
 static void decode_temp_meas_max_value          (gchar *s, gint16 value);
@@ -728,7 +724,8 @@ proto_reg_handoff_zbee_zcl_temp_meas(void)
                             ett_zbee_zcl_temp_meas,
                             ZBEE_ZCL_CID_TEMPERATURE_MEASUREMENT,
                             (zbee_zcl_fn_attr_id)dissect_zcl_temp_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_temp_meas_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_temp_meas_attr_data,
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_temp_meas*/
 
@@ -777,12 +774,14 @@ proto_reg_handoff_zbee_zcl_temp_meas(void)
 /* Function Declarations */
 /*************************/
 
-/* Command Dissector Helpers */
+void proto_register_zbee_zcl_press_meas(void);
+void proto_reg_handoff_zbee_zcl_press_meas(void);
 
-/* Private functions prototype */
+/* Command Dissector Helpers */
 static void dissect_zcl_press_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_press_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Private functions prototype */
 static void decode_press_meas_value              (gchar *s, gint16 value);
 static void decode_press_meas_min_value          (gchar *s, gint16 value);
 static void decode_press_meas_max_value          (gchar *s, gint16 value);
@@ -1124,7 +1123,8 @@ proto_reg_handoff_zbee_zcl_press_meas(void)
                             ett_zbee_zcl_press_meas,
                             ZBEE_ZCL_CID_PRESSURE_MEASUREMENT,
                             (zbee_zcl_fn_attr_id)dissect_zcl_press_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_press_meas_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_press_meas_attr_data,
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_press_meas*/
 
@@ -1162,17 +1162,18 @@ proto_reg_handoff_zbee_zcl_press_meas(void)
 #define ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_TOL_LO_VALUE         0x0000  /* Tolerance (Low Bound) */
 #define ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_TOL_HI_VALUE         0x0800  /* Tolerance (Low Bound) */
 
-
 /*************************/
 /* Function Declarations */
 /*************************/
 
-/* Command Dissector Helpers */
+void proto_register_zbee_zcl_relhum_meas(void);
+void proto_reg_handoff_zbee_zcl_relhum_meas(void);
 
-/* Private functions prototype */
+/* Command Dissector Helpers */
 static void dissect_zcl_relhum_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_relhum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Private functions prototype */
 static void decode_relhum_meas_value              (gchar *s, guint16 value);
 static void decode_relhum_meas_min_value          (gchar *s, guint16 value);
 static void decode_relhum_meas_max_value          (gchar *s, guint16 value);
@@ -1457,6 +1458,7 @@ proto_reg_handoff_zbee_zcl_relhum_meas(void)
                             ett_zbee_zcl_relhum_meas,
                             ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,
                             (zbee_zcl_fn_attr_id)dissect_zcl_relhum_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_relhum_meas_attr_data
+                            (zbee_zcl_fn_attr_data)dissect_zcl_relhum_meas_attr_data,
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_relhum_meas*/

@@ -180,6 +180,7 @@ typedef struct{
 
 typedef void (*zbee_zcl_fn_attr_id)      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 typedef void (*zbee_zcl_fn_attr_data)    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+typedef void (*zbee_zcl_fn_cmd_id)       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 dir);
 
 typedef struct _zbee_zcl_cluster_desc {
     int         proto_id;
@@ -189,6 +190,7 @@ typedef struct _zbee_zcl_cluster_desc {
     guint16     cluster_id;
     zbee_zcl_fn_attr_id fn_attr_id;
     zbee_zcl_fn_attr_data fn_attr_data;
+	zbee_zcl_fn_cmd_id fn_cmd_id;
 } zbee_zcl_cluster_desc;
 
 extern const value_string zbee_zcl_short_data_type_names[];
@@ -201,7 +203,7 @@ extern void dissect_zcl_read_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto
 void decode_zcl_time_in_seconds (gchar *s, guint16 value);
 void decode_zcl_time_in_minutes (gchar *s, guint16 value);
 void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
-void zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data);
+void zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data, zbee_zcl_fn_cmd_id fn_cmd_id);
 zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id);
 
 /* Cluster-specific commands and parameters */
@@ -212,9 +214,6 @@ zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id);
 #define ZBEE_ZCL_CSC_IAS_ZONE_C_ZER                 0x00
 #define ZBEE_ZCL_CSC_IAS_ZONE_S_ZER                 0x01
 #define ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN                0x00
-#define ZBEE_ZCL_CSC_IDENTIFY_C_I                   0x00
-#define ZBEE_ZCL_CSC_IDENTIFY_C_IQ                  0x01
-#define ZBEE_ZCL_CSC_IDENTIFY_S_IQR                 0x00
 #define ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR              0x03
 #define ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR             0x01
 #define ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER              0x06
