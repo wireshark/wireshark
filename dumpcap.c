@@ -3653,8 +3653,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         if ((cur_time - upd_time) > DUMPCAP_UPD_TIME) { /* wrap just causes an extra update */
 #else
         gettimeofday(&cur_time, NULL);
-        if ((cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
-            (upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000)) {
+        if (((guint64)cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
+            ((guint64)upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000)) {
 #endif
 
             upd_time = cur_time;
