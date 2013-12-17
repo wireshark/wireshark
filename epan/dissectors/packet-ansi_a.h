@@ -57,8 +57,8 @@ WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios401_dtap_strings[];
 
 /* Not strictly A-interface info, but put here to avoid file polution */
 WS_DLL_PUBLIC const value_string ansi_tsb58_srvc_cat_strings[];
-WS_DLL_PUBLIC const value_string_ext ansi_tsb58_language_ind_strings_ext;
-WS_DLL_PUBLIC const value_string_ext ansi_tsb58_srvc_cat_strings_ext;
+WS_DLL_PUBLIC value_string_ext ansi_tsb58_language_ind_strings_ext;
+WS_DLL_PUBLIC value_string_ext ansi_tsb58_srvc_cat_strings_ext;
 
 #define TSB58_SRVC_CAT_CMAS_MIN        0x1000
 #define TSB58_SRVC_CAT_CMAS_MAX        0x1004

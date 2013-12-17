@@ -839,7 +839,7 @@ static const value_string ansi_tsb58_language_ind_strings[] = {
     { 0, NULL }
 };
 
-const value_string_ext ansi_tsb58_language_ind_strings_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_language_ind_strings);
+value_string_ext ansi_tsb58_language_ind_strings_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_language_ind_strings);
 
 /* NOTE:  Table 160 of 3GPP2 N.S0005 may specify different values */
 
@@ -888,7 +888,7 @@ const value_string ansi_tsb58_srvc_cat_strings[] = {
     { 0, NULL }
 };
 
-const value_string_ext ansi_tsb58_srvc_cat_strings_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_srvc_cat_strings);
+value_string_ext ansi_tsb58_srvc_cat_strings_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_srvc_cat_strings);
 
 /*
  * END Not strictly A-interface info
@@ -1584,7 +1584,7 @@ static const value_string ansi_a_so_str_vals[] = {
     { 0, NULL }
 };
 
-static const value_string_ext ansi_a_so_str_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_so_str_vals);
+static value_string_ext ansi_a_so_str_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_so_str_vals);
 
 static const gchar* ansi_a_so_int_to_str(gint32 so)
 {
@@ -2690,7 +2690,7 @@ static const value_string ansi_a_elem_cause_vals[] = {
     { 0, NULL}
 };
 
-static const value_string_ext ansi_a_elem_cause_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_elem_cause_vals);
+static value_string_ext ansi_a_elem_cause_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_elem_cause_vals);
 
 static guint8
 elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
