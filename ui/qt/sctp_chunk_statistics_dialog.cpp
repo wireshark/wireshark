@@ -142,7 +142,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
         int i = 0, j = 0;
         struct chunkTypes temp;
 
-        fgets(line, cap, fp);
+//        fgets(line, cap, fp);
         while (fgets(line, cap, fp)) {
             token = strtok(line, ",");
             /* Get rid of the quotation marks */
