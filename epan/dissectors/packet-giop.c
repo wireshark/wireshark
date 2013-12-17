@@ -5101,12 +5101,12 @@ proto_register_giop (void)
 
     { &hf_giop_char_data,
       { "char data", "giop.char_data",
-        FT_UINT32, BASE_DEC, &giop_code_set_vals_ext, 0x0, NULL, HFILL }
+        FT_UINT32, BASE_DEC | BASE_EXT_STRING, &giop_code_set_vals_ext, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_wchar_data,
       { "wchar data", "giop.wchar_data",
-        FT_UINT32, BASE_DEC, &giop_code_set_vals_ext, 0x0, NULL, HFILL }
+        FT_UINT32, BASE_DEC | BASE_EXT_STRING, &giop_code_set_vals_ext, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_IIOP_tag,
