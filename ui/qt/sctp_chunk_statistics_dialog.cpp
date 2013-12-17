@@ -54,7 +54,7 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 #endif
 
-    this->setWindowTitle(QString("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3").arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
+    this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
    // connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(on_sectionClicked(int)));
     connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(on_sectionMoved(int, int, int)));
 
@@ -297,9 +297,9 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     uatdialog->exec();
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
-    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString("Association")));
-    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString("Endpoint 1")));
-    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString("Endpoint 2")));
+    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString(tr("Association"))));
+    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString(tr("Endpoint 1"))));
+    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString(tr("Endpoint 2"))));
     fillTable();
 }
 
@@ -307,9 +307,9 @@ void SCTPChunkStatisticsDialog::on_actionShowAllChunkTypes_triggered()
 {
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
-    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString("Association")));
-    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString("Endpoint 1")));
-    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString("Endpoint 2")));
+    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString(tr("Association"))));
+    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString(tr("Endpoint 1"))));
+    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString(tr("Endpoint 2"))));
     printf ("on_actionShowAllChunkTypes_triggered: assoc=%d\n", selected_assoc->assoc_id);
     initializeChunkMap();
     fillTable(true);

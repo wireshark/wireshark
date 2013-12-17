@@ -46,7 +46,7 @@ SCTPAssocAnalyseDialog::SCTPAssocAnalyseDialog(QWidget *parent, sctp_assoc_info_
         cf_retap_packets(cap_file_);
         findAssocForPacket();
     }
-    this->setWindowTitle(QString("SCTP Analyse Association: %1 Port1 %2 Port2 %3").arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
+    this->setWindowTitle(QString(tr("SCTP Analyse Association: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
     fillTabs();
 }
 
@@ -88,7 +88,7 @@ void SCTPAssocAnalyseDialog::findAssocForPacket()
 
     if (!frame_found) {
         QMessageBox msgBox;
-        msgBox.setText("No Association found for this packet.");
+        msgBox.setText(tr("No Association found for this packet."));
         msgBox.exec();
     }
 }
@@ -106,18 +106,18 @@ void SCTPAssocAnalyseDialog::fillTabs()
     /* Tab Endpoint 1 */
 
     if (selected_assoc->init)
-            ui->labelEP1->setText(QString("Complete list of IP-Addresses as provided in the INIT-Chunk"));
+            ui->labelEP1->setText(QString(tr("Complete list of IP-Addresses as provided in the INIT-Chunk")));
         else if ((selected_assoc->initack) && (selected_assoc->initack_dir == 1))
-            ui->labelEP1->setText(QString("Complete list of IP-Addresses as provided in the INITACK-Chunk"));
+            ui->labelEP1->setText(QString(tr("Complete list of IP-Addresses as provided in the INITACK-Chunk")));
         else
-            ui->labelEP1->setText(QString("List of used IP-Addresses"));
+            ui->labelEP1->setText(QString(tr("List of used IP-Addresses")));
 
     if (selected_assoc->addr1 != NULL) {
         GList *list;
 
         list = g_list_first(selected_assoc->addr1);
         while (list) {
-            address	     *store;
+            address *store;
 
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
@@ -138,20 +138,20 @@ void SCTPAssocAnalyseDialog::fillTabs()
 
     if ((selected_assoc->init) ||
         ((selected_assoc->initack) && (selected_assoc->initack_dir == 1))) {
-        ui->label_213->setText(QString("Requested Number of Inbound Streams:"));
+        ui->label_213->setText(QString(tr("Requested Number of Inbound Streams:")));
         ui->label_223->setText(QString("%1").arg(selected_assoc->instream1));
-        ui->label_214->setText(QString("Minimum Number of Inbound Streams:"));
+        ui->label_214->setText(QString(tr("Minimum Number of Inbound Streams:")));
         ui->label_224->setText(QString("%1").arg(((selected_assoc->instream1 > selected_assoc->outstream2) ?
                                                selected_assoc->outstream2 : selected_assoc->instream1)));
-        ui->label_215->setText(QString("Provided Number of Outbound Streams:"));
+        ui->label_215->setText(QString(tr("Provided Number of Outbound Streams:")));
         ui->label_225->setText(QString("%1").arg(selected_assoc->outstream1));
-        ui->label_216->setText(QString("Minimum Number of Outbound Streams:"));
+        ui->label_216->setText(QString(tr("Minimum Number of Outbound Streams:")));
         ui->label_226->setText(QString("%1").arg(((selected_assoc->outstream1 > selected_assoc->instream2) ?
                                                       selected_assoc->instream2 : selected_assoc->outstream1)));
     } else {
-        ui->label_213->setText(QString("Used Number of Inbound Streams:"));
+        ui->label_213->setText(QString(tr("Used Number of Inbound Streams:")));
         ui->label_223->setText(QString("%1").arg(selected_assoc->instream1));
-        ui->label_214->setText(QString("Used Number of Outbound Streams:"));
+        ui->label_214->setText(QString(tr("Used Number of Outbound Streams:")));
         ui->label_224->setText(QString("%1").arg(selected_assoc->outstream1));
         ui->label_215->setText(QString(""));
         ui->label_225->setText(QString(""));
@@ -162,9 +162,9 @@ void SCTPAssocAnalyseDialog::fillTabs()
     /* Tab Endpoint 2 */
 
     if ((selected_assoc->initack) && (selected_assoc->initack_dir == 2))
-        ui->labelEP2->setText(QString("Complete list of IP-Addresses as provided in the INITACK-Chunk"));
+        ui->labelEP2->setText(QString(tr("Complete list of IP-Addresses as provided in the INITACK-Chunk")));
     else
-        ui->labelEP2->setText(QString("List of used IP-Addresses"));
+        ui->labelEP2->setText(QString(tr("List of used IP-Addresses")));
 
     if (selected_assoc->addr2 != NULL) {
         GList *list;
@@ -191,20 +191,20 @@ void SCTPAssocAnalyseDialog::fillTabs()
     ui->label_322->setText(QString("0x%1").arg(selected_assoc->verification_tag2, 0, 16));
 
     if (selected_assoc->initack) {
-        ui->label_313->setText(QString("Requested Number of Inbound Streams:"));
+        ui->label_313->setText(QString(tr("Requested Number of Inbound Streams:")));
         ui->label_323->setText(QString("%1").arg(selected_assoc->instream2));
-        ui->label_314->setText(QString("Minimum Number of Inbound Streams:"));
+        ui->label_314->setText(QString(tr("Minimum Number of Inbound Streams:")));
         ui->label_324->setText(QString("%1").arg(((selected_assoc->instream2 > selected_assoc->outstream1) ?
                                                selected_assoc->outstream1 : selected_assoc->instream2)));
-        ui->label_315->setText(QString("Provided Number of Outbound Streams:"));
+        ui->label_315->setText(QString(tr("Provided Number of Outbound Streams:")));
         ui->label_325->setText(QString("%1").arg(selected_assoc->outstream2));
-        ui->label_316->setText(QString("Minimum Number of Outbound Streams:"));
+        ui->label_316->setText(QString(tr("Minimum Number of Outbound Streams:")));
         ui->label_326->setText(QString("%1").arg(((selected_assoc->outstream2 > selected_assoc->instream1) ?
                                                       selected_assoc->instream1 : selected_assoc->outstream2)));
     } else {
-        ui->label_313->setText(QString("Used Number of Inbound Streams:"));
+        ui->label_313->setText(QString(tr("Used Number of Inbound Streams:")));
         ui->label_323->setText(QString("%1").arg(selected_assoc->instream2));
-        ui->label_314->setText(QString("Used Number of Outbound Streams:"));
+        ui->label_314->setText(QString(tr("Used Number of Outbound Streams:")));
         ui->label_324->setText(QString("%1").arg(selected_assoc->outstream2));
         ui->label_315->setText(QString(""));
         ui->label_325->setText(QString(""));

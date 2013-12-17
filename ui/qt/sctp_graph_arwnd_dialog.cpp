@@ -34,10 +34,10 @@ SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, sctp_assoc_info_t *a
     direction(dir)
 {
     ui->setupUi(this);
-    this->setWindowTitle(QString("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3").arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
+    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
     if ((direction == 1 && selected_assoc->n_array_tsn1 == 0) || (direction == 2 && selected_assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
-        msgBox.setText("No Data Chunks sent");
+        msgBox.setText(tr("No Data Chunks sent"));
         msgBox.exec();
         return;
     } else {
@@ -95,7 +95,7 @@ void SCTPGraphArwndDialog::drawArwndGraph()
     // Add Arwnd graph
     if (xa.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph(ui->sctpPlot->xAxis, ui->sctpPlot->yAxis);
-        gr->setName(QString("Arwnd"));
+        gr->setName(QString(tr("Arwnd")));
         myScatter.setPen(QPen(Qt::red));
         myScatter.setBrush(Qt::red);
         ui->sctpPlot->graph(0)->setScatterStyle(myScatter);
@@ -103,8 +103,8 @@ void SCTPGraphArwndDialog::drawArwndGraph()
         ui->sctpPlot->graph(0)->setData(xa, ya);
     }
 
-    ui->sctpPlot->xAxis->setLabel("time [secs]");
-    ui->sctpPlot->yAxis->setLabel("Advertised Receiver Window [Bytes]");
+    ui->sctpPlot->xAxis->setLabel(tr("time [secs]"));
+    ui->sctpPlot->yAxis->setLabel(tr("Advertised Receiver Window [Bytes]"));
 
     // set axes ranges, so we see all data:
     QCPRange myXArwndRange(0, (selected_assoc->max_secs+1));
@@ -149,7 +149,7 @@ void SCTPGraphArwndDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseE
             cf_goto_frame(cap_file_, frame_num);
         }
 
-        ui->hintLabel->setText(QString("<small><i>Graph %1: a_rwnd=%2 Time=%3 secs </i></small>")
+        ui->hintLabel->setText(QString(tr("<small><i>Graph %1: a_rwnd=%2 Time=%3 secs </i></small>"))
                                .arg(plottable->name())
                                .arg(ya.value(i))
                                .arg(xa.value(i)));
