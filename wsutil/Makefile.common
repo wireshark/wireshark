@@ -90,6 +90,7 @@ LIBWSUTIL_INCLUDES = 	\
 	plugins.h	\
 	privileges.h	\
 	sha1.h		\
+	sign_ext.h	\
 	strnatcmp.h	\
 	str_util.h	\
 	pint.h		\
