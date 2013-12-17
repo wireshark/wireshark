@@ -5640,7 +5640,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                     break;
                 }
 
-                proto_tree_add_item(subtree, hf_ansi_a_reserved_bits_8_3f, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_ansi_a_reserved_bits_8_3f, tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
 
                 curr_offset += oct_len;
                 break;
