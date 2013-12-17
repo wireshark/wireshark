@@ -1,1 +1,300 @@
-Revision: 53023
+------------------------------------------------------------------------
+r53023 | gerald | 2013-11-01 10:01:59 -0700 (Fri, 01 Nov 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/ChangeLog
+   M /trunk-1.8/NEWS
+
+Build 1.8.11.
+
+------------------------------------------------------------------------
+r53032 | gerald | 2013-11-01 13:53:05 -0700 (Fri, 01 Nov 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/ChangeLog
+   M /trunk-1.8/config.nmake
+   M /trunk-1.8/configure.in
+   M /trunk-1.8/debian/changelog
+   M /trunk-1.8/debian/wireshark-common.files
+   M /trunk-1.8/docbook/asciidoc.conf
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/Makefile.am
+   M /trunk-1.8/make-version.pl
+   M /trunk-1.8/version.conf
+   M /trunk-1.8/wiretap/Makefile.am
+
+1.8.11 → 1.8.12.
+
+------------------------------------------------------------------------
+r53066 | gerald | 2013-11-03 07:35:02 -0800 (Sun, 03 Nov 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-11-03]
+------------------------------------------------------------------------
+r53124 | guy | 2013-11-06 18:02:22 -0800 (Wed, 06 Nov 2013) | 19 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/wiretap/libpcap.c
+
+Copy over r49999 from trunk:
+
+  ------------------------------------------------------------------------
+  r49999 | eapache | 2013-06-17 18:02:26 -0700 (Mon, 17 Jun 2013) | 10 lines
+
+  Don't limit the on-the-wire length of packets to 64KB, there are larger packets
+  out there (especially over USB) and we should be able to load them as long as
+  they are snapped to a sane length.
+
+  Also validate that packets do not specify a snapshot length larger than the one
+  in the file header, though only make it a warning, as this is not necessarily a
+  fatally corrupt packet.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8808
+
+  ------------------------------------------------------------------------
+
+Also fixes bug 9390.
+
+------------------------------------------------------------------------
+r53127 | guy | 2013-11-06 18:14:02 -0800 (Wed, 06 Nov 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.asciidoc
+
+Note that bug 8808 and bug 9390 are fixed.
+
+------------------------------------------------------------------------
+r53197 | pascal | 2013-11-09 07:44:39 -0800 (Sat, 09 Nov 2013) | 3 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-sip.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9388 :
+Avoid an infinite loop in SIP dissector (backport of r51738)
+
+------------------------------------------------------------------------
+r53229 | gerald | 2013-11-10 07:34:55 -0800 (Sun, 10 Nov 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-11-10]
+------------------------------------------------------------------------
+r53397 | gerald | 2013-11-17 07:34:54 -0800 (Sun, 17 Nov 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-11-17]
+------------------------------------------------------------------------
+r53548 | gerald | 2013-11-24 07:36:04 -0800 (Sun, 24 Nov 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-11-24]
+------------------------------------------------------------------------
+r53697 | gerald | 2013-12-01 07:35:03 -0800 (Sun, 01 Dec 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-12-01]
+------------------------------------------------------------------------
+r53858 | gerald | 2013-12-08 07:34:55 -0800 (Sun, 08 Dec 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-12-08]
+------------------------------------------------------------------------
+r54119 | gerald | 2013-12-15 07:34:53 -0800 (Sun, 15 Dec 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-12-15]
+------------------------------------------------------------------------
+r54146 | gerald | 2013-12-16 08:54:46 -0800 (Mon, 16 Dec 2013) | 16 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/dissectors/packet-ntlmssp.c
+
+Copy over r53626 with manual intervention.
+
+  ------------------------------------------------------------------------
+  r53626 | rbalint | 2013-11-28 08:39:04 -0800 (Thu, 28 Nov 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ntlmssp.c
+
+  Support long Domain Names in NTLMSSP v2
+
+  ... instead of crashing on them. :-)
+
+  Discovered by Garming Sam <garming@catalyst.net.nz>
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r54147 | gerald | 2013-12-16 10:16:51 -0800 (Mon, 16 Dec 2013) | 50 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/asn1/gsm_map/packet-gsm_map-template.c
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/dissectors/packet-gsm_map.c
+   M /trunk-1.8/epan/dissectors/packet-iscsi.c
+   M /trunk-1.8/epan/dissectors/packet-mongo.c
+   M /trunk-1.8/epan/dissectors/packet-sip.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r53071 | pascal | 2013-11-03 10:07:46 -0800 (Sun, 03 Nov 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-sip.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9031 :
+  SIP contact-param parsing fails in case the last parameter includes a quoted string
+  ------------------------------------------------------------------------
+  r53148 | pascal | 2013-11-07 13:08:15 -0800 (Thu, 07 Nov 2013) | 3 lines
+  Changed paths:
+     M /trunk/asn1/gsm_map/packet-gsm_map-template.c
+     M /trunk/epan/dissectors/packet-gsm_map.c
+
+  From Vasil Velichkov via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9382 :
+  Fix dissection of GSM MAPv3 ReportSM_DeliveryStatusRes
+  ------------------------------------------------------------------------
+  r53247 | martink | 2013-11-11 02:57:30 -0800 (Mon, 11 Nov 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-mongo.c
+
+  fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9409
+  don't call proto_item_get_len() when the argument can be NULL
+  ------------------------------------------------------------------------
+  r53838 | mmann | 2013-12-07 17:15:55 -0800 (Sat, 07 Dec 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-iscsi.c
+
+  Correctly update the data length of the SCSI payload within ISCSI.  Bug 9521 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9521)
+
+  From Yaniv Kaul
+  ------------------------------------------------------------------------
+
+
+Copy over r53627 from trunk-1.10:
+
+  ------------------------------------------------------------------------
+  r53627 | mmann | 2013-11-28 08:51:08 -0800 (Thu, 28 Nov 2013) | 5 lines
+  Changed paths:
+     M /trunk-1.10/ui/gtk/decode_as_dlg.c
+
+  Crash when selecting "Decode As" based on SCTP PPID.  Bug 8976 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8976)
+
+  Fixed by defaulting PPID value to LAST_PPID (which should make Decode As a no-op)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r54151 | gerald | 2013-12-16 11:39:48 -0800 (Mon, 16 Dec 2013) | 32 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/dissectors/packet-dvb-bat.c
+   M /trunk-1.8/epan/dissectors/packet-time.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r54138 | martink | 2013-12-16 00:20:22 -0800 (Mon, 16 Dec 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-time.c
+
+  From Wesley
+  fix "decode as" for time protocol
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9563
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r52987 | martink | 2013-10-30 15:34:16 -0700 (Wed, 30 Oct 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dvb-bat.c
+
+  BAT has a Bouquet ID, no Service ID
+  ------------------------------------------------------------------------
+  r53222 | darkjames | 2013-11-10 05:04:21 -0800 (Sun, 10 Nov 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/tvbtest.c
+
+  missing include for tvbtest + add 'const' (silent most of warnings).
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r54152 | gerald | 2013-12-16 12:13:40 -0800 (Mon, 16 Dec 2013) | 15 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+
+Copy over r53842 with manual intervention:
+
+  ------------------------------------------------------------------------
+  r53842 | mmann | 2013-12-07 17:52:02 -0800 (Sat, 07 Dec 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+
+  dtls: fix buffer overflow in mac check.  Bug 9512 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9512)
+
+  From Hauke Mehrtens
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r54155 | gerald | 2013-12-16 12:29:10 -0800 (Mon, 16 Dec 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/dissectors/packet-dvbci.c
+
+Copy over r53322 from the trunk:
+
+  ------------------------------------------------------------------------
+  r53322 | martink | 2013-11-14 13:44:05 -0800 (Thu, 14 Nov 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dvbci.c
+
+  fix application capability handling
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r54168 | pascal | 2013-12-17 01:59:30 -0800 (Tue, 17 Dec 2013) | 12 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.asciidoc
+   M /trunk-1.8/epan/dissectors/packet-gsm_sms.c
+
+Copy over from the trunk:
+
+------------------------------------------------------------------------
+r53940 | pascal | 2013-12-11 19:47:15 +0100 (mer., 11 déc. 2013) | 3 lines
+
+From Michael Lum via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9550 :
+GSM SMS UDH EMS control expects 4 octets instead of 3 with OPTIONAL 4th
+
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r54169 | pascal | 2013-12-17 02:00:58 -0800 (Tue, 17 Dec 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.asciidoc
+
+Add bug reference to release notes
+
+------------------------------------------------------------------------
