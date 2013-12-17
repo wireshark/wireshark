@@ -222,6 +222,8 @@ proto_tree_set_uint(field_info *fi, guint32 value);
 static void
 proto_tree_set_int(field_info *fi, gint32 value);
 static void
+proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
+static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
@@ -1358,7 +1360,14 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				length_error = length < 1 ? TRUE : FALSE;
 				report_type_length_mismatch(tree, "a 64-bit integer", length, length_error);
 			}
-			proto_tree_set_uint64_tvb(new_fi, tvb, start, length, encoding);
+			if (new_fi->hfinfo->type == FT_INT64)
+			{
+				proto_tree_set_int64_tvb(new_fi, tvb, start, length, encoding);
+			}
+			else
+			{
+				proto_tree_set_uint64_tvb(new_fi, tvb, start, length, encoding);
+			}
 			break;
 
 		/* XXX - make these just FT_INT? */
@@ -2552,6 +2561,77 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 			case 1: value <<= 8; value += *b++;
 				break;
 		}
+	}
+
+	proto_tree_set_uint64(fi, value);
+}
+
+static void
+proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
+			  guint length, const guint encoding)
+{
+	guint64 value = 0;
+	guint8* b = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start, length);
+
+	if (encoding) {
+		b += length;
+		switch (length) {
+			default: DISSECTOR_ASSERT_NOT_REACHED();
+			case 8: value <<= 8; value += *--b;
+			case 7: value <<= 8; value += *--b;
+			case 6: value <<= 8; value += *--b;
+			case 5: value <<= 8; value += *--b;
+			case 4: value <<= 8; value += *--b;
+			case 3: value <<= 8; value += *--b;
+			case 2: value <<= 8; value += *--b;
+			case 1: value <<= 8; value += *--b;
+				break;
+		}
+	} else {
+		switch (length) {
+			default: DISSECTOR_ASSERT_NOT_REACHED();
+			case 8: value <<= 8; value += *b++;
+			case 7: value <<= 8; value += *b++;
+			case 6: value <<= 8; value += *b++;
+			case 5: value <<= 8; value += *b++;
+			case 4: value <<= 8; value += *b++;
+			case 3: value <<= 8; value += *b++;
+			case 2: value <<= 8; value += *b++;
+			case 1: value <<= 8; value += *b++;
+				break;
+		}
+	}
+
+	switch(length)
+	{
+		case 7:
+			if (value & 0x80000000000000LL) /* account for sign bit */
+				value |= 0xFF00000000000000LL;
+			break;
+		case 6:
+			if (value & 0x800000000000LL) /* account for sign bit */
+				value |= 0xFFFF000000000000LL;
+			break;
+		case 5:
+			if (value & 0x8000000000LL) /* account for sign bit */
+				value |= 0xFFFFFF0000000000LL;
+			break;
+		case 4:
+			if (value & 0x80000000LL) /* account for sign bit */
+				value |= 0xFFFFFFFF00000000LL;
+			break;
+		case 3:
+			if (value & 0x800000LL) /* account for sign bit */
+				value |= 0xFFFFFFFFFF000000LL;
+			break;
+		case 2:
+			if (value & 0x8000LL) /* account for sign bit */
+				value |= 0xFFFFFFFFFFFF0000LL;
+			break;
+		case 1:
+			if (value & 0x80LL) /* account for sign bit */
+				value |= 0xFFFFFFFFFFFFFF00LL;
+			break;
 	}
 
 	proto_tree_set_uint64(fi, value);

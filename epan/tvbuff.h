@@ -285,8 +285,11 @@ WS_DLL_PUBLIC guint16 tvb_get_ntohs(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_ntoh24(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_ntohl(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh40(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_ntohi40(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh48(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_ntohi48(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh56(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_ntohi56(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh64(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gfloat tvb_get_ntohieee_float(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gdouble tvb_get_ntohieee_double(tvbuff_t *tvb,
@@ -296,8 +299,11 @@ WS_DLL_PUBLIC guint16 tvb_get_letohs(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_letoh24(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_letohl(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh40(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_letohi40(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh48(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_letohi48(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh56(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_letohi56(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh64(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,

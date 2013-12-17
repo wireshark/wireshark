@@ -836,6 +836,18 @@ tvb_get_ntoh40(tvbuff_t *tvb, const gint offset)
 	return pntoh40(ptr);
 }
 
+gint64
+tvb_get_ntohi40(tvbuff_t *tvb, const gint offset)
+{
+	guint64 ret;
+
+	ret = tvb_get_ntoh40(tvb, offset);
+	if (ret & 0x8000000000LL) /* account for sign bit */
+		ret |= 0xFFFFFF0000000000LL;
+
+	return (gint64)ret;
+}
+
 guint64
 tvb_get_ntoh48(tvbuff_t *tvb, const gint offset)
 {
@@ -845,6 +857,18 @@ tvb_get_ntoh48(tvbuff_t *tvb, const gint offset)
 	return pntoh48(ptr);
 }
 
+gint64
+tvb_get_ntohi48(tvbuff_t *tvb, const gint offset)
+{
+	guint64 ret;
+
+	ret = tvb_get_ntoh48(tvb, offset);
+	if (ret & 0x800000000000LL) /* account for sign bit */
+		ret |= 0xFFFF000000000000LL;
+
+	return (gint64)ret;
+}
+
 guint64
 tvb_get_ntoh56(tvbuff_t *tvb, const gint offset)
 {
@@ -852,6 +876,18 @@ tvb_get_ntoh56(tvbuff_t *tvb, const gint offset)
 
 	ptr = fast_ensure_contiguous(tvb, offset, 7);
 	return pntoh56(ptr);
+}
+
+gint64
+tvb_get_ntohi56(tvbuff_t *tvb, const gint offset)
+{
+	guint64 ret;
+
+	ret = tvb_get_ntoh56(tvb, offset);
+	if (ret & 0x80000000000000LL) /* account for sign bit */
+		ret |= 0xFF00000000000000LL;
+
+	return (gint64)ret;
 }
 
 guint64
@@ -1102,6 +1138,18 @@ tvb_get_letoh40(tvbuff_t *tvb, const gint offset)
 	return pletoh40(ptr);
 }
 
+gint64
+tvb_get_letohi40(tvbuff_t *tvb, const gint offset)
+{
+	guint64 ret;
+
+	ret = tvb_get_letoh40(tvb, offset);
+	if (ret & 0x8000000000LL) /* account for sign bit */
+		ret |= 0xFFFFFF0000000000LL;
+
+	return (gint64)ret;
+}
+
 guint64
 tvb_get_letoh48(tvbuff_t *tvb, const gint offset)
 {
@@ -1111,6 +1159,18 @@ tvb_get_letoh48(tvbuff_t *tvb, const gint offset)
 	return pletoh48(ptr);
 }
 
+gint64
+tvb_get_letohi48(tvbuff_t *tvb, const gint offset)
+{
+	guint64 ret;
+
+	ret = tvb_get_letoh48(tvb, offset);
+	if (ret & 0x800000000000LL) /* account for sign bit */
+		ret |= 0xFFFF000000000000LL;
+
+    return (gint64)ret;
+}
+
 guint64
 tvb_get_letoh56(tvbuff_t *tvb, const gint offset)
 {
@@ -1118,6 +1178,18 @@ tvb_get_letoh56(tvbuff_t *tvb, const gint offset)
 
 	ptr = fast_ensure_contiguous(tvb, offset, 7);
 	return pletoh56(ptr);
+}
+
+gint64
+tvb_get_letohi56(tvbuff_t *tvb, const gint offset)
+{
+	guint64 ret;
+
+	ret = tvb_get_letoh56(tvb, offset);
+	if (ret & 0x80000000000000LL) /* account for sign bit */
+		ret |= 0xFF00000000000000LL;
+
+	return (gint64)ret;
 }
 
 guint64
