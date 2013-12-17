@@ -40,6 +40,7 @@
 #include <string.h>
 
 #include "wsutil/pint.h"
+#include "wsutil/sign_ext.h"
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -841,9 +842,7 @@ tvb_get_ntohi40(tvbuff_t *tvb, const gint offset)
 {
 	guint64 ret;
 
-	ret = tvb_get_ntoh40(tvb, offset);
-	if (ret & 0x8000000000LL) /* account for sign bit */
-		ret |= 0xFFFFFF0000000000LL;
+	ret = ws_sign_ext64(tvb_get_ntoh40(tvb, offset), 40);
 
 	return (gint64)ret;
 }
@@ -862,9 +861,7 @@ tvb_get_ntohi48(tvbuff_t *tvb, const gint offset)
 {
 	guint64 ret;
 
-	ret = tvb_get_ntoh48(tvb, offset);
-	if (ret & 0x800000000000LL) /* account for sign bit */
-		ret |= 0xFFFF000000000000LL;
+	ret = ws_sign_ext64(tvb_get_ntoh48(tvb, offset), 48);
 
 	return (gint64)ret;
 }
@@ -883,9 +880,7 @@ tvb_get_ntohi56(tvbuff_t *tvb, const gint offset)
 {
 	guint64 ret;
 
-	ret = tvb_get_ntoh56(tvb, offset);
-	if (ret & 0x80000000000000LL) /* account for sign bit */
-		ret |= 0xFF00000000000000LL;
+	ret = ws_sign_ext64(tvb_get_ntoh56(tvb, offset), 56);
 
 	return (gint64)ret;
 }
@@ -1143,9 +1138,7 @@ tvb_get_letohi40(tvbuff_t *tvb, const gint offset)
 {
 	guint64 ret;
 
-	ret = tvb_get_letoh40(tvb, offset);
-	if (ret & 0x8000000000LL) /* account for sign bit */
-		ret |= 0xFFFFFF0000000000LL;
+	ret = ws_sign_ext64(tvb_get_letoh40(tvb, offset), 40);
 
 	return (gint64)ret;
 }
@@ -1164,11 +1157,9 @@ tvb_get_letohi48(tvbuff_t *tvb, const gint offset)
 {
 	guint64 ret;
 
-	ret = tvb_get_letoh48(tvb, offset);
-	if (ret & 0x800000000000LL) /* account for sign bit */
-		ret |= 0xFFFF000000000000LL;
+	ret = ws_sign_ext64(tvb_get_letoh48(tvb, offset), 48);
 
-    return (gint64)ret;
+	return (gint64)ret;
 }
 
 guint64
@@ -1185,9 +1176,7 @@ tvb_get_letohi56(tvbuff_t *tvb, const gint offset)
 {
 	guint64 ret;
 
-	ret = tvb_get_letoh56(tvb, offset);
-	if (ret & 0x80000000000000LL) /* account for sign bit */
-		ret |= 0xFF00000000000000LL;
+	ret = ws_sign_ext64(tvb_get_letoh56(tvb, offset), 56);
 
 	return (gint64)ret;
 }

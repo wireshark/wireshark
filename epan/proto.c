@@ -32,6 +32,7 @@
 
 #include <wsutil/bits_ctz.h>
 #include <wsutil/bits_count_ones.h>
+#include <wsutil/sign_ext.h>
 
 #include <ftypes/ftypes-int.h>
 
@@ -2605,32 +2606,25 @@ proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 	switch(length)
 	{
 		case 7:
-			if (value & 0x80000000000000LL) /* account for sign bit */
-				value |= 0xFF00000000000000LL;
+			value = ws_sign_ext64(value, 56);
 			break;
 		case 6:
-			if (value & 0x800000000000LL) /* account for sign bit */
-				value |= 0xFFFF000000000000LL;
+			value = ws_sign_ext64(value, 48);
 			break;
 		case 5:
-			if (value & 0x8000000000LL) /* account for sign bit */
-				value |= 0xFFFFFF0000000000LL;
+			value = ws_sign_ext64(value, 40);
 			break;
 		case 4:
-			if (value & 0x80000000LL) /* account for sign bit */
-				value |= 0xFFFFFFFF00000000LL;
+			value = ws_sign_ext64(value, 32);
 			break;
 		case 3:
-			if (value & 0x800000LL) /* account for sign bit */
-				value |= 0xFFFFFFFFFF000000LL;
+			value = ws_sign_ext64(value, 24);
 			break;
 		case 2:
-			if (value & 0x8000LL) /* account for sign bit */
-				value |= 0xFFFFFFFFFFFF0000LL;
+			value = ws_sign_ext64(value, 16);
 			break;
 		case 1:
-			if (value & 0x80LL) /* account for sign bit */
-				value |= 0xFFFFFFFFFFFFFF00LL;
+			value = ws_sign_ext64(value, 8);
 			break;
 	}
 
@@ -3297,8 +3291,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		integer >>= hfinfo_bitshift(hfinfo);
 
 		no_of_bits = ws_count_ones(hfinfo->bitmask);
-		if (integer & (1 << (no_of_bits-1)))
-			integer |= (-1 << no_of_bits);
+		integer = ws_sign_ext32(integer, no_of_bits);
 	}
 
 	fvalue_set_sinteger(&fi->value, integer);
