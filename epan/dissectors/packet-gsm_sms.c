@@ -2190,7 +2190,7 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length, gsm_s
                             "Background Colour : 0x%x %s",
                             (oct >> 4) & 0x0f , str);
 
-        offset++;
+        /*offset++;*/
     }
 }
 
