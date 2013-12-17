@@ -17,74 +17,23 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-66[]
+* ws-salink:2013-69[]
 +
-The SIP dissector could go into an infinite loop. Discovered by Alain Botti.
-// Fixed in trunk-1.10: r53195
-// Fixed in trunk-1.8: r53197
-(ws-buglink:9388[])
+A dissector went awry.
+// Fixed in trunk: r00000
+// Fixed in trunk-1.10: r00000
+// Fixed in trunk-1.8: r00000
+(ws-buglink:0000[])
 +
-Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
+Versions affected: 1.10.0 to 1.10.4, 1.8.0 to 1.8.12
 +
-cve-idlink:2013-7112[]
+cve-idlink:2013-0000[]
 
-* ws-salink:2013-67[]
-+
-The BSSGP dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk-1.10: r53803
-(ws-buglink:9488[])
-+
-Versions affected: 1.10.0 to 1.10.3
-+
-cve-idlink:2013-7113[]
-
-* ws-salink:2013-68[]
-+
-The NTLMSSP v2 dissector could crash. Discovered by Garming Sam.
-// Fixed in trunk: r53626
-// Fixed in trunk-1.10: r54072
-// Fixed in trunk-1.8: r54146
-//(ws-buglink:0000[])
-+
-Versions affected: 1.10.0 to 1.10.3, 1.8.0 to 1.8.11
-+
-cve-idlink:2013-7114[]
 
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
-* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
-
-* Tx MCS set is not interpreted properly in WLAN beacon frame. (ws-buglink:8894[])
-
-* VoIP Graph Analysis window - some calls are black. (ws-buglink:8966[])
-
-* Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses. (ws-buglink:9031[])
-
-* epan/follow.c - Incorrect "bytes missing in capture file" in "check_fragments" due to an unsigned int wraparound?. (ws-buglink:9112[])
-
-* gsm_map doesn't decode MAPv3 reportSM-DeliveryStatus result. (ws-buglink:9382[])
-
-* Incorrect NFSv4 FATTR4_SECURITY_LABEL value. (ws-buglink:9383[])
-
-* Timestamp decoded for Gigamon trailer is not padded correctly. (ws-buglink:9433[])
-
-* SEL Fast Message Bug-fix for Signed 16-bit Integer Fast Meter Messages. (ws-buglink:9435[])
-
-* DNP3 Bug Fix for Analog Data Sign Bit Handling. (ws-buglink:9442[])
-
-* GSM SMS User Data header fill bits are wrong when using a 7 bits ASCII / IA5 encoding. (ws-buglink:9478[])
-
-* WCDMA RLC dissector cannot assemble PDUs with SNs skipped and wrap-arounded. (ws-buglink:9505[])
-
-* DTLS: fix buffer overflow in mac check. (ws-buglink:9512[])
-
-* [PATCH] Correct data length in SCSI_DATA_IN packets (within iSCSI). (ws-buglink:9521[])
-
-* GSM SMS UDH EMS control expects 4 octets instead of 3 with OPTIONAL 4th. (ws-buglink:9550[])
-
-* Fix "decode as ..." for packet-time.c. (ws-buglink:9563[])
 
 === New and Updated Features
 
@@ -98,21 +47,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-ANSI IS-637-A
-BSSGP
-DNP3
-DVB-BAT
-DVB-CI
-GSM MAP
-GSM SMS
-IEEE 802.11
-iSCSI
-NFSv4
-NTLMSSP v2
-RLC
-SEL FM
-SIP
-Time
+.
 
 --sort-and-group--
 
@@ -120,7 +55,7 @@ Time
 
 --sort-and-group--
 
-Pcap-ng.
+.
 
 --sort-and-group--
 
