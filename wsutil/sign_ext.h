@@ -41,10 +41,20 @@ ws_sign_ext32(guint32 val, int no_of_bits)
 static inline guint64
 ws_sign_ext64(guint64 val, int no_of_bits)
 {
-	if (val & (1LL << (no_of_bits-1)))
-		val |= (-1 << no_of_bits);
+	if (val & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
+		val |= (G_GINT64_CONSTANT(-1) << no_of_bits);
 
 	return val;
 } _U_
+
+/*
+static inline guint64
+ws_sign_ext64(guint64 val, int no_of_bits)
+{
+	gint64 sval = (val << (64 - no_of_bits));
+
+	return (guint64) (sval >> (64 - no_of_bits));
+}
+*/
 
 #endif /* __WSUTIL_SIGN_EXT_H__ */
