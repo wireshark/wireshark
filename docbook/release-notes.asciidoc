@@ -120,7 +120,7 @@ Time
 
 --sort-and-group--
 
-.
+Pcap-ng.
 
 --sort-and-group--
 
