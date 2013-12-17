@@ -2008,8 +2008,10 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     if ( ! handled )
     {
         if ( call_sub_dissector )
+        {
             call_dissector(protocol_dissector, message_tvb, pinfo, tree);
-        handled = TRUE;
+            handled = TRUE;
+        }
     }
 
     return ( handled ? TRUE : FALSE );
@@ -2115,7 +2117,7 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
      * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
      * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
     return opensafety_package_dissector("openSAFETY/Modbus TCP", "", FALSE, TRUE, 0,
-                                        message_tvb, pinfo, ( tree->parent != NULL ? tree->parent : tree ));
+                                        message_tvb, pinfo, ( ((tree != NULL) && (tree->parent != NULL)) ? tree->parent : tree ));
 }
 
 static gboolean

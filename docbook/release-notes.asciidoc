@@ -35,6 +35,7 @@ The following bugs have been fixed:
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
+* Tshark doesn't display the longer data fields (mbtcp). (ws-buglink:9572[])
 
 === New and Updated Features
 
@@ -48,7 +49,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+Modbus/TCP
 
 --sort-and-group--
 
