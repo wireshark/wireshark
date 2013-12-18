@@ -265,7 +265,7 @@ static int ByteArray_base64_decode(lua_State* L) {
     }
 
     ba2 = g_byte_array_new();
-    data = g_malloc (ba->len + 1);
+    data = (gchar*)g_malloc (ba->len + 1);
     memcpy(data, ba->data, ba->len);
     data[ba->len] = '\0';
     
