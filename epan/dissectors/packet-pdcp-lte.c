@@ -187,7 +187,7 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     return new_rec;
 }
 
-static void uat_ue_keys_record_update_cb(void* record, const char** error) {
+static void uat_ue_keys_record_update_cb(void* record, const char** error _U_) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
     int n;
 
@@ -1256,7 +1256,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
                                   pdu_security_settings_t *pdu_security_settings,
                                   enum pdcp_plane plane, gboolean *deciphered)
 {
-    const char *k = pdu_security_settings->key;
     unsigned char ctr_block[16];
     gcry_cipher_hd_t cypher_hd;
     int gcrypt_err;
@@ -1323,6 +1322,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     if (gcrypt_err != 0) {
         return tvb;
     }
+
+    /* TODO: close gcry handle!!! */
 
     /* Create tvb for resulting deciphered sdu */
     decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, payload_length, payload_length);
