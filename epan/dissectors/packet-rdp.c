@@ -21,7 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
  */
 
 /*
@@ -523,9 +522,11 @@ typedef struct rdp_conv_info_t {
 #define RDP_FI_NONE          0x00
 #define RDP_FI_OPTIONAL      0x01
 #define RDP_FI_STRING        0x02
-#define RDP_FI_UNICODE       0x04
-#define RDP_FI_NOINCOFFSET   0x08 /* do not increase the offset */
-#define RDP_FI_SUBTREE       0x10
+#define RDP_FI_UNICODE       0x04 /* field is always Unicode (UTF-16) */
+#define RDP_FI_ANSI          0x08 /* field is always ANSI (code page) */
+#define RDP_FI_NOINCOFFSET   0x10 /* do not increase the offset */
+#define RDP_FI_SUBTREE       0x20
+#define RDP_FI_INFO_FLAGS    0x40
 
 typedef struct rdp_field_info_t {
   const int *pfield;
@@ -537,7 +538,7 @@ typedef struct rdp_field_info_t {
 } rdp_field_info_t;
 
 #define FI_FIXEDLEN(_hf_, _len_) { _hf_, _len_, NULL, 0, 0, NULL }
-#define FI_FIXEDLEN_STRING(_hf_, _len_) { _hf_, _len_, NULL, 0, RDP_FI_STRING, NULL }
+#define FI_FIXEDLEN_ANSI_STRING(_hf_, _len_) { _hf_, _len_, NULL, 0, RDP_FI_STRING|RDP_FI_ANSI, NULL }
 #define FI_VALUE(_hf_, _len_, _value_) { _hf_, _len_, &_value_, 0, 0, NULL }
 #define FI_VARLEN(_hf, _length_) { _hf_, 0, &_length_, 0, 0, NULL }
 #define FI_SUBTREE(_hf_, _len_, _ett_, _sf_) { _hf_, _len_, NULL, _ett_, RDP_FI_SUBTREE, _sf_ }
@@ -803,14 +804,45 @@ static const value_string rdp_wMonth_vals[] = {
   {0, NULL },
 };
 
+/*
+ * Flags in the flags field of a TS_INFO_PACKET.
+ * XXX - define more, and show them underneath that field.
+ */
+#define INFO_UNICODE  0x00000010
+
+static rdp_conv_info_t *
+rdp_get_conversation_data(packet_info *pinfo)
+{
+  conversation_t  *conversation;
+  rdp_conv_info_t *rdp_info;
+
+  conversation = find_or_create_conversation(pinfo);
+
+  rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
+
+  if (rdp_info == NULL) {
+    rdp_info = wmem_new0(wmem_file_scope(), rdp_conv_info_t);
+    rdp_info->staticChannelId  = -1;
+    rdp_info->encryptionMethod = 0;
+    rdp_info->encryptionLevel  = 0;
+    rdp_info->licenseAgreed    = 0;
+    rdp_info->maxChannels      = 0;
+
+    conversation_add_proto_data(conversation, proto_rdp, rdp_info);
+  }
+
+  return rdp_info;
+}
+
 
 static int
 dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const rdp_field_info_t *fields, int totlen)
 {
   const rdp_field_info_t *c;
   gint              len;
-  char             *string;
   int               base_offset = offset;
+  guint32           info_flags;
+  guint             encoding;
 
   while (((c = fields++)->pfield) != NULL) {
     if ((c->fixedLength == 0) && (c->variableLength)) {
@@ -839,14 +871,26 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
     if (len) {
       proto_item *pi;
-      if (c->flags & RDP_FI_STRING)
-        pi = proto_tree_add_item(tree, *c->pfield, tvb, offset, len, ENC_ASCII|ENC_NA);
-      else
-        pi = proto_tree_add_item(tree, *c->pfield, tvb, offset, len, ENC_LITTLE_ENDIAN);
+      if (c->flags & RDP_FI_STRING) {
+        /* If this is always Unicode, or if the INFO_UNICODE flag is set,
+           treat this as UTF-16; otherwise, treat it as "ANSI". */
+        if (c->flags & RDP_FI_UNICODE)
+          encoding = ENC_UTF_16|ENC_LITTLE_ENDIAN;
+        else if (c->flags & RDP_FI_ANSI)
+          encoding = ENC_ASCII|ENC_NA;  /* XXX - code page */
+        else {
+          /* Could be Unicode, could be ANSI, based on INFO_UNICODE flag */
+          encoding = (info_flags & INFO_UNICODE) ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA;  /* XXX - code page */
+        }
+      } else
+        encoding = ENC_LITTLE_ENDIAN;
 
-      if (c->flags & RDP_FI_UNICODE) {
-        string = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(pi, " (%s)", string);
+      pi = proto_tree_add_item(tree, *c->pfield, tvb, offset, len, encoding);
+
+      if (c->flags & RDP_FI_INFO_FLAGS) {
+        /* TS_INFO_PACKET flags field; save it for later use */
+        DISSECTOR_ASSERT(len == 4);
+        info_flags = tvb_get_letohl(tvb, offset);
       }
 
       if (c->flags & RDP_FI_SUBTREE) {
@@ -935,7 +979,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     FI_TERMINATOR,
   };
   rdp_field_info_t channel_fields[] = {
-    FI_FIXEDLEN_STRING(&hf_rdp_name, 8),
+    FI_FIXEDLEN_ANSI_STRING(&hf_rdp_name, 8),
     FI_SUBTREE(&hf_rdp_options, 4, ett_rdp_options, option_fields),
     FI_TERMINATOR
   };
@@ -1249,7 +1293,7 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     {&hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
     {&hf_rdp_lengthSourceDescriptor,     2, &lengthSourceDescriptor, 0, 0, NULL },
     {&hf_rdp_lengthCombinedCapabilities, 2, NULL, 0, 0, NULL },
-    {&hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, RDP_FI_STRING|RDP_FI_ANSI, NULL }, /* XXX - T.128 says this is T.50, which is ISO 646, which is only ASCII in its US form */
     {&hf_rdp_numberCapabilities,         2, &numberCapabilities, 0, 0, NULL },
     {&hf_rdp_pad2Octets,                 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
@@ -1351,10 +1395,10 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   };
   rdp_field_info_t tz_info_fields [] = {
     FI_FIXEDLEN(&hf_rdp_Bias, 4),
-    {&hf_rdp_StandardName,           64, NULL, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_StandardName,           64, NULL, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
     FI_SUBTREE(&hf_rdp_StandardDate, 16, ett_rdp_StandardDate, systime_fields),
     FI_FIXEDLEN(&hf_rdp_StandardBias, 4),
-    {&hf_rdp_DaylightName,           64, NULL, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_DaylightName,           64, NULL, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
     FI_SUBTREE(&hf_rdp_DaylightDate, 16, ett_rdp_DaylightDate, systime_fields),
     FI_FIXEDLEN(&hf_rdp_DaylightBias, 4),
     FI_TERMINATOR,
@@ -1362,22 +1406,22 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   rdp_field_info_t ue_fields[] = {
     {&hf_rdp_codePage,           4, NULL, 0, 0, NULL },
-    {&hf_rdp_optionFlags,        4, NULL, 0, 0, NULL },
+    {&hf_rdp_optionFlags,        4, NULL, 0, RDP_FI_INFO_FLAGS, NULL },
     {&hf_rdp_cbDomain,           2, &cbDomain, 2, 0, NULL },
     {&hf_rdp_cbUserName,         2, &cbUserName, 2, 0, NULL },
     {&hf_rdp_cbPassword,         2, &cbPassword, 2, 0, NULL },
     {&hf_rdp_cbAlternateShell,   2, &cbAlternateShell, 2, 0, NULL },
     {&hf_rdp_cbWorkingDir,       2, &cbWorkingDir, 2, 0, NULL },
-    {&hf_rdp_domain,             0, &cbDomain, 0, RDP_FI_UNICODE, NULL },
-    {&hf_rdp_userName,           0, &cbUserName, 0, RDP_FI_UNICODE, NULL },
-    {&hf_rdp_password,           0, &cbPassword, 0, RDP_FI_UNICODE, NULL },
-    {&hf_rdp_alternateShell,     0, &cbAlternateShell, 0, RDP_FI_UNICODE, NULL },
-    {&hf_rdp_workingDir,         0, &cbWorkingDir, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_domain,             0, &cbDomain, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_userName,           0, &cbUserName, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_password,           0, &cbPassword, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_alternateShell,     0, &cbAlternateShell, 0, RDP_FI_STRING, NULL },
+    {&hf_rdp_workingDir,         0, &cbWorkingDir, 0, RDP_FI_STRING, NULL },
     {&hf_rdp_clientAddressFamily,2, NULL, 0, 0, NULL },
     {&hf_rdp_cbClientAddress,    2, &cbClientAddress, 0, 0, NULL },
-    {&hf_rdp_clientAddress,      0, &cbClientAddress, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_clientAddress,      0, &cbClientAddress, 0, RDP_FI_STRING, NULL },
     {&hf_rdp_cbClientDir,        2, &cbClientDir, 0, 0, NULL },
-    {&hf_rdp_clientDir,          0, &cbClientDir, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_clientDir,          0, &cbClientDir, 0, RDP_FI_STRING, NULL },
     FI_SUBTREE(&hf_rdp_clientTimeZone, 172, ett_rdp_clientTimeZone, tz_info_fields),
     {&hf_rdp_clientSessionId,    4, NULL, 0, 0, NULL },
     {&hf_rdp_performanceFlags,   4, NULL, 0, 0, NULL },
@@ -1571,7 +1615,6 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree      *next_tree;
   guint16          type;
   guint            length;
-  conversation_t  *conversation;
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t header_fields[] = {
@@ -1590,7 +1633,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {&hf_rdp_SASSequence,            2, NULL, 0, 0, NULL },
     {&hf_rdp_keyboardLayout,         4, NULL, 0, 0, NULL },
     {&hf_rdp_clientBuild,            4, NULL, 0, 0, NULL },
-    {&hf_rdp_clientName,            32, NULL, 0, RDP_FI_UNICODE, NULL },
+    {&hf_rdp_clientName,            32, NULL, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL },
     {&hf_rdp_keyboardType,           4, NULL, 0, 0, NULL },
     {&hf_rdp_keyboardSubType,        4, NULL, 0, 0, NULL },
     {&hf_rdp_keyboardFunctionKey,    4, NULL, 0, 0, NULL },
@@ -1606,7 +1649,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {&hf_rdp_highColorDepth,         2, NULL, 0, 0, NULL },
     {&hf_rdp_supportedColorDepths,   2, NULL, 0, 0, NULL },
     {&hf_rdp_earlyCapabilityFlags,   2, NULL, 0, 0, NULL },
-    {&hf_rdp_clientDigProductId,    64, NULL, 0, RDP_FI_UNICODE, NULL},
+    {&hf_rdp_clientDigProductId,    64, NULL, 0, RDP_FI_STRING|RDP_FI_UNICODE, NULL }, /* XXX - is this always a string?  MS-RDPBCGR doesn't say so */
     {&hf_rdp_connectionType,         1, NULL, 0, 0, NULL },
     {&hf_rdp_pad1octet,              1, NULL, 0, 0, NULL },
     {&hf_rdp_serverSelectedProtocol, 4, NULL, 0, 0, NULL },
@@ -1629,20 +1672,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   tree = dissect_rdp(tvb, pinfo, tree);
 
-  conversation = find_or_create_conversation(pinfo);
-
-  rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
-
-  if (rdp_info == NULL) {
-    rdp_info = wmem_new0(wmem_file_scope(), rdp_conv_info_t);
-    rdp_info->staticChannelId  = -1;
-    rdp_info->encryptionMethod = 0;
-    rdp_info->encryptionLevel  = 0;
-    rdp_info->licenseAgreed    = 0;
-    rdp_info->maxChannels      = 0;
-
-    conversation_add_proto_data(conversation, proto_rdp, rdp_info);
-  }
+  rdp_info = rdp_get_conversation_data(pinfo);
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
 
@@ -1713,7 +1743,6 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint32          channelCount     = 0;
   guint32          channelId        = 0;
   guint            i;
-  conversation_t  *conversation;
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t header_fields[] = {
@@ -1775,20 +1804,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   tree   = dissect_rdp(tvb, pinfo, tree);
 
-  conversation = find_or_create_conversation(pinfo);
-
-  rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
-
-  if (rdp_info == NULL) {
-    rdp_info = wmem_new0(wmem_file_scope(), rdp_conv_info_t);
-    rdp_info->staticChannelId  = -1;
-    rdp_info->encryptionMethod = 0;
-    rdp_info->encryptionLevel  = 0;
-    rdp_info->licenseAgreed    = 0;
-    rdp_info->maxChannels      = 0;
-
-    conversation_add_proto_data(conversation, proto_rdp, rdp_info);
-  }
+  rdp_info = rdp_get_conversation_data(pinfo);
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ServerData");
 
@@ -1986,7 +2002,7 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_clientName,
       { "clientName", "rdp.client.name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0, /* supposed to be null-terminated */
         NULL, HFILL }},
     { &hf_rdp_keyboardType,
       { "keyboardType", "rdp.keyboard.type",
@@ -2030,7 +2046,7 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_clientDigProductId,
       { "clientDigProductId", "rdp.client.digProductId",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0, /* XXX - is this always a string?  MS-RDPBCGR doesn't say so */
         NULL, HFILL }},
     { &hf_rdp_connectionType,
       { "connectionType", "rdp.connectionType",
@@ -2210,23 +2226,23 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_domain,
       { "domain", "rdp.domain",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_userName,
       { "userName", "rdp.userName",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_password,
       { "password", "rdp.password",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_alternateShell,
       { "alternateShell", "rdp.alternateShell",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_workingDir,
       { "workingDir", "rdp.workingDir",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_clientAddressFamily,
       { "clientAddressFamily", "rdp.client.addressFamily",
@@ -2234,11 +2250,11 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_clientAddress,
       { "clientAddress", "rdp.client.address",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_clientDir,
       { "clientDir", "rdp.client.dir",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,  /* null-terminated, count includes terminator */
         NULL, HFILL }},
     { &hf_rdp_clientTimeZone,
       { "clientTimeZone", "rdp.client.timeZone",
@@ -2692,7 +2708,7 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_StandardName,
       { "StandardName", "rdp.Name.Standard",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,      /* zero-padded, not null-terminated */
         NULL, HFILL }},
     { &hf_rdp_StandardDate,
       { "StandardDate", "rdp.Date.Standard",
@@ -2700,7 +2716,7 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_DaylightName,
       { "DaylightName", "rdp.Name.Daylight",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRINGZ, BASE_NONE, NULL, 0,      /* zero-padded, not null-terminated */
         NULL, HFILL }},
     { &hf_rdp_DaylightDate,
       { "DaylightDate", "rdp.Date.Daylight",
