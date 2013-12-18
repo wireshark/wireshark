@@ -841,7 +841,7 @@ const value_string ansi_tsb58_encoding_vals[] = {
 /*
  * 9.2 Language Indicator Value Assignments
  */
-static const value_string ansi_tsb58_language_ind_vals[] = {
+const value_string ansi_tsb58_language_ind_vals[] = {
     { 0x0000,   "Unknown or unspecified" },
     { 0x0001,   "English" },
     { 0x0002,   "French" },
