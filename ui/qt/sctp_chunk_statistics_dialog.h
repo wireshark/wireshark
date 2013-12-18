@@ -42,7 +42,6 @@
 
 #include <QTableWidgetItem>
 #include <QDialog>
-#include <QtGui>
 #include <QMenu>
 #include <QContextMenuEvent>
 
@@ -63,7 +62,7 @@ public slots:
 
 private slots:
   //  void on_sectionClicked(int row);
-    void on_sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
+ //   void on_sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
     void on_pushButton_clicked();
     void on_actionHideChunkType_triggered();
     void on_actionChunkTypePreferences_triggered();
@@ -73,7 +72,7 @@ private slots:
 
 signals:
    // void sectionClicked(int);
-    void sectionMoved(int, int, int);
+  //  void sectionMoved(int, int, int);
 
 private:
     Ui::SCTPChunkStatisticsDialog *ui;

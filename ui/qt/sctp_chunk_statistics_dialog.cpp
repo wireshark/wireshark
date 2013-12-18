@@ -35,7 +35,6 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
     cap_file_(cf)
 {
     ui->setupUi(this);
-    printf("selected_assoc id=%d\n", selected_assoc->assoc_id);
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
     ui->tableWidget->verticalHeader()->setClickable(true);
     ui->tableWidget->verticalHeader()->setMovable(true);
@@ -55,8 +54,7 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
 #endif
 
     this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
-   // connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(on_sectionClicked(int)));
-    connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(on_sectionMoved(int, int, int)));
+ //   connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(on_sectionMoved(int, int, int)));
 
     ctx_menu_.addAction(ui->actionHideChunkType);
     ctx_menu_.addAction(ui->actionChunkTypePreferences);
@@ -100,7 +98,6 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
     bool init = false;
 
     if (!fname ) {
-        printf("no filename\n");
         init = true;
     } else {
         fp = ws_fopen(fname,"r");
@@ -113,7 +110,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
 
     if (init || all) {
         int j = 0;
-        printf("init set\n");
+
         for (int i = 0; i < chunks.size(); i++) {
             if (!chunks.value(i).hide) {
                 ui->tableWidget->setRowCount(ui->tableWidget->rowCount()+1);
@@ -142,8 +139,9 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
         int i = 0, j = 0;
         struct chunkTypes temp;
 
-//        fgets(line, cap, fp);
         while (fgets(line, cap, fp)) {
+            if (line[0] == '#')
+                continue;
             token = strtok(line, ",");
             /* Get rid of the quotation marks */
             QString ch = QString(token).mid(1, (int)strlen(token)-2);
@@ -194,13 +192,8 @@ void SCTPChunkStatisticsDialog::contextMenuEvent( QContextMenuEvent * event)
     selected_point = event->pos();
     QTableWidgetItem *item = ui->tableWidget->itemAt(selected_point.x(), selected_point.y()-60);
     if (item) {
-        printf("clicked on row %d\n", item->row());
-        printf("Inhalt von %d: %s\n", item->row(), ui->tableWidget->verticalHeaderItem(item->row())->text().toUtf8().constData());
         ctx_menu_.exec(event->globalPos());
     }
-    else
-        printf("nichts da\n");
-
 }
 
 
@@ -216,7 +209,6 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     gchar* fname = uat_get_actual_filename(uat,TRUE);
 
     if (!fname ) {
-        printf("no filename\n");
         return;
     }
     fp = ws_fopen(fname,"w");
@@ -224,7 +216,6 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     if (!fp && errno == ENOENT) {
         gchar *pf_dir_path = NULL;
         if (create_persconffile_dir(&pf_dir_path) != 0) {
-            printf("on_pushButton_clicked: error creating '%s'", pf_dir_path);
             g_free (pf_dir_path);
             return;
         }
@@ -232,7 +223,6 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     }
 
     if (!fp) {
-        printf("on_pushButton_clicked: error opening '%s': %s",fname,g_strerror(errno));
         return;
     }
 
@@ -255,10 +245,9 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     fclose(fp);
 }
 
-void SCTPChunkStatisticsDialog::on_sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex)
+/*void SCTPChunkStatisticsDialog::on_sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex)
 {
-    printf("logicalIndex=%d, oldVisualIndex=%d, newVisualIndex=%d\n", logicalIndex, oldVisualIndex, newVisualIndex);
-}
+}*/
 
 void SCTPChunkStatisticsDialog::on_actionHideChunkType_triggered()
 {
@@ -310,7 +299,6 @@ void SCTPChunkStatisticsDialog::on_actionShowAllChunkTypes_triggered()
     ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(QString(tr("Association"))));
     ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(QString(tr("Endpoint 1"))));
     ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(QString(tr("Endpoint 2"))));
-    printf ("on_actionShowAllChunkTypes_triggered: assoc=%d\n", selected_assoc->assoc_id);
     initializeChunkMap();
     fillTable(true);
 }
