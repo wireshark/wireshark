@@ -41,7 +41,7 @@ static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CallLists_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = n; /* Avoid unreferenced warning */
+    (void) n; /* Avoid unreferenced warning, similar to Q_UNUSED */
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, (length - 8) / 1, byte_order);
 }
 
