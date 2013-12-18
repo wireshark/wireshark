@@ -694,8 +694,8 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
   proto_item *param_item;
   proto_tree *param_tree;
   gint        offset;
-  guint       dcs;
-  guint       dcs_cg;           /* coding group */
+  guint32     dcs;
+  guint32     dcs_cg;           /* coding group */
 
   param_item = proto_tree_add_text(tree, tvb,
     startOffset + 1, endOffset - (startOffset + 1),
@@ -707,7 +707,7 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
     startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
 
   offset = startOffset + 1 + CIMD_PC_LENGTH + 1;
-  dcs    = strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset, endOffset - offset), NULL, 10);
+  dcs    = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset, endOffset - offset), NULL, 10);
   proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, offset, endOffset - offset, dcs);
 
   dcs_cg = (dcs & 0xF0) >> 4;
@@ -748,7 +748,7 @@ static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pinde
     /* Same routine can be used to dissect CIMD Error,Status and Status Error Codes */
     proto_item *param_item;
     proto_tree *param_tree;
-    guint err_code;
+    guint32 err_code;
 
     param_item = proto_tree_add_text(tree, tvb, startOffset + 1, endOffset - (startOffset + 1),
                                      "%s", cimd_vals_PC[pindex].strptr);
@@ -756,7 +756,7 @@ static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pinde
 
     proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb, startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
 
-    err_code = strtoul(tvb_get_string(wmem_packet_scope(), tvb, 
+    err_code = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb,
                                        startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1)), 
                                        NULL, 10);
     proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), err_code);
@@ -765,7 +765,7 @@ static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pinde
 static void
 dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 checksum, guint8 last1,guint8 OC, guint8 PN)
 {
-  guint       PC        = 0;    /* Parameter code */
+  guint32     PC        = 0;    /* Parameter code */
   gint        idx;
   gint        offset    = 0;
   gint        endOffset = 0;
@@ -785,7 +785,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
     if (endOffset == -1)
       break;
 
-    PC = strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset + 1, CIMD_PC_LENGTH), NULL, 10);
+    PC = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset + 1, CIMD_PC_LENGTH), NULL, 10);
     try_val_to_str_idx(PC, cimd_vals_PC, &idx);
     if (idx != -1 && tree)
     {
