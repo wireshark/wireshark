@@ -1312,7 +1312,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   proto_item * it= NULL;
   proto_tree * homeplug_tree= NULL;
-  ptvcursor_t * cursor= NULL;
+  ptvcursor_t * cursor;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug");
   /* Clear out stuff in the info column */
@@ -1323,8 +1323,9 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree) {
     it = proto_tree_add_item(tree, proto_homeplug, tvb, homeplug_offset, -1, ENC_NA);
     homeplug_tree = proto_item_add_subtree(it, ett_homeplug);
-    cursor = ptvcursor_new(homeplug_tree, tvb, 0);
   }
+
+  cursor = ptvcursor_new(homeplug_tree, tvb, 0);
 
   /*  We do not have enough data to read mctrl field stop the dissection */
   if (check_tvb_length(cursor, HOMEPLUG_MCTRL_LEN) != TVB_LEN_SHORTEST) {
