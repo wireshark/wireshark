@@ -1019,7 +1019,7 @@ guint32 value)
     if (value > (((guint32)G_MAXINT + 1) / 1000)) {
         return 0;
     } else {
-    return value;
+        return value;
     }
   case(SIZE_UNIT_MEGABYTES):
     if (value > (((guint32)G_MAXINT + 1) / (1000 * 1000))) {
@@ -3257,13 +3257,11 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
   GtkTreeIter        iter;
   GtkTreeView       *if_cb;
   GtkTreeModel      *model;
-  gboolean           enabled = FALSE, set;
+  gboolean           enabled = FALSE;
   interface_t        device;
   interface_options  interface_opts;
   guint              i;
 
-  set = gtk_toggle_button_get_active(button);
-  gtk_toggle_button_set_active(button, (set?FALSE:TRUE));
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
 
@@ -4489,7 +4487,9 @@ update_properties_all(void)
   /* If all selected interfaces are in promiscuous mode, check the global
      "promiscuous mode" checkbox, otherwise un-check it. */
   promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
+  g_signal_handler_block(promisc_b, promisc_all_handler_id);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), promisc_all);
+  g_signal_handler_unblock(promisc_b, promisc_all_handler_id);
 
   /* If all selected interfaces have the same filter string, set the
      global filter string to it. */
@@ -5315,7 +5315,7 @@ fprintf(stderr, "Adding the default filter \"%s\"???\n", global_capture_opts.def
 
   window_get_geometry(top_level, &tl_geom);
   gtk_window_set_default_size(GTK_WINDOW(cap_open_w), tl_geom.width * 8 / 10, -1);
-  
+
   gtk_widget_show_all(cap_open_w);
   window_present(cap_open_w);
 
@@ -5356,7 +5356,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     success = capture_dlg_prep(cap_open_w);
     if (success)
-    window_destroy(GTK_WIDGET(cap_open_w));
+      window_destroy(GTK_WIDGET(cap_open_w));
     if (!success)
       return;   /* error in options dialog */
   }
@@ -5712,7 +5712,7 @@ create_and_fill_model(GtkTreeView *view)
         device.snaplen = WTAP_MAX_PACKET_SIZE;
         device.has_snaplen = FALSE;
       }
-      
+
       if (device.has_snaplen) {
         snaplen_string = g_strdup_printf("%d", device.snaplen);
       } else {
@@ -5725,7 +5725,7 @@ create_and_fill_model(GtkTreeView *view)
         device.buffer = buffer;
       } else {
         device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
-      } 
+      }
 #endif
       global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
       g_array_insert_val(global_capture_opts.all_ifaces, i, device);
