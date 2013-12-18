@@ -35,6 +35,7 @@
 /* WSLUA_MODULE Tvb Functions for handling packet data */
 
 #include "wslua.h"
+#include "epan/base64.h"
 
 WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("null bytearray"),NOP);
 
@@ -249,6 +250,33 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
     WSLUA_RETURN(1); /* A ByteArray contaning the requested segment. */
 }
 
+static int ByteArray_base64_decode(lua_State* L) {
+	/* Obtain a base64 decoded ByteArray */
+    ByteArray ba = checkByteArray(L,1);
+    ByteArray ba2;
+    gchar *data;
+    size_t len;
+
+    if (!ba) return 0;
+
+    if (!lua_tvb) {
+        luaL_error(L,"Tvbs can only be created and used in dissectors");
+        return 0;
+    }
+
+    ba2 = g_byte_array_new();
+    data = g_malloc (ba->len + 1);
+    memcpy(data, ba->data, ba->len);
+    data[ba->len] = '\0';
+    
+    len = epan_base64_decode(data);
+    g_byte_array_append(ba2,data,(int)len);
+    g_free(data);
+
+    pushByteArray(L,ba2);
+    WSLUA_RETURN(1); /* The created ByteArray. */
+}
+
 static int ByteArray_tostring(lua_State* L) {
 	/* Obtain a string containing the bytes in a ByteArray so that it can be used in display filters (e.g. "01:23:45:67:89:AB") */
     static const char byte_to_str[][3] = {
@@ -297,6 +325,7 @@ static const luaL_Reg ByteArray_methods[] = {
     {"subset", ByteArray_subset},
     {"set_size", ByteArray_set_size},
     {"tvb", ByteArray_tvb},
+    {"base64_decode", ByteArray_base64_decode},
     {"get_index", ByteArray_get_index},
     {"set_index", ByteArray_set_index},
     { NULL, NULL }
@@ -1301,7 +1330,7 @@ static int TvbRange_uncompress(lua_State* L) {
 	/* Obtain a uncompressed TvbRange from a TvbRange */
 #define WSLUA_ARG_TvbRange_tvb_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
-    const gchar* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Uncompressed");
+    const gchar* name = luaL_optstring(L,WSLUA_ARG_TvbRange_tvb_NAME,"Uncompressed");
     tvbuff_t *uncompr_tvb;
 
     if (!(tvbr && tvbr->tvb)) return 0;
