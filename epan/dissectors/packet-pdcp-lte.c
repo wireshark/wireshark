@@ -145,8 +145,13 @@ static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
 /* UAT entry structure. */
 typedef struct {
    guint16 ueid;
-   gchar   *rrcKey;
-   gchar   *upKey;
+   gchar   *rrcKeyString;
+   gchar   *upKeyString;
+
+   guint8   rrcBinaryKey[16];
+   gboolean rrcKeyOK;
+   guint8   upBinaryKey[16];
+   gboolean upKeyOK;
 } uat_ue_keys_record_t;
 
 static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
@@ -154,31 +159,77 @@ static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
 static uat_t * ue_keys_uat = NULL;
 static guint num_ue_keys_uat = 0;
 
+/* TODO: do this better, being tolerant of spaces and dashes... */
+static guchar hex_ascii_to_binary(gchar c)
+{
+    if ((c >= '0') && (c <= '9')) {
+        return c - '0';
+    }
+    else if ((c >= 'a') && (c <= 'f')) {
+        return 10 + c - 'a';
+    }
+    else if ((c >= 'A') && (c <= 'F')) {
+        return 10 + c - 'A';
+    }
+    else
+        return 0;
+}
+
+
 static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_ue_keys_record_t* new_rec = (uat_ue_keys_record_t *)n;
     const uat_ue_keys_record_t* old_rec = (const uat_ue_keys_record_t *)o;
 
     new_rec->ueid = old_rec->ueid;
-    new_rec->rrcKey = (old_rec->rrcKey) ? g_strdup(old_rec->rrcKey) : NULL;
-    new_rec->upKey = (old_rec->upKey) ? g_strdup(old_rec->upKey) : NULL;
+    new_rec->rrcKeyString = (old_rec->rrcKeyString) ? g_strdup(old_rec->rrcKeyString) : NULL;
+    new_rec->upKeyString = (old_rec->upKeyString) ? g_strdup(old_rec->upKeyString) : NULL;
 
     return new_rec;
 }
 
+static void uat_ue_keys_record_update_cb(void* record, const char** error) {
+    uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
+    int n;
+
+    /* Check and convert RRC key */
+    if (strlen(rec->rrcKeyString) != 32) {
+        rec->rrcKeyOK = FALSE;
+    }
+    else {
+        for (n=0; n < 32; n += 2) {
+            rec->rrcBinaryKey[n/2] = (hex_ascii_to_binary(rec->rrcKeyString[n]) << 4) +
+                                      hex_ascii_to_binary(rec->rrcKeyString[n+1]);
+        }
+        rec->rrcKeyOK = TRUE;
+    }
+
+    /* Check and convert User-plane key */
+    if (strlen(rec->upKeyString) != 32) {
+        rec->rrcKeyOK = FALSE;
+    }
+    else {
+        for (n=0; n < 32; n += 2) {
+            rec->upBinaryKey[n/2] = (hex_ascii_to_binary(rec->upKeyString[n]) << 4) +
+                                     hex_ascii_to_binary(rec->upKeyString[n+1]);
+        }
+        rec->upKeyOK = TRUE;
+    }
+}
+
+
 static void uat_ue_keys_record_free_cb(void*r) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t*)r;
 
-    g_free(rec->rrcKey);
-    g_free(rec->upKey);
+    g_free(rec->rrcKeyString);
+    g_free(rec->upKeyString);
 }
 
 UAT_DEC_CB_DEF(uat_ue_keys_records, ueid, uat_ue_keys_record_t)
-UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcKey, uat_ue_keys_record_t)
-UAT_CSTRING_CB_DEF(uat_ue_keys_records, upKey,  uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcKeyString, uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, upKeyString,  uat_ue_keys_record_t)
 
 static gboolean global_pdcp_decipher_signalling = FALSE;
 static gboolean global_pdcp_decipher_userplane = FALSE;
-
 #endif
 
 static const value_string direction_vals[] =
@@ -424,7 +475,7 @@ typedef struct pdu_security_settings_t
 {
     gboolean valid;
     enum security_ciphering_algorithm_e ciphering;
-    const gchar *key;
+    guint8* key;
     guint32 count;
     guint8  bearer;
     guint8  direction;
@@ -539,22 +590,29 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
                     if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
                         if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
-                            key = uat_ue_keys_records[record_id].rrcKey;
+                            if (uat_ue_keys_records[record_id].rrcKeyOK) {
+                                key = uat_ue_keys_records[record_id].rrcKeyString;
+                                pdu_security->key = &(uat_ue_keys_records[record_id].rrcBinaryKey[0]);
+                                pdu_security->valid = TRUE;
+                            }
                         }
                         else {
-                            key = uat_ue_keys_records[record_id].upKey;
+                            if (uat_ue_keys_records[record_id].upKeyOK) {
+                                key = uat_ue_keys_records[record_id].upKeyString;
+                                pdu_security->key = &(uat_ue_keys_records[record_id].upBinaryKey[0]);
+                                pdu_security->valid = TRUE;
+                            }
                         }
 
                         if (key != NULL) {
                             ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_key,
                                                        tvb, 0, 0, key);
                             PROTO_ITEM_SET_GENERATED(ti);
-                            pdu_security->key = key;
                         }
+                        break;
                     }
                 }
 #endif
-
                 pdu_security->direction = p_pdcp_lte_info->direction;
             }
             break;
@@ -1193,31 +1251,13 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
 }
 
 #if HAVE_LIBGCRYPT
-/* TODO: do this better, and only once when UAT updated! */
-static guchar hex_ascii_to_binary(gchar c)
-{
-    if ((c >= '0') && (c <= '9')) {
-        return c - '0';
-    }
-    else if ((c >= 'a') && (c <= 'f')) {
-        return 10 + c - 'a';
-    }
-    else if ((c >= 'A') && (c <= 'F')) {
-        return 10 + c - 'A';
-    }
-    else
-        return 0;
-}
-
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset,
                                   pdu_security_settings_t *pdu_security_settings,
                                   enum pdcp_plane plane, gboolean *deciphered)
 {
     const char *k = pdu_security_settings->key;
-    guint8 key[16];
     unsigned char ctr_block[16];
-    int n;
     gcry_cipher_hd_t cypher_hd;
     int gcrypt_err;
     guint8* encrypted_data;
@@ -1237,19 +1277,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
     /* Don't decipher if turned off in preferences */
     if (((plane == SIGNALING_PLANE) &&  !global_pdcp_decipher_signalling) ||
-        ((plane == USER_PLANE) && !global_pdcp_decipher_userplane)) {
+        ((plane == USER_PLANE) &&       !global_pdcp_decipher_userplane)) {
         return tvb;
-    }
-
-    /* Key must be present and 16 bytes long */
-    if (strlen(k) != 32) {
-        return tvb;
-    }
-
-    /* And must be able to convert string into binary key */
-    /* TODO: should do this only once per key!!! */
-    for (n=0; n < 32; n += 2) {
-        key[n/2] = (hex_ascii_to_binary(k[n]) << 4) + hex_ascii_to_binary(k[n+1]);
     }
 
     /* Set CTR */
@@ -1268,7 +1297,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     }
 
     /* Set the key */
-    gcrypt_err = gcry_cipher_setkey(cypher_hd, key, 16);
+    gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->key, 16);
     if (gcrypt_err != 0) {
         return tvb;
     }
@@ -1340,8 +1369,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Initialise security settings */
     pdu_security_settings.valid = FALSE;
-    pdu_security_settings.key = "";
-
 
     /* Set protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -1433,7 +1460,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),
                                val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
 
-        pdu_security_settings.valid = TRUE;
         pdu_security_settings.ciphering = pdu_security->ciphering;
     }
 
@@ -2161,8 +2187,8 @@ void proto_register_pdcp(void)
 #ifdef HAVE_LIBGCRYPT
   static uat_field_t ue_keys_uat_flds[] = {
       UAT_FLD_DEC(uat_ue_keys_records, ueid, "UEId", "UE Identifier of UE associated with keys"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, rrcKey, "RRC Key",        "Key for deciphering signalling messages"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, upKey,  "User-Plane Key", "Key for deciphering user-plane messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, rrcKeyString, "RRC Key",        "Key for deciphering signalling messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, upKeyString,  "User-Plane Key", "Key for deciphering user-plane messages"),
       UAT_END_FIELDS
     };
 #endif
@@ -2231,7 +2257,7 @@ void proto_register_pdcp(void)
               UAT_AFFECTS_DISSECTION,          /* affects dissection of packets, but not set of named fields */
               NULL,                            /* help */
               uat_ue_keys_record_copy_cb,      /* copy callback */
-              NULL,                            /* update callback */
+              uat_ue_keys_record_update_cb,    /* update callback */
               uat_ue_keys_record_free_cb,      /* free callback */
               NULL,                            /* post update callback */
               ue_keys_uat_flds);               /* UAT field definitions */
