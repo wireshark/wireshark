@@ -51,6 +51,7 @@ extern const gunichar2 charset_table_cp1250[0x80];
 /* Tables for ISO-8859-X */
 extern const gunichar2 charset_table_iso_8859_2[0x80];
 extern const gunichar2 charset_table_iso_8859_5[0x80];
+extern const gunichar2 charset_table_iso_8859_9[0x80];
 
 #ifdef __cplusplus
 }

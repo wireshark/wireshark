@@ -288,6 +288,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_ISO_8859_1		0x0000000C
 #define ENC_ISO_8859_2		0x0000000E
 #define ENC_ISO_8859_5		0x00000014
+#define ENC_ISO_8859_9		0x0000001C
 
 /*
  * TODO:
