@@ -256,7 +256,7 @@ create_address_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   offset += 16;
 
   /* port */
-  proto_tree_add_item(tree, hf_address_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_address_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   return tree;
 }
