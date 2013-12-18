@@ -93,7 +93,7 @@
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
-      <string>Schließen</string>
+      <string>Close</string>
      </property>
     </widget>
     <widget class="QWidget" name="gridLayoutWidget_3">
@@ -337,7 +337,7 @@
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
-      <string>Schließen</string>
+      <string>Close</string>
      </property>
     </widget>
     <widget class="QListWidget" name="listWidgetEP1">
@@ -522,7 +522,7 @@
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
-      <string>Schließen</string>
+      <string>Close</string>
      </property>
     </widget>
     <widget class="QListWidget" name="listWidgetEP2">
