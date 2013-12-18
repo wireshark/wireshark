@@ -1192,6 +1192,7 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
     g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), p_security);
 }
 
+#if HAVE_LIBGCRYPT
 /* TODO: do this better, and only once when UAT updated! */
 static guchar hex_ascii_to_binary(gchar c)
 {
@@ -1208,10 +1209,10 @@ static guchar hex_ascii_to_binary(gchar c)
         return 0;
 }
 
-#if HAVE_LIBGCRYPT
 /* Decipher payload if algorithm is supported and plausible inputs are available */
-static tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset, pdu_security_settings_t *pdu_security_settings,
-                           enum pdcp_plane plane, gboolean *deciphered)
+static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+                                  pdu_security_settings_t *pdu_security_settings,
+                                  enum pdcp_plane plane, gboolean *deciphered)
 {
     const char *k = pdu_security_settings->key;
     guint8 key[16];
@@ -1308,8 +1309,9 @@ static tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     return decrypted_tvb;
 }
 #else
-tvbuff_t* decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset _U_, pdu_security_settings_t *pdu_security_settings _U_,
-                           gboolean *deciphered _U_)
+static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset _U_,
+                                  pdu_security_settings_t *pdu_security_settings _U_,
+                                  enum pdcp_plane plane _U_, gboolean *deciphered _U_)
 {
     return tvb;
 }
