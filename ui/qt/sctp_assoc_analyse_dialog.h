@@ -55,6 +55,7 @@ public:
     ~SCTPAssocAnalyseDialog();
 
     void fillTabs();
+    static sctp_assoc_info_t* findAssocForPacket(capture_file* cf);
 
 public slots:
     void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
@@ -76,7 +77,6 @@ private:
     sctp_assoc_info_t     *selected_assoc;
     capture_file *cap_file_;
     SCTPAllAssocsDialog *caller_;
-    void findAssocForPacket();
     void openGraphDialog(int direction);
     void openGraphByteDialog(int direction);
     void openGraphArwndDialog(int direction);

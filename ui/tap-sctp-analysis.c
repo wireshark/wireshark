@@ -545,7 +545,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						store->type = AT_IPv4;
 						store->len  = 4;
 						store->data = g_malloc(4);
-						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
+						tvb_memcpy(sctp_info->tvb[chunk_number], (void *)store->data,IPV4_ADDRESS_OFFSET, 4);
 						info = add_address(store, info, 1);
 					}
 					else if (type == IPV6ADDRESS_PARAMETER_ID)

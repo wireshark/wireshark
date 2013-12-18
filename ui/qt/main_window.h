@@ -329,6 +329,7 @@ private slots:
     void openSCTPAllAssocsDialog();
     void on_actionSCTPShowAllAssociations_triggered();
     void on_actionSCTPAnalyseThisAssociation_triggered();
+    void on_actionSCTPFilterThisAssociation_triggered();
 
 #ifdef HAVE_LIBPCAP
     void on_actionCaptureInterfaces_triggered();

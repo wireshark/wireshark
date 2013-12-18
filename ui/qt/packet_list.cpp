@@ -263,7 +263,7 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPChunkCounter"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
     filter_actions_ << submenu->actions();
     ctx_menu_.addSeparator();
 //    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"

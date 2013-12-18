@@ -69,9 +69,9 @@ void SCTPAllAssocsDialog::fillTable()
     sctp_assocs = (sctp_allassocs_info_t*)sctp_stat_get_info();
     if (sctp_stat_get_info()->is_registered == FALSE) {
         register_tap_listener_sctp_stat();
+        /*  (redissect all packets) */
+        cf_retap_packets(cap_file_);
     }
-    /*  (redissect all packets) */
-    cf_retap_packets(cap_file_);
     numAssocs = 0;
     ui->assocList->setRowCount(g_list_length(sctp_assocs->assoc_info_list));
 

@@ -1522,6 +1522,14 @@
     <string>Change the way packets are dissected</string>
    </property>
   </action>
+  <action name="actionSCTPFilterThisAssociation">
+   <property name="text">
+    <string>Filter this Association</string>
+   </property>
+   <property name="toolTip">
+    <string>Filter this Association</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

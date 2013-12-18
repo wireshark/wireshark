@@ -928,6 +928,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->menuSCTP->setEnabled(is_sctp);
     main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
+    main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
 
 //    while (list_entry != NULL) {
 //        dissector_filter_t *filter_entry;
@@ -1794,6 +1795,17 @@ void MainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
     sctp_analyse->raise();
     sctp_analyse->activateWindow();
 }
+
+void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
+{
+    sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(cap_file_);
+    if (assoc) {
+        QString newFilter = QString("sctp.assoc_index==%1").arg(assoc->assoc_id);
+        assoc = NULL;
+        emit filterPackets(newFilter, false);
+    }
+}
+
 
 // Next / previous / first / last slots in packet_list
 

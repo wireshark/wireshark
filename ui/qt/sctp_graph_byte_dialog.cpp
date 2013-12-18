@@ -25,6 +25,7 @@
 #include "ui_sctp_graph_byte_dialog.h"
 
 #include "sctp_graph_dialog.h"
+#include "sctp_assoc_analyse_dialog.h"
 
 SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, int dir) :
     QDialog(parent),
@@ -34,6 +35,9 @@ SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, sctp_assoc_info_t *ass
     direction(dir)
 {
     ui->setupUi(this);
+    if (!selected_assoc) {
+        selected_assoc = SCTPAssocAnalyseDialog::findAssocForPacket(cap_file_);
+    }
     this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
     if ((direction == 1 && selected_assoc->n_array_tsn1 == 0) || (direction == 2 && selected_assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;

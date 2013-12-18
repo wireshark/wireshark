@@ -44,7 +44,7 @@ SCTPAssocAnalyseDialog::SCTPAssocAnalyseDialog(QWidget *parent, sctp_assoc_info_
         }
         /*  (redissect all packets) */
         cf_retap_packets(cap_file_);
-        findAssocForPacket();
+        selected_assoc = findAssocForPacket(cap_file_);
     }
     this->setWindowTitle(QString(tr("SCTP Analyse Association: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
     fillTabs();
@@ -55,14 +55,19 @@ SCTPAssocAnalyseDialog::~SCTPAssocAnalyseDialog()
     delete ui;
 }
 
-void SCTPAssocAnalyseDialog::findAssocForPacket()
+sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file* cf)
 {
     frame_data     *fdata;
     GList          *list, *framelist;
     sctp_assoc_info_t *assoc;
     bool           frame_found = false;
 
-    fdata = cap_file_->current_frame;
+    fdata = cf->current_frame;
+    if (sctp_stat_get_info()->is_registered == FALSE) {
+        register_tap_listener_sctp_stat();
+        /*  (redissect all packets) */
+        cf_retap_packets(cf);
+    }
     list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
     while (list) {
@@ -79,8 +84,7 @@ void SCTPAssocAnalyseDialog::findAssocForPacket()
             framelist = g_list_next(framelist);
         }
         if (frame_found) {
-            selected_assoc = assoc;
-            return;
+            return assoc;
         } else {
             list = g_list_next(list);
         }
@@ -91,6 +95,7 @@ void SCTPAssocAnalyseDialog::findAssocForPacket()
         msgBox.setText(tr("No Association found for this packet."));
         msgBox.exec();
     }
+    return NULL;
 }
 
 void SCTPAssocAnalyseDialog::fillTabs()
@@ -244,7 +249,7 @@ void SCTPAssocAnalyseDialog::on_chunkStatisticsButton_clicked()
     if (caller_ && !selected_assoc) {
         selected_assoc = caller_->findSelectedAssoc();
     } else if (!caller_ && !selected_assoc) {
-        findAssocForPacket();
+        selected_assoc = findAssocForPacket(cap_file_);
     }
     SCTPChunkStatisticsDialog *sctp_dialog = new SCTPChunkStatisticsDialog(this, selected_assoc, cap_file_);
 
