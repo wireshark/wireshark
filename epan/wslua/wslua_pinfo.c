@@ -709,6 +709,16 @@ WSLUA_METHOD Column_fence(lua_State *L) {
     return 0;
 }  
 
+WSLUA_METHOD Column_clear_fence(lua_State *L) {
+        /* Clear Column text fence */
+    Column c = checkColumn(L,1);
+
+    if (c && c->cinfo)
+        col_clear_fence(c->cinfo, c->col);
+
+    return 0;
+}  
+
 
 WSLUA_METHODS Column_methods[] = {
     WSLUA_CLASS_FNREG(Column,clear),
@@ -717,6 +727,7 @@ WSLUA_METHODS Column_methods[] = {
     WSLUA_CLASS_FNREG(Column,prepend),
     WSLUA_CLASS_FNREG_ALIAS(Column,preppend,prepend),
     WSLUA_CLASS_FNREG(Column,fence),
+    WSLUA_CLASS_FNREG(Column,clear_fence),
     {0,0}
 };
 
