@@ -543,7 +543,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             }
 
             /* May also be able to add key inputs to security tree here */
-            if (security_tree != NULL) {
+            if (pdu_security->ciphering != eea0) {
                 guint32              hfn_multiplier;
                 guint32              count;
 #if HAVE_LIBGCRYPT
@@ -1323,7 +1323,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
     }
 
-    /* TODO: close gcry handle!!! */
+    /* Close gcrypt handle */
+    gcry_cipher_close(cypher_hd);
 
     /* Create tvb for resulting deciphered sdu */
     decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, payload_length, payload_length);
