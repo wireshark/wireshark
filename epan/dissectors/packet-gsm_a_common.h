@@ -59,14 +59,6 @@
 /* PROTOTYPES/FORWARDS */
 typedef guint16 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-#if 0
-/* XXX moved to tvbuff.h, clean up later */
-typedef struct dgt_set_t
-{
-    unsigned char out[15];
-}
-dgt_set_t;
-#endif
 int my_dgt_tbcd_unpack(
     char      *out,       /* ASCII pattern out */
     guchar    *in,        /* packed pattern in */

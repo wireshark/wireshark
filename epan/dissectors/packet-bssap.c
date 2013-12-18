@@ -620,7 +620,7 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
+     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#','?'
     }
 };
 #endif
@@ -628,7 +628,7 @@ static dgt_set_t Dgt_tbcd = {
 static dgt_set_t Dgt1_9_bcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
+     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
     }
 };
 /* Assumes the rest of the tvb contains the digits to be turned into a string

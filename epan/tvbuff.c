@@ -2738,8 +2738,8 @@ tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const g
  */
 static dgt_set_t Dgt1_9_bcd = {
 	{
-		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-		'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
+		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f*/
+		'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
 	}
 };
 const gchar *

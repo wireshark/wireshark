@@ -675,7 +675,7 @@ WS_DLL_PUBLIC gchar *tvb_bytes_to_str(tvbuff_t *tvb, const gint offset,
  */
 typedef struct dgt_set_t
 {
-    const unsigned char out[15];
+    const unsigned char out[16];
 }
 dgt_set_t;
 
