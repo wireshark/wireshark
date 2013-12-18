@@ -596,6 +596,7 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
                          char **type, char **parameters)
 {
   int first_colon;
+  int end_offset;
   int len;
   int i;
   proto_tree *ct_tree;
@@ -620,7 +621,12 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
       /* This string will be automatically freed */
       (*type) = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
     }
-    len = tvb_find_line_end(tvb, first_colon + 1, length, NULL, FALSE);
+    end_offset = imf_find_field_end (tvb, first_colon + 1, offset + length, NULL);
+    if (end_offset == -1) {
+       /* No end found */
+       return;
+    }
+    len = end_offset - (first_colon + 1) - 2;  /* Do not include the last CRLF */
     proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA);
     if(parameters) {
       /* This string will be automatically freed */
