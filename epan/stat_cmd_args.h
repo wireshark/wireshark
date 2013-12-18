@@ -28,10 +28,18 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 WS_DLL_PUBLIC void register_stat_cmd_arg(const char *cmd,
     void (*func)(const char *arg,void* userdata), void* userdata);
 WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
 WS_DLL_PUBLIC void list_stat_cmd_args(void);
 WS_DLL_PUBLIC void start_requested_stats(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
