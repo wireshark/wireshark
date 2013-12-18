@@ -32,7 +32,6 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
 
 #include "../stat_menu.h"

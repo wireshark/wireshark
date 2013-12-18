@@ -38,7 +38,6 @@
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcels.h"
 

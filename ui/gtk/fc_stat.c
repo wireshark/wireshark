@@ -33,7 +33,6 @@
 #include <epan/value_string.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
 
 #include "ui/simple_dialog.h"

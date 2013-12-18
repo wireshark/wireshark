@@ -27,7 +27,6 @@
 #define __PACKET_FC_H_
 
 #include <epan/conversation.h>
-#include "packet-scsi.h"
 #include "ws_symbol_export.h"
 
 /* R_CTL upper bits creates a classification tree */

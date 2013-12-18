@@ -32,7 +32,6 @@
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
-#include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcswils.h"
 #include "packet-fcct.h"
