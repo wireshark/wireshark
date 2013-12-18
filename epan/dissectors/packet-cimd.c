@@ -697,8 +697,6 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
   guint       dcs;
   guint       dcs_cg;           /* coding group */
 
-  gchar* bigbuf = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
-
   param_item = proto_tree_add_text(tree, tvb,
     startOffset + 1, endOffset - (startOffset + 1),
     "%s", cimd_vals_PC[pindex].strptr
