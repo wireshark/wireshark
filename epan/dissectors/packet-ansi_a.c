@@ -131,6 +131,48 @@ static const true_false_string tfs_reoi_pri_reorig_no_reorig =
     "Not reorigination"
 };
 
+static const true_false_string tfs_ansi_a_xmode_tfo_mode =
+{
+    "TFO",
+    "tandem"
+};
+
+static const true_false_string tfs_reserved_no_voice_privacy =
+{
+    "Reserved",
+    "No voice privacy supported"
+};
+
+static const true_false_string tfs_reserved_aes =
+{
+    "Reserved",
+    "Advanced Encryption Standard (AES)"
+};
+
+static const true_false_string tfs_reserved_private_long_code =
+{
+    "Reserved",
+    "Private long code"
+};
+
+static const true_false_string tfs_ansi_a_ti_flag =
+{
+    "allocated by receiver",
+    "allocated by sender"
+};
+
+static const true_false_string tfs_a2p_bearer_form_format_bearer_addr_flag =
+{
+    "Override Bearer Session IP Address",
+    "Use Bearer Session IP Address"
+};
+
+static const true_false_string tfs_a2p_bearer_sess_addr_flag =
+{
+    "Session IP Address is present",
+    "Session IP Address is not present"
+};
+
 const ext_value_string_t ansi_a_ios401_bsmap_strings[] =
 {
     { 0x69,     "Additional Service Notification",              0 },
@@ -678,8 +720,7 @@ static gint ett_ansi_rev_ms_info_rec[NUM_REV_MS_INFO_REC];
 /*
  * C.S0057 Table 1.5-1
  */
-static const value_string ansi_a_band_class_vals[] =
-{
+static const value_string ansi_a_band_class_vals[] = {
     { 0x00,     "800 MHz Cellular System" },
     { 0x01,     "1.850 to 1.990 GHz Broadband PCS" },
     { 0x02,     "872 to 960 MHz TACS Band" },
@@ -706,14 +747,15 @@ static const value_string ansi_a_band_class_vals[] =
 static const value_string ansi_a_ip_addr_type_vals[] = {
     { 0x00,     "IPv4" },
     { 0x01,     "IPv6" },
+    { 0x02,     "Reserved" },
+    { 0x03,     "Reserved" },
     { 0, NULL }
 };
 
 /*
  * C.S0005-E v2.0 Table 2.6.6.2.1-1
  */
-static const value_string ansi_a_srch_win_sizes_vals[] =
-{
+static const value_string ansi_a_srch_win_sizes_vals[] = {
     { 0x00,     "4 PN chips" },
     { 0x01,     "6 PN chips" },
     { 0x02,     "8 PN chips" },
@@ -736,8 +778,7 @@ static const value_string ansi_a_srch_win_sizes_vals[] =
 /*
  * C.S0005-E v2.0 Table 2.6.6.2.3-1
  */
-static const value_string ansi_a_t_tdrop_vals[] =
-{
+static const value_string ansi_a_t_tdrop_vals[] = {
     { 0x00,     "100 milliseconds" },
     { 0x01,     "1 second" },
     { 0x02,     "2 seconds" },
@@ -757,27 +798,33 @@ static const value_string ansi_a_t_tdrop_vals[] =
     { 0, NULL }
 };
 
-static const value_string cell_disc_str[] = {
-    {0, "whole Cell Global Identification (CGI)"},
-    {1, "LAC/CI"},
-    {2, "Cell Identity (CI)"},
-    {3, "None"},
-    {4, "Location Area Identification (LAI)"},
-    {5, "Location Area Code (LAC)"},
-    {6, "ALL"},
-    {7, "IS-41 whole Cell Global Identification (ICGI)"},
-    {8, "Enhanced whole Cell Global Identification (ECGI)"},
+static const value_string cell_disc_vals[] = {
+    { 0,        "whole Cell Global Identification (CGI)" },
+    { 1,        "LAC/CI" },
+    { 2,        "Cell Identity (CI)" },
+    { 3,        "None" },
+    { 4,        "Location Area Identification (LAI)" },
+    { 5,        "Location Area Code (LAC)" },
+    { 6,        "ALL" },
+    { 7,        "IS-41 whole Cell Global Identification (ICGI)" },
+    { 8,        "Enhanced whole Cell Global Identification (ECGI)" },
     { 0, NULL }
 };
 
 /*
  * Not strictly A-interface info, but put here to avoid file polution
+ *
+ * Title                3GPP2                   Other
+ *
+ *   Administration of Parameter Value Assignments for
+ *   cdma2000 Spread Spectrum Standards
+ *                      3GPP2 C.R1001-H v1.0    TSB-58-I (or J?)
  */
 
 /*
  * 9.1 Data Field Encoding Assignments
  */
-const value_string ansi_tsb58_encoding_strings[] = {
+const value_string ansi_tsb58_encoding_vals[] = {
     { 0x0000,   "Octet, unspecified" },
     { 0x0001,   "Extended Protocol Message (Unexpected, not supported)" },
     { 0x0002,   "7-bit ASCII" },
@@ -794,7 +841,7 @@ const value_string ansi_tsb58_encoding_strings[] = {
 /*
  * 9.2 Language Indicator Value Assignments
  */
-static const value_string ansi_tsb58_language_ind_strings[] = {
+static const value_string ansi_tsb58_language_ind_vals[] = {
     { 0x0000,   "Unknown or unspecified" },
     { 0x0001,   "English" },
     { 0x0002,   "French" },
@@ -839,14 +886,14 @@ static const value_string ansi_tsb58_language_ind_strings[] = {
     { 0, NULL }
 };
 
-value_string_ext ansi_tsb58_language_ind_strings_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_language_ind_strings);
+value_string_ext ansi_tsb58_language_ind_vals_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_language_ind_vals);
 
 /* NOTE:  Table 160 of 3GPP2 N.S0005 may specify different values */
 
 /*
  * 9.3 Service Category Assignments
  */
-const value_string ansi_tsb58_srvc_cat_strings[] = {
+const value_string ansi_tsb58_srvc_cat_vals[] = {
     { 0x0000,   "Unknown or unspecified" },
     { 0x0001,   "Emergency Broadcasts" },
     { 0x0002,   "Administrative" },
@@ -888,7 +935,7 @@ const value_string ansi_tsb58_srvc_cat_strings[] = {
     { 0, NULL }
 };
 
-value_string_ext ansi_tsb58_srvc_cat_strings_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_srvc_cat_strings);
+value_string_ext ansi_tsb58_srvc_cat_vals_ext = VALUE_STRING_EXT_INIT(ansi_tsb58_srvc_cat_vals);
 
 /*
  * END Not strictly A-interface info
@@ -901,8 +948,6 @@ static int proto_a_dtap = -1;
 
 /* Used to add the service option to the message name */
 static proto_item *ansi_a_message_item = NULL;
-static gchar ansi_a_so_add_string[30];
-static gchar ansi_a_mid_add_string[30];
 
 const ext_value_string_t *ansi_a_bsmap_strings = NULL;
 const ext_value_string_t *ansi_a_dtap_strings = NULL;
@@ -918,7 +963,7 @@ static int hf_ansi_a_ti_flag = -1;
 static int hf_ansi_a_ti_ti = -1;
 static int hf_ansi_a_cm_svrc_type = -1;
 static int hf_ansi_a_elem_id = -1;
-static int hf_ansi_a_elem_id_70 = -1;
+static int hf_ansi_a_elem_id_f0 = -1;
 static int hf_ansi_a_length = -1;
 static int hf_ansi_a_esn = -1;
 static int hf_ansi_a_imsi = -1;
@@ -963,6 +1008,7 @@ static int hf_ansi_a_reserved_bits_8_fc = -1;
 static int hf_ansi_a_reserved_bits_8_fe = -1;
 static int hf_ansi_a_reserved_bits_8_ff = -1;
 static int hf_ansi_a_reserved_bits_16_001f = -1;
+static int hf_ansi_a_reserved_bits_16_003f = -1;
 static int hf_ansi_a_reserved_bits_16_8000 = -1;
 static int hf_ansi_a_reserved_bits_16_f800 = -1;
 static int hf_ansi_a_reserved_bits_24_001800 = -1;
@@ -1322,6 +1368,8 @@ static expert_field ei_ansi_a_no_v_elem_diss = EI_INIT;
 static expert_field ei_ansi_a_miss_dtap_msg_diss = EI_INIT;
 static expert_field ei_ansi_a_miss_bsmap_msg_diss = EI_INIT;
 static expert_field ei_ansi_a_is2000_chan_id_pilot_pn = EI_INIT;
+static expert_field ei_ansi_a_unknown_dtap_msg = EI_INIT;
+static expert_field ei_ansi_a_unknown_bsmap_msg = EI_INIT;
 
 static char a_bigbuf[1024];
 static dissector_handle_t data_handle;
@@ -1429,164 +1477,198 @@ my_dgt_tbcd_unpack(
 }
 
 static const value_string ansi_a_so_str_vals[] = {
-    {1, "Basic Variable Rate Voice Service (8 kbps)"},
-    {2, "Mobile Station Loopback (8 kbps)"},
-    {3, "(EVRC) Enhanced Variable Rate Voice Service (8 kbps)"},
-    {4, "Asynchronous Data Service (9.6 kbps)"},
-    {5, "Group 3 Facsimile (9.6 kbps)"},
-    {6, "Short Message Services (Rate Set 1)"},
-    {7, "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)"},
-    {8, "Packet Data Service: CDPD Protocol Stack (9.6 kbps)"},
-    {9, "Mobile Station Loopback (13 kbps)"},
-    {10, "STU-III Transparent Service"},
-    {11, "STU-III Non-Transparent Service"},
-    {12, "Asynchronous Data Service (14.4 or 9.6 kbps)"},
-    {13, "Group 3 Facsimile (14.4 or 9.6 kbps)"},
-    {14, "Short Message Services (Rate Set 2)"},
-    {15, "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)"},
-    {16, "Packet Data Service: CDPD Protocol Stack (14.4 kbps)"},
-    {17, "High Rate Voice Service (13 kbps)"},
-    {18, "Over-the-Air Parameter Administration (Rate Set 1)"},
-    {19, "Over-the-Air Parameter Administration (Rate Set 2)"},
-    {20, "Group 3 Analog Facsimile (Rate Set 1)"},
-    {21, "Group 3 Analog Facsimile (Rate Set 2)"},
-    {22, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)"},
-    {23, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)"},
-    {24, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)"},
-    {25, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)"},
-    {26, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)"},
-    {27, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)"},
-    {28, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)"},
-    {29, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)"},
-    {30, "Supplemental Channel Loopback Test for Rate Set 1"},
-    {31, "Supplemental Channel Loopback Test for Rate Set 2"},
-    {32, "Test Data Service Option (TDSO)"},
-    {33, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack"},
-    {34, "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack"},
-    {35, "Location Services (PDS), Rate Set 1 (9.6 kbps)"},
-    {36, "Location Services (PDS), Rate Set 2 (14.4 kbps)"},
-    {37, "ISDN Interworking Service (64 kbps)"},
-    {38, "GSM Voice"},
-    {39, "GSM Circuit Data"},
-    {40, "GSM Packet Data"},
-    {41, "GSM Short Message Service"},
-    {42, "None Reserved for MC-MAP standard service options"},
-    {54, "Markov Service Option (MSO)"},
-    {55, "Loopback Service Option (LSO)"},
-    {56, "Selectable Mode Vocoder"},
-    {57, "32 kbps Circuit Video Conferencing"},
-    {58, "64 kbps Circuit Video Conferencing"},
-    {59, "HRPD Accounting Records Identifier"},
-    {60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal"},
-    {61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression"},
-    {62, "- 4099 None Reserved for standard service options"},
-    {68, "(EVRC-B NB) Enhanced Variable Rate Voice Service"},
-    {70, "(EVRC-B WB) Enhanced Variable Rate Voice Service"},
-    {73, "(EVRC-NW) Enhanced Variable Rate Voice Service"},
-    {77, "(EVRC-NW2k) EVRC-NW including a 2kbps maximum mode"},
-    {4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)"},
-    {4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)"},
-    {4102, "Reserved for standard service option"},
-    {4103, "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"},
-    {4104, "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"},
-    {32768, "QCELP (13 kbps)"},
-    {32769, "Proprietary QUALCOMM Incorporated"},
-    {32770, "Proprietary QUALCOMM Incorporated"},
-    {32771, "Proprietary QUALCOMM Incorporated"},
-    {32772, "Proprietary OKI Telecom"},
-    {32773, "Proprietary OKI Telecom"},
-    {32774, "Proprietary OKI Telecom"},
-    {32775, "Proprietary OKI Telecom"},
-    {32776, "Proprietary Lucent Technologies"},
-    {32777, "Proprietary Lucent Technologies"},
-    {32778, "Proprietary Lucent Technologies"},
-    {32779, "Proprietary Lucent Technologies"},
-    {32780, "Nokia"},
-    {32781, "Nokia"},
-    {32782, "Nokia"},
-    {32783, "Nokia"},
-    {32784, "NORTEL NETWORKS"},
-    {32785, "NORTEL NETWORKS"},
-    {32786, "NORTEL NETWORKS"},
-    {32787, "NORTEL NETWORKS"},
-    {32788, "Sony Electronics Inc."},
-    {32789, "Sony Electronics Inc."},
-    {32790, "Sony Electronics Inc."},
-    {32791, "Sony Electronics Inc."},
-    {32792, "Motorola"},
-    {32793, "Motorola"},
-    {32794, "Motorola"},
-    {32795, "Motorola"},
-    {32796, "QUALCOMM Incorporated"},
-    {32797, "QUALCOMM Incorporated"},
-    {32798, "Qualcomm Loopback"},
-    {32799, "Qualcomm Markov 8 kbps Loopback"},
-    {32800, "Qualcomm Packet Data"},
-    {32801, "Qualcomm Async Data"},
-    {32802, "QUALCOMM Incorporated"},
-    {32803, "QUALCOMM Incorporated"},
-    {32804, "QUALCOMM Incorporated"},
-    {32805, "QUALCOMM Incorporated"},
-    {32806, "QUALCOMM Incorporated"},
-    {32807, "QUALCOMM Incorporated"},
-    {32808, "QUALCOMM Incorporated"},
-    {32809, "QUALCOMM Incorporated"},
-    {32810, "QUALCOMM Incorporated"},
-    {32811, "QUALCOMM Incorporated"},
-    {32812, "Lucent Technologies"},
-    {32813, "Lucent Technologies"},
-    {32814, "Lucent Technologies"},
-    {32815, "Lucent Technologies"},
-    {32816, "Denso International"},
-    {32817, "Denso International"},
-    {32818, "Denso International"},
-    {32819, "Denso International"},
-    {32820, "Motorola"},
-    {32821, "Motorola"},
-    {32822, "Motorola"},
-    {32823, "Motorola"},
-    {32824, "Denso International"},
-    {32825, "Denso International"},
-    {32826, "Denso International"},
-    {32827, "Denso International"},
-    {32828, "Denso International"},
-    {32829, "Denso International"},
-    {32830, "Denso International"},
-    {32831, "Denso International"},
-    {32832, "Denso International"},
-    {32833, "Denso International"},
-    {32834, "Denso International"},
-    {32835, "Denso International"},
-    {32836, "NEC America"},
-    {32837, "NEC America"},
-    {32838, "NEC America"},
-    {32839, "NEC America"},
-    {32840, "Samsung Electronics"},
-    {32841, "Samsung Electronics"},
-    {32842, "Samsung Electronics"},
-    {32843, "Samsung Electronics"},
-    {32844, "Texas Instruments Incorporated"},
-    {32845, "Texas Instruments Incorporated"},
-    {32846, "Texas Instruments Incorporated"},
-    {32847, "Texas Instruments Incorporated"},
-    {32848, "Toshiba Corporation"},
-    {32849, "Toshiba Corporation"},
-    {32850, "Toshiba Corporation"},
-    {32851, "Toshiba Corporation"},
-    {32852, "LG Electronics Inc."},
-    {32853, "LG Electronics Inc."},
-    {32854, "LG Electronics Inc."},
-    {32855, "LG Electronics Inc."},
-    {32856, "VIA Telecom Inc."},
-    {32857, "VIA Telecom Inc."},
-    {32858, "VIA Telecom Inc."},
-    {32859, "VIA Telecom Inc."},
+    { 1,        "Basic Variable Rate Voice Service (8 kbps)" },
+    { 2,        "Mobile Station Loopback (8 kbps)" },
+    { 3,        "(EVRC) Enhanced Variable Rate Voice Service (8 kbps)" },
+    { 4,        "Asynchronous Data Service (9.6 kbps)" },
+    { 5,        "Group 3 Facsimile (9.6 kbps)" },
+    { 6,        "Short Message Services (Rate Set 1)" },
+    { 7,        "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)" },
+    { 8,        "Packet Data Service: CDPD Protocol Stack (9.6 kbps)" },
+    { 9,        "Mobile Station Loopback (13 kbps)" },
+    { 10,       "STU-III Transparent Service" },
+    { 11,       "STU-III Non-Transparent Service" },
+    { 12,       "Asynchronous Data Service (14.4 or 9.6 kbps)" },
+    { 13,       "Group 3 Facsimile (14.4 or 9.6 kbps)" },
+    { 14,       "Short Message Services (Rate Set 2)" },
+    { 15,       "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)" },
+    { 16,       "Packet Data Service: CDPD Protocol Stack (14.4 kbps)" },
+    { 17,       "High Rate Voice Service (13 kbps)" },
+    { 18,       "Over-the-Air Parameter Administration (Rate Set 1)" },
+    { 19,       "Over-the-Air Parameter Administration (Rate Set 2)" },
+    { 20,       "Group 3 Analog Facsimile (Rate Set 1)" },
+    { 21,       "Group 3 Analog Facsimile (Rate Set 2)" },
+    { 22,       "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)" },
+    { 23,       "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)" },
+    { 24,       "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)" },
+    { 25,       "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)" },
+    { 26,       "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)" },
+    { 27,       "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)" },
+    { 28,       "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)" },
+    { 29,       "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)" },
+    { 30,       "Supplemental Channel Loopback Test for Rate Set 1" },
+    { 31,       "Supplemental Channel Loopback Test for Rate Set 2" },
+    { 32,       "Test Data Service Option (TDSO)" },
+    { 33,       "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" },
+    { 34,       "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack" },
+    { 35,       "Location Services (PDS), Rate Set 1 (9.6 kbps)" },
+    { 36,       "Location Services (PDS), Rate Set 2 (14.4 kbps)" },
+    { 37,       "ISDN Interworking Service (64 kbps)" },
+    { 38,       "GSM Voice" },
+    { 39,       "GSM Circuit Data" },
+    { 40,       "GSM Packet Data" },
+    { 41,       "GSM Short Message Service" },
+    { 42,       "None Reserved for MC-MAP standard service options" },
+    { 54,       "Markov Service Option (MSO)" },
+    { 55,       "Loopback Service Option (LSO)" },
+    { 56,       "Selectable Mode Vocoder" },
+    { 57,       "32 kbps Circuit Video Conferencing" },
+    { 58,       "64 kbps Circuit Video Conferencing" },
+    { 59,       "HRPD Accounting Records Identifier" },
+    { 60,       "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" },
+    { 61,       "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" },
+    { 62,       "- 4099 None Reserved for standard service options" },
+    { 68,       "(EVRC-B NB) Enhanced Variable Rate Voice Service" },
+    { 70,       "(EVRC-B WB) Enhanced Variable Rate Voice Service" },
+    { 73,       "(EVRC-NW) Enhanced Variable Rate Voice Service" },
+    { 74,       "Flexible Markov Service Option" },
+    { 75,       "Enhanced Loopback Service Option" },
+    { 76,       "Tunneled forward link SMS based on Application Data Delivery Service trigger support in E-UTRAN - 1x Interworking" },
+    { 77,       "(EVRC-NW2k) EVRC-NW including a 2kbps maximum mode" },
+    { 78,       "Unstructured Supplementary Service Data, Rate Set 1 (9.6 kbps)" },
+    { 79,       "Unstructured Supplementary Service Data, Rate Set 2 (14.4 kbps)" },
+    { 4100,     "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4101,     "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4102,     "Reserved for standard service option" },
+    { 4103,     "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4104,     "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4169,     "EVRC-NW with capacity operating point 0 support over the A1 interface" },
+    { 32760,    "Identifies service reference identifier 0" },
+    { 32761,    "Identifies service reference identifier 1" },
+    { 32762,    "Identifies service reference identifier 2" },
+    { 32763,    "Identifies service reference identifier 3" },
+    { 32764,    "Identifies service reference identifier 4" },
+    { 32765,    "Identifies service reference identifier 5" },
+    { 32766,    "Identifies service reference identifier 6" },
+    { 32767,    "Identifies service reference identifier 7" },
+    { 32768,    "QCELP (13 kbps)" },
+    { 32769,    "Proprietary QUALCOMM Incorporated" },
+    { 32770,    "Proprietary QUALCOMM Incorporated" },
+    { 32771,    "Proprietary QUALCOMM Incorporated" },
+    { 32772,    "Proprietary OKI Telecom" },
+    { 32773,    "Proprietary OKI Telecom" },
+    { 32774,    "Proprietary OKI Telecom" },
+    { 32775,    "Proprietary OKI Telecom" },
+    { 32776,    "Proprietary Lucent Technologies" },
+    { 32777,    "Proprietary Lucent Technologies" },
+    { 32778,    "Proprietary Lucent Technologies" },
+    { 32779,    "Proprietary Lucent Technologies" },
+    { 32780,    "Nokia" },
+    { 32781,    "Nokia" },
+    { 32782,    "Nokia" },
+    { 32783,    "Nokia" },
+    { 32784,    "NORTEL NETWORKS" },
+    { 32785,    "NORTEL NETWORKS" },
+    { 32786,    "NORTEL NETWORKS" },
+    { 32787,    "NORTEL NETWORKS" },
+    { 32788,    "Sony Electronics Inc." },
+    { 32789,    "Sony Electronics Inc." },
+    { 32790,    "Sony Electronics Inc." },
+    { 32791,    "Sony Electronics Inc." },
+    { 32792,    "Motorola" },
+    { 32793,    "Motorola" },
+    { 32794,    "Motorola" },
+    { 32795,    "Motorola" },
+    { 32796,    "QUALCOMM Incorporated" },
+    { 32797,    "QUALCOMM Incorporated" },
+    { 32798,    "Qualcomm Loopback" },
+    { 32799,    "Qualcomm Markov 8 kbps Loopback" },
+    { 32800,    "Qualcomm Packet Data" },
+    { 32801,    "Qualcomm Async Data" },
+    { 32802,    "QUALCOMM Incorporated" },
+    { 32803,    "QUALCOMM Incorporated" },
+    { 32804,    "QUALCOMM Incorporated" },
+    { 32805,    "QUALCOMM Incorporated" },
+    { 32806,    "QUALCOMM Incorporated" },
+    { 32807,    "QUALCOMM Incorporated" },
+    { 32808,    "QUALCOMM Incorporated" },
+    { 32809,    "QUALCOMM Incorporated" },
+    { 32810,    "QUALCOMM Incorporated" },
+    { 32811,    "QUALCOMM Incorporated" },
+    { 32812,    "Lucent Technologies" },
+    { 32813,    "Lucent Technologies" },
+    { 32814,    "Lucent Technologies" },
+    { 32815,    "Lucent Technologies" },
+    { 32816,    "Denso International" },
+    { 32817,    "Denso International" },
+    { 32818,    "Denso International" },
+    { 32819,    "Denso International" },
+    { 32820,    "Motorola" },
+    { 32821,    "Motorola" },
+    { 32822,    "Motorola" },
+    { 32823,    "Motorola" },
+    { 32824,    "Denso International" },
+    { 32825,    "Denso International" },
+    { 32826,    "Denso International" },
+    { 32827,    "Denso International" },
+    { 32828,    "Denso International" },
+    { 32829,    "Denso International" },
+    { 32830,    "Denso International" },
+    { 32831,    "Denso International" },
+    { 32832,    "Denso International" },
+    { 32833,    "Denso International" },
+    { 32834,    "Denso International" },
+    { 32835,    "Denso International" },
+    { 32836,    "NEC America" },
+    { 32837,    "NEC America" },
+    { 32838,    "NEC America" },
+    { 32839,    "NEC America" },
+    { 32840,    "Samsung Electronics" },
+    { 32841,    "Samsung Electronics" },
+    { 32842,    "Samsung Electronics" },
+    { 32843,    "Samsung Electronics" },
+    { 32844,    "Texas Instruments Incorporated" },
+    { 32845,    "Texas Instruments Incorporated" },
+    { 32846,    "Texas Instruments Incorporated" },
+    { 32847,    "Texas Instruments Incorporated" },
+    { 32848,    "Toshiba Corporation" },
+    { 32849,    "Toshiba Corporation" },
+    { 32850,    "Toshiba Corporation" },
+    { 32851,    "Toshiba Corporation" },
+    { 32852,    "LG Electronics Inc." },
+    { 32853,    "LG Electronics Inc." },
+    { 32854,    "LG Electronics Inc." },
+    { 32855,    "LG Electronics Inc." },
+    { 32856,    "VIA Telecom Inc." },
+    { 32857,    "VIA Telecom Inc." },
+    { 32858,    "VIA Telecom Inc." },
+    { 32859,    "VIA Telecom Inc." },
+    { 32860,    "Verizon Wireless" },
+    { 32861,    "Verizon Wireless" },
+    { 32862,    "Verizon Wireless" },
+    { 32863,    "Verizon Wireless" },
+    { 32864,    "Huawei Technologies" },
+    { 32865,    "Huawei Technologies" },
+    { 32866,    "Huawei Technologies" },
+    { 32867,    "Huawei Technologies" },
+    { 32868,    "QUALCOMM Incorporated" },
+    { 32869,    "QUALCOMM Incorporated" },
+    { 32870,    "QUALCOMM Incorporated" },
+    { 32871,    "QUALCOMM Incorporated" },
+    { 32872,    "ZTE Corporation" },
+    { 32873,    "ZTE Corporation" },
+    { 32874,    "ZTE Corporation" },
+    { 32875,    "ZTE Corporation" },
+    { 32876,    "China Telecom" },
+    { 32877,    "China Telecom" },
+    { 32878,    "China Telecom" },
+    { 32879,    "China Telecom" },
     { 0, NULL }
 };
 
 static value_string_ext ansi_a_so_str_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_so_str_vals);
 
-static const gchar* ansi_a_so_int_to_str(gint32 so)
+static const gchar *ansi_a_so_int_to_str(gint32 so)
 {
     const gchar *str = try_val_to_str_ext(so, &ansi_a_so_str_vals_ext);
 
@@ -1712,7 +1794,7 @@ static const value_string ansi_a_speech_or_data_indicator_vals[] = {
     { 0x1,      "Speech" },
     { 0x2,      "Data" },
     { 0x3,      "Signaling" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_channel_rate_and_type_vals[] = {
@@ -1721,7 +1803,7 @@ static const value_string ansi_a_channel_rate_and_type_vals[] = {
     { 0x02,     "Reserved for future use (invalid)" },
     { 0x08,     "Full rate TCH channel Bm" },
     { 0x09,     "Half rate TCH channel Lm" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_speech_enc_or_data_rate_vals[] = {
@@ -1732,7 +1814,7 @@ static const value_string ansi_a_speech_enc_or_data_rate_vals[] = {
     { 0x04,     "8 kb/s enhanced vocoder (EVRC)" },
     { 0x05,     "13 kb/s vocoder" },
     { 0x06,     "Adaptive Differential PCM" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -1789,7 +1871,7 @@ static const value_string ansi_a_return_cause_vals[] = {
     { 0x03,     "Service redirection failed as a result of registration rejection" },
     { 0x04,     "Service redirection failed as a result of wrong SID" },
     { 0x05,     "Service redirection failed as a result of wrong NID" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -1818,7 +1900,7 @@ static const value_string ansi_a_rf_chan_id_timeslot_number_vals[] = {
     { 0x01,     "Channel below N" },
     { 0x02,     "Channel above N" },
     { 0x03,     "Reserved" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -2002,19 +2084,19 @@ static const value_string ansi_a_enc_info_ident_vals[] = {
     { 0x04,     "Private Longcode" },
     { 0x05,     "Data Key (ORYX)" },
     { 0x06,     "Initial RAND" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_enc_info_status_vals[] = {
     { 0x00,     "Active" },
     { 0x01,     "Inactive" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_enc_info_available_vals[] = {
     { 0x00,     "Available" },
     { 0x01,     "Not available" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -2111,37 +2193,37 @@ static const value_string ansi_a_cm2_rf_power_cap_vals[] = {
     { 0x05,     "Class 6, handheld" },
     { 0x06,     "Class 7, handheld" },
     { 0x07,     "Class 8, handheld" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cm2_scm_ext_scm_ind_vals[] = {
     { 0x00,     "Band Classes 1, 4, 14" },
     { 0x01,     "Other bands" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cm2_scm_dual_mode_vals[] = {
     { 0x00,     "CDMA Only (Always)" },
     { 0x01,     "Dual Mode (invalid)" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cm2_scm_slotted_class_vals[] = {
     { 0x00,     "Non-Slotted" },
     { 0x01,     "Slotted" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cm2_scm_meid_configured_vals[] = {
     { 0x00,     "MEID not configured" },
     { 0x01,     "MEID configured" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cm2_scm_transmission_vals[] = {
     { 0x00,     "Continuous" },
     { 0x01,     "Discontinuous" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cm2_scm_power_class_vals[] = {
@@ -2149,7 +2231,7 @@ static const value_string ansi_a_cm2_scm_power_class_vals[] = {
     { 0x01,     "Class II" },
     { 0x02,     "Class III" },
     { 0x03,     "Reserved" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -2333,7 +2415,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 static const value_string ansi_a_mid_odd_even_ind_vals[] = {
     { 0x00,     "Even" },
     { 0x01,     "Odd" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_mid_type_vals[] = {
@@ -2341,7 +2423,7 @@ static const value_string ansi_a_mid_type_vals[] = {
     { 0x02,     "Broadcast Address" },
     { 0x05,     "ESN" },
     { 0x06,     "IMSI" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static const value_string ansi_a_mid_broadcast_priority_vals[] = {
@@ -2349,7 +2431,7 @@ static const value_string ansi_a_mid_broadcast_priority_vals[] = {
     { 0x01,     "Interactive" },
     { 0x02,     "Urgent" },
     { 0x03,     "Emergency" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -2368,7 +2450,6 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
     switch (oct & 0x07)
     {
     case 1:     /* MEID */
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
         proto_tree_add_item(tree, hf_ansi_a_meid_mid_digit_1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2413,7 +2494,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
         value = tvb_get_ntohs(tvb, curr_offset);
 
-        str = val_to_str_ext_const(value, &ansi_tsb58_srvc_cat_strings_ext, "Reserved");
+        str = val_to_str_ext_const(value, &ansi_tsb58_srvc_cat_vals_ext, "Reserved");
 
         proto_tree_add_uint_format_value(tree, hf_ansi_a_mid_broadcast_srvc_cat, tvb, curr_offset, 2,
             value,
@@ -2425,7 +2506,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
         oct = tvb_get_guint8(tvb, curr_offset);
 
-        str = val_to_str_ext_const(oct, &ansi_tsb58_language_ind_strings_ext, "Reserved");
+        str = val_to_str_ext_const(oct, &ansi_tsb58_language_ind_vals_ext, "Reserved");
 
         proto_tree_add_uint_format_value(tree, hf_ansi_a_mid_broadcast_language, tvb, curr_offset, 1,
             oct,
@@ -2476,9 +2557,12 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
             "BCD Digits: %s",
             a_bigbuf);
 
-        g_snprintf(add_string, string_len, " - IMSI (%s)",
-            a_bigbuf);
-        g_snprintf(ansi_a_mid_add_string, sizeof(ansi_a_mid_add_string), "MID=%s", a_bigbuf);
+        g_snprintf(add_string, string_len, " - IMSI (%s)", a_bigbuf);
+        proto_item_append_text(ansi_a_message_item, " MID=%s", a_bigbuf);
+        if (global_a_info_display)
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "MID=%s ", a_bigbuf);
+        }
 
         curr_offset += len - (curr_offset - offset);
         break;
@@ -2517,7 +2601,6 @@ elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_uint_format_value(tree, hf_ansi_a_sci, tvb, curr_offset, 1,
         oct, "%s%u", (oct & 0x08) ? "-" : "", oct & 0x07);
 
@@ -2591,103 +2674,103 @@ elem_p_rev(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
  * IOS 6.2.2.19
  */
 static const value_string ansi_a_elem_cause_vals[] = {
-    { 0x00, "Radio interface message failure"},
-    { 0x01, "Radio interface failure"},
-    { 0x02, "Uplink Quality"},
-    { 0x03, "Uplink strength"},
-    { 0x04, "Downlink quality"},
-    { 0x05, "Downlink strength"},
-    { 0x06, "Distance"},
-    { 0x07, "OAM&P intervention"},
-    { 0x08, "MS busy"},
-    { 0x09, "Call processing"},
-    { 0x0A, "Reversion to old channel"},
-    { 0x0B, "Handoff successful"},
-    { 0x0C, "No response from MS"},
-    { 0x0D, "Timer expired"},
-    { 0x0E, "Better cell (power budget)"},
-    { 0x0F, "Interference"},
-    { 0x10, "Packet call going dormant"},
-    { 0x11, "Service option not available"},
+    { 0x00,     "Radio interface message failure" },
+    { 0x01,     "Radio interface failure" },
+    { 0x02,     "Uplink Quality" },
+    { 0x03,     "Uplink strength" },
+    { 0x04,     "Downlink quality" },
+    { 0x05,     "Downlink strength" },
+    { 0x06,     "Distance" },
+    { 0x07,     "OAM&P intervention" },
+    { 0x08,     "MS busy" },
+    { 0x09,     "Call processing" },
+    { 0x0A,     "Reversion to old channel" },
+    { 0x0B,     "Handoff successful" },
+    { 0x0C,     "No response from MS" },
+    { 0x0D,     "Timer expired" },
+    { 0x0E,     "Better cell (power budget)" },
+    { 0x0F,     "Interference" },
+    { 0x10,     "Packet call going dormant" },
+    { 0x11,     "Service option not available" },
 
-    { 0x12, "Invalid Call"},
-    { 0x13, "Successful operation"},
-    { 0x14, "Normal call release"},
-
-        /* IOS 5 */
-    { 0x15, "Short data burst authentication failure"},
-    { 0x17, "Time critical relocation/handoff"},
-    { 0x18, "Network optimization"},
-    { 0x19, "Power down from dormant state"},
-    { 0x1A, "Authentication failure"},
-
-    { 0x1B, "Inter-BS Soft Handoff Drop Target"},
-    { 0x1D, "Intra-BS Soft Handoff Drop Target"},
+    { 0x12,     "Invalid Call" },
+    { 0x13,     "Successful operation" },
+    { 0x14,     "Normal call release" },
 
         /* IOS 5 */
-    { 0x1E, "Autonomous Registration by the Network"},
+    { 0x15,     "Short data burst authentication failure" },
+    { 0x17,     "Time critical relocation/handoff" },
+    { 0x18,     "Network optimization" },
+    { 0x19,     "Power down from dormant state" },
+    { 0x1A,     "Authentication failure" },
 
-    { 0x20, "Equipment failure"},
-    { 0x21, "No radio resource available"},
-    { 0x22, "Requested terrestrial resource unavailable"},
-
-        /* IOS 5 */
-    { 0x23, "A2p RTP Payload Type not available"},
-    { 0x24, "A2p Bearer Format Address Type not available"},
-
-    { 0x25, "BS not equipped"},
-    { 0x26, "MS not equipped (or incapable)"},
+    { 0x1B,     "Inter-BS Soft Handoff Drop Target" },
+    { 0x1D,     "Intra-BS Soft Handoff Drop Target" },
 
         /* IOS 5 */
-    { 0x27, "2G only sector"},
-    { 0x28, "3G only sector"},
+    { 0x1E,     "Autonomous Registration by the Network" },
 
-    { 0x29, "PACA Call Queued"},
-
-        /* IOS 5 */
-    { 0x2A, "Handoff Blocked"},
-
-    { 0x2B, "Alternate signaling type reject"},
+    { 0x20,     "Equipment failure" },
+    { 0x21,     "No radio resource available" },
+    { 0x22,     "Requested terrestrial resource unavailable" },
 
         /* IOS 5 */
-    { 0x2C, "A2p Resource not available"},
+    { 0x23,     "A2p RTP Payload Type not available" },
+    { 0x24,     "A2p Bearer Format Address Type not available" },
 
-    { 0x2D, "PACA Queue Overflow"},
-    { 0x2E, "PACA Cancel Request Rejected"},
-    { 0x30, "Requested transcoding/rate adaptation unavailable"},
-    { 0x31, "Lower priority radio resources not available"},
-    { 0x32, "PCF resources not available"},  /* IOS 4 */
-    { 0x33, "TFO Control request Failed"},
+    { 0x25,     "BS not equipped" },
+    { 0x26,     "MS not equipped (or incapable)" },
 
         /* IOS 5 */
-    { 0x34, "MS rejected order"},
+    { 0x27,     "2G only sector" },
+    { 0x28,     "3G only sector" },
 
-    { 0x40, "Ciphering algorithm not supported"},
-    { 0x41, "Private Long Code not available or not supported."},
-    { 0x42, "Requested MUX option or rates not available."},
-    { 0x43, "Requested Privacy Configuration unavailable"},
+    { 0x29,     "PACA Call Queued" },
 
         /* IOS 5 */
-    { 0x45, "PDS-related capability not available or not supported"},
+    { 0x2A,     "Handoff Blocked" },
 
-    { 0x50, "Terrestrial circuit already allocated"},
-    { 0x60, "Protocol Error between BS and MSC"},
-    { 0x71, "ADDS message too long for delivery on the paging channel"},
-    { 0x72, "MS-to-IWF TCP connection failure"},
-    { 0x73, "ATH0 (Modem hang up) Command"},
-    { 0x74, "+FSH/+FHNG (Fax session ended) Command"},
-    { 0x75, "No carrier"},
-    { 0x76, "PPP protocol failure"},
-    { 0x77, "PPP session closed by the MS"},
-    { 0x78, "Do not notify MS"},
-    { 0x79, "PCF (or PDSN) resources are not available"},
-    { 0x7A, "Data ready to send"},
+    { 0x2B,     "Alternate signaling type reject" },
 
         /* IOS 5 */
-    { 0x7B, "Concurrent authentication"},
+    { 0x2C,     "A2p Resource not available" },
 
-    { 0x7F, "Handoff procedure time-out"},
-    { 0, NULL}
+    { 0x2D,     "PACA Queue Overflow" },
+    { 0x2E,     "PACA Cancel Request Rejected" },
+    { 0x30,     "Requested transcoding/rate adaptation unavailable" },
+    { 0x31,     "Lower priority radio resources not available" },
+    { 0x32,     "PCF resources not available" },  /* IOS 4 */
+    { 0x33,     "TFO Control request Failed" },
+
+        /* IOS 5 */
+    { 0x34,     "MS rejected order" },
+
+    { 0x40,     "Ciphering algorithm not supported" },
+    { 0x41,     "Private Long Code not available or not supported." },
+    { 0x42,     "Requested MUX option or rates not available." },
+    { 0x43,     "Requested Privacy Configuration unavailable" },
+
+        /* IOS 5 */
+    { 0x45,     "PDS-related capability not available or not supported" },
+
+    { 0x50,     "Terrestrial circuit already allocated" },
+    { 0x60,     "Protocol Error between BS and MSC" },
+    { 0x71,     "ADDS message too long for delivery on the paging channel" },
+    { 0x72,     "MS-to-IWF TCP connection failure" },
+    { 0x73,     "ATH0 (Modem hang up) Command" },
+    { 0x74,     "+FSH/+FHNG (Fax session ended) Command" },
+    { 0x75,     "No carrier" },
+    { 0x76,     "PPP protocol failure" },
+    { 0x77,     "PPP session closed by the MS" },
+    { 0x78,     "Do not notify MS" },
+    { 0x79,     "PCF (or PDSN) resources are not available" },
+    { 0x7A,     "Data ready to send" },
+
+        /* IOS 5 */
+    { 0x7B,     "Concurrent authentication" },
+
+    { 0x7F,     "Handoff procedure time-out" },
+    { 0, NULL }
 };
 
 static value_string_ext ansi_a_elem_cause_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_elem_cause_vals);
@@ -2715,12 +2798,6 @@ elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
     else
     {
         proto_tree_add_item(tree, hf_ansi_a_cause_1_ext, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-        switch (oct)
-        {
-        default:
-            break;
-        }
 
         str = val_to_str_ext_const(oct & 0x7f, &ansi_a_elem_cause_vals_ext, "Reserved for future use");
 
@@ -2820,8 +2897,9 @@ elem_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
 
     curr_offset++;
 
@@ -2848,8 +2926,9 @@ elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
 
     curr_offset++;
 
@@ -2899,8 +2978,8 @@ elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 {
     guint32     value;
     guint32     curr_offset;
-    proto_item  *item = NULL;
-    proto_tree  *subtree = NULL;
+    proto_item  *item;
+    proto_tree  *subtree;
 
     curr_offset = offset;
 
@@ -3027,8 +3106,9 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     NO_MORE_DATA_CHECK(len);
 
-    disc = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+    disc = tvb_get_guint8(tvb, curr_offset);
 
     curr_offset++;
 
@@ -3107,8 +3187,8 @@ elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     guint16     consumed;
     guint8      num_envs;
     guint32     curr_offset;
-    proto_item  *item = NULL;
-    proto_tree  *subtree = NULL;
+    proto_item  *item;
+    proto_tree  *subtree;
 
     curr_offset = offset;
 
@@ -3222,8 +3302,8 @@ elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 {
     guint16     consumed;
     guint8      num_cells;
-    proto_item  *item = NULL;
-    proto_tree  *subtree = NULL;
+    proto_item  *item;
+    proto_tree  *subtree;
     guint32     curr_offset;
 
     curr_offset = offset;
@@ -3379,7 +3459,7 @@ static const value_string ansi_a_is2000_chan_id_chan_rev_pilot_gating_rate_vals[
     { 0x01,     "Gating rate 1/2" },
     { 0x02,     "Gating rate 1/4" },
     { 0x03,     "Reserved" },
-    { 0, NULL}
+    { 0, NULL }
 };
 
 static guint8
@@ -3388,6 +3468,8 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     guint8      oct;
     guint8      num_chans;
     guint8      chan_num;
+    guint32     value;
+    guint32     pilot_pn;
     guint32     curr_offset;
     proto_item  *item;
     proto_tree  *subtree;
@@ -3399,6 +3481,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_ansi_a_is2000_chan_id_chan_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     oct = tvb_get_guint8(tvb, curr_offset);
+
     proto_tree_add_uint_format_value(tree, hf_ansi_a_is2000_chan_id_frame_offset, tvb, curr_offset, 1,
         oct, "%u (%.2f ms)", oct & 0x0f, (oct & 0x0f) * 1.25);
 
@@ -3459,8 +3542,21 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
          *
          * SEE THE SPEC BEFORE CHANGING
          */
+        value = tvb_get_ntoh24(tvb, curr_offset);
+        pilot_pn = ((value & 0xff0000) >> 16) | ((value & 0x008000) >> 7);
+
         proto_tree_add_expert(subtree, pinfo, &ei_ansi_a_is2000_chan_id_pilot_pn, tvb, curr_offset, 2);
-        proto_tree_add_item(subtree, hf_ansi_a_is2000_chan_id_chan_pilot_pn_code, tvb, curr_offset, 3, ENC_LITTLE_ENDIAN);
+        other_decode_bitfield_value(a_bigbuf, value, 0xff8000, 24);
+        proto_tree_add_uint_format(subtree, hf_ansi_a_is2000_chan_id_chan_pilot_pn_code, tvb, curr_offset, 3,
+            pilot_pn,
+            "%s = Pilot PN Code: %u",
+            a_bigbuf,
+            pilot_pn);
+        /*
+         * SEE THE SPEC BEFORE CHANGING
+         *
+         * the field above has an odd encoding
+         */
 
         switch (global_a_variant)
         {
@@ -3476,6 +3572,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
         proto_tree_add_item(subtree, hf_ansi_a_is2000_chan_id_chan_freq_incl, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_ansi_a_is2000_chan_id_chan_channel_number, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+
         curr_offset += 3;
 
         chan_num++;
@@ -3514,17 +3611,14 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 static guint8
 elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32     value;
     guint32     curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_is95_ms_meas_chan_id_band_class, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-
-    value = tvb_get_ntohs(tvb, curr_offset);
     proto_tree_add_item(tree, hf_ansi_a_is95_ms_meas_chan_id_channel_number, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-    g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
+    g_snprintf(add_string, string_len, " - (ARFCN: %u)", tvb_get_ntohs(tvb, curr_offset) & 0x07ff);
 
     curr_offset += 2;
 
@@ -3556,51 +3650,35 @@ elem_auth_conf_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
  * IOS 6.2.2.37
  */
 static const value_string ansi_a_clg_party_ascii_num_ton_vals[] = {
-    {0, "Unknown"},
-    {1, "International number"},
-    {2, "National number"},
-    {3, "Network-specific number"},
-    {4, "Dedicated PAD access, short code"},
-    {5, "Reserved"},
-    {6, "Reserved"},
-    {7, "Reserved"},
-    { 0, NULL}
+    { 0,        "Unknown" },
+    { 1,        "International number" },
+    { 2,        "National number" },
+    { 3,        "Network-specific number" },
+    { 4,        "Dedicated PAD access, short code" },
+    { 5,        "Reserved" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved for extension" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_clg_party_ascii_num_plan_vals[] = {
-    {0, "Unknown"},
-    {1, "ISDN/Telephony Numbering (ITU recommendation E.164/E.163)"},
-    {2, "Reserved"},
-    {3, "Data Numbering (ITU-T Rec. X.121)"},
-    {4, "Telex Numbering (ITU-T Rec. F.69)"},
-    {5, "Reserved"},
-    {6, "Reserved"},
-    {7, "Reserved for extension"},
-    {8, "National Numbering"},
-    {9, "Private Numbering"},
-    {10, "Reserved"},
-    {11, "Reserved"},
-    {12, "Reserved"},
-    {13, "Reserved"},
-    {14, "Reserved"},
-    {15, "Reserved"},
-    { 0, NULL}
-};
-
-static const value_string ansi_a_clg_party_ascii_num_pi_vals[] = {
-    {0, "Presentation allowed"},
-    {1, "Presentation restricted"},
-    {2, "Number not available due to interworking"},
-    {3, "Reserved"},
-    { 0, NULL}
-};
-
-static const value_string ansi_a_clg_party_ascii_num_si_vals[] = {
-    {0, "User-provided, not screened"},
-    {1, "User-provided, verified and passed"},
-    {2, "User-provided, verified and failed"},
-    {3, "Network-provided"},
-    { 0, NULL}
+    { 0,        "Unknown" },
+    { 1,        "ISDN/Telephony Numbering (ITU recommendation E.164/E.163)" },
+    { 2,        "Reserved" },
+    { 3,        "Data Numbering (ITU-T Rec. X.121)" },
+    { 4,        "Telex Numbering (ITU-T Rec. F.69)" },
+    { 5,        "Reserved" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved for extension" },
+    { 8,        "National Numbering" },
+    { 9,        "Private Numbering" },
+    { 10,       "Reserved" },
+    { 11,       "Reserved" },
+    { 12,       "Reserved" },
+    { 13,       "Reserved" },
+    { 14,       "Reserved" },
+    { 15,       "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -3613,11 +3691,11 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_extension_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_clg_party_ascii_num_ton, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_clg_party_ascii_num_plan, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    proto_tree_add_item(tree, hf_ansi_a_clg_party_ascii_num_ton, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_clg_party_ascii_num_plan, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     if (!(oct & 0x80))
@@ -3625,9 +3703,6 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         /* octet 3a */
 
         proto_tree_add_item(tree, hf_ansi_a_extension_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-        oct = tvb_get_guint8(tvb, curr_offset);
-
         proto_tree_add_item(tree, hf_ansi_a_clg_party_ascii_num_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_1c, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_clg_party_ascii_num_si, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3750,27 +3825,27 @@ elem_lai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 6.2.2.44
  */
 static const value_string ansi_a_rej_cause_vals[] = {
-    { 0x01, "Reserved"},
-    { 0x02, "MIN/IMSI unknown in HLR"},
-    { 0x03, "Illegal MS"},
-    { 0x04, "TMSI/IMSI/MIN unknown in VLR"},
-    { 0x05, "Reserved"},
-    { 0x0b, "Roaming not allowed"},
-    { 0x0c, "Location area not allowed"},
-    { 0x20, "Service option not supported"},
-    { 0x21, "Requested service option not subscribed"},
-    { 0x22, "Service option temporarily out of order"},
-    { 0x26, "Call cannot be identified"},
-    { 0x51, "Network failure"},
-    { 0x56, "Congestion"},
-    { 0x62, "Message type non-existent or not implemented"},
-    { 0x63, "Information element non-existent or not implemented"},
-    { 0x64, "Invalid information element contents"},
-    { 0x65, "Message not compatible with the call state"},
-    { 0x66, "Protocol error, unspecified"},
-    { 0x6e, "Invalid message, unspecified"},
-    { 0x6f, "Mandatory information element error"},
-    { 0, NULL}
+    { 0x01,     "Reserved" },
+    { 0x02,     "MIN/IMSI unknown in HLR" },
+    { 0x03,     "Illegal MS" },
+    { 0x04,     "TMSI/IMSI/MIN unknown in VLR" },
+    { 0x05,     "Reserved" },
+    { 0x0b,     "Roaming not allowed" },
+    { 0x0c,     "Location area not allowed" },
+    { 0x20,     "Service option not supported" },
+    { 0x21,     "Requested service option not subscribed" },
+    { 0x22,     "Service option temporarily out of order" },
+    { 0x26,     "Call cannot be identified" },
+    { 0x51,     "Network failure" },
+    { 0x56,     "Congestion" },
+    { 0x62,     "Message type non-existent or not implemented" },
+    { 0x63,     "Information element non-existent or not implemented" },
+    { 0x64,     "Invalid information element contents" },
+    { 0x65,     "Message not compatible with the call state" },
+    { 0x66,     "Protocol error, unspecified" },
+    { 0x6e,     "Invalid message, unspecified" },
+    { 0x6f,     "Mandatory information element error" },
+    { 0, NULL }
 };
 
 static guint8
@@ -3839,11 +3914,11 @@ elem_anchor_pp_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
  * IOS 6.2.2.45
  */
 static const value_string ansi_a_auth_chlg_param_rand_num_type_vals[] = {
-    {1, "RAND 32 bits"},
-    {2, "RANDU 24 bits"},
-    {4, "RANDSSD 56 bits"},
-    {8, "RANDBS 32 bits"},
-    { 0, NULL}
+    { 1,        "RAND 32 bits" },
+    { 2,        "RANDU 24 bits" },
+    { 4,        "RANDSSD 56 bits" },
+    { 8,        "RANDBS 32 bits" },
+    { 0, NULL }
 };
 
 static guint8
@@ -3858,6 +3933,7 @@ elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     oct = tvb_get_guint8(tvb, curr_offset);
+
     str = val_to_str_const(oct & 0x0F, ansi_a_auth_chlg_param_rand_num_type_vals, "Reserved");
     proto_tree_add_uint_format_value(tree, hf_ansi_a_auth_chlg_param_rand_num_type, tvb, curr_offset, 1,
         oct, "%s (%u)", str, oct & 0x0f);
@@ -3879,10 +3955,10 @@ elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
  * IOS 6.2.2.46
  */
 static const value_string ansi_a_auth_resp_param_sig_type_vals[] = {
-    {1, "AUTHR"},
-    {2, "AUTHU"},
-    {4, "AUTHBS"},
-    { 0, NULL}
+    { 1,        "AUTHR" },
+    { 2,        "AUTHU" },
+    { 4,        "AUTHBS" },
+    { 0, NULL }
 };
 
 static guint8
@@ -3897,6 +3973,7 @@ elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     oct = tvb_get_guint8(tvb, curr_offset);
+
     str = val_to_str_const(oct & 0x0F, ansi_a_auth_resp_param_sig_type_vals, "Reserved");
     proto_tree_add_uint_format_value(tree, hf_ansi_a_auth_resp_param_sig_type, tvb, curr_offset, 1,
         oct, "%s (%u)", str, oct & 0x0f);
@@ -3973,42 +4050,42 @@ elem_mwi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 6.2.2.50
  */
 
-    /*
-     * from the IOS specification and MAY not be the exact same as the ones defined in
-     * the cdma2000 specification
-     * (and even if they are you shouldn't share the definitions in case one of the other changes)
-     */
+/*
+ * from the IOS specification and MAY not be the exact same as the ones defined in
+ * the cdma2000 specification
+ * (and even if they are you shouldn't share the definitions in case one or the other changes)
+ */
 static const value_string ansi_a_signal_signal_vals[] = {
-    { 0x00, "Dial tone on"},
-    { 0x01, "Ring back tone on"},
-    { 0x02, "Intercept tone on"},
-    { 0x03, "Network congestion (reorder) tone on"},
-    { 0x04, "Busy tone on"},
-    { 0x05, "Confirm tone on"},
-    { 0x06, "Answer tone on"},
-    { 0x07, "Call waiting tone on"},
-    { 0x08, "Off-hook warning tone on"},
-    { 0x3f, "Tones off"},
-    { 0x40, "Normal Alerting"},
-    { 0x41, "Inter-group Alerting"},
-    { 0x42, "Special/Priority Alerting"},
-    { 0x43, "Reserved (ISDN Alerting pattern 3)"},
-    { 0x44, "Ping Ring (abbreviated alert)"},
-    { 0x45, "Reserved (ISDN Alerting pattern 5)"},
-    { 0x46, "Reserved (ISDN Alerting pattern 6)"},
-    { 0x47, "Reserved (ISDN Alerting pattern 7)"},
-    { 0x4f, "Alerting off"},
-    { 0x63, "Abbreviated intercept"},
-    { 0x65, "Abbreviated reorder"},
-    { 0, NULL}
+    { 0x00,     "Dial tone on" },
+    { 0x01,     "Ring back tone on" },
+    { 0x02,     "Intercept tone on" },
+    { 0x03,     "Network congestion (reorder) tone on" },
+    { 0x04,     "Busy tone on" },
+    { 0x05,     "Confirm tone on" },
+    { 0x06,     "Answer tone on" },
+    { 0x07,     "Call waiting tone on" },
+    { 0x08,     "Off-hook warning tone on" },
+    { 0x3f,     "Tones off" },
+    { 0x40,     "Normal Alerting" },
+    { 0x41,     "Inter-group Alerting" },
+    { 0x42,     "Special/Priority Alerting" },
+    { 0x43,     "Reserved (ISDN Alerting pattern 3)" },
+    { 0x44,     "Ping Ring (abbreviated alert)" },
+    { 0x45,     "Reserved (ISDN Alerting pattern 5)" },
+    { 0x46,     "Reserved (ISDN Alerting pattern 6)" },
+    { 0x47,     "Reserved (ISDN Alerting pattern 7)" },
+    { 0x4f,     "Alerting off" },
+    { 0x63,     "Abbreviated intercept" },
+    { 0x65,     "Abbreviated reorder" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_signal_alert_pitch_vals[] = {
-    { 0x00, "Medium pitch (standard alert)"},
-    { 0x01, "High pitch"},
-    { 0x02, "Low pitch"},
-    { 0x03, "Reserved"},
-    { 0, NULL}
+    { 0x00,     "Medium pitch (standard alert)" },
+    { 0x01,     "High pitch" },
+    { 0x02,     "Low pitch" },
+    { 0x03,     "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -4024,6 +4101,7 @@ elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
     str = val_to_str_const(oct, ansi_a_signal_signal_vals, "Unknown");
     proto_tree_add_item(tree, hf_ansi_a_signal_signal_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
     g_snprintf(add_string, string_len, " - (%s)", str);
 
     curr_offset++;
@@ -4045,37 +4123,47 @@ elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
 /*
  * IOS 6.2.2.52
+ *
+ * IOS 5 4.2.40
  */
-static const value_string ansi_a_clg_party_bcd_num_ton_vals[] = {
-    { 0, "Unknown"},
-    { 1, "International number"},
-    { 2, "National number"},
-    { 3, "Network specific number"},
-    { 4, "Dedicated PAD access, short code"},
-    { 5, "Reserved"},
-    { 6, "Reserved"},
-    { 7, "Reserved for extension"},
-    { 0, NULL}
+/*
+ * IS-634-A Table 6.62
+ * IOS 5 Table 4.2.40-1
+ */
+static const value_string ansi_a_cld_party_bcd_num_ton_vals[] = {
+    { 0,        "Unknown" },
+    { 1,        "International number" },
+    { 2,        "National number" },
+    { 3,        "Network specific number" },
+    { 4,        "Dedicated PAD access, short code" },
+    { 5,        "Reserved" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved for extension" },
+    { 0, NULL }
 };
 
-static const value_string ansi_a_clg_party_bcd_num_plan_vals[] = {
-    { 0x00, "Unknown"},
-    { 0x01, "ISDN/telephony number plan (ITU recommendation E.164/E.163)"},
-    { 0x02, "Reserved"},
-    { 0x03, "Data number plan (ITU recommendation X.121)"},
-    { 0x04, "Telex numbering plan (ITU recommendation F.69)"},
-    { 0x05, "Reserved"},
-    { 0x06, "Reserved"},
-    { 0x07, "Reserved for extension"},
-    { 0x08, "National numbering plan"},
-    { 0x09, "Private numbering plan"},
-    { 0x0A, "Reserved"},
-    { 0x0B, "Reserved"},
-    { 0x0C, "Reserved"},
-    { 0x0D, "Reserved"},
-    { 0x0E, "Reserved"},
-    { 0x0F, "Reserved"},
-    { 0, NULL}
+/*
+ * IS-634-A Table 6.63
+ * IOS 5 Table 4.2.40-2
+ */
+static const value_string ansi_a_cld_party_bcd_num_plan_vals[] = {
+    { 0x00,     "Unknown" },
+    { 0x01,     "ISDN/telephony number plan (ITU recommendation E.164/E.163)" },
+    { 0x02,     "Reserved" },
+    { 0x03,     "Data number plan (ITU recommendation X.121)" },
+    { 0x04,     "Telex numbering plan (ITU recommendation F.69)" },
+    { 0x05,     "Reserved" },
+    { 0x06,     "Reserved" },
+    { 0x07,     "Reserved for extension" },
+    { 0x08,     "National numbering plan" },
+    { 0x09,     "Private numbering plan" },
+    { 0x0a,     "Reserved" },
+    { 0x0b,     "Reserved" },
+    { 0x0c,     "Reserved" },
+    { 0x0d,     "Reserved" },
+    { 0x0e,     "Reserved" },
+    { 0x0f,     "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -4135,95 +4223,94 @@ elem_qos_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 6.2.2.55
  */
 static const value_string ansi_a_cause_l3_coding_standard_vals[] = {
-    { 0, "Standard as described in ITU Recommendation Q.931"},
-    { 1, "Reserved for other international standards"},
-    { 2, "National standard"},
-    { 3, "Reserved for other international standards"},
-    { 0, NULL}
+    { 0,        "Standard as described in ITU Recommendation Q.931" },
+    { 1,        "Reserved for other international standards" },
+    { 2,        "National standard" },
+    { 3,        "Reserved for other international standards" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cause_l3_location_vals[] = {
-    { 0, "User"},
-    { 1, "Private network serving the local user"},
-    { 2, "Public network serving the local user"},
-    { 3, "Transit network"},
-    { 4, "Public network serving the remote user"},
-    { 5, "Private network serving the remote user"},
-    { 6, "Reserved"},
-    { 7, "International network"},
-    { 8, "Reserved"},
-    { 9, "Reserved"},
-    { 10, "Network beyond interworking point"},
-    { 11, "Reserved"},
-    { 12, "Reserved"},
-    { 13, "Reserved"},
-    { 14, "Reserved"},
-    { 15, "Reserved"},
-    { 0, NULL}
+    { 0,        "User" },
+    { 1,        "Private network serving the local user" },
+    { 2,        "Public network serving the local user" },
+    { 3,        "Transit network" },
+    { 4,        "Public network serving the remote user" },
+    { 5,        "Private network serving the remote user" },
+    { 6,        "Reserved" },
+    { 7,        "International network" },
+    { 8,        "Reserved" },
+    { 9,        "Reserved" },
+    { 10,       "Network beyond interworking point" },
+    { 11,       "Reserved" },
+    { 12,       "Reserved" },
+    { 13,       "Reserved" },
+    { 14,       "Reserved" },
+    { 15,       "Reserved" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cause_l3_class_vals[] = {
-    { 0, "normal event"},
-    { 1, "normal event"},
-    { 2, "resource unavailable"},
-    { 3, "service or option not available"},
-    { 4, "service or option not implemented"},
-    { 5, "invalid message (e.g., parameter out of range)"},
-    { 6, "protocol error (e.g., unknown message)"},
-    { 7, "interworking"},
-    { 0, NULL}
+    { 0,        "normal event" },
+    { 1,        "normal event" },
+    { 2,        "resource unavailable" },
+    { 3,        "service or option not available" },
+    { 4,        "service or option not implemented" },
+    { 5,        "invalid message (e.g., parameter out of range)" },
+    { 6,        "protocol error (e.g., unknown message)" },
+    { 7,        "interworking" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_cause_l3_value_vals[] = {
-    { 0x01, "Unassigned (unallocated) number"},
-    { 0x03, "No route to destination"},
-    { 0x06, "Channel unacceptable"},
-    { 0x0F, "Procedure failed"},
-    { 0x10, "Normal Clearing"},
-    { 0x11, "User busy"},
-    { 0x12, "No user responding"},
-    { 0x13, "User alerting, no answer"},
-    { 0x15, "Call rejected"},
-    { 0x16, "Number changed New destination"},
-    { 0x1A, "Non selected user clearing"},
-    { 0x1B, "Destination out of order"},
-    { 0x1C, "Invalid number format (incomplete number)"},
-    { 0x1D, "Facility rejected"},
-    { 0x1F, "Normal, unspecified"},
-    { 0x22, "No circuit/channel available"},
-    { 0x26, "Network out of order"},
-    { 0x29, "Temporary failure"},
-    { 0x2A, "Switching equipment congestion"},
-    { 0x2B, "Access information discarded information element ids"},
-    { 0x2C, "requested circuit/channel not available"},
-    { 0x2F, "Resources unavailable, unspecified"},
-    { 0x31, "Quality of service unavailable"},
-    { 0x32, "Requested facility not subscribed"},
-    { 0x33, "Request MUX option or rates unavailable"},
-    { 0x39, "Bearer capability not authorized"},
-    { 0x3A, "Bearer capability not presently available"},
-    { 0x3B, "SSD Update Rejected"},
-    { 0x3F, "Service or option not available, unspecified"},
-    { 0x41, "Bearer service not implemented"},
-    { 0x45, "Requested facility not implement"},
-    { 0x46, "Only restricted digital information bearer capability is available"},
-    { 0x4F, "Service or option not implemented, unspecified"},
-    { 0x51, "Reserved"},
-    { 0x58, "Incompatible destination incompatible parameter"},
-    { 0x5B, "Invalid transit network selection"},
-    { 0x5F, "Invalid message, unspecified"},
-    { 0x60, "Mandatory information element error information element identifier(s)"},
-    { 0x61, "Message type nonexistent or not implemented message type"},
-    { 0x62, "Message not compatible with control state message type or message type nonexistent or not implemented"},
-    { 0x64, "Invalid information element contents Information element Identifier(s)"},
-    { 0x65, "Message not compatible with call state message type"},
-    { 0x6F, "Protocol error, unspecified"},
-    { 0x7F, "Interworking, unspecified"},
-    { 0, NULL}
+    { 0x01,     "Unassigned (unallocated) number" },
+    { 0x03,     "No route to destination" },
+    { 0x06,     "Channel unacceptable" },
+    { 0x0F,     "Procedure failed" },
+    { 0x10,     "Normal Clearing" },
+    { 0x11,     "User busy" },
+    { 0x12,     "No user responding" },
+    { 0x13,     "User alerting, no answer" },
+    { 0x15,     "Call rejected" },
+    { 0x16,     "Number changed New destination" },
+    { 0x1A,     "Non selected user clearing" },
+    { 0x1B,     "Destination out of order" },
+    { 0x1C,     "Invalid number format (incomplete number)" },
+    { 0x1D,     "Facility rejected" },
+    { 0x1F,     "Normal, unspecified" },
+    { 0x22,     "No circuit/channel available" },
+    { 0x26,     "Network out of order" },
+    { 0x29,     "Temporary failure" },
+    { 0x2A,     "Switching equipment congestion" },
+    { 0x2B,     "Access information discarded information element ids" },
+    { 0x2C,     "requested circuit/channel not available" },
+    { 0x2F,     "Resources unavailable, unspecified" },
+    { 0x31,     "Quality of service unavailable" },
+    { 0x32,     "Requested facility not subscribed" },
+    { 0x33,     "Request MUX option or rates unavailable" },
+    { 0x39,     "Bearer capability not authorized" },
+    { 0x3A,     "Bearer capability not presently available" },
+    { 0x3B,     "SSD Update Rejected" },
+    { 0x3F,     "Service or option not available, unspecified" },
+    { 0x41,     "Bearer service not implemented" },
+    { 0x45,     "Requested facility not implement" },
+    { 0x46,     "Only restricted digital information bearer capability is available" },
+    { 0x4F,     "Service or option not implemented, unspecified" },
+    { 0x51,     "Reserved" },
+    { 0x58,     "Incompatible destination incompatible parameter" },
+    { 0x5B,     "Invalid transit network selection" },
+    { 0x5F,     "Invalid message, unspecified" },
+    { 0x60,     "Mandatory information element error information element identifier(s)" },
+    { 0x61,     "Message type nonexistent or not implemented message type" },
+    { 0x62,     "Message not compatible with control state message type or message type nonexistent or not implemented" },
+    { 0x64,     "Invalid information element contents Information element Identifier(s)" },
+    { 0x65,     "Message not compatible with call state message type" },
+    { 0x6F,     "Protocol error, unspecified" },
+    { 0x7F,     "Interworking, unspecified" },
+    { 0, NULL }
 };
 
 static value_string_ext ansi_a_cause_l3_value_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_cause_l3_value_vals);
-
 
 static guint8
 elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -4235,26 +4322,18 @@ elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_extension_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
     proto_tree_add_item(tree, hf_ansi_a_cause_l3_coding_standard, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_10, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_cause_l3_location, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_extension_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
     proto_tree_add_item(tree, hf_ansi_a_cause_l3_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    switch (oct & 0x7f)
-    {
-    default:
-        str = "Reserved";
-        break;
-    }
-
     proto_tree_add_item(tree, hf_ansi_a_cause_l3_value_without_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
 
     str = val_to_str_ext_const(oct & 0x7f, &ansi_a_cause_l3_value_vals_ext, "Reserved");
     proto_tree_add_uint_format_value(tree, hf_ansi_a_cause_l3_value, tvb, curr_offset, 1,
@@ -4282,8 +4361,6 @@ elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
 /*
  * IOS 6.2.2.58
  */
-static const true_false_string tfs_ansi_a_xmode_tfo_mode = { "TFO", "tandem" };
-
 static guint8
 elem_xmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
@@ -4324,16 +4401,16 @@ elem_xmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
  * IOS 5 4.2.45
  */
 static const value_string ansi_a_reg_type_type_vals[] = {
-    { 0, "Timer-based"},
-    { 1, "Power-up"},
-    { 2, "Zone-based"},
-    { 3, "Power-down"},
-    { 4, "Parameter-change"},
-    { 5, "Ordered"},
-    { 6, "Distance-based"},
-    { 7, "User Zone-based"},
-    { 9, "BCMC Registration"},
-    { 0, NULL}
+    { 0,        "Timer-based" },
+    { 1,        "Power-up" },
+    { 2,        "Zone-based" },
+    { 3,        "Power-down" },
+    { 4,        "Parameter-change" },
+    { 5,        "Ordered" },
+    { 6,        "Distance-based" },
+    { 7,        "User Zone-based" },
+    { 9,        "BCMC Registration" },
+    { 0, NULL }
 };
 
 static guint8
@@ -4520,7 +4597,11 @@ elem_so(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset,
     value = tvb_get_ntohs(tvb, curr_offset);
 
     g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
-    g_snprintf(ansi_a_so_add_string, sizeof(ansi_a_so_add_string), "%s", &add_string[1]);
+    proto_item_append_text(ansi_a_message_item, "%s", add_string);
+    if (global_a_info_display)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", &add_string[1]);
+    }
 
     proto_tree_add_uint_format(tree, hf_ansi_a_so, tvb, curr_offset, 2,
         value,
@@ -4672,7 +4753,7 @@ elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 #define ADDS_APP_EXT_INTL       0x3E
 #define ADDS_APP_EXT            0x3F
 
-static const value_string ansi_a_adds_strings[] = {
+static const value_string ansi_a_adds_vals[] = {
     { ADDS_APP_UNKNOWN,         "UNKNOWN" },
     { ADDS_APP_ADS,             "ADS" },
     { ADDS_APP_FAX,             "FAX" },
@@ -4683,7 +4764,7 @@ static const value_string ansi_a_adds_strings[] = {
     { ADDS_APP_HRPD,            "HRPD" },
     { ADDS_APP_EXT_INTL,        "EXT_INTL" },
     { ADDS_APP_EXT,             "EXT" },
-    { 0,                        NULL}
+    { 0, NULL }
 };
 
 /*
@@ -4693,7 +4774,6 @@ static guint8
 elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
-    guint8      adds_app;
     guint32     curr_offset;
     const gchar *str;
     tvbuff_t    *adds_tvb;
@@ -4703,21 +4783,19 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_c0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_adds_user_part_burst_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    adds_app = oct & 0x3f;
-    str = val_to_str_const(adds_app, ansi_a_adds_strings, "Reserved");
+    str = val_to_str_const(oct & 0x3f, ansi_a_adds_vals, "Reserved");
     g_snprintf(add_string, string_len, " - (%s)", str);
-
-    proto_tree_add_item(tree, hf_ansi_a_adds_user_part_burst_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset++;
 
     item = proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Application Data Message");
     subtree = proto_item_add_subtree(item, ett_adds_user_part);
 
-    switch (adds_app)
+    switch (oct & 0x3f)
     {
     case ADDS_APP_SMS:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
@@ -4808,17 +4886,17 @@ elem_amps_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
  * IOS 6.2.2.68
  */
 static const value_string ansi_a_is2000_scr_socr_for_chan_type_vals[] = {
-    { 0x00, "The service option connection does not use Forward Traffic Channel traffic."},
-    { 0x01, "The service option connection uses primary traffic on the Forward Traffic Channel."},
-    { 0x02, "The service option connection uses secondary traffic on the Forward Traffic Channel."},
-    { 0, NULL}
+    { 0x00,     "The service option connection does not use Forward Traffic Channel traffic." },
+    { 0x01,     "The service option connection uses primary traffic on the Forward Traffic Channel." },
+    { 0x02,     "The service option connection uses secondary traffic on the Forward Traffic Channel." },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_is2000_scr_socr_rev_chan_type_vals[] = {
-    { 0x00, "The service option connection does not use Reverse Traffic Channel traffic."},
-    { 0x01, "The service option connection uses primary traffic on the Reverse Traffic Channel."},
-    { 0x02, "The service option connection uses secondary traffic on the Reverse Traffic Channel."},
-    { 0, NULL}
+    { 0x00,     "The service option connection does not use Reverse Traffic Channel traffic." },
+    { 0x01,     "The service option connection uses primary traffic on the Reverse Traffic Channel." },
+    { 0x02,     "The service option connection uses secondary traffic on the Reverse Traffic Channel." },
+    { 0, NULL }
 };
 
 static guint8
@@ -4912,7 +4990,6 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
         if (oct & 0x02)
         {
             value = (oct & 0x01) << 3;
-            other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 
             curr_offset += 1;
 
@@ -4920,6 +4997,7 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
             value |= (oct & 0xe0) >> 5;
 
+            other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
             proto_tree_add_uint_format(subtree, hf_ansi_a_is2000_scr_socr_rlp_blob_len, tvb, curr_offset - 1, 1,
                 value,
                 "%s = RLP_BLOB_LEN (MSB): %u",
@@ -4969,7 +5047,6 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
         proto_tree_add_item(scr_subtree, hf_ansi_a_is2000_scr_socr_fch_frame_size_support_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(scr_subtree, hf_ansi_a_is2000_scr_socr_for_fch_rc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
         value = (oct & 0x01) << 4;
 
         curr_offset += 1;
@@ -4978,15 +5055,16 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
         value |= (oct & 0xf0) >> 4;
 
+        other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
         proto_tree_add_uint_format(scr_subtree, hf_ansi_a_is2000_scr_socr_rev_fch_rc, tvb, curr_offset - 1, 1,
             value,
-            "%s = REV_FCH_RC:  Reverse Fundamental Channel Radio Configuration (MSB), %u",
+            "%s = REV_FCH_RC (MSB):  Reverse Fundamental Channel Radio Configuration: %u",
             a_bigbuf,
             value);
 
         other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
         proto_tree_add_text(scr_subtree, tvb, curr_offset, 1,
-            "%s = REV_FCH_RC:  (LSB)",
+            "%s = REV_FCH_RC (LSB)",
             a_bigbuf);
 
         bit_mask = 0x08;
@@ -5118,20 +5196,16 @@ elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
  * IOS 5 4.2.53
  */
 static const value_string ansi_a_is2000_mob_cap_fch_info_geo_loc_type_vals[] = {
-    { 0, "No mobile assisted geo-location capabilities"},
-    { 1, "IS801 capable (Advanced Forward Link Triangulation only (AFLT))"},
-    { 2, "IS801 capable (Advanced Forward Link Triangulation and Global Positioning Systems)"},
-    { 3, "Global Positioning Systems Only"},
-    { 4, "Reserved"},
-    { 5, "Reserved"},
-    { 6, "Reserved"},
-    { 7, "Reserved"},
-    { 0, NULL}
+    { 0,        "No mobile assisted geo-location capabilities" },
+    { 1,        "IS801 capable (Advanced Forward Link Triangulation only (AFLT))" },
+    { 2,        "IS801 capable (Advanced Forward Link Triangulation and Global Positioning Systems)" },
+    { 3,        "Global Positioning Systems Only" },
+    { 4,        "Reserved" },
+    { 5,        "Reserved" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved" },
+    { 0, NULL }
 };
-
-const true_false_string tfs_reserved_no_voice_privacy = { "Reserved", "No voice privacy supported" };
-const true_false_string tfs_reserved_aes = { "Reserved", "Advanced Encryption Standard (AES)" };
-const true_false_string tfs_reserved_private_long_code = { "Reserved", "Private long code" };
 
 static guint8
 elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -5140,7 +5214,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     guint8      oct_len;
     guint32     curr_offset;
     guint8      fill_bits;
-    proto_item  *item = NULL;
+    proto_item  *item;
     proto_tree  *subtree;
 
     curr_offset = offset;
@@ -5180,12 +5254,11 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
      */
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_geo_loc_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_geo_loc_incl, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    fill_bits = oct & 0x07;
+    fill_bits = tvb_get_guint8(tvb, curr_offset) & 0x07;
 
     curr_offset++;
 
@@ -5218,9 +5291,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_dcch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    fill_bits = oct & 0x07;
+    fill_bits = tvb_get_guint8(tvb, curr_offset) & 0x07;
 
     curr_offset++;
 
@@ -5252,9 +5323,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_for_pdch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    fill_bits = oct & 0x07;
+    fill_bits = tvb_get_guint8(tvb, curr_offset) & 0x07;
 
     curr_offset++;
 
@@ -5286,9 +5355,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_rev_pdch_info_num_fill_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    fill_bits = oct & 0x07;
+    fill_bits = tvb_get_guint8(tvb, curr_offset) & 0x07;
 
     curr_offset++;
 
@@ -5377,96 +5444,125 @@ elem_ptype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
  * IOS 6.2.2.72
  */
 static const value_string ansi_a_ms_info_rec_signal_type_vals[] = {
-    { 0x0,      "Tone signal"},
-    { 0x1,      "ISDN Alerting"},
-    { 0x2,      "IS-54B Alerting"},
-    { 0x3,      "Reserved"},
-    { 0, NULL}
+    { 0x0,      "Tone signal" },
+    { 0x1,      "ISDN Alerting" },
+    { 0x2,      "IS-54B Alerting" },
+    { 0x3,      "Reserved" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_ms_info_rec_signal_alert_pitch_vals[] = {
-    { 0x0,      "Medium pitch (standard alert)"},
-    { 0x1,      "High pitch"},
-    { 0x2,      "Low pitch"},
-    { 0x3,      "Reserved"},
-    { 0, NULL}
+    { 0x0,      "Medium pitch (standard alert)" },
+    { 0x1,      "High pitch" },
+    { 0x2,      "Low pitch" },
+    { 0x3,      "Reserved" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_ms_info_rec_signal_tone_vals[] = {
-    { 0x00,     "Dial tone on"},
-    { 0x01,     "Ring back tone on"},
-    { 0x02,     "Intercept tone on"},
-    { 0x03,     "Abbreviated intercept"},
-    { 0x04,     "Network congestion (reorder) tone on"},
-    { 0x05,     "Abbreviated network congestion (reorder)"},
-    { 0x06,     "Busy tone on"},
-    { 0x07,     "Confirm tone on"},
-    { 0x08,     "Answer tone on"},
-    { 0x09,     "Call waiting tone on"},
-    { 0x0a,     "Pip tone on"},
-    { 0x3f,     "Tones off"},
-    { 0, NULL}
+    { 0x00,     "Dial tone on" },
+    { 0x01,     "Ring back tone on" },
+    { 0x02,     "Intercept tone on" },
+    { 0x03,     "Abbreviated intercept" },
+    { 0x04,     "Network congestion (reorder) tone on" },
+    { 0x05,     "Abbreviated network congestion (reorder)" },
+    { 0x06,     "Busy tone on" },
+    { 0x07,     "Confirm tone on" },
+    { 0x08,     "Answer tone on" },
+    { 0x09,     "Call waiting tone on" },
+    { 0x0a,     "Pip tone on" },
+    { 0x3f,     "Tones off" },
+    { 0, NULL }
 };
 
-static const value_string ansi_a_ms_info_rec_signal_isdn_alert_vals[] = {
-    { 0x0,      "Normal Alerting"},
-    { 0x1,      "Intergroup Alerting"},
-    { 0x2,      "Special/Priority Alerting"},
-    { 0x3,      "Reserved (ISDN Alerting pattern 3)"},
-    { 0x4,      "Ping ring"},
-    { 0x5,      "Reserved (ISDN Alerting pattern 5)"},
-    { 0x6,      "Reserved (ISDN Alerting pattern 6)"},
-    { 0x7,      "Reserved (ISDN Alerting pattern 7)"},
-    { 0xf,      "Alerting off"},
-    { 0, NULL}
+const value_string ansi_a_ms_info_rec_signal_isdn_alert_vals[] = {
+    { 0x0,      "Normal Alerting" },
+    { 0x1,      "Intergroup Alerting" },
+    { 0x2,      "Special/Priority Alerting" },
+    { 0x3,      "Reserved (ISDN Alerting pattern 3)" },
+    { 0x4,      "Ping ring" },
+    { 0x5,      "Reserved (ISDN Alerting pattern 5)" },
+    { 0x6,      "Reserved (ISDN Alerting pattern 6)" },
+    { 0x7,      "Reserved (ISDN Alerting pattern 7)" },
+    { 0xf,      "Alerting off" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_ms_info_rec_signal_is54b_alert_vals[] = {
-    { 0x0,      "No Tone"},
-    { 0x1,      "Long"},
-    { 0x2,      "Short-Short"},
-    { 0x3,      "Short-Short-Long"},
-    { 0x4,      "Short-Short-2"},
-    { 0x5,      "Short-Long-Short"},
-    { 0x6,      "Short-Short-Short-Short"},
-    { 0x7,      "PBX Long"},
-    { 0x8,      "PBX Short-Short"},
-    { 0x9,      "PBX Short-Short-Long"},
-    { 0xa,      "PBX Short-Long-Short"},
-    { 0xb,      "PBX Short-Short-Short-Short"},
-    { 0xc,      "Pip-Pip-Pip-Pip"},
-    { 0, NULL}
+    { 0x0,      "No Tone" },
+    { 0x1,      "Long" },
+    { 0x2,      "Short-Short" },
+    { 0x3,      "Short-Short-Long" },
+    { 0x4,      "Short-Short-2" },
+    { 0x5,      "Short-Long-Short" },
+    { 0x6,      "Short-Short-Short-Short" },
+    { 0x7,      "PBX Long" },
+    { 0x8,      "PBX Short-Short" },
+    { 0x9,      "PBX Short-Short-Long" },
+    { 0xa,      "PBX Short-Long-Short" },
+    { 0xb,      "PBX Short-Short-Short-Short" },
+    { 0xc,      "Pip-Pip-Pip-Pip" },
+    { 0, NULL }
 };
 
-static const value_string ansi_a_fwd_ms_info_rec_cld_pn_num_type_vals[] = {
-    { 0, "Unknown"},
-    { 1, "International number"},
-    { 2, "National number"},
-    { 3, "Network-specific number"},
-    { 4, "Subscriber number"},
-    { 5, "Reserved"},
-    { 6, "Abbreviated number"},
-    { 0, NULL}
+/*
+ * C.S0005 Table 2.7.1.3.2.4-2 Number Types
+ */
+static const value_string ansi_a_ms_info_rec_num_type_vals[] = {
+    { 0,        "Unknown" },
+    { 1,        "International number" },
+    { 2,        "National number" },
+    { 3,        "Network-specific number" },
+    { 4,        "Subscriber number" },
+    { 5,        "Reserved" },
+    { 6,        "Abbreviated number" },
+    { 7,        "Reserved for extension" },
+    { 0, NULL }
 };
 
-static const value_string ansi_a_fwd_ms_info_rec_cld_pn_num_plan_vals[] = {
-    { 0x00, "Unknown"},
-    { 0x01, "ISDN/Telephony Numbering"},
-    { 0x02, "Reserved"},
-    { 0x03, "Data Numbering (ITU-T Rec. X.121)"},
-    { 0x04, "Telex Numbering (ITU-T Rec. F.69)"},
-    { 0x05, "Reserved"},
-    { 0x06, "Reserved"},
-    { 0x07, "Reserved"},
-    { 0x08, "Reserved"},
-    { 0x09, "Private Numbering"},
-    { 0x0a, "Reserved"},
-    { 0x0b, "Reserved"},
-    { 0x0c, "Reserved"},
-    { 0x0d, "Reserved"},
-    { 0x0e, "Reserved"},
-    { 0x0f, "Reserved for extension"},
-    { 0, NULL}
+/*
+ * C.S0005 Table 2.7.1.3.2.4-3 Numbering Plan Identification
+ */
+static const value_string ansi_a_ms_info_rec_num_plan_vals[] = {
+    { 0x00,     "Unknown" },
+    { 0x01,     "ISDN/Telephony Numbering" },
+    { 0x02,     "Reserved" },
+    { 0x03,     "Data Numbering (ITU-T Rec. X.121)" },
+    { 0x04,     "Telex Numbering (ITU-T Rec. F.69)" },
+    { 0x05,     "Reserved" },
+    { 0x06,     "Reserved" },
+    { 0x07,     "Reserved" },
+    { 0x08,     "Reserved" },
+    { 0x09,     "Private Numbering" },
+    { 0x0a,     "Reserved" },
+    { 0x0b,     "Reserved" },
+    { 0x0c,     "Reserved" },
+    { 0x0d,     "Reserved" },
+    { 0x0e,     "Reserved" },
+    { 0x0f,     "Reserved for extension" },
+    { 0, NULL }
+};
+
+/*
+ * C.S0005 Table 2.7.4.4-1 Presentation Indicator
+ */
+static const value_string ansi_a_ms_info_rec_clg_pn_pi_vals[] = {
+    { 0,        "Presentation allowed" },
+    { 1,        "Presentation restricted" },
+    { 2,        "Number not available" },
+    { 3,        "Reserved" },
+    { 0, NULL }
+};
+
+/*
+ * C.S0005 Table 2.7.4.4-2 Screening Indicator
+ */
+static const value_string ansi_a_ms_info_rec_clg_pn_si_vals[] = {
+    { 0,        "User-provided, not screened" },
+    { 1,        "User-provided, verified and passed" },
+    { 2,        "User-provided, verified and failed" },
+    { 3,        "Network-provided" },
+    { 0, NULL }
 };
 
 static guint8
@@ -5511,6 +5607,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                 num_recs + 1,
                 rec_type,
                 str);
+
         subtree = proto_item_add_subtree(item, ett_elem_idx);
 
         curr_offset++;
@@ -5528,13 +5625,13 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
             switch (rec_type)
             {
             case ANSI_FWD_MS_INFO_REC_CLD_PN:
-                oct = tvb_get_guint8(tvb, curr_offset);
-
                 proto_tree_add_item(subtree, hf_ansi_a_fwd_ms_info_rec_cld_pn_num_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_ansi_a_fwd_ms_info_rec_cld_pn_num_plan, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
                 if (oct_len > 1)
                 {
+                    oct = tvb_get_guint8(tvb, curr_offset);
+
                     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
                     proto_tree_add_text(subtree, tvb, curr_offset, 1,
                         "%s = MSB of first digit",
@@ -5565,8 +5662,6 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                 break;
 
             case ANSI_FWD_MS_INFO_REC_CLG_PN:
-                value = tvb_get_ntohs(tvb, curr_offset);
-
                 proto_tree_add_item(subtree, hf_ansi_a_fwd_ms_info_rec_clg_pn_num_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_ansi_a_fwd_ms_info_rec_clg_pn_num_plan, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_ansi_a_fwd_ms_info_rec_clg_pn_pi, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -5574,6 +5669,8 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                 if (oct_len > 2)
                 {
+                    value = tvb_get_ntohs(tvb, curr_offset);
+
                     oct = (value & 0x00ff);
 
                     other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
@@ -5640,7 +5737,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                     break;
                 }
 
-                proto_tree_add_item(subtree, hf_ansi_a_reserved_bits_8_3f, tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_ansi_a_reserved_bits_16_003f, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
                 curr_offset += oct_len;
                 break;
@@ -5749,13 +5846,13 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                 break;
 
             case ANSI_REV_MS_INFO_REC_CLD_PN:
-                oct = tvb_get_guint8(tvb, curr_offset);
-
                 proto_tree_add_item(subtree, hf_ansi_a_rev_ms_info_rec_cld_pn_num_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_ansi_a_rev_ms_info_rec_cld_pn_num_plan, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
                 if (oct_len > 1)
                 {
+                    oct = tvb_get_guint8(tvb, curr_offset);
+
                     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
                     proto_tree_add_text(subtree, tvb, curr_offset, 1,
                         "%s = MSB of first digit",
@@ -5787,10 +5884,6 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                 break;
 
             case ANSI_REV_MS_INFO_REC_CLG_PN:
-                value = tvb_get_ntohs(tvb, curr_offset);
-
-                oct = (value & 0xff00) >> 8;
-
                 proto_tree_add_item(subtree, hf_ansi_a_rev_ms_info_rec_clg_pn_num_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_ansi_a_rev_ms_info_rec_clg_pn_num_plan, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_ansi_a_rev_ms_info_rec_clg_pn_pi, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -5798,6 +5891,8 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                 if (oct_len > 2)
                 {
+                    value = tvb_get_ntohs(tvb, curr_offset);
+
                     oct = (value & 0x00ff);
 
                     other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
@@ -5843,8 +5938,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                 while ((oct_len - (curr_offset - saved_offset2)) > 2)
                 {
                     item = proto_tree_add_text(subtree, tvb, curr_offset, 3,
-                            "Service Option [%u]",
-                            i + 1);
+                            "Service Option [%u]", i + 1);
 
                     subtree2 = proto_item_add_subtree(item, ett_so_list);
 
@@ -5899,11 +5993,11 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
  * IOS 5 4.2.56
  */
 static const value_string ansi_a_ext_ho_dir_params_target_bs_values_incl_vals[] = {
-    { 0, "Only Search Window A Size is valid"},
-    { 1, "Subset is valid"},
-    { 2, "All fields valid"},
-    { 3, "Reserved"},
-    { 0, NULL}
+    { 0,        "Only Search Window A Size is valid" },
+    { 1,        "Subset is valid" },
+    { 2,        "All fields valid" },
+    { 3,        "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -6031,11 +6125,11 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  * IOS 6.2.2.79
  */
 static const value_string ansi_a_cdma_sowd_resolution_vals[] = {
-    { 0, "100 nsec"},
-    { 1, "50 nsec"},
-    { 2, "1/16 CDMA PN Chip"},
-    { 3, "Reserved"},
-    { 0, NULL}
+    { 0,        "100 nsec" },
+    { 1,        "50 nsec" },
+    { 2,        "1/16 CDMA PN Chip" },
+    { 3,        "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -6081,11 +6175,11 @@ elem_cdma_sowd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.2.2.82
  */
 static const value_string ansi_a_re_res_vals[] = {
-    { 0, "Not reported"},
-    { 1, "Radio environment is acceptable"},
-    { 2, "Radio environment is marginally acceptable"},
-    { 3, "Radio environment is poor"},
-    { 0, NULL}
+    { 0,        "Not reported" },
+    { 1,        "Radio environment is acceptable" },
+    { 2,        "Radio environment is marginally acceptable" },
+    { 3,        "Radio environment is poor" },
+    { 0, NULL }
 };
 
 static guint8
@@ -6221,6 +6315,8 @@ elem_re_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
 /*
  * IOS 6.2.2.105
+ *
+ * IOS 5 4.2.59
  */
 static guint8
 elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -6650,15 +6746,15 @@ elem_paca_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
  * IOS 6.2.2.150
  */
 static const value_string ansi_a_paca_order_action_reqd_vals[] = {
-    { 0, "Reserved"},
-    { 1, "Update Queue Position and notify MS"},
-    { 2, "Remove MS from the queue and release MS"},
-    { 3, "Remove MS from the queue"},
-    { 4, "MS Requested PACA Cancel"},
-    { 5, "BS Requested PACA Cancel"},
-    { 6, "Reserved"},
-    { 7, "Reserved"},
-    { 0, NULL}
+    { 0,        "Reserved" },
+    { 1,        "Update Queue Position and notify MS" },
+    { 2,        "Remove MS from the queue and release MS" },
+    { 3,        "Remove MS from the queue" },
+    { 4,        "MS Requested PACA Cancel" },
+    { 5,        "BS Requested PACA Cancel" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -6670,11 +6766,12 @@ elem_paca_order(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_ansi_a_paca_order_action_reqd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    g_snprintf(add_string, string_len, " - (%s)", val_to_str_const(oct & 7, ansi_a_paca_order_action_reqd_vals, "Reserved"));
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    g_snprintf(add_string, string_len, " - (%s)",
+        val_to_str_const(oct & 0x07, ansi_a_paca_order_action_reqd_vals, "Reserved"));
 
     curr_offset++;
 
@@ -6711,8 +6808,6 @@ elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
 /*
  * IOS 5 4.2.89
  */
-static const true_false_string tfs_a2p_bearer_sess_addr_flag = { "Session IP Address is present", "Session IP Address is not present" };
-
 static guint8
 elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -6723,11 +6818,10 @@ elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_c0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_sess_max_frames, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct = tvb_get_guint8(tvb, curr_offset);
-
     proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_sess_ip_addr_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_sess_addr_flag, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
 
     curr_offset++;
 
@@ -6780,43 +6874,45 @@ elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  * IOS 5 4.2.90
  */
 static const value_string ansi_a_a2p_bearer_form_format_tag_type_vals[] = {
-    { 0, "Unknown"},
-    { 1, "In-band signaling"},
-    { 2, "Assigned"},
-    { 3, "Unassigned"},
-    { 4, "Transcoded"},
-    { 5, "Reserved"},
-    { 6, "Reserved"},
-    { 7, "Reserved"},
-    { 0, NULL}
+    { 0,        "Unknown" },
+    { 1,        "In-band signaling" },
+    { 2,        "Assigned" },
+    { 3,        "Unassigned" },
+    { 4,        "Transcoded" },
+    { 5,        "Reserved" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved" },
+    { 0, NULL }
 };
 
+/*
+ * IOS 5 Table 4.2.90-3
+ *  Bearer Format ID, Encoding Name from IANA
+ */
 static const value_string ansi_a_a2p_bearer_form_format_format_id_vals[] = {
-    { 0, "PCMU"},
-    { 1, "PCMA"},
-    { 2, "13K Vocoder"},
-    { 3, "EVRC"},
-    { 4, "EVRC0"},
-    { 5, "SMV"},
-    { 6, "SMV0"},
-    { 7, "telephone-event"},
+    { 0,        "PCMU" },
+    { 1,        "PCMA" },
+    { 2,        "13K Vocoder" },        /* aka QCELP */
+    { 3,        "EVRC" },
+    { 4,        "EVRC0" },
+    { 5,        "SMV" },
+    { 6,        "SMV0" },
+    { 7,        "telephone-event" },
         /*
          * the following Bearer Format IDs have been assumed/used by Star Solutions, however,
          * 3GPP2 has not yet updated the IOS specifications for these vocoders
          * (the MIME types are in IANA)
          */
-    { 8, "EVRCB"},
-    { 9, "EVRCB0"},
-    { 10, "EVRCWB"},
-    { 11, "EVRCWB0"},
-    { 12, "EVRCNW"},
-    { 13, "EVRCNW0"},
-    { 14, "EVRCNW2K"},
-    { 15, "EVRCNW2K0"},
-    { 0, NULL}
+    { 8,        "EVRCB" },
+    { 9,        "EVRCB0" },
+    { 10,       "EVRCWB" },
+    { 11,       "EVRCWB0" },
+    { 12,       "EVRCNW" },
+    { 13,       "EVRCNW0" },
+    { 14,       "EVRCNW2K" },
+    { 15,       "EVRCNW2K0" },
+    { 0, NULL }
 };
-
-static const true_false_string tfs_a2p_bearer_form_format_bearer_addr_flag = { "Override Bearer Session IP Address", "Use Bearer Session IP Address" };
 
 static guint8
 elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -6829,7 +6925,6 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     guint8                              ip_addr_type;
     gboolean                            ext;
     guint8                              ext_len;
-    const gchar                         *str;
     const gchar                         *mime_type;
     int                                 sample_rate;
     gboolean                            format_assigned;
@@ -6849,12 +6944,9 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_form_num_formats, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_form_ip_addr_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-    ip_addr_type = (oct & 0x03);
-    str = val_to_str_const(ip_addr_type, ansi_a_ip_addr_type_vals, "Reserved");
-    proto_tree_add_uint_format_value(tree, hf_ansi_a_a2p_bearer_form_ip_addr_type, tvb, curr_offset, 1,
-        ip_addr_type, "%s", str);
+    ip_addr_type = tvb_get_guint8(tvb, curr_offset) & 0x03;
 
     curr_offset++;
 
@@ -6875,6 +6967,8 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
         NO_MORE_DATA_CHECK(len);
 
         proto_tree_add_item(subtree, hf_ansi_a_extension_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_tag_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_format_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
         oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -6893,33 +6987,33 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             break;
         }
 
-        proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_tag_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
         /*
-         * assuming default sampling rate of 8000Hz
+         * sampling rates are based on the specific vocoder RFCs
+         * (example subset RFC4788, RFC5188, RFC6884)
          */
-        sample_rate = 8000;
-
-        /*
-         * Bearer Format ID
-         */
-        if ((oct & 0x0f) >= 10)
+        if (((oct & 0x0f) >= 10) &&
+            ((oct & 0x0f) <= 15))
+        {
             sample_rate = 16000;
+        }
+        else
+        {
+            sample_rate = 8000;
+        }
 
         mime_type = val_to_str_const(oct & 0xf, ansi_a_a2p_bearer_form_format_format_id_vals, "Reserved");
-        proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_format_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(item, " - (%s)", mime_type);
         curr_offset++;
 
         NO_MORE_DATA_CHECK(len);
 
         proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_rtp_payload_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_bearer_addr_flag, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
         oct = tvb_get_guint8(tvb, curr_offset);
 
         rtp_payload_type = (oct & 0xfe) >> 1;
 
-        proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_form_format_bearer_addr_flag, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
 
         if (oct & 0x01)
@@ -7069,11 +7163,11 @@ elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
  * IOS 5 4.2.87
  */
 static const value_string ansi_a_plcm_id_plcm_type_vals[] = {
-    { 0, "PLCM derived from ESN or MEID"},
-    { 1, "PLCM specified by the base station"},
-    { 2, "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_M"},
-    { 3, "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_T"},
-    { 0, NULL}
+    { 0,        "PLCM derived from ESN or MEID" },
+    { 1,        "PLCM specified by the base station" },
+    { 2,        "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_M" },
+    { 3,        "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_T" },
+    { 0, NULL }
 };
 
 static guint8
@@ -7126,27 +7220,27 @@ elem_plcm_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
  * IS-634.400A 6.2.2.56
  */
 static const value_string ansi_a_bdtmf_trans_info_dtmf_off_len_vals[] = {
-    { 0, "60ms"},
-    { 1, "100ms"},
-    { 2, "150ms"},
-    { 3, "200ms"},
-    { 4, "Reserved"},
-    { 5, "Reserved"},
-    { 6, "Reserved"},
-    { 7, "Reserved"},
-    { 0, NULL}
+    { 0,        "60ms" },
+    { 1,        "100ms" },
+    { 2,        "150ms" },
+    { 3,        "200ms" },
+    { 4,        "Reserved" },
+    { 5,        "Reserved" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved" },
+    { 0, NULL }
 };
 
 static const value_string ansi_a_bdtmf_trans_info_dtmf_on_len_vals[] = {
-    { 0, "95ms"},
-    { 1, "150ms"},
-    { 2, "200ms"},
-    { 3, "250ms"},
-    { 4, "300ms"},
-    { 5, "350ms"},
-    { 6, "Reserved"},
-    { 7, "Reserved"},
-    { 0, NULL}
+    { 0,        "95ms" },
+    { 1,        "150ms" },
+    { 2,        "200ms" },
+    { 3,        "250ms" },
+    { 4,        "300ms" },
+    { 5,        "350ms" },
+    { 6,        "Reserved" },
+    { 7,        "Reserved" },
+    { 0, NULL }
 };
 
 static guint8
@@ -7717,45 +7811,37 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 }
 
 
-#define ELEM_MAND_TLV_NO_RET(elem_idx, elem_name_addition) \
-{\
-    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
-    { \
-        curr_offset += consumed; \
-        curr_len -= consumed; \
-    } \
-    else \
-    { \
-        proto_tree_add_expert_format(tree, pinfo, &ei_ansi_a_missing_mand_elem, \
-            tvb, curr_offset, 0, \
-            "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-                ansi_a_elem_1_strings[elem_idx].value, \
-                ansi_a_elem_1_strings[elem_idx].strptr, \
-                (elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
-            ); \
-    } \
-}
 #define ELEM_MAND_TLV(elem_idx, elem_name_addition) \
 {\
-    ELEM_MAND_TLV_NO_RET(elem_idx, elem_name_addition); \
+    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    { \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
+    } \
+    else \
+    { \
+        proto_tree_add_expert_format(tree, pinfo, &ei_ansi_a_missing_mand_elem, \
+            tvb, curr_offset, 0, \
+            "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+                ansi_a_elem_1_strings[elem_idx].value, \
+                ansi_a_elem_1_strings[elem_idx].strptr, \
+                (elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
+            ); \
+    } \
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_OPT_TLV_NO_RET(elem_idx, elem_name_addition) \
+#define ELEM_OPT_TLV(elem_idx, elem_name_addition) \
 {\
     if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-}
-#define ELEM_OPT_TLV(elem_idx, elem_name_addition) \
-{\
-    ELEM_OPT_TLV_NO_RET(elem_idx, elem_name_addition); \
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_MAND_TV_NO_RET(elem_idx, elem_name_addition) \
+#define ELEM_MAND_TV(elem_idx, elem_name_addition) \
 {\
     if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
@@ -7772,24 +7858,16 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
                 (elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
             ); \
     } \
-}
-#define ELEM_MAND_TV(elem_idx, elem_name_addition) \
-{\
-    ELEM_MAND_TV_NO_RET(elem_idx, elem_name_addition); \
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_OPT_TV_NO_RET(elem_idx, elem_name_addition) \
+#define ELEM_OPT_TV(elem_idx, elem_name_addition) \
 {\
     if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-}
-#define ELEM_OPT_TV(elem_idx, elem_name_addition) \
-{\
-    ELEM_OPT_TV_NO_RET(elem_idx, elem_name_addition); \
     if (curr_len <= 0) return; \
 }
 
@@ -7803,7 +7881,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_MAND_LV_NO_RET(elem_idx, elem_name_addition, from_sip) \
+#define ELEM_MAND_LV(elem_idx, elem_name_addition, from_sip) \
 {\
     if ((consumed = (from_sip ? \
                          elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition) : \
@@ -7816,10 +7894,6 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     { \
         /* Mandatory, but nothing we can do */ \
     } \
-}
-#define ELEM_MAND_LV(elem_idx, elem_name_addition, from_sip) \
-{\
-    ELEM_MAND_LV_NO_RET(elem_idx, elem_name_addition, from_sip); \
     if (curr_len <= 0) return; \
 }
 
@@ -7846,16 +7920,19 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 static void
 bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
 {
-    guint16      consumed;
     guint32     curr_offset;
+    guint16     consumed;
     guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    if (!from_sip) {
-        /* With femtoInterfaceMsg application, the Information Elements
-           for the Complete Layer 3 Information message shall not be included */
+    if (!from_sip)
+    {
+        /*
+         * With femtoInterfaceMsg application, the Information Elements for the
+         * Complete Layer 3 Information message shall not be included
+         */
         ELEM_MAND_TLV(ANSI_A_E_CELL_ID, "");
 
         ELEM_MAND_TLV(ANSI_A_E_L3_INFO, "");
@@ -7868,11 +7945,11 @@ bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.2.2
  */
 static const value_string dtap_cm_service_type_vals[] = {
-    { 1, "Mobile Originating Call"},
-    { 2, "Emergency call establishment"},
-    { 4, "Short Message transfer"},
-    { 8, "Supplementary Service activation"},
-    { 0, NULL}
+    { 1,        "Mobile Originating Call" },
+    { 2,        "Emergency call establishment" },
+    { 4,        "Short Message transfer" },
+    { 8,        "Supplementary Service activation" },
+    { 0, NULL }
 };
 
 static void
@@ -7896,8 +7973,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
             "CM Service Type: %s", val_to_str_const(oct & 0x0f, dtap_cm_service_type_vals, "Unknown"));
     subtree = proto_item_add_subtree(item, ett_cm_srvc_type);
 
-    proto_tree_add_item(subtree, hf_ansi_a_reserved_bits_8_80, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_ansi_a_elem_id_70, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_a_elem_id_f0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_a_cm_svrc_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset++;
@@ -7905,16 +7981,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
     ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "", from_sip);
 
-    ELEM_MAND_LV_NO_RET(ANSI_A_E_MID, "", from_sip);
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0) return;
+    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
 
     ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
 
@@ -7930,16 +7997,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
     ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0) return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
 
@@ -8020,17 +8078,7 @@ bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -8038,17 +8086,7 @@ bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
@@ -8085,17 +8123,7 @@ dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "", from_sip);
 
-    ELEM_MAND_LV_NO_RET(ANSI_A_E_MID, "", from_sip);
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -8111,17 +8139,7 @@ dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     ELEM_OPT_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
 
@@ -8192,17 +8210,7 @@ dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     ELEM_MAND_TLV(ANSI_A_E_S_RED_INFO, "");
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
@@ -8272,17 +8280,7 @@ bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
 
     ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TV(ANSI_A_E_SIGNAL, "");
 
@@ -8333,17 +8331,7 @@ bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 
     ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     switch (global_a_variant)
     {
@@ -8474,31 +8462,11 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -8524,17 +8492,7 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
@@ -8560,29 +8518,9 @@ bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
-    ELEM_MAND_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
@@ -8606,17 +8544,7 @@ dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
 
-    ELEM_MAND_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
 
@@ -8723,17 +8651,7 @@ bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -8773,17 +8691,7 @@ bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -8841,17 +8749,7 @@ bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
@@ -8889,17 +8787,7 @@ bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_PRIO, "");
 
@@ -8965,17 +8853,7 @@ bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     ELEM_MAND_TLV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -9026,17 +8904,7 @@ bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     ELEM_MAND_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_MAND_TV(ANSI_A_E_TAG, "");
 
@@ -9290,16 +9158,7 @@ bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0) return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
@@ -9347,17 +9206,7 @@ bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
@@ -9405,17 +9254,7 @@ bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9433,17 +9272,7 @@ bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9533,17 +9362,7 @@ dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV_NO_RET(ANSI_A_E_MID, "", from_sip);
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
 
     ELEM_OPT_TV(ANSI_A_E_LAI, "");
 
@@ -9691,17 +9510,7 @@ bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
     ELEM_MAND_TLV(ANSI_A_E_IE_REQD, "");
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
@@ -9758,17 +9567,7 @@ bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     ELEM_MAND_TLV(ANSI_A_E_REV_MS_INFO_RECS, "");
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
@@ -9822,31 +9621,11 @@ bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
 
     ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_DOWNLINK_RE, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
@@ -9925,33 +9704,13 @@ bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_DOWNLINK_RE, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
@@ -10147,17 +9906,7 @@ bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -10411,17 +10160,7 @@ bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_MAND_TLV(ANSI_A_E_ADDS_USER_PART, "");
 
@@ -10455,17 +10194,7 @@ bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_MAND_TLV(ANSI_A_E_ADDS_USER_PART, "");
 
@@ -10493,17 +10222,7 @@ bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-    ELEM_OPT_TV_NO_RET(ANSI_A_E_SO, "");
-    if (ansi_a_so_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_so_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_so_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
 
@@ -10529,17 +10248,7 @@ bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -10583,17 +10292,7 @@ bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -10641,17 +10340,7 @@ bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
@@ -10672,17 +10361,7 @@ dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV_NO_RET(ANSI_A_E_MID, "");
-    if (ansi_a_mid_add_string[0] != '\0')
-    {
-        proto_item_append_text(ansi_a_message_item, " %s", ansi_a_mid_add_string);
-        if (global_a_info_display)
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ansi_a_mid_add_string);
-        }
-    }
-    if (curr_len <= 0)
-        return;
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
 
@@ -10905,7 +10584,7 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     if (msg_str == NULL)
     {
         bsmap_item =
-            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
+            proto_tree_add_expert_format(tree, pinfo, &ei_ansi_a_unknown_bsmap_msg, tvb, 0, len,
                 "ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
                 oct);
 
@@ -10924,8 +10603,6 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
 
     ansi_a_message_item = bsmap_item;
-    ansi_a_so_add_string[0] = '\0';
-    ansi_a_mid_add_string[0] = '\0';
 
     /*
      * add BSMAP message name
@@ -10963,15 +10640,13 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_bsmap_common(tvb, pinfo, tree, FALSE);
 }
 
-static const true_false_string tfs_ansi_a_ti_flag = { "allocated by receiver", "allocated by sender" };
-
 static void
 dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean from_sip)
 {
     static ansi_a_tap_rec_t     tap_rec[16];
     static ansi_a_tap_rec_t     *tap_p;
     static int                  tap_current = 0;
-    guint8                      oct, oct_1=0;
+    guint8                      oct, oct_1 = 0;
     guint32                     offset, saved_offset;
     guint32                     len;
     gint                        dec_idx;
@@ -11017,7 +10692,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (!from_sip)
     {
         oct_1 = tvb_get_guint8(tvb, offset++);
-        offset++; /* second octet */
+        offset++;       /* octet '2' */
     }
 
     /*
@@ -11034,7 +10709,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (msg_str == NULL)
     {
         dtap_item =
-            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
+            proto_tree_add_expert_format(tree, pinfo, &ei_ansi_a_unknown_dtap_msg, tvb, 0, len,
                 "ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
                 oct);
 
@@ -11053,8 +10728,6 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
 
     ansi_a_message_item = dtap_item;
-    ansi_a_so_add_string[0] = '\0';
-    ansi_a_mid_add_string[0] = '\0';
 
     if (!from_sip)
     {
@@ -11212,8 +10885,7 @@ proto_register_ansi_a(void)
 
     /* Setup list of header fields */
 
-    static hf_register_info hf[] =
-    {
+    static hf_register_info hf[] = {
         { &hf_ansi_a_bsmap_msgtype,
             { "BSMAP Message Type", "ansi_a_bsmap.msgtype",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -11246,7 +10918,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_cm_svrc_type,
             { "CM Service Type", "ansi_a_bsmap.cm_srvc_type",
-            FT_UINT8, BASE_DEC, VALS(dtap_cm_service_type_vals), 0x0F,
+            FT_UINT8, BASE_DEC, VALS(dtap_cm_service_type_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_elem_id,
@@ -11254,9 +10926,9 @@ proto_register_ansi_a(void)
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_ansi_a_elem_id_70,
+        { &hf_ansi_a_elem_id_f0,
             { "Element ID", "ansi_a_bsmap.elem_id",
-            FT_UINT8, BASE_HEX, NULL, 0x70,
+            FT_UINT8, BASE_HEX, NULL, 0xf0,
             NULL, HFILL }
         },
         { &hf_ansi_a_length,
@@ -11477,6 +11149,11 @@ proto_register_ansi_a(void)
         { &hf_ansi_a_reserved_bits_16_001f,
             { "Reserved bit(s)", "ansi_a_bsmap.reserved",
             FT_UINT16, BASE_DEC, NULL, 0x001f,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_reserved_bits_16_003f,
+            { "Reserved bit(s)", "ansi_a_bsmap.reserved",
+            FT_UINT16, BASE_DEC, NULL, 0x003f,
             NULL, HFILL }
         },
         { &hf_ansi_a_reserved_bits_16_8000,
@@ -11901,7 +11578,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_cell_id_disc,
             { "Cell Identification Discriminator", "ansi_a_bsmap.cell_id_discriminator",
-            FT_UINT8, BASE_DEC, VALS(cell_disc_str), 0x00,
+            FT_UINT8, BASE_DEC, VALS(cell_disc_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ansi_a_cic,
@@ -12036,7 +11713,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_is2000_chan_id_chan_pilot_pn_code,
             { "Pilot PN Code", "ansi_a_bsmap.is2000_chan_id.chan.pilot_pn_code",
-            FT_UINT24, BASE_DEC, NULL, 0xff8000,
+            FT_UINT24, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_is2000_chan_id_chan_power_combined,
@@ -12050,8 +11727,8 @@ proto_register_ansi_a(void)
             NULL, HFILL }
         },
         { &hf_ansi_a_is2000_chan_id_chan_channel_number,
-            { "ARFCN", "ansi_a_bsmap.is2000_chan_id.chan.channel_number",
-            FT_UINT24, BASE_DEC, NULL, 0,
+            { "Channel Number (ARFCN)", "ansi_a_bsmap.is2000_chan_id.chan.channel_number",
+            FT_UINT24, BASE_DEC, NULL, 0x0007ff,
             NULL, HFILL }
         },
         { &hf_ansi_a_is2000_chan_id_chan_fdc_length,
@@ -12080,7 +11757,7 @@ proto_register_ansi_a(void)
             NULL, HFILL }
         },
         { &hf_ansi_a_is95_ms_meas_chan_id_channel_number,
-            { "Channel Number", "ansi_a_bsmap.is95_ms_meas_chan_id.channel_number",
+            { "Channel Number (ARFCN)", "ansi_a_bsmap.is95_ms_meas_chan_id.channel_number",
             FT_UINT16, BASE_DEC, NULL, 0x07ff,
             NULL, HFILL }
         },
@@ -12091,17 +11768,19 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_clg_party_ascii_num_plan,
             { "Numbering Plan Identification", "ansi_a_bsmap.clg_party_ascii_num.plan",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_plan_vals), 0x0F,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_plan_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_clg_party_ascii_num_pi,
             { "Presentation Indicator", "ansi_a_bsmap.clg_party_ascii_num.pi",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_pi_vals), 0x60,
+            /* not a typo, MS Info Rec and CLG Party ASCII have the same definition for this field */
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ms_info_rec_clg_pn_pi_vals), 0x60,
             NULL, HFILL }
         },
         { &hf_ansi_a_clg_party_ascii_num_si,
             { "Screening Indicator", "ansi_a_bsmap.clg_party_ascii_num.si",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_si_vals), 0x03,
+            /* not a typo, MS Info Rec and CLG Party ASCII have the same definition for this field */
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ms_info_rec_clg_pn_si_vals), 0x03,
             NULL, HFILL }
         },
         { &hf_ansi_a_lai_mcc,
@@ -12126,7 +11805,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_auth_chlg_param_rand_num_type,
             { "Random Number Type", "ansi_a_bsmap.auth_chlg_param.rand_num_type",
-            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_auth_chlg_param_rand,
@@ -12136,7 +11815,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_auth_resp_param_sig_type,
             { "Auth Signature Type", "ansi_a_bsmap.auth_resp_param.sig_type",
-            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_auth_resp_param_sig,
@@ -12166,12 +11845,14 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_clg_party_bcd_num_ton,
             { "Type of Number", "ansi_a_bsmap.clg_party_bcd_num.ton",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_bcd_num_ton_vals), 0x70,
+            /* not a typo, CLG and CLD have the same definition for this field */
+            FT_UINT8, BASE_DEC, VALS(ansi_a_cld_party_bcd_num_ton_vals), 0x70,
             NULL, HFILL }
         },
         { &hf_ansi_a_clg_party_bcd_num_plan,
             { "Numbering Plan Identification", "ansi_a_bsmap.clg_party_bcd_num.plan",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_bcd_num_plan_vals), 0x0F,
+            /* not a typo, CLG and CLD have the same definition for this field */
+            FT_UINT8, BASE_DEC, VALS(ansi_a_cld_party_bcd_num_plan_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_qos_params_packet_priority,
@@ -12356,7 +12037,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_adds_user_part_burst_type,
             { "Data Burst Type", "ansi_a_bsmap.adds_user_part.burst_type",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_adds_strings), 0x3f,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_adds_vals), 0x3f,
             NULL, HFILL }
         },
         { &hf_ansi_a_adds_user_part_ext_burst_type,
@@ -12445,7 +12126,7 @@ proto_register_ansi_a(void)
             NULL, HFILL }
         },
         { &hf_ansi_a_is2000_scr_socr_rlp_blob_len,
-            { "RLP_BLOB_LEN", "ansi_a_bsmap.is2000_scr.socr.rlp_blob_len",
+            { "RLP_BLOB_LEN (MSB)", "ansi_a_bsmap.is2000_scr.socr.rlp_blob_len",
             FT_UINT8, BASE_DEC, NULL, 0x01,
             NULL, HFILL }
         },
@@ -12470,7 +12151,7 @@ proto_register_ansi_a(void)
             NULL, HFILL }
         },
         { &hf_ansi_a_is2000_scr_socr_rev_fch_rc,
-            { "REV_FCH_RC:  Reverse Fundamental Channel Radio Configuration", "ansi_a_bsmap.is2000_scr.socr.rev_fch_rc",
+            { "REV_FCH_RC (MSB)", "ansi_a_bsmap.is2000_scr.socr.rev_fch_rc",
             FT_UINT8, BASE_DEC, NULL, 0x01,
             NULL, HFILL }
         },
@@ -12666,12 +12347,12 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_fwd_ms_info_rec_cld_pn_num_type,
             { "Forward MS Information Record Called Party Number:  Number Type", "ansi_a_bsmap.fwd_ms_info_rec.cld_pn.num_type",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_type_vals), 0xE0,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ms_info_rec_num_type_vals), 0xe0,
             NULL, HFILL }
         },
         { &hf_ansi_a_fwd_ms_info_rec_cld_pn_num_plan,
             { "Forward MS Information Record Called Party Number:  Number Plan", "ansi_a_bsmap.fwd_ms_info_rec.cld_pn.num_plan",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_plan_vals), 0x1E,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ms_info_rec_num_plan_vals), 0x1e,
             NULL, HFILL }
         },
         { &hf_ansi_a_fwd_ms_info_rec_cld_pn_num,
@@ -12681,12 +12362,12 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_fwd_ms_info_rec_clg_pn_num_type,
             { "Forward MS Information Record Calling Party Number:  Number Type", "ansi_a_bsmap.fwd_ms_info_rec.clg_pn.num_type",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_type_vals), 0xE000,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_num_type_vals), 0xe000,
             NULL, HFILL }
         },
         { &hf_ansi_a_fwd_ms_info_rec_clg_pn_num_plan,
             { "Forward MS Information Record Calling Party Number:  Number Plan", "ansi_a_bsmap.fwd_ms_info_rec.clg_pn.num_plan",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_plan_vals), 0x1e00,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_num_plan_vals), 0x1e00,
             NULL, HFILL }
         },
         { &hf_ansi_a_fwd_ms_info_rec_clg_pn_num,
@@ -12696,12 +12377,12 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_fwd_ms_info_rec_clg_pn_pi,
             { "Forward MS Information Record Calling Party Number:  PI", "ansi_a_bsmap.fwd_ms_info_rec.clg_pn.pi",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_pi_vals), 0x0180,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_clg_pn_pi_vals), 0x0180,
             NULL, HFILL }
         },
         { &hf_ansi_a_fwd_ms_info_rec_clg_pn_si,
             { "Forward MS Information Record Calling Party Number:  SI", "ansi_a_bsmap.fwd_ms_info_rec.clg_pn.si",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_si_vals), 0x60,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_clg_pn_si_vals), 0x0060,
             NULL, HFILL }
         },
         { &hf_ansi_a_fwd_ms_info_rec_mw_num,
@@ -12716,12 +12397,12 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_rev_ms_info_rec_cld_pn_num_type,
             { "Reverse MS Information Record Called Party Number:  Number Type", "ansi_a_bsmap.rev_ms_info_rec.cld_pn.num_type",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_type_vals), 0xE0,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ms_info_rec_num_type_vals), 0xe0,
             NULL, HFILL }
         },
         { &hf_ansi_a_rev_ms_info_rec_cld_pn_num_plan,
             { "Reverse MS Information Record Called Party Number:  Number Plan", "ansi_a_bsmap.rev_ms_info_rec.cld_pn.num_plan",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_plan_vals), 0x1E,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ms_info_rec_num_plan_vals), 0x1e,
             NULL, HFILL }
         },
         { &hf_ansi_a_rev_ms_info_rec_cld_pn_num,
@@ -12731,22 +12412,22 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_rev_ms_info_rec_clg_pn_num_type,
             { "Reverse MS Information Record Calling Party Number:  Number Type", "ansi_a_bsmap.rev_ms_info_rec.clg_pn.num_type",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_type_vals), 0xe000,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_num_type_vals), 0xe000,
             NULL, HFILL }
         },
         { &hf_ansi_a_rev_ms_info_rec_clg_pn_num_plan,
             { "Reverse MS Information Record Calling Party Number:  Number Plan", "ansi_a_bsmap.rev_ms_info_rec.clg_pn.num_plan",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_fwd_ms_info_rec_cld_pn_num_plan_vals), 0x1E00,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_num_plan_vals), 0x1e00,
             NULL, HFILL }
         },
         { &hf_ansi_a_rev_ms_info_rec_clg_pn_pi,
             { "Reverse MS Information Record Calling Party Number:  PI", "ansi_a_bsmap.rev_ms_info_rec.clg_pn.pi",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_pi_vals), 0x0180,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_clg_pn_pi_vals), 0x0180,
             NULL, HFILL }
         },
         { &hf_ansi_a_rev_ms_info_rec_clg_pn_si,
             { "Reverse MS Information Record Calling Party Number:  SI", "ansi_a_bsmap.rev_ms_info_rec.clg_pn.si",
-            FT_UINT16, BASE_DEC, VALS(ansi_a_clg_party_ascii_num_si_vals), 0x0060,
+            FT_UINT16, BASE_DEC, VALS(ansi_a_ms_info_rec_clg_pn_si_vals), 0x0060,
             NULL, HFILL }
         },
         { &hf_ansi_a_rev_ms_info_rec_clg_pn_num,
@@ -12881,12 +12562,14 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_cld_party_ascii_num_ton,
             { "Type of Number", "ansi_a_bsmap.cld_party_ascii_num.ton",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_bcd_num_ton_vals), 0x70,
+            /* Should actually be as defined by ATIS-1000607.2000 (but I don't have that) */
+            FT_UINT8, BASE_DEC, VALS(ansi_a_cld_party_bcd_num_ton_vals), 0x70,
             NULL, HFILL }
         },
         { &hf_ansi_a_cld_party_ascii_num_plan,
             { "Numbering Plan Identification", "ansi_a_bsmap.cld_party_ascii_num.plan",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_clg_party_bcd_num_plan_vals), 0x0F,
+            /* Should actually be as defined by ATIS-1000607.2000 (but I don't have that) */
+            FT_UINT8, BASE_DEC, VALS(ansi_a_cld_party_bcd_num_plan_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_band_class,
@@ -12996,7 +12679,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_a2p_bearer_form_ip_addr_type,
             { "Bearer IP Address Type", "ansi_a_bsmap.a2p_bearer_form.ip_addr_type",
-            FT_UINT8, BASE_DEC, NULL, 0x03,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_ip_addr_type_vals), 0x03,
             NULL, HFILL }
         },
         { &hf_ansi_a_a2p_bearer_form_format_len,
@@ -13011,7 +12694,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_a2p_bearer_form_format_format_id,
             { "Bearer Format ID", "ansi_a_bsmap.a2p_bearer_form.format.format_id",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_a2p_bearer_form_format_format_id_vals), 0x0F,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_a2p_bearer_form_format_format_id_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_a_a2p_bearer_form_format_rtp_payload_type,
@@ -13061,7 +12744,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_plcm_id_plcm_type,
             { "PLCM_TYPE", "ansi_a_bsmap.plcm_id.plcm_type",
-            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
         { &hf_ansi_a_bdtmf_trans_info_dtmf_off_len,
@@ -13140,6 +12823,16 @@ proto_register_ansi_a(void)
         { &ei_ansi_a_is2000_chan_id_pilot_pn,
             { "ansi_a.is2000_chan_id_pilot_pn", PI_PROTOCOL, PI_NOTE,
             "This parameter has a unique encoding.  The most significant bit comes after the LSBs unlike typical IOS octet split values.",
+            EXPFILL }
+        },
+        { &ei_ansi_a_unknown_dtap_msg,
+            { "ansi_a.unknown_dtap_msg", PI_PROTOCOL, PI_WARN,
+            "DTAP Message Unknown/Unsupported - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)",
+            EXPFILL }
+        },
+        { &ei_ansi_a_unknown_bsmap_msg,
+            { "ansi_a.unknown_bsmap_msg", PI_PROTOCOL, PI_WARN,
+            "DTAP Message Unknown/Unsupported - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)",
             EXPFILL }
         }
     };
