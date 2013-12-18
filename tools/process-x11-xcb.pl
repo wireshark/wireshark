@@ -394,7 +394,7 @@ eot
 	    } else {
                 if (defined($count)) {
                     # Silence compiler until we support variable_param
-                    say $impl "    $count = $count; /* Avoid unreferenced warning */";
+                    say $impl "    (void) $count; /* Avoid unreferenced warning, similar to Q_UNUSED */";
                 }
 		print $impl "    $list(tvb, offsetp, t, $regname, (length - $length) / $gltype{$type}{'size'}, byte_order);\n";
 	    }
