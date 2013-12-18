@@ -108,6 +108,16 @@ WS_DLL_PUBLIC void	col_set_writable(column_info *cinfo, const gboolean writable)
  */
 WS_DLL_PUBLIC void	col_set_fence(column_info *cinfo, const gint col);
 
+/** Clears a fence for the current column content
+ *
+ * This can be useful if a protocol wants to remove whatever
+ * a previous protocol has added to the column.
+ *
+ * @param cinfo the current packet row
+ * @param col the column to use, e.g. COL_INFO
+ */
+WS_DLL_PUBLIC void	col_clear_fence(column_info *cinfo, const gint col);
+
 /** Gets the text of a column element.
  *
  * @param cinfo the current packet row

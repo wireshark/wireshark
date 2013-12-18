@@ -161,6 +161,22 @@ col_set_fence(column_info *cinfo, const gint el)
   }
 }
 
+/* Clear the fence for a column. */
+void
+col_clear_fence(column_info *cinfo, const gint el)
+{
+  int i;
+
+  if (!CHECK_COL(cinfo, el))
+    return;
+
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+     if (cinfo->fmt_matx[i][el]) {
+        cinfo->col_fence[i] = 0;
+     }
+  }
+}
+
 /* Gets the text of a column */
 const gchar *
 col_get_text(column_info *cinfo, const gint el)
