@@ -64,7 +64,7 @@ static expert_field ei_moldudp_msglen_invalid = EI_INIT;
 static expert_field ei_moldudp_count_invalid = EI_INIT;
 
 /* Code to dissect a message block */
-guint
+static guint
 dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset, guint32 sequence)
 {

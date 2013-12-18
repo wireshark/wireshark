@@ -2147,7 +2147,7 @@ static const value_string gsm_a_rr_egprs2_vals[] = {
     { 0x02, "The mobile station supports both EGPRS2-A and EGPRS2-B"},
     {    0, NULL }
 };
-guint16
+static guint16
 de_rr_chnl_req_desc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 bit_offset = offset << 3;

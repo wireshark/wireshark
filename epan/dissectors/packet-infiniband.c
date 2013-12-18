@@ -1557,7 +1557,7 @@ g_int64_equal (gconstpointer v1,
 }
 #endif
 
-void table_destroy_notify(gpointer data) {
+static void table_destroy_notify(gpointer data) {
     g_free(data);
 }
 

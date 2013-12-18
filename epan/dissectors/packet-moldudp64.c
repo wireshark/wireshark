@@ -67,7 +67,7 @@ static expert_field ei_moldudp64_count_invalid = EI_INIT;
 static expert_field ei_moldudp64_request = EI_INIT;
 
 /* Code to dissect a message block */
-guint
+static guint
 dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset, guint64 sequence)
 {

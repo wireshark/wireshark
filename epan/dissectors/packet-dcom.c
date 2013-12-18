@@ -1987,7 +1987,7 @@ dcom_get_rountine_by_uuid(const e_uuid_t* uuid)
 }
 
 /* dissect an CUSTOM */
-int
+static int
 dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		               proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		               e_uuid_t *clsid, e_uuid_t *iid)

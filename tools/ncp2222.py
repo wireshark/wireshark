@@ -5752,6 +5752,7 @@ def produce_code():
 #include "packet-ncp-sss.h"
 
 /* Function declarations for functions used in proto_register_ncp2222() */
+void proto_register_ncp2222(void);
 static void ncp_init_protocol(void);
 static void ncp_postseq_cleanup(void);
 

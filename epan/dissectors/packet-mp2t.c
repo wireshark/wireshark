@@ -457,7 +457,7 @@ mp2t_dissect_packet(tvbuff_t *tvb, enum pid_payload_type pload_type,
         call_dissector(data_handle, tvb, pinfo, tree);
 }
 
-guint
+static guint
 mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             guint32 frag_id, enum pid_payload_type pload_type)
 {

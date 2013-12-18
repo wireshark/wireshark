@@ -1143,7 +1143,7 @@ dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return offset;
 }
 
-void
+static void
 sysact_register_routines(void)
 {
     dcom_register_rountine(dissect_dcom_ActivationProperties, &iid_ActivationPropertiesIn);

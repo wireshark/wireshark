@@ -99,12 +99,12 @@ static gint ett_mqpcf_cfh = -1;
 
 #define MQ_TEXT_CFH   "MQ Command Format Header"
 
-guint32 dissect_mqpcf_getDigits(guint uCnt)
+static guint32 dissect_mqpcf_getDigits(guint uCnt)
 {
     return (guint) log10(uCnt) + 1;
 }
 
-guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
+static guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
 {
     value_string *pVs;
     pVs = (value_string *)try_val_to_str(uPrm, GET_VALSV(MQCFINT_Parse));
@@ -116,7 +116,7 @@ guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
     return NULL;
 }
 
-void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset, guint uPrm,
+static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset, guint uPrm,
                             guint uVal, int hfindex, guint iCnt, guint iMaxCnt, guint iDigit, gboolean bParse)
 {
     header_field_info *hfinfo;

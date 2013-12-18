@@ -1159,7 +1159,7 @@ dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvb
    return 4;
 }
 
-int
+static int
 dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                          int offset, int total_len)
 

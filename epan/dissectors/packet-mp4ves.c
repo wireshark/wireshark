@@ -38,6 +38,8 @@
 
 #include <epan/prefs.h>
 
+#include "packet-mp4ves.h"
+
 void proto_register_mp4ves(void);
 void proto_reg_handoff_mp4ves(void);
 
@@ -679,7 +681,7 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_mp4ves_VisualObjectSequence(tvb, pinfo, mp4ves_tree, 0);
 }
 
-void
+static void
 dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int bit_offset = 0;

@@ -2020,14 +2020,14 @@ dissect_krb5_cname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 }
 
 
-int
+static int
 dissect_krb5_prealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
     offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_prealm, NULL, 0);
     return offset;
 }
 
-int
+static int
 dissect_krb5_srealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
     offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_srealm, NULL, 0);
