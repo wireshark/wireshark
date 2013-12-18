@@ -1395,7 +1395,7 @@ sub checkAddTextCalls($$)
                 $okay_add_text_count++;
         }
         # Then count how many proto_tree_add_*() calls there are
-        while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z0-9]+ \W* \( /gox) {
+        while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z0-9_]+ \W* \( /gox) {
                 $add_xxx_count++;
         }
 
