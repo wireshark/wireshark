@@ -1867,10 +1867,12 @@ CSN_DESCR_BEGIN(Receive_N_PDU_Number_t)
   M_UINT       (Receive_N_PDU_Number_t,  value,  8, &hf_receive_n_pdu_number_value),
 CSN_DESCR_END  (Receive_N_PDU_Number_t)
 
+#if 0
 static gint16 Receive_N_PDU_Number_list_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1 _U_)
 {
   return csnStreamDissector(tree, ar, CSNDESCR(Receive_N_PDU_Number_t), tvb, data, ett_gsm_rlcmac);
 }
+#endif
 
 #if 0
 static const
@@ -3808,6 +3810,7 @@ CSN_DESCR_BEGIN(CDMA2000_Description_t)
 CSN_DESCR_END  (CDMA2000_Description_t)
 
 static const guint8 NR_OF_FDD_CELLS_map[32] = {0, 10, 19, 28, 36, 44, 52, 60, 67, 74, 81, 88, 95, 102, 109, 116, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#if 0
 static CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {   /* TS 44.060 Table 11.2.9b.2.a */
   guint8 *pNrOfCells = (guint8*)param1;
@@ -3889,7 +3892,7 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(prot
 
   return curr_bit_offset - bit_offset;
 }
-
+#endif
 
 
 static const
