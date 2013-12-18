@@ -651,134 +651,35 @@ void proto_register_mqpcf(void)
 {
     expert_module_t *expert_mqpcf;
 
-    static hf_register_info hf[] = {
-        { &hf_mqpcf_cfh_type     ,
-          { "Type.....", "mqpcf.cfh.type",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqcft)), 0x0,
-            "CFH type", HFILL }
-        },
-        { &hf_mqpcf_cfh_length   ,
-          { "Length...", "mqpcf.cfh.length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "CFH length", HFILL }
-        },
-        { &hf_mqpcf_cfh_version  ,
-          { "Version..", "mqpcf.cfh.version",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "CFH version", HFILL }
-        },
-        { &hf_mqpcf_cfh_command  ,
-          { "Command..", "mqpcf.cfh.command",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqcmd)), 0x0,
-            "CFH command", HFILL }
-        },
-        { &hf_mqpcf_cfh_MsgSeqNbr,
-          { "MsgSeqNbr", "mqpcf.cfh.MsgSeqNbr",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "CFH message sequence number", HFILL }
-        },
-        { &hf_mqpcf_cfh_control  ,
-          { "Control..", "mqpcf.cfh.control",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "CFH control", HFILL }
-        },
-        { &hf_mqpcf_cfh_compcode ,
-          { "CompCode.", "mqpcf.cfh.compcode",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqcc)), 0x0,
-            "CFH completion code", HFILL }
-        },
-        { &hf_mqpcf_cfh_reason   ,
-          { "ReasCode.", "mqpcf.cfh.reasoncode",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqrc)), 0x0,
-            "CFH reason code", HFILL }
-        },
-        { &hf_mqpcf_cfh_ParmCount,
-          { "ParmCount", "mqpcf.cfh.ParmCount",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "CFH parameter count", HFILL }
-        },
+    static hf_register_info hf[] =
+        {
+            { &hf_mqpcf_cfh_type     , { "Type.....", "mqpcf.cfh.type", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqcft)), 0x0, "CFH type", HFILL }},
+            { &hf_mqpcf_cfh_length   , { "Length...", "mqpcf.cfh.length", FT_UINT32, BASE_DEC, NULL, 0x0, "CFH length", HFILL }},
+            { &hf_mqpcf_cfh_version  , { "Version..", "mqpcf.cfh.version", FT_UINT32, BASE_DEC, NULL, 0x0, "CFH version", HFILL }},
+            { &hf_mqpcf_cfh_command  , { "Command..", "mqpcf.cfh.command", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqcmd)), 0x0, "CFH command", HFILL }},
+            { &hf_mqpcf_cfh_MsgSeqNbr, { "MsgSeqNbr", "mqpcf.cfh.MsgSeqNbr", FT_UINT32, BASE_DEC, NULL, 0x0, "CFH message sequence number", HFILL }},
+            { &hf_mqpcf_cfh_control  , { "Control..", "mqpcf.cfh.control", FT_UINT32, BASE_DEC, NULL, 0x0, "CFH control", HFILL }},
+            { &hf_mqpcf_cfh_compcode , { "CompCode.", "mqpcf.cfh.compcode", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqcc)), 0x0, "CFH completion code", HFILL }},
+            { &hf_mqpcf_cfh_reason   , { "ReasCode.", "mqpcf.cfh.reasoncode", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(mqrc)), 0x0, "CFH reason code", HFILL }},
+            { &hf_mqpcf_cfh_ParmCount, { "ParmCount", "mqpcf.cfh.ParmCount", FT_UINT32, BASE_DEC, NULL, 0x0, "CFH parameter count", HFILL }},
 
-        { &hf_mq_pcf_prmtyp      ,
-          { "ParmTyp..", "mqpcf.parm.type",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(PrmTyp)), 0x0,
-            "MQPCF parameter type", HFILL }
-        },
-        { &hf_mq_pcf_prmlen      ,
-          { "ParmLen..", "mqpcf.parm.len",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter length", HFILL }
-        },
-        { &hf_mq_pcf_prmid       ,
-          { "ParmID...", "mqpcf.parm.id",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(PrmId)), 0x0,
-            "MQPCF parameter id", HFILL }
-        },
-        { &hf_mq_pcf_prmidnovals ,
-          { "ParmID...", "mqpcf.parm.idNoVals",
-            FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
-            "MQPCF parameter id No Vals", HFILL }
-        },
-        { &hf_mq_pcf_filterop    ,
-          { "FilterOP.", "mqpcf.filter.op",
-            FT_UINT32, BASE_DEC, VALS(&GET_VALSV(FilterOP)), 0x0,
-            "MQPCF Filter operator", HFILL }
-        },
-        { &hf_mq_pcf_prmccsid    ,
-          { "ParmCCSID", "mqpcf.parm.ccsid",
-            FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0,
-            "MQPCF parameter ccsid", HFILL }
-        },
-        { &hf_mq_pcf_prmstrlen   ,
-          { "ParmStrLn", "mqpcf.parm.strlen",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter strlen", HFILL }
-        },
-        { &hf_mq_pcf_prmcount    ,
-          { "ParmCount", "mqpcf.parm.count",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter count", HFILL }
-        },
-        { &hf_mq_pcf_prmunused   ,
-          { "ParmUnuse", "mqpcf.parm.unused",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter unused", HFILL }
-        },
-        { &hf_mq_pcf_string      ,
-          { "String...", "mqpcf.parm.string",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
-            "MQPCF parameter string", HFILL }
-        },
-        { &hf_mq_pcf_stringlist  ,
-          { "StrList..", "mqpcf.parm.stringlist",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
-            "MQPCF parameter string list", HFILL }
-        },
-        { &hf_mq_pcf_int         ,
-          { "Integer..", "mqpcf.parm.int",
-            FT_INT32, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter int", HFILL }
-        },
-        { &hf_mq_pcf_intlist     ,
-          { "IntList..", "mqpcf.parm.intlist",
-            FT_INT32, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter int list", HFILL }
-        },
-        { &hf_mq_pcf_bytestring  ,
-          { "ByteStr..", "mqpcf.parm.bytestring",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "MQPCF parameter byte string", HFILL }
-        },
-        { &hf_mq_pcf_int64       ,
-          { "Int64....", "mqpcf.parm.int64",
-            FT_INT64, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter int64", HFILL }
-        },
-        { &hf_mq_pcf_int64list   ,
-          { "Int64List", "mqpcf.parm.int64list",
-            FT_INT64, BASE_DEC, NULL, 0x0,
-            "MQPCF parameter int64 list", HFILL }
-        },
-    };
+            { &hf_mq_pcf_prmtyp      , { "ParmTyp..", "mqpcf.parm.type", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(PrmTyp)), 0x0, "MQPCF parameter type", HFILL }},
+            { &hf_mq_pcf_prmlen      , { "ParmLen..", "mqpcf.parm.len", FT_UINT32, BASE_DEC, NULL, 0x0, "MQPCF parameter length", HFILL }},
+            { &hf_mq_pcf_prmid       , { "ParmID...", "mqpcf.parm.id", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(PrmId)), 0x0, "MQPCF parameter id", HFILL }},
+            { &hf_mq_pcf_prmidnovals , { "ParmID...", "mqpcf.parm.idNoVals", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MQPCF parameter id No Vals", HFILL }},
+            { &hf_mq_pcf_filterop    , { "FilterOP.", "mqpcf.filter.op", FT_UINT32, BASE_DEC, VALS(&GET_VALSV(FilterOP)), 0x0, "MQPCF Filter operator", HFILL }},
+            { &hf_mq_pcf_prmccsid    , { "ParmCCSID", "mqpcf.parm.ccsid", FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "MQPCF parameter ccsid", HFILL }},
+            { &hf_mq_pcf_prmstrlen   , { "ParmStrLn", "mqpcf.parm.strlen", FT_UINT32, BASE_DEC, NULL, 0x0, "MQPCF parameter strlen", HFILL }},
+            { &hf_mq_pcf_prmcount    , { "ParmCount", "mqpcf.parm.count", FT_UINT32, BASE_DEC, NULL, 0x0, "MQPCF parameter count", HFILL }},
+            { &hf_mq_pcf_prmunused   , { "ParmUnuse", "mqpcf.parm.unused", FT_UINT32, BASE_DEC, NULL, 0x0, "MQPCF parameter unused", HFILL }},
+            { &hf_mq_pcf_string      , { "String...", "mqpcf.parm.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MQPCF parameter string", HFILL }},
+            { &hf_mq_pcf_stringlist  , { "StrList..", "mqpcf.parm.stringlist", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MQPCF parameter string list", HFILL }},
+            { &hf_mq_pcf_int         , { "Integer..", "mqpcf.parm.int", FT_INT32, BASE_DEC, NULL, 0x0, "MQPCF parameter int", HFILL }},
+            { &hf_mq_pcf_intlist     , { "IntList..", "mqpcf.parm.intlist", FT_INT32, BASE_DEC, NULL, 0x0, "MQPCF parameter int list", HFILL }},
+            { &hf_mq_pcf_bytestring  , { "ByteStr..", "mqpcf.parm.bytestring", FT_BYTES, BASE_NONE, NULL, 0x0, "MQPCF parameter byte string", HFILL }},
+            { &hf_mq_pcf_int64       , { "Int64....", "mqpcf.parm.int64", FT_INT64, BASE_DEC, NULL, 0x0, "MQPCF parameter int64", HFILL }},
+            { &hf_mq_pcf_int64list   , { "Int64List", "mqpcf.parm.int64list", FT_INT64, BASE_DEC, NULL, 0x0, "MQPCF parameter int64 list", HFILL }},
+        };
     static gint *ett[] =
         {
             &ett_mqpcf,
