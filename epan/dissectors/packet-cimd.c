@@ -4,6 +4,9 @@
  *
  * Copyright : 2005 Viorel Suman <vsuman[AT]avmob.ro>, Lucian Piros <lpiros[AT]avmob.ro>
  *             In association with Avalanche Mobile BV, http://www.avmob.com
+ *  
+ * Updates :
+ *            Sub routines for further dissection of Status and Error codes added by Vineeth <vineethvijaysv@gmail.com>
  *
  * $Id$
  *
@@ -133,6 +136,7 @@ void proto_reg_handoff_cimd(void);
 static void dissect_cimd_parameter(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
+static void dissect_cimd_error_code(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 
 static int proto_cimd = -1;
 /* Initialize the subtree pointers */
@@ -286,6 +290,118 @@ static const value_string cimd_dcs_indication_type[] = {
   {0, NULL}
 };
 
+static const value_string cimd_error_vals[] = {
+  {1, "Unexpected operation"},
+  {2, "Syntax error"},
+  {3, "Unsupported parameter error"},
+  {4, "Connection to SMS Center lost"},
+  {5, "No response from SMS Center"},
+  {6, "General system error"},
+  {7, "Cannot find information"},
+  {8, "Parameter formatting error"},
+  {9, "Requested operation failed"},
+  {10, "Temporary congestion error"},
+  {100, "Invalid login"},
+  {101, "Incorrect access type"},
+  {102, "Too many users with this login ID"},
+  {103, "Login refused by SMS Center"},
+  {104, "Invalid window size"},
+  {105, "Windowing disabled"},
+  {106, "Virtual SMS Center-based barring"},
+  {107, "Invalid subaddr"},
+  {108, "Alias account, login refused"},
+  {300, "Incorrect destination address"},
+  {301, "Incorrect number of destination addresses"},
+  {302, "Syntax error in user data parameter"},
+  {303, "Incorrect bin/head/normal user data parameter combination"},
+  {304, "Incorrect dcs parameter usage"},
+  {305, "Incorrect validity period parameters usage"},
+  {306, "Incorrect originator address usage"},
+  {307, "Incorrect PID parameter usage"},
+  {308, "Incorrect first delivery parameter usage"},
+  {309, "Incorrect reply path usage"},
+  {310, "Incorrect status report request parameter usage"},
+  {311, "Incorrect cancel enabled parameter usage"},
+  {312, "Incorrect priority parameter usage"},
+  {313, "Incorrect tariff class parameter usage"},
+  {314, "Incorrect service description parameter usage"},
+  {315, "Incorrect transport type parameter usage"},
+  {316, "Incorrect message type parameter usage"},
+  {318, "Incorrect MMs parameter usage"},
+  {319, "Incorrect operation timer parameter usage"},
+  {320, "Incorrect dialogue ID parameter usage"},
+  {321, "Incorrect alpha originator address usage"},
+  {322, "Invalid data for alpha numeric originator"},
+  {400, "Incorrect address parameter usage"},
+  {401, "Incorrect scts parameter usage"},
+  {500, "Incorrect scts parameter usage"},
+  {501, "Incorrect mode parameter usage"},
+  {502, "Incorrect parameter combination"},
+  {600, "Incorrect scts parameter usage"},
+  {601, "Incorrect address parameter usage"},
+  {602, "Incorrect mode parameter usage"},
+  {603, "Incorrect parameter combination"},
+  {800, "Changing password failed"},
+  {801, "Changing password not allowed"},
+  {900, "Unsupported item requested"},
+  {0, NULL}
+};
+
+static value_string_ext cimd_error_vals_ext = VALUE_STRING_EXT_INIT(cimd_error_vals);
+
+static const value_string cimd_status_code_vals[] = {
+  {1, " in process"},
+  {2, " validity period expired"},
+  {3, " delivery failed"},
+  {4, " delivery successful"},
+  {5, " no response"},
+  {6, " last no response"},
+  {7, " message cancelled"},
+  {8, " message deleted"},
+  {9, " message deleted by cancel"},
+  {0, NULL}
+};
+
+static const value_string cimd_status_error_vals[] = {
+ {1, "Unknown subscriber"},
+ {9, "Illegal subscriber"},
+ {11, "Teleservice not provisioned"},
+ {13, "Call barred"},
+ {15, "CUG reject"},
+ {19, "No SMS support in MS"},
+ {20, "Error in MS"},
+ {21, "Facility not supported"},
+ {22, "Memory capacity exceeded"},
+ {29, "Absent subscriber"},
+ {30, "MS busy for MT SMS"},
+ {36, "Network/Protocol failure"},
+ {44, "Illegal equipment"},
+ {60, "No paging response"},
+ {61, "GMSC congestion"},
+ {63, "HLR timeout"},
+ {64, "MSC/SGSN_timeout"},
+ {70, "SMRSE/TCP error"},
+ {72, "MT congestion"},
+ {75, "GPRS suspended"},
+ {80, "No paging response via MSC"},
+ {81, "IMSI detached"},
+ {82, "Roaming restriction"},
+ {83, "Deregistered in HLR for GSM"},
+ {84, "Purged for GSM"},
+ {85, "No paging response via SGSN"},
+ {86, "GPRS detached"},
+ {87, "Deregistered in HLR for GPRS"},
+ {88, "The MS purged for GPRS"},
+ {89, "Unidentified subscriber via MSC"},
+ {90, "Unidentified subscriber via SGSN"},
+ {112, "Originator missing credit on prepaid account"},
+ {113, "Destination missing credit on prepaid account"},
+ {114, "Error in prepaid system"},
+ {0, NULL}
+};
+
+static value_string_ext cimd_status_error_vals_ext = VALUE_STRING_EXT_INIT(cimd_status_error_vals);
+
 static const cimd_pdissect cimd_pc_handles[] = {
  /* function handles for parsing cimd parameters */
   dissect_cimd_parameter,
@@ -312,6 +428,8 @@ static const cimd_pdissect cimd_pc_handles[] = {
   dissect_cimd_parameter,
   dissect_cimd_parameter,
   dissect_cimd_parameter,
+  dissect_cimd_error_code,
+  dissect_cimd_error_code,
   dissect_cimd_parameter,
   dissect_cimd_parameter,
   dissect_cimd_parameter,
@@ -321,9 +439,7 @@ static const cimd_pdissect cimd_pc_handles[] = {
   dissect_cimd_parameter,
   dissect_cimd_parameter,
   dissect_cimd_parameter,
-  dissect_cimd_parameter,
-  dissect_cimd_parameter,
-  dissect_cimd_parameter,
+  dissect_cimd_error_code,
   dissect_cimd_parameter
 };
 
@@ -699,6 +815,27 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
   }
 }
 
+static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset )
+{
+    /* Same routine can be used to dissect CIMD Error,Status and Status Error Codes */
+    proto_item *param_item = NULL;
+    proto_tree *param_tree = NULL;
+    int err_code;
+
+    param_item = proto_tree_add_text(tree, tvb,
+    startOffset + 1, endOffset - (startOffset + 1),
+    "%s", cimd_vals_PC[pindex].strptr
+  );
+  param_tree = proto_item_add_subtree(param_item, (*vals_hdr_PC[pindex].ett_p));
+  proto_tree_add_string(param_tree, hf_cimd_pcode_indicator, tvb,
+    startOffset + 1, CIMD_PC_LENGTH,
+    tvb_format_text(tvb, startOffset + 1, CIMD_PC_LENGTH)
+  );
+
+    err_code = decimal_int_value(tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1));
+    proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), err_code);
+}
+
 static void
 dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 checksum, guint8 last1,guint8 OC, guint8 PN)
 {
@@ -1010,12 +1147,12 @@ proto_register_cimd(void)
     },
     { &hf_index[24],
       { "Status Code", "cimd.stcode",
-        FT_STRING, BASE_NONE, NULL, 0x00,
+        FT_UINT8, BASE_DEC, VALS(cimd_status_code_vals), 0x00,
         NULL, HFILL }
     },
     { &hf_index[25],
       { "Status Error Code", "cimd.sterrcode",
-        FT_STRING, BASE_NONE, NULL, 0x00,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cimd_status_error_vals_ext, 0x00,
         NULL, HFILL }
     },
     { &hf_index[26],
@@ -1064,8 +1201,8 @@ proto_register_cimd(void)
         NULL, HFILL }
     },
     { &hf_index[35],
-      { "Error Code", "cimd.errcode",
-        FT_STRING, BASE_NONE, NULL, 0x00,
+      { "Error Code Description", "cimd.errcode",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cimd_error_vals_ext, 0x00, 
         NULL, HFILL }
     },
     { &hf_index[36],
