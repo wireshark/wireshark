@@ -2656,12 +2656,9 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     fragment_head     *fd_sm = NULL;
     guint8             fill_bits;
     guint32            out_len, total_sms_len, len_sms, length_ucs2, i;
-    char              *ustr;
     proto_item        *ucs2_item;
     gchar             *utf8_text = NULL;
     gchar              save_byte = 0, save_byte2 = 0;
-    GIConv             cd;
-    GError            *l_conv_error = NULL;
 
     gboolean    reassembled     = FALSE;
     guint32     reassembled_in  = 0;
@@ -2838,70 +2835,54 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         }
         else if (ucs2)
         {
-            /* XXX, use tvb_get_unicode_string(.., ENC_BIG_ENDIAN); */
-            if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
             {
-                guint8 rep_len = tvb_reported_length(sm_tvb);
+                guint rep_len = tvb_reported_length(sm_tvb);
 
                 if (!(reassembled && pinfo->fd->num == reassembled_in))
                 {
                     /* Show unreassembled SMS */
-                    utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
-                    if(!l_conv_error) {
-                        ucs2_item = proto_tree_add_string(subtree, hf_gsm_sms_text, tvb,
-                                                          offset, length, utf8_text);
-                    } else {
-                        ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
-                    }
+                    ucs2_item = proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb,
+                                                    0, rep_len, ENC_UCS_2|ENC_BIG_ENDIAN);
                     PROTO_ITEM_SET_GENERATED(ucs2_item);
                 } else {
                     /*  Show reassembled SMS.  We show each fragment separately
                      *  so that the text doesn't get truncated when we add it to
                      *  the tree.
+                     *
+                     *  XXX - careful with splitting UTF-8 chunks; should
+                     *  we be adding each fragment as a UCS-2 string?
                      */
-                    utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
-                    if(!l_conv_error)
-                    {
-                        len_sms = (int)strlen(utf8_text);
-                        num_labels = len_sms / MAX_SMS_FRAG_LEN;
-                        num_labels += (len_sms % MAX_SMS_FRAG_LEN) ? 1 : 0;
-                        for(i = 0; i < num_labels;i++) {
-                            if(i * MAX_SMS_FRAG_LEN < len_sms) {
-                                /* set '\0' to byte number 134 text_node MAX size*/
-                                save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
-                                save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
-                                if(i > 0)
-                                {
-                                    utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
-                                    utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
-                                }
-
-                                length_ucs2 = MAX_SMS_FRAG_LEN;
-                            } else
-                                length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
-
-                            ucs2_item = proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                                              i * MAX_SMS_FRAG_LEN, length_ucs2,
-                                                              &utf8_text[i * MAX_SMS_FRAG_LEN]);
-                            PROTO_ITEM_SET_GENERATED(ucs2_item);
-
-                            /* return the save byte to utf8 buffer*/
-                            if(i * MAX_SMS_FRAG_LEN < len_sms) {
-                                utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
-                                utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
+                    utf8_text = tvb_get_string_enc(wmem_packet_scope(), sm_tvb, 0, rep_len, ENC_UCS_2|ENC_BIG_ENDIAN);
+                    len_sms = (int)strlen(utf8_text);
+                    num_labels = len_sms / MAX_SMS_FRAG_LEN;
+                    num_labels += (len_sms % MAX_SMS_FRAG_LEN) ? 1 : 0;
+                    for(i = 0; i < num_labels;i++) {
+                        if(i * MAX_SMS_FRAG_LEN < len_sms) {
+                            /* set '\0' to byte number 134 text_node MAX size*/
+                            save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
+                            save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
+                            if(i > 0)
+                            {
+                                utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
+                                utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
                             }
-                        }
-                    } else {
-                        ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
+
+                            length_ucs2 = MAX_SMS_FRAG_LEN;
+                        } else
+                            length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
+
+                        ucs2_item = proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
+                                                          i * MAX_SMS_FRAG_LEN, length_ucs2,
+                                                          &utf8_text[i * MAX_SMS_FRAG_LEN]);
                         PROTO_ITEM_SET_GENERATED(ucs2_item);
+
+                        /* return the save byte to utf8 buffer*/
+                        if(i * MAX_SMS_FRAG_LEN < len_sms) {
+                            utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
+                            utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
+                        }
                     }
                 }
-
-                g_free(utf8_text);
-                g_iconv_close(cd);
-            } else {
-                ustr = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length, ENC_BIG_ENDIAN);
-                proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
             }
         }
     }

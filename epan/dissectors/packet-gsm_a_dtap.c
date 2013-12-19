@@ -679,8 +679,6 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	guint8       coding_scheme, num_spare_bits;
 	guint32      num_chars, num_text_bits;
 	gchar       *net_name     = NULL;
-	GIConv       cd;
-	GError      *l_conv_error = NULL;
 	proto_item  *item;
 
 	curr_offset = offset;
@@ -763,23 +761,8 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 		proto_tree_add_text(tree, tvb , curr_offset, len - 1, "Text String: %s", net_name);
 		break;
 	case 1:
-		if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
-		{
-			net_name = g_convert_with_iconv(tvb_get_ptr(tvb, curr_offset, len - 1), len - 1, cd, NULL, NULL, &l_conv_error);
-			if(!l_conv_error){
-				proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
-			}else{
-				proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Failed on UCS2 contact wireshark developers");
-			}
-
-			g_free(net_name);
-			g_iconv_close(cd);
-		}
-		else
-		{
-			net_name = tvb_get_unicode_string(wmem_packet_scope(), tvb, curr_offset, (len - 1), ENC_BIG_ENDIAN);
-			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
-		}
+		net_name = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset, (len - 1), ENC_UCS_2|ENC_BIG_ENDIAN);
+		proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
 		break;
 	default:
 		proto_tree_add_text(tree,
