@@ -29,23 +29,27 @@
 
 /* sign extension routines */
 
-static inline guint32
+static inline guint32 ws_sign_ext32(guint32 val, int no_of_bits) _U_;
+
+guint32
 ws_sign_ext32(guint32 val, int no_of_bits)
 {
 	if (val & (1 << (no_of_bits-1)))
 		val |= (-1 << no_of_bits);
 
 	return val;
-} _U_;
+}
 
-static inline guint64
+static inline guint64 ws_sign_ext64(guint64 val, int no_of_bits) _U_;
+
+guint64
 ws_sign_ext64(guint64 val, int no_of_bits)
 {
 	if (val & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
 		val |= (G_GINT64_CONSTANT(-1) << no_of_bits);
 
 	return val;
-} _U_;
+}
 
 /*
 static inline guint64
