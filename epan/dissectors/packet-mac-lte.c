@@ -1883,6 +1883,13 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
             case MAC_LTE_EXT_BSR_SIZES_TAG:
                 p_mac_lte_info->isExtendedBSRSizes = TRUE;
                 break;
+            case MAC_LTE_SEND_PREAMBLE_TAG:
+                p_mac_lte_info->oob_event = ltemac_send_preamble;
+                p_mac_lte_info->rapid = tvb_get_guint8(tvb, offset);
+                offset++;
+                p_mac_lte_info->rach_attempt_number = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
 
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */

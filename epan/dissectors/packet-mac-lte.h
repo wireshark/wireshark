@@ -264,6 +264,9 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 #define MAC_LTE_EXT_BSR_SIZES_TAG   0x08
 /* 0 byte */
 
+#define MAC_LTE_SEND_PREAMBLE_TAG   0x09
+/* 2 bytes, RAPID value (1 byte) followed by RACH attempt number (1 byte) */
+
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define MAC_LTE_PAYLOAD_TAG 0x01
