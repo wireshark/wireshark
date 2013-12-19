@@ -162,9 +162,9 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
   ptvcursor_add(cursor, hf_roofnet_link_seq, 4, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_link_age, 4, ENC_BIG_ENDIAN);
 
+  *offset = ptvcursor_current_offset(cursor);
   ptvcursor_free(cursor);
 
-  *offset = ptvcursor_current_offset(cursor);
   proto_tree_add_ipv4(subtree, hf_roofnet_link_dst, tvb, *offset, 4, addr_dst);
   /* don't increment offset here because the dst of this link is the src of the next one */
 }
