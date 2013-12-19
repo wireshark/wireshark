@@ -36,13 +36,58 @@ static void mesa_CallList(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
 static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     int n;
+    int type;
     n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_render_CallLists_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
+    type = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_render_CallLists_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    (void) n; /* Avoid unreferenced warning, similar to Q_UNUSED */
-    listOfByte(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, (length - 8) / 1, byte_order);
+    switch(type) {
+    case 0x1400: /* BYTE */
+        listOfByte(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists_signed, n, byte_order);
+        UNUSED(length - 8 - n);
+        break;
+    case 0x1401: /* UNSIGNED_BYTE */
+        listOfByte(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists_unsigned, n, byte_order);
+        UNUSED(length - 8 - n);
+        break;
+    case 0x1402: /* SHORT */
+        listOfInt16(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_int16, n, byte_order);
+        UNUSED(length - 8 - 2 * n);
+        break;
+    case 0x1403: /* UNSIGNED_SHORT */
+        listOfCard16(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card16, n, byte_order);
+        UNUSED(length - 8 - 2 * n);
+        break;
+    case 0x1404: /* INT */
+        listOfInt32(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_int32, n, byte_order);
+        break;
+    case 0x1405: /* UNSIGNED_INT */
+        listOfCard32(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card32, n, byte_order);
+        break;
+    case 0x1406: /* FLOAT */
+        listOfFloat(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_float, n, byte_order);
+        break;
+    case 0x1407: /* 2_BYTES */
+        listOfCard16(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card16, n, ENC_BIG_ENDIAN);
+        UNUSED(length - 8 - 2 * n);
+        break;
+    case 0x1408: /* 3_BYTES */
+        UNDECODED(3 * n);
+        UNUSED(length - 8 - 3 * n);
+        break;
+    case 0x1409: /* 4_BYTES */
+        listOfCard32(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card32, n, ENC_BIG_ENDIAN);
+        break;
+    case 0x140B: /* HALF_FLOAT */
+        UNDECODED(2 * n);
+        UNUSED(length - 8 - 2 * n);
+        break;
+    default:     /* Unknown */
+        UNDECODED(length - 8);
+        break;
+    }
 }
 
 static void mesa_ListBase(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17917,8 +17962,8 @@ static int struct_size_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, guint by
 {
     int size = 0;
     int i, off;
-    int f_num_classes;
     int f_name_len;
+    int f_num_classes;
     f_num_classes = VALUE16(tvb, *offsetp + size + 6);
     f_name_len = VALUE16(tvb, *offsetp + size + 8);
     size += (((f_name_len + 3) / 4) * 4) * 1;
@@ -19455,8 +19500,8 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 static int struct_size_xkb_KeyType(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
 {
     int size = 0;
-    int f_nMapEntries;
     int f_hasPreserve;
+    int f_nMapEntries;
     f_nMapEntries = VALUE8(tvb, *offsetp + size + 5);
     f_hasPreserve = VALUE8(tvb, *offsetp + size + 6);
     size += f_nMapEntries * 8;
@@ -24572,8 +24617,8 @@ static void register_xkb(void)
 static int struct_size_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
 {
     int size = 0;
-    int f_nameLen;
     int f_descLen;
+    int f_nameLen;
     f_nameLen = VALUE32(tvb, *offsetp + size + 0);
     size += f_nameLen * 1;
     f_descLen = VALUE32(tvb, *offsetp + size + 4);
@@ -25358,8 +25403,8 @@ static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
 static int struct_size_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
 {
     int size = 0;
-    int f_object_context_len;
     int f_data_context_len;
+    int f_object_context_len;
     f_object_context_len = VALUE32(tvb, *offsetp + size + 4);
     f_data_context_len = VALUE32(tvb, *offsetp + size + 8);
     size += f_object_context_len * 1;

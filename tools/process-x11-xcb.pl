@@ -28,13 +28,20 @@
 #
 
 #TODO
-# - look ahead to see if values are ever used again before creating an "int" in the output
 # - support constructs that are legal in XCB, but don't appear to be used
 
 use 5.010;
 
 use warnings;
 use strict;
+
+# given/when is going to be removed (and/or dramatically altered)
+# in 5.20. Patches welcome.
+# Patches even more welcome if they rewrite this whole thing in a
+# language with a proper compatibility document, such as
+# http://golang.org/doc/go1compat
+no if $] >= 5.018, warnings => "experimental::smartmatch";
+no 5.20.0;
 
 use IO::File;
 use XML::Twig;
@@ -281,6 +288,15 @@ eot
 ;
     }
 
+    my %type_param;
+    foreach my $e (@elements) {
+        # Detect count && variable_param
+        my $count = $e->att('count');
+        my $variable_param = $e->att('variable_param');
+        if (defined $count and defined $variable_param) {
+            $type_param{$variable_param} = 1;
+        }
+    }
     foreach my $e (@elements) {
 	# Register field with wireshark
 
@@ -297,18 +313,39 @@ eot
 	my $ft = $info->{'type'};
 	my $base = $info->{'base'};
 	my $val = $info->{'val'} // 'NULL';
+        my $count = $e->att('count');
+        my $variable_param = $e->att('variable_param');
 
-	print $decl "static int $regname = -1;\n";
-	if ($list and $info->{'size'} > 1) {
-	    print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
-	    $regname .= '_item';
-	    print $decl "static int $regname = -1;\n";
-	}
-	print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", $ft, $base, $val, 0, NULL, HFILL }},\n";
+        if ($list and $count and $variable_param) {
+            print $decl "static int ${regname} = -1;\n";
+            print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_signed = -1;\n";
+            print $reg "{ &${regname}_signed, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_unsigned = -1;\n";
+            print $reg "{ &${regname}_unsigned, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_item_card16 = -1;\n";
+            print $reg "{ &${regname}_item_card16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_item_int16 = -1;\n";
+            print $reg "{ &${regname}_item_int16, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_item_card32 = -1;\n";
+            print $reg "{ &${regname}_item_card32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_item_int32 = -1;\n";
+            print $reg "{ &${regname}_item_int32, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},\n";
+            print $decl "static int ${regname}_item_float = -1;\n";
+            print $reg "{ &${regname}_item_float, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
+        } else {
+            print $decl "static int $regname = -1;\n";
+            if ($list and $info->{'size'} > 1) {
+                print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
+                $regname .= '_item';
+                print $decl "static int $regname = -1;\n";
+            }
+            print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", $ft, $base, $val, 0, NULL, HFILL }},\n";
 
-	if ($e->att('counter')) {
-	    print $impl "    int $fieldname;\n";
-	}
+            if ($e->att('counter') or $type_param{$fieldname}) {
+                print $impl "    int $fieldname;\n";
+            }
+        }
 
 	if ($list) {
 	    if ($e->att('img_format')) {
@@ -376,27 +413,76 @@ eot
 	    my $encoding = $info->{'encoding'};
 	    my $get = $info->{'get'};
 
-	    if ($e->att('counter')) {
+            if ($e->att('counter') or $type_param{$fieldname}) {
 		print $impl "    $fieldname = $get(tvb, *offsetp);\n";
 	    }
 	    print $impl "    proto_tree_add_item(t, $regname, tvb, *offsetp, $size, $encoding);\n";
 	    print $impl "    *offsetp += $size;\n";
 	    $length += $size;
         } else {	# list
-	    # TODO: variable_param
 	    my $list = $info->{'list'};
 	    my $count = $e->att('count');
 	    my $variable_param = $e->att('variable_param');
 
-	    $regname .= ", $regname".'_item' if ($info->{'size'} > 1);
 	    if (defined($count) && !defined($variable_param)) {
+                $regname .= ", $regname".'_item' if ($info->{'size'} > 1);
 		print $impl "    $list(tvb, offsetp, t, $regname, $count, byte_order);\n";
 	    } else {
                 if (defined($count)) {
-                    # Silence compiler until we support variable_param
-                    say $impl "    (void) $count; /* Avoid unreferenced warning, similar to Q_UNUSED */";
+                    # Currently, only CallLists has both a count and a variable_param
+                    # The XML contains a size description of all the possibilities
+                    # for CallLists, but not a type description. Implement by hand,
+                    # with the caveat that more types may need to be added in the
+                    # future.
+                    say $impl "    switch($variable_param) {";
+                    say $impl "    case 0x1400: /* BYTE */";
+                    say $impl "        listOfByte(tvb, offsetp, t, ${regname}_signed, $count, byte_order);";
+                    say $impl "        UNUSED(length - $length - $count);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1401: /* UNSIGNED_BYTE */";
+                    say $impl "        listOfByte(tvb, offsetp, t, ${regname}_unsigned, $count, byte_order);";
+                    say $impl "        UNUSED(length - $length - $count);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1402: /* SHORT */";
+                    say $impl "        listOfInt16(tvb, offsetp, t, $regname, ${regname}_item_int16, $count, byte_order);";
+                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1403: /* UNSIGNED_SHORT */";
+                    say $impl "        listOfCard16(tvb, offsetp, t, $regname, ${regname}_item_card16, $count, byte_order);";
+                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1404: /* INT */";
+                    say $impl "        listOfInt32(tvb, offsetp, t, $regname, ${regname}_item_int32, $count, byte_order);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1405: /* UNSIGNED_INT */";
+                    say $impl "        listOfCard32(tvb, offsetp, t, $regname, ${regname}_item_card32, $count, byte_order);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1406: /* FLOAT */";
+                    say $impl "        listOfFloat(tvb, offsetp, t, $regname, ${regname}_item_float, $count, byte_order);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1407: /* 2_BYTES */";
+                    say $impl "        listOfCard16(tvb, offsetp, t, $regname, ${regname}_item_card16, $count, ENC_BIG_ENDIAN);";
+                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1408: /* 3_BYTES */";
+                    say $impl "        UNDECODED(3 * $count);";
+                    say $impl "        UNUSED(length - $length - 3 * $count);";
+                    say $impl "        break;";
+                    say $impl "    case 0x1409: /* 4_BYTES */";
+                    say $impl "        listOfCard32(tvb, offsetp, t, $regname, ${regname}_item_card32, $count, ENC_BIG_ENDIAN);";
+                    say $impl "        break;";
+                    say $impl "    case 0x140B: /* HALF_FLOAT */";
+                    say $impl "        UNDECODED(2 * $count);";
+                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        break;";
+                    say $impl "    default:     /* Unknown */";
+                    say $impl "        UNDECODED(length - $length);";
+                    say $impl "        break;";
+                    say $impl "    }";
+                } else {
+                    $regname .= ", $regname".'_item' if ($info->{'size'} > 1);
+                    print $impl "    $list(tvb, offsetp, t, $regname, (length - $length) / $gltype{$type}{'size'}, byte_order);\n";
                 }
-		print $impl "    $list(tvb, offsetp, t, $regname, (length - $length) / $gltype{$type}{'size'}, byte_order);\n";
 	    }
 	}
     }
@@ -907,7 +993,7 @@ eot
 ;
 	say $impl '    int i, off;' if ($needi);
 
-	foreach my $ref (keys %refs) {
+	foreach my $ref (sort keys %refs) {
 	    say $impl "    int f_$ref;";
 	}
 
