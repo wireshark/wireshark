@@ -568,24 +568,23 @@ WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
   Tvb's range the creation will cause a runtime error.
  */
 
-static TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
+gboolean push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
     TvbRange tvbr;
-
 
     if (!ws_tvb) {
         luaL_error(L,"expired tvb");
-        return 0;
+        return FALSE;
     }
 
     if (len == -1) {
         len = tvb_length_remaining(ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
-            return 0;
+            return FALSE;
         }
     } else if ( (guint)(len + offset) > tvb_length(ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
-        return NULL;
+        return FALSE;
     }
 
     tvbr = (TvbRange)g_malloc(sizeof(struct _wslua_tvbrange));
@@ -596,7 +595,9 @@ static TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len
     tvbr->offset = offset;
     tvbr->len = len;
 
-    return tvbr;
+    PUSH_TVBRANGE(L,tvbr);
+
+    return TRUE;
 }
 
 
@@ -608,7 +609,6 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
     int offset = luaL_optint(L,WSLUA_OPTARG_Tvb_range_OFFSET,0);
     int len = luaL_optint(L,WSLUA_OPTARG_Tvb_range_LENGTH,-1);
-    TvbRange tvbr;
 
     if (!tvb) return 0;
     if (tvb->expired) {
@@ -616,8 +616,7 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
         return 0;
     }
 
-    if ((tvbr = new_TvbRange(L,tvb->ws_tvb,offset,len))) {
-        PUSH_TVBRANGE(L,tvbr);
+    if (push_TvbRange(L,tvb->ws_tvb,offset,len)) {
         WSLUA_RETURN(1); /* The TvbRange */
     }
 
@@ -1256,8 +1255,7 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
         return 0;
     }
 
-    if ((tvbr = new_TvbRange(L,tvbr->tvb->ws_tvb,tvbr->offset+offset,len))) {
-        PUSH_TVBRANGE(L,tvbr);
+    if (push_TvbRange(L,tvbr->tvb->ws_tvb,tvbr->offset+offset,len)) {
         WSLUA_RETURN(1); /* The TvbRange */
     }
 
@@ -1266,9 +1264,9 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
 
 static int TvbRange_uncompress(lua_State* L) {
 	/* Obtain a uncompressed TvbRange from a TvbRange */
-#define WSLUA_ARG_TvbRange_tvb_NAME 2 /* The name to be given to the new data-source. */
+#define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
-    const gchar* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Uncompressed");
+    const gchar* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_NAME,"Uncompressed");
     tvbuff_t *uncompr_tvb;
 
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -1282,8 +1280,7 @@ static int TvbRange_uncompress(lua_State* L) {
     uncompr_tvb = tvb_child_uncompress(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
     if (uncompr_tvb) {
        add_new_data_source (lua_pinfo, uncompr_tvb, name);
-       if ((tvbr = new_TvbRange(L,uncompr_tvb,0,tvb_length(uncompr_tvb)))) {
-          PUSH_TVBRANGE(L,tvbr);
+       if (push_TvbRange(L,uncompr_tvb,0,tvb_length(uncompr_tvb))) {
           WSLUA_RETURN(1); /* The TvbRange */
        }
     }
