@@ -75,22 +75,21 @@ extern gchar*	ipxnet_to_str_punct(const guint32 ad, const char punct);
 extern gchar*	tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gchar*	eui64_to_str(const guint64 ad);
 WS_DLL_PUBLIC gchar*	tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding);
-WS_DLL_PUBLIC gchar*	time_secs_to_str(const gint32 time_val);
-gchar*	time_secs_to_str_unsigned(const guint32);
-WS_DLL_PUBLIC gchar*	time_msecs_to_str(gint32 time_val);
-WS_DLL_PUBLIC gchar*	abs_time_to_str(const nstime_t*, const absolute_time_display_e fmt,
+WS_DLL_PUBLIC gchar*	time_secs_to_ep_str(const gint32 time_val);
+gchar*	time_secs_to_ep_str_unsigned(const guint32);
+WS_DLL_PUBLIC gchar*	time_msecs_to_ep_str(gint32 time_val);
+WS_DLL_PUBLIC gchar*	abs_time_to_ep_str(const nstime_t*, const absolute_time_display_e fmt,
     gboolean show_zone);
-WS_DLL_PUBLIC gchar*	abs_time_secs_to_str(const time_t, const absolute_time_display_e fmt,
+WS_DLL_PUBLIC gchar*	abs_time_secs_to_ep_str(const time_t, const absolute_time_display_e fmt,
     gboolean show_zone);
 WS_DLL_PUBLIC void	display_signed_time(gchar *, int, const gint32, gint32, const to_str_time_res_t);
 WS_DLL_PUBLIC void	display_epoch_time(gchar *, int, const time_t,  gint32, const to_str_time_res_t);
 
-extern gchar*	guint32_to_str(const guint32 u);
 extern void	guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
 
-WS_DLL_PUBLIC gchar*	rel_time_to_str(const nstime_t*);
-WS_DLL_PUBLIC gchar*	rel_time_to_secs_str(const nstime_t*);
-WS_DLL_PUBLIC gchar*	guid_to_str(const e_guid_t*);
+WS_DLL_PUBLIC gchar*	rel_time_to_ep_str(const nstime_t*);
+WS_DLL_PUBLIC gchar*	rel_time_to_secs_ep_str(const nstime_t*);
+WS_DLL_PUBLIC gchar*	guid_to_ep_str(const e_guid_t*);
 gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
 
 WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value);
@@ -99,8 +98,6 @@ WS_DLL_PUBLIC char	*other_decode_bitfield_value(char *buf, const guint32 val, co
     const int width);
 WS_DLL_PUBLIC char	*decode_bitfield_value(char *buf, const guint32 val, const guint32 mask,
     const int width);
-WS_DLL_PUBLIC const char *decode_boolean_bitfield(const guint32 val, const guint32 mask, const int width,
-  const char *truedesc, const char *falsedesc);
 WS_DLL_PUBLIC const char *decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
   const char *fmt);
 

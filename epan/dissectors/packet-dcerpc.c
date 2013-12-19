@@ -3296,7 +3296,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             iface_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_abstract_syntax, tvb, offset, 0, ENC_NA);
             iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
-            uuid_str = guid_to_str((e_guid_t*)&if_id);
+            uuid_str = guid_to_ep_str((e_guid_t*)&if_id);
             uuid_name = guids_get_uuid_name(&if_id);
             if (uuid_name) {
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
@@ -3341,7 +3341,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, ENC_NA);
                 trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
-                uuid_str = guid_to_str((e_guid_t *) &trans_id);
+                uuid_str = guid_to_ep_str((e_guid_t *) &trans_id);
                 uuid_name = guids_get_uuid_name(&trans_id);
 
                 if (uuid_name) {
@@ -3497,7 +3497,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
             uuid_name = guids_get_uuid_name(&trans_id);
             if (! uuid_name) {
-                uuid_name = guid_to_str((e_guid_t *) &trans_id);
+                uuid_name = guid_to_ep_str((e_guid_t *) &trans_id);
             }
             proto_tree_add_guid_format(ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
                                        offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s",
@@ -3847,7 +3847,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (dcerpc_tree) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                        offset, 16, (e_guid_t *) &obj_id, "Object UUID: %s",
-                                       guid_to_str((e_guid_t *) &obj_id));
+                                       guid_to_ep_str((e_guid_t *) &obj_id));
         }
         offset += 16;
     }
@@ -4077,7 +4077,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             if (dcerpc_tree && (memcmp(&value->object_uuid, &obj_id_null, sizeof(obj_id_null)) != 0)) {
                 pi = proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                                 offset, 0, (e_guid_t *) &value->object_uuid, "Object UUID: %s",
-                                                guid_to_str((e_guid_t *) &value->object_uuid));
+                                                guid_to_ep_str((e_guid_t *) &value->object_uuid));
                 PROTO_ITEM_SET_GENERATED(pi);
             }
 
@@ -5726,12 +5726,12 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tree) {
         proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                    offset, 16, (e_guid_t *) &hdr.obj_id, "Object UUID: %s",
-                                   guid_to_str((e_guid_t *) &hdr.obj_id));
+                                   guid_to_ep_str((e_guid_t *) &hdr.obj_id));
     }
     offset += 16;
 
     if (tree) {
-        uuid_str = guid_to_str((e_guid_t*)&hdr.if_id);
+        uuid_str = guid_to_ep_str((e_guid_t*)&hdr.if_id);
         uuid_name = guids_get_uuid_name(&hdr.if_id);
         if (uuid_name) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
@@ -5746,7 +5746,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tree) {
         proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
                                    offset, 16, (e_guid_t *) &hdr.act_id, "Activity: %s",
-                                   guid_to_str((e_guid_t *) &hdr.act_id));
+                                   guid_to_ep_str((e_guid_t *) &hdr.act_id));
     }
     offset += 16;
 

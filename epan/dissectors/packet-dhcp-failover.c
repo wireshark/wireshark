@@ -454,7 +454,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		timex.nsecs = 0;
 		proto_tree_add_time_format_value(dhcpfo_tree, hf_dhcpfo_time, tvb,
 		    offset, 4, &timex, "%s",
-		    abs_time_secs_to_str(timex.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+		    abs_time_secs_to_ep_str(timex.secs, ABSOLUTE_TIME_LOCAL, TRUE));
 	}
 	offset += 4;
 
@@ -650,7 +650,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			lease_expiration_time =
 			    tvb_get_ntohl(tvb, offset);
 			lease_expiration_time_str =
-			    abs_time_secs_to_str(lease_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_ep_str(lease_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    lease_expiration_time_str);
@@ -672,7 +672,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    tvb_get_ntohl(tvb, offset);
 
 			potential_expiration_time_str =
-			    abs_time_secs_to_str(potential_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_ep_str(potential_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    potential_expiration_time_str);
@@ -694,7 +694,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    tvb_get_ntohl(tvb, offset);
 
 			grace_expiration_time_str =
-			    abs_time_secs_to_str(grace_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_ep_str(grace_expiration_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    grace_expiration_time_str);
@@ -715,7 +715,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			client_last_transaction_time =
 			    tvb_get_ntohl(tvb, offset);
 			client_last_transaction_time_str =
-			    abs_time_secs_to_str(client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_ep_str(client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    client_last_transaction_time_str);
@@ -725,7 +725,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length,
 			    client_last_transaction_time,
 			    "%s",
-			    abs_time_secs_to_str(client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE));
+			    abs_time_secs_to_ep_str(client_last_transaction_time, ABSOLUTE_TIME_LOCAL, TRUE));
 			break;
 
 		case DHCP_FO_PD_START_TIME_OF_STATE:
@@ -736,7 +736,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			start_time_of_state =
 			    tvb_get_ntohl(tvb, offset);
 			start_time_of_state_str =
-			    abs_time_secs_to_str(start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE);
+			    abs_time_secs_to_ep_str(start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE);
 
 			proto_item_append_text(oi, ", %s",
 			    start_time_of_state_str);
@@ -746,7 +746,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length,
 			    start_time_of_state,
 			    "%s",
-			    abs_time_secs_to_str(start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE));
+			    abs_time_secs_to_ep_str(start_time_of_state, ABSOLUTE_TIME_LOCAL, TRUE));
 			break;
 
 		case DHCP_FO_PD_SERVERSTATE:

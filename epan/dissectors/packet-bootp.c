@@ -1402,7 +1402,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		if (hf != NULL) {
 			time_s_secs = (gint32) tvb_get_ntohl(tvb, offset);
 			proto_tree_add_int_format_value(tree, *hf,
-				tvb, offset, 4, time_s_secs, "(%ds) %s", time_s_secs, time_secs_to_str(time_s_secs));
+				tvb, offset, 4, time_s_secs, "(%ds) %s", time_s_secs, time_secs_to_ep_str(time_s_secs));
 		}
 		else if (hf_default->time_in_s_secs != NULL)
 			proto_tree_add_item(tree, *hf_default->time_in_s_secs, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1420,7 +1420,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 			time_u_secs = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_uint_format_value(tree, *hf,
 				tvb, offset, 4, time_u_secs, "(%us) %s", time_u_secs,
-				((time_u_secs == 0xffffffff) ? "infinity" : time_secs_to_str_unsigned(time_u_secs)));
+				((time_u_secs == 0xffffffff) ? "infinity" : time_secs_to_ep_str_unsigned(time_u_secs)));
 		}
 		else if (hf_default->time_in_u_secs != NULL)
 			proto_tree_add_item(tree, *hf_default->time_in_u_secs, tvb, offset, 4, ENC_BIG_ENDIAN);

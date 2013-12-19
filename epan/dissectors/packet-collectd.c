@@ -487,7 +487,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 		gchar *strtime;
 
 		nstime = collectd_time_to_nstime (*ret_value);
-		strtime = abs_time_to_str (&nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ TRUE);
+		strtime = abs_time_to_ep_str (&nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ TRUE);
 		pi = proto_tree_add_text (tree_root, tvb, offset, length,
 					  "collectd %s segment: %s",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
@@ -499,7 +499,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 		gchar *strtime;
 
 		nstime = collectd_time_to_nstime (*ret_value);
-		strtime = rel_time_to_str (&nstime);
+		strtime = rel_time_to_ep_str (&nstime);
 		pi = proto_tree_add_text (tree_root, tvb, offset, length,
 					  "collectd %s segment: %s",
 					  val_to_str_const (type, part_names, "UNKNOWN"),

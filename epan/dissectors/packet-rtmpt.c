@@ -1064,9 +1064,9 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 t.nsecs = (int)((iDoubleValue - 1000*(double)t.secs) * 1000000);
                 proto_tree_add_time(val_tree, hf_amf_date, tvb, iValueOffset, 8, &t);
                 iValueOffset += 8;
-                proto_item_append_text(ti, " %s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                proto_item_append_text(ti, " %s", abs_time_to_ep_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
                 if (parent_ti != NULL)
-                        proto_item_append_text(parent_ti, " %s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                        proto_item_append_text(parent_ti, " %s", abs_time_to_ep_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
                 /* time-zone */
                 iValueOffset += 2;
                 break;
@@ -1289,9 +1289,9 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                         t.nsecs = (int)((iDoubleValue - 1000*(double)t.secs) * 1000000);
                         proto_tree_add_time(val_tree, hf_amf_date, tvb, iValueOffset, 8, &t);
                         iValueOffset += 8;
-                        proto_item_append_text(ti, "%s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                        proto_item_append_text(ti, "%s", abs_time_to_ep_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
                         if (parent_ti != NULL)
-                                proto_item_append_text(parent_ti, "%s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                                proto_item_append_text(parent_ti, "%s", abs_time_to_ep_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
                 } else {
                         /* the upper 28 bits of the integer value are an object reference index */
                         proto_tree_add_uint(val_tree, hf_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);

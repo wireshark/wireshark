@@ -824,7 +824,7 @@ void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 	time_ptr.nsecs = 0;
 
 	proto_tree_add_time(tree, a->hf, tvb, offset, len, &time_ptr);
-	proto_item_append_text(avp_item, "%s", abs_time_to_str(&time_ptr, ABSOLUTE_TIME_LOCAL, TRUE));
+	proto_item_append_text(avp_item, "%s", abs_time_to_ep_str(&time_ptr, ABSOLUTE_TIME_LOCAL, TRUE));
 }
 
 /*

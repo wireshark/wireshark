@@ -2923,7 +2923,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
                                    "%s",
                                    (subm_time & 0x7FFF) >= 0x7FF8 ?
                                    "Reserved" :
-                                   abs_time_secs_to_str (dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
+                                   abs_time_secs_to_ep_str (dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
   field_tree = proto_item_add_subtree (tf, ett_envelope_subm_time);
   proto_tree_add_item (field_tree, hf_envelope_time_diff_present, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item (field_tree, hf_envelope_subm_time_value, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2941,7 +2941,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     if (secs == DMP_TIME_RESERVED) {
       proto_item_append_text (tf, "Reserved (0x%2.2x)", time_diff);
     } else {
-      proto_item_append_text (tf, "%s", time_secs_to_str (secs));
+      proto_item_append_text (tf, "%s", time_secs_to_ep_str (secs));
     }
     offset += 1;
   }
@@ -3253,9 +3253,9 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", report);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", time_secs_to_str (secs),
-                              abs_time_secs_to_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_str (secs));
+      proto_item_append_text (tf, "%s (%s)", time_secs_to_ep_str (secs),
+                              abs_time_secs_to_ep_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_ep_str (secs));
     }
   } else {
     dmp.ndr = TRUE;
@@ -3367,9 +3367,9 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", rec_time);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", time_secs_to_str (secs),
-                              abs_time_secs_to_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_str (secs));
+      proto_item_append_text (tf, "%s (%s)", time_secs_to_ep_str (secs),
+                              abs_time_secs_to_ep_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_ep_str (secs));
     }
     offset += 1;
 
@@ -3768,9 +3768,9 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", exp_time);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", time_secs_to_str (secs),
-                              abs_time_secs_to_str (dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_str (secs));
+      proto_item_append_text (tf, "%s (%s)", time_secs_to_ep_str (secs),
+                              abs_time_secs_to_ep_str (dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_ep_str (secs));
     }
     offset += 1;
   }
@@ -3790,13 +3790,13 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "0 minutes in the %s (%s)",
                               (dtg & 0x80) ? dtg_sign.true_string :
                               dtg_sign.false_string,
-                              abs_time_secs_to_str (dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
+                              abs_time_secs_to_ep_str (dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
     } else {
-      proto_item_append_text (tf, "%s in the %s (%s)", time_secs_to_str(secs),
+      proto_item_append_text (tf, "%s in the %s (%s)", time_secs_to_ep_str(secs),
                               (dtg & 0x80) ? dtg_sign.true_string :
                               dtg_sign.false_string, (dtg & 0x80) ?
-                              abs_time_secs_to_str (dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE) :
-                              abs_time_secs_to_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                              abs_time_secs_to_ep_str (dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE) :
+                              abs_time_secs_to_ep_str (dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
     }
     offset += 1;
   }

@@ -386,7 +386,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     proto_tree_add_uint_format(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4,
                                tvb_get_ntohl(tvb, offset), "%s: %s",
                                proto_registrar_get_name(hf_pktc_sec_param_lifetime),
-                               time_secs_to_str(tvb_get_ntohl(tvb, offset)));
+                               time_secs_to_ep_str(tvb_get_ntohl(tvb, offset)));
     offset+=4;
 
     /* grace period */

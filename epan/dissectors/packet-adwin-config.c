@@ -357,11 +357,11 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
 	offset += 4;
 	tmp_time.secs = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(adwin_tree, tvb, offset, 4,
-			    "File time: %s", abs_time_to_str(&tmp_time, ABSOLUTE_TIME_LOCAL, TRUE));
+			    "File time: %s", abs_time_to_ep_str(&tmp_time, ABSOLUTE_TIME_LOCAL, TRUE));
 	offset += 4;
 	tmp_time.secs = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(adwin_tree, tvb, offset, 4,
-			    "Update time: %s", abs_time_to_str(&tmp_time, ABSOLUTE_TIME_LOCAL, TRUE));
+			    "Update time: %s", abs_time_to_ep_str(&tmp_time, ABSOLUTE_TIME_LOCAL, TRUE));
 	offset += 4;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, offset, 128, ENC_BIG_ENDIAN);
 	offset += 128;

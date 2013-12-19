@@ -1466,7 +1466,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				    "Address entry size: %u",
 				    addr_entry_size);
 		proto_tree_add_text(icmp_tree, tvb, 6, 2, "Lifetime: %s",
-				    time_secs_to_str(tvb_get_ntohs
+				    time_secs_to_ep_str(tvb_get_ntohs
 						     (tvb, 6)));
 		break;
 
@@ -1693,16 +1693,16 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			    get_best_guess_mstimeofday(tvb, 8, frame_ts);
 			proto_tree_add_text(icmp_tree, tvb, 8, 4,
 					    "Originate timestamp: %s after midnight UTC",
-					    time_msecs_to_str(orig_ts));
+					    time_msecs_to_ep_str(orig_ts));
 
 			proto_tree_add_text(icmp_tree, tvb, 12, 4,
 					    "Receive timestamp: %s after midnight UTC",
-					    time_msecs_to_str
+					    time_msecs_to_ep_str
 					    (get_best_guess_mstimeofday
 					     (tvb, 12, orig_ts)));
 			proto_tree_add_text(icmp_tree, tvb, 16, 4,
 					    "Transmit timestamp: %s after midnight UTC",
-					    time_msecs_to_str
+					    time_msecs_to_ep_str
 					    (get_best_guess_mstimeofday
 					     (tvb, 16, orig_ts)));
 		}

@@ -479,7 +479,7 @@ dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, guint
 
 	NORLEL(flags, r_uptime, tvb, offset);
 	proto_tree_add_uint_format(subtree, hf_resp_uptime, tvb, offset, 4, r_uptime,
-			"sysUptime: %s", time_msecs_to_str(r_uptime));
+			"sysUptime: %s", time_msecs_to_ep_str(r_uptime));
 	proto_tree_add_item(subtree, hf_resp_error,  tvb, offset + 4, 2, encoding);
 	proto_tree_add_item(subtree, hf_resp_index,  tvb, offset + 6, 2, encoding);
 	offset += 8;

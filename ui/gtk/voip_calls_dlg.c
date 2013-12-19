@@ -266,7 +266,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 					h323info = (h323_calls_info_t *)listinfo->prot_info;
 					g_string_append_printf(filter_string_fwd,
 						"((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x)",
-						guid_to_str(&h323info->guid[0]),
+						guid_to_ep_str(&h323info->guid[0]),
 						(guint8) (h323info->q931_crv & 0x00ff),
 						(guint8)((h323info->q931_crv & 0xff00)>>8),
 						(guint8) (h323info->q931_crv2 & 0x00ff),

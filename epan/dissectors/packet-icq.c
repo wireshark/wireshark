@@ -726,7 +726,7 @@ icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset)
 
 	if (tree) {
 		theTime = tvb_get_letohl(tvb, offset + CMD_LOGIN_TIME);
-		aTime = abs_time_secs_to_str(theTime, ABSOLUTE_TIME_LOCAL, TRUE);
+		aTime = abs_time_secs_to_ep_str(theTime, ABSOLUTE_TIME_LOCAL, TRUE);
 		proto_tree_add_text(subtree, tvb, offset + CMD_LOGIN_TIME, 4,
 					"Time: %ld = %s", (long)theTime, aTime);
 		port = tvb_get_letohl(tvb, offset + CMD_LOGIN_PORT);

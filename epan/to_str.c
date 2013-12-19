@@ -313,16 +313,6 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
 	uint_to_str_back(bp, u);
 }
 
-gchar *
-guint32_to_str(const guint32 u) {
-	int str_len = 16; /* guint32_to_str_buf_len(u)+1; */
-
-	gchar *bp = (gchar *)ep_alloc(str_len);
-	guint32_to_str_buf(u, bp, str_len);
-
-	return bp;
-}
-
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")
 
@@ -343,7 +333,7 @@ guint32_to_str(const guint32 u) {
  * If time is negative, add a '-' to all non-null components.
  */
 static void
-time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
+time_secs_to_ep_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
 		emem_strbuf_t *buf)
 {
 	int hours, mins, secs;
@@ -394,7 +384,7 @@ time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsec
 }
 
 gchar *
-time_secs_to_str(const gint32 time_val)
+time_secs_to_ep_str(const gint32 time_val)
 {
 	emem_strbuf_t *buf;
 
@@ -405,12 +395,12 @@ time_secs_to_str(const gint32 time_val)
 		return buf->str;
 	}
 
-	time_secs_to_str_buf(time_val, 0, FALSE, buf);
+	time_secs_to_ep_str_buf(time_val, 0, FALSE, buf);
 	return buf->str;
 }
 
 static void
-time_secs_to_str_buf_unsigned(guint32 time_val, const guint32 frac, const gboolean is_nsecs,
+time_secs_to_ep_str_buf_unsigned(guint32 time_val, const guint32 frac, const gboolean is_nsecs,
 		emem_strbuf_t *buf)
 {
 	int hours, mins, secs;
@@ -447,7 +437,7 @@ time_secs_to_str_buf_unsigned(guint32 time_val, const guint32 frac, const gboole
 }
 
 gchar *
-time_secs_to_str_unsigned(const guint32 time_val)
+time_secs_to_ep_str_unsigned(const guint32 time_val)
 {
 	emem_strbuf_t *buf;
 
@@ -458,13 +448,13 @@ time_secs_to_str_unsigned(const guint32 time_val)
 		return buf->str;
 	}
 
-	time_secs_to_str_buf_unsigned(time_val, 0, FALSE, buf);
+	time_secs_to_ep_str_buf_unsigned(time_val, 0, FALSE, buf);
 	return buf->str;
 }
 
 
 gchar *
-time_msecs_to_str(gint32 time_val)
+time_msecs_to_ep_str(gint32 time_val)
 {
 	emem_strbuf_t *buf;
 	int msecs;
@@ -487,7 +477,7 @@ time_msecs_to_str(gint32 time_val)
 		time_val /= 1000;
 	}
 
-	time_secs_to_str_buf(time_val, msecs, FALSE, buf);
+	time_secs_to_ep_str_buf(time_val, msecs, FALSE, buf);
 	return buf->str;
 }
 
@@ -557,7 +547,7 @@ static const gchar *get_zonename(struct tm *tmp) {
 }
 
 gchar *
-abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
+abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 		gboolean show_zone)
 {
 	struct tm *tmp = NULL;
@@ -641,7 +631,7 @@ abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 }
 
 gchar *
-abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt,
+abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt,
 		gboolean show_zone)
 {
 	struct tm *tmp = NULL;
@@ -825,7 +815,7 @@ display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
  * Display a relative time as days/hours/minutes/seconds.
  */
 gchar *
-rel_time_to_str(const nstime_t *rel_time)
+rel_time_to_ep_str(const nstime_t *rel_time)
 {
 	emem_strbuf_t *buf;
 	gint32 time_val;
@@ -855,7 +845,7 @@ rel_time_to_str(const nstime_t *rel_time)
 		time_val = (gint) -rel_time->secs;
 	}
 
-	time_secs_to_str_buf(time_val, nsec, TRUE, buf);
+	time_secs_to_ep_str_buf(time_val, nsec, TRUE, buf);
 	return buf->str;
 }
 
@@ -865,7 +855,7 @@ rel_time_to_str(const nstime_t *rel_time)
  * Display a relative time as seconds.
  */
 gchar *
-rel_time_to_secs_str(const nstime_t *rel_time)
+rel_time_to_secs_ep_str(const nstime_t *rel_time)
 {
 	gchar *buf;
 
@@ -983,24 +973,6 @@ decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const in
 	return p;
 }
 
-/* Generate a string describing a Boolean bitfield (a one-bit field that
-   says something is either true or false). */
-const char *
-decode_boolean_bitfield(const guint32 val, const guint32 mask, const int width,
-		const char *truedesc, const char *falsedesc)
-{
-	char *buf;
-	char *p;
-
-	buf=(char *)ep_alloc(1025); /* is this a bit overkill? */
-	p = decode_bitfield_value(buf, val, mask, width);
-	if (val & mask)
-		strcpy(p, truedesc);
-	else
-		strcpy(p, falsedesc);
-	return buf;
-}
-
 /* Generate a string describing a numeric bitfield (an N-bit field whose
    value is just a number). */
 const char *
@@ -1066,7 +1038,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	*b=0;
 }
 
-gchar* guid_to_str(const e_guid_t *guid) {
+gchar* guid_to_ep_str(const e_guid_t *guid) {
 	gchar *buf;
 
 	buf=(gchar *)ep_alloc(GUID_STR_LEN);

@@ -245,7 +245,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						/*
 						 * Format ascii representaion of time
 						 */
-						ptr = abs_time_secs_to_str(t, ABSOLUTE_TIME_LOCAL, TRUE);
+						ptr = abs_time_secs_to_ep_str(t, ABSOLUTE_TIME_LOCAL, TRUE);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Time: %s", ptr);
 					}

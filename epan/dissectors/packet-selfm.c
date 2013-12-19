@@ -1970,7 +1970,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_doy, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_year, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_todms, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_text(fastser_tree, tvb, offset+4, 4, "Time of Day (decoded): %s", time_msecs_to_str(tod_ms));
+            proto_tree_add_text(fastser_tree, tvb, offset+4, 4, "Time of Day (decoded): %s", time_msecs_to_ep_str(tod_ms));
             offset += 8;
 
             /* Build element tree */
@@ -2011,7 +2011,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 proto_tree_add_item(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_ts_ofs, tvb, offset+1, 3, ENC_NA);
                 proto_tree_add_text(fastser_element_tree, tvb, offset+1, 3,
-                    "SER Element Timestamp Offset (decoded): %s", time_msecs_to_str(tod_ms + (elmt_ts_offset/1000)));
+                    "SER Element Timestamp Offset (decoded): %s", time_msecs_to_ep_str(tod_ms + (elmt_ts_offset/1000)));
                 proto_tree_add_uint(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_status, tvb, elmt_status32_ofs, 4, elmt_status);
 
                 offset += 4;

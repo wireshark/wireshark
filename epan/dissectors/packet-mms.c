@@ -1847,7 +1847,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	if(len == 4)
 	{
 		milliseconds = tvb_get_ntohl(tvb, offset);
-		ptime = time_msecs_to_str(milliseconds);
+		ptime = time_msecs_to_ep_str(milliseconds);
 
 		if(hf_index >= 0)
 		{
@@ -1867,7 +1867,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
 		ts.nsecs = (milliseconds % 1000) * 1000000U;
 
-		ptime = abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, TRUE);
+		ptime = abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, TRUE);
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
@@ -1943,7 +1943,7 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, TRUE);
+	ptime = abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, TRUE);
 
 	if(hf_index >= 0)
 	{

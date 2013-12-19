@@ -3884,14 +3884,14 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 			case FT_ABSOLUTE_TIME:
 				offset_r += protoo_strlcpy(result+offset_r,
-							   abs_time_to_str((const nstime_t *)fvalue_get(&finfo->value),
+							   abs_time_to_ep_str((const nstime_t *)fvalue_get(&finfo->value),
 									   (absolute_time_display_e)hfinfo->display, TRUE),
 							   size-offset_r);
 				break;
 
 			case FT_RELATIVE_TIME:
 				offset_r += protoo_strlcpy(result+offset_r,
-							   rel_time_to_secs_str((const nstime_t *)fvalue_get(&finfo->value)),
+							   rel_time_to_secs_ep_str((const nstime_t *)fvalue_get(&finfo->value)),
 							   size-offset_r);
 				break;
 
@@ -4003,7 +4003,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 			case FT_GUID:
 				offset_r += protoo_strlcpy(result+offset_r,
-							   guid_to_str((e_guid_t *)fvalue_get(&finfo->value)),
+							   guid_to_ep_str((e_guid_t *)fvalue_get(&finfo->value)),
 							   size-offset_r);
 				break;
 
@@ -5520,14 +5520,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_ABSOLUTE_TIME:
 			label_fill(label_str, 0, hfinfo,
-				   abs_time_to_str((const nstime_t *)fvalue_get(&fi->value),
+				   abs_time_to_ep_str((const nstime_t *)fvalue_get(&fi->value),
 						(absolute_time_display_e)hfinfo->display, TRUE));
 			break;
 
 		case FT_RELATIVE_TIME:
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s seconds", hfinfo->name,
-				   rel_time_to_secs_str((const nstime_t *)fvalue_get(&fi->value)));
+				   rel_time_to_secs_ep_str((const nstime_t *)fvalue_get(&fi->value)));
 			break;
 
 		case FT_IPXNET:
@@ -5578,7 +5578,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_GUID:
 			guid = (e_guid_t *)fvalue_get(&fi->value);
-			label_fill(label_str, 0, hfinfo, guid_to_str(guid));
+			label_fill(label_str, 0, hfinfo, guid_to_ep_str(guid));
 			break;
 
 		case FT_OID:

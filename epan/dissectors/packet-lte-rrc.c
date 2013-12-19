@@ -8483,8 +8483,8 @@ dissect_lte_rrc_T_synchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1_
     bits = tvb_get_bits64(sync_system_time_tvb, 0, 39, ENC_BIG_ENDIAN);
     ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(bits%100)*10000000;
-    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
   }
 
   return offset;
@@ -8508,8 +8508,8 @@ dissect_lte_rrc_T_asynchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1
     bits = tvb_get_bits64(async_system_time_tvb, 0, 49, ENC_BIG_ENDIAN);
     ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(((bits%153600)*8*1000000000)/1228800);
-    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
   }
 
   return offset;
@@ -10186,9 +10186,9 @@ dissect_lte_rrc_T_timeInfoUTC_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */ 
   ts.nsecs = (int)(timeInfo%100)*10000000;
   proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "UTC   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+                      "UTC   time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
   proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+                      "Local time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
 
   return offset;
 }

@@ -547,7 +547,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 				/* Gluster is not very endianness friendly */
 				tvb_get_letohguid(tvb, offset, &gfid);
 
-				gfid_s = guid_to_str(&gfid);
+				gfid_s = guid_to_ep_str(&gfid);
 				proto_item_append_text(dict_item, "%s", gfid_s);
 			/* this is a changelog in binary format */
 			} else if (value_len == 12 && !strncmp("trusted.afr.", key, 12)) {

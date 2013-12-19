@@ -330,7 +330,7 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {
 	gchar *rep;
 
-	rep = abs_time_to_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
+	rep = abs_time_to_ep_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
 	    rtype == FTREPR_DISPLAY);
 	return (int)strlen(rep) + 2;	/* 2 for opening and closing quotes */
 }
@@ -339,7 +339,7 @@ static void
 absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	sprintf(buf, "\"%s\"",
-	    abs_time_to_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
+	    abs_time_to_ep_str(&fv->value.time, ABSOLUTE_TIME_LOCAL,
 	        rtype == FTREPR_DISPLAY));
 }
 
@@ -348,14 +348,14 @@ relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 {
 	gchar *rep;
 
-	rep = rel_time_to_secs_str(&fv->value.time);
+	rep = rel_time_to_secs_ep_str(&fv->value.time);
 	return (int)strlen(rep);
 }
 
 static void
 relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	strcpy(buf, rel_time_to_secs_str(&fv->value.time));
+	strcpy(buf, rel_time_to_secs_ep_str(&fv->value.time));
 }
 
 void

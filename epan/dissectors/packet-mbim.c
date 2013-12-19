@@ -1639,7 +1639,7 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         }
     }
     proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
-                                     val_to_str_const(i, mbim_service_id_vals, "Unknown"), guid_to_str(&uuid));
+                                     val_to_str_const(i, mbim_service_id_vals, "Unknown"), guid_to_ep_str(&uuid));
     *offset += 16;
 
     return i;
@@ -2147,7 +2147,7 @@ mbim_dissect_context_type_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         }
     }
     proto_tree_add_guid_format_value(tree, hf_mbim_context_type, tvb, *offset, 16, &uuid, "%s (%s)",
-                                     val_to_str_const(i, mbim_context_type_vals, "Unknown"), guid_to_str(&uuid));
+                                     val_to_str_const(i, mbim_context_type_vals, "Unknown"), guid_to_ep_str(&uuid));
     *offset += 16;
 
     return i;

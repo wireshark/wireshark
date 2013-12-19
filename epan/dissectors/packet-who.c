@@ -218,7 +218,7 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 		idle_secs = tvb_get_ntohl(tvb, line_offset);
 		proto_tree_add_uint_format(whoent_tree, hf_who_idle, tvb,
 		    line_offset, 4, idle_secs, "Idle: %s",
-		    time_secs_to_str(idle_secs));
+		    time_secs_to_ep_str(idle_secs));
 		line_offset += 4;
 
 		whoent_num++;

@@ -506,7 +506,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                                          1 + 2 + name_length + 2 + value_length,
                                          "%s: %s",
                                          format_text(name_val, name_length),
-                                         abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2),
+                                         abs_time_secs_to_ep_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2),
                                                               ABSOLUTE_TIME_LOCAL,
                                                               TRUE));
 

@@ -615,7 +615,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
     /* Print geninfo.timestamp */
     fprintf(fh,
             "    <field name=\"timestamp\" pos=\"0\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%u\"/>\n",
-            abs_time_to_str(timestamp, ABSOLUTE_TIME_LOCAL, TRUE), (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
+            abs_time_to_ep_str(timestamp, ABSOLUTE_TIME_LOCAL, TRUE), (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
 
     /* Print geninfo end */
     fprintf(fh,

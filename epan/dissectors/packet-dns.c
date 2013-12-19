@@ -1796,19 +1796,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_refresh_interval, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_ep_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_retry_interval, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_ep_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_expire_limit, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_ep_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
       ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_minimum_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_ep_str(tvb_get_ntohl(tvb, cur_offset)));
 
     }
     break;
@@ -2871,7 +2871,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 1;
 
       ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_original_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      proto_item_append_text(ti, " (%s)", time_secs_to_ep_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
       rr_len     -= 4;
 

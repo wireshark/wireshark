@@ -300,7 +300,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
     proto_tree_add_text(rr_tree, tvb, offset, 2, "Class: %s", class_description);
     offset += 2;
     proto_tree_add_text(rr_tree, tvb, offset, 4, "Time to live: %s",
-                        time_secs_to_str(ttl));
+                        time_secs_to_ep_str(ttl));
     offset += 4;
     proto_tree_add_text(rr_tree, tvb, offset, 2, "Data length: %u", data_len);
     return rr_tree;

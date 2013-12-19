@@ -288,7 +288,7 @@ static const char* embedded_time_to_string ( int coarse_time, int fine_time )
         fraction = ( multiplier * ( (int)fine_time & 0xff ) ) / 256;
         t.nsecs = fraction*1000000;	/* msecs to nsecs */
 
-	return abs_time_to_str(&t, ABSOLUTE_TIME_DOY_UTC, TRUE);
+	return abs_time_to_ep_str(&t, ABSOLUTE_TIME_DOY_UTC, TRUE);
 }
 
 
