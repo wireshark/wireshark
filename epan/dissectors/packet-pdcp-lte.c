@@ -53,7 +53,6 @@ void proto_reg_handoff_pdcp_lte(void);
 
 /* TODO:
    - More deciphering. Next steps are:
-       - separate preferences to control signalling/user-plane decryption?
        - Verify MAC authentication bytes for supported protocol(s)?
    - Add Relay Node user plane data PDU dissection
 */
@@ -159,7 +158,8 @@ static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
 static uat_t * ue_keys_uat = NULL;
 static guint num_ue_keys_uat = 0;
 
-/* TODO: do this better, being tolerant of spaces and dashes... */
+/* Convert an ascii hex character into a digit.  Should only be given valid
+   hex ascii characters */
 static guchar hex_ascii_to_binary(gchar c)
 {
     if ((c >= '0') && (c <= '9')) {
@@ -187,30 +187,66 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     return new_rec;
 }
 
+
+static gboolean check_valid_key_sring(const char* raw_string, char* checked_string)
+{
+    int n;
+    int written = 0;
+    int length = strlen(raw_string);
+
+    /* Can't be valid if not long enough. */
+    if (length < 32) {
+        return FALSE;
+    }
+
+    for (n=0; (n < length) && (written < 32); n++) {
+        char c = raw_string[n];
+
+        /* Skipping past allowed 'padding' characters */
+        if ((c == ' ') || (c == '-')) {
+            continue;
+        }
+
+        /* Other characters must be hex digits, otherwise string is invalid */
+        if (((c >= '0') && (c <= '9')) ||
+            ((c >= 'a') && (c <= 'f')) ||
+            ((c >= 'A') && (c <= 'F'))) {
+            checked_string[written++] = c;
+        }
+        else {
+            return FALSE;
+        }
+    }
+
+    /* Must have found exactly 32 hex ascii chars for 16-byte key */
+    return (written == 32);
+}
+
 static void uat_ue_keys_record_update_cb(void* record, const char** error _U_) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
     int n;
+    char cleanString[32];
 
     /* Check and convert RRC key */
-    if (strlen(rec->rrcKeyString) != 32) {
+    if (!check_valid_key_sring(rec->rrcKeyString, cleanString)) {
         rec->rrcKeyOK = FALSE;
     }
     else {
         for (n=0; n < 32; n += 2) {
-            rec->rrcBinaryKey[n/2] = (hex_ascii_to_binary(rec->rrcKeyString[n]) << 4) +
-                                      hex_ascii_to_binary(rec->rrcKeyString[n+1]);
+            rec->rrcBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
+                                      hex_ascii_to_binary(cleanString[n+1]);
         }
         rec->rrcKeyOK = TRUE;
     }
 
     /* Check and convert User-plane key */
-    if (strlen(rec->upKeyString) != 32) {
+    if (!check_valid_key_sring(rec->upKeyString, cleanString)) {
         rec->rrcKeyOK = FALSE;
     }
     else {
         for (n=0; n < 32; n += 2) {
-            rec->upBinaryKey[n/2] = (hex_ascii_to_binary(rec->upKeyString[n]) << 4) +
-                                     hex_ascii_to_binary(rec->upKeyString[n+1]);
+            rec->upBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
+                                     hex_ascii_to_binary(cleanString[n+1]);
         }
         rec->upKeyOK = TRUE;
     }
