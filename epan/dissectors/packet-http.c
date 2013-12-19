@@ -1650,7 +1650,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			*c = '\0';
 		}
 
-		chunk_size = strtol((gchar*)chunk_string, NULL, 16);
+		chunk_size = (guint32)strtol((gchar*)chunk_string, NULL, 16);
 
 		if (chunk_size > datalen) {
 			/*
