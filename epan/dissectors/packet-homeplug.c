@@ -1354,8 +1354,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
   }
 
-  if (cursor)
-    ptvcursor_free(cursor);
+  ptvcursor_free(cursor);
 }
 
 
