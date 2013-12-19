@@ -249,8 +249,8 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 #define MAC_LTE_UEID_TAG            0x03
 /* 2 bytes, network order */
 
-#define MAC_LTE_SUBFRAME_TAG        0x04
-/* 2 bytes, network order */
+#define MAC_LTE_FRAME_SUBFRAME_TAG  0x04
+/* 2 bytes, network order, SFN is stored in 12 MSB and SF in 4 LSB */
 
 #define MAC_LTE_PREDEFINED_DATA_TAG 0x05
 /* 1 byte */

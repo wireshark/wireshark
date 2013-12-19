@@ -1858,9 +1858,13 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 p_mac_lte_info->ueid = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
-            case MAC_LTE_SUBFRAME_TAG:
-                p_mac_lte_info->subframeNumber = tvb_get_ntohs(tvb, offset);
-                offset += 2;
+            case MAC_LTE_FRAME_SUBFRAME_TAG:
+                {
+                    guint16 sfn_sf = tvb_get_ntohs(tvb, offset);
+                    p_mac_lte_info->sysframeNumber = (sfn_sf >> 4) & 0x03ff;
+                    p_mac_lte_info->subframeNumber = sfn_sf & 0x000f;
+                    offset += 2;
+                }
                 break;
             case MAC_LTE_PREDEFINED_DATA_TAG:
                 p_mac_lte_info->isPredefinedData = tvb_get_guint8(tvb, offset);
@@ -2303,8 +2307,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     int         start_headers_offset   = offset;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "RAR (RA-RNTI=%u, SF=%u) ",
-                             p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
+                             "RAR (RA-RNTI=%u, SFN=%-4u, SF=%u) ",
+                             p_mac_lte_info->rnti, p_mac_lte_info->sysframeNumber, p_mac_lte_info->subframeNumber);
 
     /* Create hidden 'virtual root' so can filter on mac-lte.rar */
     ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, ENC_NA);
@@ -3350,8 +3354,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     show_ues_tti(pinfo, p_mac_lte_info, tvb, context_tree);
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "%s: (SF=%u) UEId=%-3u ",
+                             "%s: (SFN=%-4u, SF=%u) UEId=%-3u ",
                              (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
+                             p_mac_lte_info->sysframeNumber,
                              p_mac_lte_info->subframeNumber,
                              p_mac_lte_info->ueid);
 
