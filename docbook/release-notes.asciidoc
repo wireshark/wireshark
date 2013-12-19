@@ -40,8 +40,6 @@ The following bugs have been fixed:
 
 * Homeplug dissector bug: STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address. (ws-buglink:9578[])
 
-* Wireshark 1.10.4 shuts down when promiscuous mode is unchecked. (ws-buglink:9577[])
-
 === New and Updated Features
 
 There are no new features in this release.
