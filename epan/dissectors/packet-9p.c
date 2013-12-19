@@ -369,39 +369,41 @@ struct _9p_qid {
 
 /* Bit values for getattr valid field.
  */
-#define _9P_GETATTR_MODE         0x00000001ULL
-#define _9P_GETATTR_NLINK        0x00000002ULL
-#define _9P_GETATTR_UID          0x00000004ULL
-#define _9P_GETATTR_GID          0x00000008ULL
-#define _9P_GETATTR_RDEV         0x00000010ULL
-#define _9P_GETATTR_ATIME        0x00000020ULL
-#define _9P_GETATTR_MTIME        0x00000040ULL
-#define _9P_GETATTR_CTIME        0x00000080ULL
-#define _9P_GETATTR_INO          0x00000100ULL
-#define _9P_GETATTR_SIZE         0x00000200ULL
-#define _9P_GETATTR_BLOCKS       0x00000400ULL
+#define _9P_GETATTR_MODE         0x00000001U
+#define _9P_GETATTR_NLINK        0x00000002U
+#define _9P_GETATTR_UID          0x00000004U
+#define _9P_GETATTR_GID          0x00000008U
+#define _9P_GETATTR_RDEV         0x00000010U
+#define _9P_GETATTR_ATIME        0x00000020U
+#define _9P_GETATTR_MTIME        0x00000040U
+#define _9P_GETATTR_CTIME        0x00000080U
+#define _9P_GETATTR_INO          0x00000100U
+#define _9P_GETATTR_SIZE         0x00000200U
+#define _9P_GETATTR_BLOCKS       0x00000400U
 
-#define _9P_GETATTR_BTIME        0x00000800ULL
-#define _9P_GETATTR_GEN          0x00001000ULL
-#define _9P_GETATTR_DATA_VERSION 0x00002000ULL
+#define _9P_GETATTR_BTIME        0x00000800U
+#define _9P_GETATTR_GEN          0x00001000U
+#define _9P_GETATTR_DATA_VERSION 0x00002000U
 
-#define _9P_GETATTR_BASIC        0x000007ffULL /* Mask for fields up to BLOCKS */
-#define _9P_GETATTR_ALL          0x00003fffULL /* Mask for All fields above */
+#if 0
+#define _9P_GETATTR_BASIC        0x000007ffU  /* Mask for fields up to BLOCKS */
+#endif
+#define _9P_GETATTR_ALL          0x00003fffU  /* Mask for All fields above */
 
 
 /* Bit values for setattr valid field from <linux/fs.h>.
  */
-#define _9P_SETATTR_MODE         0x00000001UL
-#define _9P_SETATTR_UID          0x00000002UL
-#define _9P_SETATTR_GID          0x00000004UL
-#define _9P_SETATTR_SIZE         0x00000008UL
-#define _9P_SETATTR_ATIME        0x00000010UL
-#define _9P_SETATTR_MTIME        0x00000020UL
-#define _9P_SETATTR_CTIME        0x00000040UL
-#define _9P_SETATTR_ATIME_SET    0x00000080UL
-#define _9P_SETATTR_MTIME_SET    0x00000100UL
+#define _9P_SETATTR_MODE         0x00000001U
+#define _9P_SETATTR_UID          0x00000002U
+#define _9P_SETATTR_GID          0x00000004U
+#define _9P_SETATTR_SIZE         0x00000008U
+#define _9P_SETATTR_ATIME        0x00000010U
+#define _9P_SETATTR_MTIME        0x00000020U
+#define _9P_SETATTR_CTIME        0x00000040U
+#define _9P_SETATTR_ATIME_SET    0x00000080U
+#define _9P_SETATTR_MTIME_SET    0x00000100U
 
-#define _9P_SETATTR_ALL	0x000001FFUL
+#define _9P_SETATTR_ALL	0x000001FFU
 
 /* 9p2000.L open flags */
 #define _9P_DOTL_RDONLY		00000000
