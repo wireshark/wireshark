@@ -315,6 +315,7 @@ static int hf_message_subject = -1;
 static int hf_message_eit = -1;
 static int hf_message_compr = -1;
 static int hf_message_body_data = -1;
+static int hf_message_body_compressed = -1;
 static int hf_message_body_plain = -1;
 static int hf_message_bodyid_uint8 = -1;
 static int hf_message_bodyid_uint16 = -1;
@@ -323,8 +324,6 @@ static int hf_message_bodyid_uint64 = -1;
 static int hf_message_bodyid_string = -1;
 static int hf_message_bodyid_zstring = -1;
 static int hf_message_body_structured = -1;
-static int hf_message_body_uncompr = -1;
-static int hf_message_body_uncompressed = -1;
 
 static int hf_delivery_report = -1;
 static int hf_non_delivery_report = -1;
@@ -452,7 +451,6 @@ static gint ett_message_eit = -1;
 static gint ett_message_compr = -1;
 static gint ett_message_body_reserved = -1;
 static gint ett_message_body = -1;
-static gint ett_message_body_uncompr = -1;
 
 static gint ett_report = -1;
 static gint ett_report_type = -1;
@@ -486,7 +484,7 @@ static expert_field ei_message_compr = EI_INIT;
 static expert_field ei_ack_reason = EI_INIT;
 static expert_field ei_addr_dir_rec_no_generated = EI_INIT;
 static expert_field ei_checksum_bad = EI_INIT;
-static expert_field ei_message_body_uncompressed = EI_INIT;
+static expert_field ei_message_body_uncompress = EI_INIT;
 static expert_field ei_addr_ext_rec_no_generated = EI_INIT;
 static expert_field ei_envelope_msg_id = EI_INIT;
 static expert_field ei_analysis_ack_missing = EI_INIT;
@@ -1548,7 +1546,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
       } else {
-        proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
+        proto_tree_add_expert (analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
       }
     } else if (dmp.msg_type == NOTIF) {
       if (dmp.id_val->msg_id) {
@@ -1561,7 +1559,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
       } else {
-        proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
+        proto_tree_add_expert (analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
       }
     }
 
@@ -1634,7 +1632,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 dmp.id_val->prev_msg_id);
       }
     } else {
-      proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
+      proto_tree_add_expert (analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
     }
 
     if (dmp.id_val->ack_resend_count) {
@@ -3069,12 +3067,12 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
 static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *dmp_tree, gint offset)
 {
-  tvbuff_t   *next_tvb = NULL;
+  tvbuff_t   *body_tvb = NULL;
   proto_tree *message_tree = NULL;
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *tf = NULL, *tr = NULL;
   guint8      message, eit = 0, compr_alg = ALGORITHM_NONE;
-  gint        len, boffset = offset;
+  gint        len, boffset = offset, body_offset = 0, body_len = 0;
 
   en = proto_tree_add_item (dmp_tree, hf_message_body, tvb, offset, -1, ENC_NA);
   message_tree = proto_item_add_subtree (en, ett_message);
@@ -3127,35 +3125,43 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     len -= 2;
   }
 
-  tf = proto_tree_add_none_format (message_tree, hf_message_body_data, tvb,
-                                   offset, len,
-                                   "%sUser data, Length: %d",
-                                   (compr_alg == ALGORITHM_ZLIB) ?
-                                   "Compressed " : "", len);
-  field_tree = proto_item_add_subtree (tf, ett_message_body);
+  if (compr_alg == ALGORITHM_ZLIB) {
+    tf = proto_tree_add_item (message_tree, hf_message_body_compressed,
+                              tvb, offset, len, ENC_NA);
+  } else {
+    tf = proto_tree_add_item (message_tree, hf_message_body_data,
+                              tvb, offset, len, ENC_NA);
+  }
+  proto_item_append_text (tf, ", Length: %d", len);
 
   if (dmp.body_format == STRUCTURED) {
     /* Structured Message ID */
+    field_tree = proto_item_add_subtree (tf, ett_message_body);
     dissect_dmp_structured_id (tvb, field_tree, offset);
     proto_tree_add_item (field_tree, hf_message_body_structured, tvb, offset, len, ENC_NA);
   } else if (len > 0 && (dmp.body_format == FREE_TEXT ||
                          dmp.body_format == FREE_TEXT_SUBJECT)) {
     if (compr_alg == ALGORITHM_ZLIB) {
-      if ((next_tvb = tvb_child_uncompress (tvb, tvb, offset, len)) != NULL) {
-                gint zlen = tvb_length (next_tvb);
-                add_new_data_source (pinfo, next_tvb, "Uncompressed User data");
-                tf = proto_tree_add_none_format (message_tree,
-                                                 hf_message_body_uncompr,
-                                                 next_tvb, 0, zlen,
-                                                 "Uncompressed User data, "
-                                                 "Length: %d", zlen);
-                field_tree = proto_item_add_subtree (tf, ett_message_body_uncompr);
-                proto_tree_add_item (field_tree, hf_message_body_uncompressed, next_tvb, 0, -1, ENC_ASCII|ENC_NA);
+      if ((body_tvb = tvb_child_uncompress (tvb, tvb, offset, len)) != NULL) {
+        body_len = tvb_length (body_tvb);
+        add_new_data_source (pinfo, body_tvb, "Uncompressed User data");
+        tf = proto_tree_add_item (message_tree, hf_message_body_data,
+                                  body_tvb, 0, body_len, ENC_NA);
+        proto_item_append_text (tf, ", Length: %d", body_len);
+        PROTO_ITEM_SET_GENERATED (tf);
       } else {
-                proto_tree_add_expert(message_tree, pinfo, &ei_message_body_uncompressed, tvb, offset, -1);
+        proto_tree_add_expert (message_tree, pinfo, &ei_message_body_uncompress, tvb, offset, len);
       }
-    } else if (eit != EIT_BILATERAL) {
-      proto_tree_add_item (field_tree, hf_message_body_plain, tvb, offset, len, ENC_ASCII|ENC_NA);
+    } else {
+      body_tvb = tvb;
+      body_offset = offset;
+      body_len = len;
+    }
+
+    if (eit != EIT_BILATERAL && body_len > 0) {
+      field_tree = proto_item_add_subtree (tf, ett_message_body);
+      proto_tree_add_item (field_tree, hf_message_body_plain, body_tvb, 
+                           body_offset, body_len, ENC_ASCII|ENC_NA);
     }
   }
   offset += len;
@@ -4552,6 +4558,9 @@ void proto_register_dmp (void)
     { &hf_message_body_data,
       { "User data", "dmp.body.data", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
+    { &hf_message_body_compressed,
+      { "Compressed User data", "dmp.body.compressed", FT_NONE, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
     { &hf_message_body_plain,
       { "Message Body", "dmp.body.plain", FT_STRING, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
@@ -4577,13 +4586,6 @@ void proto_register_dmp (void)
     { &hf_message_body_structured,
       { "Structured Body", "dmp.body.structured", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
-    { &hf_message_body_uncompr,
-      { "Uncompressed User data", "dmp.body.uncompressed", FT_NONE,
-        BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_message_body_uncompressed,
-      { "Uncompressed Message Body", "dmp.body.uncompressed",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL,
-        HFILL } },
 
     /*
     ** Report
@@ -4863,7 +4865,6 @@ void proto_register_dmp (void)
     &ett_message_compr,
     &ett_message_body_reserved,
     &ett_message_body,
-    &ett_message_body_uncompr,
     &ett_report,
     &ett_report_type,
     &ett_report_info_present_dr,
@@ -4900,7 +4901,7 @@ void proto_register_dmp (void)
      { &ei_envelope_version_value, { "dmp.version_value.unsupported", PI_UNDECODED, PI_ERROR, "Unsupported DMP Version", EXPFILL }},
      { &ei_envelope_msg_id, { "dmp.msg_id.short_id", PI_PROTOCOL, PI_NOTE, "Id < 4096 - should use ShortId", EXPFILL }},
      { &ei_message_compr, { "dmp.body.compression.unknown", PI_UNDECODED, PI_WARN, "Unknown compression algorithm", EXPFILL }},
-     { &ei_message_body_uncompressed, { "dmp.body.uncompressed.fail", PI_UNDECODED, PI_WARN, "Error: Unable to uncompress content", EXPFILL }},
+     { &ei_message_body_uncompress, { "dmp.body.uncompress.fail", PI_UNDECODED, PI_WARN, "Error: Unable to uncompress content", EXPFILL }},
      { &ei_checksum_bad, { "dmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
   };
 
