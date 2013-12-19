@@ -5508,7 +5508,7 @@ static const value_string ansi_a_ms_info_rec_signal_is54b_alert_vals[] = {
 /*
  * C.S0005 Table 2.7.1.3.2.4-2 Number Types
  */
-static const value_string ansi_a_ms_info_rec_num_type_vals[] = {
+const value_string ansi_a_ms_info_rec_num_type_vals[] = {
     { 0,        "Unknown" },
     { 1,        "International number" },
     { 2,        "National number" },
@@ -5523,7 +5523,7 @@ static const value_string ansi_a_ms_info_rec_num_type_vals[] = {
 /*
  * C.S0005 Table 2.7.1.3.2.4-3 Numbering Plan Identification
  */
-static const value_string ansi_a_ms_info_rec_num_plan_vals[] = {
+const value_string ansi_a_ms_info_rec_num_plan_vals[] = {
     { 0x00,     "Unknown" },
     { 0x01,     "ISDN/Telephony Numbering" },
     { 0x02,     "Reserved" },

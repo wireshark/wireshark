@@ -74,6 +74,13 @@ WS_DLL_PUBLIC value_string_ext ansi_tsb58_language_ind_vals_ext;
 #define ANSI_TSB58_SRVC_CAT_CMAS_MAX    0x1004
 
 /*
+ * Title                3GPP2                   Other
+ *
+ *                      3GPP2 C.S0005
+ */
+WS_DLL_PUBLIC const value_string ansi_a_ms_info_rec_num_type_vals[];
+WS_DLL_PUBLIC const value_string ansi_a_ms_info_rec_num_plan_vals[];
+/*
  * END Not strictly A-interface info
  */
 
