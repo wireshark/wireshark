@@ -190,9 +190,9 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
 
 static gboolean check_valid_key_sring(const char* raw_string, char* checked_string)
 {
-    int n;
-    int written = 0;
-    int length = strlen(raw_string);
+    guint n;
+    guint written = 0;
+    guint length = (gint)strlen(raw_string);
 
     /* Can't be valid if not long enough. */
     if (length < 32) {
