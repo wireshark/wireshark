@@ -229,17 +229,11 @@ static int FieldInfo_display(lua_State* L) {
 static int FieldInfo_get_range(lua_State* L) {
     /* The TvbRange covering this field */
     FieldInfo fi = checkFieldInfo(L,1);
-    TvbRange r = ep_new(struct _wslua_tvbrange);
-    r->tvb = ep_new(struct _wslua_tvb);
+    if (push_TvbRange (L, fi->ds_tvb, fi->start, fi->length)) {
+        return 1;
+    }
 
-    r->tvb->ws_tvb = fi->ds_tvb;
-    r->tvb->expired = FALSE;
-    r->tvb->need_free = FALSE;
-    r->offset = fi->start;
-    r->len = fi->length;
-
-    pushTvbRange(L,r);
-    return 1;
+    return 0;
 }
 
 static int FieldInfo_get_generated(lua_State* L) {
