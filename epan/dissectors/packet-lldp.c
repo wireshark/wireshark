@@ -1406,9 +1406,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_oui_default_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
-	guint8 subType;
-	subType = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_unknown_subtype, tvb, offset, 1, subType);
+	proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, (offset+1), -1, ENC_NA);
 }
 
@@ -2233,8 +2231,6 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	guint32 port_tx_delay_local;
 	guint32 port_tx_delay_remote;
 	guint32 cable_delay_local;
-	e_guid_t uuid;
-	guint16 mrrt_PortStatus;
 
 
 	/* Get subtype */
@@ -2309,19 +2305,17 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	case 4:		/* LLDP_PNIO_MRPPORTSTATUS */
 	{
 		/* DomainUUID */
-		tvb_get_ntohguid (tvb, offset, &uuid);
-		proto_tree_add_guid(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, &uuid);
+		proto_tree_add_item(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
 
 		/* MRRT PortStatus */
-		mrrt_PortStatus = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_profinet_mrrt_port_status, tvb, offset, 2, mrrt_PortStatus);
+		proto_tree_add_item(tree, hf_profinet_mrrt_port_status, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/*offset+=2;*/
 		break;
 	}
 	case 5:		/* LLDP_PNIO_CHASSIS_MAC */
 	{
-	proto_tree_add_item(tree, hf_profinet_cm_mac, tvb, offset, 6, ENC_NA);
+		proto_tree_add_item(tree, hf_profinet_cm_mac, tvb, offset, 6, ENC_NA);
 		/*offset += 6;*/
 		break;
 	}
@@ -2331,12 +2325,10 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		proto_tree_add_item(tree, hf_profinet_master_source_address, tvb, offset, 6, ENC_NA);
 		offset += 6;
 		/* SubdomainUUID */
-		tvb_get_ntohguid (tvb, offset, &uuid);
-		proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, &uuid);
+		proto_tree_add_item(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
 		/* IRDataUUID */
-		tvb_get_ntohguid (tvb, offset, &uuid);
-		proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, &uuid);
+		proto_tree_add_item(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
 		/* LengthOfPeriod */
 		offset = dissect_profinet_period(tvb, tree, offset, "LengthOfPeriod",
