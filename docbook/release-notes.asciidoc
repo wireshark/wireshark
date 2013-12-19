@@ -47,7 +47,13 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+BSSGP
+GSM BSSMAP
+GSM BSSMAP LE
+GSM SMS
+NAS-EPS
+SGSAP
+
 
 --sort-and-group--
 

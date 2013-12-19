@@ -577,7 +577,6 @@ static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;
 static dissector_handle_t rtp_handle;
 
-static packet_info *g_pinfo;
 static proto_tree *g_tree;
 static guint8 cell_discriminator = 0x0f;  /* tracks whether handover is to UMTS */
 
@@ -1607,7 +1606,7 @@ be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * Formats everything after the discriminator, shared function
  */
 guint16
-be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
+be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
 {
     guint32 value;
     guint32 curr_offset;
@@ -1643,9 +1642,9 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         /* FALLTHRU */
     case 0x0c:  /* For identification of a UTRAN cell for cell load information: */
         if (disc != 0x0b)
-            curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset, TRUE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
         else
-            curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset, ENC_BIG_ENDIAN);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, ENC_BIG_ENDIAN);
         /* FALLTHRU */
 
     case 0x01:
@@ -1886,7 +1885,7 @@ be_lsa_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  * [2] 3.2.2.24 Layer 3 Information
  */
 static guint16
-be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32   curr_offset;
     tvbuff_t *l3_tvb;
@@ -1921,12 +1920,12 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     }
     else if ((cell_discriminator & 0x0f) < 8) {
         /* GSM */
-        call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
+        call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
     }
     else if ((cell_discriminator & 0x0f) < 13) {
 
         /* UMTS or CDMA 2000 */
-        dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, g_pinfo, g_tree);
+        dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, pinfo, g_tree);
     }
     else{
         proto_tree_add_text(tree, l3_tvb, curr_offset, len, "Unrecognised Cell Discriminator %x",cell_discriminator);
@@ -2365,7 +2364,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * [2] 3.2.2.35 Layer 3 Message Contents
  */
 static guint16
-be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *l3_tvb;
 
@@ -2379,7 +2378,7 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message
      * as defined in 3GPP TS 24.008, n is equal to the length of that radio interface layer 3 message. */
-    call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
+    call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
 
     return(len);
 }
@@ -2849,13 +2848,11 @@ bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
         return;
     }
 
-    g_pinfo = pinfo;
     g_tree = tree;
 
     len = tvb_length(tvb);
     be_field_element_dissect(tvb, tree, pinfo, 0, len, NULL, 0);
 
-    g_pinfo = NULL;
     g_tree = NULL;
 }
 /*
@@ -2926,7 +2923,7 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  * according to 3GPP TS 23.032.
  */
 static guint16
-be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *data_tvb;
     guint32   curr_offset;
@@ -2934,7 +2931,7 @@ be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     curr_offset = offset;
 
     data_tvb = tvb_new_subset(tvb, curr_offset, len, len);
-    dissect_geographical_description(data_tvb, g_pinfo, tree);
+    dissect_geographical_description(data_tvb, pinfo, tree);
 
     return(len);
 }
@@ -3009,7 +3006,7 @@ static const value_string gsm_a_apdu_protocol_id_strings[] = {
 };
 
 static guint16
-be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32   curr_offset;
     guint8    apdu_protocol_id;
@@ -3039,7 +3036,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
          */
         APDU_tvb = tvb_new_subset(tvb, curr_offset, len, len);
         if (gsm_bsslap_handle)
-            call_dissector(gsm_bsslap_handle, APDU_tvb, g_pinfo, g_tree);
+            call_dissector(gsm_bsslap_handle, APDU_tvb, pinfo, g_tree);
         break;
     case 2:
         /* LLP
@@ -3165,7 +3162,7 @@ be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
  */
 
 static guint16
-be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *container_tvb;
     guint32 curr_offset;
@@ -3177,7 +3174,7 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
      * RANAP specification 3GPP TS 25.413, excluding RANAP tag
      */
     container_tvb = tvb_new_subset(tvb, curr_offset, len, len);
-    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, g_pinfo , tree);
+    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, pinfo, tree);
 
     return(len);
 }
@@ -3230,13 +3227,11 @@ bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
         return;
     }
 
-    g_pinfo = pinfo;
     g_tree = tree;
 
     len = tvb_length(tvb);
     be_field_element_dissect(tvb, tree, pinfo, 0, len, NULL, 0);
 
-    g_pinfo = NULL;
     g_tree = NULL;
 }
 
@@ -4202,7 +4197,7 @@ be_fe_target_radio_cell_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 
 /* 3.2.3.4  GPRS Suspend Information */
 static guint16
-be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset = offset;
 
@@ -4210,7 +4205,7 @@ be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
        Call the BSSGP dissector here, assuming that the encoding is per 48.018 */
 
 
-    bssgp_suspend_ack(tvb, tree, g_pinfo, offset, len);
+    bssgp_suspend_ack(tvb, tree, pinfo, offset, len);
     curr_offset += len;
 
     return(curr_offset - offset);
@@ -4254,13 +4249,13 @@ be_fe_dual_transfer_mode_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
 /* 3.2.3.7  Inter RAT Handover Info */
 static guint16
-be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *container_tvb;
 
     /* Octets 3-n are encoded as Inter RAT Handover Info as defined in 3GPP TS 25.331 */
     container_tvb = tvb_new_subset(tvb, offset, len, len);
-    dissect_rrc_InterRATHandoverInfo_PDU(container_tvb, g_pinfo , tree);
+    dissect_rrc_InterRATHandoverInfo_PDU(container_tvb, pinfo, tree);
 
     return len;
 }
@@ -6547,7 +6542,6 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
     saved_offset = offset;
 
-    g_pinfo = pinfo;
     g_tree = tree;
 
     len = tvb_length(tvb);
@@ -6626,7 +6620,6 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             sccp_msg_p->data.co.assoc->app_info = cell_discriminator | 0xCDF0;
         }
     }
-    g_pinfo = NULL;
     g_tree = NULL;
 }
 

@@ -49,7 +49,6 @@
 
 /* Global variables */
 static dissector_handle_t gsm_a_dtap_handle;
-static packet_info *gpinfo;
 static guint gbl_sgsapSctpPort=SCTP_PORT_SGSAP;
 
 
@@ -141,13 +140,13 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * as specified in subclause 8.21.5 of 3GPP TS 29.274 [17A] (GTPv2-C)
  */
 static guint16
-de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32    curr_offset;
 
     curr_offset = offset;
 
-    dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
     curr_offset+=3;
 
     proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
@@ -166,13 +165,13 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  * not fill the field reserved for it, the rest of the bits are set to '0'.
  */
 static guint16
-de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32    curr_offset;
 
     curr_offset = offset;
 
-    dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
     curr_offset+=3;
 
     proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -370,7 +369,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
  */
 static guint16
-de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *new_tvb;
 	guint32	curr_offset;
@@ -382,7 +381,7 @@ de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	 */
 	new_tvb = tvb_new_subset(tvb, curr_offset,len, len);
 	if(gsm_a_dtap_handle){
-		call_dissector(gsm_a_dtap_handle,new_tvb,gpinfo, tree);
+		call_dissector(gsm_a_dtap_handle,new_tvb,pinfo, tree);
 	}
 
 	return(len);
@@ -1394,7 +1393,6 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8			oct;
 
 	/* Save pinfo */
-	gpinfo = pinfo;
 	len = tvb_length(tvb);
 
 	/* Make entry in the Protocol column on summary display */
