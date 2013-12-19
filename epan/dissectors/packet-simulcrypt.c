@@ -1306,7 +1306,7 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 		/* Parameter  Length 2 Bytes */
 		plen = tvb_get_ntohs(tvb, offset+2); /* read 2 byte length value */
 		/* Parameter  Value plen Bytes */
-		pvalue_char = tvb_bytes_to_str(tvb, offset+4, plen);
+		pvalue_char = tvb_bytes_to_ep_str(tvb, offset+4, plen);
 
 		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_parameter, tvb, offset, plen+2+2, ENC_NA );
 

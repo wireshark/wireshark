@@ -826,7 +826,7 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_text (tree, tvb, offset, 4,
                                      "Logical Paths %d-%d: %s",
                                      i*8, ((i+4)*8) - 1,
-                                     tvb_bytes_to_str_punct (tvb, offset, 4, ':'));
+                                     tvb_bytes_to_ep_str_punct (tvb, offset, 4, ':'));
                 i += 4;
                 offset += 4;
             }

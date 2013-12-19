@@ -145,7 +145,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: 0x%08x",
 		     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), can_id.id);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-			tvb_bytes_to_str_punct(tvb, CAN_DATA_OFFSET, frame_len, ' '));
+			tvb_bytes_to_ep_str_punct(tvb, CAN_DATA_OFFSET, frame_len, ' '));
 
 	ti       = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can);

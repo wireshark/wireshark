@@ -257,7 +257,7 @@ dvb_add_chartbl(proto_tree *tree, int hf,
         proto_tree_add_bytes_format_value(tree, hf,
             tvb, offset, length, NULL, "%s (%s)",
             val_to_str_const(encoding, dvb_string_encoding_vals, "Unknown"),
-            bytes_to_str_punct(
+            bytes_to_ep_str_punct(
                 tvb_get_ptr(tvb, offset, length), length, ' '));
     }
 }

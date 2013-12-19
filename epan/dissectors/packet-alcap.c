@@ -590,7 +590,7 @@ static const gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         return NULL;
     }
 
-    msg_info->dest_nsap = tvb_bytes_to_str(tvb,offset,20);
+    msg_info->dest_nsap = tvb_bytes_to_ep_str(tvb,offset,20);
 
     proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, ENC_NA);
     dissect_nsap(tvb, offset,20, tree);
@@ -610,7 +610,7 @@ static const gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         return NULL;
     }
 
-    msg_info->orig_nsap = tvb_bytes_to_str(tvb,offset,20);
+    msg_info->orig_nsap = tvb_bytes_to_ep_str(tvb,offset,20);
 
     proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, ENC_NA);
     dissect_nsap(tvb, offset,20, tree);

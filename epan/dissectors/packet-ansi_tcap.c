@@ -619,9 +619,9 @@ if(next_tvb) {
 		 * in the 8 octets case.
 		 */
 		if (len > 4){
-			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 4,len-4);
+			ansi_tcap_private.TransactionID_str = tvb_bytes_to_ep_str(next_tvb, 4,len-4);
 		}else{
-			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,len);
+			ansi_tcap_private.TransactionID_str = tvb_bytes_to_ep_str(next_tvb, 0,len);
 		}
 	}
 	switch(len) {

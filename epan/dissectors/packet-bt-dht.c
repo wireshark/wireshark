@@ -130,7 +130,7 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, 
 
   /* fill the return data */
   if( tohex )
-    *result = tvb_bytes_to_str(tvb, offset, string_len );
+    *result = tvb_bytes_to_ep_str(tvb, offset, string_len );
   else
     *result = tvb_get_string( wmem_packet_scope(), tvb, offset, string_len );
 
@@ -320,7 +320,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     node_tree = proto_item_add_subtree( node_ti, ett_bt_dht_peers);
 
     proto_tree_add_item( node_tree, hf_bt_dht_id, tvb, offset, 20, ENC_NA);
-    proto_item_append_text(node_ti, " (id: %s", tvb_bytes_to_str(tvb, offset, 20));
+    proto_item_append_text(node_ti, " (id: %s", tvb_bytes_to_ep_str(tvb, offset, 20));
     proto_tree_add_item( node_tree, hf_ip, tvb, offset+20, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(node_ti, ", IP/Port: %s", tvb_ip_to_str(tvb, offset+20));
     proto_tree_add_item( node_tree, hf_port, tvb, offset+24, 2, ENC_BIG_ENDIAN);

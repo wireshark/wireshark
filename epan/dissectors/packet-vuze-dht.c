@@ -388,7 +388,7 @@ dissect_vuze_dht_key(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int
   offset += TL_BYTE;
 
   proto_tree_add_item( sub_tree, hf_vuze_dht_key_data, tvb, offset, key_len, ENC_NA );
-  proto_item_append_text( ti, ": %d bytes ( %s )", key_len, tvb_bytes_to_str(tvb, offset, key_len ) );
+  proto_item_append_text( ti, ": %d bytes ( %s )", key_len, tvb_bytes_to_ep_str(tvb, offset, key_len ) );
   offset += key_len;
 
   return offset;
@@ -474,7 +474,7 @@ dissect_vuze_dht_value(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, i
     offset += TL_SHORT;
 
     proto_tree_add_item(sub_tree, hf_vuze_dht_value_bytes, tvb, offset, value_bytes_count, ENC_NA);
-    proto_item_append_text( ti, ": %d bytes ( %s )", value_bytes_count, tvb_bytes_to_str(tvb, offset, value_bytes_count ) );
+    proto_item_append_text( ti, ": %d bytes ( %s )", value_bytes_count, tvb_bytes_to_ep_str(tvb, offset, value_bytes_count ) );
     offset += value_bytes_count;
 
     offset = dissect_vuze_dht_contact( tvb, pinfo, sub_tree, offset );
@@ -553,7 +553,7 @@ dissect_vuze_dht_network_coordinate(tvbuff_t *tvb, packet_info _U_*pinfo, proto_
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_network_coordinate);
 
   proto_item_append_text( ti, ": type %d, length %d ( %s )",
-    tvb_get_guint8(tvb,offset), tvb_get_guint8(tvb,offset+TL_BYTE), tvb_bytes_to_str(tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
+    tvb_get_guint8(tvb,offset), tvb_get_guint8(tvb,offset+TL_BYTE), tvb_bytes_to_ep_str(tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
 
   proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );
   offset += TL_BYTE;

@@ -726,7 +726,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_text(tlv_tree, tvb, offset + 4,
                                     length - 4, "System Object Identifier: %s",
-                                    tvb_bytes_to_str(tvb, offset + 4, length - 4));
+                                    tvb_bytes_to_ep_str(tvb, offset + 4, length - 4));
             }
             offset += length;
             break;
@@ -986,7 +986,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
         if (length != 0) {
             proto_tree_add_text(address_tree, tvb, offset, length,
               "Protocol: %s (truncated)",
-              tvb_bytes_to_str(tvb, offset, length));
+              tvb_bytes_to_ep_str(tvb, offset, length));
         }
         return -1;
     }
@@ -997,7 +997,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     } else
         nlpid = -1;
     if (protocol_str == NULL)
-        protocol_str = tvb_bytes_to_str(tvb, offset, protocol_length);
+        protocol_str = tvb_bytes_to_ep_str(tvb, offset, protocol_length);
     proto_tree_add_text(address_tree, tvb, offset, protocol_length,
                         "Protocol: %s", protocol_str);
     offset += protocol_length;
@@ -1015,7 +1015,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
         if (length != 0) {
             proto_tree_add_text(address_tree, tvb, offset, length,
               "Address: %s (truncated)",
-              tvb_bytes_to_str(tvb, offset, length));
+              tvb_bytes_to_ep_str(tvb, offset, length));
         }
         return -1;
     }
@@ -1041,7 +1041,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     if (address_type_str == NULL)
         address_type_str = "Address";
     if (address_str == NULL) {
-        address_str = tvb_bytes_to_str(tvb, offset, address_length);
+        address_str = tvb_bytes_to_ep_str(tvb, offset, address_length);
     }
     proto_item_set_text(ti, "%s: %s", address_type_str, address_str);
     proto_tree_add_text(address_tree, tvb, offset, address_length, "%s: %s",

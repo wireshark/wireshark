@@ -1013,7 +1013,7 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree)
 					"%s%s",
 					first_line ? "data: " :
 					             "      ",
-					tvb_bytes_to_str(tvb,offset,sublen));
+					tvb_bytes_to_ep_str(tvb,offset,sublen));
 		bytes_left -= sublen;
 		offset += sublen;
 		first_line = FALSE;

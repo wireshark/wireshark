@@ -501,7 +501,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         proto_tree_add_uint(tree, hf_c1222_auth_len, tvb, *offset, 1, auth_len);
         *offset += 1;
         if (*length >= auth_len) {
-          auth_req = tvb_bytes_to_str(tvb, *offset, auth_len);
+          auth_req = tvb_bytes_to_ep_str(tvb, *offset, auth_len);
           proto_tree_add_item(tree, hf_c1222_auth_data, tvb, *offset, auth_len, ENC_NA);
           *offset += auth_len;
           *length -= auth_len + 1;

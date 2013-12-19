@@ -688,7 +688,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             offset = offset + len;
         }
         tvb_memcpy(tvb, partial_state, offset, partial_state_len);
-        partial_state_str = bytes_to_str(partial_state, partial_state_len);
+        partial_state_str = bytes_to_ep_str(partial_state, partial_state_len);
         proto_tree_add_string(sigcomp_tree,hf_sigcomp_partial_state,
             tvb, offset, partial_state_len, partial_state_str);
         offset = offset + partial_state_len;

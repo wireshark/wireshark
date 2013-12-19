@@ -1534,9 +1534,9 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                         iValueOffset += iValueLength;
                         iByteArrayValue = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, iValueOffset, iArrayLength);
                         proto_tree_add_bytes(val_tree, hf_amf_bytearray, tvb, iValueOffset, iArrayLength, iByteArrayValue);
-                        proto_item_append_text(ti, " %s", bytes_to_str(iByteArrayValue, iArrayLength));
+                        proto_item_append_text(ti, " %s", bytes_to_ep_str(iByteArrayValue, iArrayLength));
                         if (parent_ti != NULL)
-                                proto_item_append_text(parent_ti, " %s", bytes_to_str(iByteArrayValue, iArrayLength));
+                                proto_item_append_text(parent_ti, " %s", bytes_to_ep_str(iByteArrayValue, iArrayLength));
                 } else {
                         /* the upper 28 bits of the integer value are a object reference index */
                         proto_tree_add_uint(val_tree, hf_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);

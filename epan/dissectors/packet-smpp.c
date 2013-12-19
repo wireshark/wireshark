@@ -1784,7 +1784,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                                         *offset, length, ENC_NA);
                 }
 
-                proto_item_append_text(sub_tree,": %s", tvb_bytes_to_str(tvb,*offset,length));
+                proto_item_append_text(sub_tree,": %s", tvb_bytes_to_ep_str(tvb,*offset,length));
                 (*offset) += length;
                 break;
         }

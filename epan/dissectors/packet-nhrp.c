@@ -369,7 +369,7 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
          */
         proto_tree_add_text(nhrp_tree, tvb, offset, 5,
                         "Protocol Type (long form): %s",
-                        tvb_bytes_to_str(tvb, offset, 5));
+                        tvb_bytes_to_ep_str(tvb, offset, 5));
         offset += 5;
     }
 
@@ -538,14 +538,14 @@ static void dissect_cie_list(tvbuff_t    *tvb,
                 else {
                     proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
                         "Client NBMA Address: %s",
-                        tvb_bytes_to_str(tvb, offset, cli_addr_len));
+                        tvb_bytes_to_ep_str(tvb, offset, cli_addr_len));
                 }
                 break;
 
             default:
                 proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
                     "Client NBMA Address: %s",
-                    tvb_bytes_to_str(tvb, offset, cli_addr_len));
+                    tvb_bytes_to_ep_str(tvb, offset, cli_addr_len));
                 break;
             }
             offset += cli_addr_len;
@@ -554,7 +554,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
         if (cli_saddr_len) {
             proto_tree_add_text(cie_tree, tvb, offset, cli_saddr_len,
                                 "Client NBMA Sub Address: %s",
-                                tvb_bytes_to_str(tvb, offset, cli_saddr_len));
+                                tvb_bytes_to_ep_str(tvb, offset, cli_saddr_len));
         }
 
         if (cli_prot_len) {
@@ -563,7 +563,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
             else {
                 proto_tree_add_text(cie_tree, tvb, offset, cli_prot_len,
                                     "Client Protocol Address: %s",
-                                    tvb_bytes_to_str(tvb, offset, cli_prot_len));
+                                    tvb_bytes_to_ep_str(tvb, offset, cli_prot_len));
             }
             offset += cli_prot_len;
         }
@@ -684,14 +684,14 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
             else {
                 proto_tree_add_text(nhrp_tree, tvb, offset, shl,
                     "Source NBMA Address: %s",
-                    tvb_bytes_to_str(tvb, offset, shl));
+                    tvb_bytes_to_ep_str(tvb, offset, shl));
             }
             break;
 
         default:
             proto_tree_add_text(nhrp_tree, tvb, offset, shl,
                 "Source NBMA Address: %s",
-                tvb_bytes_to_str(tvb, offset, shl));
+                tvb_bytes_to_ep_str(tvb, offset, shl));
             break;
         }
         offset += shl;
@@ -701,7 +701,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     if (ssl) {
         proto_tree_add_text(nhrp_tree, tvb, offset, ssl,
                             "Source NBMA Sub Address: %s",
-                            tvb_bytes_to_str(tvb, offset, ssl));
+                            tvb_bytes_to_ep_str(tvb, offset, ssl));
         offset += ssl;
     }
 
@@ -712,7 +712,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     else if (*srcLen) {
         proto_tree_add_text(nhrp_tree, tvb, offset, *srcLen,
                             "Source Protocol Address: %s",
-                            tvb_bytes_to_str(tvb, offset, *srcLen));
+                            tvb_bytes_to_ep_str(tvb, offset, *srcLen));
         offset += *srcLen;
     }
 
@@ -723,7 +723,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     else if (dstLen) {
         proto_tree_add_text(nhrp_tree, tvb, offset, dstLen,
                             "Destination Protocol Address: %s",
-                            tvb_bytes_to_str(tvb, offset, dstLen));
+                            tvb_bytes_to_ep_str(tvb, offset, dstLen));
         offset += dstLen;
     }
 
@@ -903,7 +903,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                 if (len < (4 + srcLen)) {
                     ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Malformed Extension: %s",
-                        tvb_bytes_to_str(tvb, offset, len));
+                        tvb_bytes_to_ep_str(tvb, offset, len));
                     expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Authentication Extension");
                 }
                 else {
@@ -912,7 +912,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 
                     auth_item = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
-                        tvb_bytes_to_str(tvb, offset + 4, len - 4));
+                        tvb_bytes_to_ep_str(tvb, offset + 4, len - 4));
                     auth_tree = proto_item_add_subtree(auth_item, ett_nhrp_auth_ext);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -921,11 +921,11 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     else if (srcLen) {
                         proto_tree_add_text(auth_tree, tvb, offset + 4, srcLen,
                             "Source Address: %s",
-                            tvb_bytes_to_str(tvb, offset + 4, srcLen));
+                            tvb_bytes_to_ep_str(tvb, offset + 4, srcLen));
                     }
                     if (len > (4 + srcLen)) {
                         proto_tree_add_text(auth_tree, tvb, offset + 4 + srcLen, len - (4 + srcLen),
-                            "Data: %s", tvb_bytes_to_str(tvb, offset + 4 + srcLen, len - (4 + srcLen)));
+                            "Data: %s", tvb_bytes_to_ep_str(tvb, offset + 4 + srcLen, len - (4 + srcLen)));
                     }
                 }
                 break;
@@ -934,7 +934,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                 if (len < 3) {
                     ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Malformed Extension: %s",
-                        tvb_bytes_to_str(tvb, offset, len));
+                        tvb_bytes_to_ep_str(tvb, offset, len));
                     expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Vendor-Private Extension");
                 }
                 else {
@@ -945,13 +945,13 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     tvb_memcpy(tvb, manuf, offset, 3);
                     vendor_item = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
-                        tvb_bytes_to_str(tvb, offset + 3, len - 3));
+                        tvb_bytes_to_ep_str(tvb, offset + 3, len - 3));
                     vendor_tree = proto_item_add_subtree(vendor_item, ett_nhrp_vendor_ext);
                     proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
                         offset, 3, manuf, "%s", get_manuf_name(manuf));
                     if (len > 3) {
                         proto_tree_add_text(vendor_tree, tvb, offset + 3, len - 3,
-                            "Data: %s", tvb_bytes_to_str(tvb, offset + 3, len - 3));
+                            "Data: %s", tvb_bytes_to_ep_str(tvb, offset + 3, len - 3));
                     }
                 }
                 break;

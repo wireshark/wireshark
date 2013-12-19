@@ -178,7 +178,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
       wmem_strbuf_append_printf(info, "%d.%d.%d.%d to %s",
                                 tvb_get_guint8(tvb, 28), tvb_get_guint8(tvb, 29),
                                 tvb_get_guint8(tvb, 30), tvb_get_guint8(tvb, 31),
-                                tvb_bytes_to_str_punct(tvb, 10, 6, ':'));
+                                tvb_bytes_to_ep_str_punct(tvb, 10, 6, ':'));
     }
     break;
   case 0x80: /* Register Read Request */

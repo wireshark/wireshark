@@ -3350,9 +3350,9 @@ decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     te = proto_tree_add_text(tree, tvb, offset, 29, "%s", val_to_str_ext_const(GTP_EXT_AUTH_TRI, &gtp_val_ext, "Unknown message"));
     ext_tree_auth_tri = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_AUTH_TRI]);
 
-    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 1, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset + 1, 16));
-    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 17, 4, "SRES: %s", tvb_bytes_to_str(tvb, offset + 17, 4));
-    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 21, 8, "Kc: %s",   tvb_bytes_to_str(tvb, offset + 21, 8));
+    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 1, 16, "RAND: %s", tvb_bytes_to_ep_str(tvb, offset + 1, 16));
+    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 17, 4, "SRES: %s", tvb_bytes_to_ep_str(tvb, offset + 17, 4));
+    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 21, 8, "Kc: %s",   tvb_bytes_to_ep_str(tvb, offset + 21, 8));
 
     return 1 + 16 + 4 + 8;
 }
@@ -3927,9 +3927,9 @@ decode_triplet(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 count)
         te_trip = proto_tree_add_text(tree, tvb, offset + i * 28, 28, "Triplet no%x", i);
         ext_tree_trip = proto_item_add_subtree(te_trip, ett_gtp_trip);
 
-        proto_tree_add_text(ext_tree_trip, tvb, offset + i * 28, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset + i * 28, 16));
-        proto_tree_add_text(ext_tree_trip, tvb, offset + i * 28 + 16, 4, "SRES: %s", tvb_bytes_to_str(tvb, offset + i * 28 + 16, 4));
-        proto_tree_add_text(ext_tree_trip, tvb, offset + i * 28 + 20, 8, "Kc: %s", tvb_bytes_to_str(tvb, offset + i * 28 + 20, 8));
+        proto_tree_add_text(ext_tree_trip, tvb, offset + i * 28, 16, "RAND: %s", tvb_bytes_to_ep_str(tvb, offset + i * 28, 16));
+        proto_tree_add_text(ext_tree_trip, tvb, offset + i * 28 + 16, 4, "SRES: %s", tvb_bytes_to_ep_str(tvb, offset + i * 28 + 16, 4));
+        proto_tree_add_text(ext_tree_trip, tvb, offset + i * 28 + 20, 8, "Kc: %s", tvb_bytes_to_ep_str(tvb, offset + i * 28 + 20, 8));
     }
 
     return count * 28;
@@ -3954,21 +3954,21 @@ decode_quintuplet(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 count)
         ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
 
 
-        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset, 16));
+        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_ep_str(tvb, offset, 16));
         q_offset = q_offset + 16;
         xres_len = tvb_get_guint8(tvb, offset + q_offset);
         proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "XRES length: %u", xres_len);
         q_offset++;
-        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset + q_offset, xres_len));
+        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, xres_len, "XRES: %s", tvb_bytes_to_ep_str(tvb, offset + q_offset, xres_len));
         q_offset = q_offset + xres_len;
-        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
+        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_ep_str(tvb, offset + q_offset, 16));
         q_offset = q_offset + 16;
-        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
+        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_ep_str(tvb, offset + q_offset, 16));
         q_offset = q_offset + 16;
         auth_len = tvb_get_guint8(tvb, offset + q_offset);
         proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "Authentication length: %u", auth_len);
         q_offset++;
-        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset + q_offset, auth_len));
+        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, auth_len, "AUTH: %s", tvb_bytes_to_ep_str(tvb, offset + q_offset, auth_len));
 
         q_offset = q_offset + auth_len;
         proto_item_set_end(te_quint, tvb, offset + q_offset);
@@ -4019,8 +4019,8 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
         proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset + 5, 16));
-        proto_tree_add_text(ext_tree_mm, tvb, offset + 21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset + 21, 16));
+        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 16, "Ciphering key CK: %s", tvb_bytes_to_ep_str(tvb, offset + 5, 16));
+        proto_tree_add_text(ext_tree_mm, tvb, offset + 21, 16, "Integrity key IK: %s", tvb_bytes_to_ep_str(tvb, offset + 21, 16));
         quint_len = tvb_get_ntohs(tvb, offset + 37);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 37, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
@@ -4035,7 +4035,7 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 
         proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset + 5, 8));
+        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 8, "Ciphering key Kc: %s", tvb_bytes_to_ep_str(tvb, offset + 5, 8));
 
         offset = offset + decode_triplet(tvb, offset + 13, ext_tree_mm, count) + 13;
 
@@ -4044,8 +4044,8 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
         proto_tree_add_item(ext_tree_mm, hf_gtp_ksi, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset + 5, 16));
-        proto_tree_add_text(ext_tree_mm, tvb, offset + 21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset + 21, 16));
+        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 16, "Ciphering key CK: %s", tvb_bytes_to_ep_str(tvb, offset + 5, 16));
+        proto_tree_add_text(ext_tree_mm, tvb, offset + 21, 16, "Integrity key IK: %s", tvb_bytes_to_ep_str(tvb, offset + 21, 16));
         quint_len = tvb_get_ntohs(tvb, offset + 37);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 37, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
@@ -4058,7 +4058,7 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
         proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 8,
-                            "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset + 5, 8));
+                            "Ciphering key Kc: %s", tvb_bytes_to_ep_str(tvb, offset + 5, 8));
         quint_len = tvb_get_ntohs(tvb, offset + 13);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 13, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
@@ -4996,21 +4996,21 @@ decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_text(ext_tree, tvb, offset, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset, 16));
+    proto_tree_add_text(ext_tree, tvb, offset, 16, "RAND: %s", tvb_bytes_to_ep_str(tvb, offset, 16));
     offset = offset + 16;
     xres_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(ext_tree, tvb, offset, 1, "XRES length: %u", xres_len);
     offset++;
-    proto_tree_add_text(ext_tree, tvb, offset, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset, xres_len));
+    proto_tree_add_text(ext_tree, tvb, offset, xres_len, "XRES: %s", tvb_bytes_to_ep_str(tvb, offset, xres_len));
     offset = offset + xres_len;
-    proto_tree_add_text(ext_tree, tvb, offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_str(tvb, offset, 16));
+    proto_tree_add_text(ext_tree, tvb, offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_ep_str(tvb, offset, 16));
     offset = offset + 16;
-    proto_tree_add_text(ext_tree, tvb, offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_str(tvb, offset, 16));
+    proto_tree_add_text(ext_tree, tvb, offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_ep_str(tvb, offset, 16));
     offset = offset + 16;
     auth_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(ext_tree, tvb, offset, 1, "Authentication length: %u", auth_len);
     offset++;
-    proto_tree_add_text(ext_tree, tvb, offset, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset, auth_len));
+    proto_tree_add_text(ext_tree, tvb, offset, auth_len, "AUTH: %s", tvb_bytes_to_ep_str(tvb, offset, auth_len));
 
     return (3 + length);
 
@@ -5683,7 +5683,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             break;
     }
 
-    return tvb_bytes_to_str(tvb, 0, length);
+    return tvb_bytes_to_ep_str(tvb, 0, length);
 }
 
 /*

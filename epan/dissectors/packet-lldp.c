@@ -766,7 +766,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			}
 			break;
 		default:
-			strPtr = tvb_bytes_to_str(tvb, (offset+4), (tempLen-2));
+			strPtr = tvb_bytes_to_ep_str(tvb, (offset+4), (tempLen-2));
 			break;
 		}
 		break;
@@ -794,7 +794,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		}
 
-		strPtr = tvb_bytes_to_str(tvb, (offset+3), (tempLen-1));
+		strPtr = tvb_bytes_to_ep_str(tvb, (offset+3), (tempLen-1));
 		break;
 	}
 	default:	/* Reserved types */
@@ -939,7 +939,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			}
 			break;
 		default:
-			strPtr = tvb_bytes_to_str(tvb, (offset+4), (tempLen-2));
+			strPtr = tvb_bytes_to_ep_str(tvb, (offset+4), (tempLen-2));
 			break;
 		}
 		break;
@@ -1392,7 +1392,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "Protocol Identity: %s",
-					tvb_bytes_to_str(tvb, tempOffset, tempByte));
+					tvb_bytes_to_ep_str(tvb, tempOffset, tempByte));
 		}
 
 		break;

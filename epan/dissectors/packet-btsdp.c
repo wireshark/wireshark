@@ -1009,7 +1009,7 @@ print_uuid(uuid_t *uuid)
             }
         }
 
-        return bytes_to_str(uuid->data, uuid->size);
+        return bytes_to_ep_str(uuid->data, uuid->size);
     }
 }
 
@@ -1542,7 +1542,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
 
         continuation_state = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_length);
-        packet_scope_string = tvb_bytes_to_str(tvb, offset, continuation_state_length);
+        packet_scope_string = tvb_bytes_to_ep_str(tvb, offset, continuation_state_length);
         memcpy(continuation_state, packet_scope_string, continuation_state_length);
 
         if (!pinfo->fd->flags.visited) {
@@ -2984,7 +2984,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x352:
                     proto_tree_add_item(next_tree, hf_bpp_character_repertoires_support, tvb, offset, size, ENC_ASCII | ENC_NA);
-                    new_str = tvb_bytes_to_str(tvb, offset, size);
+                    new_str = tvb_bytes_to_ep_str(tvb, offset, size);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x354:

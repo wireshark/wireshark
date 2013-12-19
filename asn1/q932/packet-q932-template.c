@@ -232,7 +232,7 @@ dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
   proto_tree_add_uint(tree, hf_q932_nd, tvb, offset - (length - remain), length - remain, value);
 
   if (remain > 0) {
-    proto_tree_add_text(tree, tvb, offset - remain, remain, "ASN.1 Encoded Data Structure(NOT IMPLEMENTED): %s", tvb_bytes_to_str(tvb, offset - remain, remain));
+    proto_tree_add_text(tree, tvb, offset - remain, remain, "ASN.1 Encoded Data Structure(NOT IMPLEMENTED): %s", tvb_bytes_to_ep_str(tvb, offset - remain, remain));
   }
 }
 

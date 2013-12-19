@@ -1381,7 +1381,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
     *offset += 1;
 
     /* Retrieve "PartitionedFrame" field */
-    data_frame = tvb_bytes_to_str_punct(tvb, *offset, frame_len, ':');
+    data_frame = tvb_bytes_to_ep_str_punct(tvb, *offset, frame_len, ':');
     proto_tree_add_string(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, frame_len, data_frame);
     *offset += frame_len;
 

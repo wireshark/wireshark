@@ -3877,7 +3877,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_BYTES:
 				bytes = (guint8 *)fvalue_get(&finfo->value);
 				offset_r += protoo_strlcpy(result+offset_r,
-							   bytes_to_str(bytes,
+							   bytes_to_ep_str(bytes,
 									fvalue_length(&finfo->value)),
 							   size-offset_r);
 				break;
@@ -3996,7 +3996,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 			case FT_ETHER:
 				offset_r += protoo_strlcpy(result+offset_r,
-							   bytes_to_str_punct((const guint8 *)fvalue_get(&finfo->value),
+							   bytes_to_ep_str_punct((const guint8 *)fvalue_get(&finfo->value),
 									      FT_ETHER_LEN, ':'),
 							   size-offset_r);
 				break;
@@ -5463,7 +5463,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT_BYTES:
 			bytes = (guint8 *)fvalue_get(&fi->value);
 			label_fill(label_str, 0, hfinfo,
-					(bytes) ? bytes_to_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
+					(bytes) ? bytes_to_ep_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
 			break;
 
 		/* Four types of integers to take care of:

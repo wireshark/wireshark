@@ -1134,7 +1134,7 @@ static void decode_evt(proto_tree  *tree,
                 length,
                 "Key Name: %s (UTF-8 Value: %s, Unicode Value: 0x%" G_GINT64_MODIFIER "x)",
                 key_name,
-                tvb_bytes_to_str(tvb, offset, length),
+                tvb_bytes_to_ep_str(tvb, offset, length),
                 unicode_value);
             break;
         }

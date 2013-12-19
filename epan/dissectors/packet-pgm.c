@@ -841,7 +841,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pgmhdr_opts = tvb_get_guint8(tvb, 5);
 	pgmhdr_cksum = tvb_get_ntohs(tvb, 6);
-	gsi = tvb_bytes_to_str(tvb, 8, 6);
+	gsi = tvb_bytes_to_ep_str(tvb, 8, 6);
 	pgmhdr_tsdulen = tvb_get_ntohs(tvb, 14);
 	sqn = tvb_get_ntohl(tvb, 16);
 

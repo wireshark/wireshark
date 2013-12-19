@@ -1272,7 +1272,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (tvb_bytes_exist(tvb, ospflen, crypto_len)) {
                     proto_tree_add_text(ospf_header_tree, tvb, ospflen, crypto_len,
                                         "Auth Data: %s",
-                                        tvb_bytes_to_str(tvb, ospflen, crypto_len));
+                                        tvb_bytes_to_ep_str(tvb, ospflen, crypto_len));
                     proto_tree_set_appendix(ospf_header_tree, tvb, ospflen, crypto_len);
                 }
                 break;
@@ -1391,7 +1391,7 @@ dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
                             tvb_get_ntohl(tvb, offset + 4));
         proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 8, length - 4,
                             "Auth Data: %s",
-                            tvb_bytes_to_str(tvb, offset + 8, length - 4));
+                            tvb_bytes_to_ep_str(tvb, offset + 8, length - 4));
         break;
     }
 
@@ -2334,7 +2334,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                 case OIF_TNA_NSAP_ADDRESS:
                     ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
                                              "%s (NSAP): %s", stlv_name,
-                                             tvb_bytes_to_str (tvb, stlv_offset + 8, stlv_len - 4));
+                                             tvb_bytes_to_ep_str (tvb, stlv_offset + 8, stlv_len - 4));
                     stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
                                         "TLV Type: %u: %s (NSAP)", stlv_type, stlv_name);
@@ -2342,7 +2342,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Addr Length: %u",
                                         tvb_get_guint8 (tvb, stlv_offset+4));
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, stlv_len - 4, "TNA Addr: %s",
-                                        tvb_bytes_to_str(tvb, stlv_offset+8, stlv_len - 4));
+                                        tvb_bytes_to_ep_str(tvb, stlv_offset+8, stlv_len - 4));
                     break;
 
                 default:

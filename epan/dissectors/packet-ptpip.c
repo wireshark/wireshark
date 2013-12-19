@@ -901,7 +901,7 @@ void dissect_ptpIP_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 {
     guint8 *guid;
 
-    guid = tvb_bytes_to_str(tvb, *offset, PTPIP_GUID_SIZE);
+    guid = tvb_bytes_to_ep_str(tvb, *offset, PTPIP_GUID_SIZE);
     proto_tree_add_item(tree, hf_ptpIP_guid, tvb, *offset, PTPIP_GUID_SIZE, ENC_NA);
     *offset += PTPIP_GUID_SIZE;
     col_append_fstr(

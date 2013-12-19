@@ -340,7 +340,7 @@ AuditReplyV1/auditResult	audit_result
 
 		if (curr_info.term->len) {
 			curr_info.term->buffer = (guint8 *)tvb_memdup(wmem_packet_scope(),new_tvb,0,curr_info.term->len);
-			curr_info.term->str = bytes_to_str(curr_info.term->buffer,curr_info.term->len);
+			curr_info.term->str = bytes_to_ep_str(curr_info.term->buffer,curr_info.term->len);
 		}
 
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
@@ -395,7 +395,7 @@ AuditReplyV1/auditResult	audit_result
 				/* not ascii or NULL character so do string as hex string */
 				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s", 
 					(proto_registrar_get_nth(hf_index))->name,
-					tvb_bytes_to_str(tvb, 0, len));
+					tvb_bytes_to_ep_str(tvb, 0, len));
 				return len;
 			};
 		};

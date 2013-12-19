@@ -3919,7 +3919,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
             proto_tree_add_bytes_format(fh_tree, hf_ppp_data, tvb, offset,
                 length, NULL, "Rejected Packet (%d byte%s): %s", length,
                 plurality(length, "", "s"),
-                tvb_bytes_to_str(tvb, offset, length));
+                tvb_bytes_to_ep_str(tvb, offset, length));
         }
         break;
 
@@ -5427,7 +5427,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tvb_format_text(tvb, name_offset,
                                                 (name_size > 20) ? 20 : name_size),
                                 (name_size > 20) ? "..." : "",
-                                tvb_bytes_to_str(tvb, value_offset, value_size));
+                                tvb_bytes_to_ep_str(tvb, value_offset, value_size));
             }
         }
         break;

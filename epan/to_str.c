@@ -157,12 +157,12 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
  * the resulting string is (len-1) bytes shorter)
  */
 const gchar *
-bytestring_to_str(const guint8 *ad, const guint32 len, const char punct) {
+bytestring_to_ep_str(const guint8 *ad, const guint32 len, const char punct) {
 	gchar *buf;
 	size_t       buflen;
 
 	if (!ad)
-		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
+		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_ep_str()");
 
 	/* XXX, Old code was using int as iterator... Why len is guint32 anyway?! (darkjames) */
 	if ( ((int) len) < 0)
@@ -191,13 +191,13 @@ bytestring_to_str(const guint8 *ad, const guint32 len, const char punct) {
 #define	MAX_BYTE_STR_LEN	48
 
 gchar *
-bytes_to_str(const guint8 *bd, int bd_len) {
+bytes_to_ep_str(const guint8 *bd, int bd_len) {
 	gchar *cur;
 	gchar *cur_ptr;
 	int truncated = 0;
 
 	if (!bd)
-		REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_str()");
+		REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_ep_str()");
 
 	cur=(gchar *)ep_alloc(MAX_BYTE_STR_LEN+3+1);
 	if (bd_len <= 0) { cur[0] = '\0'; return cur; }
@@ -220,13 +220,13 @@ bytes_to_str(const guint8 *bd, int bd_len) {
  * punct as a bytes separator.
  */
 gchar *
-bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
+bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct) {
 	gchar *cur;
 	gchar *cur_ptr;
 	int truncated = 0;
 
 	if (!punct)
-		return bytes_to_str(bd, bd_len);
+		return bytes_to_ep_str(bd, bd_len);
 
 	cur=(gchar *)ep_alloc(MAX_BYTE_STR_LEN+3+1);
 	if (bd_len <= 0) { cur[0] = '\0'; return cur; }

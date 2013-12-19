@@ -2976,7 +2976,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
         proto_tree_add_bytes_format_value(tree, hf_isakmp_sa_situation, tvb, offset, length,
                                     NULL,
                                     "%s (length is %u, should be >= 4)",
-                                    tvb_bytes_to_str(tvb, offset, length), length);
+                                    tvb_bytes_to_ep_str(tvb, offset, length), length);
         return;
       }
       sti = proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, 4, ENC_NA);
@@ -3720,7 +3720,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_id_data_cert);
       break;
     default:
-      proto_item_append_text(idit, "%s", tvb_bytes_to_str(tvb,offset,length));
+      proto_item_append_text(idit, "%s", tvb_bytes_to_ep_str(tvb,offset,length));
       break;
   }
 }
@@ -4696,7 +4696,7 @@ dissect_enc(tvbuff_t *tvb,
         if (tvb_memeql(tvb, offset, md, icd_len) == 0) {
           proto_item_append_text(icd_item, "[correct]");
         } else {
-          proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_str(md, icd_len));
+          proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_ep_str(md, icd_len));
           expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
         }
         gcry_md_close(md_hd);

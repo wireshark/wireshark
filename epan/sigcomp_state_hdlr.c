@@ -630,7 +630,7 @@ sigcomp_init_udvm(void){
 	 */
 	sip_sdp_buff = (guint8 *)g_malloc(SIP_SDP_STATE_LENGTH + 8);
 
-	partial_state_str = bytes_to_str(sip_sdp_state_identifier, 6);
+	partial_state_str = bytes_to_ep_str(sip_sdp_state_identifier, 6);
 
 	/*
 	 * Debug 	g_warning("Sigcomp init: Storing partial state =%s",partial_state_str);
@@ -654,7 +654,7 @@ sigcomp_init_udvm(void){
 
 	presence_buff = (guint8 *)g_malloc(PRESENCE_STATE_LENGTH + 8);
 
-	partial_state_str = bytes_to_str(presence_state_identifier, 6);
+	partial_state_str = bytes_to_ep_str(presence_state_identifier, 6);
 
 	memset(sip_sdp_buff, 0, 8);
 	i = 0;
@@ -704,7 +704,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 		partial_state[n] = buff[p_id_start + n];
 		n++;
 	}
-	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	partial_state_str = bytes_to_ep_str(partial_state, p_id_length);
 	proto_tree_add_text(tree,tvb, 0, -1,"### Accessing state ###");
 	proto_tree_add_string(tree,hf_id, tvb, 0, 0, partial_state_str);
 
@@ -818,7 +818,7 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 		partial_state[i] = state_identifier[i];
 		i++;
 	}
-	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	partial_state_str = bytes_to_ep_str(partial_state, p_id_length);
 
 	dummy_buff = (gchar *)g_hash_table_lookup(state_buffer_table, partial_state_str);
 	if ( dummy_buff == NULL ){
@@ -847,7 +847,7 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 		partial_state[i] = buff[p_id_start + i];
 		i++;
 	}
-	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	partial_state_str = bytes_to_ep_str(partial_state, p_id_length);
 	/* TODO Implement a state create counter before actually freeing states
 	 * Hmm is it a good idea to free the buffer at all?
 	 */

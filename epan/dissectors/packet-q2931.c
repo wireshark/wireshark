@@ -378,7 +378,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
 			len = 4;
 		proto_tree_add_text(tree, tvb, offset, len,
 		    "User defined AAL information: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		return;
 	}
 
@@ -1207,7 +1207,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		case Q2931_REJ_USER_SPECIFIC:
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "User specific diagnostic: %s",
-			    tvb_bytes_to_str(tvb, offset, len));
+			    tvb_bytes_to_ep_str(tvb, offset, len));
 			break;
 
 		case Q2931_REJ_IE_MISSING:
@@ -1227,7 +1227,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		default:
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "Diagnostic: %s",
-			    tvb_bytes_to_str(tvb, offset, len));
+			    tvb_bytes_to_ep_str(tvb, offset, len));
 			break;
 		}
 		break;
@@ -1303,7 +1303,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	default:
 		proto_tree_add_text(tree, tvb, offset, len,
 		    "Diagnostics: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 	}
 }
 
@@ -1439,7 +1439,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 		if (len < 20) {
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "Number (too short): %s",
-			    tvb_bytes_to_str(tvb, offset, len));
+			    tvb_bytes_to_ep_str(tvb, offset, len));
 			return;
 		}
 		ti = proto_tree_add_text(tree, tvb, offset, len, "Number");
@@ -1449,7 +1449,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "Number: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		break;
 	}
 }
@@ -1493,7 +1493,7 @@ dissect_q2931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_text(tree, tvb, offset, len, "Subaddress: %s",
-	    tvb_bytes_to_str(tvb, offset, len));
+	    tvb_bytes_to_ep_str(tvb, offset, len));
 }
 
 /*
@@ -2009,7 +2009,7 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 		 * dump it as data and be done with it.
 		 */
 		proto_tree_add_text(ie_tree, tvb, offset + 4,  len,
-		    "Data: %s", tvb_bytes_to_str(tvb, offset + 4, len));
+		    "Data: %s", tvb_bytes_to_ep_str(tvb, offset + 4, len));
 	}
 }
 

@@ -499,7 +499,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     }
 
     len = tvb_length(tvb->ws_tvb);
-    str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb->ws_tvb,0,len));
+    str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_ep_str(tvb->ws_tvb,0,len));
     lua_pushstring(L,str);
     WSLUA_RETURN(1); /* The string. */
 }
@@ -1402,7 +1402,7 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
         return 0;
     }
 
-    lua_pushstring(L,tvb_bytes_to_str(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len));
+    lua_pushstring(L,tvb_bytes_to_ep_str(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len));
     return 1;
 }
 

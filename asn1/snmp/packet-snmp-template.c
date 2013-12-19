@@ -1157,7 +1157,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       /* 12-byte AgentID w/ 8-byte trailer */
       if (len_remain==8) {
 	proto_tree_add_text(tree, tvb, offset, 8, "AgentID Trailer: 0x%s",
-			    tvb_bytes_to_str(tvb, offset, 8));
+			    tvb_bytes_to_ep_str(tvb, offset, 8));
 	offset+=8;
 	len_remain-=8;
       } else {

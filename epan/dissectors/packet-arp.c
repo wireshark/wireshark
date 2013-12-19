@@ -366,7 +366,7 @@ tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
        address). */
     return tvb_ether_to_str(tvb, offset);
   }
-  return tvb_bytes_to_str(tvb, offset, ad_len);
+  return tvb_bytes_to_ep_str(tvb, offset, ad_len);
 }
 
 static const gchar *
@@ -383,7 +383,7 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
     return get_ax25_name(ad);
     /*return ax25_to_str(ad);*/
   }
-  return bytes_to_str(ad, ad_len);
+  return bytes_to_ep_str(ad, ad_len);
 }
 
 #define MAX_E164_STR_LEN                20
@@ -417,7 +417,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
      *
      * XXX - break down into subcomponents.
      */
-    return bytes_to_str(ad, ad_len);
+    return bytes_to_ep_str(ad, ad_len);
   }
 }
 
@@ -438,7 +438,7 @@ atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
    *
    * XXX - break down into subcomponents?
    */
-  return bytes_to_str(ad, ad_len);
+  return bytes_to_ep_str(ad, ad_len);
 }
 
 const value_string arp_hrd_vals[] = {
@@ -543,10 +543,10 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
                           tvb_get_ntohs(tvb, offset + 1));
       proto_tree_add_text(tree, tvb, offset + 3, 10,
                           "High Order DSP: %s",
-                          tvb_bytes_to_str(tvb, offset + 3, 10));
+                          tvb_bytes_to_ep_str(tvb, offset + 3, 10));
       proto_tree_add_text(tree, tvb, offset + 13, 6,
                           "End System Identifier: %s",
-                          tvb_bytes_to_str(tvb, offset + 13, 6));
+                          tvb_bytes_to_ep_str(tvb, offset + 13, 6));
       proto_tree_add_text(tree, tvb, offset + 19, 1,
                           "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
       break;
@@ -559,10 +559,10 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
                           tvb_get_ntohs(tvb, offset + 1));
       proto_tree_add_text(tree, tvb, offset + 3, 10,
                           "High Order DSP: %s",
-                          tvb_bytes_to_str(tvb, offset + 3, 10));
+                          tvb_bytes_to_ep_str(tvb, offset + 3, 10));
       proto_tree_add_text(tree, tvb, offset + 13, 6,
                           "End System Identifier: %s",
-                          tvb_bytes_to_str(tvb, offset + 13, 6));
+                          tvb_bytes_to_ep_str(tvb, offset + 13, 6));
       proto_tree_add_text(tree, tvb, offset + 19, 1,
                           "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
       break;
@@ -572,13 +572,13 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
       proto_tree_add_text(tree, tvb, offset + 0, 9,
                           "E.164 ISDN%s: %s",
                           (afi == 0xC3) ? " (group)" : "",
-                          tvb_bytes_to_str(tvb, offset + 1, 8));
+                          tvb_bytes_to_ep_str(tvb, offset + 1, 8));
       proto_tree_add_text(tree, tvb, offset + 9, 4,
                           "High Order DSP: %s",
-                          tvb_bytes_to_str(tvb, offset + 3, 10));
+                          tvb_bytes_to_ep_str(tvb, offset + 3, 10));
       proto_tree_add_text(tree, tvb, offset + 13, 6,
                           "End System Identifier: %s",
-                          tvb_bytes_to_str(tvb, offset + 13, 6));
+                          tvb_bytes_to_ep_str(tvb, offset + 13, 6));
       proto_tree_add_text(tree, tvb, offset + 19, 1,
                           "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
       break;
@@ -588,7 +588,7 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
                           "Unknown AFI: 0x%02X", afi);
       proto_tree_add_text(tree, tvb, offset + 1, len - 1,
                           "Rest of address: %s",
-                          tvb_bytes_to_str(tvb, offset + 1, len - 1));
+                          tvb_bytes_to_ep_str(tvb, offset + 1, len - 1));
       break;
   }
 }

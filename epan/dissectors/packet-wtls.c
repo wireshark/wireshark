@@ -469,7 +469,7 @@ add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 	} else {
 		hfinfo = proto_registrar_get_nth(hf);
 		proto_tree_add_text (tree, tvb, offset, count+1, "%s: %s",
-		    hfinfo->name, tvb_bytes_to_str(tvb, offset+1, count));
+		    hfinfo->name, tvb_bytes_to_ep_str(tvb, offset+1, count));
 	}
 	return offset+1+count;
 }

@@ -1864,7 +1864,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
 					    enterprise);
 				if (optlen > 6) {
-						buf = tvb_bytes_to_str(tvb, optoff + 6, optlen - 11);
+						buf = tvb_bytes_to_ep_str(tvb, optoff + 6, optlen - 11);
 					proto_tree_add_text(v_tree, tvb, optoff + 6,
 						optlen - 11, "identifier: %s", buf);
 				}

@@ -4781,7 +4781,7 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 		guint8* bytes = (guint8 *)tvb_memdup(wmem_packet_scope(),imsi_tvb,0,len);
 
 		actx->pinfo->sccp_info->data.co.assoc->calling_party =
-			wmem_strdup_printf(wmem_file_scope(), "IMSI: %s", bytes_to_str(bytes, len) );
+			wmem_strdup_printf(wmem_file_scope(), "IMSI: %s", bytes_to_ep_str(bytes, len) );
 	}
 	digit_str = unpack_digits(imsi_tvb, 0);
 	proto_tree_add_string(tree, hf_ranap_imsi_digits, imsi_tvb, 0, -1, digit_str);

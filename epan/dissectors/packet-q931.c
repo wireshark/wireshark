@@ -778,7 +778,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		return;
@@ -1277,7 +1277,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_uint(tree, hf_q931_cause_location, tvb, offset, 1, octet);
@@ -1354,7 +1354,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		case Q931_REJ_USER_SPECIFIC:
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "User specific diagnostic: %s",
-			    tvb_bytes_to_str(tvb, offset, len));
+			    tvb_bytes_to_ep_str(tvb, offset, len));
 			break;
 
 		case Q931_REJ_IE_MISSING:
@@ -1374,7 +1374,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		default:
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "Diagnostic: %s",
-			    tvb_bytes_to_str(tvb, offset, len));
+			    tvb_bytes_to_ep_str(tvb, offset, len));
 			break;
 		}
 		break;
@@ -1412,7 +1412,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 	default:
 		proto_tree_add_text(tree, tvb, offset, len,
 		    "Diagnostics: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 	}
 }
 
@@ -1499,7 +1499,7 @@ dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1601,7 +1601,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			 */
 			proto_tree_add_text(tree, tvb, offset,
 			    len, "Data: %s",
-			    tvb_bytes_to_str(tvb, offset, len));
+			    tvb_bytes_to_ep_str(tvb, offset, len));
 			return;
 		}
 		proto_tree_add_item(tree, hf_q931_channel_map, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1669,7 +1669,7 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		return;
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1759,7 +1759,7 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 	 	return;
 	proto_tree_add_text(tree, tvb, offset,
 	    len, "Network-specific facility specification: %s",
-	    tvb_bytes_to_str(tvb, offset, len));
+	    tvb_bytes_to_ep_str(tvb, offset, len));
 }
 
 /*
@@ -2297,7 +2297,7 @@ dissect_q931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_text(tree, tvb, offset, len, "Subaddress: %s",
-	    tvb_bytes_to_str(tvb, offset, len));
+	    tvb_bytes_to_ep_str(tvb, offset, len));
 }
 
 /*
@@ -2428,7 +2428,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		 */
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		return;
 	}
 	if (len == 0)
@@ -2517,7 +2517,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "User information: %s",
-		    tvb_bytes_to_str(tvb, offset, len));
+		    tvb_bytes_to_ep_str(tvb, offset, len));
 		break;
 	}
 }
@@ -2905,7 +2905,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					proto_tree_add_text(ie_tree, tvb,
 					    offset + 4, info_element_len - 1,
 					    "User information: %s",
-					    tvb_bytes_to_str(tvb, offset + 4,
+					    tvb_bytes_to_ep_str(tvb, offset + 4,
 					      info_element_len - 1));
 				}
 			}
@@ -3212,7 +3212,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 						proto_tree_add_text(ie_tree, tvb,
 							offset + 2, info_element_len,
 							"Data: %s",
-							tvb_bytes_to_str(tvb, offset + 2,
+							tvb_bytes_to_ep_str(tvb, offset + 2,
 							  info_element_len));
 					}
 					break;

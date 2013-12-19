@@ -628,7 +628,7 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 			proto_tree_add_bytes_format_value(tree, hf_index, tvb,
 			    cptr, count, NULL,
 			    "%s (wrong length, should be 21, is %d",
-			    tvb_bytes_to_str(tvb, cptr, count), count);
+			    tvb_bytes_to_ep_str(tvb, cptr, count), count);
 		}
 	} else {
 		proto_tree_add_bytes_format_value(tree, hf_index, tvb, 0, 0,
@@ -1709,7 +1709,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "%s: Value is %s, type is wrong (b)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(tvb, offset, count));
+				    tvb_bytes_to_ep_str(tvb, offset, count));
 				offset += count;
 				items++;
 			} else {
@@ -1862,7 +1862,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "%s: Value is %s, type is wrong (g)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(tvb, offset, count));
+				    tvb_bytes_to_ep_str(tvb, offset, count));
 				offset += count;
 				items++;
 			} else {
@@ -2059,7 +2059,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				    "%s: Value is %s, type is wrong (B)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(tvb, offset, count));
+				    tvb_bytes_to_ep_str(tvb, offset, count));
 				offset += count;
 				items++;
 			} else {
@@ -2151,7 +2151,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				    "%s: Value is %s, type is wrong (b)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
 				      hf_smb_pipe_bytes_param : *items->hf_index),
-				    tvb_bytes_to_str(tvb, cptr, count));
+				    tvb_bytes_to_ep_str(tvb, cptr, count));
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, count,

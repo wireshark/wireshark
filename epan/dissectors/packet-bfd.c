@@ -371,7 +371,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
                 proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
-                                    tvb_bytes_to_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
+                                    tvb_bytes_to_ep_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
             }
             break;
         default:

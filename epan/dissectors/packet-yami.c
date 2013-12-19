@@ -233,7 +233,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			offset += 4;
 
 			val = tvb_get_ptr(tvb, offset, val_len);
-			repr = bytes_to_str(val, val_len);
+			repr = bytes_to_ep_str(val, val_len);
 
 			proto_item_append_text(ti, ", Type: binary, Value: %s", repr);
 			offset += (val_len + 3) & ~3;
@@ -397,7 +397,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				offset += 4;
 
 				val = tvb_get_ptr(tvb, offset, val_len);
-				repr = bytes_to_str(val, val_len);
+				repr = bytes_to_ep_str(val, val_len);
 
 				proto_item_append_text(ti, "%s, ", repr);
 				offset += (val_len + 3) & ~3;

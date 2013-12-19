@@ -2784,7 +2784,7 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
                 }
             case 21:
             case 22:             /* Bytes */
-                g_snprintf(buffer, (gulong) buffer_size, "%s", bytes_to_str(get_finfo_value_string(PTREE_FINFO(tree_pointer)), get_finfo_length(PTREE_FINFO(tree_pointer))));
+                g_snprintf(buffer, (gulong) buffer_size, "%s", bytes_to_ep_str(get_finfo_value_string(PTREE_FINFO(tree_pointer)), get_finfo_length(PTREE_FINFO(tree_pointer))));
                 break;
             default:             /* Dont currently handle. Only need string, integers, and bytes */
                 g_snprintf(buffer, (gulong) buffer_size, "Unsupported Expert Type");
@@ -7725,7 +7725,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 if (info_type != 0) {    /* Is this  a string or not? */
 
                     if (info_type == 1) {   /* Is this bytes? */
-                        byte_string = bytes_to_str(get_finfo_value_string(finfo), get_finfo_length(finfo));
+                        byte_string = bytes_to_ep_str(get_finfo_value_string(finfo), get_finfo_length(finfo));
                         col_append_fstr(pinfo->cinfo, COL_INFO,
                                         (const gchar*) ncp_rec->req_info_str->first_string,
                                         byte_string);
@@ -7762,7 +7762,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (info_type != 0) {    /* Is this  a string or not? */
                         if (info_type == 1)
                         {   /* Is this bytes? */
-                            byte_string = bytes_to_str(get_finfo_value_string(finfo), get_finfo_length(finfo));
+                            byte_string = bytes_to_ep_str(get_finfo_value_string(finfo), get_finfo_length(finfo));
                             col_append_fstr(pinfo->cinfo, COL_INFO,
                                             (const gchar*) ncp_rec->req_info_str->repeat_string,
                                             byte_string);

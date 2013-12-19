@@ -1378,7 +1378,7 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Retrieve 'Log Payload' field */
-    log_data = tvb_bytes_to_str_punct(tvb, *offset, log_len, ':');
+    log_data = tvb_bytes_to_ep_str_punct(tvb, *offset, log_len, ':');
     proto_tree_add_string(tree, hf_zbee_zcl_appl_stats_log_payload, tvb, *offset, log_len, log_data);
     *offset += log_len;
 }/*dissect_zcl_appl_stats_log_rsp*/

@@ -2729,9 +2729,9 @@ tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset) {
  * separator.
  */
 gchar *
-tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
+tvb_bytes_to_ep_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
 {
-	return bytes_to_str_punct(ensure_contiguous(tvb, offset, len), len, punct);
+	return bytes_to_ep_str_punct(ensure_contiguous(tvb, offset, len), len, punct);
 }
 
 
@@ -2804,9 +2804,9 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
  * to the string with the formatted data.
  */
 gchar *
-tvb_bytes_to_str(tvbuff_t *tvb, const gint offset, const gint len)
+tvb_bytes_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len)
 {
-	return bytes_to_str(ensure_contiguous(tvb, offset, len), len);
+	return bytes_to_ep_str(ensure_contiguous(tvb, offset, len), len);
 }
 
 /* Find a needle tvbuff within a haystack tvbuff. */

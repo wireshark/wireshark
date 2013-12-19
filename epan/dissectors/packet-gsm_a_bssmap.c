@@ -1238,7 +1238,7 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     proto_tree_add_text(tree,
         tvb, curr_offset, len - (curr_offset - offset),
         "Key: %s",
-        tvb_bytes_to_str(tvb, curr_offset, len-(curr_offset-offset) ));
+        tvb_bytes_to_ep_str(tvb, curr_offset, len-(curr_offset-offset) ));
 
     curr_offset += len - (curr_offset - offset);
 

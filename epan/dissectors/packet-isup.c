@@ -3800,7 +3800,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       }
       proto_tree_add_text(parameter_tree, parameter_tvb, offset,
                           length, "Diagnostic: %s",
-                          tvb_bytes_to_str(parameter_tvb, offset, length));
+                          tvb_bytes_to_ep_str(parameter_tvb, offset, length));
       return;
     case 2:
       /*ANSI*/
@@ -3823,7 +3823,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       }
       proto_tree_add_text(parameter_tree, parameter_tvb, offset,
                           length, "Diagnostic: %s",
-                          tvb_bytes_to_str(parameter_tvb, offset, length));
+                          tvb_bytes_to_ep_str(parameter_tvb, offset, length));
       return;
     default:
       proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4092,7 +4092,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
   switch (afi) {
     case 0x35:  /* IANA ICP Binary fortmat*/
       proto_tree_add_text(parameter_tree, parameter_tvb, offset, 3,
-                          "IDP = %s", tvb_bytes_to_str(parameter_tvb, offset, 3));
+                          "IDP = %s", tvb_bytes_to_ep_str(parameter_tvb, offset, 3));
 
       proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, 1, afi);
       offset = offset + 1;
@@ -4100,7 +4100,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
       proto_tree_add_uint(parameter_tree, hf_iana_icp, parameter_tvb, offset, 1, icp);
       if (icp == 0) { /* IPv6 addr */
         proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 17,
-                            "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
+                            "DSP = %s", tvb_bytes_to_ep_str(parameter_tvb, offset + 2, 17));
         proto_tree_add_item(parameter_tree, hf_nsap_ipv6_addr, parameter_tvb, offset + 2,
                             16, ENC_NA);
 
@@ -4108,7 +4108,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
       else { /* IPv4 addr */
         /* XXX - this is really only for ICP 1 */
         proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2, 17,
-                            "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
+                            "DSP = %s", tvb_bytes_to_ep_str(parameter_tvb, offset + 2, 17));
         proto_tree_add_item(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, ENC_BIG_ENDIAN);
       }
 
@@ -4116,12 +4116,12 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
     case 0x45:  /* E.164 ATM format */
     case 0xC3:  /* E.164 ATM group format */
       proto_tree_add_text(parameter_tree, parameter_tvb, offset, 9,
-                          "IDP = %s", tvb_bytes_to_str(parameter_tvb, offset, 9));
+                          "IDP = %s", tvb_bytes_to_ep_str(parameter_tvb, offset, 9));
 
       proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, 1, afi);
 
       proto_tree_add_text(parameter_tree, parameter_tvb, offset + 1, 8,
-                          "IDI = %s", tvb_bytes_to_str(parameter_tvb, offset + 1, 8));
+                          "IDI = %s", tvb_bytes_to_ep_str(parameter_tvb, offset + 1, 8));
       offset = offset +1;
       /* Dissect country code */
       cc_offset = offset;
@@ -4847,7 +4847,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 */
           proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, tempdata , "Network ID: %s",
-                              tvb_bytes_to_str(parameter_tvb, offset, tempdata));
+                              tvb_bytes_to_ep_str(parameter_tvb, offset, tempdata));
           offset = offset + tempdata;
         } /* end if */
 

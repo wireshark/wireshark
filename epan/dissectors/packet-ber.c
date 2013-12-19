@@ -4930,7 +4930,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
             if (bitstring[byteno]) {
                 expert_add_info_format(
                     actx->pinfo, item, &ei_ber_bits_unknown,
-                    "Unknown bit(s): 0x%s", bytes_to_str(bitstring, len));
+                    "Unknown bit(s): 0x%s", bytes_to_ep_str(bitstring, len));
                 break;
             }
         }

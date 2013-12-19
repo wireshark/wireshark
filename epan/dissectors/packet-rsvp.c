@@ -2472,14 +2472,14 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, proto_tree *rsvp_object_tree,
             proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4,
                                 tlv_len - 4,
                                 "Data: %s",
-                                tvb_bytes_to_str_punct(tvb, offset + tlv_off + 4, tlv_len - 4, ' '));
+                                tvb_bytes_to_ep_str_punct(tvb, offset + tlv_off + 4, tlv_len - 4, ' '));
             break;
         }
 
         padding = (4 - (tlv_len % 4)) % 4;
         if (padding != 0)
             proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + tlv_len, padding, "Padding: %s",
-                                tvb_bytes_to_str_punct(tvb, offset + tlv_off + tlv_len, padding, ' '));
+                                tvb_bytes_to_ep_str_punct(tvb, offset + tlv_off + tlv_len, padding, ' '));
         tlv_off += tlv_len + padding;
     }
 }
@@ -3851,11 +3851,11 @@ dissect_rsvp_integrity(proto_item *ti _U_, proto_tree *rsvp_object_tree,
     proto_tree_add_item(rsvp_integ_flags_tree, hf_rsvp_integrity_flags_handshake,
                              tvb, offset2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 6,
-                        "Key Identifier: %s", tvb_bytes_to_str(tvb, offset2+2, 6));
+                        "Key Identifier: %s", tvb_bytes_to_ep_str(tvb, offset2+2, 6));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 8,
                         "Sequence Number: %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, offset2+8));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, obj_length - 20,
-                        "Hash: %s", tvb_bytes_to_str(tvb, offset2+16, obj_length - 20));
+                        "Hash: %s", tvb_bytes_to_ep_str(tvb, offset2+16, obj_length - 20));
 }
 
 /*------------------------------------------------------------------------------
@@ -5474,7 +5474,7 @@ dissect_rsvp_association(proto_tree *ti, proto_tree *rsvp_object_tree,
                             "Node ID: %s", tvb_ip_to_str(tvb, offset+12));
         proto_item_append_text(ti, "Node ID: %s", tvb_ip_to_str(tvb, offset+12));
         proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 16,
-                            "Padding: %s", tvb_bytes_to_str_punct(tvb, offset+16, 8, ' '));
+                            "Padding: %s", tvb_bytes_to_ep_str_punct(tvb, offset+16, 8, ' '));
         break;
 
     default:
@@ -5563,7 +5563,7 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree,
             proto_tree_add_text(rsvp_lsp_tunnel_if_id_subtree, tvb, offset+tlv_off+8, 8,
                                 "Sub Interface/Connection ID: %" G_GINT64_MODIFIER "u (0x%s)",
                                 tvb_get_ntoh64(tvb, offset+tlv_off+8),
-                                tvb_bytes_to_str(tvb, offset+tlv_off+8, 8));
+                                tvb_bytes_to_ep_str(tvb, offset+tlv_off+8, 8));
             proto_tree_add_text(rsvp_lsp_tunnel_if_id_subtree, tvb, offset+tlv_off+16, 4,
                                 "SC PC ID: %s",
                                 tvb_ip_to_str(tvb, offset+tlv_off+16));
@@ -6151,7 +6151,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
 
         case 0x7F:
             offset4 = offset3 + len;
-            str = tvb_bytes_to_str(tvb, offset3, len);
+            str = tvb_bytes_to_ep_str(tvb, offset3, len);
             proto_tree_add_text(rsvp_object_tree, tvb, offset3, len,
                                 "Source Transport Network addr: %s", str);
             break;
@@ -6166,8 +6166,8 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
 
         proto_item_append_text(ti, "Src: %s. ", str);
         proto_tree_add_text(rsvp_object_tree, tvb, offset4, 8, "Local Identifier: %s",
-                            tvb_bytes_to_str(tvb, offset4, 8));
-        proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_str(tvb, offset4, 8));
+                            tvb_bytes_to_ep_str(tvb, offset4, 8));
+        proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_ep_str(tvb, offset4, 8));
         break;
 
     default:

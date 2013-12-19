@@ -81,13 +81,13 @@ remove this one later when every call has been converted to ep_address_to_str()
 const gchar *
 ether_to_str(const guint8 *ad)
 {
-    return bytestring_to_str(ad, 6, ':');
+    return bytestring_to_ep_str(ad, 6, ':');
 }
 
 const gchar *
 tvb_ether_to_str(tvbuff_t *tvb, const gint offset)
 {
-    return bytestring_to_str(tvb_get_ptr(tvb, offset, 6), 6, ':');
+    return bytestring_to_ep_str(tvb_get_ptr(tvb, offset, 6), 6, ':');
 }
 
 /*
@@ -267,7 +267,7 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
     }
     else {
         buf = ep_strdup_printf("%s.%s", get_ipxnet_name(net),
-            bytestring_to_str(ad, 6, '\0'));
+            bytestring_to_ep_str(ad, 6, '\0'));
     }
     return buf;
 }
@@ -400,13 +400,13 @@ remove this one later when every call has been converted to ep_address_to_str()
 const gchar *
 fc_to_str(const guint8 *ad)
 {
-    return bytestring_to_str (ad, 3, '.');
+    return bytestring_to_ep_str (ad, 3, '.');
 }
 
 const gchar *
 tvb_fc_to_str(tvbuff_t *tvb, const gint offset)
 {
-    return bytestring_to_str (tvb_get_ptr(tvb, offset, 3), 3, '.');
+    return bytestring_to_ep_str (tvb_get_ptr(tvb, offset, 3), 3, '.');
 }
 
 /* FC Network Header Network Address Authority Identifiers */
@@ -475,7 +475,7 @@ remove this one later when every call has been converted to address_to_str()
 const gchar *
 ax25_to_str(const guint8 *ad)
 {
-    return bytestring_to_str(ad, 7, ':');
+    return bytestring_to_ep_str(ad, 7, ':');
 }
 
 /* XXX FIXME

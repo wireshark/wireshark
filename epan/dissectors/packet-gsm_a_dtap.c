@@ -2881,7 +2881,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 	{
 		diag_length = len - (curr_offset - offset);
 		proto_tree_add_text(subtree, tvb, curr_offset, diag_length,
-			"Data: %s", tvb_bytes_to_str(tvb, curr_offset, diag_length));
+			"Data: %s", tvb_bytes_to_ep_str(tvb, curr_offset, diag_length));
 		curr_offset += diag_length;
 	}
 
@@ -3367,7 +3367,7 @@ de_u2u(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 	item = proto_tree_add_text(tree, tvb, curr_offset, len - 1, "User-user information");
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_USER_USER]);
 	proto_tree_add_text(subtree, tvb, curr_offset, len - 1,
-			"Data: %s", tvb_bytes_to_str(tvb, curr_offset, len - 1));
+			"Data: %s", tvb_bytes_to_ep_str(tvb, curr_offset, len - 1));
 
 	return(len);
 }

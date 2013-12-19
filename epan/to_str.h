@@ -112,9 +112,9 @@ WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
  * @param bd_len The length of the byte array
  * @return A pointer to the formatted string
  *
- * @see bytes_to_str_punct()
+ * @see bytes_to_ep_str_punct()
  */
-WS_DLL_PUBLIC gchar *bytes_to_str(const guint8 *bd, int bd_len);
+WS_DLL_PUBLIC gchar *bytes_to_ep_str(const guint8 *bd, int bd_len);
 
 /** Turn an array of bytes into a string showing the bytes in hex,
  *  separated by a punctuation character.
@@ -124,11 +124,11 @@ WS_DLL_PUBLIC gchar *bytes_to_str(const guint8 *bd, int bd_len);
  * @param punct The punctuation character
  * @return A pointer to the formatted string
  *
- * @see bytes_to_str()
+ * @see bytes_to_ep_str()
  */
-WS_DLL_PUBLIC gchar *bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
+WS_DLL_PUBLIC gchar *bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct);
 
-WS_DLL_PUBLIC const gchar *bytestring_to_str(const guint8 *, const guint32, const char punct);
+WS_DLL_PUBLIC const gchar *bytestring_to_ep_str(const guint8 *, const guint32, const char punct);
 
 #ifdef __cplusplus
 }

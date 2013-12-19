@@ -4029,7 +4029,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                 case TUNNEL_SUBTLV_ENCAPSULATION:
                                     if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
                                         proto_tree_add_text(subtree6, tvb, q + 2, 4, "Session ID: %u", tvb_get_letohl(tvb, q + 2));
-                                        proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Cookie: %s", tvb_bytes_to_str(tvb, q + 6, encaps_tunnel_sublen - 4));
+                                        proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Cookie: %s", tvb_bytes_to_ep_str(tvb, q + 6, encaps_tunnel_sublen - 4));
                                     } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
                                         proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "GRE key: %x", tvb_get_letohl(tvb, q + 2));
                                     }

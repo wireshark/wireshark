@@ -217,13 +217,13 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 	    /* Challenge field is the results of MD5 calculation */
 	    proto_tree_add_text(tree, tvb, offset, msize,
 				"Result of MD5 calculation: 0x%s",
-				bytes_to_str(message, msize));
+				bytes_to_ep_str(message, msize));
 	    break;
 	case IGAP_SUBTYPE_CHALLENGE:
 	    /* Challenge field is the challenge value */
 	    proto_tree_add_text(tree, tvb, offset, msize,
 				"Challenge: 0x%s",
-				bytes_to_str(message, msize));
+				bytes_to_ep_str(message, msize));
 	    break;
 	case IGAP_SUBTYPE_AUTH_MESSAGE:
 	    /* Challenge field indicates the result of the authenticaion */

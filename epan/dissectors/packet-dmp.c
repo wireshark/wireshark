@@ -2664,7 +2664,7 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
     mts_id = dissect_thales_mts_id (tvb, offset, dmp.mts_id_length);
   } else {
-    mts_id = tvb_bytes_to_str (tvb, offset, dmp.mts_id_length);
+    mts_id = tvb_bytes_to_ep_str (tvb, offset, dmp.mts_id_length);
   }
   proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen (mts_id));
   mts_id = format_text (mts_id, strlen (mts_id));
@@ -2713,7 +2713,7 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
     ipm_id = dissect_thales_ipm_id (tvb, offset, ipm_id_length, modifier);
   } else {
-    ipm_id = tvb_bytes_to_str (tvb, offset, ipm_id_length);
+    ipm_id = tvb_bytes_to_ep_str (tvb, offset, ipm_id_length);
   }
   proto_item_append_text (tf, " (%zu bytes decompressed)", strlen (ipm_id));
   ipm_id = format_text (ipm_id, strlen (ipm_id));

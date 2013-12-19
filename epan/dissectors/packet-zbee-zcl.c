@@ -2487,7 +2487,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             *offset += 1;
 
-            attr_string = tvb_bytes_to_str_punct(tvb, *offset, attr_uint, ':');
+            attr_string = tvb_bytes_to_ep_str_punct(tvb, *offset, attr_uint, ':');
             proto_item_append_text(tree, ", Octets: %s", attr_string);
             proto_tree_add_string(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint,
                             attr_string);
@@ -2522,7 +2522,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             *offset += 2;
 
-            attr_string = tvb_bytes_to_str_punct(tvb, *offset, attr_uint, ':');
+            attr_string = tvb_bytes_to_ep_str_punct(tvb, *offset, attr_uint, ':');
             proto_item_append_text(tree, ", Octets: %s", attr_string);
             proto_tree_add_string(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, attr_string);
 

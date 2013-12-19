@@ -1072,7 +1072,7 @@ static int dissect_kademlia_tag_bsob(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint16 bsob_length;
 
     bsob_length = tvb_get_guint8(tvb, offset);
-    *string_value = tvb_bytes_to_str( tvb, offset + 1, bsob_length );
+    *string_value = tvb_bytes_to_ep_str( tvb, offset + 1, bsob_length );
 
     proto_tree_add_item(tree, hf_kademlia_tag_bsob, tvb, offset + 1, bsob_length, ENC_NA);
     return offset + 1 + bsob_length;
@@ -2372,7 +2372,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
     switch( type )
     {
         case KADEMLIA_TAGTYPE_HASH:
-            proto_item_append_text( tag_node, "%s", tvb_bytes_to_str( tvb, offset, 16 ));
+            proto_item_append_text( tag_node, "%s", tvb_bytes_to_ep_str( tvb, offset, 16 ));
             offset = dissect_kademlia_tag_hash( tvb, pinfo, offset, subtree );
             break;
         case KADEMLIA_TAGTYPE_STRING:

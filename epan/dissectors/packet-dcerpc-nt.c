@@ -302,7 +302,7 @@ static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if ((end_offset - start_offset) <= 12)
 		return;
 
-	s = tvb_bytes_to_str(
+	s = tvb_bytes_to_ep_str(
 		tvb, start_offset + 12, (end_offset - start_offset - 12) );
 
 	/* Append string to COL_INFO */

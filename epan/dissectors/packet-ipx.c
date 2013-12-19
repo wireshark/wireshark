@@ -930,10 +930,10 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Serial number %s",
-		    tvb_bytes_to_str(tvb, 0, 6));
+		    tvb_bytes_to_ep_str(tvb, 0, 6));
 
 	proto_tree_add_text(ser_tree, tvb, 0, 6,
-		      "Serial number: %s", tvb_bytes_to_str(tvb, 0, 6));
+		      "Serial number: %s", tvb_bytes_to_ep_str(tvb, 0, 6));
 }
 
 /*

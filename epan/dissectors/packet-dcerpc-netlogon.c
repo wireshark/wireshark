@@ -1172,7 +1172,7 @@ static void dissect_nt_chal_resp_cb(packet_info *pinfo _U_, proto_tree *tree,
     start_offset += 12;
     len = end_offset - start_offset;
 
-    s = tvb_bytes_to_str(tvb, start_offset, len);
+    s = tvb_bytes_to_ep_str(tvb, start_offset, len);
 
     /* Append string to upper-level proto_items */
 

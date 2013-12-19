@@ -892,7 +892,7 @@ execute_next_instruction:
 		if (print_level_2 ){
 			proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
 					"Calculated SHA-1: %s",
-					bytes_to_str(sha1_digest_buf, STATE_BUFFER_SIZE));
+					bytes_to_ep_str(sha1_digest_buf, STATE_BUFFER_SIZE));
 		}
 
 		current_address = next_operand_address;
@@ -2695,7 +2695,7 @@ execute_next_instruction:
 				sha1_update( &ctx, (guint8 *) sha1buff, state_length_buff[n] + 8);
 				sha1_finish( &ctx, sha1_digest_buf );
 				if (print_level_3 ){
-					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_str(sha1_digest_buf, STATE_BUFFER_SIZE));
+					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_ep_str(sha1_digest_buf, STATE_BUFFER_SIZE));
 
 				}
 /* begin partial state-id change cco@iptel.org */
@@ -2705,7 +2705,7 @@ execute_next_instruction:
 				udvm_state_create(sha1buff, sha1_digest_buf, STATE_MIN_ACCESS_LEN);
 /* end partial state-id change cco@iptel.org */
 				proto_tree_add_text(udvm_tree,bytecode_tvb, 0, -1,"### Creating state ###");
-				proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(sha1_digest_buf, state_minimum_access_length_buff[n]));
+				proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_ep_str(sha1_digest_buf, state_minimum_access_length_buff[n]));
 
 				n++;
 

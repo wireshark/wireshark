@@ -323,7 +323,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 	rip_authentication_tree = proto_item_add_subtree(ti, ett_auth_vec );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,
 			MD5_AUTH_DATA_LEN, "Authentication Data: %s",
-			tvb_bytes_to_str_punct(tvb, offset-4+digest_off+4,
+			tvb_bytes_to_ep_str_punct(tvb, offset-4+digest_off+4,
 					       MD5_AUTH_DATA_LEN, ' '));
 	break;
     }

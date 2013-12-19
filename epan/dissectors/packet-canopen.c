@@ -231,7 +231,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         col_add_fstr(pinfo->cinfo, COL_INFO, "p2p %s", function_code_str);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                    tvb_bytes_to_str_punct(tvb, offset, can_data_len, ' '));
+                    tvb_bytes_to_ep_str_punct(tvb, offset, can_data_len, ' '));
 
     if (tree) {
         proto_item *ti, *cob_ti, *type_ti;

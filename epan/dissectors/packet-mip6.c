@@ -1999,7 +1999,7 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
             len -= 1;
             proto_tree_add_text(field_tree, tvb,
                     p, len, "Link-layer address: %s",
-                    tvb_bytes_to_str_punct(tvb, p, len, ':'));
+                    tvb_bytes_to_ep_str_punct(tvb, p, len, ':'));
         }
     }
 }

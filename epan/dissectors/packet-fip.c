@@ -455,7 +455,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(subtree, hf_fip_desc_mac, desc_tvb,
                     2, 6, ENC_NA);
             proto_item_append_text(item, "%s",
-                    tvb_bytes_to_str_punct(desc_tvb, 2, 6, ':'));
+                    tvb_bytes_to_ep_str_punct(desc_tvb, 2, 6, ':'));
             break;
         case FIP_DT_MAP_OUI:
             subtree = proto_item_add_subtree(item, ett_fip_dt_map);
@@ -518,7 +518,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_string(subtree, hf_fip_desc_vn_wwpn,
                     desc_tvb, 12, 8, text);
             proto_item_append_text(item, "MAC %s  FC_ID %6.6x",
-                    tvb_bytes_to_str_punct(desc_tvb, 2, 6, ':'),
+                    tvb_bytes_to_ep_str_punct(desc_tvb, 2, 6, ':'),
                     tvb_get_ntoh24(desc_tvb, 9));
             break;
         case FIP_DT_FKA:

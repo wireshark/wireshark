@@ -1259,7 +1259,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       /* 12-byte AgentID w/ 8-byte trailer */
       if (len_remain==8) {
 	proto_tree_add_text(tree, tvb, offset, 8, "AgentID Trailer: 0x%s",
-			    tvb_bytes_to_str(tvb, offset, 8));
+			    tvb_bytes_to_ep_str(tvb, offset, 8));
 	offset+=8;
 	len_remain-=8;
       } else {
@@ -2695,7 +2695,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 			if (usm_p.authOK) {
 				expert = &ei_snmp_authentication_ok;
 			} else {
-				const gchar* calc_auth_str = bytestring_to_str(calc_auth,calc_auth_len,' ');
+				const gchar* calc_auth_str = bytestring_to_ep_str(calc_auth,calc_auth_len,' ');
 				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
 				expert = &ei_snmp_authentication_error;
 			}

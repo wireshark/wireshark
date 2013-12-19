@@ -625,7 +625,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                              1 + 2 + name_length + 2 + value_length,
                              "%s: %s",
                              tvb_format_text(tvb, offset + 1 + 2, name_length),
-                             tvb_bytes_to_str(tvb, offset + 1 + 2 + name_length + 2, value_length));
+                             tvb_bytes_to_ep_str(tvb, offset + 1 + 2 + name_length + 2, value_length));
     return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
@@ -636,7 +636,7 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
                             value_length, NULL);
     proto_tree_add_text(tree, tvb, offset, value_length,
-                        "Value: %s", tvb_bytes_to_str(tvb, offset, value_length));
+                        "Value: %s", tvb_bytes_to_ep_str(tvb, offset, value_length));
 }
 
 static proto_tree *

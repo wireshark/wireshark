@@ -498,7 +498,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     } else {
       proto_tree_add_text(eap_tree, tvb, offset, value_size,
               "EAP-MS-CHAP-v2 Response (Unknown Length): %s",
-              tvb_bytes_to_str(tvb, offset, value_size));
+              tvb_bytes_to_ep_str(tvb, offset, value_size));
       offset += value_size;
       left   -= value_size;
     }
@@ -522,7 +522,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     proto_tree_add_text(eap_tree, tvb, offset, left,
             "EAP-MS-CHAP-v2 Data (%d byte%s): \"%s\"",
             left, plurality(left, "", "s"),
-            tvb_bytes_to_str(tvb, offset, left));
+            tvb_bytes_to_ep_str(tvb, offset, left));
     break;
   }
 }
@@ -1132,7 +1132,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_tree_add_text(eap_tree, tvb, offset, count,
                                 "EAP-LEAP Data (%d byte%s): \"%s\"",
                                 count, plurality(count, "", "s"),
-                                tvb_bytes_to_str(tvb, offset, count));
+                                tvb_bytes_to_ep_str(tvb, offset, count));
             break;
           }
         }
@@ -1193,7 +1193,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           proto_tree_add_text(eap_tree, tvb, offset, size,
                               "EAP Data (%d byte%s): \"%s\"",
                               size, plurality(size, "", "s"),
-                              tvb_bytes_to_str(tvb, offset, size));
+                              tvb_bytes_to_ep_str(tvb, offset, size));
         }
         break;
         /*********************************************************************

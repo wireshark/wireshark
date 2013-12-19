@@ -3209,7 +3209,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     if (ret != 0) {
         ssl_debug_printf( "gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len) - %s\n", gnutls_strerror(ret));
     } else {
-        ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_str_punct(buf_keyid, (int) buf_len, ':'));
+        ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_ep_str_punct(buf_keyid, (int) buf_len, ':'));
     }
 
     /* RSA get parameter */
@@ -3494,7 +3494,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
                     if (ret < 0) { g_strlcpy(buf_keyid, "<ERROR>", 32); }
 
                     private_key->x509_cert = ssl_cert;
-                    ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, bytes_to_str(buf_keyid, (int) buf_len));
+                    ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, bytes_to_ep_str(buf_keyid, (int) buf_len));
                     break;
 
                 case GNUTLS_BAG_PKCS8_KEY:

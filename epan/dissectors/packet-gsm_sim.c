@@ -1179,7 +1179,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 			break;
 		case 0x04:	/* select by AID */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Application %s ",
-					tvb_bytes_to_str(tvb, offset+DATA_OFFS, p3));
+					tvb_bytes_to_ep_str(tvb, offset+DATA_OFFS, p3));
 			proto_tree_add_item(tree, hf_aid, tvb, offset+DATA_OFFS, p3, ENC_NA);
 			break;
 

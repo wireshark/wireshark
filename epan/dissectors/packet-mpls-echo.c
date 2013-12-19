@@ -803,7 +803,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
                                     tvb, offset + 22, 2, FALSE);
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16, "Extended Tunnel ID: 0x%s (%s)",
-                                    tvb_bytes_to_str(tvb, offset + 24, 16),
+                                    tvb_bytes_to_ep_str(tvb, offset + 24, 16),
                                     tvb_ip6_to_str(tvb, offset + 24));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
                                                   tvb, offset + 24, 16, FALSE);

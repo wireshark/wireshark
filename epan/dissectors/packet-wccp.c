@@ -2370,7 +2370,7 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, gint length,
     proto_tree_add_text(element_tree, tvb,
                         offset, capability_val_len,
                         "Value: %s",
-                        tvb_bytes_to_str(tvb, offset,
+                        tvb_bytes_to_ep_str(tvb, offset,
                                          capability_val_len));
     break;
   }
