@@ -215,7 +215,6 @@ static int ett_nas_eps_gen_msg_cont = -1;
 static int ett_nas_eps_cmn_add_info = -1;
 
 /* Global variables */
-static packet_info *gpinfo;
 static gboolean g_nas_eps_dissect_plain = FALSE;
 
 guint8 eps_nas_gen_msg_cont_type = 0;
@@ -1055,7 +1054,7 @@ static const value_string nas_eps_emm_type_of_id_vals[] = {
     { 0, NULL }
 };
 static guint16
-de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                guint32 offset, guint len _U_,
                gchar *add_string _U_, int string_len _U_)
 {
@@ -1086,7 +1085,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         case 6:
             /* GUTI */
             curr_offset++;
-            curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
             /* MME Group ID octet 7 - 8 */
             proto_tree_add_item(tree, hf_nas_eps_emm_mme_grp_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
             curr_offset+=2;
@@ -1195,7 +1194,7 @@ static const value_string nas_eps_emm_eps_update_type_vals[] = {
  * 9.9.3.15 ESM message container
  */
 static guint16
-de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     guint32 offset, guint len,
                     gchar *add_string _U_, int string_len _U_)
 {
@@ -1213,7 +1212,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* This IE can contain any ESM PDU as defined in subclause 8.3. */
     new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
     /* Plain NAS message */
-    disect_nas_eps_esm_msg(new_tvb, gpinfo, sub_tree, 0/* offset */);
+    disect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
 
     return(len);
 }
@@ -1382,7 +1381,7 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 9.9.3.22 NAS message container
  */
 static guint16
-de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     guint32 offset, guint len _U_,
                     gchar *add_string _U_, int string_len _U_)
 {
@@ -1403,7 +1402,7 @@ de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
     if (gsm_a_dtap_handle)
-        call_dissector(gsm_a_dtap_handle, new_tvb, gpinfo, sub_tree);
+        call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
 
     return(len);
 }
@@ -1556,7 +1555,7 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
 guint16
-de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     guint32 offset, guint len _U_,
                     gchar *add_string _U_, int string_len _U_)
 {
@@ -1564,7 +1563,7 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset = offset;
 
-    curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
+    curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
     proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
 
@@ -1584,7 +1583,7 @@ static const value_string nas_eps_emm_tai_tol_vals[] = {
 };
 
 static guint16
-de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                         guint32 offset, guint len _U_,
                         gchar *add_string _U_, int string_len _U_)
 {
@@ -1618,7 +1617,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              * MNC digit 3 MCC digit 3 octet 3
              * MNC digit 2 MNC digit 1 octet 4
              */
-            curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
             /* type of list = "000" */
             /* TAC 1             octet 5
              * TAC 1 (continued) octet 6
@@ -1641,7 +1640,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              * MNC digit 3 MCC digit 3 octet 3
              * MNC digit 2 MNC digit 1 octet 4
              */
-            curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
             proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
             curr_offset+=2;
             break;
@@ -1657,7 +1656,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                  * MNC digit 3 MCC digit 3 octet 3
                  * MNC digit 2 MNC digit 1 octet 4
                  */
-                curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
+                curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
                 proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                 curr_offset+=2;
             }
@@ -2050,7 +2049,7 @@ de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 9.9.3.41 LCS client identity
  */
 static guint16
-de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                      guint32 offset, guint len _U_,
                      gchar *add_string _U_, int string_len _U_)
 {
@@ -2064,7 +2063,7 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
      * in subclause 17.7.13 of 3GPP TS 29.002 [15B](GSM MAP).
      */
     new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
-    dissect_gsm_map_lcs_LCS_ClientID_PDU( new_tvb, gpinfo, tree, NULL );
+    dissect_gsm_map_lcs_LCS_ClientID_PDU( new_tvb, pinfo, tree, NULL );
 
     return(len);
 }
@@ -4813,9 +4812,6 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8      pd;
     int         offset = 0;
 
-    /* Save pinfo */
-    gpinfo = pinfo;
-
     /* make entry in the Protocol column on summary display */
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NAS-EPS");
 
@@ -4920,9 +4916,6 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_nas_eps_plain(tvb, pinfo, tree);
         return;
     }
-
-    /* Save pinfo */
-    gpinfo = pinfo;
 
     /* make entry in the Protocol column on summary display */
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NAS-EPS");
