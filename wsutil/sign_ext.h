@@ -36,7 +36,7 @@ ws_sign_ext32(guint32 val, int no_of_bits)
 		val |= (-1 << no_of_bits);
 
 	return val;
-} _U_
+} _U_;
 
 static inline guint64
 ws_sign_ext64(guint64 val, int no_of_bits)
@@ -45,7 +45,7 @@ ws_sign_ext64(guint64 val, int no_of_bits)
 		val |= (G_GINT64_CONSTANT(-1) << no_of_bits);
 
 	return val;
-} _U_
+} _U_;
 
 /*
 static inline guint64
