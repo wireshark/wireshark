@@ -140,17 +140,17 @@ addr_uat_update_cb(void *r, const char **err)
     /* Ensure a valid short address */
     if (map->addr16 >= IEEE802154_NO_ADDR16) {
         *err = g_strdup("Invalid short address");
-	return;
+        return;
     }
     /* Ensure a valid PAN identifier. */
     if (map->pan >= IEEE802154_BCAST_PAN) {
         *err = g_strdup("Invalid PAN identifier");
-	return;
+        return;
     }
     /* Ensure a valid EUI-64 length */
     if (map->eui64_len != sizeof(guint64)) {
         *err = g_strdup("Invalid EUI-64 length");
-	return;
+        return;
     }
 } /* ieee802154_addr_uat_update_cb */
 
@@ -195,7 +195,7 @@ typedef enum {
     DECRYPT_PACKET_MIC_CHECK_FAILED
 } ws_decrypt_status;
 
-static tvbuff_t * dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *,
+static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *,
         ws_decrypt_status *);
 static void ccm_init_block          (gchar *, gboolean, gint, guint64, ieee802154_packet *, gint);
 static gboolean ccm_ctr_encrypt     (const gchar *, const gchar *, gchar *, gchar *, gint);
@@ -1441,9 +1441,9 @@ dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static void
 dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree   *subtree = NULL;
-    proto_item *  ti;
-    guint8        capability;
+    proto_tree *subtree = NULL;
+    proto_item *ti;
+    guint8      capability;
 
     /* Create a subtree for this command frame. */
     if (tree) {
@@ -1764,7 +1764,7 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
  *      unsupported.
  *  PARAMETERS
  *      tvbuff_t *tvb               - IEEE 802.15.4 packet.
- *      packet_info * pinfo         - Packet info structure.
+ *      packet_info *pinfo          - Packet info structure.
  *      guint offset                - Offset where the ciphertext 'c' starts.
  *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
  *      ws_decrypt_status *status   - status of decryption returned through here on failure.
@@ -1773,9 +1773,9 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ieee802154_packet * packet, ws_decrypt_status * status)
+dissect_ieee802154_decrypt(tvbuff_t *tvb, guint offset, packet_info *pinfo, ieee802154_packet *packet, ws_decrypt_status *status)
 {
-    tvbuff_t *          ptext_tvb;
+    tvbuff_t           *ptext_tvb;
     gboolean            have_mic = FALSE;
     guint64             srcAddr;
     unsigned char       key[16];
@@ -1870,7 +1870,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
 
     /* Decrypt the ciphertext, and place the plaintext in a new tvb. */
     if (IEEE802154_IS_ENCRYPTED(packet->security_level) && captured_len) {
-        guint8 *          text;
+        guint8 *text;
         /*
          * Make a copy of the ciphertext in heap memory.
          *
@@ -1965,7 +1965,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
  *---------------------------------------------------------------
  */
 static void
-ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_packet * packet, gint ctr_val)
+ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_packet *packet, gint ctr_val)
 {
     gint                i = 0;
 
@@ -2013,7 +2013,7 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_pa
  *---------------------------------------------------------------
  */
 static gboolean
-ccm_ctr_encrypt(const gchar *key _U_, const gchar *iv _U_, gchar *mic _U_, gchar *data _U_, gint length _U_)
+ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length)
 {
 #ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t    cipher_hd;
@@ -2071,7 +2071,7 @@ ccm_ctr_encrypt(const gchar *key _U_, const gchar *iv _U_, gchar *mic _U_, gchar
  *---------------------------------------------------------------
  */
 static gboolean
-ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint a_len _U_, const gchar *m _U_, gint m_len _U_, gchar *mic _U_)
+ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic)
 {
 #ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t cipher_hd;
@@ -2095,6 +2095,8 @@ ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint 
 
     /* Encode L(a) */
     i = 0;
+
+/* XXX: GINT_MAX is not defined so #if ... will always be false */
 #if (GINT_MAX >= (1LL << 32))
     if (a_len >= (1LL << 32)) {
         block[i++] = 0xff;
@@ -2818,3 +2820,16 @@ void proto_reg_handoff_ieee802154(void)
     /* Register dissector handles. */
     dissector_add_uint("ethertype", ieee802154_ethertype, ieee802154_handle);
 } /* proto_reg_handoff_ieee802154 */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
