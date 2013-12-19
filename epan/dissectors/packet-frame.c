@@ -397,7 +397,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			md5_append(&md_ctx, cp, cap_len);
 			md5_finish(&md_ctx, digest);
 
-			digest_string = bytestring_to_ep_str(digest, 16, '\0');
+			digest_string = bytestring_to_str(wmem_packet_scope(), digest, 16, '\0');
 			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
 			PROTO_ITEM_SET_GENERATED(ti);
 		}

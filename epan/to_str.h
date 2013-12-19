@@ -125,7 +125,10 @@ WS_DLL_PUBLIC gchar *bytes_to_ep_str(const guint8 *bd, int bd_len);
  */
 WS_DLL_PUBLIC gchar *bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct);
 
+/* Deprecated, use bytestring_to_str instead */
 WS_DLL_PUBLIC const gchar *bytestring_to_ep_str(const guint8 *, const guint32, const char punct);
+
+WS_DLL_PUBLIC const gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
 
 #ifdef __cplusplus
 }

@@ -129,6 +129,7 @@
 #include <wsutil/pint.h>
 
 #include <epan/strutil.h>
+#include <epan/to_str-int.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
@@ -1700,7 +1701,7 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
     tp = g_new(hashether_t, 1);
     memcpy(tp->addr, addr, sizeof(tp->addr));
     tp->status = HASHETHER_STATUS_UNRESOLVED;
-    g_strlcpy(tp->hexaddr, bytestring_to_ep_str(addr, sizeof(tp->addr), ':'), sizeof(tp->hexaddr));
+    bytes_to_hexstr_punct(tp->hexaddr, addr, sizeof(tp->addr), ':');
     tp->resolved_name[0] = '\0';
 
     if (resolve)

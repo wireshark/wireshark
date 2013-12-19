@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include "emem.h"
+#include "wmem/wmem.h"
 #include "proto.h"
 #include "to_str.h"
 #include "to_str-int.h"
@@ -177,6 +178,33 @@ bytestring_to_ep_str(const guint8 *ad, const guint32 len, const char punct) {
 		buflen=len*2 + 1;
 
 	buf=(gchar *)ep_alloc(buflen);
+
+	if (punct)
+		bytes_to_hexstr_punct(buf, ad, len, punct);
+	else
+		bytes_to_hexstr(buf, ad, len);
+
+	buf[buflen-1] = '\0';
+	return buf;
+}
+
+const gchar *
+bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct) {
+	gchar *buf;
+	size_t buflen;
+
+	if (!ad)
+		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
+
+	if (len == 0)
+		return wmem_strdup(scope, "");
+
+	if (punct)
+		buflen=len*3;
+	else
+		buflen=len*2 + 1;
+
+	buf=(gchar *)wmem_alloc(scope, buflen);
 
 	if (punct)
 		bytes_to_hexstr_punct(buf, ad, len, punct);
