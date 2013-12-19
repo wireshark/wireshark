@@ -2793,13 +2793,13 @@ dissect_krb5_PAC_PRIVSVR_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int of
     return offset;
 }
 
+/* See [MS-PAC] */
 static int
 dissect_krb5_PAC_CLIENT_INFO_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     guint16 namelen;
-    char *name;
 
     item=proto_tree_add_item(parent_tree, hf_krb_PAC_CLIENT_INFO_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
@@ -2816,8 +2816,7 @@ dissect_krb5_PAC_CLIENT_INFO_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int of
     offset+=2;
 
     /* client name */
-    name=tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, namelen, ENC_LITTLE_ENDIAN);
-    proto_tree_add_string(tree, hf_krb_pac_clientname, tvb, offset, namelen, name);
+    proto_tree_add_item(tree, hf_krb_pac_clientname, tvb, offset, namelen, ENC_UTF_16|ENC_LITTLE_ENDIAN);
     offset+=namelen;
 
     return offset;

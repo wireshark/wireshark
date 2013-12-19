@@ -2068,12 +2068,12 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset, char *
         /*
          * ASCII.
          */
-        string = tvb_get_string(wmem_packet_scope(), tvb, foffset, str_length);
+        string = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset, str_length, ENC_ASCII|ENC_NA); /* XXX - extended ASCII? */;
     } else {
         /*
          * Unicode.
          */
-        string = tvb_get_unicode_string(wmem_packet_scope(), tvb, foffset, str_length, ENC_LITTLE_ENDIAN);
+        string = tvb_get_string_enc(wmem_packet_scope(), tvb, foffset, str_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
     }
     foffset += str_length;
     proto_tree_add_string(ndps_tree, hfinfo, tvb, offset, str_length + 4, string);

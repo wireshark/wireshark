@@ -785,7 +785,6 @@ guint32
 dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_)
 {
 	guint32 length;
-	static char *str;
 
 	/* xx.x if the length is 0 bytes there will be no encoding */
 	if(max_len==0){
@@ -816,9 +815,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 		length=1024;
 	}
 
-	str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset>>3, length*2, ENC_BIG_ENDIAN);
-
-	proto_tree_add_string(tree, hf_index, tvb, offset>>3, length*2, str);
+	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length*2, ENC_UCS_2|ENC_BIG_ENDIAN);
 
 	offset+=(length<<3)*2;
 
