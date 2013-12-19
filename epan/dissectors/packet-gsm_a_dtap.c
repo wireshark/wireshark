@@ -5914,7 +5914,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8	      pd;
 	guint32	      offset;
 	guint32	      len;
-	guint32	      oct_1, oct_2;
+	guint32	      oct_1;
 	gint	      idx;
 	proto_item   *dtap_item   = NULL;
 	proto_tree   *dtap_tree   = NULL;
@@ -5952,7 +5952,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	offset = 0;
-	oct_2 = 0;
 
 	g_tree = tree;
 
@@ -5968,7 +5967,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * we rely on the TI/SKIP indicator to be 0 to avoid taking this
 		 * octet
 		 */
-		oct_2 = tvb_get_guint8(tvb, offset++);
+		offset++;
 	}
 
 	oct = tvb_get_guint8(tvb, offset);
