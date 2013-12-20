@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -936,6 +936,7 @@ typedef enum nAdsTransMode
 #define FACILITY_TC_IO  0x1831
 
 
+#if 0 /* Unused ?? */
 #define ADS_E_ERROR                (0x98110000L + ADSERR_DEVICE_ERROR)
 #define ADS_E_SRVNOTSUPP           (0x98110000L + ADSERR_DEVICE_SRVNOTSUPP)
 #define ADS_E_INVALIDGRP           (0x98110000L + ADSERR_DEVICE_INVALIDGRP)
@@ -972,7 +973,7 @@ typedef enum nAdsTransMode
 #define ADS_E_INVALIDARRAYIDX      (0x98110000L + ADSERR_DEVICE_INVALIDARRAYIDX)
 #define ADS_E_SYMBOLNOTACTIVE      (0x98110000L + ADSERR_DEVICE_SYMBOLNOTACTIVE)
 #define ADS_E_ACCESSDENIED         (0x98110000L + ADSERR_DEVICE_ACCESSDENIED)
-
+#endif
 
 #ifndef ANYSIZE_ARRAY
    #define ANYSIZE_ARRAY 1
@@ -1052,8 +1053,8 @@ typedef struct
    guint32               indexGroup;
    guint32               indexOffset;
    AdsNotificationAttrib noteAttrib;
-} TAdsAddDeviceNotificationReq; 
-#define TAdsAddDeviceNotificationReq_Len (int)sizeof(TAdsAddDeviceNotificationReq)  
+} TAdsAddDeviceNotificationReq;
+#define TAdsAddDeviceNotificationReq_Len (int)sizeof(TAdsAddDeviceNotificationReq)
 
 typedef struct
 {
@@ -1129,13 +1130,13 @@ typedef struct
 {
    guint32 result;
    guint32 handle;
-}  TAdsAddDeviceNotificationRes;   
+}  TAdsAddDeviceNotificationRes;
 #define TAdsAddDeviceNotificationRes_Len (int)sizeof(TAdsAddDeviceNotificationRes)
 
 typedef struct
 {
    guint32 result;
-}  TAdsDelDeviceNotificationRes;   
+}  TAdsDelDeviceNotificationRes;
 #define TAdsDelDeviceNotificationRes_Len (int)sizeof(TAdsDelDeviceNotificationRes)
 
 
@@ -1150,3 +1151,17 @@ typedef TcpAdsParserHDR;*/
 
 
 #endif
+
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */
