@@ -973,7 +973,20 @@ static int hf_si6_restoctet_vbs_vgcs_options = -1;
 static int hf_si6_restoctet_max_lapdm = -1;
 static int hf_si6_restoctet_bandindicator = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_gsm_rlcmac_sync_case_tstd = -1;
+static int hf_gsm_rlcmac_diversity = -1;
+static int hf_gsm_rlcmac_scrambling_code = -1;
+static int hf_gsm_rlcmac_cell_parameter = -1;
+static int hf_gsm_rlcmac_diversity_tdd = -1;
+
 static expert_field ei_li = EI_INIT;
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_gsm_rlcmac_coding_scheme_invalid = EI_INIT;
+static expert_field ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported = EI_INIT;
+static expert_field ei_gsm_rlcmac_coding_scheme_unknown = EI_INIT;
+static expert_field ei_gsm_rlcmac_egprs_header_type_not_handled = EI_INIT;
+static expert_field ei_gsm_rlcmac_unexpected_header_extension = EI_INIT;
 
 static dissector_handle_t data_handle;
 
@@ -3850,8 +3863,8 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(prot
 
     if (pUtranFddNcell->Indic0)
     {
-      proto_tree_add_text(tree,tvb, curr_bit_offset>>3, 0, "Scrambling Code: %d", 0);
-      proto_tree_add_text(tree,tvb, curr_bit_offset>>3, 0, "Diversity: %d", 0);
+      proto_tree_add_uint(tree, hf_gsm_rlcmac_scrambling_code, tvb, curr_bit_offset>>3, 0, 0);
+      proto_tree_add_uint(tree, hf_gsm_rlcmac_diversity, tvb, curr_bit_offset>>3, 0, 0);
     }
 
     if (idx)
@@ -3888,8 +3901,8 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(prot
       for (i=1; i <= iused; i++)
       {
         xdd_cell_info = f_k(i, w, 1024);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 0, "Scrambling Code: %d", xdd_cell_info & 0x01FF);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 0, "Diversity: %d", (xdd_cell_info >> 9) & 0x01);
+        proto_tree_add_uint(subtree, hf_gsm_rlcmac_scrambling_code, tvb, curr_bit_offset>>3, 0, xdd_cell_info & 0x01FF);
+        proto_tree_add_uint(subtree, hf_gsm_rlcmac_diversity, tvb, curr_bit_offset>>3, 0, (xdd_cell_info >> 9) & 0x01);
       }
     }
   }
@@ -3952,9 +3965,9 @@ static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(prot
 
     if (pUtranTddNcell->Indic0)
     {
-      proto_tree_add_text(tree,tvb, curr_bit_offset>>3, 0, "Cell Parameter: %d", 0);
-      proto_tree_add_text(tree,tvb, curr_bit_offset>>3, 0, "Sync Case TSTD: %d", 0);
-      proto_tree_add_text(tree,tvb, curr_bit_offset>>3, 0, "Diversity TDD: %d", 0);
+      proto_tree_add_uint(tree, hf_gsm_rlcmac_cell_parameter, tvb, curr_bit_offset>>3, 0, 0);
+      proto_tree_add_uint(tree, hf_gsm_rlcmac_sync_case_tstd, tvb, curr_bit_offset>>3, 0, 0);
+      proto_tree_add_uint(tree, hf_gsm_rlcmac_diversity_tdd, tvb, curr_bit_offset>>3, 0, 0);
     }
 
     if (idx)
@@ -3991,9 +4004,9 @@ static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(prot
       for (i=1; i <= iused; i++)
       {
         xdd_cell_info = f_k(i, w, 1024);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 0, "Cell Parameter: %d", xdd_cell_info & 0x007F);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 0, "Sync Case TSTD: %d", (xdd_cell_info >> 7) & 0x01);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 0, "Diversity TDD: %d", (xdd_cell_info >> 8) & 0x01);
+        proto_tree_add_uint(subtree, hf_gsm_rlcmac_cell_parameter, tvb, curr_bit_offset>>3, 0, xdd_cell_info & 0x007F);
+        proto_tree_add_uint(subtree, hf_gsm_rlcmac_sync_case_tstd, tvb, curr_bit_offset>>3, 0, (xdd_cell_info >> 7) & 0x01);
+        proto_tree_add_uint(subtree, hf_gsm_rlcmac_diversity_tdd, tvb, curr_bit_offset>>3, 0, (xdd_cell_info >> 8) & 0x01);
       }
     }
   }
@@ -7430,7 +7443,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     }
     else
     {
-      proto_tree_add_text(tree, tvb, bit_offset >> 3, 1,  "Unexpected header extension, dissection abandoned");
+      proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unexpected_header_extension, tvb, bit_offset >> 3, 1);
     }
 
     return;
@@ -7511,7 +7524,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   }
   else
   {
-    proto_tree_add_text(tree, tvb, bit_offset >> 3, -1, "GPRS block with invalid coding scheme (%d) for RLC Control",
+    proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_invalid, tvb, bit_offset >> 3, -1, "GPRS block with invalid coding scheme (%d) for RLC Control",
                         data->block_format);
   }
 }
@@ -7521,7 +7534,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
   if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
   {
-    proto_tree_add_text(tree, tvb, 0, -1, "GPRS FANR Header dissection not supported (yet)");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0, -1);
   }
   else
   {
@@ -7559,7 +7572,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         break;
 
       default:
-        proto_tree_add_text(tree, tvb, 0, -1, "EGPRS Header Type not handled (yet)");
+        proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0, -1);
         break;
     }
     rlc_mac->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
@@ -7672,7 +7685,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     }
     else
     {
-      proto_tree_add_text(tree, tvb, bit_offset >> 3, 1,  "Unexpected header extension, dissection abandoned");
+      proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unexpected_header_extension, tvb, bit_offset >> 3, 1);
     }
   }
   else if (payload_type == PAYLOAD_TYPE_RESERVED)
@@ -7686,7 +7699,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   }
   else
   {
-    proto_tree_add_text(tree, tvb, bit_offset >> 3, -1, "GPRS UL block with Coding Scheme CS%d and incompatible payload type",
+    proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_invalid, tvb, bit_offset >> 3, -1, "GPRS UL block with Coding Scheme CS%d and incompatible payload type",
                         data->block_format &0x0F);
   }
 }
@@ -7695,7 +7708,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
   if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
   {
-    proto_tree_add_text(tree, tvb, 0, -1, "GPRS FANR Header dissection not supported (yet)");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, tvb, 0, -1);
   }
   else
   {
@@ -7731,7 +7744,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         break;
 
       default:
-        proto_tree_add_text(tree, tvb, 0, -1, "EGPRS Header Type not handled (yet)");
+        proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_egprs_header_type_not_handled, tvb, 0, -1);
         break;
     }
 
@@ -7796,7 +7809,7 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   else
   {
-    proto_tree_add_text(tree, tvb, offset, 1,  "Unexpected header extension, dissection abandoned");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unexpected_header_extension, tvb, offset, 1);
   }
 }
 
@@ -7843,7 +7856,7 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   else
   {
-    proto_tree_add_text(tree, tvb, offset, 1,  "Unexpected header extension, dissection abandoned");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unexpected_header_extension, tvb, offset, 1);
   }
 }
 
@@ -7891,7 +7904,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
     default:
-      proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_dl->block_format);
+      proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_unknown, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_dl->block_format);
       break;
   }
 
@@ -7954,7 +7967,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       break;
 
     default:
-      proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_ul->block_format);
+      proto_tree_add_expert_format(tree, pinfo, &ei_gsm_rlcmac_coding_scheme_unknown, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", rlc_ul->block_format);
       break;
   }
 
@@ -12386,10 +12399,22 @@ proto_register_gsm_rlcmac(void)
     },
 /* < End Packet System Information Type 13 message content > */
 
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_gsm_rlcmac_scrambling_code, { "Scrambling Code", "gsm_rlcmac.scrambling_code", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_rlcmac_diversity, { "Diversity", "gsm_rlcmac.diversity", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_rlcmac_cell_parameter, { "Cell Parameter", "gsm_rlcmac.cell_parameter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_rlcmac_sync_case_tstd, { "Sync Case TSTD", "gsm_rlcmac.sync_case_tstd", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_rlcmac_diversity_tdd, { "Diversity TDD", "gsm_rlcmac.diversity_tdd", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
 
   static ei_register_info ei[] = {
      { &ei_li, { "gsm_rlcmac.li.too_many", PI_UNDECODED, PI_ERROR, "Too many LIs, corresponding blocks will not be decoded", EXPFILL }},
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &ei_gsm_rlcmac_unexpected_header_extension, { "gsm_rlcmac.unexpected_header_extension", PI_MALFORMED, PI_ERROR, "Unexpected header extension, dissection abandoned", EXPFILL }},
+      { &ei_gsm_rlcmac_coding_scheme_invalid, { "gsm_rlcmac.coding_scheme.invalid", PI_PROTOCOL, PI_WARN, "Invalid coding scheme", EXPFILL }},
+      { &ei_gsm_rlcmac_gprs_fanr_header_dissection_not_supported, { "gsm_rlcmac.gprs_fanr_header_dissection_not_supported", PI_UNDECODED, PI_WARN, "GPRS FANR Header dissection not supported (yet)", EXPFILL }},
+      { &ei_gsm_rlcmac_egprs_header_type_not_handled, { "gsm_rlcmac.egprs_header_type_not_handled", PI_UNDECODED, PI_WARN, "EGPRS Header Type not handled (yet)", EXPFILL }},
+      { &ei_gsm_rlcmac_coding_scheme_unknown, { "gsm_rlcmac.coding_scheme.unknown", PI_PROTOCOL, PI_WARN, "GSM RLCMAC unknown coding scheme", EXPFILL }},
   };
 
   expert_module_t* expert_gsm_rlcmac;
