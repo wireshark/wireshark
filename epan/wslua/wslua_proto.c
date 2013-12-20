@@ -671,7 +671,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 	ftypes.RELATIVE_TIME, ftypes.STRING, ftypes.STRINGZ, ftypes.UINT_STRING, ftypes.ETHER, ftypes.BYTES
 	ftypes.UINT_BYTES, ftypes.IPv4, ftypes.IPv6, ftypes.IPXNET, ftypes.FRAMENUM, ftypes.PCRE, ftypes.GUID
 	ftypes.OID, ftypes.EUI64 */
-#define WSLUA_OPTARG_ProtoField_new_VOIDSTRING 4 /* A VoidString object. */
+#define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* A table containing the text that corresponds to the values */
 #define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation: one of base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX, base.HEX_DEC */
 #define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used.  */
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
@@ -737,11 +737,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"This type does not display as hexadecimal");
         }
-        if (!lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING)) {
+        if (!lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING)) {
             if (type == FT_UINT64 || type == FT_INT64) {
-                vs64 = val64_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
+                vs64 = val64_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
             } else {
-                vs32 = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
+                vs32 = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
             }
         }
         break;
@@ -752,8 +752,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         if (mask != 0x0 && (base < 1 || base > 64)) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be between 1 and 64 if bitmask is non-zero.");
         }
-        if (!lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING)) {
-            tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
+        if (!lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING)) {
+            tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
         }
         break;
     case FT_ABSOLUTE_TIME:
@@ -1062,7 +1062,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* WSLUA_ARG_Protofield_bool_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_bool_NAME Actual name of the field (the string that appears in the tree)  */
 /* WSLUA_OPTARG_Protofield_bool_DISPLAY how wide the parent bitfield is (base.NONE is used for NULL-value) */
-/* WSLUA_OPTARG_Protofield_bool_TRUE_FALSE_STRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_bool_VALUESTRING A table containing the text that corresponds to the values  */
 /* WSLUA_OPTARG_Protofield_bool_MASK Integer mask of this field  */
 /* WSLUA_OPTARG_Protofield_bool_DESC Description of the field  */
 /* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
