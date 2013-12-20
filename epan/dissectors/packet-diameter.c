@@ -81,12 +81,14 @@ void proto_reg_handoff_diameter(void);
 #define DIAM_FLAGS_RESERVED7 0x01
 #define DIAM_FLAGS_RESERVED  0x0f
 
+#if 0
 #define DIAM_LENGTH_MASK  0x00ffffffl
 #define DIAM_COMMAND_MASK DIAM_LENGTH_MASK
 #define DIAM_GET_FLAGS(dh)                ((dh.flagsCmdCode & ~DIAM_COMMAND_MASK) >> 24)
 #define DIAM_GET_VERSION(dh)              ((dh.versionLength & (~DIAM_LENGTH_MASK)) >> 24)
 #define DIAM_GET_COMMAND(dh)              (dh.flagsCmdCode & DIAM_COMMAND_MASK)
 #define DIAM_GET_LENGTH(dh)               (dh.versionLength & DIAM_LENGTH_MASK)
+#endif
 
 /* Diameter AVP Flags */
 #define AVP_FLAGS_P 0x20
