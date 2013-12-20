@@ -3877,9 +3877,8 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_BYTES:
 				bytes = (guint8 *)fvalue_get(&finfo->value);
 				offset_r += protoo_strlcpy(result+offset_r,
-							   bytes_to_ep_str(bytes,
-									fvalue_length(&finfo->value)),
-							   size-offset_r);
+						bytes ?  bytes_to_ep_str(bytes, fvalue_length(&finfo->value)) : "<MISSING>",
+						size-offset_r);
 				break;
 
 			case FT_ABSOLUTE_TIME:
