@@ -34,11 +34,12 @@
 #include "column-utils.h"
 #include "tfs.h"
 #include "ws_symbol_export.h"
-#include "range.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+struct epan_range;
 
 /** @defgroup packet General Packet Dissection
  *
@@ -221,7 +222,7 @@ WS_DLL_PUBLIC void dissector_add_uint(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);
 
 /* Add an range of entries to a uint dissector table. */
-WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, range_t *range,
+WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, struct epan_range *range,
     dissector_handle_t handle);
 
 /* Delete the entry for a dissector in a uint dissector table
@@ -230,7 +231,7 @@ WS_DLL_PUBLIC void dissector_delete_uint(const char *name, const guint32 pattern
     dissector_handle_t handle);
 
 /* Delete an range of entries from a uint dissector table. */
-WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, range_t *range,
+WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, struct epan_range *range,
     dissector_handle_t handle);
 
 /* Delete all entries from a dissector table. */

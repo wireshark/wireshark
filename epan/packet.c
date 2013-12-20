@@ -56,6 +56,7 @@
 #include <epan/reassemble.h>
 #include <epan/stream.h>
 #include <epan/expert.h>
+#include <epan/range.h>
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
