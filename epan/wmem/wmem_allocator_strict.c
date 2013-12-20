@@ -190,7 +190,7 @@ wmem_strict_realloc(void *private_data, void *ptr, const size_t size)
     return newblock->real_data;
 }
 
-static void
+void
 wmem_strict_check_canaries(wmem_allocator_t *allocator)
 {
     wmem_strict_allocator_t *private_allocator;
