@@ -647,7 +647,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
             memcpy(buf, temp, temp_len);
             buf[temp_len] = '\0';
         } else
-         g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
+            g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
     }
 }
 
