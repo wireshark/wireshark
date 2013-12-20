@@ -2012,10 +2012,10 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_pa
  *      gboolean            - TRUE on SUCCESS, FALSE on error.
  *---------------------------------------------------------------
  */
+#ifdef HAVE_LIBGCRYPT
 static gboolean
 ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length)
 {
-#ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t    cipher_hd;
 
     /* Open the cipher. */
@@ -2047,10 +2047,14 @@ ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint
     /* Done with the cipher. */
     gcry_cipher_close(cipher_hd);
     return TRUE;
-#else
-    return FALSE;
-#endif
 } /* ccm_ctr_encrypt */
+#else
+static gboolean
+ccm_ctr_encrypt(const gchar *key _U_, const gchar *iv _U_, gchar *mic _U_, gchar *data _U_, gint length _U_)
+{
+    return FALSE;
+}
+#endif /* HAVE_LIBGCRYPT */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2070,10 +2074,10 @@ ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint
  *      gboolean            - TRUE on SUCCESS, FALSE on error.
  *---------------------------------------------------------------
  */
+#ifdef HAVE_LIBGCRYPT
 static gboolean
 ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic)
 {
-#ifdef HAVE_LIBGCRYPT
     gcry_cipher_hd_t cipher_hd;
     guint            i = 0;
     unsigned char    block[16];
@@ -2167,10 +2171,15 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
     /* Done with the cipher. */
     gcry_cipher_close(cipher_hd);
     return TRUE;
-#else
-    return FALSE;
-#endif
 } /* ccm_cbc_mac */
+#else
+static gboolean
+ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_,
+        const gchar *a _U_, gint a_len _U_, const gchar *m _U_, gint m_len _U_, gchar *mic _U_)
+{
+    return FALSE;
+}
+#endif /* HAVE_LIBGCRYPT */
 
 /* Key hash function. */
 guint ieee802154_short_addr_hash(gconstpointer key)
