@@ -2527,7 +2527,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 		else if ((cause >= 64) && (cause <= 79)) { str = "Treat as Service or option not implemented, unspecified"; }
 		else if ((cause >= 80) && (cause <= 95)) { str = "Treat as Semantically incorrect message"; }
 		else if ((cause >= 96) && (cause <= 111)) { str = "Treat as Protocol error, unspecified"; }
-		else if ((cause >= 112) && (cause <= 127)) { str = "Treat as Interworking, unspecified"; }
+		else { str = "Treat as Interworking, unspecified"; }
 		break;
 	}
 
