@@ -118,13 +118,10 @@ $bases_table = "-- Display Bases\n base = {\n";
 $encodings = "-- Encodings\n";
 $expert_pi = "-- Expert flags and facilities\n";
 
-my $base_num = 0;
-
 open PROTO_H, "< $WSROOT/epan/proto.h" or die "cannot open '$WSROOT/epan/proto.h':  $!";
 while(<PROTO_H>) {
-    if (/^\s+BASE_([A-Z_]+),/ ) {
-        $bases_table .= "\t[\"$1\"] = $base_num,\n";
-        $base_num++;
+    if (/^\s+BASE_([A-Z_]+)[ ]*=[ ]*([0-9]+),/ ) {
+        $bases_table .= "\t[\"$1\"] = $2,\n";
     }
 
     if ( /^.define\s+(PI_[A-Z_]+)\s+((0x)?[0-9A-Fa-f]+)/ ) {
