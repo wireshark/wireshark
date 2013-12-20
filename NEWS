@@ -25,7 +25,11 @@ What's New
    The following features are new (or have been significantly updated)
    since version 1.11.2:
      * Qt port:
-          + A (statistics tree) dialog has been added.
+          + The Capture Interfaces dialog has been added.
+          + The Decode As dialog has been added.
+          + Several SCTP dialogs have been added.
+          + The statistics tree (the backend for many Statistics and
+            Telephony menu items) dialog has been added.
 
    The following features are new (or have been significantly updated)
    since version 1.11.1:
@@ -158,7 +162,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [21]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-11-30 09:30:04 CET
+   Last updated 2013-12-13 20:00:51 CET
 
 References
 

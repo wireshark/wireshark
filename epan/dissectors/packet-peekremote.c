@@ -61,8 +61,8 @@ void proto_reg_handoff_peekremote(void);
 
 static int proto_peekremote = -1;
 static gint hf_peekremote_unknown1 = -1;
-static gint hf_peekremote_unknown2 = -1;
-static gint hf_peekremote_unknown3 = -1;
+static gint hf_peekremote_caplength1 = -1;
+static gint hf_peekremote_caplength2 = -1;
 static gint hf_peekremote_unknown4 = -1;
 static gint hf_peekremote_unknown5 = -1;
 static gint hf_peekremote_unknown6 = -1;
@@ -87,8 +87,8 @@ dissect_peekremote(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     peekremote_tree = proto_item_add_subtree(ti, ett_peekremote);
 
     proto_tree_add_item(peekremote_tree, hf_peekremote_unknown1, tvb, 0, 2,  ENC_NA);
-    proto_tree_add_item(peekremote_tree, hf_peekremote_unknown2, tvb, 2, 2,  ENC_BIG_ENDIAN);
-    proto_tree_add_item(peekremote_tree, hf_peekremote_unknown3, tvb, 4, 2,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_caplength1, tvb, 2, 2,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_caplength2, tvb, 4, 2,  ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, hf_peekremote_unknown4, tvb, 6, 5, ENC_NA);
     proto_tree_add_item(peekremote_tree, hf_peekremote_timestamp, tvb, 11, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, hf_peekremote_unknown5, tvb, 15, 2, ENC_NA);
@@ -108,12 +108,12 @@ proto_register_peekremote(void)
       { "Unknown1",      "peekremote.unknown1", FT_BYTES, BASE_NONE, NULL,
         0x0, NULL, HFILL }},
 
-    { &hf_peekremote_unknown2,
-      { "caplength1",      "peekremote.unknown2", FT_UINT16, BASE_DEC, NULL,
+    { &hf_peekremote_caplength1,
+      { "caplength1",      "peekremote.caplength1", FT_UINT16, BASE_DEC, NULL,
         0x0, NULL, HFILL }},
 
-    { &hf_peekremote_unknown3,
-      { "caplength2",      "peekremote.unknown3", FT_UINT16, BASE_DEC, NULL,
+    { &hf_peekremote_caplength2,
+      { "caplength2",      "peekremote.caplength2", FT_UINT16, BASE_DEC, NULL,
         0x0, NULL, HFILL }},
 
     { &hf_peekremote_unknown4,
