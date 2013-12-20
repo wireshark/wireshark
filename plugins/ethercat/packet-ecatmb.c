@@ -801,6 +801,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                break;
             }
 
+            memset(&info, 0x0, sizeof(info));
             init_sdo_info_header(&info, tvb, offset);
 
             CANopenSdoInfoFormatter(&info, szText, nMax);
