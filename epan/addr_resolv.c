@@ -1692,6 +1692,7 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
 {
     hashether_t *tp;
     gint64       eth_as_int64, *key;
+    char *endp;
 
     eth_as_int64 = eth_to_int64(addr);
 
@@ -1701,7 +1702,9 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
     tp = g_new(hashether_t, 1);
     memcpy(tp->addr, addr, sizeof(tp->addr));
     tp->status = HASHETHER_STATUS_UNRESOLVED;
-    bytes_to_hexstr_punct(tp->hexaddr, addr, sizeof(tp->addr), ':');
+    /* Values returned by bytes_to_hexstr_punct() are *not* null-terminated */
+    endp = bytes_to_hexstr_punct(tp->hexaddr, addr, sizeof(tp->addr), ':');
+    *endp = '\0';
     tp->resolved_name[0] = '\0';
 
     if (resolve)
