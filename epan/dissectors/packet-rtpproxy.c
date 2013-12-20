@@ -88,6 +88,7 @@ static int hf_rtpproxy_version_supported = -1;
 
 /* Expert fields */
 static expert_field ei_rtpproxy_timeout = EI_INIT;
+static expert_field ei_rtpproxy_notify_no_ip = EI_INIT;
 static expert_field ei_rtpproxy_bad_ipv4 = EI_INIT;
 static expert_field ei_rtpproxy_bad_ipv6 = EI_INIT;
 
@@ -249,7 +250,7 @@ static gint ett_rtpproxy_reply = -1;
 static guint rtpproxy_tcp_port = 22222;
 static guint rtpproxy_udp_port = 22222;
 static gboolean rtpproxy_establish_conversation = TRUE;
-/* See - http://www.opensips.org/html/docs/modules/1.11.x/rtpproxy.html#id250018 */
+/* See - http://www.opensips.org/html/docs/modules/devel/rtpproxy.html#id250016 */
 /* See - http://www.kamailio.org/docs/modules/devel/modules/rtpproxy.html#idm448 */
 static guint rtpproxy_timeout = 1000;
 static nstime_t rtpproxy_timeout_ns = {1, 0};
@@ -478,6 +479,7 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
 	}
 	else{
 		/* Only port is supplied - take IPv4/IPv6 from  ip.src/ipv6.src respectively */
+		expert_add_info(pinfo, rtpproxy_tree, &ei_rtpproxy_notify_no_ip);
 		if (pinfo->src.type == AT_IPv4)
 			ti = proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, ((guint32*)(pinfo->src.data))[0]);
 		else
@@ -543,7 +545,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		has_lf = TRUE;
 	}
 	else
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy (no LF)");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy (no LF)"); /* FIXME replace with expert info field */
 
 
 	/* Try to create conversation */
@@ -1322,6 +1324,7 @@ proto_register_rtpproxy(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_rtpproxy_timeout, { "rtpproxy.response_timeout", PI_RESPONSE_CODE, PI_WARN, "TIMEOUT", EXPFILL }},
+		{ &ei_rtpproxy_notify_no_ip, { "rtpproxy.notify_no_ip", PI_RESPONSE_CODE, PI_COMMENT, "No notification IP address provided. Using ip.src or ipv6.src as a value.", EXPFILL }},
 		{ &ei_rtpproxy_bad_ipv4, { "rtpproxy.bad_ipv4", PI_MALFORMED, PI_ERROR, "Bad IPv4", EXPFILL }},
 		{ &ei_rtpproxy_bad_ipv6, { "rtpproxy.bad_ipv6", PI_MALFORMED, PI_ERROR, "Bad IPv6", EXPFILL }},
 	};
