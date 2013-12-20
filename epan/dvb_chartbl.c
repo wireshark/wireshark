@@ -237,6 +237,9 @@ dvb_enc_to_item_enc(dvb_encoding_e encoding)
       case DVB_ENCODING_ISO_8859_9:
          return ENC_ISO_8859_9 | ENC_NA;
 
+      case DVB_ENCODING_ISO_10646_UTF8_BMP:
+         return ENC_UTF_8 | ENC_NA;
+
       default: /* not supported */
          return ENC_ASCII | ENC_NA;
    }
