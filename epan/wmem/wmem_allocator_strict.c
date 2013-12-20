@@ -31,6 +31,7 @@
 
 #include "wmem_core.h"
 #include "wmem_allocator.h"
+#include "wmem_allocator_strict.h"
 
 /* In this allocator, we do everything we can to catch invalid memory accesses.
  * This includes using canaries (what Valgrind calls redzones) and
@@ -189,7 +190,7 @@ wmem_strict_realloc(void *private_data, void *ptr, const size_t size)
     return newblock->real_data;
 }
 
-void
+static void
 wmem_strict_check_canaries(wmem_allocator_t *allocator)
 {
     wmem_strict_allocator_t *private_allocator;

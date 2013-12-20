@@ -415,7 +415,7 @@ void uat_unload_all(void) {
     }
 }
 
-void uat_cleanup(void) {
+static void uat_cleanup(void) {
     while( all_uats->len ) {
         uat_destroy((uat_t*)all_uats->pdata);
     }

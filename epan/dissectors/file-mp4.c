@@ -39,6 +39,9 @@
 
 #define MAKE_TYPE_VAL(a, b, c, d)   (a)<<24 | (b)<<16 | (c)<<8 | (d)
 
+void proto_register_mp4(void);
+void proto_reg_handoff_mp4(void);
+
 static int proto_mp4 = -1;
 
 static gint ett_mp4 = -1;

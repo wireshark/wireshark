@@ -30,6 +30,7 @@
 
 #include "wmem_core.h"
 #include "wmem_allocator.h"
+#include "wmem_allocator_block.h"
 
 /* This has turned into a very interesting excercise in algorithms and data
  * structures.

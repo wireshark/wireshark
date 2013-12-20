@@ -62,7 +62,7 @@ wmem_test_rand_string(wmem_allocator_t *allocator, gint minlen, gint maxlen)
     return str;
 }
 
-int
+static int
 wmem_test_compare_guint32(const void *a, const void *b)
 {
     guint32 l, r;

@@ -31,6 +31,7 @@
 
 #include "wmem_core.h"
 #include "wmem_allocator.h"
+#include "wmem_allocator_simple.h"
 
 /* In this trivial allocator, we just store a GHashTable of malloc()ed
  * blocks in the private_data pointer. We could just set the private_data

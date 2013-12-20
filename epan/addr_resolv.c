@@ -1397,7 +1397,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 
 } /* add_manuf_name */
 
-    gchar *
+static gchar *
 manuf_name_lookup(const guint8 *addr)
 {
     gint32       manuf_key = 0;

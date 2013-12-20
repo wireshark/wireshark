@@ -34,6 +34,9 @@
 
 #include "packet-ioraw.h"
 
+void proto_register_ioraw(void);
+void proto_reg_handoff_ioraw(void);
+
 /* Define the ioraw proto */
 int proto_ioraw  = -1;
 

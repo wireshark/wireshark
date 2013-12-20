@@ -576,7 +576,7 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data)
     wmem_tree_insert32(insert_tree, insert_key32, data);
 }
 
-void *
+static void *
 wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
         void*(*helper)(wmem_tree_t*, guint32))
 {
