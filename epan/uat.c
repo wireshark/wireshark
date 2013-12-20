@@ -415,6 +415,7 @@ void uat_unload_all(void) {
     }
 }
 
+#if 0
 static void uat_cleanup(void) {
     while( all_uats->len ) {
         uat_destroy((uat_t*)all_uats->pdata);
@@ -422,7 +423,7 @@ static void uat_cleanup(void) {
 
     g_ptr_array_free(all_uats,TRUE);
 }
-
+#endif
 
 void uat_foreach_table(uat_cb_t cb,void* user_data) {
     guint i;
