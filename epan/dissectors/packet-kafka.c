@@ -427,20 +427,9 @@ dissect_kafka_metadata_request_topic(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_kafka_metadata_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+dissect_kafka_metadata_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_item *ti;
-    proto_tree *subtree;
-    int         offset = start_offset;
-
-    ti = proto_tree_add_text(tree, tvb, offset, -1, "Metadata Request");
-    subtree = proto_item_add_subtree(ti, ett_kafka_metadata_topics);
-
-    offset = dissect_kafka_array(subtree, tvb, pinfo, offset, &dissect_kafka_metadata_request_topic);
-
-    proto_item_set_len(ti, offset - start_offset);
-
-    return offset;
+    return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_metadata_request_topic);
 }
 
 /* METADATA RESPONSE */
