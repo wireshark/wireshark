@@ -688,7 +688,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     const gchar *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
 
     if (lua_isnumber(L,WSLUA_ARG_ProtoField_new_TYPE)) {
-        type = luaL_checkint(L,WSLUA_ARG_ProtoField_new_TYPE);
+        type = (enum ftenum)luaL_checkint(L,WSLUA_ARG_ProtoField_new_TYPE);
     } else {
         type = get_ftenum(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_TYPE));
     }
