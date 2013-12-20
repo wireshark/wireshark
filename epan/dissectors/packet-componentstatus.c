@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 
 
+#if 0
 #define CSP_VERSION 0x0200
 
 #define CID_GROUP(id)  (((uint64_t) id >> 56) & (0xffffULL)
@@ -44,6 +45,7 @@
 #define CID_COMPOUND(group, object) (((uint64_t) (group & 0xffff) << 56) | CID_OBJECT((uint64_t)object))
 
 #define CSPT_REPORT
+#endif
 
 void proto_register_componentstatusprotocol(void);
 void proto_reg_handoff_componentstatusprotocol(void);
@@ -301,3 +303,16 @@ proto_reg_handoff_componentstatusprotocol(void)
   componentstatusprotocol_handle = new_create_dissector_handle(dissect_componentstatusprotocol, proto_componentstatusprotocol);
   dissector_add_uint("udp.port", COMPONENTSTATUSPROTOCOL_PORT, componentstatusprotocol_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
