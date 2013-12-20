@@ -965,28 +965,29 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	curr_offset = offset;
 
-    /* "unused" part of structure */
-    tm.tm_wday = 0;
-    tm.tm_yday = 0;
-    tm.tm_isdst = -1;
+	/* "unused" part of structure */
+	tm.tm_wday = 0;
+	tm.tm_yday = 0;
+	tm.tm_isdst = -1;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-    tm.tm_year = (oct & 0x0f) + (((oct & 0xf0) >> 4)*10) + 100;
+	tm.tm_year = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4) + 100;
 	oct = tvb_get_guint8(tvb, curr_offset+1);
-    tm.tm_mon = (oct & 0x0f) + (((oct & 0xf0) >> 4)*10);
+	tm.tm_mon = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4) - 1;
 	oct = tvb_get_guint8(tvb, curr_offset+2);
-    tm.tm_mday = (oct & 0x0f) + (((oct & 0xf0) >> 4)*10);
+	tm.tm_mday = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
 	oct = tvb_get_guint8(tvb, curr_offset+3);
-    tm.tm_hour = (oct & 0x0f) + (((oct & 0xf0) >> 4)*10);
+	tm.tm_hour = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
 	oct = tvb_get_guint8(tvb, curr_offset+4);
-    tm.tm_min = (oct & 0x0f) + (((oct & 0xf0) >> 4)*10);
+	tm.tm_min = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
 	oct = tvb_get_guint8(tvb, curr_offset+5);
-    tm.tm_sec = (oct & 0x0f) + (((oct & 0xf0) >> 4)*10);
+	tm.tm_sec = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
 
-    tv.secs = mktime(&tm);
-    tv.nsecs = 0;
+	tv.secs = mktime(&tm);
+	tv.nsecs = 0;
 
-    proto_tree_add_time(tree, hf_gsm_a_dtap_time_zone_time, tvb, curr_offset, 6, &tv);
+	proto_tree_add_time_format_value(tree, hf_gsm_a_dtap_time_zone_time, tvb, curr_offset, 6,
+	                                 &tv, "%s", abs_time_to_ep_str(&tv, ABSOLUTE_TIME_LOCAL, FALSE));
 	curr_offset += 6;
 
 	/* 3GPP TS 23.040 version 6.6.0 Release 6
@@ -6687,7 +6688,7 @@ proto_register_gsm_a_dtap(void)
       { &hf_gsm_a_dtap_add_ci, { "Add CI", "gsm_a.dtap.add_ci", FT_BOOLEAN, 8, TFS(&tfs_add_ci), 0x08, NULL, HFILL }},
       { &hf_gsm_a_dtap_number_of_spare_bits, { "Number of spare bits in last octet", "gsm_a.dtap.number_of_spare_bits", FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_number_of_spare_bits_vals), 0x07, NULL, HFILL }},
       { &hf_gsm_a_dtap_text_string, { "Text String", "gsm_a.dtap.text_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gsm_a_dtap_time_zone_time, { "Timezone time", "gsm_a.dtap.time_zone_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_a_dtap_time_zone_time, { "Time", "gsm_a.dtap.time_zone_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_a_dtap_dst_adjustment, { "DST Adjustment", "gsm_a.dtap.dst_adjustment", FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_dst_adjustment_vals), 0x03, NULL, HFILL }},
       { &hf_gsm_a_dtap_emergency_number_information, { "Emergency Number Information", "gsm_a.dtap.emergency_number_information", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_a_dtap_mm_timer, { "MM Timer", "gsm_a.dtap.mm_timer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
