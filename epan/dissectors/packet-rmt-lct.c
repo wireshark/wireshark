@@ -398,7 +398,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 6:
                 proto_tree_add_item(lct_tree, hf_tsi48, tvb, offset, tsi_size, ENC_BIG_ENDIAN);
-                tsi = tvb_get_ntoh64(tvb, offset) & G_GINT64_CONSTANT(0x0000FFFFFFFFFFFFU);
+                tsi = tvb_get_ntoh64(tvb, offset) & G_GUINT64_CONSTANT(0x0000FFFFFFFFFFFF);
                 break;
             default:
                 tsi = 0;
@@ -431,7 +431,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 6:
                 proto_tree_add_item(lct_tree, hf_toi48, tvb, offset, toi_size, ENC_BIG_ENDIAN);
-                toi = tvb_get_ntoh64(tvb, offset) & G_GINT64_CONSTANT(0x0000FFFFFFFFFFFFU);
+                toi = tvb_get_ntoh64(tvb, offset) & G_GUINT64_CONSTANT(0x0000FFFFFFFFFFFF);
                 break;
 
             case 8:

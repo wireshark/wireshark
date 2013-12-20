@@ -182,7 +182,7 @@ void proto_reg_handoff_afp(void);
 #define SPOTLIGHT_CMD_GET_THREE   3
 
 /* Spotlight epoch is UNIX epoch minus SPOTLIGHT_TIME_DELTA */
-#define SPOTLIGHT_TIME_DELTA G_GINT64_CONSTANT(280878921600U)
+#define SPOTLIGHT_TIME_DELTA G_GUINT64_CONSTANT(280878921600)
 
 /* ----------------------------- */
 static int proto_afp			    = -1;

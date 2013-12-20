@@ -588,7 +588,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 /* || finfo_type == FT_INT64 */)
 			adj = gtk_adjustment_new((double) fvalue_get_sinteger(&finfo->value), (double) -(G_GINT64_CONSTANT(1) << (bitcount-1)), (double) ((G_GINT64_CONSTANT(1) << (bitcount-1))-1), 1.0, 10.0, 0);
 		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 /* || finfo_type == FT_UINT64 */ )
-			adj = gtk_adjustment_new((double) fvalue_get_uinteger(&finfo->value), 0.0, (double) ((G_GINT64_CONSTANT(1U) << bitcount)-1), 1.0, 10.0, 0);
+			adj = gtk_adjustment_new((double) fvalue_get_uinteger(&finfo->value), 0.0, (double) ((G_GUINT64_CONSTANT(1) << bitcount)-1), 1.0, 10.0, 0);
 		else {
 			g_assert_not_reached();
 			goto not_supported;

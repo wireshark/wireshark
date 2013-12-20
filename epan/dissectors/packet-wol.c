@@ -111,7 +111,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * quite expensive and seriously hinder Wireshark performance.  For now,
      * unless we need to change it later, just compare the 1st 6 bytes. */
     qword = tvb_get_ntoh48(tvb,0);
-    if(qword != G_GINT64_CONSTANT(0xffffffffffffU))
+    if(qword != G_GUINT64_CONSTANT(0xffffffffffff))
         return (0);
 
     /* So far so good.  Now get the next 6 bytes, which we'll assume is the

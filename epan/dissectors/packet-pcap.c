@@ -3911,7 +3911,7 @@ dissect_pcap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 static int
 dissect_pcap_T_ue_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(37158911999999U), NULL, TRUE);
+                                                            0U, G_GUINT64_CONSTANT(37158911999999), NULL, TRUE);
 
   return offset;
 }
@@ -6639,7 +6639,7 @@ dissect_pcap_GanssIntegerCodePhaseExt(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_pcap_T_ue_GANSSTimingOfCellFrames(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(345599999999U), NULL, FALSE);
+                                                            0U, G_GUINT64_CONSTANT(345599999999), NULL, FALSE);
 
   return offset;
 }
@@ -11843,7 +11843,7 @@ dissect_pcap_VelocityEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_pcap_T_utran_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(2322431999999U), NULL, TRUE);
+                                                            0U, G_GUINT64_CONSTANT(2322431999999), NULL, TRUE);
 
   return offset;
 }
@@ -11870,7 +11870,7 @@ dissect_pcap_UTRAN_GPSReferenceTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_pcap_T_ue_GANSSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(345599999999U), NULL, TRUE);
+                                                            0U, G_GUINT64_CONSTANT(345599999999), NULL, TRUE);
 
   return offset;
 }

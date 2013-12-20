@@ -2255,7 +2255,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
      * indicates an unreachable route. */
     big_num = tvb_get_ntoh64(sub_tvb, 8);
     big_num >>= 16;
-    if (big_num == G_GINT64_CONSTANT(0x0000ffffffffffffU)) {
+    if (big_num == G_GUINT64_CONSTANT(0x0000ffffffffffff)) {
         proto_tree_add_text(sub_tree, sub_tvb, 8, 6, "Delay: Infinity");
     } else {
         proto_tree_add_text(sub_tree, sub_tvb, 8, 6, "Delay: %" G_GINT64_MODIFIER "u", big_num);
@@ -2268,7 +2268,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
      */
     big_num = tvb_get_ntoh64(sub_tvb, 14);
     big_num >>= 16;
-    if (big_num == G_GINT64_CONSTANT(0x0000ffffffffffffU)) {
+    if (big_num == G_GUINT64_CONSTANT(0x0000ffffffffffff)) {
         proto_tree_add_text(sub_tree, sub_tvb, 14, 6, "Bandwidth: Infinity");
     } else {
         proto_tree_add_text(sub_tree, sub_tvb, 14, 6, "Bandwidth: %" G_GINT64_MODIFIER "u", big_num);

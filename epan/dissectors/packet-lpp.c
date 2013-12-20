@@ -6328,7 +6328,7 @@ dissect_lpp_T_cnavE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   guint64 cnavE;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(8589934591U), &cnavE, FALSE);
+                                                            0U, G_GUINT64_CONSTANT(8589934591), &cnavE, FALSE);
 
 
 

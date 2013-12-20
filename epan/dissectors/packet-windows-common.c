@@ -1108,7 +1108,7 @@ value_string_ext ms_country_codes_ext = VALUE_STRING_EXT_INIT(ms_country_codes);
  * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
  * and the Windows NT epoch (January 1, 1601, 00:00:00 "GMT").
  */
-#define TIME_FIXUP_CONSTANT G_GINT64_CONSTANT(11644473600U)
+#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
 
 /*
  * Translate an 8-byte FILETIME value, given as the upper and lower 32 bits,

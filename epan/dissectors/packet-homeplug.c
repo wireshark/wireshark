@@ -452,7 +452,7 @@ static const value_string homeplug_cer_mod_vals[] = {
 
 /* Constants used by various MMEs */
 
-#define HOMEPLUG_ADDR_INEXISTANT G_GINT64_CONSTANT(010000000000U)
+#define HOMEPLUG_ADDR_INEXISTANT G_GUINT64_CONSTANT(010000000000)
 
 /* string values in function of TXPRIO */
 static const value_string homeplug_txprio_vals[] = {

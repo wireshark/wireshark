@@ -301,7 +301,7 @@ dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	seconds = tvb_get_ntohl(tvb, offset);
 	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
-	nanoseconds = (guint32)( ((guint64)fraction * G_GINT64_CONSTANT(1000000000U)) / G_GINT64_CONSTANT(0x100000000U) ) ;
+	nanoseconds = (guint32)( ((guint64)fraction * G_GUINT64_CONSTANT(1000000000)) / G_GUINT64_CONSTANT(0x100000000) ) ;
 
 	ts.secs = seconds;
 	ts.nsecs = nanoseconds;

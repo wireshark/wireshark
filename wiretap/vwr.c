@@ -35,10 +35,10 @@
 /* platform-specific definitions for portability */
 
 /* unsigned long long constants */
-#   define NS_IN_US             G_GINT64_CONSTANT(1000U)        /* nanoseconds-to-microseconds */
-#   define NS_IN_SEC            G_GINT64_CONSTANT(1000000000U)  /* nanoseconds-to-seconds */
-#   define US_IN_SEC            G_GINT64_CONSTANT(1000000U)     /* microseconds-to-seconds */
-#   define LL_ZERO              G_GINT64_CONSTANT(0U)           /* zero in unsigned long long */
+#   define NS_IN_US             G_GUINT64_CONSTANT(1000)        /* nanoseconds-to-microseconds */
+#   define NS_IN_SEC            G_GUINT64_CONSTANT(1000000000)  /* nanoseconds-to-seconds */
+#   define US_IN_SEC            G_GUINT64_CONSTANT(1000000)     /* microseconds-to-seconds */
+#   define LL_ZERO              G_GUINT64_CONSTANT(0)           /* zero in unsigned long long */
 
 /*
  * Fetch a 64-bit value in "Corey-endian" form.

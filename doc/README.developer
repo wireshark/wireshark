@@ -182,11 +182,11 @@ use "LL" at the end of the constant - not all compilers use "LL" for
 that.  Instead, put the constant in a call to the "G_GINT64_CONSTANT()"
 macro, e.g.
 
-    G_GINT64_CONSTANT(11644473600U)
+    G_GINT64_CONSTANT(-11644473600), G_GUINT64_CONSTANT(11644473600)
 
 rather than
 
-    11644473600ULL
+    -11644473600LL, 11644473600ULL
 
 Don't assume that you can scan through a va_list initialized by va_start
 more than once without closing it with va_end and re-initializing it with

@@ -10178,7 +10178,7 @@ dissect_lte_rrc_T_timeInfoUTC_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   nstime_t ts;
   guint32 old_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(549755813887U), &timeInfo, FALSE);
+                                                            0U, G_GUINT64_CONSTANT(549755813887), &timeInfo, FALSE);
 
 
 

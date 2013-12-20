@@ -1246,8 +1246,8 @@ found:
 	/*
 	 * Convert to seconds and picoseconds.
 	 */
-	tsecs = t/G_GINT64_CONSTANT(1000000000000U);
-	tpsecs = t - tsecs*G_GINT64_CONSTANT(1000000000000U);
+	tsecs = t/G_GUINT64_CONSTANT(1000000000000);
+	tpsecs = t - tsecs*G_GUINT64_CONSTANT(1000000000000);
 
 	/*
 	 * Add in the time_day value (86400 seconds/day).
@@ -2183,8 +2183,8 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	rec_hdr.time_day = (guint8)(tsecs / 86400);	/* # days of capture - 86400 secs/day */
 	tsecs -= rec_hdr.time_day * 86400;	/* time within day */
 	/* Convert to picoseconds */
-	t = tsecs*G_GINT64_CONSTANT(1000000000000U) +
-		phdr->ts.nsecs*G_GINT64_CONSTANT(1000U);
+	t = tsecs*G_GUINT64_CONSTANT(1000000000000) +
+		phdr->ts.nsecs*G_GUINT64_CONSTANT(1000);
 	/* Convert to units of timeunit = 1 */
 	t /= Psec[1];
 	t_low = (guint16)((t >> 0) & 0xFFFF);
