@@ -40,20 +40,26 @@ static const value_string dvb_string_encoding_vals[] = {
 
    { DVB_ENCODING_LATIN,    "Latin (default table)" },
 
-   { DVB_ENCODING_ISO_8859_1,  "ISO/IEC 8859-1 (West European)" },
-   { DVB_ENCODING_ISO_8859_2,  "ISO/IEC 8859-2 (East European)" },
-   { DVB_ENCODING_ISO_8859_3,  "ISO/IEC 8859-3 (South European)" },
-   { DVB_ENCODING_ISO_8859_4,  "ISO/IEC 8859-4 (North and North-East European)" },
-   { DVB_ENCODING_ISO_8859_5,  "ISO/IEC 8859-5 (Latin/Cyrillic)" },
-   { DVB_ENCODING_ISO_8859_6,  "ISO/IEC 8859-6 (Latin/Arabic)" },
-   { DVB_ENCODING_ISO_8859_7,  "ISO/IEC 8859-7 (Latin/Greek)" },
-   { DVB_ENCODING_ISO_8859_8,  "ISO/IEC 8859-8 (Latin/Hebrew)" },
-   { DVB_ENCODING_ISO_8859_9,  "ISO/IEC 8859-9 (West European & Turkish)" },
-   { DVB_ENCODING_ISO_8859_10, "ISO/IEC 8859-10 (North European)" },
-   { DVB_ENCODING_ISO_8859_11, "ISO/IEC 8859-11 (Thai)" },
-   { DVB_ENCODING_ISO_8859_13, "ISO/IEC 8859-13 (Baltic)" },
-   { DVB_ENCODING_ISO_8859_14, "ISO/IEC 8859-14 (Celtic)" },
-   { DVB_ENCODING_ISO_8859_15, "ISO/IEC 8859-15 (West European)" },
+   { DVB_ENCODING_ISO_8859_1,         "ISO/IEC 8859-1 (West European)" },
+   { DVB_ENCODING_ISO_8859_2,         "ISO/IEC 8859-2 (East European)" },
+   { DVB_ENCODING_ISO_8859_3,         "ISO/IEC 8859-3 (South European)" },
+   { DVB_ENCODING_ISO_8859_4,         "ISO/IEC 8859-4 (North and North-East European)" },
+   { DVB_ENCODING_ISO_8859_5,         "ISO/IEC 8859-5 (Latin/Cyrillic)" },
+   { DVB_ENCODING_ISO_8859_6,         "ISO/IEC 8859-6 (Latin/Arabic)" },
+   { DVB_ENCODING_ISO_8859_7,         "ISO/IEC 8859-7 (Latin/Greek)" },
+   { DVB_ENCODING_ISO_8859_8,         "ISO/IEC 8859-8 (Latin/Hebrew)" },
+   { DVB_ENCODING_ISO_8859_9,         "ISO/IEC 8859-9 (West European & Turkish)" },
+   { DVB_ENCODING_ISO_8859_10,        "ISO/IEC 8859-10 (North European)" },
+   { DVB_ENCODING_ISO_8859_11,        "ISO/IEC 8859-11 (Thai)" },
+   { DVB_ENCODING_ISO_8859_13,        "ISO/IEC 8859-13 (Baltic)" },
+   { DVB_ENCODING_ISO_8859_14,        "ISO/IEC 8859-14 (Celtic)" },
+   { DVB_ENCODING_ISO_8859_15,        "ISO/IEC 8859-15 (West European)" },
+   { DVB_ENCODING_ISO_10646_BMP,      "ISO/IEC 10646 Basic Multilingual Plane" },
+   { DVB_ENCODING_KSX_1001,           "KSX 1001-2004 (Korean character set)" },
+   { DVB_ENCODING_GB_2312,            "GB-2312-1980 (Simplified Chinese)" },
+   { DVB_ENCODING_ISO_10646_BIG5,     "ISO/IEC 10646 BIG5 subset" },
+   { DVB_ENCODING_ISO_10646_UTF8_BMP,
+       "ISO/IEC 10646 Basic Multilingual Plane, UTF-8 encoded" },
 
    { 0, NULL }
 };
@@ -64,29 +70,37 @@ dvb_analyze_string_charset0(guint8 byte0)
 {
     switch (byte0) {
         case 0x01:
-         return DVB_ENCODING_ISO_8859_5;
+            return DVB_ENCODING_ISO_8859_5;
         case 0x02:
-         return DVB_ENCODING_ISO_8859_6;
+            return DVB_ENCODING_ISO_8859_6;
         case 0x03:
-         return DVB_ENCODING_ISO_8859_7;
+            return DVB_ENCODING_ISO_8859_7;
         case 0x04:
-         return DVB_ENCODING_ISO_8859_8;
+            return DVB_ENCODING_ISO_8859_8;
         case 0x05:
-         return DVB_ENCODING_ISO_8859_9;
+            return DVB_ENCODING_ISO_8859_9;
         case 0x06:
-         return DVB_ENCODING_ISO_8859_10;
+            return DVB_ENCODING_ISO_8859_10;
         case 0x07:
-         return DVB_ENCODING_ISO_8859_11;
+            return DVB_ENCODING_ISO_8859_11;
         case 0x08:
-         return DVB_ENCODING_RESERVED; /* was reserved for ISO-8859-12 */
+            return DVB_ENCODING_RESERVED; /* was reserved for ISO-8859-12 */
         case 0x09:
-         return DVB_ENCODING_ISO_8859_13;
+            return DVB_ENCODING_ISO_8859_13;
         case 0x0A:
-         return DVB_ENCODING_ISO_8859_14;
+            return DVB_ENCODING_ISO_8859_14;
         case 0x0B:
-         return DVB_ENCODING_ISO_8859_15;
-
-    /* XXX 0x11 ... 0x15 */
+            return DVB_ENCODING_ISO_8859_15;
+        case 0x11:
+            return DVB_ENCODING_ISO_10646_BMP;
+        case 0x12:
+            return DVB_ENCODING_KSX_1001;
+        case 0x13:
+            return DVB_ENCODING_GB_2312;
+        case 0x14:
+            return DVB_ENCODING_ISO_10646_BIG5;
+        case 0x15:
+            return DVB_ENCODING_ISO_10646_UTF8_BMP;
 
         default:
             return DVB_ENCODING_UNKNOWN;
