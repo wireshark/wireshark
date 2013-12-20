@@ -36,7 +36,7 @@
 static const value_string dvb_string_encoding_vals[] = {
    { DVB_ENCODING_INVALID,  "Incorrect length for encoding" },
    { DVB_ENCODING_RESERVED, "Reserved for future use" },
-   { DVB_ENCODING_UNKNOWN,  "Value not specified by spec" },
+   { DVB_ENCODING_UNKNOWN,  "Unknown/undefined encoding" },
 
    { DVB_ENCODING_LATIN,    "Latin (default table)" },
 
