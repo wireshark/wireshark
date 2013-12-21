@@ -52,8 +52,6 @@
 #include <epan/prefs.h>
 #include <wsutil/filesystem.h>
 
-#include "../isprint.h"
-
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"
 #include "ui/progress_dlg.h"
@@ -582,7 +580,7 @@ copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int data_len, gboo
 
         g_string_append_printf(hex_str," %02x",*data_p);
         if(append_text) {
-            g_string_append_printf(char_str,"%c",isprint(*data_p) ? *data_p : '.');
+            g_string_append_printf(char_str,"%c",g_ascii_isprint(*data_p) ? *data_p : '.');
         }
 
         ++data_p;
@@ -628,7 +626,7 @@ copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int data_le
     gchar to_append;
 
     /* Copy printable characters, newlines, and (horizontal) tabs. */
-    if(isprint(*data_p)) {
+    if(g_ascii_isprint(*data_p)) {
         to_append = *data_p;
     } else if(*data_p==0x0a) {
         to_append = '\n';

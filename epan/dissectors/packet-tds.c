@@ -149,8 +149,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "isprint.h"
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -1250,7 +1248,7 @@ static char *data_to_string(void *data, guint col_type, guint col_size)
         case SYBVARCHAR:
             /* strncpy(result, (char *)data, col_size); */
             for (i=0;i<col_size && i<(256-1);i++)
-                if (!isprint(((char *)data)[i])) result[i]='.';
+                if (!g_ascii_isprint(((char *)data)[i])) result[i]='.';
                 else result[i]=((char *)data)[i];
             result[i] = '\0';
             break;

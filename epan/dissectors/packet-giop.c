@@ -287,8 +287,6 @@
 #include <glib.h>
 #include <math.h>
 
-#include "isprint.h"
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
@@ -2082,7 +2080,7 @@ gchar *make_printable_string (const gchar *in, guint32 len) {
   memcpy(print_string, in, len);        /* and make a copy of input data */
 
   for (i=0; i < len; i++) {
-    if ( !isprint( (unsigned char)print_string[i] ) )
+    if ( !g_ascii_isprint( (unsigned char)print_string[i] ) )
       print_string[i] = '.';
   }
 

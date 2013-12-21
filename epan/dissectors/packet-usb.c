@@ -27,7 +27,6 @@
 #include "config.h"
 
 #include <ctype.h>
-#include "isprint.h"
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -2563,7 +2562,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     type = tvb_get_guint8(tvb, 8);
     proto_tree_add_uint_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
         type, "%s ('%c')", val_to_str(type, usb_urb_type_vals, "Unknown %d"),
-        isprint(type) ? type : '.');
+        g_ascii_isprint(type) ? type : '.');
     proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_BIG_ENDIAN);
 
     transfer_type   = tvb_get_guint8(tvb, 9);
@@ -2590,7 +2589,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_string(tree, hf_usb_setup_flag, tvb, 14, 1, "relevant (0)");
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            14, 1, flag, "not relevant ('%c')", isprint(flag[0]) ? flag[0]: '.');
+            14, 1, flag, "not relevant ('%c')", g_ascii_isprint(flag[0]) ? flag[0]: '.');
     }
 
     flag[0] = tvb_get_guint8(tvb, 15);
@@ -2599,7 +2598,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_string(tree, hf_usb_data_flag, tvb, 15, 1, "present (0)");
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            15, 1, flag, "not present ('%c')", isprint(flag[0]) ? flag[0] : '.');
+            15, 1, flag, "not present ('%c')", g_ascii_isprint(flag[0]) ? flag[0] : '.');
     }
 
     tvb_memcpy(tvb, (guint8 *)&val64, 16, 8);

@@ -30,7 +30,6 @@
 #include <glib.h>
 #include "strutil.h"
 #include "emem.h"
-#include <../isprint.h>
 
 
 #ifdef _WIN32
@@ -185,7 +184,7 @@ format_text(const guchar *string, size_t len)
         }
         c = *string++;
 
-        if (isprint(c)) {
+        if (g_ascii_isprint(c)) {
             fmtbuf[idx][column] = c;
             column++;
         } else {
@@ -291,7 +290,7 @@ format_text_wsp(const guchar *string, size_t len)
         }
         c = *string++;
 
-        if (isprint(c)) {
+        if (g_ascii_isprint(c)) {
             fmtbuf[idx][column] = c;
             column++;
         } else if  (isspace(c)) {
@@ -400,7 +399,7 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
         }
         c = *string++;
 
-        if (isprint(c)) 
+        if (g_ascii_isprint(c)) 
         {
             fmtbuf[idx][column] = c;
             column++;
@@ -566,7 +565,7 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
     p = (const guchar *)uri_str;
 
     while (*p) {
-        if (! isascii(*p) || ! isprint(*p))
+        if (! isascii(*p) || ! g_ascii_isprint(*p))
             return FALSE;
         if (*p == '%') {
             p++;
@@ -637,7 +636,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
         }
         c = bytes->data[column];
 
-        if (!isascii(c) || !isprint(c) || c == '%') {
+        if (!isascii(c) || !g_ascii_isprint(c) || c == '%') {
             is_reserved = TRUE;
         }
 
@@ -976,7 +975,7 @@ escape_string_len(const char *string)
         }
         /* Values that can't nicely be represented
          * in ASCII need to be escaped. */
-        else if (!isprint((unsigned char)c)) {
+        else if (!g_ascii_isprint(c)) {
             /* c --> \xNN */
             repr_len += 4;
         }
@@ -1007,7 +1006,7 @@ escape_string(char *buf, const char *string)
         }
         /* Values that can't nicely be represented
          * in ASCII need to be escaped. */
-        else if (!isprint((unsigned char)c)) {
+        else if (!g_ascii_isprint(c)) {
             /* c --> \xNN */
             g_snprintf(hexbuf,sizeof(hexbuf), "%02x", (unsigned char) c);
             *bufp++ = '\\';

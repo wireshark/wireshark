@@ -65,7 +65,6 @@ SHARK_COMMON_INCLUDES =	\
 	file.h			\
 	fileset.h		\
 	frame_tvbuff.h		\
-	isprint.h		\
 	register.h		\
 	version_info.h		\
 	ws_symbol_export.h

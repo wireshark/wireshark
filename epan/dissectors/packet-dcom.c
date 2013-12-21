@@ -94,7 +94,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <ctype.h>
-#include <isprint.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 
@@ -1602,7 +1601,7 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
 
 		/* is this character printable? */
 		/* XXX - there are probably more printable chars than isprint() */
-		if(!isprint(u8Tmp1) || u8Tmp2 != 0) {
+		if(!g_ascii_isprint(u8Tmp1) || u8Tmp2 != 0) {
 			*isPrintable = FALSE;
 		}
 	}

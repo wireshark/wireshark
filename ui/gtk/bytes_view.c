@@ -36,8 +36,6 @@
 
 #include <string.h>
 
-#include "../isprint.h"
-
 #include <epan/charsets.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -753,7 +751,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 				EBCDIC_to_ASCII1(pd[off]) :
 				pd[off];
 
-			str[cur++] = isprint(c) ? c : '.';
+			str[cur++] = g_ascii_isprint(c) ? c : '.';
 		} else
 			str[cur++] = ' ';
 

@@ -32,8 +32,6 @@
 
 #include <glib.h>
 
-#include "isprint.h"
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
@@ -576,9 +574,9 @@ aim_get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
 #ifdef STRIP_TAGS
 		if( j == '<' ) bracket = TRUE;
 		if( j == '>' ) bracket = FALSE;
-		if( (isprint(j) ) && (bracket == FALSE) && (j != '>'))
+		if( (g_ascii_isprint(j) ) && (bracket == FALSE) && (j != '>'))
 #else
-			if( isprint(j) )
+			if( g_ascii_isprint(j) )
 #endif
 			{
 				msg[i] = j;

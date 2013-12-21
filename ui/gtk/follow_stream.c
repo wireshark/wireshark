@@ -39,7 +39,6 @@
 #include <epan/prefs.h>
 #include <epan/charsets.h>
 
-#include <../isprint.h>
 #include <epan/print.h>
 
 #include <ui/alert_box.h>
@@ -109,8 +108,8 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_from_server,
     GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
     GtkTextIter    iter;
 
-    /* While our isprint() hack is in place, we
-     * have to convert some chars to '.' in order
+    /*
+     * have to convert non printable ASCII chars to '.' in order
      * to be able to see the data we *should* see
      * in the GtkText widget.
      */
@@ -119,7 +118,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_from_server,
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
             continue;
-        if (! isprint((guchar)buffer[i])) {
+        if (! g_ascii_isprint(buffer[i])) {
             buffer[i] = '.';
         }
     }

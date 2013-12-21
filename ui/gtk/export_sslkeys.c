@@ -51,8 +51,6 @@
 #include <epan/charsets.h>
 #include <epan/prefs.h>
 
-#include "../isprint.h"
-
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"
 #include "ui/progress_dlg.h"

@@ -31,7 +31,6 @@
 #include <epan/strutil.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-sss.h"
-#include "isprint.h"
 
 void proto_register_sss(void);
 
@@ -456,7 +455,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
     }
     for ( i = 0; i < str_length; i++ ) {
         c_char = tvb_get_guint8(tvb, foffset);
-        if (isprint(c_char)) {
+        if (g_ascii_isprint(c_char)) {
             buffer[i] = c_char;
         } else {
             if (c_char) {

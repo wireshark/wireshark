@@ -43,7 +43,6 @@
 
 #include <epan/packet-range.h>
 #include "print.h"
-#include "isprint.h"
 #include "ps.h"
 #include "version_info.h"
 #include <wsutil/file_util.h>
@@ -767,7 +766,7 @@ proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
 
         for (i = 0; i < length; i++) {
             fprintf(fh, "0x%02x", *(cp + i));
-            ascii[i % 8] = isprint(*(cp + i)) ? *(cp + i) : '.';
+            ascii[i % 8] = g_ascii_isprint(*(cp + i)) ? *(cp + i) : '.';
 
             if (i == (length - 1)) {
                 guint rem;
