@@ -1471,7 +1471,6 @@ set(LIBWIRESHARK_FILES
 	app_mem_usage.c
 	asn1.c
 	atalk-utils.c
-	base64.c
 	camel-persistentdata.c
 	charsets.c
 	circuit.c

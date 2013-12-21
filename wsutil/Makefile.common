@@ -32,7 +32,8 @@ LIBWSUTIL_SRC = 	\
 	adler32.c	\
 	aes.c		\
 	airpdcap_wep.c	\
-	bitswap.c		\
+	base64.c	\
+	bitswap.c	\
 	crash_info.c	\
 	crc6.c		\
 	crc7.c		\
@@ -66,6 +67,7 @@ LIBWSUTIL_SRC = 	\
 LIBWSUTIL_INCLUDES = 	\
 	adler32.h	\
 	aes.h		\
+	base64.h	\
 	bits_ctz.h	\
 	bits_count_ones.h	\
 	bitswap.h		\

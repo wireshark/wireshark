@@ -41,7 +41,7 @@
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/base64.h>
+#include <wsutil/base64.h>
 #include <epan/stats_tree.h>
 
 #include <epan/req_resp_hdrs.h>
@@ -2655,7 +2655,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 				hdr_tree = NULL;
 			value += hdrlen;
 
-			epan_base64_decode(value);
+			ws_base64_decode_inplace(value);
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);
 

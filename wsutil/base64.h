@@ -32,7 +32,7 @@ extern "C" {
 
 /* In-place decoding of a base64 string. Resulting string is NULL terminated */
 WS_DLL_PUBLIC
-size_t epan_base64_decode(char *s);
+size_t ws_base64_decode_inplace(char *s);
 
 #ifdef __cplusplus
 }

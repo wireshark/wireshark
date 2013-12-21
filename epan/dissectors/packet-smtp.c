@@ -40,7 +40,7 @@
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
-#include <epan/base64.h>
+#include <wsutil/base64.h>
 #include <epan/dissectors/packet-ssl.h>
 
 /* RFC 2821 */
@@ -321,7 +321,7 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   decrypt = tvb_get_string(wmem_packet_scope(), tvb, a_offset, a_linelen);
   if (stmp_decryption_enabled) {
-    returncode = (gint)epan_base64_decode(decrypt);
+    returncode = (gint)ws_base64_decode_inplace(decrypt);
     if (returncode) {
       length_user1 = (gint)strlen(decrypt);
       if (returncode >= (length_user1 + 1)) {
@@ -579,7 +579,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               (pinfo->fd->num >= session_state->first_auth_frame) &&
               ((session_state->last_auth_frame == 0) || (pinfo->fd->num <= session_state->last_auth_frame))) {
                  decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
-                    if ((stmp_decryption_enabled) && (epan_base64_decode(decrypt) > 0)) {
+                    if ((stmp_decryption_enabled) && (ws_base64_decode_inplace(decrypt) > 0)) {
                         line = decrypt;
                     } else {
                         line = tvb_get_ptr(tvb, loffset, linelen);
@@ -837,7 +837,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* This line wasn't already decrypted through the state machine */
                  decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
                  if (stmp_decryption_enabled) {
-                   if (epan_base64_decode(decrypt) == 0) {
+                   if (ws_base64_decode_inplace(decrypt) == 0) {
                        /* Go back to the original string */
                        decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
                    }
@@ -851,7 +851,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* This line wasn't already decrypted through the state machine */
                  decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
                  if (stmp_decryption_enabled) {
-                   if (epan_base64_decode(decrypt) == 0) {
+                   if (ws_base64_decode_inplace(decrypt) == 0) {
                        /* Go back to the original string */
                        decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
                    }
@@ -863,7 +863,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } else if (session_state->ntlm_rsp_frame == pinfo->fd->num) {
             decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
             if (stmp_decryption_enabled) {
-              if (epan_base64_decode(decrypt) == 0) {
+              if (ws_base64_decode_inplace(decrypt) == 0) {
                 /* Go back to the original string */
                 decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
                 col_append_str(pinfo->cinfo, COL_INFO, decrypt);
@@ -907,7 +907,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* This line wasn't already decrypted through the state machine */
                  decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset + 11, linelen - 11);
                  if (stmp_decryption_enabled) {
-                   if (epan_base64_decode(decrypt) == 0) {
+                   if (ws_base64_decode_inplace(decrypt) == 0) {
                        /* Go back to the original string */
                        decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset + 11, linelen - 11);
                    }
@@ -922,7 +922,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
             decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset + 10, linelen - 10);
             if (stmp_decryption_enabled) {
-              if (epan_base64_decode(decrypt) == 0) {
+              if (ws_base64_decode_inplace(decrypt) == 0) {
                   /* Go back to the original string */
                   decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset + 10, linelen - 10);
                   col_append_str(pinfo->cinfo, COL_INFO, tvb_get_string(wmem_packet_scope(), tvb, loffset, 10));
@@ -1097,7 +1097,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (linelen >= 4) {
                 if ((stmp_decryption_enabled) && (code == 334)) {
                     decrypt = tvb_get_string(wmem_packet_scope(), tvb, offset + 4, linelen - 4);
-                    if (epan_base64_decode(decrypt) > 0) {
+                    if (ws_base64_decode_inplace(decrypt) > 0) {
                       if (g_ascii_strncasecmp(decrypt, "NTLMSSP", 7) == 0) {
                         base64_string = tvb_get_string(wmem_packet_scope(), tvb, loffset + 4, linelen - 4);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", code);

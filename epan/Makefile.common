@@ -32,7 +32,6 @@ LIBWIRESHARK_SRC =		\
 	app_mem_usage.c		\
 	asn1.c			\
 	atalk-utils.c		\
-	base64.c		\
 	camel-persistentdata.c	\
 	charsets.c		\
 	circuit.c		\
@@ -158,7 +157,6 @@ LIBWIRESHARK_INCLUDES =		\
 	asn1.h			\
 	atalk-utils.h		\
 	ax25_pids.h		\
-	base64.h		\
 	bridged_pids.h		\
 	camel-persistentdata.h	\
 	charsets.h		\

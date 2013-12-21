@@ -31,7 +31,7 @@
    Return length of result. Taken from rproxy/librsync/base64.c by
    Andrew Tridgell. */
 
-size_t epan_base64_decode(char *s)
+size_t ws_base64_decode_inplace(char *s)
 {
 	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\r\n";
 	int bit_offset, byte_offset, idx, i;

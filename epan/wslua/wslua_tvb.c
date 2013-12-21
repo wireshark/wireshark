@@ -35,7 +35,7 @@
 /* WSLUA_MODULE Tvb Functions for handling packet data */
 
 #include "wslua.h"
-#include "epan/base64.h"
+#include "wsutil/base64.h"
 
 WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("null bytearray"),NOP);
 
@@ -269,7 +269,7 @@ static int ByteArray_base64_decode(lua_State* L) {
     memcpy(data, ba->data, ba->len);
     data[ba->len] = '\0';
     
-    len = epan_base64_decode(data);
+    len = ws_base64_decode_inplace(data);
     g_byte_array_append(ba2,data,(int)len);
     g_free(data);
 
