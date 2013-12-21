@@ -256,7 +256,6 @@ void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint 
 String accessors:
 
 guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length);
-gchar  *tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 guint8 *tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
 Returns a null-terminated buffer containing data from the specified
@@ -268,15 +267,13 @@ tvb_get_string() returns a buffer allocated by g_malloc() if scope is set
 to NULL (in that case memory must be explicitely freed), or with the
 allocator lifetime if scope is not NULL.
 
-tvb_get_unicode_string() is a unicode (UTF-16) version of above.  This
-is intended for reading UTF-16 unicode strings out of a tvbuff and
-returning them as a UTF-8 string for use in Wireshark.  The offset and
-returned length pointer are in bytes, not UTF-16 characters.
+tvb_get_string_enc() is a version of tvb_get_string() that takes a
+string encoding as an argument.  See below for a list of encoding values
+for strings.
 
 guint8 *tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp);
 guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-gchar  *tvb_get_unicode_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 
@@ -290,18 +287,14 @@ tvb_get_stringz() returns a buffer allocated by g_malloc() if scope is set
 to NULL (in that case memory must be explicitely freed), or with the
 allocator lifetime if scope is not NULL.
 
+tvb_get_stringz_enc() is a version of tvb_get_stringz() that takes a
+string encoding as an argument.  See below for a list of encoding values
+for strings.
+
 tvb_get_const_stringz() returns a pointer to the (const) string in the tvbuff.
 You do not need to free() this buffer, it will happen automatically once the
 next packet is dissected.  This function is slightly more efficient than the
 others because it does not allocate memory and copy the string.
-
-tvb_get_unicode_stringz() is a unicode (UTF-16) version of above.
-This is intended for reading UTF-16 unicode strings out of a tvbuff
-and returning them as a UTF-8 string for use in Wireshark.  The offset and
-returned length pointer are in bytes, not UTF-16 characters.
-
-tvb_get_faked_unicode() has been superseded by tvb_get_string(), which
-properly handles Unicode (UTF-16) strings by converting them to UTF-8.
 
 Byte Array Accessors:
 
@@ -1371,13 +1364,16 @@ currently supported are:
     ENC_ASCII - ASCII (currently treated as UTF-8; in the future,
         all bytes with the 8th bit set will be treated as
         errors)
-    ENC_UTF_8 - UTF-8
-    ENC_UCS_2 - UCS-2
-    ENC_UTF_16 - UTF-16 (currently treated as UCS-2; in the future,
-        surrogate pairs will be handled, and non-valid 16-bit
-        code points and surrogate pairs will be treated as
-        errors)
+    ENC_UTF_8 - UTF-8-encoded Unicode
+    ENC_UTF_16 - UTF-16-encoded Unicode, with surrogate pairs
+    ENC_UCS_2 - UCS-2-encoded subset of Unicode, with no surrogate pairs
+        and thus no code points above 0xFFFF
     ENC_EBCDIC - EBCDIC
+    ENC_WINDOWS_1250 - Windows-1250 code page
+    ENC_ISO_8859_1 - ISO 8859-1
+    ENC_ISO_8859_2 - ISO 8859-2
+    ENC_ISO_8859_5 - ISO 8859-5
+    ENC_ISO_8859_9 - ISO 8859-9
 
 Other encodings will be added in the future.
 
