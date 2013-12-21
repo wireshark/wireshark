@@ -207,7 +207,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   int offset = 0;
   proto_tree *peekremote_tree = NULL;
   proto_item *ti = NULL;
-  proto_item *ti_header_size;
+  proto_item *ti_header_version, *ti_header_size;
   guint8 header_version;
   guint header_size;
   tvbuff_t *next_tvb;
@@ -229,7 +229,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   proto_tree_add_item(peekremote_tree, &hfi_peekremote_magic_number, tvb, offset, 4,  ENC_BIG_ENDIAN);
   offset += 4;
   header_version = tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(peekremote_tree, &hfi_peekremote_header_version, tvb, offset, 1,  header_version);
+  ti_header_version = proto_tree_add_uint(peekremote_tree, &hfi_peekremote_header_version, tvb, offset, 1,  header_version);
   offset += 1;
   header_size = tvb_get_ntohl(tvb, offset);
   ti_header_size = proto_tree_add_uint(peekremote_tree, &hfi_peekremote_header_size, tvb, offset, 4, header_size);
@@ -294,7 +294,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     break;
 
   default:
-    expert_add_info(pinfo, ti_header_size, &ei_peekremote_unknown_header_version);
+    expert_add_info(pinfo, ti_header_version, &ei_peekremote_unknown_header_version);
     if (header_size > 9)
       offset += (header_size - 9);
     break;
