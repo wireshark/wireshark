@@ -756,7 +756,7 @@ static gpointer sctp_ppi_value2(packet_info *pinfo)
 static unsigned int
 sctp_adler32(const unsigned char *buf, unsigned int len)
 {
-  guint32 result = 1L;
+  guint32 result = 1;
 
   result = update_adler32(result, buf, SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH);
   /* handle four 0 bytes as checksum */

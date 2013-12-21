@@ -1915,7 +1915,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			guint32 extension_index;
 			guint32 k;
 
-			if(!((1L<<(num_extensions-1-i))&extension_mask)){
+			if(!((1U<<(num_extensions-1-i))&extension_mask)){
 				/* this extension is not encoded in this PDU */
 				continue;
 			}
