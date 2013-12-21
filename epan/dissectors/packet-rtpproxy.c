@@ -41,16 +41,6 @@
 #include <epan/expert.h>
 #include <epan/rtp_pt.h>
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>       /* needed to define AF_ values on Windows */
-#endif
-#ifdef NEED_INET_V6DEFS_H
-#include "wsutil/inet_v6defs.h"
-#endif
-
 /* For setting up RTP/RTCP dissectors based on the RTPproxy's answers */
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
@@ -760,14 +750,14 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			/* Extract IP */
 			tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, FALSE);
 			if (tvb_find_guint8(tvb, offset, -1, ':') == -1){
-				inet_pton(AF_INET, (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tmp), ipaddr);
+				str_to_ip((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tmp), ipaddr);
 				addr.type = AT_IPv4;
 				addr.len  = 4;
 				addr.data = wmem_memdup(wmem_packet_scope(), ipaddr, 4);
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ipv4, tvb, offset, tmp, ENC_ASCII | ENC_NA);
 			}
 			else{
-				inet_pton(AF_INET6, (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tmp), ipaddr);
+				str_to_ip6((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tmp), ipaddr);
 				addr.type = AT_IPv6;
 				addr.len  = 16;
 				addr.data = wmem_memdup(wmem_packet_scope(), ipaddr, 16);

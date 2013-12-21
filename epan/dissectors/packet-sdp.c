@@ -28,27 +28,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -1357,9 +1336,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             port_end_offset = tvb_find_guint8(tvb, port_offset, -1, ';');
         }
         /* Attempt to convert address */
-        if (inet_pton(AF_INET,
-                      (char*)tvb_get_string(wmem_packet_scope(), tvb, address_offset, port_offset-address_offset),
-                      &media_info->msrp_ipaddr) > 0) {
+        if (str_to_ip((char*)tvb_get_string(wmem_packet_scope(), tvb, address_offset, port_offset-address_offset),
+                       &media_info->msrp_ipaddr)) {
           /* Get port number */
           media_info->msrp_port_number = atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, port_offset + 1, port_end_offset - port_offset - 1));
           /* Set flag so this info can be used */
@@ -1663,7 +1641,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         (media_info->connection_type != NULL)) {
       if (strcmp(media_info->connection_type, "IP4") == 0) {
         transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 4);
-        if (inet_pton(AF_INET, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) > 0) {
+        if (str_to_ip(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
           /* connection_address could be converted to a valid ipv4 address*/
           transport_info->proto_bitmask[transport_index] |= SDP_IPv4;
           transport_info->src_addr[transport_index].type = AT_IPv4;
@@ -1671,7 +1649,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         }
       } else if (strcmp(media_info->connection_type, "IP6") == 0) {
           transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 16);
-          if (inet_pton(AF_INET6, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) > 0) {
+          if (str_to_ip6(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
             /* connection_address could be converted to a valid ipv6 address*/
             transport_info->proto_bitmask[transport_index] |= SDP_IPv6;
             transport_info->src_addr[transport_index].type = AT_IPv6;

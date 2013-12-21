@@ -27,19 +27,6 @@
 
 #include <string.h>
 
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>         /* needed to define AF_ values on UNIX */
-#endif
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include <glib.h>
 
 #include "epan/packet.h"
@@ -496,7 +483,7 @@ void proto_reg_handoff_uasip(void)
     }
 
     if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
-        if (inet_pton(AF_INET, pref_proxy_ipaddr_s, proxy_ipaddr) > 0) {
+        if (str_to_ip(pref_proxy_ipaddr_s, proxy_ipaddr)) {
             use_proxy_ipaddr = TRUE;
         } else {
             g_warning("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);

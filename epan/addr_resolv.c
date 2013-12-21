@@ -2108,7 +2108,7 @@ read_hosts_file (const char *hostspath)
             is_ipv6 = TRUE;
         } else {
             /* Not valid IPv6 - valid IPv4? */
-            if (inet_pton(AF_INET, cp, &host_addr) <= 0)
+            if (!str_to_ip(cp, &host_addr))
                 continue; /* no */
             is_ipv6 = FALSE;
         }
@@ -2184,7 +2184,7 @@ add_ip_name_from_string (const char *addr, const char *name)
         is_ipv6 = TRUE;
     } else {
         /* Not valid IPv6 - valid IPv4? */
-        if (inet_pton(AF_INET, addr, &host_addr) <= 0)
+        if (!str_to_ip(addr, &host_addr))
             return FALSE; /* no */
         is_ipv6 = FALSE;
     }
@@ -2294,7 +2294,7 @@ read_subnets_file (const char *subnetspath)
         ++cp2    ;
 
         /* Check if this is a valid IPv4 address */
-        if (inet_pton(AF_INET, cp, &host_addr) <= 0) {
+        if (!str_to_ip(cp, &host_addr)) {
             continue; /* no */
         }
 
@@ -3415,7 +3415,7 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     struct hostent *hp;
 #endif /* HAVE_C_ARES */
 
-    if (inet_pton(AF_INET6, host, addrp) > 0)
+    if (str_to_ip6(host, addrp))
         return TRUE;
 
     /* It's not a valid dotted-quad IP address; is it a valid
@@ -3547,6 +3547,18 @@ addr_resolv_cleanup(void)
     ipx_name_lookup_cleanup();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_cleanup();*/
+}
+
+gboolean
+str_to_ip(const char *str, void *dst)
+{
+    return inet_pton(AF_INET, str, dst) > 0;
+}
+
+gboolean
+str_to_ip6(const char *str, void *dst)
+{
+    return inet_pton(AF_INET6, str, dst) > 0;
 }
 
 /*

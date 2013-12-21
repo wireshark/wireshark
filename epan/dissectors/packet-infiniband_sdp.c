@@ -35,19 +35,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>         /* needed to define AF_ values on UNIX */
-#endif
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include "packet-infiniband.h"
 
 void proto_register_ib_sdp(void);
@@ -552,7 +539,7 @@ proto_reg_handoff_ib_sdp(void)
                     SET_ADDRESS(&manual_addr[i], AT_IB, sizeof(guint16), manual_addr_data[i]);
                 }
             } else {    /* GID */
-                if (inet_pton(AF_INET6, gPREF_ID[i], manual_addr_data[i]) <= 0) {
+                if (!str_to_ip6(gPREF_ID[i], manual_addr_data[i])) {
                     error_occured = TRUE;
                 } else {
                     SET_ADDRESS(&manual_addr[i], AT_IB, GID_SIZE, manual_addr_data[i]);

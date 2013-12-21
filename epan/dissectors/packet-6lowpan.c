@@ -25,26 +25,6 @@
  */
 #include "config.h"
 
-/* Need to get headers for AF_INET6 and inet_pton() */
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -2833,7 +2813,7 @@ prefs_6lowpan_apply(void)
 
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         if (!lowpan_context_prefs[i]) continue;
-        if (inet_pton(AF_INET6, lowpan_context_prefs[i], &prefix) <= 0) continue;
+        if (!str_to_ip6(lowpan_context_prefs[i], &prefix)) continue;
         /* Set the prefix */
         lowpan_context_insert(i, IEEE802154_BCAST_PAN, 64, &prefix, 0);
     } /* for */

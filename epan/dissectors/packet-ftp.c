@@ -39,19 +39,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>     /* needed to define AF_ values on UNIX */
-#endif
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>       /* needed to define AF_ values on Windows */
-#endif
-#ifdef NEED_INET_V6DEFS_H
-#include "wsutil/inet_v6defs.h" /* if not a *NIX system */
-#endif
+#include <epan/addr_resolv.c>
 
 void proto_register_ftp(void);
 void proto_reg_handoff_ftp(void);
@@ -393,13 +381,13 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
             ip_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
 
             if (*eprt_af == EPRT_AF_IPv4) {
-                if (inet_pton(AF_INET, ip_str, eprt_ip) > 0)
+                if (str_to_ip(ip_str, eprt_ip))
                    ret = TRUE;
                 else
                    ret = FALSE;
             }
             else if (*eprt_af == EPRT_AF_IPv6) {
-                if (inet_pton(AF_INET6, ip_str, eprt_ipv6) > 0)
+                if (str_to_ip6(ip_str, eprt_ipv6))
                    ret = TRUE;
                 else
                    ret = FALSE;

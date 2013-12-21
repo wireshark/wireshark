@@ -36,27 +36,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>		/* needed to define AF_ values on Windows */
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include <glib.h>
 
 #include <wsutil/md5.h>
@@ -827,8 +806,8 @@ mkipv4_address( address **addr, const char *str_addr )
 
 	*addr=(address *)g_malloc( sizeof(address) );
 	addr_data=(char *)g_malloc( 4 );
-	ret = inet_pton( AF_INET, str_addr, addr_data );
-	if (ret==1)
+	ret = str_to_ip(str_addr, addr_data);
+	if (ret)
 		SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
 	else
 		SET_ADDRESS(*addr, AT_STRINGZ, (int)strlen(ADDR_INVLD)+1, ADDR_INVLD);
