@@ -2113,31 +2113,6 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strbuf = tvb_get_string(scope, tvb, offset, length);
 		break;
 
-	case ENC_WINDOWS_1250:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
-		break;
-
-	case ENC_ISO_8859_1:
-		/*
-		 * ISO 8859-1 printable code point values are equal
-		 * to the equivalent Unicode code point value, so
-		 * no translation table is needed.
-		 */
-		strbuf = tvb_get_string_8859_1(scope, tvb, offset, length);
-		break;
-
-	case ENC_ISO_8859_2:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_2);
-		break;
-
-	case ENC_ISO_8859_5:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_5);
-		break;
-
-	case ENC_ISO_8859_9:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_9);
-		break;
-
 	case ENC_UTF_8:
 		/*
 		 * XXX - should map all invalid UTF-8 sequences
@@ -2170,6 +2145,75 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 			EBCDIC_to_ASCII(strbuf, length);
 		}
 		strbuf[length] = '\0';
+		break;
+
+	case ENC_WINDOWS_1250:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
+		break;
+
+	case ENC_ISO_8859_1:
+		/*
+		 * ISO 8859-1 printable code point values are equal
+		 * to the equivalent Unicode code point value, so
+		 * no translation table is needed.
+		 */
+		strbuf = tvb_get_string_8859_1(scope, tvb, offset, length);
+		break;
+
+	case ENC_ISO_8859_2:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_2);
+		break;
+
+	case ENC_ISO_8859_3:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_3);
+		break;
+
+	case ENC_ISO_8859_4:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_4);
+		break;
+
+	case ENC_ISO_8859_5:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_5);
+		break;
+
+	case ENC_ISO_8859_6:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_6);
+		break;
+
+	case ENC_ISO_8859_7:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_7);
+		break;
+
+	case ENC_ISO_8859_8:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_8);
+		break;
+
+	case ENC_ISO_8859_9:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_9);
+		break;
+
+	case ENC_ISO_8859_10:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_10);
+		break;
+
+	case ENC_ISO_8859_11:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_11);
+		break;
+
+	case ENC_ISO_8859_13:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_13);
+		break;
+
+	case ENC_ISO_8859_14:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_14);
+		break;
+
+	case ENC_ISO_8859_15:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_15);
+		break;
+
+	case ENC_ISO_8859_16:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_16);
 		break;
 	}
 	return strbuf;
@@ -2338,31 +2382,6 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		strptr = tvb_get_stringz(scope, tvb, offset, lengthp);
 		break;
 
-	case ENC_WINDOWS_1250:
-		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
-		break;
-
-	case ENC_ISO_8859_1:
-		/*
-		 * ISO 8859-1 printable code point values are equal
-		 * to the equivalent Unicode code point value, so
-		 * no translation table is needed.
-		 */
-		strptr = tvb_get_stringz_8859_1(scope, tvb, offset, lengthp);
-		break;
-
-	case ENC_ISO_8859_2:
-		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_2);
-		break;
-
-	case ENC_ISO_8859_5:
-		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_5);
-		break;
-
-	case ENC_ISO_8859_9:
-		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_9);
-		break;
-
 	case ENC_UTF_8:
 		/*
 		 * XXX - should map all invalid UTF-8 sequences
@@ -2393,6 +2412,75 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		EBCDIC_to_ASCII(strptr, size);
 		if (lengthp)
 			*lengthp = size;
+		break;
+
+	case ENC_WINDOWS_1250:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+		break;
+
+	case ENC_ISO_8859_1:
+		/*
+		 * ISO 8859-1 printable code point values are equal
+		 * to the equivalent Unicode code point value, so
+		 * no translation table is needed.
+		 */
+		strptr = tvb_get_stringz_8859_1(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_ISO_8859_2:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_2);
+		break;
+
+	case ENC_ISO_8859_3:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_3);
+		break;
+
+	case ENC_ISO_8859_4:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_4);
+		break;
+
+	case ENC_ISO_8859_5:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_5);
+		break;
+
+	case ENC_ISO_8859_6:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_6);
+		break;
+
+	case ENC_ISO_8859_7:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_7);
+		break;
+
+	case ENC_ISO_8859_8:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_8);
+		break;
+
+	case ENC_ISO_8859_9:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_9);
+		break;
+
+	case ENC_ISO_8859_10:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_10);
+		break;
+
+	case ENC_ISO_8859_11:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_11);
+		break;
+
+	case ENC_ISO_8859_13:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_13);
+		break;
+
+	case ENC_ISO_8859_14:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_14);
+		break;
+
+	case ENC_ISO_8859_15:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_15);
+		break;
+
+	case ENC_ISO_8859_16:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_16);
 		break;
 	}
 

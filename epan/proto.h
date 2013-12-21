@@ -287,8 +287,20 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_WINDOWS_1250	0x0000000A
 #define ENC_ISO_8859_1		0x0000000C
 #define ENC_ISO_8859_2		0x0000000E
+#define ENC_ISO_8859_3		0x00000010
+#define ENC_ISO_8859_4		0x00000012
 #define ENC_ISO_8859_5		0x00000014
+#define ENC_ISO_8859_6		0x00000016
+#define ENC_ISO_8859_7		0x00000018
+#define ENC_ISO_8859_8		0x0000001A
 #define ENC_ISO_8859_9		0x0000001C
+#define ENC_ISO_8859_10		0x0000001E
+#define ENC_ISO_8859_11		0x00000020
+/* #define ENC_ISO_8859_12		0x00000022 ISO 8859-12 was abandoned */
+#define ENC_ISO_8859_13		0x00000024
+#define ENC_ISO_8859_14		0x00000026
+#define ENC_ISO_8859_15		0x00000028
+#define ENC_ISO_8859_16		0x0000002A
 
 /*
  * TODO:
@@ -296,7 +308,6 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * These could probably be used by existing code:
  *
  *	ENC_UCS_4 - UCS-4
- *	ENC_ISO_8859_8 - ISO 8859/8
  *	 - "IBM MS DBCS"
  *	 - JIS C 6226
  *	7-bit encodings such as ETSI 03.38 (GSM SMS character set

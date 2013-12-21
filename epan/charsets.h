@@ -50,8 +50,19 @@ extern const gunichar2 charset_table_cp1250[0x80];
 
 /* Tables for ISO-8859-X */
 extern const gunichar2 charset_table_iso_8859_2[0x80];
+extern const gunichar2 charset_table_iso_8859_3[0x80];
+extern const gunichar2 charset_table_iso_8859_4[0x80];
 extern const gunichar2 charset_table_iso_8859_5[0x80];
+extern const gunichar2 charset_table_iso_8859_6[0x80];
+extern const gunichar2 charset_table_iso_8859_7[0x80];
+extern const gunichar2 charset_table_iso_8859_8[0x80];
 extern const gunichar2 charset_table_iso_8859_9[0x80];
+extern const gunichar2 charset_table_iso_8859_10[0x80];
+extern const gunichar2 charset_table_iso_8859_11[0x80];
+extern const gunichar2 charset_table_iso_8859_13[0x80];
+extern const gunichar2 charset_table_iso_8859_14[0x80];
+extern const gunichar2 charset_table_iso_8859_15[0x80];
+extern const gunichar2 charset_table_iso_8859_16[0x80];
 
 #ifdef __cplusplus
 }
