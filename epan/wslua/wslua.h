@@ -47,6 +47,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
