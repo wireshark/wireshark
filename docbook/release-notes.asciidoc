@@ -34,6 +34,7 @@ The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
+* Build failure with GTK 3.10 - GTK developers have gone insane. (ws-buglink:9340[])
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 * Tshark doesn't display the longer data fields (mbtcp). (ws-buglink:9572[])
 * DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
