@@ -843,7 +843,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 else if (ftp_ip_address.type == AT_IPv6) {
                     addr_it = proto_tree_add_ipv6(reqresp_tree,
                             hf_ftp_epsv_ipv6, tvb, 0, 0,
-                            (guint8*)ftp_ip_address.data);
+                            (const guint8*)ftp_ip_address.data);
                     PROTO_ITEM_SET_GENERATED(addr_it);
                 }
 

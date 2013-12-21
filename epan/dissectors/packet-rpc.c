@@ -1688,7 +1688,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, -1, 0, NULL };
 	rpc_call_info_value *rpc_call;
-	char *procname=NULL;
+	const char *procname=NULL;
 	dissect_function_t *dissect_function = NULL;
 	rpc_conv_info_t *rpc_conv_info=NULL;
 	guint32 xid;
@@ -1762,7 +1762,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (rpc_call->proc_info != NULL) {
 		dissect_function = rpc_call->proc_info->dissect_reply;
 		if (rpc_call->proc_info->name != NULL) {
-			procname = (char *)rpc_call->proc_info->name;
+			procname = rpc_call->proc_info->name;
 		}
 		else {
 			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
@@ -1898,7 +1898,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	const char *msg_type_name = NULL;
 	const char *progname = NULL;
-	char *procname = NULL;
+	const char *procname = NULL;
 
 	unsigned int vers_low;
 	unsigned int vers_high;
@@ -2180,7 +2180,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if ((value = (rpc_proc_info_value *)g_hash_table_lookup(rpc_procs,&key)) != NULL) {
 			dissect_function = value->dissect_call;
-			procname = (char *)value->name;
+			procname = value->name;
 		}
 		else {
 			/* happens only with strange program versions or
@@ -2226,8 +2226,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (tvb_get_ntohl(tvb, offset+28)) {
 						flavor = FLAVOR_AUTHGSSAPI_MSG;
 						gss_proc = proc;
-						procname = (char *)
-						    val_to_str(gss_proc,
+						procname = val_to_str(gss_proc,
 						    rpc_authgssapi_proc, "Unknown (%d)");
 					} else {
 						flavor = FLAVOR_AUTHGSSAPI;
@@ -2414,7 +2413,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (rpc_call->proc_info != NULL) {
 			dissect_function = rpc_call->proc_info->dissect_reply;
 			if (rpc_call->proc_info->name != NULL) {
-				procname = (char *)rpc_call->proc_info->name;
+				procname = rpc_call->proc_info->name;
 			}
 			else {
 				procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", proc);
@@ -2435,7 +2434,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * AUTH_GSSAPI procname.
 		 */
 		if (flavor == FLAVOR_AUTHGSSAPI_MSG) {
-			procname = (char *)val_to_str_const(gss_proc, rpc_authgssapi_proc, "(null)");
+			procname = val_to_str_const(gss_proc, rpc_authgssapi_proc, "(null)");
 		}
 
 		rpc_prog_key.prog = prog;

@@ -567,8 +567,8 @@ static guint crc_calc (guint crc, guint val)
 /* Hash functions*/
 static gint sbus_equal(gconstpointer v, gconstpointer w)
 {
-       sbus_request_key *v1 = (sbus_request_key *)v;
-       sbus_request_key *v2 = (sbus_request_key *)w;
+       const sbus_request_key *v1 = (const sbus_request_key *)v;
+       const sbus_request_key *v2 = (const sbus_request_key *)w;
 
        if (v1->conversation == v2->conversation &&
            v1->sequence == v2->sequence) {
@@ -579,8 +579,9 @@ static gint sbus_equal(gconstpointer v, gconstpointer w)
 
 static guint sbus_hash(gconstpointer v)
 {
-       sbus_request_key *key = (sbus_request_key *)v;
+       const sbus_request_key *key = (const sbus_request_key *)v;
        guint val;
+
        val = key->conversation + key->sequence;
        return val;
 }

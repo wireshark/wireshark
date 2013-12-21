@@ -230,7 +230,7 @@ invalidate_detail_iters (wlanstat_t *hs)
 }
 
 static wlan_ep_t*
-alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
+alloc_wlan_ep (const struct _wlan_hdr *si, const packet_info *pinfo _U_)
 {
     wlan_ep_t *ep;
 
@@ -256,7 +256,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 }
 
 static wlan_details_ep_t *
-alloc_wlan_details_ep (address *addr)
+alloc_wlan_details_ep (const address *addr)
 {
     wlan_details_ep_t *d_ep;
 
@@ -282,7 +282,7 @@ alloc_wlan_details_ep (address *addr)
 }
 
 static wlan_details_ep_t *
-get_details_ep (wlan_ep_t *te, address *addr)
+get_details_ep (wlan_ep_t *te, const address *addr)
 {
     wlan_details_ep_t *tmp, *d_te = NULL;
 
@@ -311,7 +311,7 @@ get_details_ep (wlan_ep_t *te, address *addr)
 }
 
 static void
-wlanstat_packet_details (wlan_ep_t *te, guint32 type, address *addr, gboolean src)
+wlanstat_packet_details (wlan_ep_t *te, guint32 type, const address *addr, gboolean src)
 {
     wlan_details_ep_t *d_te = get_details_ep (te, addr);
 
@@ -357,7 +357,7 @@ wlanstat_packet_details (wlan_ep_t *te, guint32 type, address *addr, gboolean sr
 }
 
 static gboolean
-is_broadcast(address *addr)
+is_broadcast(const address *addr)
 {
 #if 0
     /* doesn't work if MAC resolution is disable */
@@ -367,7 +367,7 @@ is_broadcast(address *addr)
 }
 
 static gboolean
-ssid_equal(struct _wlan_stats *st1, struct _wlan_stats *st2 )
+ssid_equal(const struct _wlan_stats *st1, const struct _wlan_stats *st2 )
 {
     return (st1->ssid_len == st2->ssid_len) && (memcmp(st1->ssid, st2->ssid, st1->ssid_len) == 0);
 }
@@ -377,7 +377,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 {
     wlanstat_t       *hs  = (wlanstat_t *)phs;
     wlan_ep_t        *tmp, *te = NULL;
-    struct _wlan_hdr *si  = (struct _wlan_hdr *) phi;
+    const struct _wlan_hdr *si  = (const struct _wlan_hdr *) phi;
 
     if (!hs)
         return (0);

@@ -134,12 +134,10 @@ calcNT3(nstime_t *OT1, nstime_t *OT3, nstime_t *NT1, nstime_t *NT3,
 
 const gchar *
 time_string_parse(const gchar *time_text, int *year, int *month, int *day, gboolean *negative, int *hour, int *minute, long double *second) {
-    gchar       *pts;
+    const gchar *pts = time_text;
 
     if (!time_text || !hour || !minute || !second)
         return "Unable to convert time.";
-
-    pts = (gchar *)time_text;
 
     /* strip whitespace */
     while (isspace(pts[0]))

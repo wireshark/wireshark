@@ -258,7 +258,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
             guint i;
 
             for(i=0;i<fld_len;i++) {
-                fprintf(fp,"%.2x",((guint8*)fld_ptr)[i]);
+                fprintf(fp,"%.2x",((const guint8*)fld_ptr)[i]);
             }
 
             return;
@@ -709,12 +709,12 @@ char* uat_undquote(const char* si, guint in_len, guint* len_p) {
 
 
 char* uat_esc(const char* buf, guint len) {
-    const guint8* end = ((guint8*)buf)+len;
+    const guint8* end = ((const guint8*)buf)+len;
     char* out = (char *)ep_alloc0((4*len)+1);
     const guint8* b;
     char* s = out;
 
-    for (b = (guint8 *)buf; b < end; b++) {
+    for (b = (const guint8 *)buf; b < end; b++) {
         if (isprint(*b) ) {
             *(s++) = (*b);
         } else {

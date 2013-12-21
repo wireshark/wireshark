@@ -635,7 +635,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static int
 sametime_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
-        struct SametimeTap *pi = (struct SametimeTap *)p;
+        const struct SametimeTap *pi = (const struct SametimeTap *)p;
 
         tick_stat_node(st, st_str_packet, 0, FALSE);
         if (pi->message_type != -1)

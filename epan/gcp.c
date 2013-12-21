@@ -402,7 +402,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
     gcp_terms_t* ct;
     gcp_terms_t* ct2;
 
-    static gcp_term_t all_terms = {"$",(guint8*)"",1,GCP_TERM_TYPE_UNKNOWN,NULL,NULL,NULL};
+    static gcp_term_t all_terms = {"$",(const guint8*)"",1,GCP_TERM_TYPE_UNKNOWN,NULL,NULL,NULL};
 
     if ( !c ) return NULL;
 
