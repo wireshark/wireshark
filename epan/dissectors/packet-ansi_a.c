@@ -50,7 +50,6 @@
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
-#include <epan/base64.h>
 #include <epan/tfs.h>
 
 #include "packet-mtp3.h"

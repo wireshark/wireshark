@@ -65,7 +65,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/base64.h>
 #include <epan/wmem/wmem.h>
 
 #include "packet-imf.h"

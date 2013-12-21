@@ -65,21 +65,3 @@ size_t epan_base64_decode(char *s)
 	d[i*3/4] = 0;
 	return i*3/4;
 }
-
-/* Return a tvb that contains the binary representation of a base64
-   string */
-
-tvbuff_t *
-base64_to_tvb(tvbuff_t *parent, const char *base64)
-{
-  tvbuff_t *tvb;
-  char *data = g_strdup(base64);
-  gint len;
-
-  len = (gint) epan_base64_decode(data);
-  tvb = tvb_new_child_real_data(parent, (const guint8 *)data, len, len);
-
-  tvb_set_free_cb(tvb, g_free);
-
-  return tvb;
-}

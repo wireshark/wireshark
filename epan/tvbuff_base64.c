@@ -1,5 +1,5 @@
-/* base64.h
- * Base-64 conversion
+/* tvbuff_base64.c
+ * Base-64 tvbuff implementation (based on real tvb)
  *
  * $Id$
  *
@@ -21,21 +21,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef __BASE64_H__
-#define __BASE64_H__
 
-#include "ws_symbol_export.h"
+#include "config.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#include <glib.h>
 
-/* In-place decoding of a base64 string. Resulting string is NULL terminated */
-WS_DLL_PUBLIC
-size_t epan_base64_decode(char *s);
+#include <epan/tvbuff.h>
+#include <epan/base64.h>
 
-#ifdef __cplusplus
+tvbuff_t *
+base64_to_tvb(tvbuff_t *parent, const char *base64)
+{
+  tvbuff_t *tvb;
+  char *data = g_strdup(base64);
+  gint len;
+
+  len = (gint) epan_base64_decode(data);
+  tvb = tvb_new_child_real_data(parent, (const guint8 *)data, len, len);
+
+  tvb_set_free_cb(tvb, g_free);
+
+  return tvb;
 }
-#endif /* __cplusplus */
-
-#endif /* __BASE64_H__ */

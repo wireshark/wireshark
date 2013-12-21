@@ -1537,6 +1537,7 @@ set(LIBWIRESHARK_FILES
 	to_str.c
 	tvbparse.c
 	tvbuff.c
+	tvbuff_base64.c
 	tvbuff_composite.c
 	tvbuff_real.c
 	tvbuff_subset.c

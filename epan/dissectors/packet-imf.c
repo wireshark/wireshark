@@ -32,7 +32,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
-#include <epan/base64.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 

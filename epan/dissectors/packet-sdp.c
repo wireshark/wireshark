@@ -55,7 +55,6 @@
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
-#include <epan/base64.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

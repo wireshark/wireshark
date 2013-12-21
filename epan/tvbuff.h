@@ -681,6 +681,8 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
 WS_DLL_PUBLIC gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
     const gint haystack_offset);
 
+/* From tvbuff_zlib.c */
+
 /**
  * Uncompresses a zlib compressed packet inside a tvbuff at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
@@ -696,6 +698,13 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
  */
 extern tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
+
+/* From tvbuff_base64.c */
+
+/** Return a tvb that contains the binary representation of a base64
+ *  string 
+ */
+extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 
 /************** END OF ACCESSORS ****************/
 

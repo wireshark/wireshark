@@ -96,6 +96,7 @@ LIBWIRESHARK_SRC =		\
 	tfs.c			\
 	to_str.c		\
 	tvbparse.c		\
+	tvbuff_base64.c		\
 	tvbuff_composite.c	\
 	tvbuff_real.c		\
 	tvbuff_subset.c		\
