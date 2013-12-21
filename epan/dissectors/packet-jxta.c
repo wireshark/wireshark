@@ -583,7 +583,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         processed = dissect_jxta_welcome(tvb, pinfo, jxta_tree, welcome_addr, initiator);
     } else {
         /* Somewhere in the middle of a JXTA stream connection */
-        gint64 content_length = -1L;
+        gint64 content_length = G_GINT64_CONSTANT(-1);
         gchar *content_type = NULL;
         gint headers_len = dissect_jxta_message_framing(tvb, pinfo, NULL, (guint64*) &content_length, &content_type);
 
