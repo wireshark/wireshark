@@ -1490,7 +1490,13 @@ if test "$have_gtk" = "yes" ; then
 
 	CPPFLAGS="-DGDK_PIXBUF_DISABLE_DEPRECATED $CPPFLAGS"
 	CPPFLAGS="-DGDK_DISABLE_DEPRECATED $CPPFLAGS"
-	CPPFLAGS="-DGTK_DISABLE_DEPRECATED $CPPFLAGS"
+	if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
+		## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
+		##  The deprecations in Gtk 3.10 will not be fixed ...
+		CPPFLAGS="-DGDK_DISABLE_DEPRECATION_WARNINGS $CPPFLAGS"
+	else
+		CPPFLAGS="-DGTK_DISABLE_DEPRECATED $CPPFLAGS"
+	fi
 	CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
 	if test ! \( $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -lt 20 \) ; then
 		# Enable GSEAL when building with GTK > 2.20
