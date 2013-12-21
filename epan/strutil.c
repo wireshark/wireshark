@@ -565,7 +565,7 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
     p = (const guchar *)uri_str;
 
     while (*p) {
-        if (! isascii(*p) || ! g_ascii_isprint(*p))
+        if (!g_ascii_isprint(*p))
             return FALSE;
         if (*p == '%') {
             p++;
@@ -636,7 +636,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
         }
         c = bytes->data[column];
 
-        if (!isascii(c) || !g_ascii_isprint(c) || c == '%') {
+        if (!g_ascii_isprint(c) || c == '%') {
             is_reserved = TRUE;
         }
 

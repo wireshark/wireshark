@@ -346,7 +346,7 @@ static gboolean is_all_printable(const guchar *stringtocheck, int length)
 
   allprintable=TRUE;
   for (i=0;i<length;i++) {
-    if (!(isascii(stringtocheck[i]) && isprint(stringtocheck[i]))) {
+    if (!g_ascii_isprint(stringtocheck[i])) {
       allprintable=FALSE;
       break;
     }

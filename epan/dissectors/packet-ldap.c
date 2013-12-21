@@ -899,7 +899,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 	str=tvb_get_ptr(tvb, offset, len);
 	is_ascii=TRUE;
 	for(i=0;i<len;i++){
-		if(!isascii(str[i]) || !isprint(str[i])){
+		if(!g_ascii_isprint(str[i])){
 			is_ascii=FALSE;
 			break;
 		}

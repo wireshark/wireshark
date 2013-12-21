@@ -116,7 +116,7 @@ void k12_hex_ascii_dump(guint level, gint64 offset, const char* label, const uns
         fprintf(dbg_out, "    ");
         for (j=0; j<16; j++) {
             if ((i+j)<len)
-                fprintf(dbg_out, "%c", isascii(b[i+j]) && isprint(b[i+j]) ? b[i+j] : '.');
+                fprintf(dbg_out, "%c", g_ascii_isprint(b[i+j]) ? b[i+j] : '.');
         }
         fprintf(dbg_out,"\n");
     }
