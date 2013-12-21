@@ -1261,18 +1261,6 @@ static const enum_val_t print_dest_vals[] = {
     { NULL,      NULL,      0 }
 };
 
-static const enum_val_t gui_qt_language[] = {
-    {"Auto-Detect", "auto", 0},
-    {"English", "en", 1},
-    {"French", "fr", 2},
-    {"German", "de", 3},
-    {"Chinese", "zh_CN", 4},
-    {"Polish", "pl", 5},
-    {"Japanese", "ja_JP", 6},
-    {"Italian", "it", 7},
-    {NULL, NULL, -1}
-};
-
 static const enum_val_t st_sort_col_vals[] = {
     { "name",    "Node name (topic/item)", ST_SORT_COL_NAME },
     { "count",   "Item count", ST_SORT_COL_COUNT },
@@ -2332,11 +2320,6 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_auto_scroll_percentage);
 
-    prefs_register_enum_preference(gui_module, "qt_language",
-                       "Qt Language",
-                       "Qt Language",
-                       &prefs.gui_qt_language, gui_qt_language, FALSE);
-
     /* User Interface : Layout */
     gui_layout_module = prefs_register_subtree(gui_module, "Layout", "Layout", gui_layout_callback);
 
@@ -2970,7 +2953,6 @@ pre_init_prefs(void)
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
-    prefs.gui_qt_language            = 0; /* (Auto-Detect) */
     prefs.gui_packet_editor          = FALSE;
 
     prefs.col_list = NULL;

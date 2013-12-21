@@ -61,12 +61,10 @@ private:
 
 private slots:
     void on_searchTypeComboBox_currentIndexChanged(int index);
-
     void on_searchLineEdit_textChanged(const QString &search_string);
-
     void on_findButton_clicked();
-
     void on_cancelButton_clicked();
+    void changeEvent(QEvent* event);
 };
 
 #endif // SEARCH_FRAME_H

@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/languages">
+        <file>de.svg</file>
+        <file>en.svg</file>
+        <file>fr.svg</file>
+        <file>it.svg</file>
+        <file>ja_JP.svg</file>
+        <file>pl.svg</file>
+        <file>zh_CN.svg</file>
+    </qresource>
+</RCC>

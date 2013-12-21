@@ -73,6 +73,7 @@ protected slots:
     void HelpButton();
     void CopyComment();
     void on_tabWidget_currentChanged(int index);
+    void changeEvent(QEvent* event);
 
 
 private:

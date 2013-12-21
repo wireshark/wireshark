@@ -248,6 +248,22 @@ void MainWelcome::resizeEvent(QResizeEvent *event)
     QFrame::resizeEvent(event);
 }
 
+void MainWelcome::changeEvent(QEvent* event)
+{
+    if (0 != event)
+    {
+        switch (event->type())
+        {
+        case QEvent::LanguageChange:
+            welcome_ui_->retranslateUi(this);
+            break;
+        default:
+            break;
+        }
+    }
+    QFrame::changeEvent(event);
+}
+
 /*
  * Editor modelines
  *

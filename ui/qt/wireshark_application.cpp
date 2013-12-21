@@ -61,6 +61,8 @@
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QFontMetrics>
+#include <QLibraryInfo>
+#include <QLocale>
 #include <QMutableListIterator>
 #include <QTimer>
 #include <QUrl>
@@ -570,6 +572,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(status);
     Q_INIT_RESOURCE(toolbar);
     Q_INIT_RESOURCE(wsicon);
+    Q_INIT_RESOURCE(languages);
 
 #ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */
@@ -864,6 +867,43 @@ void WiresharkApplication::addRecentItem(const QString &filename, qint64 size, b
     recent_items_.prepend(ri);
 
     itemStatusFinished(filename, size, accessible);
+}
+
+static void switchTranslator(QTranslator& myTranslator, const QString& filename,
+    const QString& searchPath)
+{
+    wsApp->removeTranslator(&myTranslator);
+
+    if (myTranslator.load(filename, searchPath))
+        wsApp->installTranslator(&myTranslator);
+}
+
+void WiresharkApplication::loadLanguage(const QString& newLanguage)
+{
+    QLocale locale;
+    QString localeLanguage;
+
+    if (newLanguage.isEmpty() || newLanguage == "auto") {
+        localeLanguage = QLocale::system().name();
+    } else {
+        localeLanguage = newLanguage;
+    }
+
+    locale = QLocale(localeLanguage);
+    QLocale::setDefault(locale);
+    switchTranslator(wsApp->translator,
+            QString("wireshark_%1.qm").arg(localeLanguage), QString(":/i18n/"));
+    if (QFile::exists(QString("%1/%2/wireshark_%3.qm")
+            .arg(get_datafile_dir()).arg("languages").arg(localeLanguage)))
+        switchTranslator(wsApp->translator,
+                QString("wireshark_%1.qm").arg(localeLanguage), QString(get_datafile_dir()) + QString("/languages"));
+    if (QFile::exists(QString("%1/wireshark_%3.qm")
+            .arg(gchar_free_to_qstring(get_persconffile_path("languages", FALSE))).arg(localeLanguage)))
+        switchTranslator(wsApp->translator,
+                QString("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", FALSE)));
+    switchTranslator(wsApp->translatorQt,
+            QString("qt_%1.qm").arg(localeLanguage),
+            QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 }
 
 /*

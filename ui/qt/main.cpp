@@ -101,6 +101,7 @@
 #endif
 #include "ui/console.h"
 #include "ui/iface_lists.h"
+#include "ui/language.h"
 #include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
@@ -141,7 +142,6 @@
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
 #endif
-#include <QTranslator>
 
 #include "conversation_dialog.h"
 #include "endpoint_dialog.h"
@@ -783,6 +783,13 @@ int main(int argc, char *argv[])
     optind = optind_initial;
     opterr = 1;
 
+    // Initialize our language
+    read_language_prefs();
+    locale = QString(language);
+    wsApp->loadLanguage(locale);
+
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
+
     // Init the main window (and splash)
     main_w = new(MainWindow);
     main_w->show();
@@ -884,45 +891,8 @@ int main(int argc, char *argv[])
     }
 
     splash_update(RA_PREFERENCES, NULL, NULL);
+
     prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
-
-    // Initialize our language
-
-    /*TODO: Enhance... may be get the locale from the enum gui_qt_language */
-    switch(prefs_p->gui_qt_language){
-        case 1: /* English */
-        locale = "en";
-        break;
-        case 2: /* French */
-        locale = "fr";
-        break;
-        case 3: /* German */
-        locale = "de";
-        break;
-        case 4: /* Chinese */
-        locale = "zh_CN";
-        break;
-        case 5: /* Polish */
-        locale = "pl";
-        break;
-        case 6: /* Japanese */
-        locale = "ja_JP";
-        break;
-        case 7: /* Italian */
-        locale = "it";
-        break;
-        default: /* Auto-Detect */
-        locale = QLocale::system().name();
-        break;
-    }
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
-    QTranslator translator;
-    translator.load(QString(":/i18n/wireshark_") + locale);
-    wsApp->installTranslator(&translator);
-
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    wsApp->installTranslator(&qtTranslator);
 
     /* Now get our args */
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {

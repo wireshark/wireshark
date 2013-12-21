@@ -67,6 +67,7 @@ private slots:
     void interfaceDoubleClicked(QTreeWidgetItem *item, int column);
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);
+    void changeEvent(QEvent* event);
 };
 
 #endif // MAIN_WELCOME_H

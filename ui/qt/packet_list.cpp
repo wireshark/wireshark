@@ -235,6 +235,7 @@ PacketList::PacketList(QWidget *parent) :
     ctx_column_(-1)
 {
     QMenu *submenu, *subsubmenu;
+    QAction *action;
 
     setItemsExpandable(false);
     setRootIsDecorated(false);
@@ -256,26 +257,36 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
 
     ctx_menu_.addSeparator();
-    submenu = new QMenu(tr("Follow..."));
-    ctx_menu_.addMenu(submenu);
+
+    action = window()->findChild<QAction *>("actionFollow");
+    submenu = new QMenu();
+    action->setMenu(submenu);
+    ctx_menu_.addAction(action);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
+
     filter_actions_ << submenu->actions();
-    //    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
-    //    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
-    //    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
-    submenu = new QMenu(tr("SCTP"));
+
+    action = window()->findChild<QAction *>("actionSCTP");
+    submenu = new QMenu();
+    action->setMenu(submenu);
+    ctx_menu_.addAction(action);
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
     filter_actions_ << submenu->actions();
+
     ctx_menu_.addSeparator();
+
 //    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
-    ctx_menu_.addSeparator();
-    submenu = new QMenu(tr("Apply as Filter"));
-    ctx_menu_.addMenu(submenu);
+//    ctx_menu_.addSeparator();
+
+    action = window()->findChild<QAction *>("actionApply_as_Filter");
+    submenu = new QMenu();
+    action->setMenu(submenu);
+    ctx_menu_.addAction(action);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
@@ -283,8 +294,11 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
     filter_actions_ << submenu->actions();
-    submenu = new QMenu(tr("Prepare a Filter"));
-    ctx_menu_.addMenu(submenu);
+
+    action = window()->findChild<QAction *>("actionPrepare_a_Filter");
+    submenu = new QMenu();
+    action->setMenu(submenu);
+    ctx_menu_.addAction(action);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
@@ -292,7 +306,11 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
     filter_actions_ << submenu->actions();
-    submenu = new QMenu(tr("Colorize with Filter"));
+
+//    action = window()->findChild<QAction *>("actionColorize_with_Filter");
+//    submenu = new QMenu();
+//    action->setMenu(submenu);
+//    ctx_menu_.addAction(action);
 //    "     <menu name= 'ConversationFilter' action='/Conversation Filter'>\n"
 //    "       <menuitem name='Ethernet' action='/Conversation Filter/Ethernet'/>\n"
 //    "       <menuitem name='IP' action='/Conversation Filter/IP'/>\n"
@@ -367,20 +385,25 @@ PacketList::PacketList(QWidget *parent) :
 //    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
 //    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
     ctx_menu_.addSeparator();
-//    "     <menu name= 'Copy' action='/Copy'>\n"
-    submenu = new QMenu(tr("Copy"));
-    ctx_menu_.addMenu(submenu);
+
+    action = window()->findChild<QAction *>("actionCopy");
+    submenu = new QMenu();
+    action->setMenu(submenu);
+    ctx_menu_.addAction(action);
     //    "        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
     //    "        <menuitem name='SummaryCSV' action='/Copy/SummaryCSV'/>\n"
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
     filter_actions_ << window()->findChild<QAction *>("actionEditCopyAsFilter");
     submenu->addSeparator();
-    subsubmenu = new QMenu(tr("Bytes"));
-    submenu->addMenu(subsubmenu);
+
+    action = window()->findChild<QAction *>("actionBytes");
+    subsubmenu = new QMenu();
+    action->setMenu(subsubmenu);
+    submenu->addAction(action);
     //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
     //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
     //    "           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"
-    ctx_menu_.addSeparator();
+//    ctx_menu_.addSeparator();
 //    "           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
 //    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
     ctx_menu_.addSeparator();

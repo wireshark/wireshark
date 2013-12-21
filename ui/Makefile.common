@@ -56,6 +56,7 @@ WIRESHARK_UI_SRC = \
 	follow.c		\
 	iface_lists.c		\
 	io_graph_item.c		\
+	language.c		\
 	help_url.c		\
 	packet_list_utils.c	\
 	persfilepath_opt.c	\
@@ -92,6 +93,7 @@ noinst_HEADERS = \
 	packet_list_utils.h	\
 	iface_lists.h		\
 	io_graph_item.h		\
+	language.h		\
 	main_statusbar.h	\
 	persfilepath_opt.h	\
 	preference_utils.h	\

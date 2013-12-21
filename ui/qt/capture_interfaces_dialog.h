@@ -99,6 +99,7 @@ private slots:
     void refreshInterfaceList();
     void updateLocalInterfaces();
     void on_browseButton_clicked();
+    void changeEvent(QEvent* event);
 
 signals:
     void startCapture();

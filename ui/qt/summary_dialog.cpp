@@ -744,6 +744,22 @@ SummaryDialog::~SummaryDialog()
     delete ui;
 }
 
+void SummaryDialog::changeEvent(QEvent* event)
+{
+    if (0 != event)
+    {
+        switch (event->type())
+        {
+        case QEvent::LanguageChange:
+            ui->retranslateUi(this);
+            break;
+        default:
+            break;
+        }
+    }
+    QDialog::changeEvent(event);
+}
+
 /*
 
  * Editor modelines

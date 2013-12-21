@@ -22,6 +22,7 @@
 #ifndef DISPLAYFILTEREDIT_H
 #define DISPLAYFILTEREDIT_H
 
+#include <QEvent>
 #include <QToolButton>
 #include "syntax_line_edit.h"
 
@@ -45,6 +46,7 @@ private slots:
     void checkFilter(const QString &text);
     void bookmarkClicked();
     void clearFilter();
+    void changeEvent(QEvent* event);
 
 private:
     bool plain_;

@@ -2103,6 +2103,36 @@
     <string>Show or hide the packet bytes</string>
    </property>
   </action>
+  <action name="actionFollow">
+   <property name="text">
+    <string>Follow...</string>
+   </property>
+  </action>
+  <action name="actionSCTP">
+   <property name="text">
+    <string>SCTP</string>
+   </property>
+  </action>
+  <action name="actionApply_as_Filter">
+   <property name="text">
+    <string>Apply as Filter</string>
+   </property>
+  </action>
+  <action name="actionPrepare_a_Filter">
+   <property name="text">
+    <string>Prepare a Filter</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionBytes">
+   <property name="text">
+    <string>Bytes</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

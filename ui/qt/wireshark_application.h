@@ -43,6 +43,8 @@
 #include <QSocketNotifier>
 #include <QThread>
 #include <QTimer>
+#include <QTranslator>
+
 
 // Recent items:
 // - Read from prefs
@@ -92,6 +94,10 @@ public:
     bool isInitialized() { return initialized_; }
     const QIcon &normalIcon() const { return normal_icon_; }
     const QIcon &captureIcon() const { return capture_icon_; }
+
+    QTranslator translator;
+    QTranslator translatorQt;
+    void loadLanguage(const QString& language);
 
 private:
     bool initialized_;

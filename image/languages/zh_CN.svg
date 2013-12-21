@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1500" height="1000" viewBox="-5 -5 30 20">
+<title>Flag of the People's Republic of China</title>
+<rect fill="#de2910" x="-5" y="-5" width="30" height="20"/>
+<defs>
+<polygon id="s" points="0,-513674 301930,415571 -488533,-158734 488533,-158734 -301930,415571"
+fill="#ffde00" transform="scale(0.0000019467600073)"/>
+</defs>
+<use xlink:href="#s" transform="scale(3)"/>
+<use xlink:href="#s" transform="translate(5,-3) rotate(-120.963756)"/>
+<use xlink:href="#s" transform="translate(7,-1) rotate(-98.130102)"/>
+<use xlink:href="#s" transform="translate(7,2) rotate(-74.054604)"/>
+<use xlink:href="#s" transform="translate(5,4) rotate(-51.3401917)"/>
+</svg>

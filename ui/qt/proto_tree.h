@@ -44,9 +44,9 @@ protected:
      void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-     QMenu ctx_menu_;
-     QAction *decode_as_;
-     QFont mono_font_;
+    QMenu ctx_menu_;
+    QAction *decode_as_;
+    QFont mono_font_;
 
 signals:
     void protoItemSelected(QString &);

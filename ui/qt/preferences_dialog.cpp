@@ -31,8 +31,9 @@
 #endif /* HAVE_LIBPCAP */
 
 #include <epan/prefs-int.h>
-
+#include <ui/language.h>
 #include <ui/preference_utils.h>
+#include <main_window.h>
 
 #include "module_preferences_scroll_area.h"
 #include "syntax_line_edit.h"
@@ -796,6 +797,9 @@ void PreferencesDialog::on_buttonBox_accepted()
     pd_ui_->filterExpressonsFrame->unstash();
 
     prefs_main_write();
+
+    write_language_prefs();
+    wsApp->loadLanguage(QString(language));
 
 #ifdef HAVE_AIRPCAP
   /*

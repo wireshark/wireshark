@@ -216,16 +216,33 @@ http://www.parashift.com/c++-faq/mixing-c-and-cpp.html
 
 3. Translations (i18n)
 
+3.1 Make translation
+
 Qt makes translating the Wireshark UI into different languages easy.
 
 - Add your translation (ui/qt/wireshark_XX.ts) in ui/qt/Wireshark.pro, ui/qt/i18n.qrc,
-    ui/qt/Makefile.common and ui/qt/CMakeLists.txt .
-- Add also in epan/prefs.c, in ui/qt/main.cpp add case in switch(prefs_p->gui_qt_language)
-    and in ui/qt/main_window_preferences_frame.ui (use qt-design) to add in prefs.
-- Run "lupdate Wireshark.pro" to generate/update your translation file.
-- Translate with Qt Linguist.
-- Run "lrelease Wireshark.pro" to create/update wireshark_xx.qm file.
+    ui/qt/Makefile.common and ui/qt/CMakeLists.txt
+- Please add flag (image) for your language in images/languages/XX.svg and image/languages/languages.qrc
+- Run "lupdate ui/qt/Wireshark.pro" to generate/update your translation file.
+  or "lupdate ui/qt -ts ui/qt/wireshark_XX.ts" for specified translation
+- Translate with Qt Linguist (in console: "linguist ui/qt/wireshark_XX.ts")
+- Run "lrelease Wireshark.pro" or
+  "lrelease ui/qt/wireshark_XX.ts -qm ui/qt/wireshark_XX.qm" to create/update wireshark_XX.qm file.
 - Push your translation to Gerrit for review ("git push").
+
+Alternatively you can only put your QM and flag files in "languages" directory in
+Wireshark user configuration directory (~/.wireshark/languages/ on unix)
 
 More information about Qt Linguist
 http://qt-project.org/doc/qt-4.8/linguist-manual.html
+
+3.2 Developing
+
+- Please avoid tr() in code, try add any strings in *.ui files; tr() on manually
+  created object (like QMenu) are not automatically retranslated, so you must
+  add a couple of code to manually translate them
+  NOTE: if your object life is short, so any time when your component needs to be shown
+  it is (re)created then it is ok to have tr() in code
+- For creating submenu in context menu please follow solution from ui/qt/proto_tree.cpp
+- Some new windows need also to override changeEvent() and do retranslateUi() like
+  summary_dialog.[ch] does

@@ -312,51 +312,9 @@
        </property>
        <item>
         <property name="text">
-         <string>Auto-Detect</string>
+         <string>Auto</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>English</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Français</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Deutsch</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Chinese</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Polski</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Japanese</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Italiano</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>You need to restart Wireshark for this change to take effect</string>
-       </property>
       </widget>
      </item>
      <item>
@@ -389,7 +347,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../image/languages/languages.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
   <buttongroup name="openInButtonGroup"/>

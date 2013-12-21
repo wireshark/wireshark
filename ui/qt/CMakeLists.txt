@@ -280,6 +280,7 @@ endif()
 set(WIRESHARK_QT_QRC
 	../../image/about.qrc
 	../../image/display_filter.qrc
+	../../image/languages/languages.qrc
 	../../image/layout.qrc
 	../../image/status.qrc
 	../../image/toolbar.qrc

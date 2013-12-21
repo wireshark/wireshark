@@ -36,6 +36,7 @@ set(COMMON_UI_SRC
 	help_url.c
 	iface_lists.c
 	io_graph_item.c
+	language.c
 	packet_list_utils.c
 	persfilepath_opt.c
 	preference_utils.c

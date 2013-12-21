@@ -327,6 +327,28 @@ void DisplayFilterEdit::displayFilterSuccess(bool success)
     apply_button_->setEnabled(!success);
 }
 
+void DisplayFilterEdit::changeEvent(QEvent* event)
+{
+    if (0 != event)
+    {
+        switch (event->type())
+        {
+        case QEvent::LanguageChange:
+            if (plain_) {
+                empty_filter_message_ = QString(tr("Enter a display filter %1")).
+                    arg(UTF8_HORIZONTAL_ELLIPSIS);
+            } else {
+                empty_filter_message_ = QString(tr("Apply a display filter %1 <%2/>"))
+                    .arg(UTF8_HORIZONTAL_ELLIPSIS).arg(DEFAULT_MODIFIER);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    SyntaxLineEdit::changeEvent(event);
+}
+
 /*
  * Editor modelines
  *

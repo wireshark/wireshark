@@ -87,7 +87,7 @@ public:
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
-    void closeEvent (QCloseEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 private:
     // XXX Move to FilterUtils

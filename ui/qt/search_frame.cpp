@@ -340,6 +340,22 @@ void SearchFrame::on_cancelButton_clicked()
     animatedHide();
 }
 
+void SearchFrame::changeEvent(QEvent* event)
+{
+    if (0 != event)
+    {
+        switch (event->type())
+        {
+        case QEvent::LanguageChange:
+            sf_ui_->retranslateUi(this);
+            break;
+        default:
+            break;
+        }
+    }
+    AccordionFrame::changeEvent(event);
+}
+
 /*
  * Editor modelines
  *
