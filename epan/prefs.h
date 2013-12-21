@@ -33,7 +33,6 @@ extern "C" {
 
 #include "color.h"
 
-#include <epan/addr_resolv.h>
 #include <epan/params.h>
 #include <epan/range.h>
 
@@ -55,6 +54,7 @@ extern "C" {
 #define ST_MAX_BURSTBUCKETS 100	/* somewhat arbirary limit - more buckets degrade performance */
 
 struct epan_uat;
+struct _e_addr_resolve;
 
 /*
  * Convert a string listing name resolution types to a bitmask of
@@ -64,7 +64,7 @@ struct epan_uat;
  * return the bad character in the string on error.
  */
 WS_DLL_PUBLIC
-char string_to_name_resolve(const char *string, e_addr_resolve *name_resolve);
+char string_to_name_resolve(const char *string, struct _e_addr_resolve *name_resolve);
 
 /*
  * Modes for the starting directory in File Open dialogs.
