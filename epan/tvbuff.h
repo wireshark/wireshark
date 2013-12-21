@@ -487,10 +487,8 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
  *
  * tvb_get_string() returns a string allocated.
  *
- * tvb_get_unicode_string() Unicode (UTF-16) version of above.
- *
  * tvb_get_string_enc() takes a string encoding as well, and converts to UTF-8
- *                   from the encoding (only UTF-8 and EBCDIC supported).
+ *                   from the encoding.
  *
  * If scope is set to NULL it is the user's responsibility to g_free()
  * the memory allocated by tvb_memdup(). Otherwise memory is
@@ -498,8 +496,6 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
  */
 WS_DLL_PUBLIC guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb,
     const gint offset, const gint length);
-WS_DLL_PUBLIC gchar  *tvb_get_unicode_string(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
@@ -515,14 +511,12 @@ WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
  * tvb_get_stringz() returns a string
  *
  * tvb_get_stringz_enc() takes a string encoding as well, and converts to
- *                   UTF-8 from the encoding (only UTF-8 and EBCDIC supported)
+ *                   UTF-8 from the encoding.
  *
  * tvb_get_const_stringz() returns a constant (unmodifiable) string that does
  *                   not need to be freed, instead it will automatically be
  *                   freed once the next packet is dissected.  It is slightly
  *                   more efficient than the other routines.
- *
- * tvb_get_unicode_stringz() Unicode (UTF-16) version of above
  *
  * If scope is set to NULL it is the user's responsibility to g_free()
  * the memory allocated by tvb_memdup(). Otherwise memory is
@@ -534,8 +528,6 @@ WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 WS_DLL_PUBLIC const guint8 *tvb_get_const_stringz(tvbuff_t *tvb,
     const gint offset, gint *lengthp);
-WS_DLL_PUBLIC gchar *tvb_get_unicode_stringz(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 
 /** Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.

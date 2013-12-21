@@ -1920,8 +1920,9 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
 }
 
 /*
- * Unicode (UTF-16) version of tvb_get_string()
- * XXX - this is UCS-2, not UTF-16, as it doesn't handle surrogate pairs
+ * Given a UCS-2 encoded string containing characters from the
+ * Basic Multilingual Plane (plane 0) of Unicode, return a UTF-8
+ * string with the same characters.
  *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
@@ -1932,10 +1933,11 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  *
- * Returns an UTF-8 string
+ * XXX - should map lead and trail surrogate values to a "substitute" UTF-8
+ * character?
  */
-gchar *
-tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+static gchar *
+tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
 	gunichar2      uchar;
 	gint           i;       /* Byte counter for tvbuff */
@@ -1958,6 +1960,116 @@ tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 	 * XXX - if i < length, this means we were handed an odd
 	 * number of bytes, so we're not a valid UCS-2 string.
 	 */
+	return (gchar*)wmem_strbuf_get_str(strbuf);
+}
+
+/*
+ * Given a UTF-16 encoded Unicode string, return a UTF-8 string with the
+ * same characters.
+ *
+ * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Specify length in bytes
+ *
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
+ *
+ * XXX - needs to map surrogate errors to a "substitute" UTF-8 character.
+ */
+
+#define IS_LEAD_SURROGATE(uchar2) \
+	((uchar2) >= 0xd800 && (uchar2) < 0xdc00)
+#define IS_TRAIL_SURROGATE(uchar2) \
+	((uchar2) >= 0xdc00 && (uchar2) < 0xe000)
+#define SURROGATE_VALUE(lead, trail) \
+	(((((lead) - 0xd800) << 10) + ((trail) - 0xdc00)) | 0x10000)
+
+static wmem_strbuf_t *
+tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint size, const guint encoding)
+{
+	wmem_strbuf_t *strbuf;
+	gunichar2      uchar2, lead_surrogate;
+	gunichar       uchar;
+	gint           i;       /* Byte counter for tvbuff */
+
+	strbuf = wmem_strbuf_new(scope, NULL);
+
+	for(i = 0; i + 1 < size; i += 2) {
+		if (encoding == ENC_BIG_ENDIAN)
+			uchar2 = tvb_get_ntohs(tvb, offset + i);
+		else
+			uchar2 = tvb_get_letohs(tvb, offset + i);
+
+		if (IS_LEAD_SURROGATE(uchar2)) {
+			/*
+			 * Lead surrogate.  Must be followed by
+			 * a trail surrogate.
+			 */
+			i += 2;
+			if (i + 1 >= size) {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other
+				 * fashion?
+				 */
+				break;
+			}
+			lead_surrogate = uchar2;
+			if (encoding == ENC_BIG_ENDIAN)
+				uchar2 = tvb_get_ntohs(tvb, offset + i);
+			else
+				uchar2 = tvb_get_letohs(tvb, offset + i);
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/* Trail surrogate. */
+				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+				wmem_strbuf_append_unichar(strbuf, uchar);
+			} else {
+				/*
+				 * Not a trail surrogate.
+				 * Ignore the entire pair. 
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other
+				 * fashion?
+				 */
+				 ;
+			}
+		} else {
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/*
+				 * Trail surrogate without a preceding
+				 * lead surrogate.  Ignore it.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other
+				 * fashion?
+				 */
+				;
+			} else {
+				/*
+				 * Non-surrogate; just append it.
+				 */
+				wmem_strbuf_append_unichar(strbuf, uchar2);
+			}
+		}
+	}
+
+	/*
+	 * XXX - if i < length, this means we were handed an odd
+	 * number of bytes, so we're not a valid UTF-16 string.
+	 */
+	return strbuf;
+}
+
+static gchar *
+tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+{
+	wmem_strbuf_t *strbuf;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
+	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, length, encoding);
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2035,23 +2147,12 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		break;
 
 	case ENC_UTF_16:
-		/*
-		 * XXX - needs to handle surrogate pairs and to map
-		 * invalid characters and sequences to a "substitute"
-		 * UTF-8 character.
-		 */
-		strbuf = tvb_get_unicode_string(scope, tvb, offset, length,
+		strbuf = tvb_get_utf_16_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
 	case ENC_UCS_2:
-		/*
-		 * XXX - needs to map values that are not valid UCS-2
-		 * characters (such as, I think, values used as the
-		 * components of a UTF-16 surrogate pair) to a
-		 * "substitute" UTF-8 character.
-		 */
-		strbuf = tvb_get_unicode_string(scope, tvb, offset, length,
+		strbuf = tvb_get_ucs_2_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
@@ -2123,6 +2224,95 @@ tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gi
 	return tvb_get_string_unichar2(scope, tvb, offset, size, table);
 }
 
+/*
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), ensure that
+ * the TVB is flat, and return a pointer to the string (in the TVB).
+ * Also return the length of the string (including the terminating null)
+ * through a pointer.
+ *
+ * As long as we aren't using composite TVBs, this saves the cycles used
+ * (often unnecessariliy) in allocating a buffer and copying the string into
+ * it.  (If we do start using composite TVBs, we may want to replace this
+ * function with the _ephemeral versoin.)
+ */
+const guint8 *
+tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+{
+	guint         size;
+	const guint8 *strptr;
+
+	size   = tvb_strsize(tvb, offset);
+	strptr = ensure_contiguous(tvb, offset, size);
+	if (lengthp)
+		*lengthp = size;
+	return strptr;
+}
+
+/*
+ * Version of tvb_get_stringz() that handles the Basic Multilingual Plane
+ * (plane 0) of Unicode, with each code point encoded in 16 bits.
+ *
+ * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Returns an allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
+ *
+ * XXX - needs to map values that are not valid UCS-2 characters (such as,
+ * I think, values used as the components of a UTF-16 surrogate pair) to a
+ * "substitute" UTF-8 character.
+ */
+static gchar *
+tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+{
+	gunichar2      uchar;
+	gint           size;    /* Number of UTF-16 characters */
+	gint           i;       /* Byte counter for tvbuff */
+	wmem_strbuf_t *strbuf;
+
+	size = tvb_unicode_strsize(tvb, offset);
+
+	strbuf = wmem_strbuf_new(scope, NULL);
+
+	for(i = 0; i < size; i += 2) {
+		if (encoding == ENC_BIG_ENDIAN)
+			uchar = tvb_get_ntohs(tvb, offset + i);
+		else
+			uchar = tvb_get_letohs(tvb, offset + i);
+
+		wmem_strbuf_append_unichar(strbuf, uchar);
+	}
+
+	if (lengthp)
+		*lengthp = i; /* Number of *bytes* processed */
+
+	return (gchar*)wmem_strbuf_get_str(strbuf);
+}
+
+/*
+ * Version of tvb_get_stringz() that handles UTF-16.
+ *
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ *
+ * Returns an allocated UTF-8 string and updates lengthp pointer with
+ * length of string (in bytes), including the terminating (2-byte) NUL.
+ */
+static gchar *
+tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+{
+	gint           size;
+	wmem_strbuf_t *strbuf;
+
+	size = tvb_unicode_strsize(tvb, offset);
+
+	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, size, encoding);
+
+	if (lengthp)
+		*lengthp = size; /* Number of *bytes* processed */
+
+	return (gchar*)wmem_strbuf_get_str(strbuf);
+}
+
 guint8 *
 tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -2182,23 +2372,12 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		break;
 
 	case ENC_UTF_16:
-		/*
-		 * XXX - needs to handle surrogate pairs and to map
-		 * invalid characters and sequences to a "substitute"
-		 * UTF-8 character.
-		 */
-		strptr = tvb_get_unicode_stringz(scope, tvb, offset, lengthp,
+		strptr = tvb_get_utf_16_stringz(scope, tvb, offset, lengthp,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
 	case ENC_UCS_2:
-		/*
-		 * XXX - needs to map values that are not valid UCS-2
-		 * characters (such as, I think, values used as the
-		 * components of a UTF-16 surrogate pair) to a
-		 * "substitute" UTF-8 character.
-		 */
-		strptr = tvb_get_unicode_stringz(scope, tvb, offset, lengthp,
+		strptr = tvb_get_ucs_2_stringz(scope, tvb, offset, lengthp,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
@@ -2218,66 +2397,6 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 	}
 
 	return strptr;
-}
-
-/*
- * Given a tvbuff and an offset, with the offset assumed to refer to
- * a null-terminated string, find the length of that string (and throw
- * an exception if the tvbuff ends before we find the null), ensure that
- * the TVB is flat, and return a pointer to the string (in the TVB).
- * Also return the length of the string (including the terminating null)
- * through a pointer.
- *
- * As long as we aren't using composite TVBs, this saves the cycles used
- * (often unnecessariliy) in allocating a buffer and copying the string into
- * it.  (If we do start using composite TVBs, we may want to replace this
- * function with the _ephemeral versoin.)
- */
-const guint8 *
-tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
-{
-	guint         size;
-	const guint8 *strptr;
-
-	size   = tvb_strsize(tvb, offset);
-	strptr = ensure_contiguous(tvb, offset, size);
-	if (lengthp)
-		*lengthp = size;
-	return strptr;
-}
-
-/*
- * Unicode (UTF-16) version of tvb_get_stringz()
- *
- * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
- *
- * Returns an allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
- */
-gchar *
-tvb_get_unicode_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
-{
-	gunichar2      uchar;
-	gint           size;    /* Number of UTF-16 characters */
-	gint           i;       /* Byte counter for tvbuff */
-	wmem_strbuf_t *strbuf;
-
-	size = tvb_unicode_strsize(tvb, offset);
-
-	strbuf = wmem_strbuf_new(scope, NULL);
-
-	for(i = 0; i < size; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar = tvb_get_ntohs(tvb, offset + i);
-		else
-			uchar = tvb_get_letohs(tvb, offset + i);
-
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
-
-	if (lengthp)
-		*lengthp = i; /* Number of *bytes* processed */
-
-	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
