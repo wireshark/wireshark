@@ -21,6 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "epan/to_str.h"
+
 #include "sctp_assoc_analyse_dialog.h"
 #include "ui_sctp_assoc_analyse_dialog.h"
 #include "sctp_graph_dialog.h"

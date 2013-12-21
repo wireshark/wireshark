@@ -52,7 +52,7 @@ const int item_col_     = 0;
 
 const int expand_all_threshold_ = 100; // Arbitrary
 
-Q_DECLARE_METATYPE(stat_node *);
+Q_DECLARE_METATYPE(stat_node *)
 
 class StatsTreeWidgetItem : public QTreeWidgetItem
 {

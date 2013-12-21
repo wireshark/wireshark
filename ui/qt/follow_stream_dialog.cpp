@@ -30,6 +30,7 @@
 #include "epan/follow.h"
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/prefs.h"
+#include "epan/addr_resolv.h"
 #include "epan/charsets.h"
 #include "epan/epan_dissect.h"
 #include "epan/tap.h"

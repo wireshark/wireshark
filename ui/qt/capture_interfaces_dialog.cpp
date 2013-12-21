@@ -44,6 +44,7 @@
 #include <cstdio>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/to_str.h>
 
 #include "sparkline_delegate.h"
 
