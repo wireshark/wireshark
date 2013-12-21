@@ -139,7 +139,7 @@ void
 proto_register_peekremote(void)
 {
 #ifndef HAVE_HFI_SECTION_INIT
-  static hfi_register_info *hfi[] = {
+  static header_field_info *hfi[] = {
     &hfi_peekremote_signal,
     &hfi_peekremote_noise,
     &hfi_peekremote_packetlength,
