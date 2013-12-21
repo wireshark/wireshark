@@ -26,6 +26,7 @@
 #include "wireshark_application.h"
 
 #include "epan/strutil.h"
+#include "epan/to_str.h"
 #include "epan/value_string.h"
 #include "ui/help_url.h"
 #include <wsutil/report_err.h>
