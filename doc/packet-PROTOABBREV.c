@@ -51,6 +51,7 @@
  * proto_reg_handoff_PROTOABBREV function as a callback for when protocol
  * preferences get changed. */
 void proto_reg_handoff_PROTOABBREV(void);
+void proto_register_PROTOABBREV(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_PROTOABBREV = -1;
@@ -82,6 +83,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *PROTOABBREV_tree;
     /* Other misc. local variables. */
     guint offset = 0;
+    int len = 0;
 
     /*** HEURISTICS ***/
 
@@ -104,7 +106,8 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * values are not valid/possible in your protocol then return 0 to give
      * some other dissector a chance to dissect it.
      */
-    if ( /* these values are not possible in PROTONAME */ )
+    if ( TEST_HEURISTICS )
+         /* these values are not possible in PROTONAME */
         return 0;
 
     /*** COLUMN DATA ***/
@@ -170,7 +173,8 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += len;
     /* Some fields or situations may require "expert" analysis that can be
      * specifically highlighted. */
-    if ( /* value of hf_PROTOABBREV_FIELDABBREV isn't what's expected */ )
+    if ( TEST_EXPERT_condition )
+        /* value of hf_PROTOABBREV_FIELDABBREV isn't what's expected */
         expert_add_info(pinfo, expert_ti, &ei_PROTOABBREV_EXPERTABBREV);
 
     /* Continue adding tree items to process the packet here... */
