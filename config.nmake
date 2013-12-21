@@ -264,7 +264,8 @@ GLIB_VERSION=2.0
 # directory in which the "include" and "lib" directories reside.
 #
 # Set the name to gtk2 if you want to use gtk2
-GTK_NAME=gtk3
+##GTK_NAME=gtk3
+GTK_NAME=gtk2
 GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 
@@ -1343,6 +1344,12 @@ NEED_LZMA_DLL=USE
 !ELSEIF "$(GTK_INST_VERSION)" == "3.4"
 
 # GTK+
+## Note: If Wireshark is ever to be built with Gtk >= 3.10
+##        then -DGTK_DISABLE_DEPRECATED must be removed
+##        and -DGDK_DISABLE_DEPRECIATION_WARNINGS must
+##        be added below.
+##       Wireshark changes to handle Gtk 3.10 deprecated features
+##        will not be done since Wireshark is moving to Qt.
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-3.0 \
 	/I$(GTK_DIR)\include\gdk-pixbuf-2.0 \
 	/I$(GTK_DIR)\lib\gtk-3.0\include \
