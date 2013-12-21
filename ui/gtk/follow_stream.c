@@ -153,7 +153,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_from_server _U_,
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
             continue;
-        if (! isprint((guchar)buffer[i])) {
+        if (! g_ascii_isprint(buffer[i])) {
             buffer[i] = '.';
         }
     }
@@ -973,7 +973,7 @@ follow_show(follow_info_t *follow_info,
             /* Now dump bytes as text */
             for (i = 0; i < 16 && current_pos + i < nchars; i++) {
                 *cur++ =
-                    (isprint((guchar)buffer[current_pos + i]) ?
+                    (g_ascii_isprint(buffer[current_pos + i]) ?
                      buffer[current_pos + i] : '.' );
                 if (i == 7) {
                     *cur++ = ' ';
