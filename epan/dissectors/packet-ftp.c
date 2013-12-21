@@ -39,7 +39,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
-#include <epan/addr_resolv.c>
+#include <epan/addr_resolv.h>
 
 void proto_register_ftp(void);
 void proto_reg_handoff_ftp(void);
