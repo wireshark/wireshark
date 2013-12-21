@@ -228,14 +228,47 @@ dvb_enc_to_item_enc(dvb_encoding_e encoding)
       e.g. 0x86 - turn emphasis on ; 0x87 - turn emphasis off */
 
    switch (encoding) {
+      case DVB_ENCODING_ISO_8859_1:
+         return ENC_ISO_8859_1 | ENC_NA;
+
       case DVB_ENCODING_ISO_8859_2:
          return ENC_ISO_8859_2 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_3:
+         return ENC_ISO_8859_3 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_4:
+         return ENC_ISO_8859_4 | ENC_NA;
 
       case DVB_ENCODING_ISO_8859_5:
          return ENC_ISO_8859_5 | ENC_NA;
 
+      case DVB_ENCODING_ISO_8859_6:
+         return ENC_ISO_8859_6 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_7:
+         return ENC_ISO_8859_7 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_8:
+         return ENC_ISO_8859_8 | ENC_NA;
+
       case DVB_ENCODING_ISO_8859_9:
          return ENC_ISO_8859_9 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_10:
+         return ENC_ISO_8859_10 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_11:
+         return ENC_ISO_8859_11 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_13:
+         return ENC_ISO_8859_13 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_14:
+         return ENC_ISO_8859_14 | ENC_NA;
+
+      case DVB_ENCODING_ISO_8859_15:
+         return ENC_ISO_8859_15 | ENC_NA;
 
       case DVB_ENCODING_ISO_10646_UTF8_BMP:
          return ENC_UTF_8 | ENC_NA;
