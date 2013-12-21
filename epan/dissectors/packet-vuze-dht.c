@@ -24,8 +24,10 @@
  */
 
 #include "config.h"
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #define DEFAULT_UDP_PORT 11273
 

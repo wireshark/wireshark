@@ -39,6 +39,8 @@
 #include <epan/show_exception.h>
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
+#include <wiretap/wtap.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 

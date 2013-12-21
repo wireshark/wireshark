@@ -33,6 +33,7 @@
 #include "packet-tr.h"
 #include "packet-llc.h"
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 

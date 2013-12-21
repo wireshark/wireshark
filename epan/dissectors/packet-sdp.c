@@ -40,6 +40,7 @@
 #include <epan/tap.h>
 #include <epan/rtp_pt.h>
 #include <epan/show_exception.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-sdp.h"
 #include "packet-rtp.h"

@@ -40,6 +40,7 @@
 #include <epan/nlpid.h>
 #include <epan/x264_prt_id.h>
 #include <epan/lapd_sapi.h>
+#include <wiretap/wtap.h>
 
 void proto_register_x25(void);
 void proto_reg_handoff_x25(void);

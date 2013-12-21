@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/wmem/wmem.h>
+#include <wiretap/wtap.h>
 
 #ifdef _MSC_VER
 /* disable: warning C4090: 'XY' : different 'const' qualifiers */

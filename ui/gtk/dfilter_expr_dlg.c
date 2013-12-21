@@ -46,6 +46,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/ftypes/ftypes-int.h>
+#include <epan/to_str.h>
 
 #include "ui/simple_dialog.h"
 

@@ -37,6 +37,7 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 
 /* Forward declaration */
 void proto_register_cigi(void);

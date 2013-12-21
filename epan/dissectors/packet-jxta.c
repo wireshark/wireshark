@@ -45,6 +45,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 
 #include "packet-jxta.h"
 

@@ -41,6 +41,7 @@
 #include <epan/asn1.h>
 #include <epan/uat.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <packet-tcp.h>
 #include <packet-ssl-utils.h>

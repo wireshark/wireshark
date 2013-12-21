@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include <epan/aftypes.h>
 #include <epan/ipproto.h>
 

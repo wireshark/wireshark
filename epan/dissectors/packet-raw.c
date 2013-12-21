@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 #include "packet-raw.h"
 #include "packet-ip.h"
 #include "packet-ppp.h"

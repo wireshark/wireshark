@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 
 #include "packet-i2c.h"
 #include "packet-hdcp.h"

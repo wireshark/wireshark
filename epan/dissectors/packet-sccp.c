@@ -53,6 +53,8 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <address.h>
+#include <epan/to_str.h>
+#include <wiretap/wtap.h>
 #include "packet-mtp3.h"
 #include "packet-tcap.h"
 #include "packet-sccp.h"

@@ -33,6 +33,8 @@
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
+
 #include "packet-pim.h"
 
 void proto_register_pim(void);

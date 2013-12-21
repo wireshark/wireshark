@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 
 #include <prefs.h>
+#include <epan/to_str.h>
 
 void proto_register_nsip(void);
 void proto_reg_handoff_nsip(void);

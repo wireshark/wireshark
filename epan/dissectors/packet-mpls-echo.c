@@ -40,6 +40,8 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
+
 #include "packet-ldp.h"
 #include "packet-mpls.h"
 

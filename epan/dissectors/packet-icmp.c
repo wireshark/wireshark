@@ -44,6 +44,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
+#include <epan/to_str.h>
 
 #include "packet-ip.h"
 #include "packet-icmp.h"

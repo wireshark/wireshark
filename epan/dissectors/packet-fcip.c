@@ -30,6 +30,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include "packet-fc.h"
 
 void proto_register_fcip(void);

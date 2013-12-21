@@ -64,6 +64,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 
 void proto_register_rtacser(void);
 

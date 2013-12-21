@@ -37,6 +37,8 @@
 #include <epan/arcnet_pids.h>
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
+#include <epan/to_str.h>
+#include <wiretap/wtap.h>
 
 #include <epan/prefs.h>
 #include <epan/reassemble.h>

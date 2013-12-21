@@ -31,10 +31,12 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
+#include <wiretap/wtap.h>
 
 void proto_register_mtp2(void);
 void proto_reg_handoff_mtp2(void);

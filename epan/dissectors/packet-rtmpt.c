@@ -75,6 +75,7 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include "packet-tcp.h"
 
 /* #define DEBUG_RTMPT 1 */

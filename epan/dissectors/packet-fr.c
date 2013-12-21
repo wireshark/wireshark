@@ -37,8 +37,11 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
+
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "packet-eth.h"

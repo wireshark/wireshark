@@ -51,6 +51,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/to_str.h>
 
 #include "packet-mtp3.h"
 #include "packet-rtp.h"

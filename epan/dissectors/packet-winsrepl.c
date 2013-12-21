@@ -36,6 +36,7 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/to_str.h>
 
 #include "packet-windows-common.h"
 #include "packet-netbios.h"

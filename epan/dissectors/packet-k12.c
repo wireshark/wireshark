@@ -33,6 +33,7 @@
 #include <wsutil/pint.h>
 #include <epan/conversation.h>
 #include <prefs.h>
+#include <wiretap/wtap.h>
 #include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/uat.h>

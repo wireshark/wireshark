@@ -32,6 +32,8 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
+#include <wiretap/wtap.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>

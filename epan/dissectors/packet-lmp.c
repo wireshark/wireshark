@@ -55,6 +55,7 @@
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 
 #include "packet-ip.h"
 #include "packet-rsvp.h"

@@ -34,6 +34,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 
 void proto_register_bt_dht(void);
 void proto_reg_handoff_bt_dht(void);

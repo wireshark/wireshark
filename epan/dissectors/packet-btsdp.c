@@ -39,6 +39,7 @@
 #include <epan/ip_opts.h>
 #include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
+#include <epan/to_str.h>
 
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"

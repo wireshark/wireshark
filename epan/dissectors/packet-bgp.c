@@ -67,6 +67,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
+#include <epan/to_str.h>
 #include <packet-ip.h>
 
 void proto_register_bgp(void);

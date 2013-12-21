@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 void proto_register_mactelnet(void);
 void proto_reg_handoff_mactelnet(void);

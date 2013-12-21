@@ -25,8 +25,10 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 #include <epan/circuit.h>
 
 void proto_register_isdn(void);

@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 #include <epan/tap.h>
+#include <epan/to_str.h>
 
 #include "packet-mtp3.h"
 #include "packet-sccp.h"

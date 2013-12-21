@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #include "../capture_opts.h"
 #include "../capture_session.h"

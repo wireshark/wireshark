@@ -33,6 +33,8 @@
 #include <epan/prefs.h>
 /* XXX - try to remove this later */
 
+#include <wiretap/wtap.h>
+
 #include "capture_info.h"
 
 #include <epan/dissectors/packet-ap1394.h>

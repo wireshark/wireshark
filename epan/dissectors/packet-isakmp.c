@@ -57,6 +57,7 @@
 #include <epan/dissectors/packet-isakmp.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>

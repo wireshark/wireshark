@@ -26,6 +26,7 @@
 #define __COLUMN_H__
 
 #include "ws_symbol_export.h"
+#include <epan/column-info.h>
 
 #ifdef __cplusplus
 extern "C" {

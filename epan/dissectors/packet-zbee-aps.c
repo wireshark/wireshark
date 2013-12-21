@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
+#include <epan/to_str.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"

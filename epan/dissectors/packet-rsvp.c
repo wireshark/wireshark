@@ -105,6 +105,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <prefs.h>
+#include <epan/to_str.h>
 #include <epan/in_cksum.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>

@@ -39,6 +39,7 @@
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
 #include <wsutil/pint.h>
+#include <epan/addr_resolv.h>
 
 #include <string.h>
 

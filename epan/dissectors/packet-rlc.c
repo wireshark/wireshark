@@ -33,6 +33,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 
 /*
  * Optional include, for KASUMI support,

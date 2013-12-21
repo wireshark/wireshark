@@ -61,6 +61,7 @@
 #include <epan/arptypes.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"

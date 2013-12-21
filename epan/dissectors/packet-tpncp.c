@@ -43,6 +43,7 @@
 #include <wsutil/filesystem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/strutil.h>
+#include <epan/to_str.h>
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 

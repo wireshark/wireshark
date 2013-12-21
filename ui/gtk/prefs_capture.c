@@ -49,6 +49,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include <epan/strutil.h>
 
+#include <wiretap/wtap.h>
 
 #define DEVICE_KEY		"device"
 #define PROM_MODE_KEY		"prom_mode"

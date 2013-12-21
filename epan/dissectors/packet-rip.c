@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #define UDP_PORT_RIP    520
 

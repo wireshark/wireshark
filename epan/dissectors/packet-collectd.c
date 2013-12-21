@@ -34,6 +34,7 @@
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 
 #define STR_NONNULL(str) ((str) ? (str) : "(null)")
 

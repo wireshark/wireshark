@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/ppptypes.h>
+#include <wiretap/wtap.h>
 
 void proto_register_pppoed(void);
 void proto_reg_handoff_pppoed(void);

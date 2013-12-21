@@ -39,6 +39,7 @@
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 
 void proto_register_nfs(void);
 void proto_reg_handoff_nfs(void);

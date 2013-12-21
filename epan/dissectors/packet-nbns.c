@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
+#include <epan/to_str.h>
 
 #include "packet-dns.h"
 #include "packet-netbios.h"

@@ -32,6 +32,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
+
 #include "packet-dns.h"
 
 void proto_register_lwres(void);

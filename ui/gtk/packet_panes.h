@@ -26,6 +26,8 @@
 #ifndef __PACKET_PANES_H__
 #define __PACKET_PANES_H__
 
+#include <epan/addr_resolv.h>
+
 /** @file
  *  Packet tree and details panes.
  *  @ingroup main_window_group

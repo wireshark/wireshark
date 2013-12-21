@@ -43,6 +43,7 @@
 #include <epan/strutil.h>
 #include <wsutil/base64.h>
 #include <epan/stats_tree.h>
+#include <epan/to_str.h>
 
 #include <epan/req_resp_hdrs.h>
 #include "packet-http.h"

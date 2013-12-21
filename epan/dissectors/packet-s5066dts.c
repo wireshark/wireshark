@@ -34,6 +34,7 @@
 #include <epan/dissectors/packet-tcp.h> /* For tcp_dissect_pdus() */
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
+#include <wiretap/wtap.h>
 
 #define DISSECTOR_NAME                      "s5066dts"
 /* STANAG 5066 DPDU properties */

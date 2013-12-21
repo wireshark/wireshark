@@ -46,6 +46,7 @@
 #include <epan/xdlc.h>
 #include <epan/crc16-tvb.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 #include <epan/lapd_sapi.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>

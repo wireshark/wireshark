@@ -46,6 +46,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/ipv6-utils.h>
+#include <epan/to_str.h>
 
 /* Forward declarations */
 void proto_register_acn(void);

@@ -30,6 +30,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 void proto_reg_handoff_time(void);
 void proto_register_time(void);

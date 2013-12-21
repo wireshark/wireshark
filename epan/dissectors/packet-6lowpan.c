@@ -32,6 +32,7 @@
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
 #include "packet-ipv6.h"
 #include "packet-ieee802154.h"

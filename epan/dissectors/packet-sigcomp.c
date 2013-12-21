@@ -39,6 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>

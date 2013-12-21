@@ -44,6 +44,8 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
+#include <epan/addr_resolv.h>
+
 #include "packet-tacacs.h"
 
 void proto_reg_handoff_tacacs(void);

@@ -61,6 +61,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
+#include <epan/to_str.h>
 #include <packet-mtp3.h>
 
 void proto_register_isup(void);

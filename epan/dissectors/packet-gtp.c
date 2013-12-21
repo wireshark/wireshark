@@ -62,6 +62,7 @@
 #include <epan/sminmpec.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
+#include <epan/to_str.h>
 #include "packet-ppp.h"
 #include "packet-radius.h"
 #include "packet-bssap.h"

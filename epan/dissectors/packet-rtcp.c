@@ -78,6 +78,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 
 void proto_register_rtcp(void);
 void proto_reg_handoff_rtcp(void);

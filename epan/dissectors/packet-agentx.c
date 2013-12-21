@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #include <epan/dissectors/packet-tcp.h>
 

@@ -46,6 +46,8 @@
 #include <epan/tap.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
+#include <wiretap/wtap.h>
+
 #include "packet-q708.h"
 #include "packet-sccp.h"
 #include "packet-frame.h"

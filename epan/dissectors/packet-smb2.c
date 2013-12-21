@@ -37,6 +37,7 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include <epan/aftypes.h>
+#include <epan/to_str.h>
 
 #include "packet-smb2.h"
 #include "packet-dcerpc.h"

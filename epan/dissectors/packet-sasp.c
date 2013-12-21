@@ -31,6 +31,7 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 /* forward reference */
 void proto_register_sasp(void);

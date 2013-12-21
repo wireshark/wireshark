@@ -40,6 +40,7 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 
 #include "packet-ipx.h"
 #include "packet-idp.h"

@@ -128,7 +128,9 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 #include <epan/sminmpec.h>
+#include <epan/to_str.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
 #include "packet-ntp.h"

@@ -56,6 +56,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/wmem/wmem.h>

@@ -33,6 +33,8 @@
 
 #include <epan/packet.h>
 #include <prefs.h>
+#include <wiretap/wtap.h>
+
 #include "packet-sll.h"
 
 /* controller area network (CAN) kernel definitions

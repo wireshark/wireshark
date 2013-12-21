@@ -35,6 +35,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include <epan/addr_resolv.h>
 #include <errno.h>
 #include "packet-infiniband.h"
 #include "packet-fc.h"

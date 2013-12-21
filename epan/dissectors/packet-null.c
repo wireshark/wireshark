@@ -40,6 +40,7 @@
 #include "packet-ppp.h"
 #include <epan/etypes.h>
 #include <epan/aftypes.h>
+#include <wiretap/wtap.h>
 
 void proto_register_null(void);
 void proto_reg_handoff_null(void);

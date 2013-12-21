@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/aftypes.h>
+#include <wiretap/wtap.h>
 
 void proto_register_nflog(void);
 void proto_reg_handoff_nflog(void);
