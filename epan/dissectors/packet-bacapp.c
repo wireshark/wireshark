@@ -6229,7 +6229,6 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 {
     guint8      tag_no, tag_info, character_set;
     guint32     lvt, l;
-    gsize       inbytesleft;
     guint       offs, extra = 1;
     const char *coding;
     guint8      bf_arr[512], *out = &bf_arr[0];
@@ -6250,7 +6249,7 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
         lvt -= (extra);
 
         do {
-            inbytesleft = l = MIN(lvt, 256);
+            l = MIN(lvt, 256);
             /*
              * XXX - are we guaranteed that these encoding
              * names correspond, on *all* platforms with
