@@ -331,6 +331,7 @@ static int hf_mbim_sms_pdu_record_message_status = -1;
 static int hf_mbim_sms_pdu_record_pdu_data_offset = -1;
 static int hf_mbim_sms_pdu_record_pdu_data_size = -1;
 static int hf_mbim_sms_pdu_record_pdu_data = -1;
+static int hf_mbim_sms_pdu_record_pdu_data_sc_address_size = -1;
 static int hf_mbim_sms_cdma_record_message_index = -1;
 static int hf_mbim_sms_cdma_record_message_status = -1;
 static int hf_mbim_sms_cdma_record_address_offset = -1;
@@ -355,6 +356,7 @@ static int hf_mbim_sms_read_info_sms_size = -1;
 static int hf_mbim_sms_send_pdu_pdu_data_offset = -1;
 static int hf_mbim_sms_send_pdu_pdu_data_size = -1;
 static int hf_mbim_sms_send_pdu_pdu_data = -1;
+static int hf_mbim_sms_send_pdu_pdu_data_sc_address_size = -1;
 static int hf_mbim_sms_send_cdma_encoding_id = -1;
 static int hf_mbim_sms_send_cdma_language_id = -1;
 static int hf_mbim_sms_send_cdma_address_offset = -1;
@@ -531,6 +533,7 @@ static gint ett_mbim_bitmap = -1;
 static gint ett_mbim_pair_list = -1;
 static gint ett_mbim_pin = -1;
 static gint ett_mbim_buffer = -1;
+static gint ett_mbim_sc_address = -1;
 static gint ett_mbim_fragment = -1;
 static gint ett_mbim_fragments = -1;
 
@@ -2803,7 +2806,8 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 pdu_data_offset, pdu_data_size;
     tvbuff_t *sms_tvb;
     proto_item *ti;
-    proto_tree *subtree;
+    proto_tree *subtree, *sc_tree;
+    guint8 sc_address_size;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_sms_pdu_record_message_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2817,14 +2821,31 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(tree, hf_mbim_sms_pdu_record_pdu_data_size, tvb, offset, 4, pdu_data_size);
     /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
-        ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
-                                 pdu_data_size, ENC_NA);
-        subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
         if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
+            sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
+            ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
+                                     pdu_data_size + 1 + sc_address_size, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+            ti = proto_tree_add_text(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
+                                     "Service Center Address");
+            sc_tree = proto_item_add_subtree(ti, ett_mbim_sc_address);
+            proto_tree_add_uint(sc_tree, hf_mbim_sms_pdu_record_pdu_data_sc_address_size, tvb,
+                                base_offset + pdu_data_offset, 1, sc_address_size);
+            if (sc_address_size) {
+                de_cld_party_bcd_num(tvb, sc_tree, pinfo, base_offset + pdu_data_offset + 1,
+                                     sc_address_size, NULL, 0);
+            }
+            sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
+                                     pdu_data_size, pdu_data_size);
             call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
-        } else if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
-            call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
+        } else {
+            ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
+                                     pdu_data_size, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+            if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
+                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
+                call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
+            }
         }
     }
 }
@@ -2946,7 +2967,8 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     guint32 pdu_data_offset, pdu_data_size;
     tvbuff_t *sms_tvb;
     proto_item *ti;
-    proto_tree *subtree;
+    proto_tree *subtree, *sc_tree;
+    guint8 sc_address_size;
 
     base_offset = offset;
     pdu_data_offset = tvb_get_letohl(tvb, offset);
@@ -2956,14 +2978,32 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_tree_add_uint(tree, hf_mbim_sms_send_pdu_pdu_data_size, tvb, offset, 4, pdu_data_size);
     /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
-        ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
-                                 pdu_data_size, ENC_NA);
-        subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
-        sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
         if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
+            sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
+            ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
+                                     pdu_data_size + 1 + sc_address_size, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+            ti = proto_tree_add_text(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
+                                     "Service Center Address");
+            sc_tree = proto_item_add_subtree(ti, ett_mbim_sc_address);
+            proto_tree_add_uint(sc_tree, hf_mbim_sms_send_pdu_pdu_data_sc_address_size, tvb,
+                                base_offset + pdu_data_offset, 1, sc_address_size);
+            if (sc_address_size) {
+                de_cld_party_bcd_num(tvb, sc_tree, pinfo, base_offset + pdu_data_offset + 1,
+                                     sc_address_size, NULL, 0);
+            }
+            sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
+                                     pdu_data_size, pdu_data_size);
+            pinfo->p2p_dir = P2P_DIR_RECV;
             call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
-        } else if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
-            call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
+        } else {
+            ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
+                                     pdu_data_size, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+            if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) && cdma_sms_handle) {
+                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
+                call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
+            }
         }
     }
 }
@@ -6112,6 +6152,11 @@ proto_register_mbim(void)
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_sms_pdu_record_pdu_data_sc_address_size,
+            { "Size", "mbim.control.sms_pdu_record.pdu_data.sc_address_size",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_sms_cdma_record_message_index,
             { "Message Index", "mbim.control.sms_cdma_record.message_index",
                FT_UINT32, BASE_DEC, NULL, 0,
@@ -6230,6 +6275,11 @@ proto_register_mbim(void)
         { &hf_mbim_sms_send_pdu_pdu_data,
             { "PDU Data", "mbim.control.sms_send_pdu.pdu_data",
                FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_sms_send_pdu_pdu_data_sc_address_size,
+            { "Size", "mbim.control.sms_send_pdu.pdu_data.sc_address_size",
+               FT_UINT8, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_sms_send_cdma_encoding_id,
@@ -7028,6 +7078,7 @@ proto_register_mbim(void)
         &ett_mbim_pair_list,
         &ett_mbim_pin,
         &ett_mbim_buffer,
+        &ett_mbim_sc_address,
         &ett_mbim_fragment,
         &ett_mbim_fragments
     };
