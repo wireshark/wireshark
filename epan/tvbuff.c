@@ -2100,7 +2100,7 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 
 	strbuf = wmem_strbuf_new(scope, NULL);
 
-	for(i = 0; i + 3 < length; i += 2) {
+	for(i = 0; i + 3 < length; i += 4) {
 		if (encoding == ENC_BIG_ENDIAN)
 			uchar = tvb_get_ntohl(tvb, offset + i);
 		else
