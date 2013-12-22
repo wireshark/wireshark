@@ -27,9 +27,7 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -47,26 +45,27 @@ static void packet_range_calc(packet_range_t *range) {
     frame_data    *packet;
 
 
-    range->selected_packet        = 0L;
+    range->selected_packet                  = 0;
 
-    mark_low                      = 0L;
-    mark_high                     = 0L;
-    range->mark_range_cnt         = 0L;
-    range->ignored_cnt            = 0L;
-    range->ignored_marked_cnt     = 0L;
-    range->ignored_mark_range_cnt = 0L;
-    range->ignored_user_range_cnt = 0L;
+    mark_low                                = 0;
+    mark_high                               = 0;
+    range->mark_range_cnt                   = 0;
+    range->ignored_cnt                      = 0;
+    range->ignored_marked_cnt               = 0;
+    range->ignored_mark_range_cnt           = 0;
+    range->ignored_user_range_cnt           = 0;
 
-    displayed_mark_low            = 0L;
-    displayed_mark_high           = 0L;
-    range->displayed_cnt          = 0L;
-    range->displayed_marked_cnt   = 0L;
-    range->displayed_mark_range_cnt=0L;
-    range->displayed_plus_dependents_cnt    = 0L;
-    range->displayed_ignored_cnt            = 0L;
-    range->displayed_ignored_marked_cnt     = 0L;
-    range->displayed_ignored_mark_range_cnt = 0L;
-    range->displayed_ignored_user_range_cnt = 0L;
+    displayed_mark_low                      = 0;
+    displayed_mark_high                     = 0;
+
+    range->displayed_cnt                    = 0;
+    range->displayed_marked_cnt             = 0;
+    range->displayed_mark_range_cnt         = 0;
+    range->displayed_plus_dependents_cnt    = 0;
+    range->displayed_ignored_cnt            = 0;
+    range->displayed_ignored_marked_cnt     = 0;
+    range->displayed_ignored_mark_range_cnt = 0;
+    range->displayed_ignored_user_range_cnt = 0;
 
     g_assert(range->cf != NULL);
 
@@ -101,7 +100,7 @@ static void packet_range_calc(packet_range_t *range) {
                 range->displayed_cnt++;
             }
             if (packet->flags.passed_dfilter ||
-		packet->flags.dependent_of_displayed) {
+                packet->flags.dependent_of_displayed) {
                 range->displayed_plus_dependents_cnt++;
             }
             if (packet->flags.marked) {
@@ -180,10 +179,10 @@ static void packet_range_calc_user(packet_range_t *range) {
     guint32       framenum;
     frame_data    *packet;
 
-    range->user_range_cnt             = 0L;
-    range->ignored_user_range_cnt     = 0L;
-    range->displayed_user_range_cnt   = 0L;
-    range->displayed_ignored_user_range_cnt = 0L;
+    range->user_range_cnt                   = 0;
+    range->ignored_user_range_cnt           = 0;
+    range->displayed_user_range_cnt         = 0;
+    range->displayed_ignored_user_range_cnt = 0;
 
     g_assert(range->cf != NULL);
 
@@ -324,7 +323,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
      * packet happens to be a dependency on something that is displayed.
      */
     if ((range->process_filtered && fdata->flags.passed_dfilter == FALSE) &&
-	!(range->include_dependents && fdata->flags.dependent_of_displayed)) {
+        !(range->include_dependents && fdata->flags.dependent_of_displayed)) {
         return range_process_next;
     }
 
@@ -353,12 +352,12 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
     ret = range_convert_str(&new_range, es, range->cf->count);
     if (ret != CVT_NO_ERROR) {
         /* range isn't valid */
-        range->user_range                 = NULL;
-        range->user_range_status          = ret;
-        range->user_range_cnt             = 0L;
-        range->ignored_user_range_cnt     = 0L;
-        range->displayed_user_range_cnt   = 0L;
-        range->displayed_ignored_user_range_cnt = 0L;
+        range->user_range                       = NULL;
+        range->user_range_status                = ret;
+        range->user_range_cnt                   = 0;
+        range->ignored_user_range_cnt           = 0;
+        range->displayed_user_range_cnt         = 0;
+        range->displayed_ignored_user_range_cnt = 0;
         return;
     }
     range->user_range = new_range;
@@ -366,3 +365,17 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
     /* calculate new user specified packet range counts */
     packet_range_calc_user(range);
 } /* packet_range_convert_str */
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
