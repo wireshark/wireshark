@@ -1445,9 +1445,6 @@ DISSECTOR_INCLUDES =	\
 	packet-isakmp.h	\
 	packet-isis.h	\
 	packet-isis-clv.h	\
-	packet-isis-hello.h	\
-	packet-isis-lsp.h	\
-	packet-isis-snp.h	\
 	packet-isl.h	\
 	packet-isup.h	\
 	packet-jxta.h	\

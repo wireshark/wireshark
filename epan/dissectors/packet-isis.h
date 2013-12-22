@@ -44,17 +44,15 @@
 #define ISIS_TYPE_L1_PSNP   26
 #define ISIS_TYPE_L2_PSNP   27
 
-#define ISIS_TYPE_MASK 	    0x1f
-#define ISIS_R8_MASK	    0x80
-#define ISIS_R7_MASK	    0x40
-#define ISIS_R6_MASK	    0x20
+#define ISIS_TYPE_MASK 	        0x1f
+#define ISIS_TYPE_RESERVED_MASK 0xe0
 
 /*
- * published API functions
+ * Data given to subdissectors
  */
-
-extern char *isis_address_to_string(tvbuff_t *tvb, int offset, int len);
-extern void isis_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
-	const char *fmat, ...);
+typedef struct isis_data {
+	guint8 header_length;
+	guint8 system_id_len;
+} isis_data_t;
 
 #endif /* _PACKET_ISIS_H */

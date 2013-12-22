@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
@@ -50,8 +51,8 @@
  *	void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length)
+isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
+        expert_field* expert, int offset, int length)
 {
 	int		arealen,area_idx;
 
@@ -59,12 +60,12 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		arealen = tvb_get_guint8(tvb, offset);
 		length--;
 		if (length<=0) {
-			isis_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
 				"short address (no length for payload)");
 			return;
 		}
 		if ( arealen > length) {
-			isis_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
 				"short address, packet says %d, we have %d left",
 				arealen, length );
 			return;
@@ -85,7 +86,7 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			/*
 			 * Lets turn the area address into "standard"
 			 * xx.xxxx.xxxx.xxxx.xxxx.xxxx.xxxx format string.
-	                 * this is a private routine as the print_nsap_net in
+			 * this is a private routine as the print_nsap_net in
 			 * epan/osi_utils.c is incomplete and we need only
 			 * a subset - actually some nice placing of dots ....
 			 */
@@ -124,8 +125,8 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length)
+isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
+        expert_field* auth_expert, int offset, int length)
 {
 	guchar pw_type;
 	int auth_unsupported;
@@ -176,9 +177,8 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		break;
 	}
 
-       	if ( auth_unsupported ) {
-		isis_dissect_unknown(tvb, tree, offset,
-       			"Unknown authentication type" );
+		if ( auth_unsupported ) {
+			proto_tree_add_expert(tree, pinfo, auth_expert, tvb, offset, -1);
 	}
 }
 
@@ -300,8 +300,8 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 			"malformed MT-ID");
 		break;
 	    }
-	    length=length-2;
-	    offset=offset+2;
+	    length -= 2;
+	    offset += 2;
 	}
 }
 
@@ -326,8 +326,8 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
  *	void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length, int tree_id)
+isis_dissect_ip_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
+    int offset, int length, int tree_id)
 {
 	if ( length <= 0 ) {
 		return;
@@ -335,7 +335,7 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	while ( length > 0 ) {
 		if ( length < 4 ) {
-			isis_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
 				"Short IP interface address (%d vs 4)",length );
 			return;
 		}
@@ -368,8 +368,8 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_ipv6_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length, int tree_id)
+isis_dissect_ipv6_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
+    int offset, int length, int tree_id)
 {
 	guint8 addr [16];
 
@@ -379,7 +379,7 @@ isis_dissect_ipv6_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	while ( length > 0 ) {
 		if ( length < 16 ) {
-			isis_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
 				"Short IPv6 interface address (%d vs 16)",length );
 			return;
 		}
@@ -412,21 +412,20 @@ isis_dissect_ipv6_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length, int tree_id)
+isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
+    int offset, int length, int tree_id)
 {
-        if ( length <= 0 ) {
-                return;
-        }
+	if ( length <= 0 ) {
+		return;
+	}
 
-        if ( length != 4 ) {
-		isis_dissect_unknown(tvb, tree, offset,
-                        "malformed Traffic Engineering Router ID (%d vs 4)",length );
-                return;
-        }
-        if ( tree ) {
-                proto_tree_add_item(tree, tree_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-        }
+	if ( length != 4 ) {
+		proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+			"malformed Traffic Engineering Router ID (%d vs 4)",length );
+		return;
+	}
+
+	proto_tree_add_item(tree, tree_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -479,8 +478,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 						*/
 					       (tvb_get_guint8(tvb, offset) == NLPID_IEEE_8021AQ
 						? "IEEE 802.1aq (SPB)"
-						: val_to_str_const(tvb_get_guint8(tvb, offset), nlpid_vals,
-                                                                   "Unknown")),
+						: val_to_str_const(tvb_get_guint8(tvb, offset), nlpid_vals, "Unknown")),
 					       tvb_get_guint8(tvb, offset));
 			offset++;
 			first = FALSE;
@@ -513,8 +511,8 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
  *	void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
-	const isis_clv_handle_t *opts, int len, int id_length,
+isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+	const isis_clv_handle_t *opts, expert_field* expert_short_len, int len, int id_length,
 	int unknown_tree_id _U_)
 {
 	guint8 code;
@@ -537,7 +535,7 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			break;
 
 		if ( len < length ) {
-			isis_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, expert_short_len, tvb, offset, -1,
 				"Short CLV header (%d vs %d)",
 				length, len );
 			return;
@@ -557,7 +555,7 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			} else {
 				clv_tree = NULL;
 			}
-			opts[q].dissect(tvb, clv_tree, offset,
+			opts[q].dissect(tvb, pinfo, clv_tree, offset,
 				id_length, length);
 		} else {
 #if 0 /* XXX: Left as commented out in case info about "unknown code" is ever to be displayed under a sub-tree */

@@ -27,14 +27,24 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
-#include "packet-isis-lsp.h"
-#include "packet-isis-snp.h"
+
+static int proto_isis_csnp = -1;
+static int proto_isis_psnp = -1;
 
 /* csnp packets */
 static int hf_isis_csnp_pdu_length = -1;
+static int hf_isis_csnp_source_id = -1;
+static int hf_isis_csnp_start_lsp_id = -1;
+static int hf_isis_csnp_end_lsp_id = -1;
+static int hf_isis_csnp_lsp_id = -1;
+static int hf_isis_csnp_lsp_seq_num = -1;
+static int hf_isis_csnp_lsp_remain_life = -1;
+static int hf_isis_csnp_lsp_checksum = -1;
+static int hf_isis_csnp_checksum = -1;
 static gint ett_isis_csnp = -1;
 static gint ett_isis_csnp_clv_lsp_entries = -1;
 static gint ett_isis_csnp_lsp_entry = -1;
@@ -43,8 +53,13 @@ static gint ett_isis_csnp_clv_ip_authentication = -1;
 static gint ett_isis_csnp_clv_checksum = -1;
 static gint ett_isis_csnp_clv_unknown = -1;
 
+static expert_field ei_isis_csnp_short_packet = EI_INIT;
+static expert_field ei_isis_csnp_long_packet = EI_INIT;
+static expert_field ei_isis_csnp_authentication = EI_INIT;
+
 /* psnp packets */
 static int hf_isis_psnp_pdu_length = -1;
+static int hf_isis_psnp_source_id = -1;
 static gint ett_isis_psnp = -1;
 static gint ett_isis_psnp_clv_lsp_entries = -1;
 static gint ett_isis_psnp_lsp_entry = -1;
@@ -53,14 +68,114 @@ static gint ett_isis_psnp_clv_ip_authentication = -1;
 static gint ett_isis_psnp_clv_checksum = -1;
 static gint ett_isis_psnp_clv_unknown = -1;
 
-static void dissect_snp_authentication_clv(tvbuff_t *tvb,
-	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_snp_ip_authentication_clv(tvbuff_t *tvb,
-	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_snp_checksum_clv(tvbuff_t *tvb,
-	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_snp_lsp_entries_clv(tvbuff_t *tvb,
-	proto_tree *tree, int offset, int id_length, int length);
+static expert_field ei_isis_psnp_short_packet = EI_INIT;
+static expert_field ei_isis_psnp_long_packet = EI_INIT;
+
+static void
+dissect_snp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+	int id_length _U_, int length)
+{
+	isis_dissect_authentication_clv(tree, pinfo, tvb, &ei_isis_csnp_authentication, offset, length);
+}
+
+static void
+dissect_snp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+	int id_length _U_, int length)
+{
+	isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+}
+
+/*
+ * Name: dissect_snp_checksum_clv()
+ *
+ * Description:
+ *      dump and verify the optional checksum in TLV 12
+ */
+static void
+dissect_snp_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
+        proto_tree *tree, int offset, int id_length _U_, int length) {
+
+    guint16 pdu_length,checksum, cacl_checksum=0;
+    proto_item* ti;
+
+    if ( length != 2 ) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_packet, tvb, offset, -1,
+            "incorrect checksum length (%u), should be (2)", length );
+            return;
+    }
+
+    ti = proto_tree_add_item( tree, hf_isis_csnp_checksum, tvb, offset, length, ENC_BIG_ENDIAN);
+
+    checksum = tvb_get_ntohs(tvb, offset);
+
+        /* the check_and_get_checksum() function needs to know how big
+            * the packet is. we can either pass through the pdu-len through several layers
+            * of dissectors and wrappers or extract the PDU length field from the PDU specific header
+            * which is offseted 8 bytes (relative to the beginning of the IS-IS packet) in SNPs */
+
+    pdu_length = tvb_get_ntohs(tvb, 8);
+
+    /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
+    switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
+    {
+        case NO_CKSUM :
+             proto_item_append_text(ti, " [unused]");
+       	break;
+        case DATA_MISSING :
+             expert_add_info_format(pinfo, ti, &ei_isis_csnp_long_packet,
+                                        "Packet length %d went beyond packet", tvb_length(tvb));
+        break;
+        case CKSUM_NOT_OK :
+             proto_item_append_text(ti, " [incorrect, should be 0x%04x]", cacl_checksum);
+        break;
+        case CKSUM_OK :
+             proto_item_append_text(ti, " [correct]");
+        break;
+    }
+}
+
+/*
+ * Name: dissect_snp_lsp_entries_clv()
+ *
+ * Description:
+ *	All the snp packets use a common payload format.  We have up
+ *	to n entries (based on length), which are made of:
+ *		2         : remaining life time
+ *		id_length : lsp id
+ *		4         : sequence number
+ *		2         : checksum
+ */
+static void
+dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+	int id_length, int length)
+{
+	proto_item *ti;
+	proto_tree *subtree;
+	const guint8 *source_id;
+
+	while ( length > 0 ) {
+		if ( length < 2+id_length+2+4+2 ) {
+			proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_packet, tvb, offset, -1,
+				"Short SNP header entry (%d vs %d)", length, 2+id_length+2+4+2 );
+			return;
+		}
+
+		ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2, "LSP Entry");
+		subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entry);
+
+		source_id = tvb_get_ptr(tvb, offset+2, id_length+2);
+		proto_tree_add_bytes_format_value(tree, hf_isis_csnp_lsp_id, tvb,
+						offset+2, 8, source_id, "%s", print_system_id(source_id, id_length+2));
+
+		proto_tree_add_item(subtree, hf_isis_csnp_lsp_seq_num, tvb, offset+2+id_length+2, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_isis_csnp_lsp_remain_life, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_isis_csnp_lsp_checksum, tvb, offset+2+id_length+2+4, 2, ENC_BIG_ENDIAN);
+
+		length -= 2+id_length+2+4+2;
+		offset += 2+id_length+2+4+2;
+	}
+
+}
 
 static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 	{
@@ -182,356 +297,173 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 	}
 };
 
-/*
- * Name: dissect_snp_lsp_entries_clv()
- *
- * Description:
- *	All the snp packets use a common payload format.  We have up
- *	to n entries (based on length), which are made of:
- *		2         : remaining life time
- *		id_length : lsp id
- *		4         : sequence number
- *		2         : checksum
- *
- * Input:
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : protocol display tree to fill out.  May be NULL
- *	int : offset into packet data where we are.
- *	int : length of IDs in packet.
- *	int : length of payload to decode.
- *
- * Output:
- *      void, but we will add to proto tree if !NULL.
- */
 static void
-dissect_snp_lsp_entries_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length, int length)
-{
-        proto_tree *subtree,*ti;
-
-	while ( length > 0 ) {
-		if ( length < 2+id_length+2+4+2 ) {
-			isis_dissect_unknown(tvb, tree, offset,
-				"Short SNP header entry (%d vs %d)", length,
-				2+id_length+2+4+2 );
-			return;
-		}
-
-	        ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2,
-                                    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
-                                           print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ),
-                                           tvb_get_ntohl(tvb, offset+2+id_length+2),
-                                           tvb_get_ntohs(tvb, offset),
-                                           tvb_get_ntohs(tvb, offset+2+id_length+2+4));
-
-                subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entry);
-
-		proto_tree_add_text(subtree, tvb, offset+2, 8,
-			"LSP-ID:             : %s",
-			print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ));
-
-		proto_tree_add_text(subtree, tvb, offset+2+id_length+2, 4,
-			"LSP Sequence Number : 0x%08x",
-			tvb_get_ntohl(tvb, offset+2+id_length+2));
-
-		proto_tree_add_text(subtree, tvb, offset, 2,
-			"Remaining Lifetime  : %us",
-			tvb_get_ntohs(tvb, offset));
-
-		proto_tree_add_text(subtree, tvb, offset+2+id_length+2+4, 2,
-			"LSP checksum        : 0x%04x",
-			tvb_get_ntohs(tvb, offset+2+id_length+2+4));
-
-		length -= 2+id_length+2+4+2;
-		offset += 2+id_length+2+4+2;
-	}
-
-}
-
-
-/*
- * Name: isis_dissect_isis_csnp()
- *
- * Description:
- *	Tear apart a L1 or L2 CSNP header and then call into payload dissect
- *	to pull apart the lsp id payload.
- *
- * Input:
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : protocol display tree to add to.  May be NULL.
- *	int offset : our offset into packet data.
- *	int : type (l1 csnp, l2 csnp)
- *	int : header length of packet.
- *	int : length of IDs in packet.
- *
- * Output:
- *      void, but we will add to proto tree if !NULL.
- */
-void
-isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-	int type, int header_length, int id_length)
+dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+	const isis_clv_handle_t *opts, int header_length, int id_length)
 {
 	proto_item	*ti;
 	proto_tree	*csnp_tree = NULL;
 	guint16		pdu_length;
 	int 		len;
+	const guint8	*source_id;
+	gchar* system_id;
 
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, -1,
-		    PROTO_STRING_CSNP);
-		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS CSNP");
+
+	ti = proto_tree_add_item(tree, proto_isis_csnp, tvb, offset, -1, ENC_NA);
+	csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
 
 	pdu_length = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_uint(csnp_tree, hf_isis_csnp_pdu_length, tvb,
+	proto_tree_add_uint(csnp_tree, hf_isis_csnp_pdu_length, tvb,
 			offset, 2, pdu_length);
-	}
 	offset += 2;
 
-	if (tree) {
-		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 1,
-			"Source-ID:    %s",
-				print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
-	}
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
-			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
-
+	source_id = tvb_get_ptr(tvb, offset, id_length);
+	system_id = print_system_id( source_id, id_length );
+	proto_tree_add_bytes_format_value(csnp_tree, hf_isis_csnp_source_id, tvb,
+			            offset, id_length, source_id,
+			            "%s", system_id);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", system_id);
 	offset += id_length + 1;
 
-	proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2, "Start LSP-ID: %s",
-                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
-			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-
+	source_id = tvb_get_ptr(tvb, offset, id_length+2);
+	system_id = print_system_id( source_id, id_length+2 );
+	proto_tree_add_bytes_format_value(csnp_tree, hf_isis_csnp_start_lsp_id, tvb,
+			            offset, id_length + 2, source_id,
+			            "%s", system_id);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s", system_id);
 	offset += id_length + 2;
 
-	proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2, "End LSP-ID: %s",
-                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
-			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-
+	source_id = tvb_get_ptr(tvb, offset, id_length+2);
+	system_id = print_system_id( source_id, id_length+2 );
+	proto_tree_add_bytes_format_value(csnp_tree, hf_isis_csnp_end_lsp_id, tvb,
+			            offset, id_length + 2, source_id,
+			            "%s", system_id);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s", system_id);
 	offset += id_length + 2;
 
 	len = pdu_length - header_length;
 	if (len < 0) {
+		proto_tree_add_expert_format(tree, pinfo, &ei_isis_csnp_short_packet, tvb, offset, -1,
+			"packet header length %d went beyond packet", header_length );
 		return;
 	}
-	/* Call into payload dissector */
-	if (type == ISIS_TYPE_L1_CSNP ) {
-		isis_dissect_clvs(tvb, csnp_tree, offset,
-			clv_l1_csnp_opts, len, id_length,
-			ett_isis_csnp_clv_unknown );
-	} else {
-		isis_dissect_clvs(tvb, csnp_tree, offset,
-			clv_l2_csnp_opts, len, id_length,
-			ett_isis_csnp_clv_unknown );
-	}
+	
+	isis_dissect_clvs(tvb, pinfo, csnp_tree, offset,
+			opts, &ei_isis_csnp_short_packet, len, id_length, ett_isis_csnp_clv_unknown );
 }
 
-/*
- * Name: isis_dissect_isis_psnp()
- *
- * Description:
- *	Tear apart a L1 or L2 PSNP header and then call into payload dissect
- *	to pull apart the lsp id payload.
- *
- * Input:
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : protocol display tree to add to.  May be NULL.
- *	int : our offset into packet data
- *	int : type (l1 psnp, l2 psnp)
- *	int : header length of packet.
- *	int : length of IDs in packet.
- *
- * Output:
- *      void, but we will add to proto tree if !NULL.
- */
-void
-isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-	int type, int header_length, int id_length)
+
+static int
+dissect_isis_l1_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	isis_data_t* isis = (isis_data_t*)data;
+	dissect_isis_csnp(tvb, pinfo, tree, 0,
+		clv_l1_csnp_opts, isis->header_length, isis->system_id_len);
+	return tvb_length(tvb);
+}
+
+static int
+dissect_isis_l2_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	isis_data_t* isis = (isis_data_t*)data;
+	dissect_isis_csnp(tvb, pinfo, tree, 0,
+		clv_l2_csnp_opts, isis->header_length, isis->system_id_len);
+	return tvb_length(tvb);
+}
+
+static void
+dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+	const isis_clv_handle_t *opts, int header_length, int id_length)
 {
 	proto_item	*ti;
-	proto_tree	*psnp_tree = NULL;
+	proto_tree	*psnp_tree;
 	guint16		pdu_length;
 	int 		len;
+	const guint8	*source_id;
+	gchar* system_id;
 
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, -1,
-		    PROTO_STRING_PSNP);
-		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS PSNP");
+
+	ti = proto_tree_add_item(tree, proto_isis_psnp, tvb, offset, -1, ENC_NA);
+	psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
 
 	pdu_length = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_uint(psnp_tree, hf_isis_psnp_pdu_length, tvb,
+	proto_tree_add_uint(psnp_tree, hf_isis_psnp_pdu_length, tvb,
 			offset, 2, pdu_length);
-	}
 	offset += 2;
 
-	proto_tree_add_text(psnp_tree, tvb, offset, id_length + 1, "Source-ID: %s",
-			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length + 1 ) );
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
-			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
+	source_id = tvb_get_ptr(tvb, offset, id_length);
+	system_id = print_system_id( source_id, id_length );
+	proto_tree_add_bytes_format_value(psnp_tree, hf_isis_psnp_source_id, tvb,
+			            offset, id_length, source_id,
+			            "%s", system_id);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", system_id);
 
 	offset += id_length + 1;
 
 	len = pdu_length - header_length;
 	if (len < 0) {
-		isis_dissect_unknown(tvb, tree, offset,
-			"packet header length %d went beyond packet",
-			header_length );
+		proto_tree_add_expert_format(tree, pinfo, &ei_isis_psnp_long_packet, tvb, offset, -1,
+			"packet header length %d went beyond packet", header_length );
 		return;
 	}
 	/* Call into payload dissector */
-	if (type == ISIS_TYPE_L1_PSNP ) {
-		isis_dissect_clvs(tvb, psnp_tree, offset,
-			clv_l1_psnp_opts, len, id_length,
-			ett_isis_psnp_clv_unknown );
-	} else {
-		isis_dissect_clvs(tvb, psnp_tree, offset,
-			clv_l2_psnp_opts, len, id_length,
-			ett_isis_psnp_clv_unknown );
-	}
+	isis_dissect_clvs(tvb, pinfo, psnp_tree, offset,
+			opts, &ei_isis_psnp_short_packet, len, id_length, ett_isis_psnp_clv_unknown );
 }
 
-/*
- * Name: dissect_snp_authentication_clv()
- *
- * Description:
- *	Decode for a snp packets authenticaion clv.
- *      Calls into the CLV common one.
- *
- * Input:
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : proto tree to build on (may be null)
- *	int : current offset into packet data
- *	int : length of IDs in packet.
- *	int : length of this clv
- *
- * Output:
- *	void, will modify proto_tree if not null.
- */
-static void
-dissect_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length _U_, int length)
+static int
+dissect_isis_l1_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	isis_dissect_authentication_clv(tvb, tree, offset, length);
+	isis_data_t* isis = (isis_data_t*)data;
+	dissect_isis_psnp(tvb, pinfo, tree, 0,
+		clv_l1_psnp_opts, isis->header_length, isis->system_id_len);
+	return tvb_length(tvb);
 }
 
-/*
- * Name: dissect_snp_ip_authentication_clv()
- *
- * Description:
- *	Decode for a snp packets authenticaion clv.
- *      Calls into the CLV common one.
- *
- * Input:
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : proto tree to build on (may be null)
- *	int : current offset into packet data
- *	int : length of IDs in packet.
- *	int : length of this clv
- *
- * Output:
- *	void, will modify proto_tree if not null.
- */
-static void
-dissect_snp_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int id_length _U_, int length)
+static int
+dissect_isis_l2_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+	isis_data_t* isis = (isis_data_t*)data;
+	dissect_isis_psnp(tvb, pinfo, tree, 0,
+		clv_l2_psnp_opts, isis->header_length, isis->system_id_len);
+	return tvb_length(tvb);
 }
 
-/*
- * Name: dissect_snp_checksum_clv()
- *
- * Description:
- *      dump and verify the optional checksum in TLV 12
- *
- * Input:
- *      tvbuff_t * : tvbuffer for packet data
- *      proto_tree * : protocol display tree to fill out.  May be NULL
- *      int : offset into packet data where we are.
- *      int : length of clv we are decoding
- *
- * Output:
- *      void, but we will add to proto tree if !NULL.
- */
-
-static void
-dissect_snp_checksum_clv(tvbuff_t *tvb,
-        proto_tree *tree, int offset, int id_length _U_, int length) {
-
-	guint16 pdu_length,checksum, cacl_checksum=0;
-
-	if (tree) {
-                if ( length != 2 ) {
-                        proto_tree_add_text ( tree, tvb, offset, length,
-                                              "incorrect checksum length (%u), should be (2)", length );
-                        return;
-                }
-
-    		checksum = tvb_get_ntohs(tvb, offset);
-
-                /* the check_and_get_checksum() function needs to know how big
-                 * the packet is. we can either pass through the pdu-len through several layers
-                 * of dissectors and wrappers or extract the PDU length field from the PDU specific header
-                 * which is offseted 8 bytes (relative to the beginning of the IS-IS packet) in SNPs */
-
-    		pdu_length = tvb_get_ntohs(tvb, 8);
-
-                /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
-		switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
-		{
-
-        		case NO_CKSUM :
-                                proto_tree_add_text ( tree, tvb, offset, length,
-                                                      "Checksum: 0x%04x [unused]", checksum);
-       	 		break;
-        		case DATA_MISSING :
-          			isis_dissect_unknown(tvb, tree, offset,
-                                                     "[packet length %d went beyond packet]",
-                                                     tvb_length(tvb));
-        		break;
-        		case CKSUM_NOT_OK :
-                                proto_tree_add_text ( tree, tvb, offset, length,
-                                                      "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-                                                      checksum,
-                                                      cacl_checksum);
-        		break;
-	        	case CKSUM_OK :
-                                proto_tree_add_text ( tree, tvb, offset, length,
-                                                      "Checksum: 0x%04x [correct]", checksum);
-        		break;
-        		default :
-          			g_message("'check_and_get_checksum' returned an invalid value");
-    		}
-	}
-}
-
-/*
- * Name: isis_register_csnp()
- *
- * Description:
- *	Register our protocol sub-sets with protocol manager.
- *
- * Input:
- *	int : protocol index for the ISIS protocol
- *
- * Output:
- *	void
- */
 void
-isis_register_csnp(int proto_isis) {
+proto_register_isis_csnp(void)
+{
 	static hf_register_info hf[] = {
 		{ &hf_isis_csnp_pdu_length,
 		{ "PDU length",		"isis.csnp.pdu_length", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_source_id,
+		{ "Source-ID", "isis.csnp.source_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_start_lsp_id,
+		{ "Start LSP-ID", "isis.csnp.start_lsp_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_end_lsp_id,
+		{ "End LSP-ID", "isis.csnp.end_lsp_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_lsp_id,
+		{ "LSP-ID", "isis.csnp.lsp_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_lsp_seq_num,
+		{ "LSP Sequence Number",		"isis.csnp.lsp_seq_num", FT_UINT32,
+		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_lsp_remain_life,
+		{ "Remaining Lifetime",		"isis.csnp.lsp_remain_life", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_lsp_checksum,
+		{ "LSP checksum",		"isis.csnp.lsp_checksum", FT_UINT16,
+		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_csnp_checksum,
+		{ "Checksum",		"isis.csnp.checksum", FT_UINT16,
+		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	};
+
 	static gint *ett[] = {
 		&ett_isis_csnp,
 		&ett_isis_csnp_clv_lsp_entries,
@@ -542,30 +474,41 @@ isis_register_csnp(int proto_isis) {
 		&ett_isis_csnp_clv_unknown,
 	};
 
-	proto_register_field_array(proto_isis, hf, array_length(hf));
+	static ei_register_info ei[] = {
+		{ &ei_isis_csnp_short_packet, { "isis.csnp.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
+		{ &ei_isis_csnp_long_packet, { "isis.csnp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
+		{ &ei_isis_csnp_authentication, { "isis.csnp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
+	};
+	expert_module_t* expert_isis_csnp;
+
+	/* Register the protocol name and description */
+	proto_isis_csnp = proto_register_protocol(PROTO_STRING_CSNP, "ISIS CSNP", "isis.csnp");
+
+	proto_register_field_array(proto_isis_csnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_isis_csnp = expert_register_protocol(proto_isis_csnp);
+	expert_register_field_array(expert_isis_csnp, ei, array_length(ei));
 }
 
-
-/*
- * Name: isis_register_psnp()
- *
- * Description:
- *	Register our protocol sub-sets with protocol manager.
- *
- * Input:
- *	int : protocol index for the ISIS protocol
- *
- * Output:
- *	void
- */
 void
-isis_register_psnp(int proto_isis) {
+proto_reg_handoff_isis_csnp(void)
+{
+	dissector_add_uint("isis.type", ISIS_TYPE_L1_CSNP, new_create_dissector_handle(dissect_isis_l1_csnp, proto_isis_csnp));
+	dissector_add_uint("isis.type", ISIS_TYPE_L2_CSNP, new_create_dissector_handle(dissect_isis_l2_csnp, proto_isis_csnp));
+}
+
+void
+proto_register_isis_psnp(void)
+{
 	static hf_register_info hf[] = {
 		{ &hf_isis_psnp_pdu_length,
 		{ "PDU length",		"isis.psnp.pdu_length", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_isis_psnp_source_id,
+		{ "Source-ID", "isis.psnp.source_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
+
 	static gint *ett[] = {
 		&ett_isis_psnp,
 		&ett_isis_psnp_clv_lsp_entries,
@@ -575,7 +518,24 @@ isis_register_psnp(int proto_isis) {
 		&ett_isis_psnp_clv_checksum,
 		&ett_isis_psnp_clv_unknown,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_isis_psnp_long_packet, { "isis.psnp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
+		{ &ei_isis_psnp_short_packet, { "isis.psnp.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
+	};
+	expert_module_t* expert_isis_psnp;
 
-	proto_register_field_array(proto_isis, hf, array_length(hf));
+	/* Register the protocol name and description */
+	proto_isis_psnp = proto_register_protocol(PROTO_STRING_PSNP, "ISIS PSNP", "isis.psnp");
+
+	proto_register_field_array(proto_isis_psnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_isis_psnp = expert_register_protocol(proto_isis_psnp);
+	expert_register_field_array(expert_isis_psnp, ei, array_length(ei));
+}
+
+void
+proto_reg_handoff_isis_psnp(void)
+{
+	dissector_add_uint("isis.type", ISIS_TYPE_L1_PSNP, new_create_dissector_handle(dissect_isis_l1_psnp, proto_isis_psnp));
+	dissector_add_uint("isis.type", ISIS_TYPE_L2_PSNP, new_create_dissector_handle(dissect_isis_l2_psnp, proto_isis_psnp));
 }
