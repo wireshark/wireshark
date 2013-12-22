@@ -1209,7 +1209,11 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 
 WSLUA_METHOD TvbRange_strsize(lua_State* L) {
         /* Find the size of a zero terminated string from a TvbRange.  The size of the string includes the terminating zero. */
+#define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
+    guint encoding = (guint)luaL_optint(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
+    gint offset;
+    gunichar2 uchar;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1217,12 +1221,31 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
         return 0;
     }
 
-    if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
-        luaL_error(L,"out of bounds");
-        return 0;
-    }
+    switch (encoding & ENC_CHARENCODING_MASK) {
 
-    lua_pushinteger(L, tvb_strsize(tvbr->tvb->ws_tvb, tvbr->offset));
+    case ENC_UTF_16:
+    case ENC_UCS_2:
+        offset = tvbr->offset;
+        do {
+            if (!tvb_bytes_exist (tvbr->tvb->ws_tvb, offset, 2)) {
+                luaL_error(L,"out of bounds");
+                return 0;
+            }
+            /* Endianness doesn't matter when looking for null */
+            uchar = tvb_get_ntohs (tvbr->tvb->ws_tvb, offset);
+            offset += 2;
+        } while (uchar != 0);
+        lua_pushinteger(L, tvb_unicode_strsize(tvbr->tvb->ws_tvb, tvbr->offset));
+        break;
+
+    default:
+        if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+            luaL_error(L,"out of bounds");
+            return 0;
+        }
+        lua_pushinteger(L, tvb_strsize(tvbr->tvb->ws_tvb, tvbr->offset));
+        break;
+    }
 
     WSLUA_RETURN(1); /* Length of the zero terminated string */
 }
