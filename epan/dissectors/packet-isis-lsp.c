@@ -559,7 +559,6 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 	guint      bit_length;
 	int        byte_length;
 	guint8     prefix [4];
-	guint32    metric;
 	guint      len,i;
 	guint      subclvs_len;
 	guint      clv_code, clv_len;
@@ -575,7 +574,6 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 			 	"IPv4 prefix has an invalid length: %d bits", bit_length );
 				return;
 			}
-		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x40) != 0)
 			subclvs_len = 1+tvb_get_guint8(tvb, offset+5+byte_length);
@@ -643,7 +641,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
  */
 
 static void
-dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
 	int tree_id,int length)
 {
 	gint len;
@@ -774,7 +772,7 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
 
 /* As per RFC 6326 section 2.3 */
 static void
-dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo,
+dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	gint len;
@@ -1048,7 +1046,6 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 	guint             bit_length;
 	int               byte_length;
 	struct e_in6_addr prefix;
-	guint32           metric;
 	guint             len,i;
 	guint             subclvs_len;
 	guint             clv_code, clv_len;
@@ -1064,7 +1061,6 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
 				"IPv6 prefix has an invalid length: %d bits", bit_length );
 				return;
 			}
-		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x20) != 0)
 			subclvs_len = 1+tvb_get_guint8(tvb, offset+6+byte_length);
@@ -2584,7 +2580,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	proto_item	*ti, *to, *ta;
 	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree;
 	guint16		pdu_length, lifetime, checksum, cacl_checksum=0;
-	guint8		lsp_info, lsp_att;
+	guint8		lsp_info;
 	int		len, offset_checksum;
 	proto_item	*it_cksum;
 	char* system_id;
@@ -2669,7 +2665,6 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		proto_tree_add_boolean(info_tree, hf_isis_lsp_p, tvb, offset, 1, lsp_info);
 		ta = proto_tree_add_uint(info_tree, hf_isis_lsp_att, tvb, offset, 1, lsp_info);
 		att_tree = proto_item_add_subtree(ta, ett_isis_lsp_att);
-		lsp_att = ISIS_LSP_ATT(lsp_info);
 		proto_tree_add_item(att_tree, hf_isis_lsp_error_metric, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(att_tree, hf_isis_lsp_expense_metric, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(att_tree, hf_isis_lsp_delay_metric, tvb, offset, 1, ENC_NA);

@@ -415,7 +415,7 @@ dissect_hello_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 
 static void
-dissect_hello_mt_clv(tvbuff_t *tvb, packet_info* pinfo,
+dissect_hello_mt_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_mt_clv(tvb, tree, offset, length,
@@ -514,7 +514,7 @@ dissect_hello_authentication_clv(tvbuff_t *tvb, packet_info* pinfo,
  *	void, will modify proto_tree if not null.
  */
 static void
-dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo,
+dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 	proto_tree *tree, int offset, int id_length _U_, int length)
 {
 	isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
