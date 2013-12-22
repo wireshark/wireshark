@@ -807,7 +807,7 @@ write_current_packet(gboolean cont)
             HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
             HDR_SCTP.checksum  = g_htonl(0);
-            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
+            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0);
             if (hdr_data_chunk) {
                 HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
                 HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
