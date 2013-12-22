@@ -79,31 +79,6 @@ typedef struct ei_register_info {
 
 typedef struct expert_module expert_module_t;
 
-static const value_string expert_group_vals[] = {
-        { PI_CHECKSUM,          "Checksum" },
-        { PI_SEQUENCE,          "Sequence" },
-        { PI_RESPONSE_CODE,     "Response" },
-        { PI_REQUEST_CODE,      "Request" },
-        { PI_UNDECODED,         "Undecoded" },
-        { PI_REASSEMBLE,        "Reassemble" },
-        { PI_MALFORMED,         "Malformed" },
-        { PI_DEBUG,             "Debug" },
-        { PI_PROTOCOL,          "Protocol" },
-        { PI_SECURITY,          "Security" },
-        { PI_COMMENTS_GROUP,    "Comment" },
-        { 0, NULL }
-};
-
-static const value_string expert_severity_vals[] = {
-        { PI_ERROR,             "Error" },
-        { PI_WARN,              "Warn" },
-        { PI_NOTE,              "Note" },
-        { PI_CHAT,              "Chat" },
-        { PI_COMMENT,           "Comment" },
-        { 0,                    "Ok" },
-        { 0, NULL }
-};
-
 #define PRE_ALLOC_EXPERT_FIELDS_MEM 5000
 
 /* "proto_expert" is exported from libwireshark.dll.
@@ -219,6 +194,10 @@ expert_register_field_array(expert_module_t* module, ei_register_info *ei, const
 #define EXPERT_CHECKSUM_UNKNOWN     -1
 #define EXPERT_CHECKSUM_GOOD        0
 #define EXPERT_CHECKSUM_BAD         1
+
+WS_DLL_PUBLIC const value_string expert_group_vals[];
+
+WS_DLL_PUBLIC const value_string expert_severity_vals[];
 
 WS_DLL_PUBLIC const value_string expert_checksum_vals[];
 

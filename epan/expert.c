@@ -35,7 +35,6 @@
 #include "wmem/wmem.h"
 #include "tap.h"
 
-
 /* proto_expert cannot be static because it's referenced in the
  * print routines
  */
@@ -66,6 +65,31 @@ typedef struct _gpa_expertinfo_t {
 	expert_field_info **ei;
 } gpa_expertinfo_t;
 static gpa_expertinfo_t gpa_expertinfo;
+
+const value_string expert_group_vals[] = {
+        { PI_CHECKSUM,          "Checksum" },
+        { PI_SEQUENCE,          "Sequence" },
+        { PI_RESPONSE_CODE,     "Response" },
+        { PI_REQUEST_CODE,      "Request" },
+        { PI_UNDECODED,         "Undecoded" },
+        { PI_REASSEMBLE,        "Reassemble" },
+        { PI_MALFORMED,         "Malformed" },
+        { PI_DEBUG,             "Debug" },
+        { PI_PROTOCOL,          "Protocol" },
+        { PI_SECURITY,          "Security" },
+        { PI_COMMENTS_GROUP,    "Comment" },
+        { 0, NULL }
+};
+
+const value_string expert_severity_vals[] = {
+        { PI_ERROR,             "Error" },
+        { PI_WARN,              "Warn" },
+        { PI_NOTE,              "Note" },
+        { PI_CHAT,              "Chat" },
+        { PI_COMMENT,           "Comment" },
+        { 0,                    "Ok" },
+        { 0, NULL }
+};
 
 /* Possible values for a checksum evaluation */
 const value_string expert_checksum_vals[] = {
