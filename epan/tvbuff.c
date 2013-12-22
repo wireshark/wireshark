@@ -1924,7 +1924,7 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
  * Basic Multilingual Plane (plane 0) of Unicode, return a UTF-8
  * string with the same characters.
  *
- * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
  *
@@ -1967,7 +1967,7 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * Given a UTF-16 encoded Unicode string, return a UTF-8 string with the
  * same characters.
  *
- * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
  *
@@ -2074,6 +2074,50 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 /*
+ * Given a UCS-4-encoded Unicode string, return a UTF-8 string with the
+ * same characters.
+ *
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Specify length in bytes
+ *
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
+ *
+ * XXX - should map lead and trail surrogate values, and code points beyond
+ * the maximum Unicode character, to a "substitute" UTF-8 character?
+ */
+static gchar *
+tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+{
+	gunichar       uchar;
+	gint           i;       /* Byte counter for tvbuff */
+	wmem_strbuf_t *strbuf;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
+
+	strbuf = wmem_strbuf_new(scope, NULL);
+
+	for(i = 0; i + 3 < length; i += 2) {
+		if (encoding == ENC_BIG_ENDIAN)
+			uchar = tvb_get_ntohl(tvb, offset + i);
+		else
+			uchar = tvb_get_letohl(tvb, offset + i);
+
+		wmem_strbuf_append_unichar(strbuf, uchar);
+	}
+
+	/*
+	 * XXX - if i < length, this means we were handed a number
+	 * of bytes that's not a multiple of 4, so we're not a valid
+	 * UCS-4 string.
+	 */
+	return (gchar*)wmem_strbuf_get_str(strbuf);
+}
+
+/*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
  * at that offset, plus a trailing '\0', copy into the buffer the
@@ -2131,24 +2175,9 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
-	case ENC_EBCDIC:
-		/*
-		 * XXX - do the copy and conversion in one pass.
-		 *
-		 * XXX - multiple "dialects" of EBCDIC?
-		 */
-		tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-		strbuf = (guint8 *)wmem_alloc(scope, length + 1);
-		if (length != 0) {
-			ptr = ensure_contiguous(tvb, offset, length);
-			memcpy(strbuf, ptr, length);
-			EBCDIC_to_ASCII(strbuf, length);
-		}
-		strbuf[length] = '\0';
-		break;
-
-	case ENC_WINDOWS_1250:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
+	case ENC_UCS_4:
+		strbuf = tvb_get_ucs_4_string(scope, tvb, offset, length,
+		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
 	case ENC_ISO_8859_1:
@@ -2214,6 +2243,26 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_ISO_8859_16:
 		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_16);
+		break;
+
+	case ENC_WINDOWS_1250:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
+		break;
+
+	case ENC_EBCDIC:
+		/*
+		 * XXX - do the copy and conversion in one pass.
+		 *
+		 * XXX - multiple "dialects" of EBCDIC?
+		 */
+		tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
+		strbuf = (guint8 *)wmem_alloc(scope, length + 1);
+		if (length != 0) {
+			ptr = ensure_contiguous(tvb, offset, length);
+			memcpy(strbuf, ptr, length);
+			EBCDIC_to_ASCII(strbuf, length);
+		}
+		strbuf[length] = '\0';
 		break;
 	}
 	return strbuf;
@@ -2298,7 +2347,7 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * Version of tvb_get_stringz() that handles the Basic Multilingual Plane
  * (plane 0) of Unicode, with each code point encoded in 16 bits.
  *
- * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Returns an allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
  *
@@ -2310,7 +2359,7 @@ static gchar *
 tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
 	gunichar2      uchar;
-	gint           size;    /* Number of UTF-16 characters */
+	gint           size;    /* Number of bytes in string */
 	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
 
@@ -2353,6 +2402,52 @@ tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 
 	if (lengthp)
 		*lengthp = size; /* Number of *bytes* processed */
+
+	return (gchar*)wmem_strbuf_get_str(strbuf);
+}
+
+/*
+ * Version of tvb_get_stringz() that handles Unicode, with each code point
+ * encoded in 32 bits.
+ *
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Returns an allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
+ *
+ * XXX - needs to map values that are not valid Unicode characters (such as,
+ * I think, values used as the components of a UTF-16 surrogate pair) to a
+ * "substitute" UTF-8 character.
+ */
+static gchar *
+tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+{
+	gunichar       uchar;
+	gint           size;    /* Number of bytes in string */
+	gint           i;       /* Byte counter for tvbuff */
+	wmem_strbuf_t *strbuf;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	size = 0;
+	do {
+		/* Endianness doesn't matter when looking for null */
+		uchar = tvb_get_ntohl(tvb, offset + size);
+		size += 4;
+	} while(uchar != 0);
+
+	strbuf = wmem_strbuf_new(scope, NULL);
+
+	for(i = 0; i < size; i += 4) {
+		if (encoding == ENC_BIG_ENDIAN)
+			uchar = tvb_get_ntohl(tvb, offset + i);
+		else
+			uchar = tvb_get_letohl(tvb, offset + i);
+
+		wmem_strbuf_append_unichar(strbuf, uchar);
+	}
+
+	if (lengthp)
+		*lengthp = i; /* Number of *bytes* processed */
 
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
@@ -2400,22 +2495,9 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
-	case ENC_EBCDIC:
-		/*
-		 * XXX - do the copy and conversion in one pass.
-		 *
-		 * XXX - multiple "dialects" of EBCDIC?
-		 */
-		size = tvb_strsize(tvb, offset);
-		strptr = (guint8 *)wmem_alloc(scope, size);
-		tvb_memcpy(tvb, strptr, offset, size);
-		EBCDIC_to_ASCII(strptr, size);
-		if (lengthp)
-			*lengthp = size;
-		break;
-
-	case ENC_WINDOWS_1250:
-		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+	case ENC_UCS_4:
+		strptr = tvb_get_ucs_4_stringz(scope, tvb, offset, lengthp,
+		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
 	case ENC_ISO_8859_1:
@@ -2481,6 +2563,24 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_ISO_8859_16:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_iso_8859_16);
+		break;
+
+	case ENC_WINDOWS_1250:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+		break;
+
+	case ENC_EBCDIC:
+		/*
+		 * XXX - do the copy and conversion in one pass.
+		 *
+		 * XXX - multiple "dialects" of EBCDIC?
+		 */
+		size = tvb_strsize(tvb, offset);
+		strptr = (guint8 *)wmem_alloc(scope, size);
+		tvb_memcpy(tvb, strptr, offset, size);
+		EBCDIC_to_ASCII(strptr, size);
+		if (lengthp)
+			*lengthp = size;
 		break;
 	}
 

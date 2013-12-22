@@ -2310,22 +2310,6 @@ proto_register_bacapp(void);
 void
 proto_reg_handoff_bacapp(void);
 
-/**
- * converts XXX coded strings to UTF-8
- * else 'in' is copied to 'out'
- * @param in  -- pointer to string
- * @param inbytesleft size of int bytes
- * @param out -- pointer to string
- * @param outbytesleft size of out bytes
- * @param fromcoding coding type
- * @return count of modified characters of returned string, -1 for errors
- */
-static guint32
-fConvertXXXtoUTF8(gchar *in, gsize *inbytesleft, gchar *out, gsize *outbytesleft, const gchar *fromcoding);
-
-static void
-uni_to_string(char * data, gsize str_length, char *dest_buf);
-
 /* <<<< formerly bacapp.h */
 
 /* reassembly table for segmented messages */
@@ -6245,9 +6229,8 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 {
     guint8      tag_no, tag_info, character_set;
     guint32     lvt, l;
-    gsize       inbytesleft, outbytesleft = 512;
+    gsize       inbytesleft;
     guint       offs, extra = 1;
-    guint8     *str_val;
     const char *coding;
     guint8      bf_arr[512], *out = &bf_arr[0];
     proto_item *ti;
@@ -6299,8 +6282,7 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 coding = "JIS C 6226";
                 break;
             case ISO_10646_UCS4:
-                str_val = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
-                fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "UCS-4BE");
+                out = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UCS_4|ENC_BIG_ENDIAN);
                 coding = "ISO 10646 UCS-4";
                 break;
             case ISO_10646_UCS2:
@@ -11038,68 +11020,6 @@ bacapp_init_routine(void)
 {
     reassembly_table_init(&msg_reassembly_table,
                           &addresses_reassembly_table_functions);
-}
-
-static guint32
-fConvertXXXtoUTF8(gchar *in, gsize *inbytesleft, gchar *out, gsize *outbytesleft, const gchar *fromcoding)
-{
-    guint32 i;
-    GIConv  icd;
-
-    if ((icd = g_iconv_open("UTF-8", fromcoding)) != (GIConv) -1) {
-        i = (guint32) g_iconv(icd, &in, inbytesleft, &out, outbytesleft);
-        /* g_iconv incremented 'out'; now ensure it's NULL terminated */
-        out[0] = '\0';
-
-        g_iconv_close(icd);
-        return i;
-    }
-
-    uni_to_string(in, *inbytesleft, out);
-    out[*inbytesleft] = '\0';
-    *outbytesleft -= *inbytesleft;
-    *inbytesleft   = 0;
-
-    return 0;
-}
-
-static void
-uni_to_string(char * data, gsize str_length, char *dest_buf)
-{
-    gint    i;
-    guint16 c_char;
-    gsize   length_remaining;
-
-    length_remaining = str_length;
-    dest_buf[0] = '\0';
-    if (str_length == 0) {
-        return;
-    }
-    for ( i = 0; i < (gint) str_length; i++ ) {
-        c_char = data[i];
-        if ((c_char < 0x20) || (c_char > 0x7e)) {
-            if (c_char != 0x00) {
-                c_char = '.';
-                dest_buf[i] = c_char & 0xff;
-            } else {
-                i--;
-                str_length--;
-            }
-        } else {
-            dest_buf[i] = c_char & 0xff;
-        }
-        length_remaining--;
-
-        if (length_remaining == 0) {
-            dest_buf[i+1] = '\0';
-            return;
-        }
-    }
-    if (i < 0) {
-        i = 0;
-    }
-    dest_buf[i] = '\0';
-    return;
 }
 
 void
