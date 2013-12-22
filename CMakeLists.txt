@@ -743,7 +743,7 @@ set( VERSION ${PROJECT_VERSION} )
 
 configure_file(
 	${CMAKE_SOURCE_DIR}/packaging/macosx/Info.plist.in
-	${CMAKE_SOURCE_DIR}/packaging/macosx/Info.plist
+	${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
 	@ONLY)
 
 include(FeatureSummary)
