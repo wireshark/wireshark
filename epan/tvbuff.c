@@ -987,12 +987,12 @@ get_ieee_float(const guint32 w)
 #define IEEE_DP_EXP_WIDTH	11	/* bits in exponent */
 #define IEEE_DP_MANTISSA_WIDTH	52	/* IEEE_DP_NUMBER_WIDTH - 1 - IEEE_DP_EXP_WIDTH */
 
-#define IEEE_DP_SIGN_MASK	0x8000000000000000LL
-#define IEEE_DP_EXPONENT_MASK	0x7FF0000000000000LL
-#define IEEE_DP_MANTISSA_MASK	0x000FFFFFFFFFFFFFLL
+#define IEEE_DP_SIGN_MASK	G_GINT64_CONSTANT(0x8000000000000000)
+#define IEEE_DP_EXPONENT_MASK	G_GINT64_CONSTANT(0x7FF0000000000000)
+#define IEEE_DP_MANTISSA_MASK	G_GINT64_CONSTANT(0x000FFFFFFFFFFFFF)
 #define IEEE_DP_INFINITY	IEEE_DP_EXPONENT_MASK
 
-#define IEEE_DP_IMPLIED_BIT (1LL << IEEE_DP_MANTISSA_WIDTH)
+#define IEEE_DP_IMPLIED_BIT (G_GINT64_CONSTANT(1) << IEEE_DP_MANTISSA_WIDTH)
 #define IEEE_DP_INFINITE ((1 << IEEE_DP_EXP_WIDTH) - 1)
 #define IEEE_DP_BIAS ((1 << (IEEE_DP_EXP_WIDTH - 1)) - 1)
 
@@ -1851,7 +1851,7 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  * plus a trailing '\0', copy the string into it, and return a pointer
  * to the string.
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  * Throws an exception if the tvbuff ends before the string does.
