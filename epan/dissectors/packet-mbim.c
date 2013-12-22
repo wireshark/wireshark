@@ -6223,7 +6223,7 @@ proto_register_mbim(void)
               NULL, HFILL }
         },
         { &hf_mbim_sms_send_pdu_pdu_data_size,
-            { "PDU Data Offset", "mbim.control.sms_send_pdu.pdu_data.size",
+            { "PDU Data Size", "mbim.control.sms_send_pdu.pdu_data.size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
