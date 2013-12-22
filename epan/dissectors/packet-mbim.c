@@ -374,16 +374,17 @@ static int hf_mbim_sms_status_info_flags_new_message = -1;
 static int hf_mbim_sms_status_info_message_index = -1;
 static int hf_mbim_set_ussd_ussd_action = -1;
 static int hf_mbim_set_ussd_ussd_data_coding_scheme = -1;
-static int hf_mbim_set_ussd_ussd_ussd_payload_offset = -1;
-static int hf_mbim_set_ussd_ussd_ussd_payload_length = -1;
-static int hf_mbim_set_ussd_ussd_ussd_payload = -1;
-static int hf_mbim_set_ussd_ussd_ussd_payload_text = -1;
+static int hf_mbim_set_ussd_ussd_payload_offset = -1;
+static int hf_mbim_set_ussd_ussd_payload_length = -1;
+static int hf_mbim_set_ussd_ussd_payload = -1;
+static int hf_mbim_set_ussd_ussd_payload_text = -1;
 static int hf_mbim_ussd_info_ussd_response = -1;
 static int hf_mbim_ussd_info_ussd_session_state = -1;
 static int hf_mbim_ussd_info_ussd_data_coding_scheme = -1;
 static int hf_mbim_ussd_info_ussd_payload_offset = -1;
 static int hf_mbim_ussd_info_ussd_payload_length = -1;
 static int hf_mbim_ussd_info_ussd_payload = -1;
+static int hf_mbim_ussd_info_ussd_payload_text = -1;
 static int hf_mbim_phonebook_configuration_info_phonebook_state = -1;
 static int hf_mbim_phonebook_configuration_info_total_nb_of_entries = -1;
 static int hf_mbim_phonebook_configuration_info_used_entries = -1;
@@ -3041,35 +3042,35 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     encoding = dissect_cbs_data_coding_scheme(tvb, pinfo, subtree, offset);
     offset += 4;
     ussd_payload_offset = tvb_get_letohl(tvb, offset);
-    proto_tree_add_uint(tree, hf_mbim_set_ussd_ussd_ussd_payload_offset, tvb, offset, 4, ussd_payload_offset);
+    proto_tree_add_uint(tree, hf_mbim_set_ussd_ussd_payload_offset, tvb, offset, 4, ussd_payload_offset);
     offset += 4;
     ussd_payload_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_uint(tree, hf_mbim_set_ussd_ussd_ussd_payload_length, tvb, offset, 4, ussd_payload_length);
+    proto_tree_add_uint(tree, hf_mbim_set_ussd_ussd_payload_length, tvb, offset, 4, ussd_payload_length);
     /*offset += 4;*/
     if (ussd_payload_offset && ussd_payload_length) {
-        ti = proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_ussd_payload, tvb, base_offset + ussd_payload_offset,
+        ti = proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_payload, tvb, base_offset + ussd_payload_offset,
                                  ussd_payload_length, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
         ussd_tvb = tvb_new_subset(tvb, base_offset + ussd_payload_offset, ussd_payload_length, ussd_payload_length);
         switch (encoding) {
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
-                ussd = (guint8*)wmem_alloc(wmem_packet_scope(), ussd_payload_length);
+                ussd = (guint8*)wmem_alloc(wmem_packet_scope(), ussd_payload_length+1);
                 out_len = gsm_sms_char_7bit_unpack(0, ussd_payload_length, ussd_payload_length,
                                                    tvb_get_ptr(ussd_tvb, 0, ussd_payload_length), ussd);
                 ussd[out_len] = '\0';
                 utf8_text = gsm_sms_chars_to_utf8(ussd, out_len);
-                proto_tree_add_string(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                proto_tree_add_string(subtree, hf_mbim_set_ussd_ussd_payload_text,
                                       ussd_tvb, 0, ussd_payload_length, utf8_text);
                 break;
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
-                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_payload_text,
                                     ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
-                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_payload_text,
                                     ussd_tvb , 0, ussd_payload_length, ENC_UCS_2|ENC_BIG_ENDIAN);
                 break;
             default:
@@ -3113,22 +3114,23 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         switch (encoding) {
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
-                ussd = (guint8*)wmem_alloc(wmem_packet_scope(), ussd_payload_length);
+                ussd = (guint8*)wmem_alloc(wmem_packet_scope(), ussd_payload_length+1);
                 out_len = gsm_sms_char_7bit_unpack(0, ussd_payload_length, ussd_payload_length,
                                                    tvb_get_ptr(ussd_tvb, 0, ussd_payload_length), ussd);
                 ussd[out_len] = '\0';
                 utf8_text = gsm_sms_chars_to_utf8(ussd, out_len);
-                proto_tree_add_text(subtree, ussd_tvb, 0, ussd_payload_length, "%s", utf8_text);
+                proto_tree_add_string(subtree, hf_mbim_ussd_info_ussd_payload_text,
+                                      ussd_tvb, 0, ussd_payload_length, utf8_text);
                 break;
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
-                proto_tree_add_text(subtree, ussd_tvb , 0, ussd_payload_length, "%s",
-                                    tvb_get_string_enc(wmem_packet_scope(), ussd_tvb, 0, ussd_payload_length, ENC_ASCII|ENC_NA));
+                proto_tree_add_item(subtree, hf_mbim_ussd_info_ussd_payload_text,
+                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
-                proto_tree_add_text(subtree, ussd_tvb , 0, ussd_payload_length, "%s",
-                                    tvb_get_string_enc(wmem_packet_scope(), ussd_tvb, 0, ussd_payload_length, ENC_UCS_2|ENC_BIG_ENDIAN));
+                proto_tree_add_item(subtree, hf_mbim_ussd_info_ussd_payload_text,
+                                    ussd_tvb , 0, ussd_payload_length, ENC_UCS_2|ENC_BIG_ENDIAN);
                 break;
             default:
                 break;
@@ -6325,22 +6327,22 @@ proto_register_mbim(void)
                FT_UINT32, BASE_HEX, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_set_ussd_ussd_ussd_payload_offset,
+        { &hf_mbim_set_ussd_ussd_payload_offset,
             { "USSD Payload Offset", "mbim.control.set_ussd.ussd_payload.offset",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_set_ussd_ussd_ussd_payload_length,
+        { &hf_mbim_set_ussd_ussd_payload_length,
             { "USSD Payload Length", "mbim.control.set_ussd.ussd_payload.length",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_set_ussd_ussd_ussd_payload,
+        { &hf_mbim_set_ussd_ussd_payload,
             { "USSD Payload", "mbim.control.set_ussd.ussd_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_set_ussd_ussd_ussd_payload_text,
+        { &hf_mbim_set_ussd_ussd_payload_text,
             { "USSD Payload Text", "mbim.control.set_ussd.ussd_payload.text",
                FT_STRING, STR_UNICODE, NULL, 0,
               NULL, HFILL }
@@ -6373,6 +6375,11 @@ proto_register_mbim(void)
         { &hf_mbim_ussd_info_ussd_payload,
             { "USSD Payload", "mbim.control.ussd_info.ussd_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ussd_info_ussd_payload_text,
+            { "USSD Payload Text", "mbim.control.ussd_info.ussd_payload.text",
+               FT_STRING, STR_UNICODE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_phonebook_configuration_info_phonebook_state,
