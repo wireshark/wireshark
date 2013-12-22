@@ -1255,6 +1255,8 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
 	/* Obtain a zero terminated string from a TvbRange */
     gint count;
     TvbRange tvbr = checkTvbRange(L,1);
+    gint offset;
+    gunichar2 uchar;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1262,10 +1264,16 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+    offset = tvbr->offset;
+    do {
+      if (!tvb_bytes_exist (tvbr->tvb->ws_tvb, offset, 2)) {
         luaL_error(L,"out of bounds");
         return 0;
-    }
+      }
+      /* Endianness doesn't matter when looking for null */
+      uchar = tvb_get_ntohs (tvbr->tvb->ws_tvb, offset);
+      offset += 2;
+    } while (uchar != 0);
 
     lua_pushstring(L, (gchar*)tvb_get_stringz_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,&count,(little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN)) );
     lua_pushinteger(L,count);
