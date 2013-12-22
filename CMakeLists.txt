@@ -495,6 +495,10 @@ set(PACKAGELIST ${PACKAGELIST} YAPP)
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 
+if(ENABLE_GUIDES)
+	set(PACKAGELIST ${PACKAGELIST} DOXYGEN)
+endif()
+
 set(PROGLIST text2pcap mergecap capinfos captype editcap reordercap dumpcap)
 
 #Sort the package list
@@ -707,6 +711,32 @@ else()
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
+if( ENABLE_GUIDES )
+	configure_file(
+		${CMAKE_SOURCE_DIR}/doxygen_global.cfg
+		${CMAKE_BINARY_DIR}/doxygen_global.cfg
+	)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/ui/qt/doxygen.cfg.in
+		${CMAKE_BINARY_DIR}/ui/qt/doxygen.cfg
+	)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/ui/gtk/doxygen.cfg.in
+		${CMAKE_BINARY_DIR}/ui/gtk/doxygen.cfg
+	)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/ui/doxygen.cfg.in
+		${CMAKE_BINARY_DIR}/ui/doxygen.cfg
+	)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/epan/doxygen.cfg.in
+		${CMAKE_BINARY_DIR}/epan/doxygen.cfg
+	)
+	configure_file(
+		${CMAKE_SOURCE_DIR}/doxygen.cfg.in
+		${CMAKE_BINARY_DIR}/doxygen.cfg
+	)
+endif()
 
 set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 set( VERSION ${PROJECT_VERSION} )
