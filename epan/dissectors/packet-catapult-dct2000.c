@@ -1731,7 +1731,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
     p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
 
     /* Populate the struct from outhdr values */
-    p_mac_lte_info->crcStatusValid = crc_fail;  /* not set yet */
+    p_mac_lte_info->crcStatusValid = FALSE;  /* not set yet */
 
     p_mac_lte_info->radioType = outhdr_values[i++] + 1;
     p_mac_lte_info->rntiType = outhdr_values[i++];
@@ -1755,8 +1755,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
     if (outhdr_values_found == 10) {
         /* CRC only valid for Downlink */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
-            p_mac_lte_info->crcStatusValid = crc_success;
-            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = (mac_lte_crc_status)outhdr_values[i++];
+            p_mac_lte_info->crcStatusValid = TRUE;
+            p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++];
         }
         else {
             i++;
@@ -1781,8 +1781,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
                 p_mac_lte_info->dl_retx = dl_retx_no;
             }
             p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++];
-            p_mac_lte_info->crcStatusValid = crc_success;
-            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = (mac_lte_crc_status)outhdr_values[i++];
+            p_mac_lte_info->crcStatusValid = TRUE;
+            p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++];
             if (outhdr_values_found > 18) {
                 p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.dl_info.ndi = outhdr_values[i++];

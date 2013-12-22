@@ -124,15 +124,17 @@ typedef struct mac_lte_info
     /* Length of DL PDU or UL grant size in bytes */
     guint16         length;
 
-    /* UL only.  0=newTx, 1=first-retx, etc */
+    /* 0=newTx, 1=first-retx, etc */
     guint8          reTxCount;
     guint8          isPHICHNACK; /* FALSE=PDCCH retx grant, TRUE=PHICH NACK */
 
     /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set */
     gboolean        isExtendedBSRSizes;
 
-    /* DL only.  Status of CRC check */
+    /* Status of CRC check. For UE it is DL only. For eNodeB it is UL
+       only. For an analyzer, it is present for both DL and UL. */
     gboolean        crcStatusValid;
+    mac_lte_crc_status crcStatus;
 
     /* Carrier ID */
     mac_lte_carrier_id   carrierId;
@@ -161,7 +163,6 @@ typedef struct mac_lte_info
             guint8 mcs_index;
             guint8 redundancy_version_index;
             guint8 resource_block_length;
-            mac_lte_crc_status crc_status;
             guint8 harq_id;
             gboolean ndi;
             guint8   transport_block;  /* 0..1 */
@@ -266,6 +267,17 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 
 #define MAC_LTE_SEND_PREAMBLE_TAG   0x09
 /* 2 bytes, RAPID value (1 byte) followed by RACH attempt number (1 byte) */
+
+#define MAC_LTE_CARRIER_ID_TAG      0x0A
+/* 1 byte */
+
+#define MAC_LTE_PHY_TAG             0x0B
+/* variable length, length (1 byte) then depending on direction
+   in UL: modulation type (1 byte), TBS index (1 byte), RB length (1 byte),
+          RB start (1 byte), HARQ id (1 byte), NDI (1 byte)
+   in DL: DCI format (1 byte), resource allocation type (1 byte), aggregation level (1 byte),
+          MCS index (1 byte), redundancy version (1 byte), resource block length (1 byte),
+          HARQ id (1 byte), NDI (1 byte), TB (1 byte), DL reTx (1 byte) */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */

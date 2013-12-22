@@ -94,7 +94,6 @@ static int hf_mac_lte_context_phy_dl_mcs_index = -1;
 static int hf_mac_lte_context_phy_dl_redundancy_version_index = -1;
 static int hf_mac_lte_context_phy_dl_retx = -1;
 static int hf_mac_lte_context_phy_dl_resource_block_length = -1;
-static int hf_mac_lte_context_phy_dl_crc_status = -1;
 static int hf_mac_lte_context_phy_dl_harq_id = -1;
 static int hf_mac_lte_context_phy_dl_ndi = -1;
 static int hf_mac_lte_context_phy_dl_tb = -1;
@@ -1815,7 +1814,6 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
     p_mac_lte_info->radioType = tvb_get_guint8(tvb, offset++);
     p_mac_lte_info->direction = tvb_get_guint8(tvb, offset++);
 
-    /* TODO: currently no support for detailed PHY info... */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         p_mac_lte_info->detailed_phy_info.ul_info.present = FALSE;
     }
@@ -1876,7 +1874,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 break;
             case MAC_LTE_CRC_STATUS_TAG:
                 p_mac_lte_info->crcStatusValid = TRUE;
-                p_mac_lte_info->detailed_phy_info.dl_info.crc_status =
+                p_mac_lte_info->crcStatus =
                     (mac_lte_crc_status)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
@@ -1889,6 +1887,76 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 offset++;
                 p_mac_lte_info->rach_attempt_number = tvb_get_guint8(tvb, offset);
                 offset++;
+                break;
+            case MAC_LTE_CARRIER_ID_TAG:
+                p_mac_lte_info->carrierId = 
+                    (mac_lte_carrier_id)tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case MAC_LTE_PHY_TAG:
+                {
+                    gint len, offset1;
+
+                    len = tvb_get_guint8(tvb, offset++);
+                    offset1 = offset;
+                    if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
+                        if (len < 10)
+                            goto next;
+                        p_mac_lte_info->detailed_phy_info.dl_info.present = TRUE;
+                        p_mac_lte_info->detailed_phy_info.dl_info.dci_format = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.mcs_index = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.harq_id = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.ndi = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.dl_info.transport_block = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->dl_retx = 
+                            (mac_lte_dl_retx)tvb_get_guint8(tvb, offset);
+                    } else {
+                        if (len < 6)
+                            goto next;
+                        p_mac_lte_info->detailed_phy_info.ul_info.present = TRUE;
+                        p_mac_lte_info->detailed_phy_info.ul_info.modulation_type = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.ul_info.harq_id = 
+                            tvb_get_guint8(tvb, offset);
+                        offset++;
+                        p_mac_lte_info->detailed_phy_info.ul_info.ndi = 
+                            tvb_get_guint8(tvb, offset);
+                    }
+                next:
+                    offset = offset1 + len;
+                }
                 break;
 
             case MAC_LTE_PAYLOAD_TAG:
@@ -2150,11 +2218,6 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length);
             PROTO_ITEM_SET_GENERATED(ti);
 
-            ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_crc_status,
-                                     tvb, 0, 0,
-                                     p_mac_lte_info->detailed_phy_info.dl_info.crc_status);
-            PROTO_ITEM_SET_GENERATED(ti);
-
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_harq_id,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.harq_id);
@@ -2176,7 +2239,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
             write_pdu_label_and_info(phy_ti, NULL,
                                      (global_mac_lte_layer_to_show == ShowPHYLayer) ? pinfo : NULL,
                                      "DL: UEId=%u RNTI=%u DCI_Format=%s Res_Alloc=%u Aggr_Level=%s MCS=%u RV=%u "
-                                     "Res_Block_len=%u CRC_status=%s HARQ_id=%u NDI=%u",
+                                     "Res_Block_len=%u HARQ_id=%u NDI=%u",
                                      p_mac_lte_info->ueid,
                                      p_mac_lte_info->rnti,
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.dci_format,
@@ -2187,8 +2250,6 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      p_mac_lte_info->detailed_phy_info.dl_info.mcs_index,
                                      p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index,
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length,
-                                     val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
-                                                      crc_status_vals, "Unknown"),
                                      p_mac_lte_info->detailed_phy_info.dl_info.harq_id,
                                      p_mac_lte_info->detailed_phy_info.dl_info.ndi);
             proto_item_append_text(phy_ti, ")");
@@ -3388,12 +3449,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Changes of state caused by events */
         if (!pinfo->fd->flags.visited) {
-            if ((p_mac_lte_info->reTxCount == 0) && (p_mac_lte_info->direction == DIRECTION_UPLINK)) {
-                mac_lte_drx_new_ulsch_data(p_mac_lte_info->ueid);
+            if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+                if (p_mac_lte_info->reTxCount == 0) {
+                    mac_lte_drx_new_ulsch_data(p_mac_lte_info->ueid);
+                }
             }
             else {
                 /* Downlink */
-                if ((p_mac_lte_info->crcStatusValid) && (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success)) {
+                if ((p_mac_lte_info->crcStatusValid) && (p_mac_lte_info->crcStatus != crc_success)) {
                     mac_lte_drx_dl_crc_error(p_mac_lte_info->ueid);
                 }
                 else if (p_mac_lte_info->reTxCount == 0) {
@@ -5211,21 +5274,21 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (p_mac_lte_info->crcStatusValid) {
         /* Set status */
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_crc_status,
-                                 tvb, 0, 0, p_mac_lte_info->detailed_phy_info.dl_info.crc_status);
+                                 tvb, 0, 0, p_mac_lte_info->crcStatus);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* Report non-success */
-        if (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success) {
+        if (p_mac_lte_info->crcStatus != crc_success) {
             expert_add_info_format(pinfo, ti, &ei_mac_lte_context_crc_status,
                                    "%s Frame has CRC error problem (%s)",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
-                                   val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
+                                   val_to_str_const(p_mac_lte_info->crcStatus,
                                                     crc_status_vals,
                                                     "Unknown"));
             write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                      "%s: <CRC %s> UEId=%u %s=%u ",
                                      (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
-                                     val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
+                                     val_to_str_const(p_mac_lte_info->crcStatus,
                                                     crc_status_vals,
                                                     "Unknown"),
                                      p_mac_lte_info->ueid,
@@ -5250,7 +5313,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     tap_info->isPredefinedData = p_mac_lte_info->isPredefinedData;
     tap_info->isPHYRetx = (p_mac_lte_info->reTxCount >= 1);
     tap_info->crcStatusValid = p_mac_lte_info->crcStatusValid;
-    tap_info->crcStatus = p_mac_lte_info->detailed_phy_info.dl_info.crc_status;
+    tap_info->crcStatus = p_mac_lte_info->crcStatus;
     tap_info->direction = p_mac_lte_info->direction;
 
     tap_info->time = pinfo->fd->abs_ts;
@@ -5279,7 +5342,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* IF CRC status failed, just do decode as raw bytes */
     if (!global_mac_lte_dissect_crc_failures &&
         (p_mac_lte_info->crcStatusValid &&
-         (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success))) {
+         (p_mac_lte_info->crcStatus != crc_success))) {
 
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, ENC_NA);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
@@ -5809,12 +5872,6 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_context_phy_dl_resource_block_length,
             { "RB Length",
               "mac-lte.dl-phy.rb-length", FT_UINT8, BASE_DEC, 0, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_lte_context_phy_dl_crc_status,
-            { "CRC Status",
-              "mac-lte.dl-phy.crc-status", FT_UINT8, BASE_DEC, VALS(crc_status_vals), 0x0,
               NULL, HFILL
             }
         },
