@@ -28,6 +28,7 @@
 #define __UI_UTIL_H__
 
 #include "epan/packet_info.h"
+#include "epan/column-utils.h"
 
 #ifdef __cplusplus
 extern "C" {

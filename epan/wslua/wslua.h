@@ -52,6 +52,7 @@
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
+#include <epan/column-utils.h>
 #include <wsutil/filesystem.h>
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>

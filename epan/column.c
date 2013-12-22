@@ -39,7 +39,7 @@
 #include <epan/column.h>
 #include <epan/packet.h>
 
-/* Given a format number (as defined in column-info.h), returns its equivalent
+/* Given a format number (as defined in column-utils.h), returns its equivalent
    string */
 const gchar *
 col_format_to_string(const gint fmt) {
@@ -115,7 +115,7 @@ col_format_to_string(const gint fmt) {
   return(slist[fmt]);
 }
 
-/* Given a format number (as defined in column-info.h), returns its
+/* Given a format number (as defined in column-utils.h), returns its
   description */
 const gchar *
 col_format_desc(const gint fmt) {

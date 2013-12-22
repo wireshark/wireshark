@@ -25,7 +25,6 @@
 #ifndef __FRAME_DATA_H__
 #define __FRAME_DATA_H__
 
-#include <epan/column-info.h>
 #include <epan/tvbuff.h>
 #include <wsutil/nstime.h>
 #include "ws_symbol_export.h"

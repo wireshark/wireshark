@@ -30,13 +30,13 @@ extern "C" {
 
 #include <glib.h>
 #include "frame_data.h"
-#include "column-info.h"
 #include "register.h"
 #include "ws_symbol_export.h"
 
 typedef struct epan_dissect epan_dissect_t;
 
 struct epan_dfilter;
+struct epan_column_info;
 
 /**
 	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
@@ -170,12 +170,12 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols);
 WS_DLL_PUBLIC
 void
 epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, column_info *cinfo);
+        tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
 
 WS_DLL_PUBLIC
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, column_info *cinfo);
+        tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
 
 /** Prime a proto_tree using the fields/protocols used in a dfilter. */
 WS_DLL_PUBLIC

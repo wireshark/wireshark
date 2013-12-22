@@ -28,7 +28,6 @@
 #include "proto.h"
 #include "tvbuff.h"
 #include "value_string.h"
-#include "column-info.h"
 #include "frame_data.h"
 #include "packet_info.h"
 #include "column-utils.h"

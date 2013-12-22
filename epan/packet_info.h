@@ -50,7 +50,7 @@
 
 typedef struct _packet_info {
   const char *current_proto;		/**< name of protocol currently being dissected */
-  column_info *cinfo;				/**< Column formatting information */
+  struct epan_column_info *cinfo;	/**< Column formatting information */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
   struct wtap_pkthdr *phdr;
