@@ -4756,7 +4756,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, guint offset, proto_tree *pare
 
     if (field->part != NULL) {
         for (i = 0, inner_offset = 0, go_on = 1; go_on && field->part[i] != NULL; i++) {
-            value = 0L;
+            value = G_GINT64_CONSTANT(0);;
             value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
             if (field->part[i]->hf != NULL) {
                 switch (field->part[i]->type) {

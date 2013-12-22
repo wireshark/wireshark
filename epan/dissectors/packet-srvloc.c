@@ -359,7 +359,7 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
     double 	floatsec;
     guint16 	length;
 
-    seconds = tvb_get_ntohl(tvb, offset) - 2208988800ul;
+    seconds = (time_t)(tvb_get_ntohl(tvb, offset) - 2208988800u); /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
     stamp = gmtime(&seconds);
     if (stamp != NULL) {
       floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;

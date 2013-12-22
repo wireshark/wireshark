@@ -808,7 +808,7 @@ static const value_string map_id_reply_type_vals[] = {
 #define AR_U_WRITE      (1 << 26)   /* user has write access */
 
 #define AR_BLANK        (1 << 28)   /* Blank Access Privileges (use parent dir privileges) */
-#define AR_U_OWN        (1UL << 31) /* user is the owner */
+#define AR_U_OWN        (1 << 31)   /* user is the owner */
 
 static int hf_afp_dir_ar           = -1;
 static int hf_afp_dir_ar_o_search  = -1;
