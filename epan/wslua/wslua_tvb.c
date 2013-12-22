@@ -1120,10 +1120,11 @@ WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
     WSLUA_RETURN(1); /* The NSTime */
 }
 
-WSLUA_METHOD TvbRange_string_enc(lua_State* L) {
-	/* Obtain a string from a TvbRange, using a specified encoding */
+WSLUA_METHOD TvbRange_string(lua_State* L) {
+	/* Obtain a string from a TvbRange */
+#define WSLUA_OPTARG_TvbRange_string_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_checknumber(L,2);
+    guint encoding = (guint)luaL_optint(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1132,21 +1133,6 @@ WSLUA_METHOD TvbRange_string_enc(lua_State* L) {
     }
 
     lua_pushlstring(L, (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding), tvbr->len);
-
-    WSLUA_RETURN(1); /* The string */
-}
-
-WSLUA_METHOD TvbRange_string(lua_State* L) {
-	/* Obtain a string from a TvbRange */
-    TvbRange tvbr = checkTvbRange(L,1);
-
-    if ( !(tvbr && tvbr->tvb)) return 0;
-    if (tvbr->tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
-    lua_pushlstring(L, (gchar*)tvb_get_string_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,ENC_ASCII|ENC_NA), tvbr->len);
 
     WSLUA_RETURN(1); /* The string */
 }
@@ -1178,10 +1164,11 @@ WSLUA_METHOD TvbRange_le_ustring(lua_State* L) {
     WSLUA_RETURN(TvbRange_ustring_any(L, TRUE)); /* The string */
 }
 
-WSLUA_METHOD TvbRange_stringz_enc(lua_State* L) {
-	/* Obtain a zero terminated string from a TvbRange, using a specified encoding */
+WSLUA_METHOD TvbRange_stringz(lua_State* L) {
+	/* Obtain a zero terminated string from a TvbRange */
+#define WSLUA_OPTARG_TvbRange_stringz_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_checknumber(L,2);
+    guint encoding = (guint)luaL_optint(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
     gint offset;
     gunichar2 uchar;
 
@@ -1216,26 +1203,6 @@ WSLUA_METHOD TvbRange_stringz_enc(lua_State* L) {
     }
 
     lua_pushstring(L, (gchar*)tvb_get_stringz_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,NULL,encoding));
-
-    WSLUA_RETURN(1); /* The zero terminated string */
-}
-
-WSLUA_METHOD TvbRange_stringz(lua_State* L) {
-	/* Obtain a zero terminated string from a TvbRange */
-    TvbRange tvbr = checkTvbRange(L,1);
-
-    if ( !(tvbr && tvbr->tvb)) return 0;
-    if (tvbr->tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
-    if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
-        luaL_error(L,"out of bounds");
-        return 0;
-    }
-
-    lua_pushstring(L, (gchar*)tvb_get_stringz_enc(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,NULL,ENC_ASCII|ENC_NA));
 
     WSLUA_RETURN(1); /* The zero terminated string */
 }
@@ -1480,9 +1447,7 @@ static const luaL_Reg TvbRange_methods[] = {
     {"le_ipv4", TvbRange_le_ipv4},
     {"nstime", TvbRange_nstime},
     {"le_nstime", TvbRange_le_nstime},
-    {"string_enc", TvbRange_string_enc},
     {"string", TvbRange_string},
-    {"stringz_enc", TvbRange_stringz_enc},
     {"stringz", TvbRange_stringz},
     {"strsize", TvbRange_strsize},
     {"bytes", TvbRange_bytes},
