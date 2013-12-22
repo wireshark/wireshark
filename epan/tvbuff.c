@@ -107,7 +107,7 @@ tvb_free_chain(tvbuff_t  *tvb)
 	tvbuff_t *next_tvb;
 	DISSECTOR_ASSERT(tvb);
 	while (tvb) {
-		next_tvb=tvb->next;
+		next_tvb = tvb->next;
 		tvb_free_internal(tvb);
 		tvb  = next_tvb;
 	}
@@ -136,7 +136,7 @@ tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 
 		tmp->next    = parent->next;
 		parent->next = tmp;
-        }
+	}
 }
 
 /*
@@ -1751,7 +1751,7 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
 /* XXX: This has been replaced by tvb_get_string() */
 char *
 tvb_get_faked_unicode(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
-                      const int len, const gboolean little_endian)
+		      const int len, const gboolean little_endian)
 {
 	char    *buffer;
 	int      i;
@@ -3152,7 +3152,7 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_o
 gint
 tvb_raw_offset(tvbuff_t *tvb)
 {
-	return ((tvb->raw_offset==-1)?(tvb->raw_offset = tvb_offset_from_real_beginning(tvb)):tvb->raw_offset);
+	return ((tvb->raw_offset==-1) ? (tvb->raw_offset = tvb_offset_from_real_beginning(tvb)) : tvb->raw_offset);
 }
 
 void

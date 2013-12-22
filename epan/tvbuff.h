@@ -150,7 +150,7 @@ WS_DLL_PUBLIC void tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func);
 
 /** Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
  * is used during a tvb_free_chain()... the "child" TVBUFF_REAL_DATA acts
- * as if is part of the chain-of-creation of the parent tvbuff, although it
+ * as if it is part of the chain-of-creation of the parent tvbuff, although it
  * isn't. This is useful if you need to take the data from some tvbuff,
  * run some operation on it, like decryption or decompression, and make a new
  * tvbuff from it, yet want the new tvbuff to be part of the chain. The reality
@@ -702,7 +702,7 @@ extern tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
 /* From tvbuff_base64.c */
 
 /** Return a tvb that contains the binary representation of a base64
- *  string 
+ *  string
  */
 extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 

@@ -225,7 +225,7 @@ tvbuff_t *
 tvb_new_proxy(tvbuff_t *backing)
 {
 	tvbuff_t *tvb;
-	
+
 	if (backing)
 		tvb = tvb_new_with_subset(backing, backing->reported_length, 0, backing->length);
 	else
@@ -235,3 +235,17 @@ tvb_new_proxy(tvbuff_t *backing)
 
 	return tvb;
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
