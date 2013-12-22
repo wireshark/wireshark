@@ -3032,8 +3032,6 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     tvbuff_t *ussd_tvb;
     int out_len;
     gchar *utf8_text;
-    GIConv cd;
-    GError *l_conv_error;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3065,21 +3063,14 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
                                       ussd_tvb, 0, ussd_payload_length, utf8_text);
                 break;
             case SMS_ENCODING_8BIT:
+                /* XXX - ASCII, or some extended ASCII? */
                 proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
                                     ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
-                if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1) {
-                    utf8_text = g_convert_with_iconv(tvb_get_ptr(ussd_tvb, 0, ussd_payload_length),
-                                                     ussd_payload_length, cd, NULL, NULL, &l_conv_error);
-                    if (!l_conv_error) {
-                        proto_tree_add_string(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
-                                              ussd_tvb, 0, ussd_payload_length, utf8_text);
-                    }
-                    g_free(utf8_text);
-                    g_iconv_close(cd);
-                }
+                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_ussd_payload_text,
+                                    ussd_tvb , 0, ussd_payload_length, ENC_UCS_2|ENC_BIG_ENDIAN);
                 break;
             default:
                 break;
@@ -3098,8 +3089,6 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     tvbuff_t *ussd_tvb;
     int out_len;
     gchar *utf8_text;
-    GIConv cd;
-    GError *l_conv_error;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_ussd_info_ussd_response, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3132,20 +3121,14 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
                 proto_tree_add_text(subtree, ussd_tvb, 0, ussd_payload_length, "%s", utf8_text);
                 break;
             case SMS_ENCODING_8BIT:
+                /* XXX - ASCII, or some extended ASCII? */
                 proto_tree_add_text(subtree, ussd_tvb , 0, ussd_payload_length, "%s",
-                                    tvb_get_string(wmem_packet_scope(), ussd_tvb, 0, ussd_payload_length));
+                                    tvb_get_string_enc(wmem_packet_scope(), ussd_tvb, 0, ussd_payload_length, ENC_ASCII|ENC_NA));
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
-                if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1) {
-                    utf8_text = g_convert_with_iconv(tvb_get_ptr(ussd_tvb, 0, ussd_payload_length),
-                                                     ussd_payload_length, cd, NULL, NULL, &l_conv_error);
-                    if (!l_conv_error) {
-                        proto_tree_add_text(subtree, ussd_tvb, 0, ussd_payload_length, "%s", utf8_text);
-                    }
-                    g_free(utf8_text);
-                    g_iconv_close(cd);
-                }
+                proto_tree_add_text(subtree, ussd_tvb , 0, ussd_payload_length, "%s",
+                                    tvb_get_string_enc(wmem_packet_scope(), ussd_tvb, 0, ussd_payload_length, ENC_UCS_2|ENC_BIG_ENDIAN));
                 break;
             default:
                 break;

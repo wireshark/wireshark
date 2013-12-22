@@ -684,22 +684,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
-        if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
-        {
-            utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, required_octs), required_octs , cd , NULL , NULL , &l_conv_error);
-            if (!l_conv_error)
-            {
-                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
-                                      tvb_out, offset, required_octs, utf8_text);
-            }
-            else
-            {
-                proto_tree_add_text(tree, tvb_out, offset, required_octs, "%s", "Failed on UCS-2BE contact Wireshark developers");
-            }
-            if (utf8_text)
-                g_free(utf8_text);
-            g_iconv_close(cd);
-        }
+        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text,
+                            tvb_out, offset, num_fields*2, ENC_UCS_2|ENC_BIG_ENDIAN);
     }
     else if (encoding == 0x07)/* Latin/Hebrew */
     {
@@ -720,22 +706,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
-        if ((cd = g_iconv_open("UTF-8","iso-8859-8")) != (GIConv)-1)
-        {
-            utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, num_fields), num_fields , cd , NULL , NULL , &l_conv_error);
-            if (!l_conv_error)
-            {
-                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
-                                      tvb_out, offset, num_fields, utf8_text);
-            }
-            else
-            {
-                proto_tree_add_text(tree, tvb_out, offset, num_fields, "%s", "Failed on iso-8859-8 contact Wireshark developers");
-            }
-            if (utf8_text)
-                g_free(utf8_text);
-            g_iconv_close(cd);
-        }
+        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text,
+                            tvb_out, offset, num_fields, ENC_ISO_8859_8|ENC_NA);
     }
     else if (encoding == 0x08) /* ISO 8859-1 (a/k/a ISO Latin 1) */
     {
@@ -756,22 +728,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, OTHER, &bit, &udh_fields);
         }
 
-        if ((cd = g_iconv_open("UTF-8","iso-8859-1")) != (GIConv)-1)
-        {
-            utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, num_fields) , num_fields , cd , NULL , NULL , &l_conv_error);
-            if (!l_conv_error)
-            {
-                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text,
-                                      tvb_out, offset, num_fields, utf8_text);
-            }
-            else
-            {
-                proto_tree_add_text(tree, tvb_out, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
-            }
-            if (utf8_text)
-                g_free(utf8_text);
-            g_iconv_close(cd);
-        }
+        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text,
+                            tvb_out, offset, num_fields, ENC_ISO_8859_1|ENC_NA);
     }
     else if (encoding == 0x09) /* GSM 7-bit default alphabet */
     {

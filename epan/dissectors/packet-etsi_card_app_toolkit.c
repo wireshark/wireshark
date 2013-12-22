@@ -1076,24 +1076,11 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				}
 				break;
 			case 0x04: /* 8bit */
+				/* XXX - ASCII, or some extended ASCII? */
 				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_ASCII|ENC_NA);
 				break;
 			case 0x08: /* UCS2 */
-				{
-					GIConv cd;
-					GError *l_conv_error = NULL;
-					gchar *utf8_text;
-
-					if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1) {
-						utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb, pos+1, len-1), len-1, cd, NULL, NULL, &l_conv_error);
-						if(!l_conv_error) {
-							proto_tree_add_string(elem_tree, hf_ctlv_text_string, tvb,
-									pos+1, len-1, utf8_text);
-						} else {
-							proto_tree_add_text(elem_tree, tvb, pos+1, len-1, "Failed to decode UCS2");
-						}
-					}
-				}
+				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_UCS_2|ENC_BIG_ENDIAN);
 				break;
 			default:
 				break;
