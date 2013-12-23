@@ -83,6 +83,11 @@ struct _usb_conv_info_t {
     guint8   device_address;
     guint8   endpoint;
     gint     direction;
+    guint8   transfer_type;
+    guint32  device_protocol;
+    gboolean is_request;
+    gboolean is_setup;
+    guint8   setup_requesttype;
 
     guint16 interfaceClass;     /* Interface Descriptor - class          */
     guint16 interfaceSubclass;  /* Interface Descriptor - subclass       */

@@ -39,6 +39,10 @@ static int hf_bthci_usb_data = -1;
 static int hf_bthci_usb_packet_fragment = -1;
 static int hf_bthci_usb_packet_complete = -1;
 static int hf_bthci_usb_packet_unknown_fragment = -1;
+static int hf_bthci_usb_setup_request = -1;
+static int hf_bthci_usb_setup_value = -1;
+static int hf_bthci_usb_setup_adapter_id = -1;
+static int hf_bthci_usb_setup_length = -1;
 
 static gint ett_hci_usb = -1;
 static gint ett_hci_usb_msg_fragment = -1;
@@ -97,6 +101,15 @@ static const fragment_items hci_usb_msg_frag_items = {
     "Message fragments"
 };
 
+static const value_string request_vals[] = {
+    { 0x00,  "Primary Controller Function" },
+    { 0x2B,  "AMP Controller Function" },
+    { 0xE0,  "Primary Controller Function (Historical)" },
+    { 0x00, NULL }
+};
+static value_string_ext(request_vals_ext) = VALUE_STRING_EXT_INIT(request_vals);
+
+
 void proto_register_hci_usb(void);
 void proto_reg_handoff_hci_usb(void);
 
@@ -119,16 +132,13 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
     usb_conv_info = (usb_conv_info_t *)data;
 
-    if (tvb_length_remaining(tvb, offset) <= 0)
-        return 0;
-
     titem = proto_tree_add_item(tree, proto_hci_usb, tvb, offset, -1, ENC_NA);
     ttree = proto_item_add_subtree(titem, ett_hci_usb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_USB");
 
     p2p_dir_save = pinfo->p2p_dir;
-    pinfo->p2p_dir = usb_conv_info->direction;
+    pinfo->p2p_dir = (usb_conv_info->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
 
     switch (pinfo->p2p_dir) {
 
@@ -145,10 +155,29 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
+    if (usb_conv_info->is_setup) {
+        proto_tree_add_item(ttree, hf_bthci_usb_setup_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(ttree, hf_bthci_usb_setup_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(ttree, hf_bthci_usb_setup_adapter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(ttree, hf_bthci_usb_setup_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
     session_id = usb_conv_info->bus_id << 16 | usb_conv_info->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | usb_conv_info->endpoint;
 
     hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
-    hci_data->interface_id = HCI_INTERFACE_USB;
+
+    if (usb_conv_info->device_protocol == 0xE00104)
+        hci_data->interface_id = HCI_INTERFACE_AMP;
+    else
+        hci_data->interface_id = HCI_INTERFACE_USB;
+
     hci_data->adapter_id = usb_conv_info->bus_id << 8 | usb_conv_info->device_address;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
@@ -314,6 +343,25 @@ proto_register_hci_usb(void)
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_bthci_usb_setup_request,
+          { "bRequest",                          "hci_usb.setup.bRequest",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &request_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_bthci_usb_setup_value,
+          { "wValue",                            "hci_usb.setup.wValue",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_bthci_usb_setup_adapter_id,
+          { "Adapter ID",                        "hci_usb.setup.adapter_id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_bthci_usb_setup_length,
+          { "wLength",                           "hci_usb.setup.wLength",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
         { &hf_bthci_usb_data,
             { "Unknown Data",                    "hci_usb.data",
             FT_NONE, BASE_NONE, NULL, 0x00,
