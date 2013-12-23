@@ -120,10 +120,6 @@ static gint hf_dtls_handshake_session_id        = -1;
 static gint hf_dtls_handshake_comp_methods_len  = -1;
 static gint hf_dtls_handshake_comp_methods      = -1;
 static gint hf_dtls_handshake_comp_method       = -1;
-static gint hf_dtls_handshake_extensions_len    = -1;
-static gint hf_dtls_handshake_extension_type    = -1;
-static gint hf_dtls_handshake_extension_len     = -1;
-static gint hf_dtls_handshake_extension_data    = -1;
 static gint hf_dtls_handshake_session_ticket_lifetime_hint = -1;
 static gint hf_dtls_handshake_session_ticket_len = -1;
 static gint hf_dtls_handshake_session_ticket    = -1;
@@ -160,11 +156,6 @@ static gint hf_dtls_handshake_server_keyex_hint_len  = -1;
 static gint hf_dtls_handshake_server_keyex_hint      = -1;
 static gint hf_dtls_handshake_client_keyex_identity_len = -1;
 static gint hf_dtls_handshake_client_keyex_identity  = -1;
-static gint hf_dtls_handshake_sig_hash_alg_len = -1;
-static gint hf_dtls_handshake_sig_hash_algs    = -1;
-static gint hf_dtls_handshake_sig_hash_alg     = -1;
-static gint hf_dtls_handshake_sig_hash_hash    = -1;
-static gint hf_dtls_handshake_sig_hash_sig     = -1;
 static gint hf_dtls_handshake_finished          = -1;
 /* static gint hf_dtls_handshake_md5_hash          = -1; */
 /* static gint hf_dtls_handshake_sha_hash          = -1; */
@@ -174,7 +165,6 @@ static gint hf_dtls_handshake_dnames            = -1;
 static gint hf_dtls_handshake_dname_len         = -1;
 static gint hf_dtls_handshake_dname             = -1;
 
-static gint hf_dtls_heartbeat_extension_mode          = -1;
 static gint hf_dtls_heartbeat_message                 = -1;
 static gint hf_dtls_heartbeat_message_type            = -1;
 static gint hf_dtls_heartbeat_message_payload_length  = -1;
@@ -200,14 +190,11 @@ static gint ett_dtls_handshake         = -1;
 static gint ett_dtls_heartbeat         = -1;
 static gint ett_dtls_cipher_suites     = -1;
 static gint ett_dtls_comp_methods      = -1;
-static gint ett_dtls_extension         = -1;
 static gint ett_dtls_random            = -1;
 static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_keyex_params      = -1;
 static gint ett_dtls_certs             = -1;
 static gint ett_dtls_cert_types        = -1;
-static gint ett_dtls_sig_hash_algs     = -1;
-static gint ett_dtls_sig_hash_alg      = -1;
 static gint ett_dtls_dnames            = -1;
 
 static gint ett_dtls_fragment          = -1;
@@ -258,6 +245,8 @@ static const fragment_items dtls_frag_items = {
   /* Tag */
   "Message fragments"
 };
+
+static SSL_COMMON_LIST_T(dissect_dtls_hf);
 
 /* initialize/reset per capture state data (dtls sessions cache) */
 static void
@@ -1702,66 +1691,6 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   return offset;
 }
 
-static gint
-dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset, guint32 left)
-{
-  guint16     extension_length;
-  guint16     ext_type;
-  guint16     ext_len;
-  proto_item *pi;
-  proto_tree *ext_tree;
-
-  if (left < 2)
-    return offset;
-
-  extension_length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_dtls_handshake_extensions_len,
-                      tvb, offset, 2, extension_length);
-  offset += 2;
-  left   -= 2;
-
-  while (left >= 4)
-    {
-      ext_type = tvb_get_ntohs(tvb, offset);
-      ext_len  = tvb_get_ntohs(tvb, offset + 2);
-
-      pi = proto_tree_add_text(tree, tvb, offset, 4 + ext_len,
-                               "Extension: %s",
-                               val_to_str(ext_type,
-                                          tls_hello_extension_types,
-                                          "Unknown %u"));
-      ext_tree = proto_item_add_subtree(pi, ett_dtls_extension);
-
-      proto_tree_add_uint(ext_tree, hf_dtls_handshake_extension_type,
-                          tvb, offset, 2, ext_type);
-      offset += 2;
-
-      proto_tree_add_uint(ext_tree, hf_dtls_handshake_extension_len,
-                          tvb, offset, 2, ext_len);
-      offset += 2;
-
-      switch (ext_type) {
-      case SSL_HND_HELLO_EXT_HEARTBEAT:
-          proto_tree_add_item(ext_tree, hf_dtls_heartbeat_extension_mode,
-                              tvb, offset, 1, ENC_BIG_ENDIAN);
-          offset += ext_len;
-          break;
-      default:
-          proto_tree_add_bytes_format(ext_tree, hf_dtls_handshake_extension_data,
-                                      tvb, offset, ext_len, NULL,
-                                      "Data (%u byte%s)",
-                                      ext_len, plurality(ext_len, "", "s"));
-          offset += ext_len;
-          break;
-      }
-
-      left   -= 2 + 2 + ext_len;
-    }
-
-  return offset;
-}
-
 static void
 dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                            proto_tree *tree, guint32 offset, guint32 length,
@@ -1891,9 +1820,9 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
 
       if (length > offset - start_offset)
         {
-          dissect_dtls_hnd_hello_ext(tvb, tree, offset,
+          ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
                                               length -
-                                              (offset - start_offset));
+                                              (offset - start_offset), TRUE);
         }
     }
 }
@@ -1978,9 +1907,9 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
 
       if (length > offset - start_offset)
         {
-          offset = dissect_dtls_hnd_hello_ext(tvb, tree, offset,
+          offset = ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
                                               length -
-                                              (offset - start_offset));
+                                              (offset - start_offset), FALSE);
         }
     }
     return offset;
@@ -2160,13 +2089,13 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
    *
    */
 
-  proto_tree *ti, *ti2;
-  proto_tree *subtree, *algotree;
+  proto_tree *ti;
+  proto_tree *subtree;
   guint8      cert_types_count;
   gint        sh_alg_length;
-  guint16     sig_hash_alg;
   gint        dnames_length;
   asn1_ctx_t  asn1_ctx;
+  gint        ret;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -2203,44 +2132,21 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
       switch (*conv_version) {
       case SSL_VER_DTLS1DOT2:
           sh_alg_length = tvb_get_ntohs(tvb, offset);
-          ti2 = proto_tree_add_uint(tree, hf_dtls_handshake_sig_hash_alg_len,
-                              tvb, offset, 2, sh_alg_length);
-          offset += 2;
-
-          if (sh_alg_length > 0)
-            {
-              ti = proto_tree_add_none_format(tree,
-                                              hf_dtls_handshake_sig_hash_algs,
-                                              tvb, offset, sh_alg_length,
-                                              "Signature Hash Algorithms (%u algorithm%s)",
-                                              sh_alg_length/2,
-                                              plurality(sh_alg_length/2, "", "s"));
-              subtree = proto_item_add_subtree(ti, ett_dtls_sig_hash_algs);
-
-              if (sh_alg_length % 2) {
-                  expert_add_info_format(pinfo, ti2, &ei_dtls_handshake_sig_hash_alg_len_bad,
+          if (sh_alg_length % 2) {
+              expert_add_info_format(pinfo, NULL,
+                      &ei_dtls_handshake_sig_hash_alg_len_bad,
                       "Signature Hash Algorithm length (%d) must be a multiple of 2",
                       sh_alg_length);
-                  return;
-                }
+              return;
+          }
 
+          proto_tree_add_uint(tree, dissect_dtls_hf.hf.hs_sig_hash_alg_len,
+                  tvb, offset, 2, sh_alg_length);
+          offset += 2;
 
-              while (sh_alg_length > 0)
-                {
-                  sig_hash_alg = tvb_get_ntohs(tvb, offset);
-                  ti = proto_tree_add_uint(subtree, hf_dtls_handshake_sig_hash_alg,
-                                      tvb, offset, 2, sig_hash_alg);
-                  algotree = proto_item_add_subtree(ti, ett_dtls_sig_hash_alg);
-
-                  proto_tree_add_item(algotree, hf_dtls_handshake_sig_hash_hash,
-                                  tvb, offset, 1, ENC_BIG_ENDIAN);
-                  proto_tree_add_item(algotree, hf_dtls_handshake_sig_hash_sig,
-                                  tvb, offset+1, 1, ENC_BIG_ENDIAN);
-
-                  offset += 2;
-                  sh_alg_length -= 2;
-                }
-            }
+          ret = ssl_dissect_hash_alg_list(&dissect_dtls_hf, tvb, tree, offset, sh_alg_length);
+          if (ret>=0)
+              offset += ret;
           break;
 
       default:
@@ -2368,13 +2274,13 @@ dissect_dtls_hnd_srv_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree,
 
     switch (*conv_version) {
     case SSL_VER_DTLS1DOT2:
-        ti_algo = proto_tree_add_uint(ssl_ecdh_tree, hf_dtls_handshake_sig_hash_alg,
+        ti_algo = proto_tree_add_uint(ssl_ecdh_tree, dissect_dtls_hf.hf.hs_sig_hash_alg,
                                       tvb, offset, 2, sig_algo);
-        ssl_algo_tree = proto_item_add_subtree(ti_algo, ett_dtls_sig_hash_alg);
+        ssl_algo_tree = proto_item_add_subtree(ti_algo, dissect_dtls_hf.ett.hs_sig_hash_alg);
 
-        proto_tree_add_item(ssl_algo_tree, hf_dtls_handshake_sig_hash_hash,
+        proto_tree_add_item(ssl_algo_tree, dissect_dtls_hf.hf.hs_sig_hash_hash,
                             tvb, sig_algo_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ssl_algo_tree, hf_dtls_handshake_sig_hash_sig,
+        proto_tree_add_item(ssl_algo_tree, dissect_dtls_hf.hf.hs_sig_hash_sig,
                             tvb, sig_algo_offset+1, 1, ENC_BIG_ENDIAN);
         break;
 
@@ -2537,13 +2443,13 @@ dissect_dtls_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
 
     switch (*conv_version) {
     case SSL_VER_DTLS1DOT2:
-        ti_algo = proto_tree_add_uint(ssl_rsa_tree, hf_dtls_handshake_sig_hash_alg,
+        ti_algo = proto_tree_add_uint(ssl_rsa_tree, dissect_dtls_hf.hf.hs_sig_hash_alg,
                                       tvb, offset, 2, sig_algo);
-        ssl_algo_tree = proto_item_add_subtree(ti_algo, ett_dtls_sig_hash_alg);
+        ssl_algo_tree = proto_item_add_subtree(ti_algo, dissect_dtls_hf.ett.hs_sig_hash_alg);
 
-        proto_tree_add_item(ssl_algo_tree, hf_dtls_handshake_sig_hash_hash,
+        proto_tree_add_item(ssl_algo_tree, dissect_dtls_hf.hf.hs_sig_hash_hash,
                             tvb, sig_algo_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ssl_algo_tree, hf_dtls_handshake_sig_hash_sig,
+        proto_tree_add_item(ssl_algo_tree, dissect_dtls_hf.hf.hs_sig_hash_sig,
                             tvb, sig_algo_offset+1, 1, ENC_BIG_ENDIAN);
         break;
 
@@ -3076,26 +2982,6 @@ proto_register_dtls(void)
         FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
         NULL, HFILL }
     },
-    { &hf_dtls_handshake_extensions_len,
-      { "Extensions Length", "dtls.handshake.extensions_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Length of hello extensions", HFILL }
-    },
-    { &hf_dtls_handshake_extension_type,
-      { "Type", "dtls.handshake.extension.type",
-        FT_UINT16, BASE_HEX, VALS(tls_hello_extension_types), 0x0,
-        "Hello extension type", HFILL }
-    },
-    { &hf_dtls_handshake_extension_len,
-      { "Length", "dtls.handshake.extension.len",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Length of a hello extension", HFILL }
-    },
-    { &hf_dtls_handshake_extension_data,
-      { "Data", "dtls.handshake.extension.data",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Hello Extension data", HFILL }
-    },
     { &hf_dtls_handshake_session_ticket_lifetime_hint,
       { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
         FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3276,31 +3162,6 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "PSK Identity", HFILL }
     },
-    { &hf_dtls_handshake_sig_hash_alg_len,
-      { "Signature Hash Algorithms Length", "dtls.handshake.sig_hash_alg_len",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Length of Signature Hash Algorithms", HFILL }
-    },
-    { &hf_dtls_handshake_sig_hash_algs,
-      { "Signature Hash Algorithms", "dtls.handshake.sig_hash_algs",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "List of Signature Hash Algorithms", HFILL }
-    },
-    { &hf_dtls_handshake_sig_hash_alg,
-      { "Signature Hash Algorithm", "dtls.handshake.sig_hash_alg",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_dtls_handshake_sig_hash_hash,
-      { "Signature Hash Algorithm Hash", "dtls.handshake.sig_hash_hash",
-        FT_UINT8, BASE_DEC, VALS(tls_hash_algorithm), 0x0,
-        NULL, HFILL }
-    },
-    { &hf_dtls_handshake_sig_hash_sig,
-      { "Signature Hash Algorithm Signature", "dtls.handshake.sig_hash_sig",
-        FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,
-        NULL, HFILL }
-     },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3342,11 +3203,6 @@ proto_register_dtls(void)
       { "Distinguished Name", "dtls.handshake.dname",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Distinguished name of a CA that server trusts", HFILL }
-    },
-    { &hf_dtls_heartbeat_extension_mode,
-      { "Mode", "dtls.handshake.extension.heartbeat.mode",
-        FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,
-        "Heartbeat extension mode", HFILL }
     },
     { &hf_dtls_heartbeat_message,
       { "Heartbeat Message", "dtls.heartbeat_message",
@@ -3412,6 +3268,7 @@ proto_register_dtls(void)
       { "Reassembled DTLS length", "dtls.reassembled.length",
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
+    SSL_COMMON_HF_LIST(dissect_dtls_hf, "dtls")  
   };
 
   /* Setup protocol subtree array */
@@ -3423,17 +3280,15 @@ proto_register_dtls(void)
     &ett_dtls_heartbeat,
     &ett_dtls_cipher_suites,
     &ett_dtls_comp_methods,
-    &ett_dtls_extension,
     &ett_dtls_random,
     &ett_dtls_new_ses_ticket,
     &ett_dtls_keyex_params,
     &ett_dtls_certs,
     &ett_dtls_cert_types,
-    &ett_dtls_sig_hash_algs,
-    &ett_dtls_sig_hash_alg,
     &ett_dtls_dnames,
     &ett_dtls_fragment,
     &ett_dtls_fragments,
+    SSL_COMMON_ETT_LIST(dissect_dtls_hf)
   };
 
   static ei_register_info ei[] = {
@@ -3441,6 +3296,7 @@ proto_register_dtls(void)
      { &ei_dtls_handshake_fragment_past_end_msg, { "dtls.handshake.fragment_past_end_msg", PI_PROTOCOL, PI_ERROR, "Fragment runs past the end of the message", EXPFILL }},
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
      { &ei_dtls_handshake_sig_hash_alg_len_bad, { "dtls.handshake.sig_hash_alg_len.bad", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
+     SSL_COMMON_EI_LIST(dissect_dtls_hf, "dtls")
   };
 
   expert_module_t* expert_dtls;
