@@ -383,7 +383,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     gint              offset = 0;
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
     gint              p2p_dir_save;
-    gint16            command = -1;
+    guint8            command;
     command_data_t   *command_data = NULL;
     wmem_tree_t      *wmem_tree;
     wmem_tree_key_t   key[5];
