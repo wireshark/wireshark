@@ -232,6 +232,7 @@ DISSECTOR_SRC = \
 	packet-aastra-aasp.c	\
 	packet-acap.c		\
 	packet-acn.c		\
+	packet-acr122.c		\
 	packet-actrace.c	\
 	packet-adwin-config.c	\
 	packet-adwin.c		\

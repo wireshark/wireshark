@@ -222,7 +222,8 @@ enum {
     SUB_DATA = 0,
     SUB_ISO7816,
     SUB_GSM_SIM_CMD,
-    SUB_PN532_ACS_PSEUDO_APDU,
+    SUB_PN532,
+    SUB_ACR122_PN532,
     SUB_GSM_SIM_RSP,
 
     SUB_MAX
@@ -441,24 +442,12 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* See if the dissector isn't Data */
             if (sub_selected != SUB_DATA) {
 
-                /* See if we're in PN532-with-ACS PseudoHeader Mode */
-                if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU) {
-
-                    /* See if the payload starts with 0xD4 (Host -> PN532) */
-                    if (tvb_get_guint8(tvb, 15) == 0xD4) {
-
-                        /* Skip the 5 byte ACS Pseudo-Header */
-                        call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree, usb_conv_info);
-                    }
-
-                    else {
-
-                        /* We've probably got an APDU addressed elsewhere */
-                        call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
-                    }
-                }
-
-                else if (sub_selected == SUB_ISO7816) {
+                if (sub_selected == SUB_PN532) {
+                    call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
+                } else if (sub_selected == SUB_ACR122_PN532) {
+                    pinfo->p2p_dir = P2P_DIR_SENT;
+                    call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
+                } else if (sub_selected == SUB_ISO7816) {
                     /* sent/received is from the perspective of the card reader */
                     pinfo->p2p_dir = P2P_DIR_SENT;
                     call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
@@ -494,25 +483,18 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         {
             next_tvb = tvb_new_subset_remaining(tvb, 10);
 
-            /* If the user has opted to use the PN532 dissector for PC -> Reader comms, then use it here */
-            if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
-
-                /* Strip the ISO 7816 status word at the end, like we do in the PN532 dissector for FeliCa payloads... */
-                next_tvb= tvb_new_subset(tvb, 10, (tvb_get_guint8(tvb, 1) - 2), (tvb_get_guint8(tvb, 1) - 2));
-                call_dissector_with_data(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree, usb_conv_info);
-            }
-
-            /* Try to dissect responses to GSM SIM packets */
-            else if (sub_selected == SUB_GSM_SIM_CMD) {
+            if (sub_selected == SUB_PN532) {
+                next_tvb= tvb_new_subset(tvb, 10, tvb_get_guint8(tvb, 1), tvb_get_guint8(tvb, 1));
+                call_dissector_with_data(sub_handles[SUB_PN532], next_tvb, pinfo, tree, usb_conv_info);
+            } else if (sub_selected == SUB_ACR122_PN532) {
+                pinfo->p2p_dir = P2P_DIR_RECV;
+                call_dissector_with_data(sub_handles[SUB_ACR122_PN532], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
+            } else if (sub_selected == SUB_GSM_SIM_CMD) {  /* Try to dissect responses to GSM SIM packets */
                 call_dissector(sub_handles[SUB_GSM_SIM_RSP], next_tvb, pinfo, tree);
-            }
-
-            else if (sub_selected == SUB_ISO7816) {
+            } else if (sub_selected == SUB_ISO7816) {
                 pinfo->p2p_dir = P2P_DIR_RECV;
                 call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
-            }
-
-            else {
+            } else {
                 call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
             }
         }
@@ -657,7 +639,8 @@ proto_register_ccid(void)
         { "data", "Data", SUB_DATA },
         { "iso7816", "Generic ISO 7816", SUB_ISO7816 },
         { "gsm_sim", "GSM SIM", SUB_GSM_SIM_CMD },
-        { "pn532", "NXP PN532 with ACS Pseudo-Header", SUB_PN532_ACS_PSEUDO_APDU},
+        { "pn532", "NXP PN532", SUB_PN532},
+        { "acr122", "ACR122 PN532", SUB_ACR122_PN532},
         { NULL, NULL, 0 }
     };
 
@@ -693,7 +676,8 @@ proto_reg_handoff_ccid(void)
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_ISO7816] = find_dissector("iso7816");
     sub_handles[SUB_GSM_SIM_CMD] = find_dissector("gsm_sim.command");
-    sub_handles[SUB_PN532_ACS_PSEUDO_APDU] = find_dissector("pn532");
+    sub_handles[SUB_PN532] = find_dissector("pn532");
+    sub_handles[SUB_ACR122_PN532] = find_dissector("acr122");
     sub_handles[SUB_GSM_SIM_RSP] = find_dissector("gsm_sim.response");
 }
 

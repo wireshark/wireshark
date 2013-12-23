@@ -311,6 +311,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-aastra-aasp.c
 	dissectors/packet-acap.c
 	dissectors/packet-acn.c
+	dissectors/packet-acr122.c
 	dissectors/packet-actrace.c
 	dissectors/packet-adwin-config.c
 	dissectors/packet-adwin.c
