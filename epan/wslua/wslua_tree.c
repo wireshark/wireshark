@@ -226,6 +226,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                 case FT_GUID:
                 case FT_OID:
                 case FT_REL_OID:
+                case FT_SYSTEM_ID:
                 default:
                     luaL_error(L,"FT_ not yet supported");
                     return 0;

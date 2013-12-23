@@ -52,6 +52,7 @@
 #include "column-utils.h"
 #include "to_str-int.h"
 #include "to_str.h"
+#include "osi-utils.h"
 #include "expert.h"
 #include "show_exception.h"
 
@@ -212,6 +213,10 @@ static void
 proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length);
 static void
 proto_tree_set_oid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
+static void
+proto_tree_set_system_id(field_info *fi, const guint8* value_ptr, gint length);
+static void
+proto_tree_set_system_id_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
 proto_tree_set_boolean(field_info *fi, guint32 value);
 static void
@@ -1482,6 +1487,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			proto_tree_set_oid_tvb(new_fi, tvb, start, length);
 			break;
 
+		case FT_SYSTEM_ID:
+			proto_tree_set_system_id_tvb(new_fi, tvb, start, length);
+			break;
+
 		case FT_FLOAT:
 			/*
 			 * NOTE: to support code written when
@@ -2514,6 +2523,27 @@ static void
 proto_tree_set_oid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 {
 	proto_tree_set_oid(fi, tvb_get_ptr(tvb, start, length), length);
+}
+
+/* Set the FT_SYSTEM_ID value */
+static void
+proto_tree_set_system_id(field_info *fi, const guint8* value_ptr, gint length)
+{
+	GByteArray *bytes;
+
+	DISSECTOR_ASSERT(value_ptr != NULL || length == 0);
+
+	bytes = g_byte_array_new();
+	if (length > 0) {
+		g_byte_array_append(bytes, value_ptr, length);
+	}
+	fvalue_set(&fi->value, bytes, TRUE);
+}
+
+static void
+proto_tree_set_system_id_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
+{
+	proto_tree_set_system_id(fi, tvb_get_ptr(tvb, start, length), length);
 }
 
 static void
@@ -4028,6 +4058,16 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 							   size-offset_e);
 				break;
 
+			case FT_SYSTEM_ID:
+				bytes = (guint8 *)fvalue_get(&finfo->value);
+				offset_r += protoo_strlcpy(result+offset_r,
+							   print_system_id(bytes, fvalue_length(&finfo->value)),
+							   size-offset_r);
+				offset_e += protoo_strlcpy(expr+offset_e,
+							   print_system_id(bytes, fvalue_length(&finfo->value)),
+							   size-offset_e);
+				break;
+
 			case FT_FLOAT:
 				g_snprintf(result+offset_r, size-offset_r,
 					   "%." G_STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
@@ -4075,6 +4115,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 		case FT_INT32:
 		case FT_OID:
 		case FT_REL_OID:
+		case FT_SYSTEM_ID:
 			/* for these types, "expr" is filled in the loop above */
 			break;
 
@@ -4963,6 +5004,7 @@ static const value_string hf_types[] = {
 	{ FT_GUID,	    "FT_GUID"	       },
 	{ FT_OID,	    "FT_OID"	       },
 	{ FT_REL_OID,	    "FT_REL_OID"       },
+	{ FT_SYSTEM_ID,	    "FT_SYSTEM_ID"       },
 	{ 0,		    NULL } };
 
 static const value_string hf_display[] = {
@@ -5602,6 +5644,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				label_fill(label_str, 0, hfinfo,
 					 rel_oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
+			break;
+
+		case FT_SYSTEM_ID:
+			bytes = (guint8 *)fvalue_get(&fi->value);
+			label_fill(label_str, 0, hfinfo, print_system_id(bytes, fvalue_length(&fi->value)));
 			break;
 
 		case FT_EUI64:

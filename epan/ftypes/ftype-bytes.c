@@ -29,6 +29,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/oids.h>
+#include <epan/osi-utils.h>
 
 #define CMP_MATCHES cmp_matches
 
@@ -134,6 +135,12 @@ rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static void
+system_id_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+{
+	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, bytes_repr_len(fv, rtype));
+}
+
+static void
 bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
 	guint8 *c;
@@ -197,6 +204,16 @@ oid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 	fv->value.bytes = (GByteArray *)value;
 }
 
+static void
+system_id_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+{
+	g_assert(already_copied);
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+
+	fv->value.bytes = (GByteArray *)value;
+}
 
 static gpointer
 value_get(fvalue_t *fv)
@@ -428,6 +445,30 @@ rel_oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, L
 	fv->value.bytes = bytes;
 
 	return TRUE;
+}
+
+static gboolean
+system_id_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+{
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as another way if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+		if (fv->value.bytes->len > MAX_SYSTEMID_LEN) {
+			logfunc("\"%s\" contains too many bytes to be a valid OSI System-ID.",
+			    s);
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	/* XXX - need better validation of Vines address */
+
+	logfunc("\"%s\" is not a valid OSI System-ID.", s);
+	return FALSE;
 }
 
 static guint
@@ -901,6 +942,44 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t system_id_type = {
+		FT_SYSTEM_ID,			/* ftype */
+		"FT_SYSTEM_ID",			/* name */
+		"OSI System-ID",		/* pretty_name */
+		0,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		system_id_from_unparsed,	/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		system_id_to_repr,		/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
+
+		system_id_fvalue_set,	/* set_value */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		cmp_bitwise_and,
+		cmp_contains,
+		NULL,				/* cmp_matches */
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_AX25, &ax25_type);
@@ -908,4 +987,5 @@ ftype_register_bytes(void)
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_OID, &oid_type);
 	ftype_register(FT_REL_OID, &rel_oid_type);
+	ftype_register(FT_SYSTEM_ID, &system_id_type);
 }

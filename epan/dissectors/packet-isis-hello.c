@@ -323,7 +323,6 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 	proto_item *restart_flags_item;
 	proto_item *hold_time_item;
 	const char *sep;
-	const guint8 *neighbor_id;
 
 	if (length >= 1) {
 	    restart_options = tvb_get_guint8(tvb, offset);
@@ -364,11 +363,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 	 * set.
 	 */
 	if (length >= 3 + id_length && ISIS_MASK_RESTART_RA(restart_options)) {
-	    neighbor_id = tvb_get_ptr(tvb, offset+3, id_length);
-	    proto_tree_add_bytes_format_value( tree,
-		    hf_isis_hello_clv_restart_neighbor, tvb, offset+3,
-		    id_length, neighbor_id, "%s",
-		    print_system_id( neighbor_id, id_length ) );
+		proto_tree_add_item( tree, hf_isis_hello_clv_restart_neighbor, tvb, offset+3, id_length, ENC_NA);
 	}
 }
 
@@ -621,8 +616,6 @@ static void
 dissect_hello_ptp_adj_clv(tvbuff_t *tvb, packet_info* pinfo,
 		proto_tree *tree, int offset, int id_length, int length)
 {
-    const guint8 *source_id;
-
     switch(length)
     {
     case 1:
@@ -635,16 +628,12 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb, packet_info* pinfo,
     case 11:
         proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
-        source_id = tvb_get_ptr(tvb, offset+5, id_length);
-        proto_tree_add_bytes_format_value(tree, hf_isis_hello_neighbor_systemid, tvb,
-                        offset+5, id_length, source_id, "%s", print_system_id(source_id, id_length ));
+        proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, id_length, ENC_NA);
     break;
     case 15:
         proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
-        source_id = tvb_get_ptr(tvb, offset+5, id_length);
-        proto_tree_add_bytes_format_value(tree, hf_isis_hello_neighbor_systemid, tvb,
-                        offset+5, id_length, source_id, "%s", print_system_id( source_id, id_length ));
+        proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, id_length, ENC_NA);
         proto_tree_add_item(tree, hf_isis_hello_neighbor_extended_local_circuit_id, tvb, offset+5+id_length, 4, ENC_BIG_ENDIAN);
     break;
     default:
@@ -959,10 +948,7 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 {
 	proto_item	*ti;
 	proto_tree	*hello_tree;
-	const guint8	*source_id;
 	int				pdu_length;
-	const guint8	*lan_id;
-	gchar* system_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS HELLO");
 
@@ -973,12 +959,8 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	proto_tree_add_item(hello_tree, hf_isis_hello_circuit_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	source_id = tvb_get_ptr(tvb, offset, id_length);
-	system_id = print_system_id( source_id, id_length );
-	proto_tree_add_bytes_format_value(hello_tree, hf_isis_hello_source_id, tvb,
-			            offset, id_length, source_id,
-			            "%s", system_id);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", system_id);
+	proto_tree_add_item(hello_tree, hf_isis_hello_source_id, tvb, offset, id_length, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ));
 
 	offset += id_length;
 
@@ -1000,10 +982,7 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 		proto_tree_add_item(hello_tree, hf_isis_hello_priority_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
-		lan_id = tvb_get_ptr(tvb, offset, id_length+1);
-		proto_tree_add_bytes_format_value(hello_tree, hf_isis_hello_lan_id, tvb,
-				     offset, id_length + 1, lan_id,
-					 "%s", print_system_id( lan_id, id_length + 1 ) );
+		proto_tree_add_item(hello_tree, hf_isis_hello_lan_id, tvb, offset, id_length + 1, ENC_NA);
 		offset += id_length + 1;
 	}
 
@@ -1076,7 +1055,7 @@ proto_register_isis_hello(void)
 
 		{ &hf_isis_hello_source_id,
 		{ "SystemID {Sender of PDU}", "isis.hello.source_id",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_holding_timer,
 		{ "Holding timer", "isis.hello.holding_timer",
@@ -1096,7 +1075,7 @@ proto_register_isis_hello(void)
 
 		{ &hf_isis_hello_lan_id,
 		{ "SystemID {Designated IS}", "isis.hello.lan_id",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_local_circuit_id,
 		{ "Local circuit ID", "isis.hello.local_circuit_id",
@@ -1146,7 +1125,7 @@ proto_register_isis_hello(void)
 
 		{ &hf_isis_hello_clv_restart_neighbor,
 		{ "Restarting Neighbor ID", "isis.hello.clv_restart.neighbor",
-			FT_BYTES, BASE_NONE, NULL, 0x0,
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
 			"The System ID of the restarting neighbor", HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
@@ -1157,7 +1136,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_checksum, { "Checksum", "isis.hello.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_adjacency_state, { "Adjacency State", "isis.hello.adjacency_state", FT_UINT8, BASE_DEC, VALS(adj_state_vals), 0x0, NULL, HFILL }},
       { &hf_isis_hello_extended_local_circuit_id, { "Extended Local circuit ID", "isis.hello.extended_local_circuit_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_hello_neighbor_systemid, { "Neighbor SystemID", "isis.hello.neighbor_systemid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_neighbor_systemid, { "Neighbor SystemID", "isis.hello.neighbor_systemid", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_neighbor_extended_local_circuit_id, { "Neighbor Extended Local circuit ID", "isis.hello.neighbor_extended_local_circuit_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_is_neighbor, { "IS Neighbor", "isis.hello.is_neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};

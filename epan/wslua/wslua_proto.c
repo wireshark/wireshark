@@ -460,6 +460,7 @@ static const wslua_ft_types_t ftenums[] = {
     {"ftypes.FRAMENUM", FT_FRAMENUM},
     {"ftypes.GUID", FT_GUID},
     {"ftypes.OID", FT_OID},
+    {"ftypes.SYSTEM_ID", FT_SYSTEM_ID},
     {"ftypes.REL_OID", FT_REL_OID},
     {NULL, FT_NONE}
 };
@@ -779,6 +780,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     case FT_UINT_BYTES:
     case FT_GUID:
     case FT_OID:
+    case FT_SYSTEM_ID:
     case FT_REL_OID:
         if (base != BASE_NONE) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.NONE");
@@ -1256,6 +1258,7 @@ PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES)
 PROTOFIELD_OTHER(guid,FT_GUID)
 PROTOFIELD_OTHER(oid,FT_OID)
 PROTOFIELD_OTHER(rel_oid,FT_REL_OID)
+PROTOFIELD_OTHER(systemid,FT_SYSTEM_ID)
 
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes) */

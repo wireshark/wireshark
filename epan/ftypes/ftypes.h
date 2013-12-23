@@ -70,6 +70,7 @@ enum ftenum {
 	FT_AX25,
 	FT_VINES,
 	FT_REL_OID,	/* RELATIVE-OID */
+	FT_SYSTEM_ID,
 	FT_NUM_TYPES /* last item number plus one */
 };
 

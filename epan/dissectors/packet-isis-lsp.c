@@ -1667,13 +1667,9 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		 */
 		if ( tree ) {
 			if ( is_eis ) {
-				ti = proto_tree_add_bytes_format_value(tree, hf_isis_lsp_eis_neighbors_es_neighbor, tvb, offset, tlen,
-					tvb_get_ptr(tvb, offset+4, id_length), "%s",
-						print_system_id( tvb_get_ptr(tvb, offset+4, id_length), id_length ) );
+				ti = proto_tree_add_text(tree, tvb, offset, tlen, "ES Neighbor");
 			} else {
-				ti = proto_tree_add_bytes_format_value(tree, hf_isis_lsp_eis_neighbors_is_neighbor, tvb, offset, tlen,
-					tvb_get_ptr(tvb, offset+4, id_length), "%s",
-						print_system_id( tvb_get_ptr(tvb, offset+4, id_length), id_length ) );
+				ti = proto_tree_add_text(tree, tvb, offset, tlen, "IS Neighbor");
 			}
 			ntree = proto_item_add_subtree(ti, ett_isis_lsp_clv_is_neighbors);
 
@@ -1692,6 +1688,8 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_error_metric, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_error_metric_supported, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_error_metric_ie, tvb, offset+3, 1, ENC_NA);
+			proto_tree_add_item(ntree, is_eis ? hf_isis_lsp_eis_neighbors_es_neighbor : hf_isis_lsp_eis_neighbors_is_neighbor,
+									tvb, offset+4, id_length, ENC_NA);
 		}
 		offset += tlen;
 		length -= tlen;
@@ -1977,8 +1975,8 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 	guint      clv_code, clv_len;
 
 	while (length > 0) {
-		ti = proto_tree_add_bytes_format_value(tree, hf_isis_lsp_ext_is_reachability_is_neighbor, tvb, offset, -1,
-			tvb_get_ptr(tvb, offset, 7), "%s", print_system_id (tvb_get_ptr(tvb, offset, 7), 7) );
+		ti = proto_tree_add_item(tree, hf_isis_lsp_ext_is_reachability_is_neighbor, tvb, offset, 7, ENC_NA);
+		proto_item_set_len(ti, -1);
 		ntree = proto_item_add_subtree (ti, ett_isis_lsp_part_of_clv_ext_is_reachability );
 
 		proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_metric, tvb, offset+7, 3, ENC_BIG_ENDIAN);
@@ -2175,11 +2173,8 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
 	/*
 	 * Gotta build a sub-tree for all our pieces
 	 */
-	if ( tree ) {
-		proto_tree_add_bytes_format_value( tree, hf_isis_lsp_partition_designated_l2_is, tvb, offset, id_length,
-			tvb_get_ptr(tvb, offset, id_length), "%s",
-			print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ) );
-	}
+	proto_tree_add_item( tree, hf_isis_lsp_partition_designated_l2_is, tvb, offset, id_length, ENC_NA);
+
 	length -= id_length;
 	offset += id_length;
 	if ( length > 0 ) {
@@ -2602,12 +2597,8 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	offset += 2;
 	offset_checksum = offset;
 
-	system_id = print_system_id( tvb_get_ptr(tvb, offset, id_length+2),
-				    id_length+2);
-	proto_tree_add_bytes_format_value(lsp_tree, hf_isis_lsp_lsp_id,
-			tvb, offset, id_length + 2,
-			tvb_get_ptr(tvb, offset, id_length+2), "%s", system_id);
-
+	proto_tree_add_item(lsp_tree, hf_isis_lsp_lsp_id, tvb, offset, id_length + 2, ENC_NA);
+	system_id = print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s", system_id);
 
 	offset += (id_length + 2);
@@ -2720,7 +2711,7 @@ proto_register_isis_lsp(void)
 		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_lsp_id,
-		{ "LSP-ID", "isis.lsp.lsp_id", FT_BYTES,
+		{ "LSP-ID", "isis.lsp.lsp_id", FT_SYSTEM_ID,
 		  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_hostname,
@@ -2864,22 +2855,22 @@ proto_register_isis_lsp(void)
       { &hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid, { "Base-VID", "isis.lsp.mt_cap_spbm_service_identifier.base_vid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_mt_cap_mtid, { "MTID", "isis.lsp.mt_cap.mtid", FT_UINT16, BASE_HEX, NULL, 0xfff, NULL, HFILL }},
       { &hf_isis_lsp_eis_neighbors_reserved, { "Reserved", "isis.lsp.eis_neighbors_clv_inner.reserved", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_es_neighbor, { "ES Neighbor", "isis.lsp.eis_neighbors.es_neighbor", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_eis_neighbors_is_neighbor, { "IS Neighbor", "isis.lsp.eis_neighbors.is_neighbor", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_lsp_eis_neighbors_es_neighbor, { "ES Neighbor", "isis.lsp.eis_neighbors.es_neighbor", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_lsp_eis_neighbors_is_neighbor, { "IS Neighbor", "isis.lsp.eis_neighbors.is_neighbor", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_eis_neighbors_default_metric, { "Default Metric", "isis.lsp.eis_neighbors.default_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
       { &hf_isis_lsp_eis_neighbors_delay_metric, { "Delay Metric", "isis.lsp.eis_neighbors.delay_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
       { &hf_isis_lsp_eis_neighbors_expense_metric, { "Expense Metric", "isis.lsp.eis_neighbors.expense_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
       { &hf_isis_lsp_eis_neighbors_error_metric, { "Error Metric", "isis.lsp.eis_neighbors.error_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
       { &hf_isis_lsp_maximum_link_bandwidth, { "Maximum link bandwidth", "isis.lsp.maximum_link_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_reservable_link_bandwidth, { "Reservable link bandwidth", "isis.lsp.reservable_link_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_ext_is_reachability_is_neighbor, { "IS neighbor", "isis.lsp.ext_is_reachability.is_neighbor", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_lsp_ext_is_reachability_is_neighbor, { "IS neighbor", "isis.lsp.ext_is_reachability.is_neighbor", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_metric, { "Metric", "isis.lsp.ext_is_reachability.metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_link_local_identifier, { "Link Local Identifier", "isis.lsp.ext_is_reachability.link_local_identifier", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_link_remote_identifier, { "Link Remote Identifier", "isis.lsp.ext_is_reachability.link_remote_identifier", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_ipv4_interface_address, { "IPv4 interface address", "isis.lsp.ext_is_reachability.ipv4_interface_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, { "IPv4 neighbor address", "isis.lsp.ext_is_reachability.ipv4_neighbor_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, { "Traffic engineering default metric", "isis.lsp.ext_is_reachability.traffic_engineering_default_metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_lsp_partition_designated_l2_is, { "Partition designated L2 IS", "isis.lsp.partition_designated_l2_is", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_lsp_partition_designated_l2_is, { "Partition designated L2 IS", "isis.lsp.partition_designated_l2_is", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_error_metric, { "Error metric", "isis.lsp.error_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }},
       { &hf_isis_lsp_expense_metric, { "Expense metric", "isis.lsp.expense_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
       { &hf_isis_lsp_delay_metric, { "Delay metric", "isis.lsp.delay_metric", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},

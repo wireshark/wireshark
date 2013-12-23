@@ -564,9 +564,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
           break;
 
         case OSI_OPT_SNPA_MASK:
-          proto_tree_add_bytes_format(osi_option_tree, hf_osi_options_snpa_mask, tvb, offset, parm_len,
-                              tvb_get_ptr(tvb, offset, parm_len), "%s",
-                              print_system_id(tvb_get_ptr(tvb, offset, parm_len), parm_len));
+          proto_tree_add_item(osi_option_tree, hf_osi_options_snpa_mask, tvb, offset, parm_len, ENC_NA);
           break;
 
         case OSI_OPT_ES_CONFIG_TIMER:
@@ -639,7 +637,7 @@ proto_register_osi_options(void) {
       { &hf_osi_options_security_type, { "Security type", "osi.options.security_type", FT_UINT8, BASE_DEC, VALS(osi_opt_sec_vals), OSI_OPT_SEC_MASK, NULL, HFILL }},
       { &hf_osi_options_priority, { "Priority", "osi.options.priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_osi_options_address_mask, { "Address Mask", "osi.options.address_mask", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_osi_options_snpa_mask, { "SNPA Mask", "osi.options.snpa_mask", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_snpa_mask, { "SNPA Mask", "osi.options.snpa_mask", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_osi_options_esct, { "ESCT (seconds)", "osi.options.esct", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_osi_options_padding, { "Padding", "osi.options.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };

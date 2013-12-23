@@ -232,8 +232,7 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
     proto_tree_add_text( tree, tvb, offset, tmpl + 1,
                          "###  Subnetwork Address Section ###");
     proto_tree_add_uint_format_value(tree, hf_esis_bsnpal, tvb, offset++, 1, tmpl, "%2u Octets", tmpl);
-    proto_tree_add_string( tree, hf_esis_bsnpa, tvb, offset, tmpl,
-                         print_system_id( tvb_get_ptr(tvb, offset, tmpl), tmpl ) );
+    proto_tree_add_item( tree, hf_esis_bsnpa, tvb, offset, tmpl, ENC_NA);
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) tvb_get_guint8(tvb, offset);
@@ -438,7 +437,7 @@ proto_register_esis(void) {
       { &hf_esis_bsnpal, { "BSNPAL", "esis.bsnpal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_net, { "NET", "esis.net", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_da, { "DA", "esis.da", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_esis_bsnpa, { "BSNPA", "esis.bsnpa", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_esis_bsnpa, { "BSNPA", "esis.bsnpa", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
   /*
    *

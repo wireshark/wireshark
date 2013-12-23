@@ -158,6 +158,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_GUID:
         case FT_PROTOCOL:
         case FT_REL_OID:
+        case FT_SYSTEM_ID:
         case FT_OID: {
                 ByteArray ba = g_byte_array_new();
                 g_byte_array_append(ba, (const guint8 *)tvb_memdup(wmem_packet_scope(),fi->ds_tvb,fi->start,fi->length),fi->length);

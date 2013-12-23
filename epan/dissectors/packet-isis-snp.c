@@ -151,7 +151,6 @@ dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 {
 	proto_item *ti;
 	proto_tree *subtree;
-	const guint8 *source_id;
 
 	while ( length > 0 ) {
 		if ( length < 2+id_length+2+4+2 ) {
@@ -163,9 +162,7 @@ dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 		ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2, "LSP Entry");
 		subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entry);
 
-		source_id = tvb_get_ptr(tvb, offset+2, id_length+2);
-		proto_tree_add_bytes_format_value(tree, hf_isis_csnp_lsp_id, tvb,
-						offset+2, 8, source_id, "%s", print_system_id(source_id, id_length+2));
+		proto_tree_add_item(tree, hf_isis_csnp_lsp_id, tvb, offset+2, id_length+2, ENC_NA);
 
 		proto_tree_add_item(subtree, hf_isis_csnp_lsp_seq_num, tvb, offset+2+id_length+2, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree, hf_isis_csnp_lsp_remain_life, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -305,8 +302,6 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 	proto_tree	*csnp_tree = NULL;
 	guint16		pdu_length;
 	int 		len;
-	const guint8	*source_id;
-	gchar* system_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS CSNP");
 
@@ -318,28 +313,18 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 			offset, 2, pdu_length);
 	offset += 2;
 
-	source_id = tvb_get_ptr(tvb, offset, id_length);
-	system_id = print_system_id( source_id, id_length );
-	proto_tree_add_bytes_format_value(csnp_tree, hf_isis_csnp_source_id, tvb,
-			            offset, id_length, source_id,
-			            "%s", system_id);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", system_id);
+	proto_tree_add_item(csnp_tree, hf_isis_csnp_source_id, tvb, offset, id_length, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ));
 	offset += id_length + 1;
 
-	source_id = tvb_get_ptr(tvb, offset, id_length+2);
-	system_id = print_system_id( source_id, id_length+2 );
-	proto_tree_add_bytes_format_value(csnp_tree, hf_isis_csnp_start_lsp_id, tvb,
-			            offset, id_length + 2, source_id,
-			            "%s", system_id);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s", system_id);
+	proto_tree_add_item(csnp_tree, hf_isis_csnp_start_lsp_id, tvb, offset, id_length + 2, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
+					print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ));
 	offset += id_length + 2;
 
-	source_id = tvb_get_ptr(tvb, offset, id_length+2);
-	system_id = print_system_id( source_id, id_length+2 );
-	proto_tree_add_bytes_format_value(csnp_tree, hf_isis_csnp_end_lsp_id, tvb,
-			            offset, id_length + 2, source_id,
-			            "%s", system_id);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s", system_id);
+	proto_tree_add_item(csnp_tree, hf_isis_csnp_end_lsp_id, tvb, offset, id_length + 2, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
+					print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ));
 	offset += id_length + 2;
 
 	len = pdu_length - header_length;
@@ -380,8 +365,6 @@ dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 	proto_tree	*psnp_tree;
 	guint16		pdu_length;
 	int 		len;
-	const guint8	*source_id;
-	gchar* system_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS PSNP");
 
@@ -393,12 +376,8 @@ dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 			offset, 2, pdu_length);
 	offset += 2;
 
-	source_id = tvb_get_ptr(tvb, offset, id_length);
-	system_id = print_system_id( source_id, id_length );
-	proto_tree_add_bytes_format_value(psnp_tree, hf_isis_psnp_source_id, tvb,
-			            offset, id_length, source_id,
-			            "%s", system_id);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", system_id);
+	proto_tree_add_item(psnp_tree, hf_isis_psnp_source_id, tvb, offset, id_length, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ));
 
 	offset += id_length + 1;
 
@@ -440,16 +419,16 @@ proto_register_isis_csnp(void)
 		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isis_csnp_source_id,
 		{ "Source-ID", "isis.csnp.source_id",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isis_csnp_start_lsp_id,
 		{ "Start LSP-ID", "isis.csnp.start_lsp_id",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isis_csnp_end_lsp_id,
 		{ "End LSP-ID", "isis.csnp.end_lsp_id",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isis_csnp_lsp_id,
 		{ "LSP-ID", "isis.csnp.lsp_id",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+			FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isis_csnp_lsp_seq_num,
 		{ "LSP Sequence Number",		"isis.csnp.lsp_seq_num", FT_UINT32,
 		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
