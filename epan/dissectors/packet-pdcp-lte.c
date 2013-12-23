@@ -135,6 +135,7 @@ static expert_field ei_pdcp_lte_sequence_analysis_wrong_sequence_number = EI_INI
 static expert_field ei_pdcp_lte_reserved_bits_not_zero = EI_INIT;
 static expert_field ei_pdcp_lte_sequence_analysis_sn_repeated = EI_INIT;
 static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
+static expert_field ei_pdcp_lte_digest_wrong = EI_INIT;
 
 #ifdef HAVE_LIBGCRYPT
 /*-------------------------------------
@@ -530,6 +531,7 @@ typedef struct pdu_security_settings_t
 {
     gboolean valid;
     enum security_ciphering_algorithm_e ciphering;
+    enum security_integrity_algorithm_e integrity;
     guint8* cipherKey;
     guint8* integrityKey;
     guint32 count;
@@ -599,7 +601,8 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             }
 
             /* May also be able to add key inputs to security tree here */
-            if (pdu_security->ciphering != eea0) {
+            if ((pdu_security->ciphering != eea0) ||
+                (pdu_security->integrity != eia0)) {
                 guint32              hfn_multiplier;
                 guint32              count;
 #if HAVE_LIBGCRYPT
@@ -646,13 +649,21 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
                     if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
                         if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
+                            /* Get RRC ciphering key */
                             if (uat_ue_keys_records[record_id].rrcCipherKeyOK) {
                                 key = uat_ue_keys_records[record_id].rrcCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].rrcCipherBinaryKey[0]);
                                 pdu_security->valid = TRUE;
                             }
+                            /* Get RRC integrity key */
+                            if (uat_ue_keys_records[record_id].rrcIntegrityKeyOK) {
+                                key = uat_ue_keys_records[record_id].rrcIntegrityKeyString;
+                                pdu_security->integrityKey = &(uat_ue_keys_records[record_id].rrcIntegrityBinaryKey[0]);
+                                pdu_security->valid = TRUE;
+                            }
                         }
                         else {
+                            /* Get userplane ciphering key */
                             if (uat_ue_keys_records[record_id].upCipherKeyOK) {
                                 key = uat_ue_keys_records[record_id].upCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].upCipherBinaryKey[0]);
@@ -1405,16 +1416,39 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-static guint32 calculate_digest(gboolean *calculated)
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, gboolean *calculated)
 {
-    *calculated = FALSE;
-    return 0;
+    switch (pdu_security_settings->integrity) {
+        case eia0:
+            /* Should be zero in this case */
+            *calculated = TRUE;
+            return 0;
+        case eia2:
+            /* TODO: calculate AES case */
+            *calculated = FALSE;
+            return 0;
+
+        case eia1:
+        default:
+            /* Can't calculate */
+            *calculated = FALSE;
+            return 0;
+    }
 }
 #else
-static guint32 calculate_digest(gboolean *calculated)
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, gboolean *calculated)
 {
-    *calculated = FALSE;
-    return 0;
+    switch (pdu_security_settings->integrity) {
+        case eia0:
+            /* Should be zero in this case */
+            *calculated = TRUE;
+            return 0;
+
+        default:
+            /* Can't calculate */
+            *calculated = FALSE;
+            return 0;
+    }
 }
 #endif
 
@@ -1441,8 +1475,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     tvbuff_t *payload_tvb;
     pdu_security_settings_t  pdu_security_settings;
     gboolean payload_deciphered = FALSE;
-    guint32  calculated_digest;
-    gboolean digest_was_calculated = FALSE;
 
     /* Initialise security settings */
     pdu_security_settings.valid = FALSE;
@@ -1774,13 +1806,17 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
        further dissectors on payload */
     payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info->plane, &payload_deciphered);
 
-    if (global_pdcp_check_integrity) {
-        calculated_digest = calculate_digest(&digest_was_calculated);
-    }
-
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
         guint32 data_length;
         guint32 mac;
+        proto_item *mac_ti;
+        guint32  calculated_digest;
+        gboolean digest_was_calculated = FALSE;
+
+        /* Try to calculate digest so we can check it */
+        if (global_pdcp_check_integrity) {
+            calculated_digest = calculate_digest(&pdu_security_settings, &digest_was_calculated);
+        }
 
         /* RRC data is all but last 4 bytes.
            Call lte-rrc dissector (according to direction and channel type) */
@@ -1830,11 +1866,17 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* Last 4 bytes are MAC */
         mac = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
+        mac_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if (calculated_digest) {
-            /* TODO: compare with what was found */
+        if (digest_was_calculated) {
+            /* Compare what was found with calculated value! */
+            if (mac != calculated_digest) {
+                expert_add_info_format(pinfo, mac_ti, &ei_pdcp_lte_digest_wrong,
+                                       "MAC-I Digest wrong expected %08x but found %08x",
+                                       calculated_digest, mac);
+            }
+            printf("expected %08x, got %08x", calculated_digest, mac);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
@@ -2253,6 +2295,7 @@ void proto_register_pdcp(void)
         { &ei_pdcp_lte_sequence_analysis_sn_repeated, { "pdcp-lte.sequence-analysis.sn-repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
         { &ei_pdcp_lte_sequence_analysis_wrong_sequence_number, { "pdcp-lte.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
         { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
+        { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.maci-wrong", PI_SEQUENCE, PI_ERROR, "MAC-I doesn't match expected value", EXPFILL }}
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
@@ -2370,7 +2413,7 @@ void proto_register_pdcp(void)
     prefs_register_bool_preference(pdcp_lte_module, "verify_integrity",
         "Attempt to check integrity calculation",
         "N.B. only possible if key available and configured",
-        &global_pdcp_decipher_userplane);
+        &global_pdcp_check_integrity);
 #endif
 
     register_init_routine(&pdcp_lte_init_protocol);
