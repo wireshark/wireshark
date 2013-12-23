@@ -2440,7 +2440,6 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 {
 	gunichar       uchar;
 	gint           size;    /* Number of bytes in string */
-	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -2455,7 +2454,7 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	strbuf = tvb_extract_ucs_4_string(scope, tvb, offset, size, encoding);
 
 	if (lengthp)
-		*lengthp = i; /* Number of *bytes* processed */
+		*lengthp = size; /* Number of *bytes* processed */
 
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
