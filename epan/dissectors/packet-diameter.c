@@ -1283,13 +1283,13 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 	guint32 mask)
 {
 	hf_register_info hf = { hf_ptr, {
-				name ? wmem_strdup(wmem_epan_scope(), name) : wmem_strdup(wmem_epan_scope(), abbr),
-				wmem_strdup(wmem_epan_scope(), abbr),
+				name,
+				abbr,
 				ft,
 				base,
 				NULL,
 				mask,
-				wmem_strdup(wmem_epan_scope(), desc),
+				desc,
 				HFILL }};
 
 	if (vs_ext) {
@@ -1374,20 +1374,20 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 
 	basic_avp_reginfo(a, name, FT_BYTES, BASE_NONE, NULL);
 
-	reginfo(&(t->hf_address_type), ep_strdup_printf("%s Address Family",name),
-		alnumerize(ep_strdup_printf("diameter.%s.addr_family",name)),
+	reginfo(&(t->hf_address_type), wmem_strdup_printf(wmem_epan_scope(), "%s Address Family",name),
+		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.addr_family",name)),
 		NULL, FT_UINT16, (field_display_e)(BASE_DEC|BASE_EXT_STRING), &diameter_avp_data_addrfamily_vals_ext, 0);
 
-	reginfo(&(t->hf_ipv4), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s.IPv4",name)),
+	reginfo(&(t->hf_ipv4), wmem_strdup_printf(wmem_epan_scope(), "%s Address",name),
+		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.IPv4",name)),
 		NULL, FT_IPv4, BASE_NONE, NULL, 0);
 
-	reginfo(&(t->hf_ipv6), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s.IPv6",name)),
+	reginfo(&(t->hf_ipv6), wmem_strdup_printf(wmem_epan_scope(), "%s Address",name),
+		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.IPv6",name)),
 		NULL, FT_IPv6, BASE_NONE, NULL, 0);
 
-	reginfo(&(t->hf_other), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s.Bytes",name)),
+	reginfo(&(t->hf_other), wmem_strdup_printf(wmem_epan_scope(), "%s Address",name),
+		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.Bytes",name)),
 		NULL, FT_BYTES, BASE_NONE, NULL, 0);
 
 	g_ptr_array_add(build_dict.ett,ettp);
@@ -1553,7 +1553,7 @@ dictionary_load(void)
 	ddict_avp_t *a;
 	gboolean do_debug_parser = getenv("WIRESHARK_DEBUG_DIAM_DICT_PARSER") ? TRUE : FALSE;
 	gboolean do_dump_dict = getenv("WIRESHARK_DUMP_DIAM_DICT") ? TRUE : FALSE;
-	char *dir = ep_strdup_printf("%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
+	char *dir;
 	const avp_type_t *type;
 	const avp_type_t *octetstring = &basic_types[0];
 	diam_avp_t *avp;
@@ -1585,7 +1585,9 @@ dictionary_load(void)
 	}
 
 	/* load the dictionary */
+	dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
 	d = ddict_scan(dir,"dictionary.xml",do_debug_parser);
+	g_free(dir);
 	if (d == NULL) {
 		return 0;
 	}
