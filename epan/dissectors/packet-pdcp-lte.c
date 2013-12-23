@@ -1876,7 +1876,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                        "MAC-I Digest wrong expected %08x but found %08x",
                                        calculated_digest, mac);
             }
-            printf("expected %08x, got %08x", calculated_digest, mac);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
