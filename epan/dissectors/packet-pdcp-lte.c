@@ -2355,7 +2355,7 @@ void proto_register_pdcp(void)
         { &ei_pdcp_lte_sequence_analysis_sn_repeated, { "pdcp-lte.sequence-analysis.sn-repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
         { &ei_pdcp_lte_sequence_analysis_wrong_sequence_number, { "pdcp-lte.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
         { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
-        { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.maci-wrong", PI_SEQUENCE, PI_ERROR, "MAC-I doesn't match expected value", EXPFILL }}
+        { &ei_pdcp_lte_digest_wrong, { "pdcp-lte.digest-wrong", PI_CHECKSUM, PI_ERROR, "MAC-I Digest wrong", EXPFILL }}
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
