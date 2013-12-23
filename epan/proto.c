@@ -763,8 +763,9 @@ proto_registrar_get_nth(guint hfindex)
 static guint
 prefix_hash (gconstpointer key) {
 	/* end the string at the dot and compute its hash */
-	gchar* copy = ep_strdup((const gchar *)key);
+	gchar* copy = g_strdup((const gchar *)key);
 	gchar* c    = copy;
+	guint tmp;
 
 	for (; *c; c++) {
 		if (*c == '.') {
@@ -773,7 +774,9 @@ prefix_hash (gconstpointer key) {
 		}
 	}
 
-	return g_str_hash(copy);
+	tmp = g_str_hash(copy);
+	g_free(copy);
+	return tmp;
 }
 
 /* are both strings equal up to the end or the dot? */
