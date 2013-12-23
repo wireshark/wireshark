@@ -1245,6 +1245,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ua3g.c
 	dissectors/packet-uasip.c
 	dissectors/packet-uaudp.c
+	dissectors/packet-ubertooth.c
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
 	dissectors/packet-udp.c

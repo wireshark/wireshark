@@ -1165,6 +1165,7 @@ DISSECTOR_SRC = \
 	packet-ua3g.c		\
 	packet-uasip.c		\
 	packet-uaudp.c		\
+	packet-ubertooth.c	\
 	packet-ucp.c		\
 	packet-udld.c		\
 	packet-udp.c		\
