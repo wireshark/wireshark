@@ -1124,6 +1124,8 @@ install_desktop_files:
 		install -m 644 image/wsicon$${size}.png  $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
 		install -m 644 -T image/WiresharkDoc-$${size}.png  $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
+	mkdir -p $(DESTDIR)/usr/share/icons/hicolor/scalable/apps
+	install -m 644 image/wsicon.svg $(DESTDIR)/usr/share/icons/hicolor/scalable/apps/wireshark.svg
 	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
 # Used by svr4-package and osx-package
