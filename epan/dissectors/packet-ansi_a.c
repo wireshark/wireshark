@@ -5219,8 +5219,6 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
@@ -5942,8 +5940,6 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                     subtree2 = proto_item_add_subtree(item, ett_so_list);
 
-                    oct = tvb_get_guint8(tvb, curr_offset);
-
                     proto_tree_add_item(subtree2, hf_ansi_a_reserved_bits_8_fc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(subtree2, hf_ansi_a_rev_ms_info_rec_so_info_fwd_support, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(subtree2, hf_ansi_a_rev_ms_info_rec_so_info_rev_support, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -6051,8 +6047,6 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     NO_MORE_DATA_CHECK(len);
 
     proto_tree_add_item(tree, hf_ansi_a_ext_ho_dir_params_nghbor_max_age, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct = tvb_get_guint8(tvb, curr_offset);
 
     switch (global_a_variant)
     {
@@ -10682,7 +10676,6 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
 
     offset = 0;
-    saved_offset = offset;
 
     g_tree = tree;
 
