@@ -40,6 +40,7 @@
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipv6-utils.h>
+#include <epan/expert.h>
 #include <wsutil/file_util.h>
 
 /*
@@ -4592,6 +4593,512 @@ ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, co
 
     *err = NULL;
     return TRUE;
+}
+
+
+/* dissect a list of hash algorithms, return the number of bytes dissected
+   this is used for the signature algorithms extension and for the
+   TLS1.2 certificate request */
+gint
+ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                          guint32 offset, guint16 len)
+{
+    guint32     offset_start;
+    proto_tree *subtree, *alg_tree;
+    proto_item *ti;
+
+    offset_start = offset;
+    if (len==0)
+        return 0;
+
+    ti = proto_tree_add_none_format(tree, hf->hf.hs_sig_hash_algs, tvb,
+                                    offset, len,
+                                    "Signature Hash Algorithms (%u algorithm%s)",
+                                    len / 2, plurality(len / 2, "", "s"));
+    subtree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_algs);
+
+    if (len % 2) {
+        proto_tree_add_text(tree, tvb, offset, 2,
+                            "Invalid Signature Hash Algorithm length: %d", len);
+        return offset-offset_start;
+    }
+
+    while (len > 0) {
+        ti = proto_tree_add_item(subtree, hf->hf.hs_sig_hash_alg,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN);
+        alg_tree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_alg);
+
+        proto_tree_add_item(alg_tree, hf->hf.hs_sig_hash_hash,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alg_tree, hf->hf.hs_sig_hash_sig,
+                            tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+        offset += 2;
+        len -= 2;
+    }
+    return offset-offset_start;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                        proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint16  sh_alg_length;
+    gint     ret;
+
+    sh_alg_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf->hf.hs_sig_hash_alg_len,
+                        tvb, offset, 2, sh_alg_length);
+    offset += 2;
+    if (ext_len < 2 || sh_alg_length != ext_len - 2) {
+        /* ERROR: sh_alg_length must be 2 less than ext_len */
+        return offset;
+    }
+
+    ret = ssl_dissect_hash_alg_list(hf, tvb, tree, offset, sh_alg_length);
+    if (ret >= 0)
+        offset += ret;
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint16 alpn_length;
+    guint8 name_length;
+    proto_tree *alpn_tree;
+    proto_item *ti;
+
+    alpn_length = tvb_get_ntohs(tvb, offset);
+    if (ext_len < 2 || alpn_length != ext_len - 2) {
+        /* ERROR: alpn_length must be 2 less than ext_len */
+        return offset;
+    }
+    proto_tree_add_item(tree, hf->hf.hs_ext_alpn_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    ti = proto_tree_add_item(tree, hf->hf.hs_ext_alpn_list,
+                             tvb, offset, alpn_length, ENC_NA);
+    alpn_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_alpn);
+
+    while (alpn_length > 0) {
+        name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str_len,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+        alpn_length--;
+        proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
+                            tvb, offset, name_length, ENC_ASCII|ENC_NA);
+        offset += name_length;
+        alpn_length -= name_length;
+    }
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_npn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                              proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint8      npn_length;
+    proto_tree *npn_tree;
+    proto_item *ti;
+
+    if (ext_len == 0) {
+        return offset;
+    }
+
+    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Next Protocol Negotiation");
+    npn_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_npn);
+
+    while (ext_len > 0) {
+        npn_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(npn_tree, hf->hf.hs_ext_npn_str_len,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+        ext_len--;
+
+        if (npn_length > 0) {
+            tvb_ensure_bytes_exist(tvb, offset, npn_length);
+            proto_tree_add_item(npn_tree, hf->hf.hs_ext_npn_str,
+                                tvb, offset, npn_length, ENC_ASCII|ENC_NA);
+            offset += npn_length;
+            ext_len -= npn_length;
+        }
+    }
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                     proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint8      reneg_info_length;
+    proto_tree *reneg_info_tree;
+    proto_item *ti;
+
+    if (ext_len == 0) {
+        return offset;
+    }
+
+    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Renegotiation Info extension");
+    reneg_info_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_reneg_info);
+
+    reneg_info_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(reneg_info_tree, hf->hf.hs_ext_reneg_info_len,
+              tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (reneg_info_length > 0) {
+        tvb_ensure_bytes_exist(tvb, offset, reneg_info_length);
+        proto_tree_add_text(reneg_info_tree, tvb, offset, reneg_info_length, "Renegotiation Info");
+        offset += reneg_info_length;
+    }
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                      proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint16     server_name_length;
+    proto_tree *server_name_tree;
+    proto_item *ti;
+
+
+   if (ext_len == 0) {
+       return offset;
+   }
+
+   ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Server Name Indication extension");
+   server_name_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_server_name);
+
+   proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_list_len,
+                       tvb, offset, 2, ENC_BIG_ENDIAN);
+   offset += 2;
+   ext_len -= 2;
+
+   while (ext_len > 0) {
+       proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_type,
+                           tvb, offset, 1, ENC_NA);
+       offset += 1;
+       ext_len -= 1;
+
+       server_name_length = tvb_get_ntohs(tvb, offset);
+       proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_len,
+                           tvb, offset, 2, ENC_BIG_ENDIAN);
+       offset += 2;
+       ext_len -= 2;
+
+       if (server_name_length > 0) {
+           tvb_ensure_bytes_exist(tvb, offset, server_name_length);
+           proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name,
+                               tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
+           offset += server_name_length;
+           ext_len -= server_name_length;
+       }
+   }
+   return offset;
+}
+
+void
+ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    guint16  url_hash_len;
+
+    /* enum {
+     *     individual_certs(0), pkipath(1), (255)
+     * } CertChainType;
+     *
+     * struct {
+     *     CertChainType type;
+     *     URLAndHash url_and_hash_list<1..2^16-1>;
+     * } CertificateURL;
+     *
+     * struct {
+     *     opaque url<1..2^16-1>;
+     *     unint8 padding;
+     *     opaque SHA1Hash[20];
+     * } URLAndHash;
+     */
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_cert_url_type,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+
+    url_hash_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_ext_cert_url_url_hash_list_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    while (url_hash_len-- > 0) {
+        proto_item  *urlhash_item;
+        proto_tree  *urlhash_tree;
+        guint16      url_len;
+
+        urlhash_item = proto_tree_add_item(tree, hf->hf.hs_ext_cert_url_item,
+                                           tvb, offset, -1, ENC_NA);
+        urlhash_tree = proto_item_add_subtree(urlhash_item, hf->ett.urlhash);
+
+        url_len = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(urlhash_tree, hf->hf.hs_ext_cert_url_url_len,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(urlhash_tree, hf->hf.hs_ext_cert_url_url,
+                            tvb, offset, url_len, ENC_ASCII|ENC_NA);
+        offset += url_len;
+
+        proto_tree_add_item(urlhash_tree, hf->hf.hs_ext_cert_url_padding,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+        /* Note: RFC 6066 says that padding must be 0x01 */
+
+        proto_tree_add_item(urlhash_tree, hf->hf.hs_ext_cert_url_sha1,
+                            tvb, offset, 20, ENC_NA);
+        offset += 20;
+    }
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_status_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                                         guint32 offset, gboolean has_length)
+{
+    guint    cert_status_type;
+
+    cert_status_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_ext_cert_status_type,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+
+    if (has_length) {
+        proto_tree_add_item(tree, hf->hf.hs_ext_cert_status_request_len,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    switch (cert_status_type) {
+    case SSL_HND_CERT_STATUS_TYPE_OCSP:
+    case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
+        {
+            guint16      responder_id_list_len;
+            guint16      request_extensions_len;
+            proto_item  *responder_id;
+            proto_item  *request_extensions;
+
+            responder_id_list_len = tvb_get_ntohs(tvb, offset);
+            responder_id =
+                proto_tree_add_item(tree,
+                                    hf->hf.hs_ext_cert_status_responder_id_list_len,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            if (responder_id_list_len != 0) {
+                expert_add_info_format(NULL, responder_id,
+                                       &hf->ei.hs_ext_cert_status_undecoded,
+                                       "Responder ID list is not implemented, contact Wireshark"
+                                       " developers if you want this to be supported");
+                /* Non-empty responder ID list would mess with extensions. */
+                break;
+            }
+
+            request_extensions_len = tvb_get_ntohs(tvb, offset);
+            request_extensions =
+                proto_tree_add_item(tree,
+                                    hf->hf.hs_ext_cert_status_request_extensions_len, tvb, offset,
+                                    2, ENC_BIG_ENDIAN);
+            offset += 2;
+            if (request_extensions_len != 0)
+                expert_add_info_format(NULL, request_extensions,
+                                       &hf->ei.hs_ext_cert_status_undecoded,
+                                       "Request Extensions are not implemented, contact"
+                                       " Wireshark developers if you want this to be supported");
+            break;
+        }
+    }
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_status_request_v2(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                                            guint32 offset)
+{
+    guint   list_len;
+
+    list_len = tvb_get_ntoh24(tvb, offset);
+    offset += 3;
+
+    while (list_len-- > 0)
+        offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, tree, offset, TRUE);
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_elliptic_curves(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                          proto_tree *tree, guint32 offset)
+{
+    guint16     curves_length;
+    proto_tree *curves_tree;
+    proto_item *ti;
+
+    curves_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_ext_elliptic_curves_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    offset += 2;
+    tvb_ensure_bytes_exist(tvb, offset, curves_length);
+    ti = proto_tree_add_none_format(tree,
+                                    hf->hf.hs_ext_elliptic_curves,
+                                    tvb, offset, curves_length,
+                                    "Elliptic curves (%d curve%s)",
+                                    curves_length / 2,
+                                    plurality(curves_length/2, "", "s"));
+
+    /* make this a subtree */
+    curves_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_curves);
+
+    /* loop over all curves */
+    while (curves_length > 0)
+    {
+        proto_tree_add_item(curves_tree, hf->hf.hs_ext_elliptic_curve, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        curves_length -= 2;
+    }
+
+    return offset;
+}
+
+static gint
+ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                           proto_tree *tree, guint32 offset)
+{
+    guint8      ecpf_length;
+    proto_tree *ecpf_tree;
+    proto_item *ti;
+
+    ecpf_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_ext_ec_point_formats_len,
+        tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset += 1;
+    tvb_ensure_bytes_exist(tvb, offset, ecpf_length);
+    ti = proto_tree_add_none_format(tree,
+                                    hf->hf.hs_ext_elliptic_curves,
+                                    tvb, offset, ecpf_length,
+                                    "Elliptic curves point formats (%d)",
+                                    ecpf_length);
+
+    /* make this a subtree */
+    ecpf_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_curves_point_formats);
+
+    /* loop over all point formats */
+    while (ecpf_length > 0)
+    {
+        proto_tree_add_item(ecpf_tree, hf->hf.hs_ext_ec_point_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        ecpf_length--;
+    }
+
+    return offset;
+}
+
+gint
+ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                          guint32 offset, guint32 left, gboolean is_client)
+{
+    guint16     extension_length;
+    guint16     ext_type;
+    guint16     ext_len;
+    proto_item *pi;
+    proto_tree *ext_tree;
+
+    if (left < 2)
+        return offset;
+
+    extension_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf->hf.hs_exts_len,
+                        tvb, offset, 2, extension_length);
+    offset += 2;
+    left   -= 2;
+
+    while (left >= 4)
+    {
+        ext_type = tvb_get_ntohs(tvb, offset);
+        ext_len  = tvb_get_ntohs(tvb, offset + 2);
+
+        pi = proto_tree_add_text(tree, tvb, offset, 4 + ext_len,  "Extension: %s",
+                                 val_to_str(ext_type,
+                                            tls_hello_extension_types,
+                                            "Unknown %u"));
+        ext_tree = proto_item_add_subtree(pi, hf->ett.hs_ext);
+        if (!ext_tree)
+            ext_tree = tree;
+
+        proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
+                            tvb, offset, 2, ext_type);
+        offset += 2;
+
+        proto_tree_add_uint(ext_tree, hf->hf.hs_ext_len,
+                            tvb, offset, 2, ext_len);
+        offset += 2;
+
+        switch (ext_type) {
+        case SSL_HND_HELLO_EXT_STATUS_REQUEST:
+            if (is_client)
+                offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, ext_tree, offset, FALSE);
+            else
+                offset += ext_len; /* server must return empty extension_data */
+            break;
+        case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
+            if (is_client)
+                offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
+            else
+                offset += ext_len; /* server must return empty extension_data */
+            break;
+        case SSL_HND_HELLO_EXT_ELLIPTIC_CURVES:
+            offset = ssl_dissect_hnd_hello_ext_elliptic_curves(hf, tvb, ext_tree, offset);
+            break;
+        case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
+            offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);
+            break;
+        case SSL_HND_HELLO_EXT_SIG_HASH_ALGS:
+            offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_ALPN:
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_NPN:
+            offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_RENEG_INFO:
+            offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_SERVER_NAME:
+            offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_HEARTBEAT:
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_heartbeat_mode,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += ext_len;
+            break;
+        default:
+            proto_tree_add_bytes_format(ext_tree, hf->hf.hs_ext_data,
+                                        tvb, offset, ext_len, NULL,
+                                        "Data (%u byte%s)",
+                                        ext_len, plurality(ext_len, "", "s"));
+            offset += ext_len;
+            break;
+        }
+
+        left -= 2 + 2 + ext_len;
+    }
+
+    return offset;
 }
 
 /*

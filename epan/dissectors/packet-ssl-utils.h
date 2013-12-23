@@ -31,6 +31,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
+#include <epan/tvbuff.h>
+#include <epan/proto.h>
+#include <epan/expert.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <wsutil/wsgcrypt.h>
@@ -566,6 +569,338 @@ ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
 extern gint
 ssl_is_valid_content_type(guint8 type);
+
+typedef struct ssl_common_dissect {
+    struct {
+        gint hs_exts_len;
+        gint hs_ext_alpn_len;
+        gint hs_ext_alpn_list;
+        gint hs_ext_alpn_str;
+        gint hs_ext_alpn_str_len;
+        gint hs_ext_cert_status_request_extensions_len;
+        gint hs_ext_cert_status_request_len;
+        gint hs_ext_cert_status_responder_id_list_len;
+        gint hs_ext_cert_status_type;
+        gint hs_ext_cert_url_item;
+        gint hs_ext_cert_url_padding;
+        gint hs_ext_cert_url_sha1;
+        gint hs_ext_cert_url_type;
+        gint hs_ext_cert_url_url;
+        gint hs_ext_cert_url_url_hash_list_len;
+        gint hs_ext_cert_url_url_len;
+        gint hs_ext_data;
+        gint hs_ext_ec_point_format;
+        gint hs_ext_ec_point_formats_len;
+        gint hs_ext_elliptic_curve;
+        gint hs_ext_elliptic_curves;
+        gint hs_ext_elliptic_curves_len;
+        gint hs_ext_heartbeat_mode;
+        gint hs_ext_len;
+        gint hs_ext_npn_str;
+        gint hs_ext_npn_str_len;
+        gint hs_ext_reneg_info_len;
+        gint hs_ext_server_name;
+        gint hs_ext_server_name_len;
+        gint hs_ext_server_name_list_len;
+        gint hs_ext_server_name_type;
+        gint hs_ext_type;
+        gint hs_sig_hash_alg;
+        gint hs_sig_hash_alg_len;
+        gint hs_sig_hash_algs;
+        gint hs_sig_hash_hash;
+        gint hs_sig_hash_sig;
+    } hf;
+    struct {
+        gint hs_ext;
+        gint hs_ext_alpn;
+        gint hs_ext_curves;
+        gint hs_ext_curves_point_formats;
+        gint hs_ext_npn;
+        gint hs_ext_reneg_info;
+        gint hs_ext_server_name;
+        gint hs_sig_hash_alg;
+        gint hs_sig_hash_algs;
+        gint urlhash;
+    } ett;
+    struct {
+        expert_field hs_ext_cert_status_undecoded;
+    } ei;
+} ssl_common_dissect_t;
+
+extern gint
+ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                          guint32 offset, guint32 left, gboolean is_client);
+
+extern gint
+ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                          guint32 offset, guint16 len);
+
+extern void
+ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
+
+#define SSL_COMMON_LIST_T(name)                                 \
+ssl_common_dissect_t name = {                                   \
+    .hf = {                                                     \
+        .hs_exts_len                                 = -1,      \
+        .hs_ext_alpn_len                             = -1,      \
+        .hs_ext_alpn_list                            = -1,      \
+        .hs_ext_alpn_str                             = -1,      \
+        .hs_ext_alpn_str_len                         = -1,      \
+        .hs_ext_cert_status_request_extensions_len   = -1,      \
+        .hs_ext_cert_status_request_len              = -1,      \
+        .hs_ext_cert_status_responder_id_list_len    = -1,      \
+        .hs_ext_cert_status_type                     = -1,      \
+        .hs_ext_cert_url_item                        = -1,      \
+        .hs_ext_cert_url_padding                     = -1,      \
+        .hs_ext_cert_url_sha1                        = -1,      \
+        .hs_ext_cert_url_type                        = -1,      \
+        .hs_ext_cert_url_url                         = -1,      \
+        .hs_ext_cert_url_url_hash_list_len           = -1,      \
+        .hs_ext_cert_url_url_len                     = -1,      \
+        .hs_ext_data                                 = -1,      \
+        .hs_ext_ec_point_format                      = -1,      \
+        .hs_ext_ec_point_formats_len                 = -1,      \
+        .hs_ext_elliptic_curve                       = -1,      \
+        .hs_ext_elliptic_curves                      = -1,      \
+        .hs_ext_elliptic_curves_len                  = -1,      \
+        .hs_ext_heartbeat_mode                       = -1,      \
+        .hs_ext_len                                  = -1,      \
+        .hs_ext_npn_str                              = -1,      \
+        .hs_ext_npn_str_len                          = -1,      \
+        .hs_ext_reneg_info_len                       = -1,      \
+        .hs_ext_server_name                          = -1,      \
+        .hs_ext_server_name_len                      = -1,      \
+        .hs_ext_server_name_list_len                 = -1,      \
+        .hs_ext_server_name_type                     = -1,      \
+        .hs_ext_type                                 = -1,      \
+        .hs_sig_hash_alg                             = -1,      \
+        .hs_sig_hash_alg_len                         = -1,      \
+        .hs_sig_hash_algs                            = -1,      \
+        .hs_sig_hash_hash                            = -1,      \
+        .hs_sig_hash_sig                             = -1,      \
+    },                                                          \
+    .ett = {                                                    \
+        .hs_ext                                     = -1,       \
+        .hs_ext_alpn                                = -1,       \
+        .hs_ext_curves                              = -1,       \
+        .hs_ext_curves_point_formats                = -1,       \
+        .hs_ext_npn                                 = -1,       \
+        .hs_ext_reneg_info                          = -1,       \
+        .hs_ext_server_name                         = -1,       \
+        .hs_sig_hash_alg                            = -1,       \
+        .hs_sig_hash_algs                           = -1,       \
+        .urlhash                                    = -1,       \
+    },                                                          \
+    .ei = {                                                     \
+        .hs_ext_cert_status_undecoded                = EI_INIT, \
+    },                                                          \
+}
+
+#define SSL_COMMON_HF_LIST(name, prefix)                                \
+    { & name .hf.hs_exts_len,                                           \
+      { "Extensions Length", prefix ".handshake.extensions_length",     \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of hello extensions", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_ext_type,                                           \
+      { "Type", prefix ".handshake.extension.type",                     \
+        FT_UINT16, BASE_HEX, VALS(tls_hello_extension_types), 0x0,      \
+        "Hello extension type", HFILL }                                 \
+    },                                                                  \
+    { & name .hf.hs_ext_len,                                            \
+      { "Length", prefix ".handshake.extension.len",                    \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of a hello extension", HFILL }                          \
+    },                                                                  \
+    { & name .hf.hs_ext_data,                                           \
+      { "Data", prefix ".handshake.extension.data",                     \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Hello Extension data", HFILL }                                 \
+    },                                                                  \
+    { & name .hf.hs_ext_elliptic_curves_len,                            \
+      { "Elliptic Curves Length", prefix ".handshake.extensions_elliptic_curves_length",   \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of elliptic curves field", HFILL }                      \
+    },                                                                  \
+    { & name .hf.hs_ext_elliptic_curves,                                \
+      { "Elliptic Curves List", prefix ".handshake.extensions_elliptic_curves",        \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of elliptic curves supported", HFILL }                    \
+    },                                                                  \
+    { & name .hf.hs_ext_elliptic_curve,                                 \
+      { "Elliptic curve", prefix ".handshake.extensions_elliptic_curve",\
+        FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,           \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_ec_point_formats_len,                           \
+      { "EC point formats Length", prefix ".handshake.extensions_ec_point_formats_length",     \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of elliptic curves point formats field", HFILL }        \
+    },                                                                  \
+    { & name .hf.hs_ext_ec_point_format,                                \
+      { "EC point format", prefix ".handshake.extensions_ec_point_format",             \
+        FT_UINT8, BASE_DEC, VALS(ssl_extension_ec_point_formats), 0x0,  \
+        "Elliptic curves point format", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_ext_alpn_len,                                       \
+      { "ALPN Extension Length", prefix ".handshake.extensions_alpn_len",              \
+      FT_UINT16, BASE_DEC, NULL, 0x0,                                   \
+      "Length of the ALPN Extension", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_ext_alpn_list,                                      \
+      { "ALPN Protocol", prefix ".handshake.extensions_alpn_list",      \
+      FT_NONE, BASE_NONE, NULL, 0x0,                                    \
+      NULL, HFILL }                                                     \
+    },                                                                  \
+    { & name .hf.hs_ext_alpn_str_len,                                   \
+      { "ALPN string length", prefix ".handshake.extensions_alpn_str_len",             \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of ALPN string", HFILL }                                \
+    },                                                                  \
+    { & name .hf.hs_ext_alpn_str,                                       \
+      { "ALPN Next Protocol", prefix ".handshake.extensions_alpn_str",  \
+        FT_STRING, BASE_NONE, NULL, 0x00,                               \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_npn_str_len,                                    \
+      { "Protocol string length", prefix ".handshake.extensions_npn_str_len",          \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of next protocol string", HFILL }                       \
+    },                                                                  \
+    { & name .hf.hs_ext_npn_str,                                        \
+      { "Next Protocol", prefix ".handshake.extensions_npn",            \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_reneg_info_len,                                 \
+      { "Renegotiation info extension length", prefix ".handshake.extensions_reneg_info_len",  \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_server_name_list_len,                           \
+      { "Server Name list length", prefix ".handshake.extensions_server_name_list_len",    \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of server name list", HFILL }                           \
+    },                                                                  \
+    { & name .hf.hs_ext_server_name_len,                                \
+      { "Server Name length", prefix ".handshake.extensions_server_name_len",          \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of server name string", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_ext_server_name_type,                               \
+      { "Server Name Type", prefix ".handshake.extensions_server_name_type",           \
+        FT_UINT8, BASE_DEC, VALS(tls_hello_ext_server_name_type_vs), 0x0,               \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_server_name,                                    \
+      { "Server Name", prefix ".handshake.extensions_server_name",      \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_type,                                  \
+      { "Certificate Chain Type", prefix ".handshake.cert_url_type",    \
+        FT_UINT8, BASE_DEC, VALS(tls_cert_chain_type), 0x0,             \
+        "Certificate Chain Type for Client Certificate URL", HFILL }    \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_url_hash_list_len,                     \
+      { "URL and Hash list Length", prefix ".handshake.cert_url.url_hash_len",         \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_item,                                  \
+      { "URL and Hash", prefix ".handshake.cert_url.url_hash",          \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_url_len,                               \
+      { "URL Length", prefix ".handshake.cert_url.url_len",             \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_url,                                   \
+      { "URL", prefix ".handshake.cert_url.url_hash_len",               \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        "URL used to fetch the certificate(s)", HFILL }                 \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_padding,                               \
+      { "Padding", prefix ".handshake.cert_url.padding",                \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Padding that MUST be 0x01 for backwards compatibility", HFILL }                \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_url_sha1,                                  \
+      { "SHA1 Hash", prefix ".handshake.cert_url.sha1",                 \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "SHA1 Hash of the certificate", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_status_type,                               \
+      { "Certificate Status Type", prefix ".handshake.extensions_status_request_type", \
+        FT_UINT8, BASE_DEC, VALS(tls_cert_status_type), 0x0,            \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_status_request_len,                        \
+      { "Certificate Status Length", prefix ".handshake.extensions_status_request_len",    \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_status_responder_id_list_len,              \
+      { "Responder ID list Length", prefix ".handshake.extensions_status_request_responder_ids_len",   \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_status_request_extensions_len,             \
+      { "Request Extensions Length", prefix ".handshake.extensions_status_request_exts_len",   \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_sig_hash_alg_len,                                   \
+      { "Signature Hash Algorithms Length", prefix ".handshake.sig_hash_alg_len",      \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of Signature Hash Algorithms", HFILL }                  \
+    },                                                                  \
+    { & name .hf.hs_sig_hash_algs,                                      \
+      { "Signature Hash Algorithms", prefix ".handshake.sig_hash_algs", \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of Signature Hash Algorithms", HFILL }                    \
+    },                                                                  \
+    { & name .hf.hs_sig_hash_alg,                                       \
+      { "Signature Hash Algorithm", prefix ".handshake.sig_hash_alg",   \
+        FT_UINT16, BASE_HEX, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_sig_hash_hash,                                      \
+      { "Signature Hash Algorithm Hash", prefix ".handshake.sig_hash_hash",            \
+        FT_UINT8, BASE_DEC, VALS(tls_hash_algorithm), 0x0,              \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_sig_hash_sig,                                       \
+      { "Signature Hash Algorithm Signature", prefix ".handshake.sig_hash_sig",        \
+        FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,         \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_heartbeat_mode,                                 \
+      { "Mode", prefix ".handshake.extension.heartbeat.mode",           \
+        FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,              \
+        "Heartbeat extension mode", HFILL }                             \
+    }
+
+
+#define SSL_COMMON_ETT_LIST(name)                   \
+        & name .ett.hs_ext,                         \
+        & name .ett.hs_ext_alpn,                    \
+        & name .ett.hs_ext_curves,                  \
+        & name .ett.hs_ext_curves_point_formats,    \
+        & name .ett.hs_ext_npn,                     \
+        & name .ett.hs_ext_reneg_info,              \
+        & name .ett.hs_ext_server_name,             \
+        & name .ett.hs_sig_hash_alg,                \
+        & name .ett.hs_sig_hash_algs,               \
+        & name .ett.urlhash
+
+
+#define SSL_COMMON_EI_LIST(name, prefix)                       \
+        { & name .ei.hs_ext_cert_status_undecoded, { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE,   \
+          "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL }}
+
 
 #ifdef SSL_DECRYPT_DEBUG
 extern void
