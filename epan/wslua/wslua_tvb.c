@@ -259,11 +259,6 @@ static int ByteArray_base64_decode(lua_State* L) {
 
     if (!ba) return 0;
 
-    if (!lua_tvb) {
-        luaL_error(L,"Tvbs can only be created and used in dissectors");
-        return 0;
-    }
-
     ba2 = g_byte_array_new();
     data = (gchar*)g_malloc (ba->len + 1);
     memcpy(data, ba->data, ba->len);
