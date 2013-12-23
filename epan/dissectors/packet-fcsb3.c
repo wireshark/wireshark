@@ -871,7 +871,10 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     }
     else if ((type == FC_SBCCS_IU_CMD_HDR) ||
              (type != FC_SBCCS_IU_CMD_DATA)) {
-        conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+#if 0
+        conversation =
+#endif
+                       conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          PT_SBCCS, ch_cu_id, dev_addr, 0);
 #if 0
         task_key.conv_id = conversation->index;
