@@ -1321,6 +1321,7 @@ static const luaL_Reg ProtoField_methods[] = {
     {"guid",ProtoField_guid},
     {"oid",ProtoField_oid},
     {"rel_oid",ProtoField_rel_oid},
+    {"systemid",ProtoField_systemid},
     { NULL, NULL }
 };
 
