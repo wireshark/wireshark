@@ -55,25 +55,6 @@
 #define OSI_PDU_TYPE_MASK 0x1f
 #define BIS_PDU_TYPE MASK 0xff
 
-
-#define BIT_1   0x01
-#define BIT_2   0x02
-#define BIT_3   0x04
-#define BIT_4   0x08
-#define BIT_5   0x10
-#define BIT_6   0x20
-#define BIT_7   0x40
-#define BIT_8   0x80
-
-#define BIT_9   0x0100
-#define BIT_10  0x0200
-#define BIT_11  0x0400
-#define BIT_12  0x0800
-#define BIT_13  0x1000
-#define BIT_14  0x2000
-#define BIT_15  0x4000
-#define BIT_16  0x8000
-
 /*
  * published API functions
  */
@@ -84,6 +65,9 @@ typedef enum {
 	CKSUM_OK,	/* checksum is OK */
 	CKSUM_NOT_OK	/* checksum is not OK */
 } cksum_status_t;
+
+/* Exposed to be used by packet-osi-options.c */
+extern int  proto_osi;
 
 extern cksum_status_t calc_checksum(tvbuff_t *, int, guint, guint);
 extern cksum_status_t check_and_get_checksum(tvbuff_t *, int, guint, guint, int, guint16*);

@@ -95,15 +95,15 @@
 
 #define OSI_OPT_SEC_MASK                0xc0
 #define OSI_OPT_SEC_RESERVED            0x00
-#define OSI_OPT_SEC_SRC_ADR_SPEC        0x40
-#define OSI_OPT_SEC_DST_ADR_SPEC        0x80
-#define OSI_OPT_SEC_GLOBAL_UNIQUE       0xc0
+#define OSI_OPT_SEC_SRC_ADR_SPEC        0x01
+#define OSI_OPT_SEC_DST_ADR_SPEC        0x02
+#define OSI_OPT_SEC_GLOBAL_UNIQUE       0x03
 
 #define OSI_OPT_QOS_MASK                0xc0
 #define OSI_OPT_QOS_RESERVED            0x00
-#define OSI_OPT_QOS_SRC_ADR_SPEC        0x40
-#define OSI_OPT_QOS_DST_ADR_SPEC        0x80
-#define OSI_OPT_QOS_GLOBAL_UNIQUE       0xc0
+#define OSI_OPT_QOS_SRC_ADR_SPEC        0x01
+#define OSI_OPT_QOS_DST_ADR_SPEC        0x02
+#define OSI_OPT_QOS_GLOBAL_UNIQUE       0x03
 
 #define OSI_OPT_QOS_SUB_MASK            0x3f
 #define OSI_OPT_QOS_SUB_RSVD            0x20
@@ -114,11 +114,11 @@
 #define OSI_OPT_QOS_SUB_RESERR_COST     0x01
 
 #define OSI_OPT_RFD_GENERAL             0x00
-#define OSI_OPT_RFD_ADDRESS             0x80
-#define OSI_OPT_RFD_SOURCE_ROUTING      0x90
-#define OSI_OPT_RFD_LIFETIME            0xa0
-#define OSI_OPT_RFD_PDU_DISCARDED       0xb0
-#define OSI_OPT_RFD_REASSEMBLY          0xc0
+#define OSI_OPT_RFD_ADDRESS             0x08
+#define OSI_OPT_RFD_SOURCE_ROUTING      0x09
+#define OSI_OPT_RFD_LIFETIME            0x0a
+#define OSI_OPT_RFD_PDU_DISCARDED       0x0b
+#define OSI_OPT_RFD_REASSEMBLY          0x0c
 
 #define OSI_OPT_RFD_MASK                0xf0
 #define OSI_OPT_RFD_SUB_MASK            0x0f
@@ -126,6 +126,31 @@
 extern gboolean clnp_decode_atn_options; /* as defined in packet-clnp.c */
 extern int hf_clnp_atntt; /* as defined in packet-clnp.c */
 extern int hf_clnp_atnsc; /* as defined in packet-clnp.c */
+
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_osi_options_address_mask = -1;
+static int hf_osi_options_transit_delay_vs_cost = -1;
+static int hf_osi_options_rtd_general = -1;
+static int hf_osi_options_residual_error_prob_vs_transit_delay = -1;
+static int hf_osi_options_qos_sequencing_vs_transit_delay = -1;
+static int hf_osi_options_rtd_address = -1;
+static int hf_osi_options_congestion_experienced = -1;
+static int hf_osi_options_esct = -1;
+static int hf_osi_options_rtd_reassembly = -1;
+static int hf_osi_options_qos_maintenance = -1;
+static int hf_osi_options_security_type = -1;
+static int hf_osi_options_route_recording = -1;
+static int hf_osi_options_rtd_lifetime = -1;
+static int hf_osi_options_rtd_source_routing = -1;
+static int hf_osi_options_padding = -1;
+static int hf_osi_options_rfd_error_class = -1;
+static int hf_osi_options_snpa_mask = -1;
+static int hf_osi_options_source_routing = -1;
+static int hf_osi_options_priority = -1;
+static int hf_osi_options_qos_reserved = -1;
+static int hf_osi_options_residual_error_prob_vs_cost = -1;
+static int hf_osi_options_rtd_pdu_discarded = -1;
+static int hf_osi_options_rfd_field = -1;
 
 static gint ott_osi_options       = -1;
 static gint ott_osi_qos           = -1;
@@ -195,13 +220,13 @@ static const value_string osi_opt_qos_vals[] = {
   {0,                         NULL}
 };
 
-static const value_string osi_opt_qos_sub_vals[] = {
-  {0x20, " xx10 0000 Reserved"},
-  {0x10, " xx01 0000 Sequencing versus transit delay"},
-  {0x08, " xx00 1000 Congestion experienced"},
-  {0x04, " xx00 0100 Transit delay versus cost"},
-  {0x02, " xx00 0010 Residual error probability versus transit delay"},
-  {0x01, " xx00 0001 Residual error probability versus cost"},
+static const value_string osi_opt_rfd_error_class[] = {
+  {OSI_OPT_RFD_GENERAL, "General"},
+  {OSI_OPT_RFD_ADDRESS, "Address"},
+  {OSI_OPT_RFD_SOURCE_ROUTING, "Source Routing"},
+  {OSI_OPT_RFD_LIFETIME, "Lifetime"},
+  {OSI_OPT_RFD_PDU_DISCARDED, "PDU discarded"},
+  {OSI_OPT_RFD_REASSEMBLY, "Reassembly"},
   {0,    NULL}
 };
 
@@ -252,50 +277,21 @@ static const value_string osi_opt_rfd_reassembly[] = {
 
 
 static void
-dissect_option_qos(const guchar type, const guchar sub_type, int offset,
-                   guchar len, tvbuff_t *tvb, proto_tree *tree)
+dissect_option_qos(const guint8 qos, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  guchar      tmp_type = 0;
   proto_item *ti;
-  proto_tree *osi_qos_tree = NULL;
+  proto_tree *osi_qos_tree;
 
-  ti = proto_tree_add_text(tree, tvb, offset, len,
-                           "Quality of service maintenance: %s",
-                           val_to_str(type, osi_opt_qos_vals, "Unknown (0x%x)"));
-
+  ti = proto_tree_add_item(tree, hf_osi_options_qos_maintenance, tvb, offset, 1, ENC_NA);
   osi_qos_tree = proto_item_add_subtree(ti, ott_osi_qos);
 
-  if ( OSI_OPT_SEC_MASK == type ) { /* Analye BIT field to get all Values */
-    tmp_type = sub_type & OSI_OPT_QOS_SUB_RSVD;
-    if ( tmp_type ) {
-      proto_tree_add_text(osi_qos_tree, tvb, offset, len, "%s",
-                          val_to_str(tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)"));
-    }
-    tmp_type = sub_type & OSI_OPT_QOS_SUB_SEQ_VS_TRS;
-    if ( tmp_type ) {
-      proto_tree_add_text(osi_qos_tree, tvb, offset, len, "%s",
-                          val_to_str(tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)"));
-    }
-    tmp_type = sub_type &OSI_OPT_QOS_SUB_CONG_EXPED;
-    if ( tmp_type ) {
-      proto_tree_add_text(osi_qos_tree, tvb, offset, len, "%s",
-                          val_to_str(tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)"));
-    }
-    tmp_type = sub_type & OSI_OPT_QOS_SUB_TSD_VS_COST;
-    if ( tmp_type ) {
-      proto_tree_add_text(osi_qos_tree, tvb, offset, len, "%s",
-                          val_to_str(tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)"));
-    }
-    tmp_type = sub_type & OSI_OPT_QOS_SUB_RESERR_TRS;
-    if ( tmp_type ) {
-      proto_tree_add_text(osi_qos_tree, tvb, offset, len, "%s",
-                          val_to_str(tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)"));
-    }
-    tmp_type = sub_type & OSI_OPT_QOS_SUB_RESERR_COST;
-    if ( tmp_type ) {
-      proto_tree_add_text(osi_qos_tree, tvb, offset, len, "%s",
-                          val_to_str(tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)"));
-    }
+  if ( ((qos & OSI_OPT_QOS_MASK) >> 6) == OSI_OPT_QOS_GLOBAL_UNIQUE) { /* Analye BIT field to get all Values */
+    proto_tree_add_item(osi_qos_tree, hf_osi_options_qos_reserved, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(osi_qos_tree, hf_osi_options_qos_sequencing_vs_transit_delay, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(osi_qos_tree, hf_osi_options_congestion_experienced, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(osi_qos_tree, hf_osi_options_transit_delay_vs_cost, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(osi_qos_tree, hf_osi_options_residual_error_prob_vs_transit_delay, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(osi_qos_tree, hf_osi_options_residual_error_prob_vs_cost, tvb, offset, 1, ENC_NA);
   }
 }
 
@@ -318,15 +314,15 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
     netl     = tvb_get_guint8(tvb, next_hop + 2);
     this_hop = offset + 2;  /* points to first netl */
 
-    proto_tree_add_text(tree, tvb, offset + next_hop, netl,
-                        "Source Routing: %s   ( Next Hop Highlighted In Data Buffer )",
+    proto_tree_add_uint_format_value(tree, hf_osi_options_source_routing, tvb, offset + next_hop, netl,
+                        tvb_get_guint8(tvb, offset), "%s   ( Next Hop Highlighted In Data Buffer )",
                         (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
                                                              "Complete Source Routing");
   }
   else if ( parm_type == OSI_OPT_RECORD_OF_ROUTE ) {
     crr = tvb_get_guint8(tvb, offset);
     last_hop = tvb_get_guint8(tvb, offset + 1);
-    ti = proto_tree_add_text(tree, tvb, offset, parm_len, "Route Recording: %s ",
+    ti = proto_tree_add_uint_format_value(tree, hf_osi_options_route_recording, tvb, offset, parm_len, crr, "%s ",
                              (crr == 0) ? "Partial Route Recording" :
                                           "Complete Route Recording");
     osi_route_tree = proto_item_add_subtree(ti, ott_osi_route);
@@ -372,53 +368,34 @@ static void
 dissect_option_rfd(const guchar error, const guchar field, int offset,
                    guchar len, tvbuff_t *tvb, proto_tree *tree )
 {
-  guchar error_class = 0;
-  static const char *format_string[] = {
-    "Reason for discard {General}        : %s, in field %u",
-    "Reason for discard {Address}        : %s, in field %u",
-    "Reason for discard {Source Routing} : %s, in field %u",
-    "Reason for discard {Lifetime}       : %s, in field %u",
-    "Reason for discard {PDU discarded}  : %s, in field %u",
-    "Reason for discard {Reassembly}     : %s, in field %u"
-  };
+  proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset + field, 1, ENC_NA);
 
-  error_class = error & OSI_OPT_RFD_MASK;
-  tvb_ensure_bytes_exist(tvb, offset + field, 1);
-
-  if ( OSI_OPT_RFD_GENERAL == error_class ) {
-    proto_tree_add_text(tree, tvb, offset + field, 1, format_string[0],
-                        val_to_str(error & OSI_OPT_RFD_SUB_MASK,
-                                   osi_opt_rfd_general, "Unknown (0x%x)"),
-                        field);
-  } else if ( OSI_OPT_RFD_ADDRESS == error_class ) {
-    proto_tree_add_text(tree, tvb, offset + field, 1, format_string[1],
-                        val_to_str(error & OSI_OPT_RFD_SUB_MASK,
-                                   osi_opt_rfd_address, "Unknown (0x%x)"),
-                        field);
-  } else if ( OSI_OPT_RFD_SOURCE_ROUTING == error_class ) {
-    proto_tree_add_text(tree, tvb, offset + field, 1, format_string[2],
-                        val_to_str(error & OSI_OPT_RFD_SUB_MASK,
-                                   osi_opt_rfd_src_route, "Unknown (0x%x)"),
-                        field);
-  } else if ( OSI_OPT_RFD_LIFETIME == error_class ) {
-    proto_tree_add_text(tree, tvb, offset + field, 1, format_string[3],
-                        val_to_str(error & OSI_OPT_RFD_SUB_MASK,
-                                   osi_opt_rfd_lifetime, "Unknown (0x%x)"),
-                        field);
-  } else if ( OSI_OPT_RFD_PDU_DISCARDED == error_class ) {
-    proto_tree_add_text(tree, tvb, offset + field, 1, format_string[4],
-                        val_to_str(error & OSI_OPT_RFD_SUB_MASK,
-                                   osi_opt_rfd_discarded, "Unknown (0x%x)"),
-                        field);
-  } else if ( OSI_OPT_RFD_REASSEMBLY == error_class ) {
-    proto_tree_add_text(tree, tvb, offset + field, 1, format_string[5],
-                        val_to_str(error & OSI_OPT_RFD_SUB_MASK,
-                                   osi_opt_rfd_reassembly, "Unknown (0x%x)"),
-                        field);
-  } else {
+  switch ((error & OSI_OPT_RFD_MASK) >> 4)
+  {
+  case OSI_OPT_RFD_GENERAL:
+    proto_tree_add_item(tree, hf_osi_options_rtd_general, tvb, offset + field, 1, ENC_NA);
+  break;
+  case OSI_OPT_RFD_ADDRESS:
+    proto_tree_add_item(tree, hf_osi_options_rtd_address, tvb, offset + field, 1, ENC_NA);
+  break;
+  case OSI_OPT_RFD_SOURCE_ROUTING:
+    proto_tree_add_item(tree, hf_osi_options_rtd_source_routing, tvb, offset + field, 1, ENC_NA);
+  break;
+  case OSI_OPT_RFD_LIFETIME:
+    proto_tree_add_item(tree, hf_osi_options_rtd_lifetime, tvb, offset + field, 1, ENC_NA);
+  break;
+  case OSI_OPT_RFD_PDU_DISCARDED:
+    proto_tree_add_item(tree, hf_osi_options_rtd_pdu_discarded, tvb, offset + field, 1, ENC_NA);
+  break;
+  case OSI_OPT_RFD_REASSEMBLY:
+    proto_tree_add_item(tree, hf_osi_options_rtd_reassembly, tvb, offset + field, 1, ENC_NA);
+  break;
+  default:
     proto_tree_add_text(tree, tvb, offset, len,
                         "Reason for discard: UNKNOWN Error Class");
   }
+
+  proto_tree_add_item(tree, hf_osi_options_rfd_field, tvb, offset + 1, 1, ENC_NA);
 }
 
 /* dissect ATN security label used for policy based interdomain routing.*/
@@ -554,9 +531,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
       switch ( parm_type ) {
         case OSI_OPT_QOS_MAINTANANCE:
           octet = tvb_get_guint8(tvb, offset);
-          dissect_option_qos((guchar)(octet & OSI_OPT_QOS_MASK),
-                             (guchar)(octet&OSI_OPT_QOS_SUB_MASK),
-                             offset, parm_len, tvb, osi_option_tree);
+          dissect_option_qos(octet, osi_option_tree, tvb, offset);
           break;
 
         case OSI_OPT_SECURITY:
@@ -565,48 +540,41 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
             dissect_option_atn_security_label(octet,parm_len,tvb, offset,
                                               osi_option_tree);
           } else {
-            proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                                "Security type: %s",
-                                val_to_str(octet&OSI_OPT_SEC_MASK,
-                                           osi_opt_sec_vals, "Unknown (0x%x)"));
+            ti = proto_tree_add_item(osi_option_tree, hf_osi_options_security_type, tvb, offset, 1, ENC_NA);
+            proto_item_set_len(ti, parm_len);
           }
           break;
 
         case OSI_OPT_PRIORITY:
           octet = tvb_get_guint8(tvb, offset);
           if ( OSI_OPT_MAX_PRIORITY >= octet ) {
-            proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                                "Priority    : %u", octet);
+            ti = proto_tree_add_item(osi_option_tree, hf_osi_options_priority, tvb, offset, 1, ENC_NA);
           } else {
-            proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                                "Priority    : %u ( Invalid )", octet);
+            ti = proto_tree_add_uint_format_value(osi_option_tree, hf_osi_options_priority, tvb, offset, 1,
+                                octet, "%u ( Invalid )", octet);
           }
+          proto_item_set_len(ti, parm_len);
           break;
 
         case OSI_OPT_ADDRESS_MASK:
-          proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                              "Address Mask: %s",
+          proto_tree_add_bytes_format_value(osi_option_tree, hf_osi_options_address_mask, tvb, offset, parm_len,
+                              tvb_get_ptr(tvb, offset, parm_len), "%s",
                               print_area(tvb_get_ptr(tvb, offset, parm_len),
                                          parm_len));
           break;
 
         case OSI_OPT_SNPA_MASK:
-          proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                              "SNPA Mask   : %s",
-                              print_system_id(tvb_get_ptr(tvb, offset,
-                                                          parm_len),
-                                              parm_len));
+          proto_tree_add_bytes_format(osi_option_tree, hf_osi_options_snpa_mask, tvb, offset, parm_len,
+                              tvb_get_ptr(tvb, offset, parm_len), "%s",
+                              print_system_id(tvb_get_ptr(tvb, offset, parm_len), parm_len));
           break;
 
         case OSI_OPT_ES_CONFIG_TIMER:
-          proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                              "ESCT     : %u seconds",
-                              tvb_get_ntohs(tvb, offset));
-          break;
+          ti = proto_tree_add_item(osi_option_tree, hf_osi_options_esct, tvb, offset, 2, ENC_BIG_ENDIAN);
+          proto_item_set_len(ti, parm_len);          break;
 
         case OSI_OPT_PADDING:
-          proto_tree_add_text(osi_option_tree, tvb, offset, parm_len,
-                              "Padding  : %u Octets", parm_len);
+          proto_tree_add_item(osi_option_tree, hf_osi_options_padding, tvb, offset, parm_len, ENC_NA);
           break;
 
         case OSI_OPT_SOURCE_ROUTING:
@@ -647,12 +615,43 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 void
 proto_register_osi_options(void) {
+
+  static hf_register_info hf[] =
+  {
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_osi_options_qos_maintenance, { "Quality of service maintenance", "osi.options.qos.maintenance", FT_UINT8, BASE_DEC, VALS(osi_opt_qos_vals), OSI_OPT_QOS_MASK, NULL, HFILL }},
+      { &hf_osi_options_qos_reserved, { "Reserved", "osi.options.qos.reserved", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_RSVD, NULL, HFILL }},
+      { &hf_osi_options_qos_sequencing_vs_transit_delay, { "Sequencing versus transit delay", "osi.options.qos.seq_vs_trs", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_SEQ_VS_TRS, NULL, HFILL }},
+      { &hf_osi_options_congestion_experienced, { "Congestion experienced", "osi.options.qos.cong_exped", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_CONG_EXPED, NULL, HFILL }},
+      { &hf_osi_options_transit_delay_vs_cost, { "Transit delay versus cost", "osi.options.qos.tsd_vs_cost", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_TSD_VS_COST, NULL, HFILL }},
+      { &hf_osi_options_residual_error_prob_vs_transit_delay, { "Residual error probability versus transit delay", "osi.options.qos.reserror_trs", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_RESERR_TRS, NULL, HFILL }},
+      { &hf_osi_options_residual_error_prob_vs_cost, { "Residual error probability versus cost", "osi.options.qos.reserror_cost", FT_BOOLEAN, 8, NULL, OSI_OPT_QOS_SUB_RESERR_COST, NULL, HFILL }},
+      { &hf_osi_options_source_routing, { "Source Routing", "osi.options.source_routing", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_route_recording, { "Route Recording", "osi.options.route_recording", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_rfd_error_class, { "Error Class", "osi.options.rfd.error_class", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_error_class), OSI_OPT_RFD_MASK, NULL, HFILL }},
+      { &hf_osi_options_rtd_general, { "Reason for discard {General}", "osi.options.rtd_general", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_general), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
+      { &hf_osi_options_rtd_address, { "Reason for discard {Address}", "osi.options.rtd_address", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_address), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
+      { &hf_osi_options_rtd_source_routing, { "Reason for discard {Source Routing}", "osi.options.rtd_source_routing", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_src_route), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
+      { &hf_osi_options_rtd_lifetime, { "Reason for discard {Lifetime}", "osi.options.rtd_lifetime", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_lifetime), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
+      { &hf_osi_options_rtd_pdu_discarded, { "Reason for discard {PDU discarded}", "osi.options.rtd_pdu_discarded", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_discarded), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
+      { &hf_osi_options_rtd_reassembly, { "Reason for discard {Reassembly}", "osi.options.rtd_reassembly", FT_UINT8, BASE_DEC, VALS(osi_opt_rfd_reassembly), OSI_OPT_RFD_SUB_MASK, NULL, HFILL }},
+      { &hf_osi_options_rfd_field, { "Field", "osi.options.rfd.field", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_security_type, { "Security type", "osi.options.security_type", FT_UINT8, BASE_DEC, VALS(osi_opt_sec_vals), OSI_OPT_SEC_MASK, NULL, HFILL }},
+      { &hf_osi_options_priority, { "Priority", "osi.options.priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_address_mask, { "Address Mask", "osi.options.address_mask", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_snpa_mask, { "SNPA Mask", "osi.options.snpa_mask", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_esct, { "ESCT (seconds)", "osi.options.esct", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_osi_options_padding, { "Padding", "osi.options.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+  };
+
   static gint *ott[] = {
     &ott_osi_options,
     &ott_osi_qos,
     &ott_osi_route,
     &ott_osi_redirect
   };
+
+  proto_register_field_array(proto_osi, hf, array_length(hf));
   proto_register_subtree_array(ott, array_length(ott));
 }
 

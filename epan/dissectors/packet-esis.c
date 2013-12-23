@@ -321,9 +321,9 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                 ehdr.esis_type,
                                 pdu_type_format_string,
                                 pdu_type_string,
-                                (ehdr.esis_type&BIT_8) ? "1" : "0",
-                                (ehdr.esis_type&BIT_7) ? "1" : "0",
-                                (ehdr.esis_type&BIT_6) ? "1" : "0");
+                                (ehdr.esis_type&0x80) ? "1" : "0",
+                                (ehdr.esis_type&0x40) ? "1" : "0",
+                                (ehdr.esis_type&0x20) ? "1" : "0");
 
     tmp_uint = pntoh16( ehdr.esis_holdtime );
     proto_tree_add_uint_format_value(esis_tree, hf_esis_holdtime, tvb, 5, 2,
