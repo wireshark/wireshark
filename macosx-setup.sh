@@ -852,7 +852,7 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     # And, what's worse, at least with the version of Xcode that comes
     # with Leopard, /usr/include/ffi/fficonfig.h doesn't define MACOSX,
     # which causes the build of GLib to fail.  If we don't find
-    # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explictly
+    # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explicitly
     # define it.
     #
     # While we're at it, suppress -Wformat-nonliteral to avoid a case

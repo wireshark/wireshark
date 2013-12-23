@@ -97,7 +97,7 @@ wspstat_reset(void *psp)
  * the window to be redrawn, return 1 and (*draw) will be called sometime
  * later.
  *
- * We didnt apply a filter when we registered so we will be called for
+ * We didn't apply a filter when we registered so we will be called for
  * ALL packets and not just the ones we are collecting stats for.
  *
  */

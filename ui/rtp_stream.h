@@ -94,7 +94,7 @@ typedef struct _rtpstream_tapinfo {
     int     nstreams;                      /**< number of streams in the list */
     GList*  strinfo_list;                  /**< list with all streams */
     int     npackets;                      /**< total number of rtp packets of all streams */
-    /* used while tapping. user shouldnt modify these */
+    /* used while tapping. user shouldn't modify these */
     tap_mode_t mode;
     rtp_stream_info_t* filter_stream_fwd;  /**< used as filter in some tap modes */
     rtp_stream_info_t* filter_stream_rev;  /**< used as filter in some tap modes */

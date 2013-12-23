@@ -302,7 +302,7 @@
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
-        <source>Field occurence</source>
+        <source>Field occurrence</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

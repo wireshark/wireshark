@@ -255,7 +255,7 @@ void echld_initialize(echld_init_t* init) {
 
 			echld_dispatcher_start(to_disp,from_disp,init->argv0,init->main);
 
-			PARENT_FATAL((SHOULD_HAVE_EXITED_BEFORE,"This shoudln't happen"));
+			PARENT_FATAL((SHOULD_HAVE_EXITED_BEFORE,"This shouldn't happen"));
 		} else {
 			/* parent code */
 	#ifdef PARENT_THREADS

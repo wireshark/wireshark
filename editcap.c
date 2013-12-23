@@ -602,7 +602,7 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
      * in strict chronologically increasing order (which is NOT
      * always the case!!).
      *
-     * The fd_hash[] table was deliberatly created large (1,000,000).
+     * The fd_hash[] table was deliberately created large (1,000,000).
      * Looking for time related duplicates in large trace files with
      * non-fractional dup time window values can potentially take
      * a long time to complete.

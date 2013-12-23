@@ -188,7 +188,7 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 		/* Detect ongoing package hits, special behavior if start is set to 0 */
 		if((cs->last_hit||(compare_start==0))&&(cs->start_ongoing_hits<compare_start||(compare_start==0))){
 			if((compare_start==0)&&(cs->start_ongoing_hits!=0)){
-				/* start from the first packet so allready set */
+				/* start from the first packet so already set */
 			} else {
 				cs->start_ongoing_hits++;
 				/* Take the lower number */
@@ -449,7 +449,7 @@ comparestat_draw(void *prs)
 	const gchar *statis_string;
 	guint32 first_file_amount, second_file_amount;
 
-	/* inital steps, clear all data before start*/
+	/* initial steps, clear all data before start*/
 	cs->zebra_time.secs=0;
 	cs->zebra_time.nsecs=1;
 	nstime_set_unset(&cs->current_time);

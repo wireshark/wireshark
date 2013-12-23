@@ -999,7 +999,7 @@ dialog_graph_draw(user_data_t* user_data)
 	 * so we know how large arrays we need to malloc()
 	 */
 	num_time_intervals = user_data->dlg.dialog_graph.num_items;
-	/* if there isnt anything to do, just return */
+	/* if there isn't anything to do, just return */
 	if (num_time_intervals == 0) {
 		return;
 	}

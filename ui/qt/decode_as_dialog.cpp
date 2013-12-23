@@ -358,7 +358,7 @@ void DecodeAsDialog::fillTypeColumn(QTreeWidgetItem *item)
             type_desc.append("16");
             break;
         default:
-            type_desc.append(tr("unkown"));
+            type_desc.append(tr("unknown"));
         }
         item->setText(type_col_, type_desc);
     }

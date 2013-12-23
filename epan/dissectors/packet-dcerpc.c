@@ -5010,7 +5010,7 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             gboolean try_desegment = FALSE;
             if (dcerpc_cn_desegment && pinfo->can_desegment &&
                     !tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t))) {
-                /* look for a previous occurence of the DCE-RPC protocol */
+                /* look for a previous occurrence of the DCE-RPC protocol */
                 wmem_list_frame_t *cur;
                 cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
                 while (cur != NULL) {

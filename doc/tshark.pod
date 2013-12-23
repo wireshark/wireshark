@@ -994,7 +994,7 @@ display the contents of a TCP stream between 200.57.7.197 port 32891 and
 
   ===================================================================
   Follow: tcp,ascii
-  Filter: (ommitted for readability)
+  Filter: (omitted for readability)
   Node 0: 200.57.7.197:32891
   Node 1: 200.57.7.198:2906
   38

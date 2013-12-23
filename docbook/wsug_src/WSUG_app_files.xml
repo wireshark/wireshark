@@ -628,7 +628,7 @@ version=1
 url_template=http://${language}.wikipedia.org/wiki/${PATH}
 
 # Substitution data for the location template.
-# Each occurence of the keys below in the location template will be
+# Each occurrence of the keys below in the location template will be
 # substituted with their corresponding values. For example, "${license}"
 # in the URL template above will be replaced with the value of "license"
 # below.

@@ -436,7 +436,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_link_lb);
 	row++;
 
-	/* create "Promiscous Mode" label and button */
+	/* create "Promiscuous Mode" label and button */
 	col_pmode_cb = gtk_check_button_new();
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_pmode_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("PMODE"))
@@ -445,7 +445,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_pmode_cb), FALSE);
 	gtk_widget_show(col_pmode_cb);
 
-	col_pmode_lb = gtk_label_new("Promiscous Mode");
+	col_pmode_lb = gtk_label_new("Promiscuous Mode");
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_pmode_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_pmode_lb), 0, 0.5f);
 	gtk_widget_show(col_pmode_lb);

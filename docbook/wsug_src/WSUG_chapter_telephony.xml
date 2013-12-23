@@ -86,7 +86,7 @@
 
     <para>
       At the top, the check-box allows this window to include RLC PDUs found
-      withing MAC PDUs or not.  This will affect both the PDUs counted as well
+      within MAC PDUs or not.  This will affect both the PDUs counted as well
       as the display filters generated (see below).
     </para>
 

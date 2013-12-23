@@ -47,7 +47,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Field occurence</string>
+       <string>Field occurrence</string>
       </property>
      </column>
     </widget>

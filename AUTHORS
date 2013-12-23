@@ -2219,7 +2219,7 @@ Carlos Pignataro        <cpignata[AT]cisco.com> {
 	Other LDP enhancements
 	PPP OSI Network Layer Control Protocol [RFC1377]
 	Fix dissecting of CLNS Protocols over Cisco HDLC
-	PWE3 Interface parameter additions and miscelaneous updates
+	PWE3 Interface parameter additions and miscellaneous updates
 	    from various IETF PWE3 drafts
 	MPLS PW Control Channel Header
 	Multiprotocol Label Switching Echo [draft-ietf-mpls-lsp-ping-05]
@@ -3414,7 +3414,7 @@ Andrew Williams		<anwilli5[AT]ncsu.edu> {
 }
 
 Per Liedberg		<per.liedberg[AT]ericsson.com> {
-	RoHC dissection improvments
+	RoHC dissection improvements
 }
 
 Gaurav Tungatkar	<gauravstt[AT]gmail.com> {

@@ -634,7 +634,7 @@ parse_preamble (void)
     timecode = timecode_default;
     ts_usec = 0;
 
-    /* Ensure preamble has more than two chars before atempting to parse.
+    /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
      */
     if ( strlen(packet_preamble) > 2 ) {

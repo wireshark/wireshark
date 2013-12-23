@@ -34,7 +34,7 @@ Capture Filter Syntax
 ---------------------
 The following is a short description of the capture filter language syntax. For a further reference, have a look at: http://www.tcpdump.org/tcpdump_man.html
 
-A capture filter takes the form of a series of primitive expressions, connected by conjunctions (and/or) and optionally preceeded by not:
+A capture filter takes the form of a series of primitive expressions, connected by conjunctions (and/or) and optionally preceded by not:
 
 [not] primitive [and|or [not] primitive ...]
 
@@ -42,7 +42,7 @@ A primitive is simply one of the following:
 
 [src|dst] host <host>
 
-This primitive allows you to filter on a host IP address or name. You can optionally preceed the primitive with the keyword src|dst to specify that you are only interested in source or destination addresses. If these are not present, packets where the specified address appears as either the source or the destination address will be selected.
+This primitive allows you to filter on a host IP address or name. You can optionally precede the primitive with the keyword src|dst to specify that you are only interested in source or destination addresses. If these are not present, packets where the specified address appears as either the source or the destination address will be selected.
 
 ether [src|dst] host <ehost>
 
@@ -54,11 +54,11 @@ This primitive allows you to filter on packets that used host as a gateway. That
 
 [src|dst] net <net> [{mask <mask>}|{len <len>}]
 
-This primitive allows you to filter on network numbers. You can optionally preceed this primitive with the keyword src|dst to specify that you are only interested in a source or destination network. If neither of these are present, packets will be selected that have the specified network in either the source or destination address. In addition, you can specify either the netmask or the CIDR (Classless Inter-Domain Routing) prefix for the network if they are different from your own.
+This primitive allows you to filter on network numbers. You can optionally precede this primitive with the keyword src|dst to specify that you are only interested in a source or destination network. If neither of these are present, packets will be selected that have the specified network in either the source or destination address. In addition, you can specify either the netmask or the CIDR (Classless Inter-Domain Routing) prefix for the network if they are different from your own.
 
 [tcp|udp] [src|dst] port <port>
 
-This primitive allows you to filter on TCP and UDP port numbers. You can optionally preceed this primitive with the keywords src|dst and tcp|udp which allow you to specify that you are only interested in source or destination ports and TCP or UDP packets respectively. The keywords tcp|udp must appear before src|dst.
+This primitive allows you to filter on TCP and UDP port numbers. You can optionally precede this primitive with the keywords src|dst and tcp|udp which allow you to specify that you are only interested in source or destination ports and TCP or UDP packets respectively. The keywords tcp|udp must appear before src|dst.
 If these are not specified, packets will be selected for both the TCP and UDP protocols and when the specified address appears in either the source or destination port field.
 
 less|greater <length>

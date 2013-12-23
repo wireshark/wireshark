@@ -2287,7 +2287,7 @@ rtp_player_on_destroy(GObject *object _U_, gpointer user_data _U_)
 	PaError err;
 	GtkWidget *dialog;
 
-	/* Stop the channels if necesary */
+	/* Stop the channels if necessary */
 	if(rtp_channels && (!rtp_channels->stop)){
 		stop_channels();
 	}

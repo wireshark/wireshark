@@ -25,7 +25,7 @@
 /*
  * This TAP enables extraction of most important diameter fields in text format.
  * - much more performance than -T text and -T pdml
- * - more powerfull than -T field and -z proto,colinfo
+ * - more powerful than -T field and -z proto,colinfo
  * - exacltly one text line per diameter message
  * - multiple diameter messages in one frame supported
  *   E.g. one device watchdog answer and two credit control answers

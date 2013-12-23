@@ -313,7 +313,7 @@ static int get_freq_wext(const char *ifname)
 {
 	int fd;
 	int ret = -1;
-	/* Ugly hack to avoid incuding wireless.h */
+	/* Ugly hack to avoid including wireless.h */
 	struct {
 		char name1[IFNAMSIZ];
 		__s32 m;

@@ -155,7 +155,7 @@ gpointer    dest_memory_addr;
 			continue;
 		}
 		/* 2. data chunk overlaps the first part of free_chunk */
-		/* -> free chunk shrinks from the beggining */
+		/* -> free chunk shrinks from the beginning */
 		if (chunk_offset<=current_free_chunk->start_offset && chunk_end_offset>=current_free_chunk->start_offset && chunk_end_offset<current_free_chunk->end_offset) {
 			file->data_gathered += chunk_end_offset-current_free_chunk->start_offset+1;
 			current_free_chunk->start_offset=chunk_end_offset+1;

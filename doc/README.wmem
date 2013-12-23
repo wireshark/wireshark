@@ -108,7 +108,7 @@ wmem_stack.h
 wmem_tree.h
  - A balanced binary tree (red-black tree) implementation.
 
-2.2.4 Miscellanious Utilities
+2.2.4 Miscellaneous Utilities
 
 wmem_miscutl.h
  - Misc. utility functions like memdup.

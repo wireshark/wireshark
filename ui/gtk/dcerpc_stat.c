@@ -485,7 +485,7 @@ dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data
 	/* searching for the next one we are only interested in those
 	   that sorts alphabetically after the current one */
 	if(strcmp(current_uuid_value->name, v->name) >= 0){
-		/* this one doesnt so just skip it */
+		/* this one doesn't so just skip it */
 		return;
 	}
 

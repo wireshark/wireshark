@@ -65,7 +65,8 @@ parse_http_header(char *data, size_t len, size_t *content_start)
      * In order to parse header, we duplicate data and tokenize lines.
      * We aren't interested in actual data, so use g_strndup instead of memcpy
      * to (possibly) copy fewer bytes (e.g., if a nul byte exists in data)
-     * This also ensures that we have a terminated string for futher processing.
+     * This also ensures that we have a terminated string for further
+     * processing.
      */
     tmp = copy = g_strndup(data, len);
     if (!tmp) {

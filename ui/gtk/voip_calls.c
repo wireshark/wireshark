@@ -1558,7 +1558,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 				}
 
 				/* check if there is an LRQ/LCF that match this Setup */
-				/* TODO: we are just checking the DialedNumer in LRQ/LCF agains the Setup
+				/* TODO: we are just checking the DialedNumer in LRQ/LCF against the Setup
 					we should also check if the h225 signaling IP and port match the destination
 					Setup ip and port */
 				list = g_list_first(tapinfo->callsinfo_list);

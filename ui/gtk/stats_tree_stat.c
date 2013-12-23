@@ -80,7 +80,7 @@ struct _tree_pres {
 
 /* Define fixed column indexes */
 #define	NODEPTR_COLUMN	0		/* Always first column */
-#define	N_RESERVED_COL	1		/* Number of columns for internal use - added before visable cols */
+#define	N_RESERVED_COL	1		/* Number of columns for internal use - added before visible cols */
 
 
 static void

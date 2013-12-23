@@ -5595,7 +5595,7 @@ int QCPAxis::calculateAutoSubTickCount(double tickStep) const
         case 9: result = 4; break; // 9.5 -> 1.9 substep
       }
     }
-    // if mantissa fraction isnt 0.0 or 0.5, don't bother finding good sub tick marks, leave default
+    // if mantissa fraction isn't 0.0 or 0.5, don't bother finding good sub tick marks, leave default
   }
 
   return result;
@@ -6313,7 +6313,7 @@ int QCPAxis::calculateMargin()
   if (mCachedMarginValid)
     return mCachedMargin;
 
-  // run through similar steps as QCPAxis::draw, and caluclate margin needed to fit axis and its labels
+  // run through similar steps as QCPAxis::draw, and calculate margin needed to fit axis and its labels
   int margin = 0;
 
   if (mVisible)
@@ -10415,7 +10415,7 @@ void QCustomPlot::draw(QCPPainter *painter)
   the viewport with the provided \a painter. The scaled version is buffered in
   mScaledBackgroundPixmap to prevent expensive rescaling at every redraw. It is only updated, when
   the axis rect has changed in a way that requires a rescale of the background pixmap (this is
-  dependant on the \ref setBackgroundScaledMode), or when a differend axis backgroud pixmap was
+  dependent on the \ref setBackgroundScaledMode), or when a different axis background pixmap was
   set.
 
   Note that this function does not draw a fill with the background brush (\ref setBackground(const
@@ -17364,7 +17364,7 @@ void QCPAxisRect::setRangeZoomFactor(double factor)
   the axis rect with the provided \a painter. The scaled version is buffered in
   mScaledBackgroundPixmap to prevent expensive rescaling at every redraw. It is only updated, when
   the axis rect has changed in a way that requires a rescale of the background pixmap (this is
-  dependant on the \ref setBackgroundScaledMode), or when a differend axis backgroud pixmap was
+  dependent on the \ref setBackgroundScaledMode), or when a different axis background pixmap was
   set.
 
   \see setBackground, setBackgroundScaled, setBackgroundScaledMode
@@ -17528,7 +17528,7 @@ void QCPAxisRect::mouseReleaseEvent(QMouseEvent *event)
   Event handler for mouse wheel events. If rangeZoom is Qt::Horizontal, Qt::Vertical or both, the
   ranges of the axes defined as rangeZoomHorzAxis and rangeZoomVertAxis are scaled. The center of
   the scaling operation is the current cursor position inside the axis rect. The scaling factor is
-  dependant on the mouse wheel delta (which direction the wheel was rotated) to provide a natural
+  dependent on the mouse wheel delta (which direction the wheel was rotated) to provide a natural
   zooming feel. The Strength of the zoom can be controlled via \ref setRangeZoomFactor.
 
   Note, that event->delta() is usually +/-120 for single rotation steps. However, if the mouse
@@ -18241,7 +18241,7 @@ bool QCPLegend::hasItemWithPlottable(const QCPAbstractPlottable *plottable) cons
 /*!
   Adds \a item to the legend, if it's not present already.
 
-  Returns true on sucess, i.e. if the item wasn't in the list already and has been successfuly added.
+  Returns true on success, i.e. if the item wasn't in the list already and has been successfuly added.
 
   The legend takes ownership of the item.
 */

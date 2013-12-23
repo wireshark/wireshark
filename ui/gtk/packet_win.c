@@ -953,7 +953,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 		return;
 	}
 
-	/* With the new packetlists "lazy columns" it's neccesary to reread the frame */
+	/* With the new packetlists "lazy columns" it's necessary to reread the frame */
 	if (!cf_read_frame(&cfile, fd)) {
 		/* error reading the frame */
 		return;

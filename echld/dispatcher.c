@@ -618,7 +618,7 @@ void dispatcher_reaper(int sig) {
 		return;
 	}
 
-	dispatcher_err(ECHLD_ERR_UNKNOWN_PID, "Unkown child pid: %d", pid);
+	dispatcher_err(ECHLD_ERR_UNKNOWN_PID, "Unknown child pid: %d", pid);
 	dispatcher->reqh_id = reqh_id_save;
 }
 

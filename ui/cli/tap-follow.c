@@ -496,7 +496,7 @@ followDraw(
   void *        contextp
   )
 {
-  static const char     seperator[] =
+  static const char     separator[] =
     "===================================================================\n";
 
   follow_t *            fp      = (follow_t *)contextp;
@@ -586,7 +586,7 @@ followDraw(
     port[1] = fp->port[0];
   }
 
-  printf("\n%s", seperator);
+  printf("\n%s", separator);
   printf("Follow: %s,%s\n", followStrType(fp), followStrMode(fp));
   printf("Filter: %s\n", followStrFilter(fp));
 
@@ -716,7 +716,7 @@ followDraw(
 
 done:
 
-  printf("%s", seperator);
+  printf("%s", separator);
 
   followFileClose(fp);
 }

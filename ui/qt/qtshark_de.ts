@@ -237,7 +237,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Field occurence</source>
+        <source>Field occurrence</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

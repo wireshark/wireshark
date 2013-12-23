@@ -129,7 +129,7 @@ the former __index/__newindex metamethod model does not.  Both models are
 fairly common in Lua APIs, although having a mixture of both in the same API
 probably isn't.  There is even a third model in use: pre-loading the member
 fields of the class table with the values, instead of waiting for the Lua
-script to access a particular one to retrieve it; for exmaple the Listener tap
+script to access a particular one to retrieve it; for example the Listener tap
 extractors table is pre-populated (see files 'wslua_listener.c' and 'taps'
 which through the make-taps.pl perl script creates 'taps_wslua.c').  The
 downside of that approach is the performance impact, filling fields the Lua
@@ -392,7 +392,7 @@ Example:
 WSLUA_ERROR - this C macro takes arguments, and expands to call luaL_error()
 using them, and returns 0.  The arguments it takes is the full function name
 and a string describing the error.  For documentation, it uses the string
-arguement and displays it with the function it's associated to.
+argument and displays it with the function it's associated to.
 
 Example:
     if (!wtap_dump_can_write_encap(filetype, encap))

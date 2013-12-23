@@ -542,7 +542,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	/* If the first one is 65535 we wrap */
 	else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
 		statinfo->seq_num = rtpinfo->info_seq_num;
-	/* Lost packets. If the prev seq is enourmously larger than the cur seq
+	/* Lost packets. If the prev seq is enormously larger than the cur seq
 	 * we assume that instead of being massively late we lost the packet(s)
 	 * that would have indicated the sequence number wrapping. An imprecise
 	 * heuristic at best, but it seems to work well enough.
