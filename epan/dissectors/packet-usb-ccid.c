@@ -451,17 +451,14 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     /* sent/received is from the perspective of the card reader */
                     pinfo->p2p_dir = P2P_DIR_SENT;
                     call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
-                }
-
-                /* The user probably wanted GSM SIM, or something else */
-                else {
+                } else { /* The user probably wanted GSM SIM, or something else */
                     call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
                 }
 
-            }
-
-            /* The user only wants plain data */
-            else {
+            } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
+                    pinfo->p2p_dir = P2P_DIR_SENT;
+                    call_dissector_with_data(sub_handles[SUB_ACR122_PN532], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
+            } else { /* The user only wants plain data */
                 call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
             }
         }
@@ -494,6 +491,9 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             } else if (sub_selected == SUB_ISO7816) {
                 pinfo->p2p_dir = P2P_DIR_RECV;
                 call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
+            } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
+                pinfo->p2p_dir = P2P_DIR_RECV;
+                call_dissector_with_data(sub_handles[SUB_ACR122_PN532], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
             } else {
                 call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
             }
