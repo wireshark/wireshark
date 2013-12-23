@@ -1416,17 +1416,77 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, gboolean *calculated)
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
+                                tvbuff_t *tvb, gint offset, gboolean *calculated)
 {
+    *calculated = FALSE;
+
     switch (pdu_security_settings->integrity) {
         case eia0:
             /* Should be zero in this case */
             *calculated = TRUE;
             return 0;
         case eia2:
-            /* TODO: calculate AES case */
-            *calculated = FALSE;
-            return 0;
+            {
+#if 0
+                gcry_cipher_hd_t cypher_hd;
+                int gcrypt_err;
+                gint message_length;
+                guint8 *message_data;
+                guint32 mac;
+                guint8 *p_mac = (guint8*)&mac;
+
+                if (!pdu_security_settings->valid) {
+                    return 0;
+                }
+            
+                /* Only EIA2 supported at the moment */
+                if (pdu_security_settings->integrity != eia2) {
+                    return 0;
+                }
+
+                /* Can only do if indicated in preferences */
+                if (!global_pdcp_check_integrity) {
+                    return 0;
+                }
+
+                /* Open gcrypt handle */
+                /* N.B. Unfortunately GCRY_MAC_CMAC_AES is not available in currently used version of gcrypt! */
+                gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_MAC_CMAC_AES, 0);
+                if (gcrypt_err != 0) {
+                    return 0;
+                }
+
+                /* Set the key */
+                gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->integrityKey, 16);
+                if (gcrypt_err != 0) {
+                    return 0;
+                }
+
+                /* Extract the encrypted data into a buffer */
+                message_length = tvb_length_remaining(tvb, offset);
+                message_data = (guint8 *)g_malloc0(message_length+8);
+                message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
+                message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
+                message_data[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
+                message_data[3] = (pdu_security_settings->count & 0x000000ff);
+                message_data[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
+                /* rest of first 8 bytes are left as zeroes... */
+                tvb_memcpy(tvb, message_data+8, offset, message_length);
+
+                /* Extract the CMAC */
+                gcrypt_err = gcry_cipher_decrypt(cypher_hd,
+                                                 p_mac, 4,
+                                                 message_data, message_length+8);
+                if (gcrypt_err != 0) {
+                    return 0;
+                }
+
+                *calculated = TRUE;
+                return mac;
+#endif
+            }
+            /* TODO: just dropping through until GCRY_MAC_CMAC_AES is available! */ 
 
         case eia1:
         default:
@@ -1436,7 +1496,8 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
     }
 }
 #else
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, gboolean *calculated)
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
+                                tvbuff_t *tvb _U_,  gint offset _U_, gboolean *calculated)
 {
     switch (pdu_security_settings->integrity) {
         case eia0:
@@ -1815,7 +1876,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* Try to calculate digest so we can check it */
         if (global_pdcp_check_integrity) {
-            calculated_digest = calculate_digest(&pdu_security_settings, &digest_was_calculated);
+            calculated_digest = calculate_digest(&pdu_security_settings, tvb, offset, &digest_was_calculated);
         }
 
         /* RRC data is all but last 4 bytes.
