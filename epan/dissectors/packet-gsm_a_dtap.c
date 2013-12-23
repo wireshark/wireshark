@@ -1661,8 +1661,6 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 		subtree = proto_item_add_subtree(item, ett_bc_oct_4);
 
-		oct = tvb_get_guint8(tvb, curr_offset);
-
 		proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree, is_uplink ? hf_gsm_a_dtap_compression_up : hf_gsm_a_dtap_compression,
 			tvb, curr_offset, 1, ENC_NA);
@@ -1730,8 +1728,6 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 		"Octet 5b");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_5b);
-
-	oct = tvb_get_guint8(tvb, curr_offset);
 
 	proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_rate_adaption_header, tvb, curr_offset, 1, ENC_NA);
@@ -2442,8 +2438,6 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 	const gchar *str;
 
 	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
 
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_de_cause_coding_standard, tvb, curr_offset, 1, ENC_NA);
