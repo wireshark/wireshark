@@ -185,29 +185,34 @@ typedef struct
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
 #define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
-static void udp_src_prompt(packet_info *pinfo, gchar* result)
+static void
+udp_src_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
 }
 
-static gpointer udp_src_value(packet_info *pinfo)
+static gpointer
+udp_src_value(packet_info *pinfo)
 {
     return GUINT_TO_POINTER(pinfo->srcport);
 }
 
-static void udp_dst_prompt(packet_info *pinfo, gchar* result)
+static void
+udp_dst_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
 }
 
-static gpointer udp_dst_value(packet_info *pinfo)
+static gpointer
+udp_dst_value(packet_info *pinfo)
 {
     return GUINT_TO_POINTER(pinfo->destport);
 }
 
-static void udp_both_prompt(packet_info *pinfo, gchar* result)
+static void
+udp_both_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", pinfo->srcport,UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
 }
 
 /* Conversation and process code originally copied from packet-tcp.c */
