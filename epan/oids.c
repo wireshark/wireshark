@@ -180,7 +180,7 @@ void oid_add(const char* name, guint oid_len, guint32 *subids) {
 
 void oid_add_from_string(const char* name, const gchar *oid_str) {
 	guint32* subids;
-	guint oid_len = oid_string2subid(oid_str, &subids);
+	guint oid_len = oid_string2subid(NULL, oid_str, &subids);
 
 	if (oid_len) {
 		D(3,("\tOid (from string): %s %s ",name?name:"NULL", oid_subid2string(subids,oid_len)));
@@ -188,6 +188,7 @@ void oid_add_from_string(const char* name, const gchar *oid_str) {
 	} else {
 		D(1,("Failed to add Oid: %s %s ",name?name:"NULL", oid_str?oid_str:NULL));
 	}
+	wmem_free(NULL, subids);
 }
 
 extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len) {
@@ -886,7 +887,7 @@ static guint check_num_oid(const char* str) {
 	return n;
 }
 
-guint oid_string2subid(const char* str, guint32** subids_p) {
+guint oid_string2subid(wmem_allocator_t *scope, const char* str, guint32** subids_p) {
 	const char* r = str;
 	guint32* subids;
 	guint32* subids_overflow;
@@ -904,7 +905,7 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 		return 0;
 	}
 
-	*subids_p = subids = (guint32 *)ep_alloc0(sizeof(guint32)*n);
+	*subids_p = subids = wmem_alloc0_array(scope, guint32, n);
 	subids_overflow = subids + n;
 	do switch(*r) {
 		case '.':
@@ -1032,8 +1033,8 @@ oid_info_t* oid_get_from_encoded(const guint8 *bytes, gint byteslen, guint32** s
 	return oid_get(subids_len, *subids_p, matched_p, left_p);
 }
 
-oid_info_t* oid_get_from_string(const gchar *oid_str, guint32** subids_p, guint* matched, guint* left) {
-	guint subids_len = oid_string2subid(oid_str, subids_p);
+oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const gchar *oid_str, guint32** subids_p, guint* matched, guint* left) {
+	guint subids_len = oid_string2subid(scope, oid_str, subids_p);
 	return oid_get(subids_len, *subids_p, matched, left);
 }
 
@@ -1130,19 +1131,26 @@ guint oid_string2encoded(const char *oid_str, guint8 **bytes) {
 	guint32 subids_len;
 	guint byteslen;
 
-		if ( ( subids_len = oid_string2subid(oid_str, &subids) )
-			 &&
-			 ( byteslen = oid_subid2encoded(subids_len, subids, bytes) )  ) {
-			return byteslen;
-		}
+	if ( (subids_len = oid_string2subid(NULL, oid_str, &subids)) &&
+	     (byteslen   = oid_subid2encoded(subids_len, subids, bytes)) ) {
+		wmem_free(NULL, subids);
+		return byteslen;
+	}
+	wmem_free(NULL, subids);
 	return 0;
 }
 
 const gchar *oid_resolved_from_string(const gchar *oid_str) {
-	guint32 *subid_oid;
-	guint subid_oid_length = oid_string2subid(oid_str, &subid_oid);
+	guint32     *subid_oid;
+	guint        subid_oid_length;
+        const gchar *resolved;
 
-	return oid_resolved(subid_oid_length, subid_oid);
+	subid_oid_length = oid_string2subid(NULL, oid_str, &subid_oid);
+	resolved         = oid_resolved(subid_oid_length, subid_oid);
+
+	wmem_free(NULL, subid_oid);
+
+	return resolved;
 }
 
 const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
@@ -1184,11 +1192,14 @@ extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolv
 	*numeric_p = (char *)oid_subid2string(subids,subids_len);
 }
 
-extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p) {
-	guint32* subids;
-	guint subids_len = oid_string2subid(oid_str, &subids);
-	*resolved_p = (char *)oid_resolved(subids_len,subids);
-	*numeric_p = (char *)oid_subid2string(subids,subids_len);
+void oid_both_from_string(const gchar *oid_str, const char** resolved_p, const char** numeric_p) {
+	guint32 *subids;
+	guint    subids_len;
+
+	subids_len  = oid_string2subid(NULL, oid_str, &subids);
+	*resolved_p = oid_resolved(subids_len,subids);
+	*numeric_p  = oid_subid2string(subids,subids_len);
+	wmem_free(NULL, subids);
 }
 
 /**
@@ -1314,4 +1325,3 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
  * ex: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-

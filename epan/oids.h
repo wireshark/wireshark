@@ -149,7 +149,7 @@ WS_DLL_PUBLIC
 guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** subids_pi,
 		gboolean is_first);
 WS_DLL_PUBLIC
-guint oid_string2subid(const gchar *oid_str, guint32** subids_p);
+guint oid_string2subid(wmem_allocator_t *scope, const gchar *oid_str, guint32** subids_p);
 
 WS_DLL_PUBLIC const gchar* oid_encoded2string(const guint8* encoded, guint len);
 WS_DLL_PUBLIC const gchar* rel_oid_encoded2string(const guint8* encoded, guint len);
@@ -165,7 +165,7 @@ WS_DLL_PUBLIC const gchar *oid_resolved_from_string(const gchar *oid_str);
 /* these yield two formated strings one resolved and one numeric */
 WS_DLL_PUBLIC void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p);
 WS_DLL_PUBLIC void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p);
-WS_DLL_PUBLIC void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both_from_string(const gchar *oid_str, const char** resolved_p, const char** numeric_p);
 
 /*
  * These return the info for the best match.
@@ -174,7 +174,7 @@ WS_DLL_PUBLIC void oid_both_from_string(const gchar *oid_str, char** resolved_p,
  */
 WS_DLL_PUBLIC oid_info_t* oid_get(guint oid_len, guint32 *subids, guint* matched_p, guint* left_p);
 WS_DLL_PUBLIC oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint32 **subids, guint* matched, guint* left);
-WS_DLL_PUBLIC oid_info_t* oid_get_from_string(const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
+WS_DLL_PUBLIC oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
 
 /* these are used to add oids to the collection */
 WS_DLL_PUBLIC void oid_add(const char* name, guint oid_len, guint32 *subids);

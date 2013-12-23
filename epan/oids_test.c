@@ -33,6 +33,8 @@
 #include "oids.h"
 #include "wmem/wmem.h"
 
+static wmem_allocator_t *test_scope;
+
 typedef struct
 {
     const gchar *string;
@@ -133,7 +135,7 @@ oids_test_2subids_string(void)
     guint32 *subids = NULL;
     guint len, i;
 
-    len = oid_string2subid(ex1.string, &subids);
+    len = oid_string2subid(test_scope, ex1.string, &subids);
     g_assert(len == ex1.subids_len);
     for (i=0; i < len; i++)
         g_assert(subids[i] == ex1.subids[i]);
@@ -145,7 +147,7 @@ oids_test_2subids_string_tooshort(void)
     guint32 *subids = NULL;
     guint len, i;
 
-    len = oid_string2subid(ex5.string, &subids);
+    len = oid_string2subid(test_scope, ex5.string, &subids);
     g_assert(len == ex5.subids_len);
     for (i=0; i < len; i++)
         g_assert(subids[i] == ex5.subids[i]);
@@ -341,8 +343,8 @@ oids_test_2both_encoded(void)
 static void
 oids_test_2both_string(void)
 {
-    gchar* resolved;
-    gchar* oid;
+    const gchar* resolved;
+    const gchar* oid;
 
     oid_both_from_string(ex1.string, &resolved, &oid);
     g_assert_cmpstr(resolved, ==, ex1.resolved);
@@ -394,7 +396,7 @@ oids_test_2struct_string(void)
     oid_info_t *st;
     guint len, i;
 
-    st = oid_get_from_string(ex1.string, &subids, &matched, &left);
+    st = oid_get_from_string(test_scope, ex1.string, &subids, &matched, &left);
     g_assert(matched == 1);
     g_assert(left == ex1.subids_len - 1);
     g_assert(st != NULL);
@@ -490,9 +492,11 @@ main(int argc, char **argv)
 
     emem_init();
     wmem_init();
+    test_scope = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
     oids_init();
     result = g_test_run();
     oids_cleanup();
+    wmem_destroy_allocator(test_scope);
     wmem_cleanup();
     /*
      * This might have been a good place for a call to ep_free_all() but that is not part of the
