@@ -1404,6 +1404,23 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
 }
 #endif
 
+#ifdef HAVE_LIBGCRYPT
+static guint32 calculate_digest(gboolean *calculated)
+{
+    *calculated = FALSE;
+    return 0;
+}
+#else
+static guint32 calculate_digest(gboolean *calculated)
+{
+    *calculated = FALSE;
+    return 0;
+}
+#endif
+
+
+
+
 
 /******************************/
 /* Main dissection function.  */
@@ -1424,6 +1441,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     tvbuff_t *payload_tvb;
     pdu_security_settings_t  pdu_security_settings;
     gboolean payload_deciphered = FALSE;
+    guint32  calculated_digest;
+    gboolean digest_was_calculated = FALSE;
 
     /* Initialise security settings */
     pdu_security_settings.valid = FALSE;
@@ -1755,6 +1774,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
        further dissectors on payload */
     payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info->plane, &payload_deciphered);
 
+    if (global_pdcp_check_integrity) {
+        calculated_digest = calculate_digest(&digest_was_calculated);
+    }
+
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
         guint32 data_length;
         guint32 mac;
@@ -1809,6 +1832,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         mac = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
+
+        if (calculated_digest) {
+            /* TODO: compare with what was found */
+        }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
                         mac, data_length);
