@@ -2625,7 +2625,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_DataSegmentLength,
           { "DataSegmentLength", "iscsi.datasegmentlength",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Data segment length (bytes)", HFILL }
         },
         { &hf_iscsi_TotalAHSLength,

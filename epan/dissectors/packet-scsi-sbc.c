@@ -1245,7 +1245,7 @@ dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
 
         proto_tree_add_item (tree, hf_scsi_sbc_sanitize_pattern,
                              tvb, offset+4, -1,
-                             ENC_BIG_ENDIAN);
+                             ENC_NA);
     }
 }
 
@@ -1541,6 +1541,7 @@ static const value_string scsi_sbc_vals[] = {
     /* 0x81 */    {SCSI_SBC_REBUILD16         , "Rebuild(16)"},
     /* 0x82 */    {SCSI_SBC_REGENERATE16      , "Regenerate(16)"},
     /* 0x83 */    {SCSI_SPC_EXTCOPY           , "Extended Copy"},
+    /* 0x84 */    {SCSI_SPC_RECVCOPY          , "Receive Copy"},
     /* 0x88 */    {SCSI_SBC_READ16            , "Read(16)"},
     /* 0x89 */    {SCSI_SBC_COMPARENWRITE     , "Compare & Write(16)"},
     /* 0x8A */    {SCSI_SBC_WRITE16           , "Write(16)"},
@@ -1697,7 +1698,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x81*/{NULL},
 /*SBC 0x82*/{NULL},
 /*SPC 0x83*/{dissect_spc_extcopy},
-/*SBC 0x84*/{NULL},
+/*SBC 0x84*/{dissect_spc_recvcopy},
 /*SBC 0x85*/{NULL},
 /*SBC 0x86*/{NULL},
 /*SBC 0x87*/{NULL},

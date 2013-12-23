@@ -116,6 +116,7 @@ typedef struct _scsi_cdb_table_t {
 #define SCSI_SPC_COPY_AND_VERIFY         0x3A
 #define SCSI_SPC_INQUIRY                 0x12
 #define SCSI_SPC_EXTCOPY                 0x83
+#define SCSI_SPC_RECVCOPY		 0x84
 #define SCSI_SPC_LOGSELECT               0x4C
 #define SCSI_SPC_LOGSENSE                0x4D
 #define SCSI_SPC_MODESELECT6             0x15
@@ -162,6 +163,8 @@ void dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 void dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_recvcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+
 
 
 
