@@ -462,29 +462,34 @@ static guint32 tcp_stream_count;
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
 #define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
-static void tcp_src_prompt(packet_info *pinfo, gchar* result)
+static void
+tcp_src_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
 }
 
-static gpointer tcp_src_value(packet_info *pinfo)
+static gpointer
+tcp_src_value(packet_info *pinfo)
 {
     return GUINT_TO_POINTER(pinfo->srcport);
 }
 
-static void tcp_dst_prompt(packet_info *pinfo, gchar* result)
+static void
+tcp_dst_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
 }
 
-static gpointer tcp_dst_value(packet_info *pinfo)
+static gpointer
+tcp_dst_value(packet_info *pinfo)
 {
     return GUINT_TO_POINTER(pinfo->destport);
 }
 
-static void tcp_both_prompt(packet_info *pinfo, gchar* result)
+static void
+tcp_both_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", pinfo->srcport,UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
 }
 
 /* TCP structs and definitions */
@@ -848,7 +853,7 @@ pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 static void
 tcp_analyze_get_acked_struct(guint32 frame, guint32 seq, guint32 ack, gboolean createflag, struct tcp_analysis *tcpd)
 {
-     
+
 	wmem_tree_key_t key[4];
 
     key[0].length = 1;

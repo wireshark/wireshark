@@ -693,33 +693,43 @@ find_assoc_index(assoc_info_t* tmpinfo)
   return inf;
 }
 
+/* XXX - redefined here to not create UI dependencies */
+#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
+#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
+#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
-static void sctp_src_prompt(packet_info *pinfo, gchar* result)
+static void
+sctp_src_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Source (%u)", pinfo->srcport);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->srcport);
 }
 
-static gpointer sctp_src_value(packet_info *pinfo)
+static gpointer
+sctp_src_value(packet_info *pinfo)
 {
     return GUINT_TO_POINTER(pinfo->srcport);
 }
 
-static void sctp_dst_prompt(packet_info *pinfo, gchar* result)
+static void
+sctp_dst_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Destination (%u)", pinfo->destport);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
 }
 
-static gpointer sctp_dst_value(packet_info *pinfo)
+static gpointer
+sctp_dst_value(packet_info *pinfo)
 {
     return GUINT_TO_POINTER(pinfo->destport);
 }
 
-static void sctp_both_prompt(packet_info *pinfo _U_, gchar* result)
+static void
+sctp_both_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both");
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
 }
 
-static void sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
+static void
+sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
 {
     guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 0));
 
@@ -730,7 +740,8 @@ static void sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
     }
 }
 
-static void sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
+static void
+sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
 {
     guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1));
 
@@ -741,16 +752,17 @@ static void sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
     }
 }
 
-static gpointer sctp_ppi_value1(packet_info *pinfo)
+static gpointer
+sctp_ppi_value1(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 0);
 }
 
-static gpointer sctp_ppi_value2(packet_info *pinfo)
+static gpointer
+sctp_ppi_value2(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1);
 }
-
 
 
 static unsigned int
@@ -4655,13 +4667,13 @@ proto_register_sctp(void)
   static build_valid_func sctp_da_dst_values[1] = {sctp_dst_value};
   static build_valid_func sctp_da_both_values[2] = {sctp_src_value, sctp_dst_value};
   static decode_as_value_t sctp_da_port_values[3] = {{sctp_src_prompt, 1, sctp_da_src_values}, {sctp_dst_prompt, 1, sctp_da_dst_values}, {sctp_both_prompt, 2, sctp_da_both_values}};
-  static decode_as_t sctp_da_port = {"sctp", "Transport", "sctp.port", 3, 2, sctp_da_port_values, "SCTP Port as", NULL,
+  static decode_as_t sctp_da_port = {"sctp", "Transport", "sctp.port", 3, 2, sctp_da_port_values, "SCTP", "port(s) as",
                                      decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   static build_valid_func sctp_da_ppi_build_value1[1] = {sctp_ppi_value1};
   static build_valid_func sctp_da_ppi_build_value2[1] = {sctp_ppi_value2};
   static decode_as_value_t sctp_da_ppi_values[2] = {{sctp_ppi_prompt1, 1, sctp_da_ppi_build_value1}, {sctp_ppi_prompt2, 1, sctp_da_ppi_build_value2}};
-  static decode_as_t sctp_da_ppi = {"sctp", "Transport", "sctp.ppi", 2, 0, sctp_da_ppi_values, "SCTP", NULL,
+  static decode_as_t sctp_da_ppi = {"sctp", "SCTP(PPID)", "sctp.ppi", 2, 0, sctp_da_ppi_values, "SCTP", NULL,
                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   /* UAT for header fields */
