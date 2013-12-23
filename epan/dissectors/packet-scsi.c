@@ -3309,7 +3309,8 @@ dissect_spc_extcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                     gboolean isreq _U_, gboolean iscdb _U_,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-        guint8 serv_action, cscd_desc_type, dev_type, des_len, code_set, des_type, seg_type;
+        guint16 serv_action;
+        guint8 cscd_desc_type, dev_type, des_len, code_set, des_type, seg_type;
         guint16 cscd_desc_list_len, seg_desc_len;
         guint32 param_list_len, seg_desc_list_len, inline_data_len, i;
         proto_tree *cscds_tree = NULL, *dev_tree = NULL, *cscd_tree = NULL, *segs_tree = NULL, *seg_tree = NULL, *seg_param_tree = NULL;
@@ -3474,7 +3475,8 @@ void dissect_spc_recvcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                     gboolean isreq _U_, gboolean iscdb _U_,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-        guint8 serv_action, imp_desc_list_len;
+        guint16 serv_action;
+        guint8  imp_desc_list_len;
 
         if (isreq && iscdb) {
                 proto_tree_add_item(tree, hf_scsi_spc_recv_copy_service, tvb, offset, 1, ENC_NA);
