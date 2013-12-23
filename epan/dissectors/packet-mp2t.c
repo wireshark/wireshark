@@ -916,15 +916,25 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 }
 
 static gint
-dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, guint8 af_length,
-        packet_info *pinfo _U_, proto_tree *tree)
+dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
     gint        af_start_offset;
     proto_item *hi;
     proto_tree *mp2t_af_tree;
+    guint8      af_length;
     guint8      af_flags;
     gint        stuffing_len;
 
+    af_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_mp2t_af_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* fix issues where afc==3 but af_length==0
+     *  Adaptaion field...spec section 2.4.3.5: The value 0 is for inserting a single
+     *  stuffing byte in a Transport Stream packet. When the adaptation_field_control
+     *  value is '11', the value of the adaptation_field_length shall be in the range 0 to 182.
+     */
+    if (af_length == 0)
+        return offset;
 
     af_start_offset = offset;
 
@@ -1094,7 +1104,6 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 {
     guint32              header;
     guint                afc;
-    guint8               af_length;
     gint                 start_offset = offset;
     volatile gint        payload_len;
     mp2t_analysis_data_t *mp2t_data;
@@ -1178,18 +1187,8 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
     if (skips > 0)
         proto_item_append_text(ti, " skips=%d", skips);
 
-    if (afc == 2 || afc == 3) {
-        af_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item( mp2t_tree, hf_mp2t_af_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        /* fix issues where afc==3 but af_length==0
-         *  Adaptaion field...spec section 2.4.3.5: The value 0 is for inserting a single
-         *  stuffing byte in a Transport Stream packet. When the adaptation_field_control
-         *  value is '11', the value of the adaptation_field_length shall be in the range 0 to 182.
-         */
-        if (af_length>0)
-            offset += dissect_mp2t_adaptation_field(tvb, offset, af_length, pinfo, mp2t_tree);
-    }
+    if (afc == 2 || afc == 3)
+        offset = dissect_mp2t_adaptation_field(tvb, offset, mp2t_tree);
 
     if ((offset - start_offset) < MP2T_PACKET_SIZE)
         payload_len = MP2T_PACKET_SIZE - (offset - start_offset);
