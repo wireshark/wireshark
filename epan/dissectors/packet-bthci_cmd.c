@@ -1133,8 +1133,8 @@ const value_string bthci_cmd_address_types_vals[] = {
 };
 
 static const value_string cmd_role_vals[] = {
-    {0x00, "Become Master"},
-    {0x01, "Remain Slave"},
+    {0x00, "Change own Role to Master for this BD_ADDR"},
+    {0x01, "Change own Role to Slave for this BD_ADDR"},
     {0, NULL }
 };
 
