@@ -144,13 +144,16 @@ static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
 /* UAT entry structure. */
 typedef struct {
    guint16 ueid;
-   gchar   *rrcKeyString;
-   gchar   *upKeyString;
+   gchar   *rrcCipherKeyString;
+   gchar   *upCipherKeyString;
+   gchar   *rrcIntegrityKeyString;
 
-   guint8   rrcBinaryKey[16];
-   gboolean rrcKeyOK;
-   guint8   upBinaryKey[16];
-   gboolean upKeyOK;
+   guint8   rrcCipherBinaryKey[16];
+   gboolean rrcCipherKeyOK;
+   guint8   upCipherBinaryKey[16];
+   gboolean upCipherKeyOK;
+   guint8   rrcIntegrityBinaryKey[16];
+   gboolean rrcIntegrityKeyOK;
 } uat_ue_keys_record_t;
 
 static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
@@ -181,8 +184,9 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     const uat_ue_keys_record_t* old_rec = (const uat_ue_keys_record_t *)o;
 
     new_rec->ueid = old_rec->ueid;
-    new_rec->rrcKeyString = (old_rec->rrcKeyString) ? g_strdup(old_rec->rrcKeyString) : NULL;
-    new_rec->upKeyString = (old_rec->upKeyString) ? g_strdup(old_rec->upKeyString) : NULL;
+    new_rec->rrcCipherKeyString = (old_rec->rrcCipherKeyString) ? g_strdup(old_rec->rrcCipherKeyString) : NULL;
+    new_rec->upCipherKeyString = (old_rec->upCipherKeyString) ? g_strdup(old_rec->upCipherKeyString) : NULL;
+    new_rec->rrcIntegrityKeyString = (old_rec->rrcIntegrityKeyString) ? g_strdup(old_rec->rrcIntegrityKeyString) : NULL;
 
     return new_rec;
 }
@@ -228,27 +232,39 @@ static void uat_ue_keys_record_update_cb(void* record, const char** error _U_) {
     char cleanString[32];
 
     /* Check and convert RRC key */
-    if (!check_valid_key_sring(rec->rrcKeyString, cleanString)) {
-        rec->rrcKeyOK = FALSE;
+    if (!check_valid_key_sring(rec->rrcCipherKeyString, cleanString)) {
+        rec->rrcCipherKeyOK = FALSE;
     }
     else {
         for (n=0; n < 32; n += 2) {
-            rec->rrcBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
-                                      hex_ascii_to_binary(cleanString[n+1]);
+            rec->rrcCipherBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
+                                            hex_ascii_to_binary(cleanString[n+1]);
         }
-        rec->rrcKeyOK = TRUE;
+        rec->rrcCipherKeyOK = TRUE;
     }
 
     /* Check and convert User-plane key */
-    if (!check_valid_key_sring(rec->upKeyString, cleanString)) {
-        rec->rrcKeyOK = FALSE;
+    if (!check_valid_key_sring(rec->upCipherKeyString, cleanString)) {
+        rec->upCipherKeyOK = FALSE;
     }
     else {
         for (n=0; n < 32; n += 2) {
-            rec->upBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
-                                     hex_ascii_to_binary(cleanString[n+1]);
+            rec->upCipherBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
+                                           hex_ascii_to_binary(cleanString[n+1]);
         }
-        rec->upKeyOK = TRUE;
+        rec->upCipherKeyOK = TRUE;
+    }
+
+    /* Check and convert Integrity key */
+    if (!check_valid_key_sring(rec->rrcIntegrityKeyString, cleanString)) {
+        rec->rrcIntegrityKeyOK = FALSE;
+    }
+    else {
+        for (n=0; n < 32; n += 2) {
+            rec->rrcIntegrityBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
+                                               hex_ascii_to_binary(cleanString[n+1]);
+        }
+        rec->rrcIntegrityKeyOK = TRUE;
     }
 }
 
@@ -256,16 +272,19 @@ static void uat_ue_keys_record_update_cb(void* record, const char** error _U_) {
 static void uat_ue_keys_record_free_cb(void*r) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t*)r;
 
-    g_free(rec->rrcKeyString);
-    g_free(rec->upKeyString);
+    g_free(rec->rrcCipherKeyString);
+    g_free(rec->upCipherKeyString);
+    g_free(rec->rrcIntegrityKeyString);
 }
 
 UAT_DEC_CB_DEF(uat_ue_keys_records, ueid, uat_ue_keys_record_t)
-UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcKeyString, uat_ue_keys_record_t)
-UAT_CSTRING_CB_DEF(uat_ue_keys_records, upKeyString,  uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcCipherKeyString, uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, upCipherKeyString,  uat_ue_keys_record_t)
+UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcIntegrityKeyString,  uat_ue_keys_record_t)
 
 static gboolean global_pdcp_decipher_signalling = FALSE;
 static gboolean global_pdcp_decipher_userplane = FALSE;
+static gboolean global_pdcp_check_integrity = FALSE;
 #endif
 
 static const value_string direction_vals[] =
@@ -511,7 +530,8 @@ typedef struct pdu_security_settings_t
 {
     gboolean valid;
     enum security_ciphering_algorithm_e ciphering;
-    guint8* key;
+    guint8* cipherKey;
+    guint8* integrityKey;
     guint32 count;
     guint8  bearer;
     guint8  direction;
@@ -622,20 +642,20 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 pdu_security->count = count;
 
 #if HAVE_LIBGCRYPT
-                /* KEY */
+                /* KEY.  Look this UE up among UEs that have keys configured */
                 for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
                     if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
                         if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
-                            if (uat_ue_keys_records[record_id].rrcKeyOK) {
-                                key = uat_ue_keys_records[record_id].rrcKeyString;
-                                pdu_security->key = &(uat_ue_keys_records[record_id].rrcBinaryKey[0]);
+                            if (uat_ue_keys_records[record_id].rrcCipherKeyOK) {
+                                key = uat_ue_keys_records[record_id].rrcCipherKeyString;
+                                pdu_security->cipherKey = &(uat_ue_keys_records[record_id].rrcCipherBinaryKey[0]);
                                 pdu_security->valid = TRUE;
                             }
                         }
                         else {
-                            if (uat_ue_keys_records[record_id].upKeyOK) {
-                                key = uat_ue_keys_records[record_id].upKeyString;
-                                pdu_security->key = &(uat_ue_keys_records[record_id].upBinaryKey[0]);
+                            if (uat_ue_keys_records[record_id].upCipherKeyOK) {
+                                key = uat_ue_keys_records[record_id].upCipherKeyString;
+                                pdu_security->cipherKey = &(uat_ue_keys_records[record_id].upCipherBinaryKey[0]);
                                 pdu_security->valid = TRUE;
                             }
                         }
@@ -1332,7 +1352,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     }
 
     /* Set the key */
-    gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->key, 16);
+    gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->cipherKey, 16);
     if (gcrypt_err != 0) {
         return tvb;
     }
@@ -2225,8 +2245,9 @@ void proto_register_pdcp(void)
 #ifdef HAVE_LIBGCRYPT
   static uat_field_t ue_keys_uat_flds[] = {
       UAT_FLD_DEC(uat_ue_keys_records, ueid, "UEId", "UE Identifier of UE associated with keys"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, rrcKeyString, "RRC Key",        "Key for deciphering signalling messages"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, upKeyString,  "User-Plane Key", "Key for deciphering user-plane messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, rrcCipherKeyString, "RRC Cipher Key",        "Key for deciphering signalling messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, upCipherKeyString,  "User-Plane Cipher Key", "Key for deciphering user-plane messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, rrcIntegrityKeyString,  "RRC Integrity Key", "Key for deciphering user-plane messages"),
       UAT_END_FIELDS
     };
 #endif
@@ -2315,6 +2336,12 @@ void proto_register_pdcp(void)
     /* Attempt to decipher user-plane messages */
     prefs_register_bool_preference(pdcp_lte_module, "decipher_userplane",
         "Attempt to decipher User-plane (IP) SDUs",
+        "N.B. only possible if key available and configured",
+        &global_pdcp_decipher_userplane);
+
+    /* Attempt to verify RRC integrity/authentication digest */
+    prefs_register_bool_preference(pdcp_lte_module, "verify_integrity",
+        "Attempt to check integrity calculation",
         "N.B. only possible if key available and configured",
         &global_pdcp_decipher_userplane);
 #endif
