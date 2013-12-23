@@ -6231,7 +6231,7 @@ fCharacterString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
     guint32     lvt, l;
     guint       offs, extra = 1;
     const char *coding;
-    guint8      bf_arr[512], *out;
+    guint8     *out;
     proto_item *ti;
     proto_tree *subtree;
     guint       start = offset;
