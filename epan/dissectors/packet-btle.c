@@ -220,7 +220,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        length = tvb_get_guint8(tvb, offset) & 0x3f;
         offset += 1;
 
         switch (pdu_type) {
