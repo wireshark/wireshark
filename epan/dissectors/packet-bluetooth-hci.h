@@ -44,6 +44,8 @@
 #define DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG  1
 #define DID_VENDOR_ID_SOURCE_USB_FORUM      2
 
+#define ACCESS_ADDRESS_ADVERTISING 0x8e89bed6
+
 extern value_string_ext bthci_cmd_opcode_vals_ext;
 extern value_string_ext bthci_ogf_vals_ext;
 extern value_string_ext bthci_cmd_ocf_link_control_vals_ext;

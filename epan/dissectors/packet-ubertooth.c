@@ -32,7 +32,9 @@
 #include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 
+#include "packet-bluetooth-hci.h"
 #include "packet-usb.h"
+
 static int proto_ubertooth = -1;
 
 static int hf_command = -1;
@@ -106,6 +108,7 @@ static expert_field ei_unknown_data = EI_INIT;
 static expert_field ei_unexpected_data = EI_INIT;
 
 static dissector_handle_t ubertooth_handle;
+static dissector_handle_t btle_handle;
 
 static wmem_tree_t *command_info = NULL;
 
@@ -273,7 +276,7 @@ void proto_reg_handoff_ubertooth(void);
 
 
 static gint
-dissect_usb_rx_packet(proto_tree *tree, tvbuff_t *tvb, gint offset, gint16 command)
+dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint16 command)
 {
     proto_item  *sub_item;
     proto_item  *sub_tree;
@@ -282,6 +285,8 @@ dissect_usb_rx_packet(proto_tree *tree, tvbuff_t *tvb, gint offset, gint16 comma
     proto_item  *entry_item;
     proto_item  *entry_tree;
     gint         i_spec;
+    gint         length;
+    tvbuff_t    *next_tvb;
 
     sub_item = proto_tree_add_item(tree, hf_usb_rx_packet, tvb, offset, 64, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_usb_rx_packet);
@@ -341,6 +346,24 @@ dissect_usb_rx_packet(proto_tree *tree, tvbuff_t *tvb, gint offset, gint16 comma
 
         proto_tree_add_item(data_tree, hf_reserved, tvb, offset, 2, ENC_NA);
         offset += 2;
+        break;
+    case 49: /* Poll */
+        length = 9; /* From BTLE: AccessAddress (4) + Header (2) + Length from Header (below) + CRC (3) */
+
+        if (tvb_get_letohl(tvb, offset) == ACCESS_ADDRESS_ADVERTISING)
+            length += tvb_get_guint8(tvb, offset + 5) & 0x3f;
+        else
+            length += tvb_get_guint8(tvb, offset + 5) & 0x1f;
+
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
+        call_dissector(btle_handle, next_tvb, pinfo, main_tree);
+        offset += length;
+
+        if (tvb_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(data_tree, hf_reserved, tvb, offset, -1, ENC_NA);
+            offset += tvb_length_remaining(tvb, offset);
+        }
+
         break;
     default:
         offset += 50;
@@ -696,7 +719,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (usb_conv_info->transfer_type == URB_BULK) {
 
             while (tvb_length_remaining(tvb, offset) > 0) {
-                offset = dissect_usb_rx_packet(main_tree, tvb, offset, command);
+                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command);
             }
             break;
         }
@@ -897,7 +920,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         }
 
-        offset = dissect_usb_rx_packet(main_tree, tvb, offset, command);
+        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command);
 
         break;
     case 53: /* Read Register */
@@ -1270,6 +1293,8 @@ proto_register_ubertooth(void)
 void
 proto_reg_handoff_ubertooth(void)
 {
+    btle_handle = find_dissector("btle");
+
     dissector_add_handle("usb.device",   ubertooth_handle);
     dissector_add_handle("usb.product",  ubertooth_handle);
     dissector_add_handle("usb.protocol", ubertooth_handle);
