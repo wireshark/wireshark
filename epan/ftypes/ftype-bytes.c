@@ -448,7 +448,7 @@ rel_oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, L
 }
 
 static gboolean
-system_id_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+system_id_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	/*
 	 * Don't log a message if this fails; we'll try looking it
