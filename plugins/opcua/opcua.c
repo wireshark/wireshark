@@ -129,6 +129,7 @@ static const char* g_szMessageTypes[] =
  */
 void proto_register_opcua(void)
 {
+    char *tmp;
 
     static hf_register_info hf[] =
     {
@@ -195,7 +196,9 @@ void proto_register_opcua(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 
-    range_convert_str(&global_tcp_ports_opcua, ep_strdup_printf("%u", OPCUA_PORT),  65535);
+    tmp = g_strdup_printf("%d", OPCUA_PORT);
+    range_convert_str(&global_tcp_ports_opcua, tmp,  65535);
+    g_free(tmp);
 
     reassembly_table_init(&opcua_reassembly_table,
                           &addresses_reassembly_table_functions);

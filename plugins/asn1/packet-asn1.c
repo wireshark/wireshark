@@ -5306,9 +5306,9 @@ proto_register_asn1(void) {
 				 "ASN.1 messages will be read",
 				 10, &global_sctp_port_asn1);
 #else
-  range_convert_str(&global_tcp_ports_asn1,  ep_strdup_printf("%u", TCP_PORT_ASN1),  65535);
-  range_convert_str(&global_udp_ports_asn1,  ep_strdup_printf("%u", UDP_PORT_ASN1),  65535);
-  range_convert_str(&global_sctp_ports_asn1, ep_strdup_printf("%u", SCTP_PORT_ASN1), 65535);
+  range_convert_str(&global_tcp_ports_asn1,  "0", 65535);
+  range_convert_str(&global_udp_ports_asn1,  "0", 65535);
+  range_convert_str(&global_sctp_ports_asn1, "0", 65535);
 
   prefs_register_range_preference(asn1_module, "tcp_ports",
 				 "ASN.1 TCP Ports",
