@@ -361,7 +361,7 @@ check_for_dissector_plugin(GModule *handle)
 	if (g_module_symbol(handle, "plugin_register", &gp))
 		register_protoinfo = (void (*)(void))gp;
 	else
-                register_protoinfo = NULL;
+		register_protoinfo = NULL;
 
 	/*
 	 * Do we have a reg_handoff routine?
@@ -1667,7 +1667,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both big-endian.
 				 */
-				time_stamp.secs  = tvb_get_ntohl(tvb, start);
+				time_stamp.secs  = (time_t)tvb_get_ntohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
 				else
@@ -1680,7 +1680,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both little-endian.
 				 */
-				time_stamp.secs  = tvb_get_letohl(tvb, start);
+				time_stamp.secs  = (time_t)tvb_get_letohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
 				else
@@ -1692,7 +1692,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * TOD time stamp, big-endian.
 				 */
 /* XXX - where should this go? */
-#define TOD_BASETIME 2208988800ul
+#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)
 
 				todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
 				time_stamp.secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
@@ -1714,7 +1714,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 */
 
 /* XXX - where should this go? */
-#define NTP_BASETIME 2208988800ul
+#define NTP_BASETIME G_GUINT64_CONSTANT(2208988800)
 
 				/* We need a temporary variable here so the unsigned math
 				 * works correctly (for years > 2036 according to RFC 2030
@@ -1722,7 +1722,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 */
 				tmpsecs  = tvb_get_ntohl(tvb, start);
 				if (tmpsecs)
-					time_stamp.secs = tmpsecs - (guint32)NTP_BASETIME;
+					time_stamp.secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
 				else
 					time_stamp.secs = tmpsecs; /* 0 */
 
@@ -1746,7 +1746,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 */
 				tmpsecs  = tvb_get_letohl(tvb, start);
 				if (tmpsecs)
-					time_stamp.secs = tmpsecs - (guint32)NTP_BASETIME;
+					time_stamp.secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
 				else
 					time_stamp.secs = tmpsecs; /* 0 */
 
@@ -1766,7 +1766,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 			default:
 				DISSECTOR_ASSERT_NOT_REACHED();
-				time_stamp.secs = 0;
+				time_stamp.secs = (time_t)0;
 				time_stamp.nsecs = 0;
 				break;
 			}
@@ -1802,7 +1802,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both big-endian.
 				 */
-				time_stamp.secs  = tvb_get_ntohl(tvb, start);
+				time_stamp.secs  = (time_t)tvb_get_ntohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
 				else
@@ -1815,7 +1815,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both little-endian.
 				 */
-				time_stamp.secs  = tvb_get_letohl(tvb, start);
+				time_stamp.secs  = (time_t)tvb_get_letohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
 				else
@@ -1932,7 +1932,7 @@ proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding)
 {
-        return proto_tree_add_item_new(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
+	return proto_tree_add_item_new(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
 }
 
 /* Add a FT_NONE to a proto_tree */
@@ -3950,7 +3950,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_UINT32:
 			case FT_FRAMENUM:
 				hf_str_val = NULL;
-				number = IS_FT_INT(hfinfo->type) ? 
+				number = IS_FT_INT(hfinfo->type) ?
 						(guint32) fvalue_get_sinteger(&finfo->value) :
 						fvalue_get_uinteger(&finfo->value);
 
@@ -4751,33 +4751,33 @@ proto_get_protocol_filter_name(const int proto_id)
 	return protocol->filter_name;
 }
 
-void 
+void
 proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp) {
-    wmem_list_frame_t* protos = wmem_list_head(layers);
-    int proto_id;
-    const char* proto_name;
+	wmem_list_frame_t *protos = wmem_list_head(layers);
+	int	    proto_id;
+	const char *proto_name;
 
-    /* Walk the list of a available protocols in the packet and
-       find "major" ones. */
-    /* It might make more sense to assemble and return a bitfield. */
-    while (protos != NULL)
-    {
-        proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-        proto_name = proto_get_protocol_filter_name(proto_id);
+	/* Walk the list of a available protocols in the packet and
+	   find "major" ones. */
+	/* It might make more sense to assemble and return a bitfield. */
+	while (protos != NULL)
+	{
+		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
+		proto_name = proto_get_protocol_filter_name(proto_id);
 
-        if (is_ip && ((!strcmp(proto_name, "ip")) ||
-            (!strcmp(proto_name, "ipv6")))) {
-            *is_ip = TRUE;
-        } else if (is_tcp && !strcmp(proto_name, "tcp")) {
-            *is_tcp = TRUE;
-        } else if (is_udp && !strcmp(proto_name, "udp")) {
-            *is_udp = TRUE;
-        } else if (is_sctp && !strcmp(proto_name, "sctp")) {
-            *is_sctp = TRUE;
-        }
+		if (is_ip && ((!strcmp(proto_name, "ip")) ||
+			      (!strcmp(proto_name, "ipv6")))) {
+			*is_ip = TRUE;
+		} else if (is_tcp && !strcmp(proto_name, "tcp")) {
+			*is_tcp = TRUE;
+		} else if (is_udp && !strcmp(proto_name, "udp")) {
+			*is_udp = TRUE;
+		} else if (is_sctp && !strcmp(proto_name, "sctp")) {
+			*is_sctp = TRUE;
+		}
 
-        protos = wmem_list_frame_next(protos);
-    }
+		protos = wmem_list_frame_next(protos);
+	}
 }
 
 gboolean
@@ -6706,40 +6706,40 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
-		/* Get the underlying BASE_ value */
-		switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
-			case BASE_DEC:
-			case BASE_DEC_HEX:
-			case BASE_OCT: /* I'm lazy */
-			case BASE_CUSTOM:
-				switch (hfinfo->type) {
-					case FT_UINT64:
-						format = "%s == %" G_GINT64_MODIFIER "u";
-						break;
-					case FT_INT64:
-						format = "%s == %" G_GINT64_MODIFIER "d";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			case BASE_HEX:
-			case BASE_HEX_DEC:
-				switch (hfinfo->type) {
-					case FT_UINT64:
-					case FT_INT64:
-						format = "%s == 0x%016" G_GINT64_MODIFIER "x";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				;
-		}
+	/* Get the underlying BASE_ value */
+	switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
+		case BASE_DEC:
+		case BASE_DEC_HEX:
+		case BASE_OCT: /* I'm lazy */
+		case BASE_CUSTOM:
+			switch (hfinfo->type) {
+				case FT_UINT64:
+					format = "%s == %" G_GINT64_MODIFIER "u";
+					break;
+				case FT_INT64:
+					format = "%s == %" G_GINT64_MODIFIER "d";
+					break;
+				default:
+					DISSECTOR_ASSERT_NOT_REACHED();
+					;
+			}
+			break;
+		case BASE_HEX:
+		case BASE_HEX_DEC:
+			switch (hfinfo->type) {
+				case FT_UINT64:
+				case FT_INT64:
+					format = "%s == 0x%016" G_GINT64_MODIFIER "x";
+					break;
+				default:
+					DISSECTOR_ASSERT_NOT_REACHED();
+					;
+			}
+			break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			;
+	}
 	return format;
 }
 
@@ -6764,8 +6764,8 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	guint8		   c;
 	gchar		   is_signed_num = FALSE;
 
-        if (!finfo)
-                return FALSE;
+	if (!finfo)
+		return FALSE;
 
 	hfinfo     = finfo->hfinfo;
 	DISSECTOR_ASSERT(hfinfo);
@@ -7260,8 +7260,8 @@ proto_tree_add_bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			 const guint encoding)
 {
 	header_field_info *hfinfo;
-	gint		  octet_length;
-	gint		  octet_offset;
+	gint		   octet_length;
+	gint		   octet_offset;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
