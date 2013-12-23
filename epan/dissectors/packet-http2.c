@@ -612,9 +612,12 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    /* Check there is Magic Hello ( PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n ) or type is > 10 (May be leak) */
-    if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0 && tvb_get_guint8(tvb, 2) > 10)
-        return (FALSE);
+    if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
+        /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n)
+           see if there's a valid frame type (0-10 are defined at the moment) */
+        if (tvb_reported_length(tvb)<2 || tvb_get_guint8(tvb, 2)>10)
+            return (FALSE);
+    }
 
     dissect_http2(tvb, pinfo, tree, data);
 
