@@ -2997,7 +2997,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         usb_setup_dissector dissector;
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
-        int type_2;
+        int type_2 = 0;
 
         if (is_request) {
             if (setup_flag == 0) {
