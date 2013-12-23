@@ -49,7 +49,7 @@
 #define BTL2CAP_FIXED_CID_LE_SIGNAL 0x0005
 #define BTL2CAP_FIXED_CID_SMP       0x0006
 #define BTL2CAP_FIXED_CID_AMP_TEST  0x003F
-#define BTL2CAP_FIXED_CID_MAX       0x0040
+#define BTL2CAP_FIXED_CID_LAST      0x003F
 
 typedef struct _btl2cap_data_t {
     guint32   interface_id;

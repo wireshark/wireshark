@@ -1810,7 +1810,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
     }
-    else if (cid < BTL2CAP_FIXED_CID_MAX) {
+    else if (cid <= BTL2CAP_FIXED_CID_LAST) {
         if (cid == BTL2CAP_FIXED_CID_AMP_MAN) {
             control = tvb_get_letohs(tvb, offset);
             if (control & 0x1) {
@@ -1847,7 +1847,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
         }
     }
-    else /* if (cid >= BTL2CAP_FIXED_CID_MAX) */ { /* Connection oriented channel */
+    else /* if (cid > BTL2CAP_FIXED_CID_LAST) */ { /* Connection oriented channel */
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
         guint32            k_adapter_id;
