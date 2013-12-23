@@ -406,12 +406,9 @@ get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 }
 
 static pid_analysis_data_t *
-get_pid_analysis(guint32 pid, conversation_t *conv)
+get_pid_analysis(mp2t_analysis_data_t *mp2t_data, guint32 pid)
 {
     pid_analysis_data_t  *pid_data  = NULL;
-    mp2t_analysis_data_t *mp2t_data = NULL;
-
-    mp2t_data = get_mp2t_conversation_data(conv);
 
     pid_data = (pid_analysis_data_t *)wmem_tree_lookup32(mp2t_data->pid_table, pid);
     if (!pid_data) {
@@ -816,24 +813,21 @@ calc_skips(gint32 curr, gint32 prev)
 
 static guint32
 detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-        guint32 pid, gint32 cc_curr, conversation_t *conv)
+        guint32 pid, gint32 cc_curr, mp2t_analysis_data_t *mp2t_data)
 {
     gint32 cc_prev = -1;
     pid_analysis_data_t   *pid_data              = NULL;
     ts_analysis_data_t    *ts_data               = NULL;
-    mp2t_analysis_data_t  *mp2t_data             = NULL;
     frame_analysis_data_t *frame_analysis_data_p = NULL;
     proto_item            *flags_item;
 
     guint32 detected_drop = 0;
     guint32 skips = 0;
 
-    mp2t_data = get_mp2t_conversation_data(conv);
-
     /* The initial sequencial processing stage */
     if (!pinfo->fd->flags.visited) {
         /* This is the sequencial processing stage */
-        pid_data = get_pid_analysis(pid, conv);
+        pid_data = get_pid_analysis(mp2t_data, pid);
 
         cc_prev = pid_data->cc_prev;
         pid_data->cc_prev = cc_curr;
@@ -1103,6 +1097,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
     guint8               af_length;
     gint                 start_offset = offset;
     volatile gint        payload_len;
+    mp2t_analysis_data_t *mp2t_data;
     pid_analysis_data_t *pid_analysis;
 
     guint32     skips;
@@ -1146,7 +1141,9 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
     afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
 
-    pid_analysis = get_pid_analysis(pid, conv);
+    mp2t_data = get_mp2t_conversation_data(conv);
+
+    pid_analysis = get_pid_analysis(mp2t_data, pid);
 
     /* Find out the payload type based on the payload */
     if (pid_analysis->pload_type == pid_pload_unknown) {
@@ -1176,7 +1173,8 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
     PROTO_ITEM_SET_GENERATED(item);
     mp2t_analysis_tree = proto_item_add_subtree(item, ett_mp2t_analysis);
 
-    skips = detect_cc_drops(tvb, mp2t_analysis_tree, pinfo, pid, cc, conv);
+    skips = detect_cc_drops(tvb, mp2t_analysis_tree, pinfo, pid, cc, mp2t_data);
+
     if (skips > 0)
         proto_item_append_text(ti, " skips=%d", skips);
 
