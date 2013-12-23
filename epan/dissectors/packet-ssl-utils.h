@@ -638,62 +638,19 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
 extern void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 
-#define SSL_COMMON_LIST_T(name)                                 \
-ssl_common_dissect_t name = {                                   \
-    .hf = {                                                     \
-        .hs_exts_len                                 = -1,      \
-        .hs_ext_alpn_len                             = -1,      \
-        .hs_ext_alpn_list                            = -1,      \
-        .hs_ext_alpn_str                             = -1,      \
-        .hs_ext_alpn_str_len                         = -1,      \
-        .hs_ext_cert_status_request_extensions_len   = -1,      \
-        .hs_ext_cert_status_request_len              = -1,      \
-        .hs_ext_cert_status_responder_id_list_len    = -1,      \
-        .hs_ext_cert_status_type                     = -1,      \
-        .hs_ext_cert_url_item                        = -1,      \
-        .hs_ext_cert_url_padding                     = -1,      \
-        .hs_ext_cert_url_sha1                        = -1,      \
-        .hs_ext_cert_url_type                        = -1,      \
-        .hs_ext_cert_url_url                         = -1,      \
-        .hs_ext_cert_url_url_hash_list_len           = -1,      \
-        .hs_ext_cert_url_url_len                     = -1,      \
-        .hs_ext_data                                 = -1,      \
-        .hs_ext_ec_point_format                      = -1,      \
-        .hs_ext_ec_point_formats_len                 = -1,      \
-        .hs_ext_elliptic_curve                       = -1,      \
-        .hs_ext_elliptic_curves                      = -1,      \
-        .hs_ext_elliptic_curves_len                  = -1,      \
-        .hs_ext_heartbeat_mode                       = -1,      \
-        .hs_ext_len                                  = -1,      \
-        .hs_ext_npn_str                              = -1,      \
-        .hs_ext_npn_str_len                          = -1,      \
-        .hs_ext_reneg_info_len                       = -1,      \
-        .hs_ext_server_name                          = -1,      \
-        .hs_ext_server_name_len                      = -1,      \
-        .hs_ext_server_name_list_len                 = -1,      \
-        .hs_ext_server_name_type                     = -1,      \
-        .hs_ext_type                                 = -1,      \
-        .hs_sig_hash_alg                             = -1,      \
-        .hs_sig_hash_alg_len                         = -1,      \
-        .hs_sig_hash_algs                            = -1,      \
-        .hs_sig_hash_hash                            = -1,      \
-        .hs_sig_hash_sig                             = -1,      \
-    },                                                          \
-    .ett = {                                                    \
-        .hs_ext                                     = -1,       \
-        .hs_ext_alpn                                = -1,       \
-        .hs_ext_curves                              = -1,       \
-        .hs_ext_curves_point_formats                = -1,       \
-        .hs_ext_npn                                 = -1,       \
-        .hs_ext_reneg_info                          = -1,       \
-        .hs_ext_server_name                         = -1,       \
-        .hs_sig_hash_alg                            = -1,       \
-        .hs_sig_hash_algs                           = -1,       \
-        .urlhash                                    = -1,       \
-    },                                                          \
-    .ei = {                                                     \
-        .hs_ext_cert_status_undecoded                = EI_INIT, \
-    },                                                          \
+#define SSL_COMMON_LIST_T(name) \
+ssl_common_dissect_t name = {   \
+    /* hf */ {                  \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1,                                             \
+    },                                                                  \
+    /* ett */ {                                                         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
+    },                                                                  \
+    /* ei */ {                                                          \
+        EI_INIT,                                                        \
+    },                                                                  \
 }
 
 #define SSL_COMMON_HF_LIST(name, prefix)                                \
