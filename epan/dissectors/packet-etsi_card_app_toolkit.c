@@ -1065,15 +1065,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			}
 			switch (g8) {
 			case 0x00: /* 7bit */
-				{
-					int out_len;
-					unsigned char msgbuf[300];
-
-					out_len = gsm_sms_char_7bit_unpack(0, len-1, sizeof(msgbuf), tvb_get_ptr(tvb, pos+1, len-1), msgbuf);
-					msgbuf[out_len] = '\0';
-					proto_tree_add_string(elem_tree, hf_ctlv_text_string, tvb, pos+1,
-						len-1, gsm_sms_chars_to_utf8(msgbuf, out_len));
-				}
+				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_3GPP_TS_23_038|ENC_NA);
 				break;
 			case 0x04: /* 8bit */
 				/* XXX - ASCII, or some extended ASCII? */

@@ -2149,6 +2149,173 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 }
 
 /*
+ * FROM GNOKII
+ * gsm-encoding.c
+ * gsm-sms.c
+ */
+#define GN_BYTE_MASK ((1 << bits) - 1)
+
+#define GN_CHAR_ALPHABET_SIZE 128
+
+#define GN_CHAR_ESCAPE 0x1b
+
+static const gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+
+    /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
+    /* Fixed to use unicode */
+    /* Characters in hex position 10, [12 to 1a] and 24 are not present on
+       latin1 charset, so we cannot reproduce on the screen, however they are
+       greek symbol not present even on my Nokia */
+
+    '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
+    0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
+    0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
+    0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
+    ' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
+    '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
+    '0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
+    '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
+    0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
+    'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
+    'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
+    'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
+    0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
+    'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
+    'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
+    'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
+};
+
+static gboolean
+char_is_escape(unsigned char value)
+{
+    return (value == GN_CHAR_ESCAPE);
+}
+
+static gunichar
+char_def_alphabet_ext_decode(unsigned char value)
+{
+    switch (value)
+    {
+    case 0x0a: return 0x0c; /* form feed */
+    case 0x14: return '^';
+    case 0x28: return '{';
+    case 0x29: return '}';
+    case 0x2f: return '\\';
+    case 0x3c: return '[';
+    case 0x3d: return '~';
+    case 0x3e: return ']';
+    case 0x40: return '|';
+    case 0x65: return 0x20ac; /* euro */
+    default: return '?'; /* invalid character */
+    }
+}
+
+static gunichar
+char_def_alphabet_decode(unsigned char value)
+{
+    if (value < GN_CHAR_ALPHABET_SIZE)
+    {
+        return gsm_default_alphabet[value];
+    }
+    else
+    {
+        return '?';
+    }
+}
+
+static gboolean
+handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
+    gboolean saw_escape)
+{
+	gunichar       uchar;
+
+	if (char_is_escape(code_point)) {
+		/*
+		 * XXX - if saw_escape is TRUE here, then this is
+		 * the case where we escape to "another extension table",
+		 * but TS 128 038 V11.0 doesn't specify such an extension
+		 * table.
+		 */
+		saw_escape = TRUE;
+	} else {
+		/*
+		 * Have we seen an escape?
+		 */
+		if (saw_escape) {
+			saw_escape = FALSE;
+			uchar = char_def_alphabet_ext_decode(code_point);
+		} else
+			uchar = char_def_alphabet_decode(code_point);
+	}
+	wmem_strbuf_append_unichar(strbuf, uchar);
+	return saw_escape;
+}
+
+static gchar *
+tvb_get_ts_23_038_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length)
+{
+	wmem_strbuf_t *strbuf;
+	gint           i;       /* Byte counter for tvbuff */
+	gint           in_offset = offset; /* Current pointer to the input buffer */
+	guint8         in_byte, out_byte, rest = 0x00;
+	gboolean       saw_escape = FALSE;
+	int            bits;
+
+	bits = 7;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
+	strbuf = wmem_strbuf_new(scope, NULL);
+	for(i = 0; i < length; i++) {
+		/* Get the next byte from the string. */
+		in_byte = tvb_get_guint8(tvb, in_offset);
+		in_offset++;
+
+		/*
+		 * Combine the bits we've accumulated with bits from
+		 * that byte to make a 7-bit code point.
+		 */
+		out_byte = ((in_byte & GN_BYTE_MASK) << (7 - bits)) | rest;
+
+		/*
+		 * Leftover bits used in that code point.
+		 */
+		rest = in_byte >> bits;
+
+		/*
+		 * If we don't start from 0th bit, we shouldn't go to the
+		 * next char. Under *out_num we have now 0 and under Rest -
+		 * _first_ part of the char.
+		 */
+		if ((in_offset != offset) || (bits == 7))
+			saw_escape = handle_ts_23_038_char(strbuf, out_byte,
+			    saw_escape);
+
+		/*
+		 * After reading 7 octets we have read 7 full characters
+		 * but we have 7 bits as well. This is the next character.
+		 */
+		if (bits == 1) {
+			saw_escape = handle_ts_23_038_char(strbuf, rest,
+			    saw_escape);
+			bits = 7;
+			rest = 0x00;
+		} else
+			bits--;
+	}
+
+	if (saw_escape) {
+		/*
+		 * Escape not followed by anything.
+		 *
+		 * XXX - for now, show the escape as a "?".
+		 */
+		wmem_strbuf_append_unichar(strbuf, '?');
+	}
+
+	return (gchar*)wmem_strbuf_get_str(strbuf);
+}
+
+/*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
  * at that offset, plus a trailing '\0', copy into the buffer the
@@ -2282,6 +2449,10 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_WINDOWS_1250:
 		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
+		break;
+
+	case ENC_3GPP_TS_23_038:
+		strbuf = tvb_get_ts_23_038_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_EBCDIC:
@@ -2574,6 +2745,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_WINDOWS_1250:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+		break;
+
+	case ENC_3GPP_TS_23_038:
+		REPORT_DISSECTOR_BUG("TS 23.038 has no null character and doesn't support null-terminated strings");
 		break;
 
 	case ENC_EBCDIC:

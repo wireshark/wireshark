@@ -297,21 +297,24 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_ISO_8859_15		0x00000026
 #define ENC_ISO_8859_16		0x00000028
 #define ENC_WINDOWS_1250	0x0000002A
-#define ENC_EBCDIC		0x0000002C
+#define ENC_3GPP_TS_23_038	0x0000002C
+#define ENC_EBCDIC		0x0000002E
 
 /*
  * TODO:
  *
  * These could probably be used by existing code:
  *
- *	 - "IBM MS DBCS"
- *	 - JIS C 6226
- *	7-bit encodings such as ETSI 03.38 (GSM SMS character set
- *	    (see packet-ansi_337.c, packet-gsm_a_dtap.c, packet-gsm_map.c,
- *	    packet-gsm_sms.c)?
+ *	"IBM MS DBCS"
+ *	JIS C 6226
+ *	7-bit encodings such as ETSI 03.38 (GSM SMS character set -
+ *	    used in some files, but packet-ansi_637.c,
+ *	    packet-cell_broadcast.c, packet-gmr1_rr.c,
+ *	    packet-gsm_a_dtap.c, and packet-gsm_sms.c need some
+ *	    work to use it)
  *
- * As those are added, change code such as fCharacterString() in
- * packet-bacapp.c to use them.
+ * As those are added, change code such as the code in packet-bacapp.c
+ * to use them.
  */
 
 /*

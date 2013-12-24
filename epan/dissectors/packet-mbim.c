@@ -3069,10 +3069,8 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     proto_tree *subtree;
     gint base_offset;
     guint32 ussd_payload_offset, ussd_payload_length;
-    guint8 encoding, *ussd;
+    guint8 encoding;
     tvbuff_t *ussd_tvb;
-    int out_len;
-    gchar *utf8_text;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_set_ussd_ussd_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3095,13 +3093,8 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         switch (encoding) {
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
-                ussd = (guint8*)wmem_alloc(wmem_packet_scope(), ussd_payload_length+1);
-                out_len = gsm_sms_char_7bit_unpack(0, ussd_payload_length, ussd_payload_length,
-                                                   tvb_get_ptr(ussd_tvb, 0, ussd_payload_length), ussd);
-                ussd[out_len] = '\0';
-                utf8_text = gsm_sms_chars_to_utf8(ussd, out_len);
-                proto_tree_add_string(subtree, hf_mbim_set_ussd_ussd_payload_text,
-                                      ussd_tvb, 0, ussd_payload_length, utf8_text);
+                proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_payload_text,
+                                    ussd_tvb, 0, ussd_payload_length, ENC_3GPP_TS_23_038|ENC_NA);
                 break;
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
@@ -3126,10 +3119,8 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     proto_tree *subtree;
     gint base_offset;
     guint32 ussd_payload_offset, ussd_payload_length;
-    guint8 encoding, *ussd;
+    guint8 encoding;
     tvbuff_t *ussd_tvb;
-    int out_len;
-    gchar *utf8_text;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_ussd_info_ussd_response, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3154,13 +3145,8 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         switch (encoding) {
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
-                ussd = (guint8*)wmem_alloc(wmem_packet_scope(), ussd_payload_length+1);
-                out_len = gsm_sms_char_7bit_unpack(0, ussd_payload_length, ussd_payload_length,
-                                                   tvb_get_ptr(ussd_tvb, 0, ussd_payload_length), ussd);
-                ussd[out_len] = '\0';
-                utf8_text = gsm_sms_chars_to_utf8(ussd, out_len);
-                proto_tree_add_string(subtree, hf_mbim_ussd_info_ussd_payload_text,
-                                      ussd_tvb, 0, ussd_payload_length, utf8_text);
+                proto_tree_add_item(subtree, hf_mbim_ussd_info_ussd_payload_text,
+                                    ussd_tvb, 0, ussd_payload_length, ENC_3GPP_TS_23_038|ENC_NA);
                 break;
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */

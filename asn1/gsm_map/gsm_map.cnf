@@ -508,13 +508,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:
-	out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(msgbuf),
-					   tvb_get_ptr(parameter_tvb, 0, length),
-						       msgbuf);
-
-	msgbuf[out_len] = '\0';
-	utf8_text = gsm_sms_chars_to_utf8(msgbuf, out_len);
-	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", utf8_text);
+	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038|ENC_NA));
 	break;
     case SMS_ENCODING_8BIT:
         /* XXX - ASCII, or some extended ASCII? */
