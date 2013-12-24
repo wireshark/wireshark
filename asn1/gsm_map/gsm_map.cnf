@@ -493,12 +493,6 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
   tvbuff_t	*parameter_tvb;
   guint		length;
-  guint8		out_len;
-  /* XXX - The maximum item label length is 240.  Does this really need to be 1024?
-   * use ep_alloc ?
-   */
-  static unsigned char msgbuf[1024];
-  gchar *utf8_text = NULL;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
