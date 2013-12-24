@@ -1616,7 +1616,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     gcry_mpi_t  encr_mpi = NULL, text = NULL;
     guchar*     decr_data_ptr = NULL;
 
-    /* build up a mpi rappresentation for encrypted data */
+    /* create mpi representation of encrypted data */
     rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, encr_data, len, NULL);
     if (rc != 0 ) {
         ssl_debug_printf("pcry_private_decrypt: can't convert encr_data to mpi (size %d):%s\n",
@@ -1628,7 +1628,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     /* put the data into a simple list */
     rc = gcry_sexp_build(&s_data, NULL, "(enc-val(rsa(a%m)))", encr_mpi);
     if (rc != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't build encr_sexp:%s \n",
+        ssl_debug_printf("pcry_private_decrypt: can't build encr_sexp:%s\n",
              gcry_strerror(rc));
         decr_len = 0;
         goto out;
@@ -1646,34 +1646,43 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
 
     /* convert plain text sexp to mpi format */
     text = gcry_sexp_nth_mpi(s_plain, 0, 0);
+    if (! text) {
+        ssl_debug_printf("pcry_private_decrypt: can't convert sexp to mpi\n");
+        decr_len = 0;
+        goto out;
+    }
 
     /* compute size requested for plaintext buffer */
-    decr_len = len;
-    if (gcry_mpi_print(GCRYMPI_FMT_USG, NULL, decr_len, &decr_len, text) != 0) {
+    rc = gcry_mpi_print(GCRYMPI_FMT_USG, NULL, 0, &decr_len, text);
+    if (rc != 0) {
         ssl_debug_printf("pcry_private_decrypt: can't compute decr size:%s\n",
             gcry_strerror(rc));
         decr_len = 0;
         goto out;
     }
 
+#else /* SSL_FAST */
+    rc = _gcry_rsa_decrypt(0, &text,  &encr_mpi, pk,0);
+    gcry_mpi_print( GCRYMPI_FMT_USG, 0, 0, &decr_len, text);
+#endif /* SSL_FAST */
+
     /* sanity check on out buffer */
     if (decr_len > len) {
-        ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%" G_GSIZE_MODIFIER "u max %d)\n",
-            decr_len, len);
+        ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%" G_GSIZE_MODIFIER "u max %d)\n", decr_len, len);
         decr_len = 0;
         goto out;
     }
 
-    /* write plain text to encrypted data buffer */
+    /* write plain text to newly allocated buffer */
     decr_data_ptr = encr_data;
-    if (gcry_mpi_print( GCRYMPI_FMT_USG, decr_data_ptr, decr_len, &decr_len,
-            text) != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %" G_GSIZE_MODIFIER "u):%s\n",
-            decr_len, gcry_strerror(rc));
-        g_free(decr_data_ptr);
+    rc = gcry_mpi_print(GCRYMPI_FMT_USG, decr_data_ptr, decr_len, &decr_len, text);
+    if (rc != 0) {
+        ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %" G_GSIZE_MODIFIER "u):%s\n", decr_len, gcry_strerror(rc));
         decr_len = 0;
         goto out;
     }
+
+    ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
 
     /* strip the padding*/
     rc = 0;
@@ -1684,48 +1693,10 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
         }
     }
 
-    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %" G_GSIZE_MODIFIER "u\n",
-        rc, decr_len);
-    ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
-    memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
+    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %" G_GSIZE_MODIFIER "u\n", rc, decr_len);
     decr_len -= rc;
-#else /* SSL_FAST */
-    rc = _gcry_rsa_decrypt(0, &text,  &encr_mpi, pk,0);
-    gcry_mpi_print( GCRYMPI_FMT_USG, 0, 0, &decr_len, text);
+    memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len);
 
-    /* sanity check on out buffer */
-    if (decr_len > len) {
-        ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%d max %d)\n",
-            decr_len, len);
-        decr_len = 0;
-        goto out;
-    }
-
-    /* write plain text to newly allocated buffer */
-    decr_data_ptr = encr_data;
-    if (gcry_mpi_print( GCRYMPI_FMT_USG, decr_data_ptr, decr_len, &decr_len,
-            text) != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %d):%s\n",
-            decr_len, gcry_strerror(rc));
-        decr_len = 0;
-        goto out;
-    }
-
-    /* strip the padding*/
-    rc = 0;
-    for (i = 1; i < decr_len; i++) {
-        if (decr_data_ptr[i] == 0) {
-            rc = i+1;
-            break;
-        }
-    }
-
-    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %d\n",
-        rc, decr_len);
-    ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
-    memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
-    decr_len -= rc;
-#endif /* SSL_FAST */
 out:
     gcry_sexp_release(s_data);
     gcry_sexp_release(s_plain);
