@@ -1630,16 +1630,17 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     if (rc != 0) {
         ssl_debug_printf("pcry_private_decrypt: can't build encr_sexp:%s \n",
              gcry_strerror(rc));
-        return 0;
+        decr_len = 0;
+        goto out;
     }
 
     /* pass it to libgcrypt */
     rc = gcry_pk_decrypt(&s_plain, s_data, pk);
-    gcry_sexp_release(s_data);
     if (rc != 0)
     {
         ssl_debug_printf("pcry_private_decrypt: can't decrypt key:%s\n",
             gcry_strerror(rc));
+        decr_len = 0;
         goto out;
     }
 
@@ -1659,7 +1660,8 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     if (decr_len > len) {
         ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%" G_GSIZE_MODIFIER "u max %d)\n",
             decr_len, len);
-        return 0;
+        decr_len = 0;
+        goto out;
     }
 
     /* write plain text to encrypted data buffer */
@@ -1687,9 +1689,6 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
     memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
     decr_len -= rc;
-
-out:
-    gcry_sexp_release(s_plain);
 #else /* SSL_FAST */
     rc = _gcry_rsa_decrypt(0, &text,  &encr_mpi, pk,0);
     gcry_mpi_print( GCRYMPI_FMT_USG, 0, 0, &decr_len, text);
@@ -1698,7 +1697,8 @@ out:
     if (decr_len > len) {
         ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%d max %d)\n",
             decr_len, len);
-        return 0;
+        decr_len = 0;
+        goto out;
     }
 
     /* write plain text to newly allocated buffer */
@@ -1707,7 +1707,8 @@ out:
             text) != 0) {
         ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %d):%s\n",
             decr_len, gcry_strerror(rc));
-        return 0;
+        decr_len = 0;
+        goto out;
     }
 
     /* strip the padding*/
@@ -1725,6 +1726,10 @@ out:
     memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
     decr_len -= rc;
 #endif /* SSL_FAST */
+out:
+    gcry_sexp_release(s_data);
+    gcry_sexp_release(s_plain);
+    gcry_mpi_release(encr_mpi);
     gcry_mpi_release(text);
     return (int) decr_len;
 }
