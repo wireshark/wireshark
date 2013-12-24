@@ -1388,7 +1388,7 @@ void MainWindow::setMenusForFollowStream()
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(false);
     main_ui_->actionAnalyzeFollowSSLStream->setEnabled(false);
 
-    proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL);
+    proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
     
     if (is_tcp)
     {

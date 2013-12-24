@@ -4755,7 +4755,8 @@ proto_get_protocol_filter_name(const int proto_id)
 }
 
 void
-proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp) {
+proto_get_frame_protocols(const wmem_list_t *layers,
+		gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp, gboolean *is_ssl) {
 	wmem_list_frame_t *protos = wmem_list_head(layers);
 	int	    proto_id;
 	const char *proto_name;
@@ -4777,6 +4778,8 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip, gboolean *
 			*is_udp = TRUE;
 		} else if (is_sctp && !strcmp(proto_name, "sctp")) {
 			*is_sctp = TRUE;
+		} else if (is_ssl && !strcmp(proto_name, "ssl")) {
+			*is_ssl = TRUE;
 		}
 
 		protos = wmem_list_frame_next(protos);

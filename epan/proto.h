@@ -1820,8 +1820,11 @@ WS_DLL_PUBLIC const char *proto_get_protocol_filter_name(const int proto_id);
  * unchanged. May be NULL.
  * @param is_sctp Set to TRUE if the layer list contains SCTP, otherwise
  * unchanged. May be NULL.
+ * @param is_ssl Set to TRUE if the layer list contains SSL/TLS, otherwise
+ * unchanged. May be NULL.
  */
-WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp);
+WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
+      gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp, gboolean *is_ssl);
 
 /** Enable / Disable protocol of the given item number.
  @param proto_id protocol id (0-indexed)

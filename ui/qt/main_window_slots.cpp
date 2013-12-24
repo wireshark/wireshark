@@ -776,7 +776,7 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (cap_file_->edt)
         {
-            proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, NULL, &is_sctp);
+            proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, NULL, &is_sctp, NULL);
         }
     }
 //    if (cfile.edt && cfile.edt->tree) {

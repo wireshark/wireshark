@@ -192,7 +192,7 @@ build_conversation_filter(int action, gboolean show_dialog)
     char        *buf;
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE;
 
-    proto_get_frame_protocols(pi->layers, &is_ip, &is_tcp, &is_udp, NULL);
+    proto_get_frame_protocols(pi->layers, &is_ip, &is_tcp, &is_udp, NULL, NULL);
 
     switch(action) {
     case(CONV_CBA):

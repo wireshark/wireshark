@@ -824,7 +824,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         return false;
     }
 
-    proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL);
+    proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
 
     switch (follow_type_)
     {
