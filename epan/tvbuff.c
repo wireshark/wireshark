@@ -2162,10 +2162,6 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 static const gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
     /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
-    /* Fixed to use unicode */
-    /* Characters in hex position 10, [12 to 1a] and 24 are not present on
-       latin1 charset, so we cannot reproduce on the screen, however they are
-       greek symbol not present even on my Nokia */
 
     '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
     0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
@@ -2206,7 +2202,7 @@ char_def_alphabet_ext_decode(unsigned char value)
     case 0x3e: return ']';
     case 0x40: return '|';
     case 0x65: return 0x20ac; /* euro */
-    default: return '?'; /* invalid character */
+    default: return '?'; /* invalid character XXX use REPLACEMENT CHARACTER */
     }
 }
 
