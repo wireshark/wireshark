@@ -1010,8 +1010,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree && stat_info->http_host && stat_info->request_uri) {
 		proto_item *e_ti;
-		gchar *uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
-			   "http",	/* XXX, https? */
+		gboolean    is_ssl = FALSE;
+		gchar      *uri;
+
+		proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
+		uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
+			    is_ssl ? "https" : "http",
 			    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
 
 		e_ti = proto_tree_add_string(http_tree,
