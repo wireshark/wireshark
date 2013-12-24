@@ -1601,37 +1601,9 @@ ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
     *cipher = NULL;
 }
 
-#if 0
-/* private key abstraction layer */
-static inline gint
-ssl_get_key_len(SSL_PRIVATE_KEY* pk) {return gcry_pk_get_nbits (pk); }
-#endif
-
 gcry_err_code_t
 _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
                    gcry_mpi_t *skey, gint flags);
-
-#define PUBKEY_FLAG_NO_BLINDING (1 << 0)
-#if 0
-static const gchar*
-ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
-{
-    const gchar *str = "NULL";
-    size_t       n;
-    gchar       *buf;
-
-    if (!pk) return str;
-#ifndef SSL_FAST
-    n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, NULL, 0);
-    buf = (gchar *)ep_alloc(n);
-    /*n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, buf, n);*/
-    str = buf;
-#else /* SSL_FAST */
-    str = "TO DO: dump mpi gcry_mpi_print()";
-#endif /* SSL_FAST */
-    return str;
-}
-#endif
 
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
@@ -1656,8 +1628,6 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
             len, gcry_strerror(rc));
         return 0;
     }
-
-    /*ssl_debug_printf("pcry_private_decrypt: pk=%s\n", ssl_private_key_to_str(pk));*/
 
 #ifndef SSL_FAST
     /* put the data into a simple list */
