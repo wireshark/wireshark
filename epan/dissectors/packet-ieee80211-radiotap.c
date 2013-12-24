@@ -1887,7 +1887,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							tvb, offset + 8, 1,ENC_LITTLE_ENDIAN);
 					}
 
-					if (can_calculate_rate) {
+					if (can_calculate_rate && mcs <= MAX_MCS_INDEX) {
 						float rate = ieee80211_vhtinfo[mcs].rates[bandwidth][gi_length] * nss;
 						if (rate != 0.0f && user_tree) {
 							rate_ti = proto_tree_add_float_format(user_tree,
