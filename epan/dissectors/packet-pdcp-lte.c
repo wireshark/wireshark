@@ -286,8 +286,8 @@ UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcIntegrityKeyString,  uat_ue_keys_reco
 
 static gboolean global_pdcp_decipher_signalling = FALSE;
 static gboolean global_pdcp_decipher_userplane = FALSE;
-static gboolean global_pdcp_check_integrity = FALSE;
 #endif
+static gboolean global_pdcp_check_integrity = FALSE;
 
 static const value_string direction_vals[] =
 {
