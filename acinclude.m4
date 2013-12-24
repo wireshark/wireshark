@@ -2176,7 +2176,7 @@ CC is not __clang__
     ],
     CC_IS_CLANG='no'
     )
-  AC_MSG_RESULT("$CC_IS_CLANG")
+  AC_MSG_RESULT($CC_IS_CLANG)
 
   AC_MSG_CHECKING(if $CXX is Clang)
   AC_LANG_PUSH([C++])
@@ -2193,7 +2193,7 @@ CXX is not __clang__
     CXX_IS_CLANG='no'
     )
   AC_LANG_POP([C++])
-  AC_MSG_RESULT("$CXX_IS_CLANG")
+  AC_MSG_RESULT($CXX_IS_CLANG)
 
 ])
 
