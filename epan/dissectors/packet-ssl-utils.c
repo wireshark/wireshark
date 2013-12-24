@@ -1608,18 +1608,17 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
 static int
-ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
+ssl_private_decrypt(const guint len, guchar* data, SSL_PRIVATE_KEY* pk)
 {
     gint        rc = 0;
     size_t      decr_len = 0, i = 0;
     gcry_sexp_t s_data = NULL, s_plain = NULL;
     gcry_mpi_t  encr_mpi = NULL, text = NULL;
-    guchar*     decr_data_ptr = NULL;
 
     /* create mpi representation of encrypted data */
-    rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, encr_data, len, NULL);
+    rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, data, len, NULL);
     if (rc != 0 ) {
-        ssl_debug_printf("pcry_private_decrypt: can't convert encr_data to mpi (size %d):%s\n",
+        ssl_debug_printf("pcry_private_decrypt: can't convert data to mpi (size %d):%s\n",
             len, gcry_strerror(rc));
         return 0;
     }
@@ -1674,20 +1673,19 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     }
 
     /* write plain text to newly allocated buffer */
-    decr_data_ptr = encr_data;
-    rc = gcry_mpi_print(GCRYMPI_FMT_USG, decr_data_ptr, decr_len, &decr_len, text);
+    rc = gcry_mpi_print(GCRYMPI_FMT_USG, data, len, &decr_len, text);
     if (rc != 0) {
         ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %" G_GSIZE_MODIFIER "u):%s\n", decr_len, gcry_strerror(rc));
         decr_len = 0;
         goto out;
     }
 
-    ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
+    ssl_print_data("decrypted_unstrip_pre_master", data, decr_len);
 
     /* strip the padding*/
     rc = 0;
     for (i = 1; i < decr_len; i++) {
-        if (decr_data_ptr[i] == 0) {
+        if (data[i] == 0) {
             rc = (gint) i+1;
             break;
         }
@@ -1695,7 +1693,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
 
     ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %" G_GSIZE_MODIFIER "u\n", rc, decr_len);
     decr_len -= rc;
-    memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len);
+    memmove(data, data+rc, decr_len);
 
 out:
     gcry_sexp_release(s_data);
