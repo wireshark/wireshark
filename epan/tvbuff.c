@@ -2233,7 +2233,6 @@ handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
 		 * table.
 		 */
 		saw_escape = TRUE;
-		uchar = '?';
 	} else {
 		/*
 		 * Have we seen an escape?
@@ -2244,8 +2243,8 @@ handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
 		} else {
 			uchar = char_def_alphabet_decode(code_point);
 		}
+		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
-	wmem_strbuf_append_unichar(strbuf, uchar);
 	return saw_escape;
 }
 
