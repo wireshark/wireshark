@@ -1469,7 +1469,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
                 /* TODO: need to do gcry_mac_setiv() ??? If so what is the IV to use! */
 
                 /* Extract the encrypted data into a buffer */
-                message_length = tvb_length_remaining(tvb, offset);
+                message_length = tvb_length_remaining(tvb, offset) - 4;
                 message_data = (guint8 *)g_malloc0(message_length+8);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
