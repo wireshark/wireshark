@@ -1610,6 +1610,37 @@ AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
 	CFLAGS="$save_CFLAGS"
     ])
 
+dnl
+dnl Check whether, if you pass a valid-for-C-but-not-C++ option to the
+dnl compiler, it fails or just prints a warning message and succeeds.
+dnl Set ac_wireshark_non_cxx_warning_option_error to the appropriate flag
+dnl to force an error if it would otherwise just print a warning message
+dnl and succeed.
+dnl
+AC_DEFUN([AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR],
+    [
+	AC_MSG_CHECKING([whether the compiler fails when given an warning option not supported for C++])
+	save_CXXFLAGS="$CXXFLAGS"
+	CXXFLAGS="$CFLAGS -Wmissing-prototypes" # the prototypical one, no pun intended
+	AC_LANG_PUSH(C++)
+	AC_TRY_COMPILE(
+	    [],
+	    [return 0],
+	    [
+		AC_MSG_RESULT([no, adding -Werror])
+		#
+		# We're assuming this is g++, where -Werror is the
+		# appropriate option to force the compiler to fail.
+		# 
+		ac_wireshark_non_cxx_warning_option_error="-Werror"
+	    ],
+	    [
+		AC_MSG_RESULT([yes])
+	    ])
+	AC_LANG_POP
+	CXXFLAGS="$save_CXXFLAGS"
+    ])
+
 #
 # AC_WIRESHARK_COMPILER_FLAGS_CHECK
 #
@@ -1720,11 +1751,21 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     #
     # Not C-only; if this can be added to the C++ compiler flags, add them.
     #
+    # If the option begins with "-W", add
+    # $ac_wireshark_unknown_warning_option_error, as per the above, and
+    # also add $ac_wireshark_non_cxx_warning_option_error, because at
+    # lease some versions of g++ whine about -Wmissing-prototypes, the
+    # fact that at least one of those versions refuses to warn about
+    # function declarations without an earlier declaration nonwithstanding;
+    # perhaps there's a reason not to warn about that with C++ even though
+    # warning about it can be a Good Idea with C, but it's not obvious to
+    # me).
+    #
     AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
     CXXFLAGS_saved="$CXXFLAGS"
     if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
     then
-      CXXFLAGS="$CXXFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
+      CXXFLAGS="$CXXFLAGS $ac_wireshark_unknown_warning_option_error $ac_wireshark_non_cxx_warning_option_error $GCC_OPTION"
     elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
     then
       CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"

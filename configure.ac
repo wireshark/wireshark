@@ -750,10 +750,16 @@ fi
 AC_SUBST(HAVE_OSX_PACKAGING)
 
 #
-# Some compilers have to be told to fail on unknown warning errors;
+# Some compilers have to be told to fail when passed an unknown -W flag;
 # make sure we do that.
 #
 AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR
+
+#
+# Some C++ compilers have to be told to fail when passed a -W flag that
+# they don't think should apply to C++; make sure we do that.
+#
+AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR
 
 #
 # Try to add some additional gcc checks to CFLAGS
@@ -801,7 +807,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		#
 		# All the registration functions block these for now.
 		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes, C)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes)
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-declarations)
 		#
 		# A bunch of "that might not work on SPARC" code blocks
