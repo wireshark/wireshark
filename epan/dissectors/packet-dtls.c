@@ -271,8 +271,7 @@ dtls_init(void)
 static void
 dtls_parse_uat(void)
 {
-  ep_stack_t       tmp_stack;
-  SslAssociation  *tmp_assoc;
+  wmem_stack_t    *tmp_stack;
   guint            i;
 
   if (dtls_key_hash)
@@ -282,11 +281,12 @@ dtls_parse_uat(void)
   }
 
   /* remove only associations created from key list */
-  tmp_stack = ep_stack_new();
+  tmp_stack = wmem_stack_new(NULL);
   g_tree_foreach(dtls_associations, ssl_assoc_from_key_list, tmp_stack);
-  while ((tmp_assoc = (SslAssociation *)ep_stack_pop(tmp_stack)) != NULL) {
-    ssl_association_remove(dtls_associations, tmp_assoc);
+  while (wmem_stack_count(tmp_stack) > 0) {
+    ssl_association_remove(dtls_associations, (SslAssociation *)wmem_stack_pop(tmp_stack));
   }
+  wmem_destroy_stack(tmp_stack);
 
   /* parse private keys string, load available keys and put them in key hash*/
   dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
