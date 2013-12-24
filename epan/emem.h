@@ -102,41 +102,6 @@ gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens)
 /** release all memory allocated in the previous packet dissection */
 void ep_free_all(void);
 
-
-/** a stack implemented using ephemeral allocators */
-
-typedef struct _ep_stack_frame_t** ep_stack_t;
-
-struct _ep_stack_frame_t {
-    void* payload;
-    struct _ep_stack_frame_t* below;
-    struct _ep_stack_frame_t* above;
-};
-
-/**
- * creates an empty stack with a packet lifetime scope
- */
-WS_DLL_PUBLIC
-ep_stack_t ep_stack_new(void) G_GNUC_MALLOC;
-
-/**
- * pushes item into stack, returns item
- */
-WS_DLL_PUBLIC
-void* ep_stack_push(ep_stack_t stack, void* item);
-
-/**
- * pops an item from the stack
- */
-WS_DLL_PUBLIC
-void* ep_stack_pop(ep_stack_t stack);
-
-/**
- * returns the item on top of the stack without popping it
- */
-#define ep_stack_peek(stack) ((*(stack))->payload)
-
-
 /* Functions for handling memory allocation and garbage collection with
  * a capture lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
