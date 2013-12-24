@@ -32,10 +32,11 @@
 #include <epan/proto.h>
 #include <epan/tvbuff.h>
 #include <epan/tvbparse.h>
+#include <epan/wmem/wmem.h>
 #include "ws_symbol_export.h"
 
 typedef struct _tpg_parser_data_t {
-    ep_stack_t stack;
+    wmem_stack_t *stack;
     tvbparse_t* tt;
     void* private_data;
 } tpg_parser_data_t;
@@ -67,8 +68,8 @@ WS_DLL_PUBLIC guint32 tpg_ipv4(tvbparse_elem_t*);
 WS_DLL_PUBLIC guint8* tpg_ipv6(tvbparse_elem_t*);
 #define TPG_IPV6(i) tpg_ipv6((i))
 
-#define TPG_PUSH(tpg,pi,ett) ep_stack_push(((tpg_parser_data_t*)(tpg))->stack,proto_item_add_subtree((pi),(ett)))
-#define TPG_POP(tpg) ep_stack_pop(((tpg_parser_data_t*)(tpg))->stack) ;
+#define TPG_PUSH(tpg,pi,ett) wmem_stack_push(((tpg_parser_data_t*)(tpg))->stack,proto_item_add_subtree((pi),(ett)))
+#define TPG_POP(tpg) wmem_stack_pop(((tpg_parser_data_t*)(tpg))->stack) ;
 
 #define TPG_ADD_STRING(tpg,  hfid, elem) proto_tree_add_item(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, FALSE)
 #define TPG_ADD_BOOLEAN(tpg,  hfid, elem) proto_tree_add_boolean(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, TRUE)

@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/proto.h>
 #include <epan/packet_info.h>
 #include <epan/tvbparse.h>
@@ -1250,7 +1251,7 @@ guint tvbparse_curr_offset(tvbparse_t* tt) {
 }
 
 static void execute_callbacks(tvbparse_t* tt, tvbparse_elem_t* curr) {
-    ep_stack_t stack = ep_stack_new();
+    wmem_stack_t *stack = wmem_stack_new(wmem_packet_scope());
 
     while (curr) {
         if(curr->wanted->before) {
@@ -1261,7 +1262,7 @@ static void execute_callbacks(tvbparse_t* tt, tvbparse_elem_t* curr) {
         }
 
         if(curr->sub) {
-            ep_stack_push(stack,curr);
+            wmem_stack_push(stack, curr);
             curr = curr->sub;
             continue;
         } else {
@@ -1273,8 +1274,8 @@ static void execute_callbacks(tvbparse_t* tt, tvbparse_elem_t* curr) {
 
         curr = curr->next;
 
-        while( !curr && ep_stack_peek(stack) ) {
-            curr = (tvbparse_elem_t *)ep_stack_pop(stack);
+        while( !curr && wmem_stack_count(stack) > 0 ) {
+            curr = (tvbparse_elem_t *)wmem_stack_pop(stack);
 #ifdef TVBPARSE_DEBUG
             if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_CB) g_warning("execute_callbacks: AFTER: id=%i offset=%i len=%i",curr->id,curr->offset,curr->len);
 #endif
@@ -1391,8 +1392,8 @@ struct _elem_tree_stack_frame {
 };
 
 void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
-    ep_stack_t stack = ep_stack_new();
-    struct _elem_tree_stack_frame* frame = (struct _elem_tree_stack_frame *)ep_alloc(sizeof(struct _elem_tree_stack_frame));
+    wmem_stack_t *stack = wmem_stack_new(wmem_packet_scope());
+    struct _elem_tree_stack_frame* frame = wmem_new(wmem_packet_scope(), struct _elem_tree_stack_frame);
     proto_item* pi;
     frame->tree = tree;
     frame->elem = curr;
@@ -1402,8 +1403,8 @@ void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
 
         if(curr->sub) {
             frame->elem = curr;
-            ep_stack_push(stack,frame);
-            frame = (struct _elem_tree_stack_frame *)ep_alloc(sizeof(struct _elem_tree_stack_frame));
+            wmem_stack_push(stack, frame);
+            frame = wmem_new(wmem_packet_scope(), struct _elem_tree_stack_frame);
             frame->tree = proto_item_add_subtree(pi,0);
             curr = curr->sub;
             continue;
@@ -1411,8 +1412,8 @@ void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
 
         curr = curr->next;
 
-        while( !curr && ep_stack_peek(stack) ) {
-            frame = (struct _elem_tree_stack_frame *)ep_stack_pop(stack);
+        while( !curr && wmem_stack_count(stack) > 0 ) {
+            frame = (struct _elem_tree_stack_frame *)wmem_stack_pop(stack);
             curr = frame->elem->next;
         }
 

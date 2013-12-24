@@ -28,7 +28,7 @@
 #include "config.h"
 
 #include "tpg.h"
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 
 extern guint32 tpg_ipv4(tvbparse_elem_t* e _U_) {    
@@ -47,13 +47,13 @@ extern tpg_parser_data_t* tpg_start(proto_tree* root_tree,
                                     int len,
                                     tvbparse_wanted_t* ignore,
                                     void* private_data) {
-    tpg_parser_data_t* tpg = ep_alloc(sizeof(tpg_parser_data_t));
+    tpg_parser_data_t* tpg = wmem_new(wmem_packet_scope(), tpg_parser_data_t);
     tpg->private_data = private_data;
     tpg->tt = tvbparse_init(tvb,offset,len,tpg,ignore);
 
-    tpg->stack = ep_stack_new();
-    ep_stack_push(tpg->stack,root_tree);
-    
+    tpg->stack = wmem_stack_new(wmem_packet_scope());
+    wmem_stack_push(tpg->stack, root_tree);
+
     return tpg;
 }
 
