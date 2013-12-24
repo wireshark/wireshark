@@ -58,6 +58,8 @@ typedef wmem_list_t wmem_queue_t;
 
 #define wmem_queue_new(ALLOCATOR) wmem_list_new(ALLOCATOR)
 
+#define wmem_destroy_queue(QUEUE) wmem_destroy_list(QUEUE)
+
 /**   @}
  *  @} */
 

@@ -62,6 +62,8 @@ wmem_stack_pop(wmem_stack_t *stack);
 
 #define wmem_stack_new(ALLOCATOR) wmem_list_new(ALLOCATOR)
 
+#define wmem_destroy_stack(STACK) wmem_destroy_list(STACK)
+
 /**   @}
  *  @} */
 

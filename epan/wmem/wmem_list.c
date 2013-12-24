@@ -173,6 +173,22 @@ wmem_list_new(wmem_allocator_t *allocator)
     return list;
 }
 
+void
+wmem_destroy_list(wmem_list_t *list)
+{
+    wmem_list_frame_t *cur, *next;
+
+    cur = list->head;
+
+    while (cur) {
+        next = cur->next;
+        wmem_free(list->allocator, cur);
+        cur = next;
+    }
+
+    wmem_free(list->allocator, list);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

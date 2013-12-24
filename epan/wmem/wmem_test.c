@@ -593,6 +593,13 @@ wmem_test_list(void)
     }
 
     wmem_destroy_allocator(allocator);
+
+    list = wmem_list_new(NULL);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_list_prepend(list, GINT_TO_POINTER(i));
+    }
+    g_assert(wmem_list_count(list) == CONTAINER_ITERS);
+    wmem_destroy_list(list);
 }
 
 static void
@@ -622,6 +629,8 @@ wmem_test_queue(void)
         g_assert(wmem_queue_count(queue) == CONTAINER_ITERS-i-1);
     }
     g_assert(wmem_queue_count(queue) == 0);
+
+    wmem_destroy_queue(queue);
 
     wmem_destroy_allocator(allocator);
 }
@@ -653,6 +662,8 @@ wmem_test_stack(void)
         g_assert(wmem_stack_count(stack) == i-1);
     }
     g_assert(wmem_stack_count(stack) == 0);
+
+    wmem_destroy_stack(stack);
 
     wmem_destroy_allocator(allocator);
 }

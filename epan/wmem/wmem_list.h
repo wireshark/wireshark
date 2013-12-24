@@ -95,6 +95,10 @@ wmem_list_t *
 wmem_list_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;
 
+WS_DLL_PUBLIC
+void
+wmem_destroy_list(wmem_list_t *list);
+
 /**   @}
  *  @} */
 
