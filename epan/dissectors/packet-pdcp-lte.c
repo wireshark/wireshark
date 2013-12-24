@@ -54,6 +54,7 @@ void proto_reg_handoff_pdcp_lte(void);
 /* TODO:
    - More deciphering. Next steps are:
        - Verify MAC authentication bytes for supported protocol(s)?
+          - code that doesn't quite work against gcrypt 1.6 is #if 0'd out...
    - Add Relay Node user plane data PDU dissection
 */
 
@@ -529,7 +530,8 @@ static GHashTable *pdcp_lte_sequence_analysis_report_hash = NULL;
 /* Gather together security settings in order to be able to do deciphering */
 typedef struct pdu_security_settings_t
 {
-    gboolean valid;
+    gboolean cipherValid;
+    gboolean integrityValid;
     enum security_ciphering_algorithm_e ciphering;
     enum security_integrity_algorithm_e integrity;
     guint8* cipherKey;
@@ -653,13 +655,13 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                             if (uat_ue_keys_records[record_id].rrcCipherKeyOK) {
                                 key = uat_ue_keys_records[record_id].rrcCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].rrcCipherBinaryKey[0]);
-                                pdu_security->valid = TRUE;
+                                pdu_security->cipherValid = TRUE;
                             }
                             /* Get RRC integrity key */
                             if (uat_ue_keys_records[record_id].rrcIntegrityKeyOK) {
                                 key = uat_ue_keys_records[record_id].rrcIntegrityKeyString;
                                 pdu_security->integrityKey = &(uat_ue_keys_records[record_id].rrcIntegrityBinaryKey[0]);
-                                pdu_security->valid = TRUE;
+                                pdu_security->integrityValid = TRUE;
                             }
                         }
                         else {
@@ -667,7 +669,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                             if (uat_ue_keys_records[record_id].upCipherKeyOK) {
                                 key = uat_ue_keys_records[record_id].upCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].upCipherBinaryKey[0]);
-                                pdu_security->valid = TRUE;
+                                pdu_security->cipherValid = TRUE;
                             }
                         }
 
@@ -1332,7 +1334,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     tvbuff_t *decrypted_tvb;
 
     /* Nothing to do if no ciphering algorithm was specified */
-    if (!pdu_security_settings->valid) {
+    if (!pdu_security_settings->cipherValid) {
         return tvb;
     }
 
@@ -1429,14 +1431,15 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
         case eia2:
             {
 #if 0
-                gcry_cipher_hd_t cypher_hd;
+                gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
                 gint message_length;
                 guint8 *message_data;
-                guint32 mac;
+                guint32 mac[4];
                 guint8 *p_mac = (guint8*)&mac;
+                ssize_t read_digest_length;
 
-                if (!pdu_security_settings->valid) {
+                if (!pdu_security_settings->integrityValid) {
                     return 0;
                 }
             
@@ -1452,16 +1455,18 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
 
                 /* Open gcrypt handle */
                 /* N.B. Unfortunately GCRY_MAC_CMAC_AES is not available in currently used version of gcrypt! */
-                gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_MAC_CMAC_AES, 0);
+                gcrypt_err = gcry_mac_open(&mac_hd, GCRY_MAC_CMAC_AES, 0, NULL);
                 if (gcrypt_err != 0) {
                     return 0;
                 }
 
                 /* Set the key */
-                gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->integrityKey, 16);
+                gcrypt_err = gcry_mac_setkey(mac_hd, pdu_security_settings->integrityKey, 16);
                 if (gcrypt_err != 0) {
                     return 0;
                 }
+
+                /* TODO: need to do gcry_mac_setiv() ??? If so what is the IV to use! */
 
                 /* Extract the encrypted data into a buffer */
                 message_length = tvb_length_remaining(tvb, offset);
@@ -1474,16 +1479,26 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
                 /* rest of first 8 bytes are left as zeroes... */
                 tvb_memcpy(tvb, message_data+8, offset, message_length);
 
-                /* Extract the CMAC */
-                gcrypt_err = gcry_cipher_decrypt(cypher_hd,
-                                                 p_mac, 4,
-                                                 message_data, message_length+8);
+                /* Pass in the message */
+                gcrypt_err = gcry_mac_write(mac_hd, message_data, message_length+8);
                 if (gcrypt_err != 0) {
                     return 0;
                 }
 
+                /* Read out the digest */
+                gcrypt_err = gcry_mac_read(mac_hd, p_mac, &read_digest_length);
+                if (gcrypt_err != 0) {
+                    return 0;
+                }
+
+                /* Now close the mac handle */
+                gcry_mac_close(mac_hd);
+
+                g_free(message_data);
+
                 *calculated = TRUE;
-                return mac;
+                /* TODO: not sure where MAC will be among this...? */
+                return mac[3];
 #endif
             }
             /* TODO: just dropping through until GCRY_MAC_CMAC_AES is available! */ 
@@ -1538,7 +1553,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gboolean payload_deciphered = FALSE;
 
     /* Initialise security settings */
-    pdu_security_settings.valid = FALSE;
+    pdu_security_settings.cipherValid = FALSE;
+    pdu_security_settings.integrityValid = FALSE;
 
     /* Set protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -1631,6 +1647,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
 
         pdu_security_settings.ciphering = pdu_security->ciphering;
+        pdu_security_settings.integrity = pdu_security->integrity;
     }
 
 
@@ -1871,7 +1888,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         guint32 data_length;
         guint32 mac;
         proto_item *mac_ti;
-        guint32  calculated_digest;
+        guint32  calculated_digest = 0;
         gboolean digest_was_calculated = FALSE;
 
         /* Try to calculate digest so we can check it */
@@ -2355,7 +2372,7 @@ void proto_register_pdcp(void)
         { &ei_pdcp_lte_sequence_analysis_sn_repeated, { "pdcp-lte.sequence-analysis.sn-repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
         { &ei_pdcp_lte_sequence_analysis_wrong_sequence_number, { "pdcp-lte.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
         { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
-        { &ei_pdcp_lte_digest_wrong, { "pdcp-lte.digest-wrong", PI_CHECKSUM, PI_ERROR, "MAC-I Digest wrong", EXPFILL }}
+        { &ei_pdcp_lte_digest_wrong, { "pdcp-lte.maci-wrong", PI_SEQUENCE, PI_ERROR, "MAC-I doesn't match expected value", EXPFILL }}
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
