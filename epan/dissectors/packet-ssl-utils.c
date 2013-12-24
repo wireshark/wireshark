@@ -1610,19 +1610,14 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 static int
 ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
 {
-    gint        rc;
-    size_t      decr_len;
-    gcry_sexp_t s_data, s_plain;
-    gcry_mpi_t  encr_mpi;
-    size_t      i, encr_len;
-    guchar*     decr_data_ptr;
-    gcry_mpi_t  text;
-    decr_len = 0;
-    encr_len = len;
-    text     = NULL;
+    gint        rc = 0;
+    size_t      decr_len = 0, i = 0;
+    gcry_sexp_t s_data = NULL, s_plain = NULL;
+    gcry_mpi_t  encr_mpi = NULL, text = NULL;
+    guchar*     decr_data_ptr = NULL;
 
     /* build up a mpi rappresentation for encrypted data */
-    rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG,encr_data, encr_len, &encr_len);
+    rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, encr_data, len, NULL);
     if (rc != 0 ) {
         ssl_debug_printf("pcry_private_decrypt: can't convert encr_data to mpi (size %d):%s\n",
             len, gcry_strerror(rc));
