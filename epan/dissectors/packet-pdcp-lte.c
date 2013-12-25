@@ -120,7 +120,8 @@ static int hf_pdcp_lte_security_ciphering_algorithm = -1;
 static int hf_pdcp_lte_security_bearer = -1;
 static int hf_pdcp_lte_security_direction = -1;
 static int hf_pdcp_lte_security_count = -1;
-static int hf_pdcp_lte_security_key = -1;
+static int hf_pdcp_lte_security_cipher_key = -1;
+static int hf_pdcp_lte_security_integrity_key = -1;
 
 
 
@@ -608,7 +609,8 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 guint32              hfn_multiplier;
                 guint32              count;
 #if HAVE_LIBGCRYPT
-                gchar                *key = NULL;
+                gchar                *cipher_key = NULL;
+                gchar                *integrity_key = NULL;
                 guint                record_id;
 #endif
                 /* BEARER */
@@ -653,13 +655,13 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
                             /* Get RRC ciphering key */
                             if (uat_ue_keys_records[record_id].rrcCipherKeyOK) {
-                                key = uat_ue_keys_records[record_id].rrcCipherKeyString;
+                                cipher_key = uat_ue_keys_records[record_id].rrcCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].rrcCipherBinaryKey[0]);
                                 pdu_security->cipherValid = TRUE;
                             }
                             /* Get RRC integrity key */
                             if (uat_ue_keys_records[record_id].rrcIntegrityKeyOK) {
-                                key = uat_ue_keys_records[record_id].rrcIntegrityKeyString;
+                                integrity_key = uat_ue_keys_records[record_id].rrcIntegrityKeyString;
                                 pdu_security->integrityKey = &(uat_ue_keys_records[record_id].rrcIntegrityBinaryKey[0]);
                                 pdu_security->integrityValid = TRUE;
                             }
@@ -667,15 +669,21 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         else {
                             /* Get userplane ciphering key */
                             if (uat_ue_keys_records[record_id].upCipherKeyOK) {
-                                key = uat_ue_keys_records[record_id].upCipherKeyString;
+                                cipher_key = uat_ue_keys_records[record_id].upCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].upCipherBinaryKey[0]);
                                 pdu_security->cipherValid = TRUE;
                             }
                         }
 
-                        if (key != NULL) {
-                            ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_key,
-                                                       tvb, 0, 0, key);
+                        /* Show keys where known and valid */
+                        if (cipher_key != NULL) {
+                            ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_cipher_key,
+                                                       tvb, 0, 0, cipher_key);
+                            PROTO_ITEM_SET_GENERATED(ti);
+                        }
+                        if (integrity_key != NULL) {
+                            ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_integrity_key,
+                                                       tvb, 0, 0, integrity_key);
                             PROTO_ITEM_SET_GENERATED(ti);
                         }
                         break;
@@ -1418,7 +1426,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header,
                                 tvbuff_t *tvb _U_, gint offset _U_, gboolean *calculated)
 {
     *calculated = FALSE;
@@ -1470,17 +1478,18 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
 
                 /* Extract the encrypted data into a buffer */
                 message_length = tvb_length_remaining(tvb, offset) - 4;
-                message_data = (guint8 *)g_malloc0(message_length+8);
+                message_data = (guint8 *)g_malloc0(message_length+9);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
                 message_data[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
                 message_data[3] = (pdu_security_settings->count & 0x000000ff);
                 message_data[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
                 /* rest of first 8 bytes are left as zeroes... */
-                tvb_memcpy(tvb, message_data+8, offset, message_length);
+                message_data[8] = header;
+                tvb_memcpy(tvb, message_data+9, offset, message_length);
 
                 /* Pass in the message */
-                gcrypt_err = gcry_mac_write(mac_hd, message_data, message_length+8);
+                gcrypt_err = gcry_mac_write(mac_hd, message_data, message_length+9);
                 if (gcrypt_err != 0) {
                     return 0;
                 }
@@ -1511,7 +1520,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
     }
 }
 #else
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings,
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header _U_,
                                 tvbuff_t *tvb _U_,  gint offset _U_, gboolean *calculated)
 {
     switch (pdu_security_settings->integrity) {
@@ -1893,7 +1902,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* Try to calculate digest so we can check it */
         if (global_pdcp_check_integrity) {
-            calculated_digest = calculate_digest(&pdu_security_settings, tvb, offset, &digest_was_calculated);
+            calculated_digest = calculate_digest(&pdu_security_settings, tvb_get_guint8(tvb, 0), payload_tvb,
+                                                 offset, &digest_was_calculated);
         }
 
         /* RRC data is all but last 4 bytes.
@@ -1943,7 +1953,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += data_length;
 
         /* Last 4 bytes are MAC */
-        mac = tvb_get_ntohl(tvb, offset);
+        mac = tvb_get_ntohl(payload_tvb, offset);
         mac_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
@@ -2349,9 +2359,15 @@ void proto_register_pdcp(void)
               NULL, HFILL
             }
         },
-        { &hf_pdcp_lte_security_key,
-            { "KEY",
-              "pdcp-lte.security-config.key", FT_STRING, BASE_NONE, NULL, 0x0,
+        { &hf_pdcp_lte_security_cipher_key,
+            { "CIPHER KEY",
+              "pdcp-lte.security-config.cipher-key", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_security_integrity_key,
+            { "INTEGRITY KEY",
+              "pdcp-lte.security-config.integrity-key", FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
