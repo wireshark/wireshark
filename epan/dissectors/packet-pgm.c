@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/ptvcursor.h>
+#include <epan/expert.h>
 
 void proto_register_pgm(void);
 void proto_reg_handoff_pgm(void);
@@ -243,6 +244,11 @@ static int hf_pgm_opt_fragment_first_sqn = -1;
 static int hf_pgm_opt_fragment_offset = -1;
 static int hf_pgm_opt_fragment_total_length = -1;
 
+static expert_field ei_pgm_genopt_len = EI_INIT;
+static expert_field ei_pgm_opt_tlen = EI_INIT;
+static expert_field ei_pgm_opt_type = EI_INIT;
+static expert_field ei_address_format_invalid = EI_INIT;
+
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
@@ -339,9 +345,9 @@ static const true_false_string opts_present = {
 };
 
 static void
-dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
+dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 {
-	proto_item *tf;
+	proto_item *tf, *ti, *ti_len;
 	proto_tree *opts_tree = NULL;
 	proto_tree *opt_tree = NULL;
 	tvbuff_t *tvb = ptvcursor_tvbuff(cursor);
@@ -351,38 +357,38 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 	guint16 opts_total_len;
 	guint8 genopts_type;
 	guint8 genopts_len;
-	guint8 opts_type = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+	guint8 opts_type;
 
+	tf = proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), -1,
+		"%s Options", pktname);
+	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
+	ptvcursor_set_tree(cursor, opts_tree);
+	opts_type = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+	ti = ptvcursor_add(cursor, hf_pgm_opt_type, 1, ENC_BIG_ENDIAN);
 	if (opts_type != PGM_OPT_LENGTH) {
-		proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), 1,
+		expert_add_info_format(pinfo, ti, &ei_pgm_opt_type,
 		    "%s Options - initial option is %s, should be %s",
 		    pktname,
 		    val_to_str(opts_type, opt_vals, "Unknown (0x%02x)"),
 		    val_to_str(PGM_OPT_LENGTH, opt_vals, "Unknown (0x%02x)"));
 		return;
 	}
-
-	opts_total_len = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor)+2);
-
+	ptvcursor_add(cursor, hf_pgm_opt_len, 1, ENC_BIG_ENDIAN);
+	opts_total_len = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
+	proto_item_append_text(tf, " (Total Length %d)", opts_total_len);
+	proto_item_set_len(tf, opts_total_len);
+	ti_len = ptvcursor_add(cursor, hf_pgm_opt_tlen, 2, ENC_BIG_ENDIAN);
 	if (opts_total_len < 4) {
-		proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor)+2, 2,
+		expert_add_info_format(pinfo, ti_len, &ei_pgm_opt_tlen,
 			"%s Options (Total Length %u - invalid, must be >= 4)",
 			pktname, opts_total_len);
 		return;
 	}
 
-	tf = proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), opts_total_len,
-		"%s Options (Total Length %d)", pktname, opts_total_len);
-	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
-	ptvcursor_set_tree(cursor, opts_tree);
-	ptvcursor_add(cursor, hf_pgm_opt_type, 1, ENC_BIG_ENDIAN);
-	ptvcursor_add(cursor, hf_pgm_opt_len, 1, ENC_BIG_ENDIAN);
-	ptvcursor_add(cursor, hf_pgm_opt_tlen, 2, ENC_BIG_ENDIAN);
-
 	for (opts_total_len -= 4; !theend && opts_total_len != 0;){
 		if (opts_total_len < 4) {
-			proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), opts_total_len,
-			    "Remaining total options length doesn't have enough for an options header");
+			expert_add_info_format(pinfo, ti_len, &ei_pgm_opt_tlen,
+				"Remaining total options length doesn't have enough for an options header");
 			break;
 		}
 
@@ -393,24 +399,23 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			genopts_type &= ~PGM_OPT_END;
 			theend = TRUE;
 		}
-		if (genopts_len < 4) {
-			proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
-				"Option: %s, Length: %u (invalid, must be >= 4)",
-				val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
-				genopts_len);
-			break;
-		}
-		if (opts_total_len < genopts_len) {
-			proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
-			    "Option: %s, Length: %u (> remaining total options length)",
-			    val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
-			    genopts_len);
-			break;
-		}
 		tf = proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len,
 			"Option: %s, Length: %u",
 			val_to_str(genopts_type, opt_vals, "Unknown (0x%02x)"),
 			genopts_len);
+
+		if (genopts_len < 4) {
+			expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len,
+				"Length %u invalid, must be >= 4",
+				genopts_len);
+			break;
+		}
+		if (opts_total_len < genopts_len) {
+			expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len,
+				"Length %u > remaining total options length",
+				genopts_len);
+			break;
+		}
 
 		switch(genopts_type) {
 		case PGM_OPT_JOIN:{
@@ -568,7 +573,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res, 1, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_opt_ccdata_tsp, 4, ENC_BIG_ENDIAN);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res2, 2, ENC_BIG_ENDIAN);
 
 			switch (optdata_afi) {
@@ -582,8 +587,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 				break;
 
 			default:
-				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				break;
 			}
 
@@ -610,7 +614,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_res, 1, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_tsp, 4, ENC_BIG_ENDIAN);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_afi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_afi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_lossrate, 2, ENC_BIG_ENDIAN);
 
 			switch (optdata_afi) {
@@ -624,8 +628,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 				break;
 
 			default:
-				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				break;
 			}
 
@@ -695,7 +698,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_opt_redirect_res, 1, ENC_BIG_ENDIAN);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_opt_redirect_res2, 2, ENC_BIG_ENDIAN);
 
 			switch (optdata_afi) {
@@ -709,8 +712,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 				break;
 
 			default:
-				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				break;
 			}
 
@@ -959,7 +961,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_spm_lead, 4, ENC_BIG_ENDIAN);
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_spm_res, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
@@ -972,8 +974,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				ptvcursor_free(cursor);
 				return;
 			}
@@ -994,7 +995,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, ENC_BIG_ENDIAN);
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_nak_srcres, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
@@ -1007,13 +1008,12 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				break;
 			}
 
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_nak_grpres, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
@@ -1026,8 +1026,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				ptvcursor_free(cursor);
 				return;
 			}
@@ -1040,7 +1039,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ptvcursor_add(cursor, hf_pgm_poll_round, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_poll_subtype, 2, ENC_BIG_ENDIAN);
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, ENC_BIG_ENDIAN);
+			ti = ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_pgm_poll_res, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
@@ -1053,8 +1052,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
-				    "Can't handle this address format");
+				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				break;
 			}
 
@@ -1080,7 +1078,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if (pgmhdr_opts & PGM_OPT)
-			dissect_pgmopts(cursor, pktname);
+			dissect_pgmopts(cursor, pinfo, pktname);
 
 		if (isdata)
 			decode_pgm_ports(tvb, ptvcursor_current_offset(cursor), pinfo, tree, pgmhdr_sport, pgmhdr_dport);
@@ -1387,13 +1385,23 @@ proto_register_pgm(void)
 	&ett_pgm_opts_redirect,
 	&ett_pgm_opts_fragment
   };
+  static ei_register_info ei[] = {
+	{ &ei_pgm_opt_type, { "pgm.opts.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid option", EXPFILL }},
+	{ &ei_pgm_opt_tlen, { "pgm.opts.tlen.invalid", PI_PROTOCOL, PI_WARN, "Total Length invalid", EXPFILL }},
+	{ &ei_pgm_genopt_len, { "pgm.genopts.len.invalid", PI_PROTOCOL, PI_WARN, "Option length invalid", EXPFILL }},
+	{ &ei_address_format_invalid, { "pgm.address_format_invalid", PI_PROTOCOL, PI_WARN, "Can't handle this address format", EXPFILL }},
+  };
+
   module_t *pgm_module;
+  expert_module_t* expert_pgm;
 
   proto_pgm = proto_register_protocol("Pragmatic General Multicast",
 				       "PGM", "pgm");
 
   proto_register_field_array(proto_pgm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_pgm = expert_register_protocol(proto_pgm);
+  expert_register_field_array(expert_pgm, ei, array_length(ei));
 
 	/* subdissector code */
   subdissector_table = register_dissector_table("pgm.port",
