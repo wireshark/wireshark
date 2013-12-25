@@ -98,12 +98,8 @@ static header_field_info hfi_peekremote_status THIS_HF_INIT =
       { "Status",     "peekremote.status", FT_UINT8, BASE_HEX, NULL,
         0x0, NULL, HFILL };
 
-static header_field_info hfi_peekremote_timestamp_secs THIS_HF_INIT =
-      { "Timestamp (seconds)",       "peekremote.timestamp_secs", FT_UINT32, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_timestamp_usecs THIS_HF_INIT =
-      { "Timestamp (microseconds)",       "peekremote.timestamp_usecs", FT_UINT32, BASE_DEC, NULL,
+static header_field_info hfi_peekremote_timestamp THIS_HF_INIT =
+      { "TSF timestamp",       "peekremote.timestamp", FT_UINT64, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_data_rate THIS_HF_INIT =
@@ -286,10 +282,8 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 1;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_status, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp_secs, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp_usecs, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
+      proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
     }
     break;
 
@@ -335,8 +329,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_slicelength, tvb, 4, 2,  ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_flags, tvb, 6, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_status, tvb, 7, 1, ENC_NA);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp_secs, tvb, 8, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp_usecs, tvb, 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, 8, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_speed, tvb, 16, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, 17, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal, tvb, 18, 1, ENC_NA);
@@ -358,8 +351,7 @@ proto_register_peekremote(void)
     &hfi_peekremote_slicelength,
     &hfi_peekremote_flags,
     &hfi_peekremote_status,
-    &hfi_peekremote_timestamp_secs,
-    &hfi_peekremote_timestamp_usecs,
+    &hfi_peekremote_timestamp,
     &hfi_peekremote_speed,
     &hfi_peekremote_channel,
     &hfi_peekremote_signal,
