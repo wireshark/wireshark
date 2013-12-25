@@ -1426,7 +1426,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header,
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header _U_,
                                 tvbuff_t *tvb _U_, gint offset _U_, gboolean *calculated)
 {
     *calculated = FALSE;
