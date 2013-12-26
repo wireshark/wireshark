@@ -219,6 +219,27 @@
 #define ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT     0x0b02
 #define ZBEE_ZCL_CID_APPLIANCE_STATISTICS           0x0b03
 
+/* ZCL Test Profile #2 Clusters */
+#define ZBEE_APS_T2_CID_TCP                         0x0001
+#define ZBEE_APS_T2_CID_RESPC                       0x0002
+#define ZBEE_APS_T2_CID_RETPC                       0x0003
+#define ZBEE_APS_T2_CID_PCR                         0x0004
+#define ZBEE_APS_T2_CID_BTREQ                       0x001c
+#define ZBEE_APS_T2_CID_BTGREQ                      0x001d
+#define ZBEE_APS_T2_CID_BTRES                       0x0054
+#define ZBEE_APS_T2_CID_BTRES_S_SBT                 0x00
+#define ZBEE_APS_T2_CID_BTRES_S_TFOFA               0x01
+#define ZBEE_APS_T2_CID_BTGRES                      0x0055
+#define ZBEE_APS_T2_CID_RDREQ                       0x1000
+#define ZBEE_APS_T2_CID_RDRES                       0x1001
+#define ZBEE_APS_T2_CID_FREQ                        0xa0a8
+#define ZBEE_APS_T2_CID_FRES                        0xe000
+#define ZBEE_APS_T2_CID_FNDR                        0xe001
+#define ZBEE_APS_T2_CID_BR                          0xf000
+#define ZBEE_APS_T2_CID_BTADR                       0xf001
+#define ZBEE_APS_T2_CID_BTARXOWIDR                  0xf00a
+#define ZBEE_APS_T2_CID_BTARACR                     0xf00e
+
 /*  Structure to contain the APS frame information */
 typedef struct{
     gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
@@ -245,5 +266,12 @@ typedef struct{
     gboolean    dst_present;
     gboolean    src_present;
 } zbee_aps_packet;
+
+/**************************************
+ * Value Strings
+ **************************************
+ */
+
+extern const value_string zbee_aps_cid_names[];
 
 #endif /* PACKET_ZBEE_APS_H*/

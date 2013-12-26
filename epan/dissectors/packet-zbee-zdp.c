@@ -103,7 +103,10 @@ static int hf_zbee_zdp_node_freq_900 = -1;
 static int hf_zbee_zdp_node_freq_2400 = -1;
 static int hf_zbee_zdp_node_manufacturer = -1;
 static int hf_zbee_zdp_node_max_buffer = -1;
-static int hf_zbee_zdp_node_max_transfer = -1;
+static int hf_zbee_zdp_node_max_incoming_transfer = -1;
+static int hf_zbee_zdp_node_max_outgoing_transfer = -1;
+static int hf_zbee_zdp_dcf_eaela = -1;
+static int hf_zbee_zdp_dcf_esdla = -1;
 
 /* Power descriptor indicies. */
 static int hf_zbee_zdp_power_mode = -1;
@@ -182,6 +185,7 @@ static gint ett_zbee_zdp_bind_table = -1;
        gint ett_zbee_zdp_lqi = -1;
        gint ett_zbee_zdp_rtg = -1;
        gint ett_zbee_zdp_cache = -1;
+       gint ett_zbee_zdp_descriptor_capability_field = -1;
 
 /* Data dissector handle. */
 static dissector_handle_t  data_handle;
@@ -196,7 +200,7 @@ static const value_string zbee_zdp_req_types[] = {
     { 0, NULL }
 };
 
-static const value_string zbee_zdp_cluster_names[] = {
+const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_NWK_ADDR,            "Network Address Request" },
     { ZBEE_ZDP_REQ_IEEE_ADDR,           "Extended Address Request" },
     { ZBEE_ZDP_REQ_NODE_DESC,           "Node Descriptor Request" },
@@ -661,7 +665,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
     flags = tvb_get_letohs(tvb, *offset);
     if (tree) {
         if (ettindex != -1) {
-            ti = proto_tree_add_text(tree, tvb, *offset, (int)sizeof(guint8), "Server Flags");
+            ti = proto_tree_add_text(tree, tvb, *offset, 2, "Server Flags");
             field_tree = proto_item_add_subtree(ti, ettindex);
         }
         else field_tree = tree;
@@ -702,6 +706,7 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
     proto_item  *field_root = NULL;
     proto_tree  *field_tree = NULL;
 
+    guint8      d_c_field;
     guint16     flags;
     /*guint8      capability;*/
     /*guint16     mfr_code;*/
@@ -737,11 +742,20 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
     /*capability      =*/ zdp_parse_cinfo(field_tree, ett_zbee_zdp_cinfo, tvb, offset);
     /*mfr_code        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_manufacturer, tvb, offset, (int)sizeof(guint16), NULL);
     /*max_buff        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_buffer, tvb, offset, (int)sizeof(guint8), NULL);
-    /*max_transfer    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_transfer, tvb, offset, (int)sizeof(guint16), NULL);
+    /*max_incoming_transfer    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_incoming_transfer, tvb, offset, 2, NULL);
 
     /* Get and display the server flags. */
     if (version >= ZBEE_VERSION_2007) {
         zdp_parse_server_flags(field_tree, ett_zbee_zdp_server, tvb, offset);
+        zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_outgoing_transfer, tvb, offset, 2, NULL);
+        d_c_field = tvb_get_guint8(tvb, *offset);
+        if (tree) {
+            ti = proto_tree_add_text(field_tree, tvb, *offset, 1, "Descriptor Capability Field");
+            field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_descriptor_capability_field);
+        }
+        proto_tree_add_boolean(field_tree, hf_zbee_zdp_dcf_eaela, tvb, *offset, 1, d_c_field & ZBEE_ZDP_DCF_EAELA);
+        proto_tree_add_boolean(field_tree, hf_zbee_zdp_dcf_esdla, tvb, *offset, 1, d_c_field & ZBEE_ZDP_DCF_ESDLA);
+        *offset += 1;
     }
 
     /* Correct the length of the subtree. */
@@ -1415,6 +1429,14 @@ void proto_register_zbee_zdp(void)
         { "Allocate Short Address",     "zbee_zdp.cinfo.alloc", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_ALLOC,
             "Flag requesting the parent to allocate a short address for this device.", HFILL }},
 
+        { &hf_zbee_zdp_dcf_eaela,
+        { "Extended Active Endpoint List Available", "zbee_zdp.dcf.eaela", FT_BOOLEAN, 8, NULL, ZBEE_ZDP_DCF_EAELA,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_dcf_esdla,
+        { "Extended Simple Descriptor List Available", "zbee_zdp.dcf.esdla", FT_BOOLEAN, 8, NULL, ZBEE_ZDP_DCF_ESDLA,
+            NULL, HFILL }},
+
         { &hf_zbee_zdp_server_pri_trust,
         { "Primary Trust Center",       "zbee_zdp.server.pri_trust", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_TRUST,
             NULL, HFILL }},
@@ -1471,8 +1493,12 @@ void proto_register_zbee_zdp(void)
         { "Max Buffer Size",            "zbee_zdp.node.max_buffer", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_zbee_zdp_node_max_transfer,
-        { "Max Transfer Size",          "zbee_zdp.node.max_transfer", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_zbee_zdp_node_max_incoming_transfer,
+        { "Max Incoming Transfer Size", "zbee_zdp.node.max_incoming_transfer", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_node_max_outgoing_transfer,
+        { "Max Outgoing Transfer Size", "zbee_zdp.node.max_outgoing_transfer", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_mode,
@@ -1659,7 +1685,8 @@ void proto_register_zbee_zdp(void)
         &ett_zbee_zdp_nwk,
         &ett_zbee_zdp_lqi,
         &ett_zbee_zdp_rtg,
-        &ett_zbee_zdp_cache
+        &ett_zbee_zdp_cache,
+        &ett_zbee_zdp_descriptor_capability_field,
     };
 
     /* Register ZigBee ZDP protocol with Wireshark. */

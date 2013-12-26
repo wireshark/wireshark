@@ -42,6 +42,7 @@
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-security.h"
 #include "packet-zbee-aps.h"
+#include "packet-zbee-zdp.h"
 
 /*************************
  * Function Declarations *
@@ -61,6 +62,7 @@ static guint   dissect_zbee_aps_switch_key     (tvbuff_t *tvb, packet_info *pinf
 static guint   dissect_zbee_aps_auth_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint   dissect_zbee_aps_auth_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint   dissect_zbee_aps_tunnel         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, void *data);
+static guint   dissect_zbee_t2                 (tvbuff_t *tvb, proto_tree *tree, guint16 cluster_id);
 
 /* Helper routine. */
 static guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
@@ -134,8 +136,22 @@ static int hf_zbee_aps_reassembled_length = -1;
 static gint ett_zbee_aps_fragment = -1;
 static gint ett_zbee_aps_fragments = -1;
 
+/* Test Profile #2 indices. */
+static int hf_zbee_aps_t2_cluster = -1;
+static int hf_zbee_aps_t2_btres_octet_sequence = -1;
+static int hf_zbee_aps_t2_btres_octet_sequence_length_requested = -1;
+static int hf_zbee_aps_t2_btres_status = -1;
+static int hf_zbee_aps_t2_btreq_octet_sequence = -1;
+static int hf_zbee_aps_t2_btreq_octet_sequence_length = -1;
+
+/* ZDP indices. */
+static int hf_zbee_aps_zdp_cluster = -1;
+
 /* Subtree indices for the ZigBee 2004 & earlier Application Framework. */
 static gint ett_zbee_apf = -1;
+
+/* Subtree indices for the ZigBee Test Profile #2. */
+static gint ett_zbee_aps_t2 = -1;
 
 static expert_field ei_zbee_aps_invalid_delivery_mode = EI_INIT;
 static expert_field ei_zbee_aps_missing_payload = EI_INIT;
@@ -587,6 +603,37 @@ const value_string zbee_aps_cid_names[] = {
     { 0, NULL }
 };
 
+/* APS Test Profile #2 Cluster Names */
+const value_string zbee_aps_t2_cid_names[] = {
+    { ZBEE_APS_T2_CID_BR,         "Broadcast Request"},
+    { ZBEE_APS_T2_CID_BTADR,      "Broadcast to All Devices Response"},
+    { ZBEE_APS_T2_CID_BTARACR,    "Broadcast to All Routers and Coordinator Response"},
+    { ZBEE_APS_T2_CID_BTARXOWIDR, "Broadcast to All RXOnWhenIdle Devices Response"},
+    { ZBEE_APS_T2_CID_BTGREQ,     "Buffer Test Group Request"},
+    { ZBEE_APS_T2_CID_BTGRES,     "Buffer Test Group Response"},
+    { ZBEE_APS_T2_CID_BTREQ,      "Buffer Test Request"},
+    { ZBEE_APS_T2_CID_BTRES,      "Buffer Test Response"},
+    { ZBEE_APS_T2_CID_FNDR,       "Freeform No Data Response"},
+    { ZBEE_APS_T2_CID_FREQ,       "Freeform Request"},
+    { ZBEE_APS_T2_CID_FRES,       "Freeform Response"},
+    { ZBEE_APS_T2_CID_PCR,        "Packet Count Response"},
+    { ZBEE_APS_T2_CID_RDREQ,      "Route Discovery Request"},
+    { ZBEE_APS_T2_CID_RDRES,      "Route Discovery Response"},
+    { ZBEE_APS_T2_CID_RESPC,      "Reset Packet Count"},
+    { ZBEE_APS_T2_CID_RETPC,      "Retreive Packet Count"},
+    { ZBEE_APS_T2_CID_TCP,        "Transmit Counted Packets"},
+
+    { 0, NULL }
+};
+
+/* APS Test Profile #2 Buffer Test Response Status Names */
+const value_string zbee_aps_t2_btres_status_names[] = {
+    { ZBEE_APS_T2_CID_BTRES_S_SBT,   "Successful Buffer Test"},
+    { ZBEE_APS_T2_CID_BTRES_S_TFOFA, "Transmission Failure on First Attempt"},
+
+    { 0, NULL }
+};
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_aps
@@ -761,8 +808,20 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (nwk->version >= ZBEE_VERSION_2007) {
         /* Cluster ID is 16-bits long in ZigBee 2007 and later. */
         nwk->cluster_id = tvb_get_letohs(tvb, offset);
-        proto_tree_add_item(aps_tree, hf_zbee_aps_cluster, tvb, offset,2, ENC_LITTLE_ENDIAN);
-        offset +=2;
+        switch (tvb_get_letohs(tvb, offset + 2)) {
+            case ZBEE_DEVICE_PROFILE:
+                proto_tree_add_uint_format(aps_tree, hf_zbee_aps_zdp_cluster, tvb, offset, 2, nwk->cluster_id,
+                    "%s (Cluster ID: 0x%04x)", val_to_str(nwk->cluster_id, zbee_zdp_cluster_names,
+                    "Unknown Device Profile Cluster"), nwk->cluster_id);
+                break;
+            case ZBEE_PROFILE_T2:
+                proto_tree_add_item(aps_tree, hf_zbee_aps_t2_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                break;
+            default:
+                proto_tree_add_item(aps_tree, hf_zbee_aps_cluster, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                break;
+        }
+        offset += 2;
     }
     else {
         /* Cluster ID is 8-bits long in ZigBee 2004 and earlier. */
@@ -960,6 +1019,11 @@ dissect_zbee_aps_no_endpt:
      * If we get this far, then no subdissectors have been called, use the data
      * dissector to display the leftover bytes, if any.
      */
+
+    if (payload_tvb && (packet.profile == ZBEE_PROFILE_T2)) {
+        payload_tvb = tvb_new_subset_remaining(payload_tvb, dissect_zbee_t2(payload_tvb, aps_tree, nwk->cluster_id));
+    }
+
     if (payload_tvb) {
         call_dissector(data_handle, payload_tvb, pinfo, tree);
     }
@@ -1602,6 +1666,51 @@ dissect_app_end:
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      dissect_zbee_t2
+ *  DESCRIPTION
+ *      ZigBee Test Profile #2 dissector for Wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_into *pinfo  - pointer to packet information fields.
+ *      guint16 clisuer_id  - ZigBee Test Profile #2 cluster ID.
+ *  RETURNS
+ *      guint
+ *---------------------------------------------------------------
+ */
+static guint
+dissect_zbee_t2(tvbuff_t *tvb, proto_tree *tree, guint16 cluster_id)
+{
+    guint offset = 0;
+    guint8 payload_length;
+    proto_item *ti;
+    proto_tree *t2_tree;
+
+    ti = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "ZigBee Test Profile #2");
+    t2_tree = proto_item_add_subtree(ti, ett_zbee_aps_t2);
+    switch (cluster_id) {
+        case ZBEE_APS_T2_CID_BTRES:
+            payload_length = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(t2_tree, hf_zbee_aps_t2_btres_octet_sequence_length_requested, tvb, offset, 1,
+                payload_length);
+            offset += 1;
+            proto_tree_add_item(t2_tree, hf_zbee_aps_t2_btres_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(t2_tree, hf_zbee_aps_t2_btres_octet_sequence, tvb, offset, payload_length, ENC_NA);
+            offset += payload_length;
+            break;
+        case ZBEE_APS_T2_CID_BTREQ:
+            payload_length = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(t2_tree, hf_zbee_aps_t2_btreq_octet_sequence_length, tvb, offset, 1, payload_length);
+            offset += 1;
+            proto_tree_add_item(t2_tree, hf_zbee_aps_t2_btreq_octet_sequence, tvb, offset, payload_length, ENC_NA);
+            offset += payload_length;
+            break;
+    }
+    return offset;
+} /* dissect_zbee_t2 */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      zbee_apf_transaction_len
  *  DESCRIPTION
  *      Peeks into the application framework, and determines the
@@ -1872,7 +1981,32 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_reassembled_length,
             { "Reassembled ZigBee APS length",         "zbee_aps.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }}
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_t2_cluster,
+                { "Cluster", "zbee_aps.t2.cluster", FT_UINT16, BASE_HEX, VALS(zbee_aps_t2_cid_names), 0x0, NULL,
+                    HFILL }},
+
+            { &hf_zbee_aps_t2_btres_octet_sequence,
+                { "Octet Sequence", "zbee_aps.t2.btres.octet_sequence", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+            { &hf_zbee_aps_t2_btres_octet_sequence_length_requested,
+                { "Octet Sequence Length Requested", "zbee_aps.t2.btres.octet_sequence_length_requested", FT_UINT8,
+                    BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+            { &hf_zbee_aps_t2_btres_status,
+                { "Status", "zbee_aps.t2.btres.status", FT_UINT8, BASE_HEX, VALS(zbee_aps_t2_btres_status_names), 0x0,
+                    NULL, HFILL }},
+
+            { &hf_zbee_aps_t2_btreq_octet_sequence,
+                { "Octet Sequence", "zbee_aps.t2.btreq.octet_sequence", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+            { &hf_zbee_aps_t2_btreq_octet_sequence_length,
+                { "Octet Sequence Length", "zbee_aps.t2.btreq.octet_sequence_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+                    NULL, HFILL }},
+
+            { &hf_zbee_aps_zdp_cluster,
+                { "Cluster", "zbee_aps.zdp_cluster", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
     static hf_register_info hf_apf[] = {
@@ -1892,7 +2026,8 @@ void proto_register_zbee_aps(void)
         &ett_zbee_aps_ext,
         &ett_zbee_aps_cmd,
         &ett_zbee_aps_fragment,
-        &ett_zbee_aps_fragments
+        &ett_zbee_aps_fragments,
+        &ett_zbee_aps_t2
     };
 
     static gint *ett_apf[] = {

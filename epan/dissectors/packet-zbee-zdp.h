@@ -178,12 +178,15 @@
 #define ZBEE_ZDP_ADDR_MODE_GROUP            0x01
 #define ZBEE_ZDP_ADDR_MODE_UNICAST          0x03
 
-#define ZBEE_ZDP_MGMT_LEAVE_CHILDREN        0x80
-#define ZBEE_ZDP_MGMT_LEAVE_REJOIN          0x40
+#define ZBEE_ZDP_MGMT_LEAVE_CHILDREN        0x40
+#define ZBEE_ZDP_MGMT_LEAVE_REJOIN          0x80
 
 #define ZBEE_ZDP_NWKUPDATE_SCAN_MAX         0x05
 #define ZBEE_ZDP_NWKUPDATE_CHANNEL_HOP      0xfe
 #define ZBEE_ZDP_NWKUPDATE_PARAMETERS       0xff
+
+#define ZBEE_ZDP_DCF_EAELA                  0x01
+#define ZBEE_ZDP_DCF_ESDLA                  0x02
 
 /**************************************
  * Field Indicies
@@ -376,5 +379,6 @@ extern void dissect_zbee_zdp_rsp_mgmt_cache         (tvbuff_t *tvb, packet_info 
 extern void dissect_zbee_zdp_rsp_mgmt_nwkupdate     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version);
+extern const value_string zbee_zdp_cluster_names[];
 
 #endif /* PACKET_ZBEE_ZDP_H */
