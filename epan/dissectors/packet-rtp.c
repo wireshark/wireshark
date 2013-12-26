@@ -134,6 +134,7 @@ static const fragment_items rtp_fragment_items = {
 };
 
 static dissector_handle_t rtp_handle;
+static dissector_handle_t rtcp_handle;
 static dissector_handle_t classicstun_handle;
 static dissector_handle_t stun_handle;
 static dissector_handle_t classicstun_heur_handle;
@@ -501,6 +502,9 @@ static const value_string rtp_ext_ed137a_ft_type[] =
 /* Payload type is the last 7 bits */
 #define RTP_PAYLOAD_TYPE(octet)	((octet) & 0x7F)
 /* http://www.iana.org/assignments/rtp-parameters */
+
+#define FIRST_RTCP_CONFLICT_PAYLOAD_TYPE 64
+#define LAST_RTCP_CONFLICT_PAYLOAD_TYPE  95
 
 static const value_string rtp_payload_type_vals[] =
 {
@@ -1684,6 +1688,11 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	octet2 = tvb_get_guint8( tvb, offset + 1 );
 	marker_set = RTP_MARKER( octet2 );
 	payload_type = RTP_PAYLOAD_TYPE( octet2 );
+
+	if (marker_set && payload_type >= FIRST_RTCP_CONFLICT_PAYLOAD_TYPE && payload_type <=  LAST_RTCP_CONFLICT_PAYLOAD_TYPE) {
+		call_dissector(rtcp_handle, tvb, pinfo, tree);
+		return tvb_length(tvb);
+	}
 
 	/* Get the subsequent fields */
 	seq_num = tvb_get_ntohs( tvb, offset + 2 );
@@ -3294,6 +3303,7 @@ proto_reg_handoff_rtp(void)
 		dissector_add_uint("rtp.hdr_ext", RTP_ED137_SIG, rtp_hdr_ext_ed137_handle);
 		dissector_add_uint("rtp.hdr_ext", RTP_ED137A_SIG, rtp_hdr_ext_ed137a_handle);
 
+		rtcp_handle = find_dissector("rtcp");
 		data_handle = find_dissector("data");
 		stun_handle = find_dissector("stun-udp");
 		classicstun_handle = find_dissector("classicstun");
