@@ -178,7 +178,7 @@ typedef struct{
 #define MONTHS_PER_YEAR                             12
 #define YEAR_OFFSET                                 1900
 
-typedef void (*zbee_zcl_fn_attr_id)      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+typedef void (*zbee_zcl_fn_attr_id)      (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 typedef void (*zbee_zcl_fn_attr_data)    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 typedef void (*zbee_zcl_fn_cmd_id)       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 dir);
 
@@ -196,6 +196,7 @@ typedef struct _zbee_zcl_cluster_desc {
 extern const value_string zbee_zcl_short_data_type_names[];
 
 /* Dissector functions */
+extern void dissect_zcl_read_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 extern void dissect_zcl_write_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 extern void dissect_zcl_read_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 

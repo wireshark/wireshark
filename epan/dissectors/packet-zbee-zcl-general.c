@@ -98,7 +98,7 @@ void proto_register_zbee_zcl_basic(void);
 void proto_reg_handoff_zbee_zcl_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_basic_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_basic_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 static void dissect_zcl_basic_cmd_id         (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 cmd_dir);
 
@@ -238,16 +238,15 @@ dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_basic_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_basic_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_basic_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_basic_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_basic_attr_id*/
 
 
@@ -489,7 +488,7 @@ void proto_reg_handoff_zbee_zcl_identify(void);
 static void dissect_zcl_identify_identify               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_identify_identifyqueryrsp       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_identify_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_identify_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_identify_attr_data              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 static void dissect_zcl_identify_cmd_id                 (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
@@ -680,16 +679,15 @@ dissect_zcl_identify_identifyqueryrsp(tvbuff_t *tvb, proto_tree *tree, guint *of
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_identify_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_identify_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_identify_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_identify_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_identify_attr_id*/
 
 
@@ -859,7 +857,7 @@ void proto_register_zbee_zcl_on_off(void);
 void proto_reg_handoff_zbee_zcl_on_off(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_on_off_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_on_off_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_on_off_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 static void dissect_zcl_on_off_cmd_id        (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
@@ -955,16 +953,15 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_on_off_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_on_off_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_on_off_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_on_off_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_on_off_attr_id*/
 
 
@@ -1147,12 +1144,12 @@ void proto_reg_handoff_zbee_zcl_part(void);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_part_trasfpartframe         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_part_rdhandshakeparam       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_rdhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 static void dissect_zcl_part_wrhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 static void dissect_zcl_part_multiack               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_part_rdhandshakeparamrsp    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_part_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_part_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_part_cmd_id                 (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
 /* Private functions prototype */
@@ -1280,7 +1277,7 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM:
-                    dissect_zcl_part_rdhandshakeparam(tvb, payload_tree, &offset);
+                    dissect_zcl_part_rdhandshakeparam(tvb, pinfo, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM:
@@ -1394,6 +1391,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
  *      This function manages the ReadHandshakeParam payload
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      offset              - offset
  *  RETURNS
@@ -1401,25 +1399,14 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
-    gint tvb_len;
-    guint16 attr_id;
-
     /* Retrieve "Partitioned Cluster ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Dissect the attribute id list */
-    tvb_len = tvb_reported_length_remaining(tvb, *offset);
-    if ( tvb_len > 0 ) {
-        while ( *offset < (guint)tvb_len ) {
-            /* Dissect the attribute identifier */
-            attr_id = tvb_get_letohs(tvb, *offset);
-            dissect_zcl_part_attr_id(tree, tvb, offset, attr_id);
-            *offset += 2;
-        }
-    }
+    dissect_zcl_read_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION);
 } /*dissect_zcl_part_rdhandshakeparam*/
 
  /*FUNCTION:------------------------------------------------------
@@ -1440,12 +1427,11 @@ static void
 dissect_zcl_part_wrhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
     /* Retrieve "Partitioned Cluster ID" field */
-    guint16 cluster_id = tvb_get_letohs(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Dissect the attributes list */
-    dissect_zcl_write_attr(tvb, pinfo, tree, offset, cluster_id);
+    dissect_zcl_write_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION);
 
 } /*dissect_zcl_part_wrhandshakeparam*/
 
@@ -1524,7 +1510,7 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
  /*FUNCTION:------------------------------------------------------
  *  NAME
- *      dissect_zcl_part_multiack
+ *      dissect_zcl_part_rdhandshakeparamrsp
  *  DESCRIPTION
  *      This function manages the ReadHandshakeParamResponse payload
  *  PARAMETERS
@@ -1540,12 +1526,11 @@ static void
 dissect_zcl_part_rdhandshakeparamrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
     /* Retrieve "Partitioned Cluster ID" field */
-    guint16 cluster_id = tvb_get_letohs(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Dissect the attributes list */
-    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset, cluster_id);
+    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION);
 } /*dissect_zcl_part_rdhandshakeparamrsp*/
 
 
@@ -1559,16 +1544,15 @@ dissect_zcl_part_rdhandshakeparamrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_part_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_part_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_part_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_part_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_part_attr_id*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1825,7 +1809,7 @@ static void dissect_zcl_pwr_prof_pwrprofstatersp            (tvbuff_t *tvb, prot
 static void dissect_zcl_pwr_prof_pwrprofschedcontrsnotif    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_pwr_prof_pwrprofpriceext            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_pwr_prof_attr_id    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_pwr_prof_attr_id    (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_pwr_prof_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 static void dissect_zcl_pwr_prof_cmd_id     (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
@@ -2493,16 +2477,15 @@ dissect_zcl_pwr_prof_pwrprofpriceext(tvbuff_t *tvb, proto_tree *tree, guint *off
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_pwr_prof_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_pwr_prof_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_pwr_prof_attr_id*/
 
 
@@ -3024,7 +3007,7 @@ static void dissect_zcl_appl_ctrl_wr_funcs              (tvbuff_t *tvb, proto_tr
 static void dissect_zcl_appl_ctrl_ovrl_warning          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_ctrl_signal_state_rsp      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_appl_ctrl_attr_id               (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_appl_ctrl_attr_id               (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_appl_ctrl_attr_data             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 static void dissect_zcl_appl_ctrl_cmd_id                (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
@@ -3429,16 +3412,15 @@ dissect_zcl_appl_ctrl_signal_state_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_appl_ctrl_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_appl_ctrl_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_uint(tree, hf_zbee_zcl_appl_ctrl_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_appl_ctrl_attr_id*/
 
 /*FUNCTION:------------------------------------------------------

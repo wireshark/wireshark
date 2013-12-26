@@ -111,7 +111,7 @@ void proto_register_zbee_zcl_appl_idt(void);
 void proto_reg_handoff_zbee_zcl_appl_idt(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_appl_idt_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_appl_idt_attr_id        (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_appl_idt_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -238,16 +238,15 @@ dissect_zbee_zcl_appl_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_appl_idt_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_appl_idt_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_idt_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_appl_idt_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_appl_idt_attr_id*/
 
 
@@ -465,7 +464,7 @@ void proto_register_zbee_zcl_met_idt(void);
 void proto_reg_handoff_zbee_zcl_met_idt(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_met_idt_attr_id    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_met_idt_attr_id    (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_met_idt_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -557,16 +556,15 @@ dissect_zbee_zcl_met_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_met_idt_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_met_idt_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_met_idt_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_idt_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_met_idt_attr_id*/
 
 
@@ -1175,7 +1173,7 @@ static void dissect_zcl_appl_stats_log_req              (tvbuff_t *tvb, proto_tr
 static void dissect_zcl_appl_stats_log_rsp              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_stats_log_queue_rsp        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_appl_stats_attr_id              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+static void dissect_zcl_appl_stats_attr_id              (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_appl_stats_cmd_id               (proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir);
 
 /* Private functions prototype */
@@ -1428,16 +1426,15 @@ dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
  *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_appl_stats_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+dissect_zcl_appl_stats_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_attr_id, tvb, *offset, 2, attr_id);
+    proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 } /*dissect_zcl_appl_stats_attr_id*/
 
 /*FUNCTION:------------------------------------------------------

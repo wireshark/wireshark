@@ -46,7 +46,6 @@ void proto_register_zbee_zcl(void);
 void proto_reg_handoff_zbee_zcl(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_read_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 static void dissect_zcl_write_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 static void dissect_zcl_config_report (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 static void dissect_zcl_config_report_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
@@ -1645,7 +1644,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-static void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
+void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
     guint tvb_len;
 
@@ -2129,13 +2128,11 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
  */
 static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
-    guint16 attr_id;
     zbee_zcl_cluster_desc *desc;
 
-    attr_id = tvb_get_letohs(tvb, *offset);
     desc = zbee_zcl_get_cluster_desc(cluster_id);
     if ((desc != NULL) && (desc->fn_attr_id != NULL)) {
-        desc->fn_attr_id(tree, tvb, offset, attr_id);
+        desc->fn_attr_id(tree, tvb, offset);
     }
     else {
         /* Add the identifier */
