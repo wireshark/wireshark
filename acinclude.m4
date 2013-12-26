@@ -1620,25 +1620,55 @@ dnl
 AC_DEFUN([AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR],
     [
 	AC_MSG_CHECKING([whether the compiler fails when given an warning option not supported for C++])
-	save_CXXFLAGS="$CXXFLAGS"
-	CXXFLAGS="$CFLAGS -Wmissing-prototypes" # the prototypical one, no pun intended
+	#
+	# Some C+ compilers warn about -Wmissing-prototypes, and some warn
+	# about -Wmissing-declarations.  Check both.
+	#
 	AC_LANG_PUSH(C++)
-	AC_TRY_COMPILE(
-	    [],
-	    [return 0],
-	    [
-		AC_MSG_RESULT([no, adding -Werror])
-		#
-		# We're assuming this is g++, where -Werror is the
-		# appropriate option to force the compiler to fail.
-		# 
-		ac_wireshark_non_cxx_warning_option_error="-Werror"
-	    ],
-	    [
-		AC_MSG_RESULT([yes])
-	    ])
-	AC_LANG_POP
+	save_CXXFLAGS="$CXXFLAGS"
+	for flag in -Wmissing-prototypes -Wmissing-declarations; do
+	    CXXFLAGS="$save_CXXFLAGS $flag"
+	    AC_TRY_COMPILE(
+		[],
+		[return 0],
+		[
+		    #
+		    # We're assuming this is g++, where -Werror is the
+		    # appropriate option to force the compiler to fail.
+		    # Check whether it fails with -Werror.
+		    #
+		    # NOTE: it's important to put -Werror *before*
+		    # the flag, otherwise, when it sees the flag,
+		    # it doesn't yet know that warnings should be
+		    # treated as errors, and doesn't treat the
+		    # "that's C-only" warning as an error.
+		    #
+		    CXXFLAGS="$save_CXXFLAGS -Werror $flag"
+		    AC_TRY_COMPILE(
+			[],
+			[return 0],
+			[
+			    #
+			    # No, so this option is actually OK
+			    # with our C++ compiler.
+			    #
+			],
+			[
+			    #
+			    # Yes, so we need -Werror for the tests.
+			    #
+			    ac_wireshark_non_cxx_warning_option_error="-Werror"
+			    break
+			])
+		])
+	done
 	CXXFLAGS="$save_CXXFLAGS"
+	AC_LANG_POP
+	if test x$ac_wireshark_non_cxx_warning_option_error = x; then
+	    AC_MSG_RESULT([yes])
+	else
+	    AC_MSG_RESULT([no, adding -Werror])
+	fi
     ])
 
 #
@@ -1823,7 +1853,18 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
   if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \
        -o "(" "$can_add_to_cflags" = "no" -a "$can_add_to_cxxflags" = "yes" ")"
   then
-    AC_MSG_WARN([$CC and $CXX appear to be a mismatched pair])
+    #
+    # Confusingly, some C++ compilers like -Wmissing-prototypes but
+    # don't like -Wmissing-declarations and others like
+    # -Wmissing-declarations but don't like -Wmissing-prototypes,
+    # the fact that the corresponding C compiler likes both.  Don't
+    # warn about them.
+    #
+    if test "(" x$GCC_OPTION != x-Wmissing-prototypes ")" \
+         -a "(" x$GCC_OPTION != x-Wmissing-declarations ")"
+    then
+       AC_MSG_WARN([$CC and $CXX appear to be a mismatched pair])
+    fi
   fi
 else
   AC_MSG_RESULT(no)
