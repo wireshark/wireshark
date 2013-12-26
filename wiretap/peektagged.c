@@ -102,7 +102,17 @@ typedef struct peektagged_section_header {
 #define TAG_PEEKTAGGED_SIGNAL_DBM		0x0007
 #define TAG_PEEKTAGGED_NOISE_PERC		0x0008
 #define TAG_PEEKTAGGED_NOISE_DBM		0x0009
-#define TAG_PEEKTAGGED_UNKNOWN_0x000D		0x000D
+#define TAG_PEEKTAGGED_UNKNOWN_0x000A		0x000A
+#define TAG_PEEKTAGGED_UNKNOWN_0x000D		0x000D	/* frequency? */
+#define TAG_PEEKTAGGED_UNKNOWN_0x000E		0x000E
+#define TAG_PEEKTAGGED_UNKNOWN_0x000F		0x000F	/* 000F-0013 - dBm values? */
+#define TAG_PEEKTAGGED_UNKNOWN_0x0010		0x0010
+#define TAG_PEEKTAGGED_UNKNOWN_0x0011		0x0011
+#define TAG_PEEKTAGGED_UNKNOWN_0x0012		0x0012
+#define TAG_PEEKTAGGED_UNKNOWN_0x0013		0x0013
+#define TAG_PEEKTAGGED_UNKNOWN_0x0014		0x0014
+#define TAG_PEEKTAGGED_UNKNOWN_0x0015		0x0015
+
 #define TAG_PEEKTAGGED_SLICE_LENGTH		0xffff
 
 /* 64-bit time in nanoseconds from the (Windows FILETIME) epoch */
@@ -487,8 +497,45 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    /* XXX - not used yet */
 	    break;
 
+	case TAG_PEEKTAGGED_UNKNOWN_0x000A:
+	    /* XXX - seen in an OmniPeek 802.11n capture; value unknown */
+	    break;
+
 	case TAG_PEEKTAGGED_UNKNOWN_0x000D:
 	    /* XXX - seen in an EtherPeek capture; value unknown */
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; frequency? */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x000E:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; value unknown */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x000F:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; dBm value? */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x0010:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; dBm value? */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x0011:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; dBm value? */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x0012:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; dBm value? */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x0013:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; dBm value? */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x0014:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; value unknown */
+	    break;
+
+	case TAG_PEEKTAGGED_UNKNOWN_0x0015:
+	    /* XXX - seen in an AiroPeek/OmniPeek capture; value unknown */
 	    break;
 
 	case TAG_PEEKTAGGED_SLICE_LENGTH:
