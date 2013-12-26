@@ -1652,6 +1652,12 @@ AC_DEFUN([AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR],
 			    # No, so this option is actually OK
 			    # with our C++ compiler.
 			    #
+			    # (We need an empty command here to
+			    # prevent some versions of autoconf
+			    # from generating a script with an
+			    # empty "then" clause for an if statement.)
+			    #
+			    :
 			],
 			[
 			    #
