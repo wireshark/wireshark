@@ -145,10 +145,16 @@ main(int argc, char *argv[])
   for (i = 1; i < argc; i++) {
     wth = wtap_open_offline(argv[i], &err, &err_info, FALSE);
 
-    if (!wth) {
-      fprintf(stderr, "captype: Can't open %s: %s\n", argv[i],
-          wtap_strerror(err));
-      switch (err) {
+    if(wth) {
+      printf("%s: %s\n", argv[i], wtap_file_type_subtype_short_string(wtap_file_type_subtype(wth)));
+      wtap_close(wth);
+    } else {
+      if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
+        printf("%s: unknown\n", argv[i]);
+      else {
+        fprintf(stderr, "captype: Can't open %s: %s\n", argv[i],
+                wtap_strerror(err));
+        switch (err) {
 
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNSUPPORTED_ENCAP:
@@ -156,14 +162,11 @@ main(int argc, char *argv[])
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
           break;
+        }
+        overall_error_status = 1; /* remember that an error has occurred */
       }
-      overall_error_status = 1; /* remember that an error has occurred */
     }
 
-    if(wth) {
-      printf("%s: %s\n", argv[i], wtap_file_type_subtype_short_string(wtap_file_type_subtype(wth)));
-      wtap_close(wth);
-    }
   }
 
   return overall_error_status;
