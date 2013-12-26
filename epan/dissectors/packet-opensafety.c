@@ -2005,15 +2005,6 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     if ( handled == TRUE && packageCounter == 0 )
         handled = FALSE;
 
-    if ( ! handled )
-    {
-        if ( call_sub_dissector )
-        {
-            call_dissector(protocol_dissector, message_tvb, pinfo, tree);
-            handled = TRUE;
-        }
-    }
-
     return ( handled ? TRUE : FALSE );
 }
 

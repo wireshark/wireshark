@@ -50,6 +50,7 @@ There are no new protocols in this release.
 --sort-and-group--
 
 Modbus/TCP
+OpenSafety
 
 --sort-and-group--
 
