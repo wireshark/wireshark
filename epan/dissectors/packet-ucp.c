@@ -747,27 +747,47 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
 /*!
  * UCP equivalent of mktime() (3). Convert date to standard 'time_t' format
  *
+ * \param       len The length of datestr
  * \param       datestr The UCP-formatted date to convert
  *
  * \return              The date in standard 'time_t' format.
  */
 static time_t
-ucp_mktime(const char *datestr)
+ucp_mktime(const gint len, const char *datestr)
 {
     struct tm    r_time;
 
     r_time.tm_mday = (10 * (datestr[0] - '0') + (datestr[1] - '0'));
-    r_time.tm_mon  = (10 * (datestr[2] - '0') + (datestr[3] - '0')) - 1;
-    r_time.tm_year = (10 * (datestr[4] - '0') + (datestr[5] - '0'));
+
+    if (len >= 4)
+        r_time.tm_mon  = (10 * (datestr[2] - '0') + (datestr[3] - '0')) - 1;
+    else
+        r_time.tm_mon  = 0;
+
+    if (len >= 6)
+        r_time.tm_year = (10 * (datestr[4] - '0') + (datestr[5] - '0'));
+    else
+        r_time.tm_year = 0;
     if (r_time.tm_year < 90)
         r_time.tm_year += 100;
-    r_time.tm_hour = (10 * (datestr[6] - '0') + (datestr[7] - '0'));
-    r_time.tm_min  = (10 * (datestr[8] - '0') + (datestr[9] - '0'));
-    if (datestr[10])
+
+    if (len >= 8)
+        r_time.tm_hour = (10 * (datestr[6] - '0') + (datestr[7] - '0'));
+    else
+        r_time.tm_hour = 0;
+
+    if (len >= 10)
+        r_time.tm_min  = (10 * (datestr[8] - '0') + (datestr[9] - '0'));
+    else
+        r_time.tm_min  = 0;
+
+    if (len >= 12)
         r_time.tm_sec  = (10 * (datestr[10] - '0') + (datestr[11] - '0'));
     else
         r_time.tm_sec  = 0;
+
     r_time.tm_isdst = -1;
+
     return mktime(&r_time);
 }
 
@@ -906,7 +926,7 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         len = idx - *offset;
     strval = tvb_get_string(wmem_packet_scope(), tvb, *offset, len);
     if (len > 0) {
-        tval = ucp_mktime(strval);
+        tval = ucp_mktime(len, strval);
         tmptime.secs  = tval;
         tmptime.nsecs = 0;
         proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
