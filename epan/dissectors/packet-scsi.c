@@ -3316,7 +3316,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
         guint16 serv_action;
         guint8 cscd_desc_type, dev_type, des_len, code_set, des_type, seg_type;
         guint16 cscd_desc_list_len, seg_desc_len;
-        guint32 param_list_len, seg_desc_list_len, inline_data_len, i;
+        guint32 /*param_list_len,*/ seg_desc_list_len, inline_data_len, i;
         proto_tree *cscds_tree = NULL, *dev_tree = NULL, *cscd_tree = NULL, *segs_tree = NULL, *seg_tree = NULL, *seg_param_tree = NULL;
         proto_item *ti;
 
@@ -3331,15 +3331,15 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                proto_tree_add_item(tree, hf_scsi_reserved_64, tvb, offset, 8, ENC_NA);
                offset += 8;
                proto_tree_add_item(tree, hf_scsi_spc_xcopy_param_list_len, tvb, offset, 4, ENC_BIG_ENDIAN);
-               param_list_len = tvb_get_ntohl(tvb, offset);
+               /*param_list_len = tvb_get_ntohl(tvb, offset); */
                offset += 4;
 
                proto_tree_add_item(tree, hf_scsi_reserved_8, tvb, offset, 1, ENC_NA);
                offset+= 1;
                proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
                         ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
-               offset += 1;
-               offset += (param_list_len - 15);
+               /*offset += 1;*/
+               /*offset += (param_list_len - 15);*/
         } else {
                if (cdata) {
                         serv_action = cdata->itlq->flags;
@@ -3458,17 +3458,17 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                         }
                         if (inline_data_len > 0) {
                                 proto_tree_add_text(tree, tvb, offset, inline_data_len, "Inline data (%u bytes)", inline_data_len);
-                                offset += inline_data_len;
+                                /*offset += inline_data_len;*/
                         }
               } else if (serv_action == XCOPY_LID4) {
                         proto_tree_add_item(tree, hf_scsi_spc_xcopy_param_list_format, tvb, offset, 1, ENC_NA);
-                       offset += 1;
+                        offset += 1;
                         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_spc_xcopy_param_byte, ett_xcopy_param_byte, xcopy_param_list_bits, ENC_NA);
-                       offset += 1;
-                       proto_tree_add_item(tree, hf_scsi_spc_xcopy_head_cscd_desc_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_item(tree, hf_scsi_spc_xcopy_head_cscd_desc_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         proto_tree_add_item(tree, hf_scsi_spc_xcopy_head_cscd_desc_type_code, tvb, offset, 1, ENC_NA);
-                        offset += 1;
+                        /*offset += 1;*/
                }
        }
 
