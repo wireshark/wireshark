@@ -4866,7 +4866,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     }
   }
   if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
-fprintf(stderr, "Adding the default filter \"%s\"???\n", global_capture_opts.default_options.cfilter);
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(all_filter_cm), global_capture_opts.default_options.cfilter);
     gtk_combo_box_set_active(GTK_COMBO_BOX(all_filter_cm), 0);
   }
