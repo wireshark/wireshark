@@ -3234,6 +3234,7 @@ static const value_string recv_copy_service_vals[] = {
 };
 
 
+#if 0
 static const value_string cscd_desc_type_code_vals[] = {
         { 0xE0, "Fibre Channel N_Port_Name CSCD descriptor" },
         { 0xE1, "Fibre Channel N_Port_ID CSCD descriptor" },
@@ -3243,6 +3244,7 @@ static const value_string cscd_desc_type_code_vals[] = {
         { 0xFF, "Extension descriptor" },
         { 0, NULL }
 };
+#endif
 
 static const int *per_dev_type_bitmask_fields[] = {
         &hf_scsi_spc_xcopy_lu_type,
