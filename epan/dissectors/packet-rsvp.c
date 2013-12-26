@@ -5412,7 +5412,6 @@ dissect_rsvp_lsp_tunnel_if_id(proto_tree *ti, proto_tree *rsvp_object_tree,
                               int offset, int obj_length,
                               int rsvp_class _U_, int type)
 {
-    guint8  action;
     proto_item_set_text(ti, "LSP INTERFACE-ID: ");
     switch(type) {
     case 1:
@@ -5434,8 +5433,6 @@ dissect_rsvp_lsp_tunnel_if_id(proto_tree *ti, proto_tree *rsvp_object_tree,
                             "IGP instance %s",
                             tvb_ip_to_str(tvb, offset+4),
                             tvb_ip_to_str(tvb, offset+8));
-        action = tvb_get_guint8(tvb, offset+12);
-        action >>= 4;
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_tunnel_if_id_action, tvb, offset+12, 1, ENC_NA);
         dissect_rsvp_lsp_tunnel_if_id_tlv(rsvp_object_tree, tvb, offset+16, obj_length-16,
                                           TREE(TT_LSP_TUNNEL_IF_ID_SUBTREE));
@@ -5450,8 +5447,6 @@ dissect_rsvp_lsp_tunnel_if_id(proto_tree *ti, proto_tree *rsvp_object_tree,
                             "IGP instance %s",
                             tvb_ip6_to_str(tvb, offset+4),
                             tvb_ip_to_str(tvb, offset+20));
-        action = tvb_get_guint8(tvb, offset+24);
-        action >>= 4;
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_tunnel_if_id_action, tvb, offset+24, 1, ENC_NA);
         dissect_rsvp_lsp_tunnel_if_id_tlv(rsvp_object_tree, tvb, offset+28, obj_length-28,
                                           TREE(TT_LSP_TUNNEL_IF_ID_SUBTREE));
@@ -5468,8 +5463,6 @@ dissect_rsvp_lsp_tunnel_if_id(proto_tree *ti, proto_tree *rsvp_object_tree,
                             tvb_ip_to_str(tvb, offset+4),
                             tvb_get_ntohl(tvb, offset+8),
                             tvb_ip_to_str(tvb, offset+12));
-        action = tvb_get_guint8(tvb, offset+16);
-        action >>= 4;
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_tunnel_if_id_action, tvb, offset+16, 1, ENC_NA);
         dissect_rsvp_lsp_tunnel_if_id_tlv(rsvp_object_tree, tvb, offset+20, obj_length-20,
                                           TREE(TT_LSP_TUNNEL_IF_ID_SUBTREE));
