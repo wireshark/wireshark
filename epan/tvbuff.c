@@ -1845,6 +1845,9 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 	return format_text_wsp(ptr, stringlen);
 }
 
+/* Unicode REPLACEMENT CHARACTER */
+#define UNREPL 0x00FFFD
+
 /*
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
  * to hold a non-null-terminated string of that length at that offset,
@@ -2202,7 +2205,7 @@ char_def_alphabet_ext_decode(unsigned char value)
     case 0x3e: return ']';
     case 0x40: return '|';
     case 0x65: return 0x20ac; /* euro */
-    default: return '?'; /* invalid character XXX use REPLACEMENT CHARACTER */
+    default: return UNREPL; /* invalid character */
     }
 }
 
@@ -2215,7 +2218,7 @@ char_def_alphabet_decode(unsigned char value)
     }
     else
     {
-        return '?';
+        return UNREPL;
     }
 }
 
@@ -2304,9 +2307,10 @@ tvb_get_ts_23_038_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 		/*
 		 * Escape not followed by anything.
 		 *
-		 * XXX - for now, show the escape as a "?".
+		 * XXX - for now, show the escape as a REPLACEMENT
+		 * CHARACTER.
 		 */
-		wmem_strbuf_append_unichar(strbuf, '?');
+		wmem_strbuf_append_unichar(strbuf, UNREPL);
 	}
 
 	return (gchar*)wmem_strbuf_get_str(strbuf);
