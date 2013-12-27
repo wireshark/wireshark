@@ -1095,7 +1095,7 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
         offset += stuffing_len;
     }
 
-    return offset-af_start_offset;
+    return offset;
 }
 
 static void
