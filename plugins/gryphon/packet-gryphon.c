@@ -38,6 +38,9 @@
  *     http://www.dgtech.com/gryphon/sys/www/docs/html/
  */
 
+void proto_register_gryphon(void);
+void proto_reg_handoff_gryphon(void);
+
 static int proto_gryphon = -1;
 
 static int hf_gryphon_src = -1;

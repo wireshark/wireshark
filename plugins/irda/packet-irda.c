@@ -138,6 +138,9 @@
 #define TTP_PARAMETERS         0x80
 #define TTP_MORE               0x80
 
+void proto_reg_handoff_irda(void);
+void proto_register_irda(void);
+
 static dissector_handle_t data_handle;
 
 /* Initialize the protocol and registered fields */

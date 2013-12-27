@@ -32,6 +32,15 @@
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 
+void proto_register_isis_csnp(void);
+void proto_reg_handoff_isis_csnp(void);
+void proto_register_isis_psnp(void);
+void proto_reg_handoff_isis_psnp(void);
+void proto_register_isis_lsp(void);
+void proto_reg_handoff_isis_lsp(void);
+void proto_register_isis_hello(void);
+void proto_reg_handoff_isis_hello(void);
+
 static int proto_isis_csnp = -1;
 static int proto_isis_psnp = -1;
 

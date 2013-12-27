@@ -38,6 +38,8 @@
 #include <plugins/wimax/wimax_tlv.h>
 
 /* forward reference */
+void proto_reg_handoff_m2m(void);
+void proto_register_m2m(void);
 static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number);

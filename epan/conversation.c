@@ -541,7 +541,7 @@ conversation_init(void)
  *
  * Mostly adapted from the old conversation_new().
  */
-void
+static void
 conversation_insert_into_hashtable(GHashTable *hashtable, conversation_t *conv)
 {
 	conversation_t *chain_head, *chain_tail, *cur, *prev;
@@ -595,7 +595,7 @@ conversation_insert_into_hashtable(GHashTable *hashtable, conversation_t *conv)
  * Does the right thing when removing from one of the conversation hash tables,
  * taking into account ordering and hash chains and all that good stuff.
  */
-void
+static void
 conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
 {
 	conversation_t *chain_head, *cur, *prev;

@@ -45,6 +45,8 @@
 /** Escapes this character. */
 #define SIR_ESCAPE(x) ((x)^0x20)
 
+void proto_reg_handoff_irsir(void);
+void proto_register_irsir(void);
 
 /** Protocol handles. */
 static dissector_handle_t data_handle;
