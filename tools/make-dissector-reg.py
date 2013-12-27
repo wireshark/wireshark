@@ -234,6 +234,8 @@ reg_code += "}\n"
 # Make the routine to register all protocol handoffs
 if registertype == "plugin" or registertype == "plugin_wtap":
     reg_code += """
+WS_DLL_PUBLIC_DEF void plugin_reg_handoff(void);
+
 WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void)
 {
