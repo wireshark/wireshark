@@ -78,7 +78,6 @@ typedef unsigned long gsize;
 # define g_ATEXIT(proc)	(atexit (proc))
 #endif
 
-#define g_memmove(dest,src,len) G_STMT_START { memmove ((dest), (src), (len)); } G_STMT_END
 
 #define GLIB_MAJOR_VERSION 2
 #define GLIB_MINOR_VERSION 12
