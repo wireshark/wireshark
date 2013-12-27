@@ -917,9 +917,9 @@ esac
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fexcess-precision=fast)
 
-CFLAGS_before_fvhidden=$CFLAGS
+CFLAGS_before_fvhidden="$CFLAGS"
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fvisibility=hidden)
-if test "x$CLFAGS" = "x$CFLAGS_before_fvhidden"
+if test "x$CFLAGS" = "x$CFLAGS_before_fvhidden"
 then
 	# TODO add other ways of hiding symbols
 	AC_MSG_WARN(Compiler will export all symbols from shared libraries)
@@ -938,14 +938,14 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # privileges, and using PIE means the OS can run it at random locations
 # in the address space to make attacks more difficult.
 #
-CFLAGS_before_pie=$CFLAGS
+CFLAGS_before_pie="$CFLAGS"
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE)
-if test "x$CLFAGS" != "x$CFLAGS_before_pie"
+if test "x$CFLAGS" != "x$CFLAGS_before_pie"
 then
 	# Restore CFLAGS
-	CFLAGS=$CFLAGS_before_pie
+	CFLAGS="$CFLAGS_before_pie"
 
-	LDFLAGS_before_pie=$LDFLAGS
+	LDFLAGS_before_pie="$LDFLAGS"
 	AC_WIRESHARK_LDFLAGS_CHECK([-fPIE -pie])
 	if test "x$LDFLAGS" != "x$LDFLAGS_before_pie"
 	then
@@ -954,7 +954,7 @@ then
 		PIE_LDFLAGS="-pie"
 
 		# Restore LDFLAGS
-		LDFLAGS=$LDFLAGS_before_pie
+		LDFLAGS="$LDFLAGS_before_pie"
 	fi
 
 fi
