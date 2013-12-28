@@ -3496,8 +3496,9 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
 
             nrb.record_type = NRES_IP6RECORD;
             namelen = (gint)strlen(ipv6_hash_list_entry->name) + 1;
-            nrb.record_len = 16 + namelen;
-            tot_rec_len = 16 + nrb.record_len + PADDING4(nrb.record_len);
+            nrb.record_len = 16 + namelen;  /* 16 bytes IPv6 address length */
+            /* 2 bytes record type, 2 bytes length field */
+            tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
 
             if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE){
                 /* We know the total length now; copy the block header. */
