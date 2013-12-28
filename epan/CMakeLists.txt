@@ -1336,6 +1336,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ypxfr.c
 	dissectors/packet-zbee-aps.c
 	dissectors/packet-zbee-nwk.c
+	dissectors/packet-zbee-nwk-gp.c
 	dissectors/packet-zbee-security.c
 	dissectors/packet-zbee-zcl.c
 	dissectors/packet-zbee-zcl-general.c

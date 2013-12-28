@@ -1255,6 +1255,7 @@ DISSECTOR_SRC = \
 	packet-ypxfr.c		\
 	packet-zbee-aps.c	\
 	packet-zbee-nwk.c	\
+	packet-zbee-nwk-gp.c \
 	packet-zbee-security.c	\
 	packet-zbee-zcl.c	\
 	packet-zbee-zcl-general.c	\

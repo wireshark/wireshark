@@ -147,6 +147,7 @@ static int hf_zbee_beacon_update_id = -1;
 static gint ett_zbee_nwk = -1;
 static gint ett_zbee_beacon = -1;
 static gint ett_zbee_nwk_fcf = -1;
+static gint ett_zbee_nwk_fcf_ext = -1;
 static gint ett_zbee_nwk_mcast = -1;
 static gint ett_zbee_nwk_route = -1;
 static gint ett_zbee_nwk_cmd = -1;
@@ -157,6 +158,7 @@ static expert_field ei_zbee_nwk_missing_payload = EI_INIT;
 
 static dissector_handle_t   data_handle;
 static dissector_handle_t   aps_handle;
+static dissector_handle_t   zbee_gp_handle;
 
 /********************/
 /* Field Names      */
@@ -331,19 +333,21 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      dissect_zbee_nwk
+ *      dissect_zbee_nwk_full
  *  DESCRIPTION
- *      ZigBee packet dissection routine for Wireshark.
+ *      ZigBee NWK packet dissection routine for 2006, 2007 and Pro stack versions.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
+ *      packet_into *pinfo  - pointer to packet information fields.
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - raw packet private data.
  *  RETURNS
- *      void
+ *      int
  *---------------------------------------------------------------
  */
+
 static int
-dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tvbuff_t            *payload_tvb = NULL;
 
@@ -504,28 +508,6 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
     offset += 1;
 
-    /* Add Multicast control field. (ZigBee 2006 and later). */
-    if ((packet.version >= ZBEE_VERSION_2007) && packet.multicast) {
-        guint8  mcast_control = tvb_get_guint8(tvb, offset);
-
-        packet.mcast_mode       = zbee_get_bit_field(mcast_control, ZBEE_NWK_MCAST_MODE);
-        packet.mcast_radius     = zbee_get_bit_field(mcast_control, ZBEE_NWK_MCAST_RADIUS);
-        packet.mcast_max_radius = zbee_get_bit_field(mcast_control, ZBEE_NWK_MCAST_MAX_RADIUS);
-        if (tree) {
-            /* Create a subtree for the multicast control field. */
-            ti = proto_tree_add_text(nwk_tree, tvb, offset, 1, "Multicast Control Field");
-            field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_mcast);
-            /* Add the fields. */
-            ti = proto_tree_add_uint(field_tree, hf_zbee_nwk_mcast_mode, tvb, offset, 1,
-                                    mcast_control & ZBEE_NWK_MCAST_MODE);
-            proto_tree_add_uint(field_tree, hf_zbee_nwk_mcast_radius, tvb, offset, 1,
-                                    mcast_control & ZBEE_NWK_MCAST_RADIUS);
-            proto_tree_add_uint(field_tree, hf_zbee_nwk_mcast_max_radius, tvb, offset, 1,
-                                    mcast_control & ZBEE_NWK_MCAST_MAX_RADIUS);
-        }
-        offset += 1;
-    }
-
     /* Add the extended destination address (ZigBee 2006 and later). */
     if ((packet.version >= ZBEE_VERSION_2007) && packet.ext_dst) {
         packet.dst64 = tvb_get_letoh64(tvb, offset);
@@ -607,6 +589,24 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         } /* (!pinfo->fd->flags.visited */
     } /* (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) */
 
+    /* Add multicast control field (ZigBee 2006 and later). */
+    if ((packet.version >= ZBEE_VERSION_2007) && packet.multicast) {
+        guint8 mcast_control = tvb_get_guint8(tvb, offset);
+        packet.mcast_mode = zbee_get_bit_field(mcast_control, ZBEE_NWK_MCAST_MODE);
+        packet.mcast_radius = zbee_get_bit_field(mcast_control, ZBEE_NWK_MCAST_RADIUS);
+        packet.mcast_max_radius = zbee_get_bit_field(mcast_control, ZBEE_NWK_MCAST_MAX_RADIUS);
+        if (tree) {
+            /* Create a subtree for the multicast control field. */
+            ti = proto_tree_add_text(nwk_tree, tvb, offset, 1, "Multicast Control Field");
+            field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_mcast);
+            /* Add the fields. */
+            proto_tree_add_item(field_tree, hf_zbee_nwk_mcast_mode, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(field_tree, hf_zbee_nwk_mcast_radius, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(field_tree, hf_zbee_nwk_mcast_max_radius, tvb, offset, 1, ENC_NA);
+        }
+        offset += 1;
+    }
+
     /* Add the Source Route field. (ZigBee 2006 and later). */
     if ((packet.version >= ZBEE_VERSION_2007) && packet.route) {
         guint8  relay_count;
@@ -686,6 +686,37 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     return tvb_length(tvb);
 } /* dissect_zbee_nwk */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_nwk
+ *  DESCRIPTION
+ *      ZigBee packet dissection with proto version determination.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_into *pinfo  - pointer to packet information fields.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - raw packet private data.
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    guint8 fcf0;
+    guint8 proto_version;
+
+    fcf0 = tvb_get_guint8(tvb, 0);
+    proto_version = (fcf0 & ZBEE_NWK_FCF_VERSION) >> 2;
+    if (proto_version == ZBEE_VERSION_GREEN_POWER) {
+        call_dissector(zbee_gp_handle, tvb, pinfo, tree);
+    } else {
+        /* TODO: add check for FCF proto versions. */
+        dissect_zbee_nwk_full(tvb, pinfo, tree, data);
+    }
+    return 0;
+}
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1786,6 +1817,7 @@ void proto_register_zbee_nwk(void)
         &ett_zbee_nwk,
         &ett_zbee_beacon,
         &ett_zbee_nwk_fcf,
+        &ett_zbee_nwk_fcf_ext,
         &ett_zbee_nwk_mcast,
         &ett_zbee_nwk_route,
         &ett_zbee_nwk_cmd,
@@ -1832,7 +1864,8 @@ void proto_reg_handoff_zbee_nwk(void)
 {
     /* Find the other dissectors we need. */
     data_handle     = find_dissector("data");
-    aps_handle      = find_dissector("zbee_aps");
+    aps_handle      = find_dissector(ZBEE_PROTOABBREV_APS);
+    zbee_gp_handle  = find_dissector(ZBEE_PROTOABBREV_NWK_GP);
 
     /* Register our dissector with IEEE 802.15.4 */
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur, proto_zbee_nwk);

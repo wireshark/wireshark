@@ -51,8 +51,7 @@
 
 /* Helper Functions */
 #ifdef HAVE_LIBGCRYPT
-static gboolean    zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *,
-        guint, guint, guint);
+gboolean zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
 static guint8 *    zbee_sec_key_hash(guint8 *, guint8, guint8 *);
 static void        zbee_sec_make_nonce (zbee_security_packet *, guint8 *);
 static gboolean    zbee_sec_decrypt_payload(zbee_security_packet *, const gchar *, const gchar, guint8 *,
@@ -161,7 +160,7 @@ static void uat_key_record_update_cb(void* r, const char** err) {
     uat_key_record_t* rec = (uat_key_record_t *)r;
 
     if (rec->string == NULL) {
-	*err = g_strdup("Key can't be blank");
+        *err = g_strdup("Key can't be blank");
     } else {
         g_strstrip(rec->string);
 
@@ -874,7 +873,7 @@ zbee_sec_make_nonce(zbee_security_packet *packet, guint8 *nonce)
  *      gboolean        - TRUE if successful.
  *---------------------------------------------------------------
  */
-static gboolean
+gboolean
 zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
                     const gchar     *nonce, /* Input */
                     const gchar     *a,     /* Input */
@@ -1246,9 +1245,9 @@ proto_init_zbee_security(void)
     /* Load the pre-configured slist from the UAT. */
     for (i=0; (uat_key_records) && (i<num_uat_key_records) ; i++) {
         key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
-        key_record.label = se_strdup(uat_key_records[i].label);
+        key_record.label = g_strdup(uat_key_records[i].label);
         memcpy(&key_record.key, &uat_key_records[i].key, ZBEE_SEC_CONST_KEYSIZE);
 
-        zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, se_memdup(&key_record, sizeof(key_record_t)));
+        zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, g_memdup(&key_record, sizeof(key_record_t)));
     } /* for */
 } /* proto_init_zbee_security */

@@ -37,9 +37,9 @@
 #include "packet-ipv6.h"
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
-
 void proto_register_6lowpan(void);
 void proto_reg_handoff_6lowpan(void);
+#include "packet-zbee.h"
 
 /* Definitions for 6lowpan packet disassembly structures and routines */
 
@@ -858,7 +858,17 @@ dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_HC1_BITS)  == LOWPAN_PATTERN_HC1) break;
         if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_BC0_BITS)  == LOWPAN_PATTERN_BC0) break;
         if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) break;
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_MESH_BITS) == LOWPAN_PATTERN_MESH) break;
+        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_MESH_BITS) == LOWPAN_PATTERN_MESH)
+        {
+            ieee802154_packet *packet = (ieee802154_packet *)data;
+            if (!(packet->dst_pan == IEEE802154_BCAST_PAN && packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT &&
+                packet->dst16 == IEEE802154_BCAST_ADDR && packet->frame_type != IEEE802154_FCF_BEACON &&
+                packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT && tvb_get_bits8(tvb, 2, 4) ==
+                ZBEE_VERSION_GREEN_POWER))
+            {
+                break;
+            }
+        }
         if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAG1) break;
         if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAGN) break;
 
@@ -2839,6 +2849,6 @@ proto_reg_handoff_6lowpan(void)
     ipv6_handle = find_dissector("ipv6");
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
-    heur_dissector_add("wpan", dissect_6lowpan_heur, proto_6lowpan);
+    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, proto_6lowpan);
 } /* proto_reg_handoff_6lowpan */
 

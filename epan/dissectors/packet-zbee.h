@@ -47,6 +47,7 @@
 #define ZBEE_VERSION_PROTOTYPE      0 /* Does this even exist? */
 #define ZBEE_VERSION_2004           1 /* Re: 053474r06ZB_TSC-ZigBeeSpecification.pdf */
 #define ZBEE_VERSION_2007           2 /* Re: 053474r17ZB_TSC-ZigBeeSpecification.pdf */
+#define ZBEE_VERSION_GREEN_POWER    3 /* ZigBee Green Power */
 
 /* ZigBee version macro. */
 #define ZBEE_HAS_2003(x)            ((x) >= ZBEE_VERSION_2003)
@@ -784,6 +785,7 @@
 
 /* Protocol Abbreviations */
 #define ZBEE_PROTOABBREV_NWK                "zbee_nwk"
+#define ZBEE_PROTOABBREV_NWK_GP             "zbee_nwk_gp"
 #define ZBEE_PROTOABBREV_APS                "zbee_aps"
 #define ZBEE_PROTOABBREV_APF                "zbee_apf"
 #define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
