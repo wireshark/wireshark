@@ -9855,6 +9855,7 @@ sac              8097/udp # SAC Port Id [Girish_Bhat] [Girish_Bhat] 2006-04
 xprint-server    8100/tcp # Xprint Server [John_McKernan] [John_McKernan]
 xprint-server    8100/udp # Xprint Server [John_McKernan] [John_McKernan]
 ldoms-migr       8101/tcp # Logical Domains Migration [Liam_Merwick] [Liam_Merwick] 2009-01-16
+kz-migr          8102/tcp # Oracle Kernel zones migration server [Oracle_4] [John_Levon] 2013-12-24
 mtl8000-matrix   8115/tcp # MTL8000 Matrix [David_Pinch] [David_Pinch] 2002-04
 mtl8000-matrix   8115/udp # MTL8000 Matrix [David_Pinch] [David_Pinch] 2002-04
 cp-cluster       8116/tcp # Check Point Clustering [Roni_Moshitzky] [Roni_Moshitzky]
