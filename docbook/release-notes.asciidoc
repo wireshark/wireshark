@@ -36,6 +36,7 @@ The following bugs have been fixed:
 
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 * Tshark doesn't display the longer data fields (mbtcp). (ws-buglink:9572[])
+* DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
 
 === New and Updated Features
 
@@ -49,6 +50,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+DMX-CHAN
 Modbus/TCP
 OpenSafety
 
