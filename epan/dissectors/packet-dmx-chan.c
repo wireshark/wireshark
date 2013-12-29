@@ -95,6 +95,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		row_count = (length / global_disp_col_count) + ((length % global_disp_col_count) == 0 ? 0 : 1);
 		for (r = 0; r < row_count;r++) {
+			ep_strbuf_truncate(chan_str, 0);
 			for (c = 0;(c < global_disp_col_count) && (((r * global_disp_col_count) + c) < length);c++) {
 				if ((global_disp_col_count >= 2) && ((c % (global_disp_col_count / 2)) == 0)) {
 					ep_strbuf_append(chan_str, " ");

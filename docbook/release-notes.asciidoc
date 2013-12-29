@@ -36,6 +36,7 @@ The following bugs have been fixed:
 //(ws-buglink:0000[])
 
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
+* DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
 
 === New and Updated Features
 
@@ -50,12 +51,13 @@ There are no new protocols in this release.
 --sort-and-group--
 
 BSSGP
+DMX-CHAN
 GSM BSSMAP
 GSM BSSMAP LE
 GSM SMS
 NAS-EPS
 SGSAP
-
+T.124
 
 --sort-and-group--
 
