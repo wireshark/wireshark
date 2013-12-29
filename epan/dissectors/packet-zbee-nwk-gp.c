@@ -118,7 +118,7 @@ typedef struct {
 } zbee_nwk_green_power_packet;
 
 /* Commissioning command payload. */
-guint8 nwk_cmd_security_key[16];
+#define NWK_CMD_SECURITY_KEY_LEN 16
 
 /* Definitions for GP Commissioning command opt field (bitmask). */
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MAC_SEQ           0x01
@@ -760,9 +760,9 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         offset += 1;
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_PRESENT) {
             /* Get security key and display it. */
-            proto_tree_add_text(tree, tvb, offset, sizeof(nwk_cmd_security_key), "Security Key: %s",
-                tvb_get_string(wmem_packet_scope(), tvb, offset, sizeof(nwk_cmd_security_key)));
-            offset += sizeof(nwk_cmd_security_key);
+            proto_tree_add_text(tree, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, "Security Key: %s",
+                tvb_get_string(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN));
+            offset += NWK_CMD_SECURITY_KEY_LEN;
         }
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_ENCR) {
             /* Get Security MIC and display it. */
@@ -954,9 +954,9 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     }
     /* Parse and display security key. */
     if (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) {
-        proto_tree_add_text(tree, tvb, offset, sizeof(nwk_cmd_security_key), "Security Key: %s",
-            tvb_get_string(wmem_packet_scope(), tvb, offset, sizeof(nwk_cmd_security_key)));
-        offset += sizeof(nwk_cmd_security_key);
+        proto_tree_add_text(tree, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, "Security Key: %s",
+            tvb_get_string(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN));
+        offset += NWK_CMD_SECURITY_KEY_LEN;
     }
     /* Parse and display security MIC. */
     if ((cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR) && (cr_options &
