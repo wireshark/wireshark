@@ -30,7 +30,12 @@
 
 #define GET_VALSV(A) mq_##A##_vals
 #define DEF_VALSX(A) extern const value_string GET_VALSV(A)[]
-/* XXX WTF: this is broken it's used to cast value_string array to char * */
+/* XXX WTF: this is broken it's used to cast value_string array to char
+*  This Macro is used to cast a value_string to a const gchar *
+*  Used in value_string MQCFINT_Parse, because this value_string
+*  don't return a string for a specific value, but a value_string
+*  that can be used in another call to try_val_to_str
+*/
 #define GET_VALSP(F) (const gchar *)GET_VALSV(F)
 #define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
 {
@@ -56,29 +61,29 @@
 
 typedef struct _mq_ccsid_t
 {
-	guint32 encod;
-	guint32 ccsid;
+    guint32 encod;
+    guint32 ccsid;
 } mq_ccsid_t;
 
 typedef struct _mq_parm_t
 {
-	guint32 mq_strucID ;
-	guint32 mq_int_enc ;
-	guint32 mq_str_enc ;
-	guint8  mq_ctlf1   ;
-	guint8  mq_ctlf2   ;
-	guint8  mq_opcode  ;
-	mq_ccsid_t mq_tsh_ccsid;
-	mq_ccsid_t mq_id_ccsid;
-	mq_ccsid_t mq_md_ccsid;
-	mq_ccsid_t mq_dlh_ccsid;
-	mq_ccsid_t mq_head_ccsid;
-	mq_ccsid_t mq_msgreq_ccsid;
-	mq_ccsid_t mq_cur_ccsid;
-	guint8     mq_format[8];
-	gint32     iOfsEnc;     /* Offset to Message encoding */
-	gint32     iOfsCcs;     /* Offset to Message character set */
-	gint32     iOfsFmt;     /* Offset to Message format */
+    guint32    mq_strucID ;
+    guint32    mq_int_enc ;
+    guint32    mq_str_enc ;
+    guint8     mq_ctlf1   ;
+    guint8     mq_ctlf2   ;
+    guint8     mq_opcode  ;
+    mq_ccsid_t mq_tsh_ccsid;
+    mq_ccsid_t mq_id_ccsid;
+    mq_ccsid_t mq_md_ccsid;
+    mq_ccsid_t mq_dlh_ccsid;
+    mq_ccsid_t mq_head_ccsid;
+    mq_ccsid_t mq_msgreq_ccsid;
+    mq_ccsid_t mq_cur_ccsid;
+    guint8     mq_format[8];
+    gint32     iOfsEnc;     /* Offset to Message encoding */
+    gint32     iOfsCcs;     /* Offset to Message character set */
+    gint32     iOfsFmt;     /* Offset to Message format */
 } mq_parm_t;
 
 #define MQ_MQCA_XR_VERSION2 2120
@@ -189,6 +194,8 @@ typedef struct _mq_parm_t
 
 /* Output Data Length */
 #define MQ_MQCODL_AS_INPUT                (-1)
+#define MQ_MQCODL_0                         0
+#define MQ_MQCODL_7FFFFFFF                0x7FFFFFFF
 
 /* ADS Descriptors */
 #define MQ_MQCADSD_NONE                   0x00000000
@@ -325,14 +332,16 @@ typedef struct _mq_parm_t
 #define MQ_MQGMO_PROPERTIES_AS_Q_DEF      0x00000000
 #define MQ_MQGMO_NONE                     0x00000000
 #define MQ_MQGMO_BROWSE_HANDLE            ( MQ_MQGMO_BROWSE_FIRST \
-	| MQ_MQGMO_UNMARKED_BROWSE_MSG \
-	| MQ_MQGMO_MARK_BROWSE_HANDLE )
+    | MQ_MQGMO_UNMARKED_BROWSE_MSG \
+    | MQ_MQGMO_MARK_BROWSE_HANDLE )
 #define MQ_MQGMO_BROWSE_CO_OP             ( MQ_MQGMO_BROWSE_FIRST \
-	| MQ_MQGMO_UNMARKED_BROWSE_MSG \
-	| MQ:MQGMO_MARK_BROWSE_CO_OP )
+    | MQ_MQGMO_UNMARKED_BROWSE_MSG \
+    | MQ:MQGMO_MARK_BROWSE_CO_OP )
 
 /* Wait Interval */
 #define MQ_MQWI_UNLIMITED                 (-1)
+#define MQ_MQWI_0                           0
+#define MQ_MQWI_7FFFFFFF                  0x7FFFFFFF
 
 /* Signal Values */
 #define MQ_MQEC_MSG_ARRIVED               2
@@ -536,17 +545,17 @@ typedef struct _mq_parm_t
 
 /* Encodings for Multicast */
 #define MQ_MQENC_NORMAL                   ( MQ_MQENC_FLOAT_IEEE_NORMAL \
-	| MQ_MQENC_DECIMAL_NORMAL \
-	| MQ_MQENC_INTEGER_NORMAL )
+    | MQ_MQENC_DECIMAL_NORMAL \
+    | MQ_MQENC_INTEGER_NORMAL )
 #define MQ_MQENC_REVERSED                 ( MQ_MQENC_FLOAT_IEEE_REVERSED \
-	| MQ_MQENC_DECIMAL_REVERSED \
-	| MQ_MQENC_INTEGER_REVERSED )
+    | MQ_MQENC_DECIMAL_REVERSED \
+    | MQ_MQENC_INTEGER_REVERSED )
 #define MQ_MQENC_S390                     ( MQ_MQENC_FLOAT_S390 \
-	| MQ_MQENC_DECIMAL_NORMAL \
-	| MQ_MQENC_INTEGER_NORMAL )
+    | MQ_MQENC_DECIMAL_NORMAL \
+    | MQ_MQENC_INTEGER_NORMAL )
 #define MQ_MQENC_TNS                      ( MQ_MQENC_FLOAT_TNS \
-	| MQ_MQENC_DECIMAL_NORMAL \
-	| MQ_MQENC_INTEGER_NORMAL )
+    | MQ_MQENC_DECIMAL_NORMAL \
+    | MQ_MQENC_INTEGER_NORMAL )
 #define MQ_MQENC_AS_PUBLISHED             (-1)
 
 /* Coded Character Set Identifiers */
@@ -2427,17 +2436,17 @@ typedef struct _mq_parm_t
 
 /* Inquire on all properties -  "%" */
 #define MQ_MQPROP_INQUIRE_ALL     (MQPTR)(char*)"%",\
-	0,\
-	0,\
-	1,\
-	MQCCSI_APPL
+    0,\
+    0,\
+    1,\
+    MQCCSI_APPL
 
 /* Inquire on all 'usr' properties - "usr.%" */
 #define MQ_MQPROP_INQUIRE_ALL_USR (MQPTR)(char*)"usr.%",\
-	0,\
-	0,\
-	5,\
-	MQCCSI_APPL
+    0,\
+    0,\
+    5,\
+    MQCCSI_APPL
 
 /****************************************************************/
 /* Values Related to MQOPEN Function                            */
@@ -4838,20 +4847,27 @@ DEF_VALSX(objtype);
 DEF_VALSX(PrmTyp);
 DEF_VALSX(PrmId);
 DEF_VALSX(FilterOP);
+DEF_VALSX(UOWControls);
+DEF_VALSX(LinkType);
+DEF_VALSX(ADSDescr);
+DEF_VALSX(ConvTaskOpt);
+DEF_VALSX(TaskEndStatus);
 
 DEF_VALSX(MQCFINT_Parse);
 
 DEF_VALRX(ccsid);
+DEF_VALRX(WaitIntv);
+DEF_VALRX(OutDataLen);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines - http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
