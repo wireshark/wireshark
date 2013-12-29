@@ -364,6 +364,7 @@ DISSECTOR_SRC = \
 	packet-cdp.c		\
 	packet-cell_broadcast.c \
 	packet-cfm.c		\
+	packet-cfdp.c		\
 	packet-cgmp.c		\
 	packet-chdlc.c		\
 	packet-cigi.c		\
