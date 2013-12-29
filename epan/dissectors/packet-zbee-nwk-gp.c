@@ -2,7 +2,7 @@
  * Dissector routines for the ZigBee Green Power profile (GP)
  * Copyright 2013 DSR Corporation, http://dsr-wireless.com/
  *
- * $Id: packet-zbee-nwk-gp.c 54208 2013-12-18 01:00:00Z DSR Corporation $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
