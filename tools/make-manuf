@@ -3,15 +3,14 @@
 # $Id$
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
-# company IDs.  It merges the databases at
-# http://standards.ieee.org/regauth/oui/index.shtml and
+# company IDs.  It merges the databases at IEEE and
 # http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt
 # with entries in our template file.
 #
 # The script reads the comments at the top of "manuf.tmpl" and writes
 # them to "manuf".  It then joins the manufacturer listing in "manuf.tmpl"
-# with the listing in "oui.txt", with the entries in "manuf.tmpl" taking
-# precedence.
+# with the listing in "oui.txt", "iab.txt", etc, with the entries in 
+# "manuf.tmpl" taking precedence.
 
 # LWP is part of the standard Perl module libwww
 
@@ -39,8 +38,11 @@ $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
+# According to http://standards.ieee.org/regauthmaint.html
+# the IEEE is adding OUI-28 in January 2014.
 $oui_url  = "http://standards.ieee.org/develop/regauth/oui/oui.txt";
 $iab_url  = "http://standards.ieee.org/develop/regauth/iab/iab.txt";
+$oui36_url = "http://standards.ieee.org/develop/regauth/oui36/oui36.txt";
 $cb_url   = "http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt";
 %oui_list = ();
 $hp       = "[0-9a-fA-F]{2}";
@@ -48,13 +50,21 @@ $oui_re   = "$hp:$hp:$hp";
 $cb_re    = "$hp$hp$hp";
 $ieee_re  = "$hp-$hp-$hp";
 
-$tmpl_added   = 0;
-$cb_added     = 0;
-$cb_skipped   = 0;
-$oui_added   = 0;
-$oui_skipped = 0;
-$iab_added   = 0;
-$iab_skipped = 0;
+$min_entries = 100;
+
+$tmpl_added    = 0;
+$cb_added      = 0;
+$cb_skipped    = 0;
+$cb_total      = 0;
+$oui_added     = 0;
+$oui_skipped   = 0;
+$oui_total     = 0;
+$iab_added     = 0;
+$iab_skipped   = 0;
+$iab_total     = 0;
+$oui36_added   = 0;
+$oui36_skipped = 0;
+$oui36_total   = 0;
 
 sub shorten
 {
@@ -136,7 +146,38 @@ foreach $line (split(/\n/, $ieee_list)) {
       $iab_added++;
     }
   }
+  $iab_total++;
 }
+
+if ($iab_total < $min_entries) { die "Too few IAB entries ($iab_total)\n"; }
+
+# Add IEEE entries for OUI-36
+
+$ieee_list = fetch($oui36_url);
+
+foreach $line (split(/\n/, $ieee_list)) {
+  # determine the OUI used for OUI-36 (currently only 00-1B-C5)
+  if (($oui36_tmp, $manuf) = ($line =~ /^\s*($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+      $oui36_base = $oui36_tmp;
+  }
+  # determine next two bytes
+  if (($oui36_4, $oui36_5, $manuf) = ($line =~ /^\s*($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
+    $oui36 = "$oui36_base:$oui36_4:$oui36_5:00/36";
+    $oui36 =~ tr /-/:/; # The IEEE bytes are separated by dashes.
+    # Ensure OUI-36 is all upper-case
+    $oui36 =~ tr/a-f/A-F/;
+    if (exists $oui_list{$oui36}) {
+      printf "$oui36 - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$oui36}\"\n";
+      $oui36_skipped++;
+    } else {
+      $oui_list{$oui36} = &shorten($manuf);
+      $oui36_added++;
+    }
+  }
+  $oui36_total++;
+}
+
+if ($oui36_total < $min_entries) { die "Too few OUI-36 entries ($oui36_total)\n"; }
 
 # Add IEEE entries for OUIs not yet known.
 
@@ -155,7 +196,10 @@ foreach $line (split(/\n/, $ieee_list)) {
       $oui_added++;
     }
   }
+  $oui_total++;
 }
+
+if ($oui_total < $min_entries) { die "Too few OUI entries ($oui_total)\n"; }
 
 # Add CaveBear entries for OUIs not yet known.
 
@@ -176,7 +220,10 @@ foreach $line (split(/\n/, $cb_list)) {
       $cb_added++;
     }
   }
+  $cb_total++;
 }
+
+if ($cb_total < $min_entries) { die "Too few CaveBear entries ($cb_total)\n"; }
 
 # Write output file
 
@@ -212,10 +259,12 @@ print <<"Fin"
 Original entries : $tmpl_added
 IEEE OUI added   : $oui_added
 IEEE IAB added   : $iab_added
+IEEE OUI36 added : $oui36_added
 CaveBear added   : $cb_added
 Total            : $total_added
 
 IEEE OUI skipped : $oui_skipped
 IEEE IAB skipped : $iab_skipped
+IEEE OUI36 skipd : $oui36_skipped
 CaveBear skipped : $cb_skipped
 Fin
