@@ -3689,7 +3689,7 @@ top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_dat
      * don't explicitly say so, g_ascii_isprint() should work as expected
      * for values < 127.
      */
-    } else if (g_ascii_isprint(event->keyval)) {
+    } else if (event->keyval < 256 && g_ascii_isprint(event->keyval)) {
         /* Forward the keypress on to the display filter entry */
         if (main_display_filter_widget && !gtk_widget_is_focus(main_display_filter_widget)) {
             gtk_window_set_focus(GTK_WINDOW(top_level), main_display_filter_widget);
