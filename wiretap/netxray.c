@@ -413,8 +413,8 @@ static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err, gchar **err_info);
 static void netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr,
     Buffer *buf);
-static void netxray_set_phdr(wtap *wth, Buffer *buf,
-    struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr);
+static void netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr,
+    union netxrayrec_hdr *hdr);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
@@ -1080,7 +1080,7 @@ reread:
 	/*
 	 * Fill in the struct wtap_pkthdr.
 	 */
-	netxray_set_phdr(wth, wth->frame_buffer, &wth->phdr, &hdr);
+	netxray_set_phdr(wth, &wth->phdr, &hdr);
 
 	/*
 	 * If it's an ATM packet, and we don't have enough information
@@ -1123,7 +1123,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Fill in the struct wtap_pkthdr.
 	 */
-	netxray_set_phdr(wth, buf, phdr, &hdr);
+	netxray_set_phdr(wth, phdr, &hdr);
 
 	/*
 	 * If it's an ATM packet, and we don't have enough information
@@ -1178,14 +1178,12 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 }
 
 static void
-netxray_set_phdr(wtap *wth, Buffer *buf, struct wtap_pkthdr *phdr,
-    union netxrayrec_hdr *hdr)
+netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	double	t;
 	guint32	packet_size;
 	guint padding = 0;
-	const guint8 *pd;
 
 	/*
 	 * If this is Ethernet, 802.11, ISDN, X.25, or ATM, set the
@@ -1417,7 +1415,6 @@ netxray_set_phdr(wtap *wth, Buffer *buf, struct wtap_pkthdr *phdr,
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-			pd = buffer_start_ptr(buf);
 			/*
 			 * XXX - the low-order bit of hdr_2_x.xxx[8]
 			 * seems to indicate some sort of error.  In
