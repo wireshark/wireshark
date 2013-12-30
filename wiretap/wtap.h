@@ -1133,7 +1133,57 @@ struct file_extension_info {
     const char *extensions;
 };
 
+/*
+ * For registering file types that we can open.
+ *
+ * Each file type has an open routine and an optional list of extensions
+ * the file might have.
+ *
+ * The open routine should return:
+ *
+ *	-1 on an I/O error;
+ *
+ *	1 if the file it's reading is one of the types it handles;
+ *
+ *	0 if the file it's reading isn't the type it handles.
+ *
+ * If the routine handles this type of file, it should set the "file_type"
+ * field in the "struct wtap" to the type of the file.
+ *
+ * Note that the routine does not have to free the private data pointer on
+ * error. The caller takes care of that by calling wtap_close on error.
+ * (See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8518)
+ *
+ * However, the caller does have to free the private data pointer when
+ * returning 0, since the next file type will be called and will likely
+ * just overwrite the pointer.
+ */
+
+/*
+ * Some file formats have defined magic numbers at fixed offsets from
+ * the beginning of the file; those routines should return 1 if and
+ * only if the file has the magic number at that offset.  (pcap-ng
+ * is a bit of a special case, as it has both the Section Header Block
+ * type field and its byte-order magic field; it checks for both.)
+ * Those file formats do not require a file name extension in order
+ * to recognize them or to avoid recognizing other file types as that
+ * type, and have no extensions specified for them.
+ */
 typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
+
+/*
+ * Some file formats don't have defined magic numbers at fixed offsets,
+ * so a heuristic is required.  If that file format has any file name
+ * extensions used for it, a list of those extensions should be
+ * specified, so that, if the name of the file being opened has an
+ * extension, the file formats that use that extension are tried before
+ * the ones that don't, to handle the case where a file of one type
+ * might be recognized by the heuristics for a different file type.
+ */
+struct heuristic_open_info {
+	wtap_open_routine_t open_routine;
+	const char *extensions;
+};
 
 /*
  * Types of comments.
@@ -1402,7 +1452,9 @@ void register_all_wiretap_modules(void);
 WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
 WS_DLL_PUBLIC
-void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);
+void wtap_register_magic_number_open_routine(wtap_open_routine_t open_routine);
+WS_DLL_PUBLIC
+void wtap_register_heuristic_open_info(const struct heuristic_open_info *oi);
 WS_DLL_PUBLIC
 int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC

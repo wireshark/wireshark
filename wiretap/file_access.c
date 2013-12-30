@@ -299,21 +299,15 @@ GSList *wtap_get_all_file_extensions_list(void)
  * However, the caller does have to free the private data pointer when
  * returning 0, since the next file type will be called and will likely
  * just overwrite the pointer.
- *
- * Put the trace files that are merely saved telnet-sessions last, since it's
- * possible that you could have captured someone a router telnet-session
- * using another tool. So, a libpcap trace of an toshiba "snoop" session
- * should be discovered as a libpcap file, not a toshiba file.
  */
 
 
-static wtap_open_routine_t open_routines_base[] = {
-	/* Files that have magic bytes in fixed locations. These
-	 * are easy to identify.
-	 */
+/* Files that have magic bytes in fixed locations. These
+ * are easy to identify.  Only an open routine is needed.
+ */
+static const wtap_open_routine_t magic_number_open_routines_base[] = {
 	libpcap_open,
 	pcapng_open,
-	lanalyzer_open,
 	ngsniffer_open,
 	snoop_open,
 	iptrace_open,
@@ -328,24 +322,65 @@ static wtap_open_routine_t open_routines_base[] = {
 	dbs_etherwatch_open,
 	k12_open,
 	catapult_dct2000_open,
-	ber_open,          /* XXX - this is really a heuristic */
 	aethra_open,
 	btsnoop_open,
 	eyesdn_open,
-	packetlogger_open, /* This type does not have a magic number, but its
-			    * files are sometimes grabbed by mpeg_open. */
-	mpeg_open,
 	tnef_open,
-	dct3trace_open,
-	daintree_sna_open,
-	mime_file_open,
-	stanag4607_open,
-	/* Files that don't have magic bytes at a fixed location,
-	 * but that instead require a heuristic of some sort to
-	 * identify them.  This includes the ASCII trace files that
-	 * would be, for example, saved copies of a Telnet session
-	 * to some box.
+};
+#define	N_MAGIC_FILE_TYPES	(sizeof magic_number_open_routines_base / sizeof magic_number_open_routines_base[0])
+
+static wtap_open_routine_t* magic_number_open_routines = NULL;
+
+static GArray* magic_number_open_routines_arr = NULL;
+
+/*
+ * Initialize the magic-number open routines array if it has not been
+ * initialized yet.
+ */
+static void init_magic_number_open_routines(void) {
+
+	if (magic_number_open_routines_arr) return;
+
+	magic_number_open_routines_arr = g_array_new(FALSE,TRUE,sizeof(wtap_open_routine_t));
+
+	g_array_append_vals(magic_number_open_routines_arr,magic_number_open_routines_base,N_MAGIC_FILE_TYPES);
+
+	magic_number_open_routines = (wtap_open_routine_t*)(void *)magic_number_open_routines_arr->data;
+}
+
+void wtap_register_magic_number_open_routine(wtap_open_routine_t open_routine) {
+	init_magic_number_open_routines();
+
+	g_array_append_val(magic_number_open_routines_arr,open_routine);
+
+	magic_number_open_routines = (wtap_open_routine_t*)(void *)magic_number_open_routines_arr->data;
+}
+
+/* Files that don't have magic bytes at a fixed location,
+ * but that instead require a heuristic of some sort to
+ * identify them.  This includes ASCII trace files.
+ *
+ * Entries for the ASCII trace files that would be, for example,
+ * saved copies of a Telnet session to some box are put after
+ * most of the other entries, as we don't want to treat a capture
+ * of such a session as a trace file from such a session
+ * merely because it has the right text in it.  They still
+ * appear before the *really* weak entries, such as the VWR entry.
+ */
+static const struct heuristic_open_info heuristic_open_info_base[] = {
+	{ lanalyzer_open, "tr1", },
+	/*
+	 * PacketLogger must come before MPEG, because its files
+	 * are sometimes grabbed by mpeg_open.
 	 */
+	{ packetlogger_open, "pklg" },
+	/* Some MPEG files have magic numbers, others just have heuristics. */
+	{ mpeg_open, "mpg;mp3" },
+	{ dct3trace_open, "xml" },
+	{ daintree_sna_open, "dcf" },
+	{ mime_file_open, NULL },
+	{ stanag4607_open, NULL },
+	{ ber_open, NULL },
 
 	/* I put NetScreen *before* erf, because there were some
 	 * false positives with my test-files (Sake Blok, July 2007)
@@ -359,55 +394,56 @@ static wtap_open_routine_t open_routines_base[] = {
 	 * because there were some cases where files of those types were
 	 * misidentified as vwr files (Guy Harris, December 2013)
 	 */
-	netscreen_open,
-	erf_open,
-	ipfix_open,
-	k12text_open,
-	peekclassic_open,
-	pppdump_open,
-	iseries_open,
-	ascend_open,
-	toshiba_open,
-	i4btrace_open,
-	mp2t_open,
-	csids_open,
-	vms_open,
-	cosine_open,
-	hcidump_open,
-	commview_open,
-	nstrace_open,
-	vwr_open,
-	camins_open
+	{ netscreen_open, "txt" },
+	{ erf_open, "erf" },
+	{ ipfix_open, "pfx;ipfix" },
+	{ k12text_open, "txt" },
+	{ peekclassic_open, "pkt;tpc;apc;wpz" },
+	{ pppdump_open, NULL },
+	{ iseries_open, "txt" },
+	{ i4btrace_open, NULL },
+	{ mp2t_open, "ts;mpg" },
+	{ csids_open, NULL },
+	{ vms_open, "txt" },
+	{ cosine_open, "txt" },
+	{ hcidump_open, NULL },
+	{ commview_open, "ncf" },
+	{ nstrace_open, "txt" },
+
+	/* ASCII trace files from Telnet sessions. */
+	{ ascend_open, "txt" },
+	{ toshiba_open, "txt" },
+
+	/* Extremely weak heuristics - put them at the end. */
+	{ vwr_open, "vwr" },
+	{ camins_open, "camins" },
 };
+#define	N_HEURISTIC_FILE_TYPES	(sizeof heuristic_open_info_base / sizeof heuristic_open_info_base[0])
 
-#define	N_FILE_TYPES	(sizeof open_routines_base / sizeof open_routines_base[0])
+static const struct heuristic_open_info* heuristic_open_info = NULL;
 
-static wtap_open_routine_t* open_routines = NULL;
+static GArray* heuristic_open_info_arr = NULL;
 
-static GArray* open_routines_arr = NULL;
+/*
+ * Initialize the heuristics array if it has not been initialized yet.
+ */
+static void init_heuristic_open_info(void) {
 
+	if (heuristic_open_info_arr) return;
 
-/* initialize the open routines array if it has not been initialized yet */
-static void init_open_routines(void) {
+	heuristic_open_info_arr = g_array_new(FALSE,TRUE,sizeof(struct heuristic_open_info));
 
-	if (open_routines_arr) return;
+	g_array_append_vals(heuristic_open_info_arr,heuristic_open_info_base,N_HEURISTIC_FILE_TYPES);
 
-	open_routines_arr = g_array_new(FALSE,TRUE,sizeof(wtap_open_routine_t));
-
-	g_array_append_vals(open_routines_arr,open_routines_base,N_FILE_TYPES);
-
-	open_routines = (wtap_open_routine_t*)(void *)open_routines_arr->data;
+	heuristic_open_info = (const struct heuristic_open_info*)(void *)heuristic_open_info_arr->data;
 }
 
-void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_magic) {
-	init_open_routines();
+void wtap_register_heuristic_open_info(const struct heuristic_open_info *hi) {
+	init_heuristic_open_info();
 
-	if (has_magic)
-		g_array_prepend_val(open_routines_arr,open_routine);
-	else
-		g_array_append_val(open_routines_arr,open_routine);
+	g_array_append_val(heuristic_open_info_arr,*hi);
 
-	open_routines = (wtap_open_routine_t*)(void *)open_routines_arr->data;
+	heuristic_open_info = (const struct heuristic_open_info*)(void *)heuristic_open_info_arr->data;
 }
 
 /*
@@ -429,6 +465,129 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 #define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
+static char *get_file_extension(const char *pathname)
+{
+	gchar *filename;
+	gchar **components;
+	size_t ncomponents;
+	GSList *compressed_file_extensions, *compressed_file_extension;
+	gchar *extensionp;
+
+	/*
+	 * Is the pathname empty?
+	 */
+	if (strcmp(pathname, "") == 0)
+		return NULL;	/* no extension */
+
+	/*
+	 * Find the last component of the pathname.
+	 */
+	filename = g_path_get_basename(pathname);
+
+	/*
+	 * Does it have an extension?
+	 */
+	if (strchr(filename, '.') == NULL) {
+		g_free(filename);
+		return NULL;	/* no extension whatsoever */
+	}
+
+	/*
+	 * Yes.  Split it into components separated by ".".
+	 */
+	components = g_strsplit(filename, ".", 0);
+	g_free(filename);
+
+	/*
+	 * Count the components.
+	 */
+	for (ncomponents = 0; components[ncomponents] != NULL; ncomponents++)
+		;
+
+	if (ncomponents == 0) {
+		g_strfreev(components);
+		return NULL;	/* no components */
+	}
+	if (ncomponents == 1) {
+		g_strfreev(components);
+		return NULL;	/* only one component, with no "." */
+	}
+
+	/*
+	 * Is the last component one of the extensions used for compressed
+	 * files?
+	 */
+	compressed_file_extensions = wtap_get_compressed_file_extensions();
+	if (compressed_file_extensions == NULL) {
+		/*
+		 * We don't support reading compressed files, so just
+		 * return a copy of whatever extension we did find.
+		 */
+		extensionp = g_strdup(components[ncomponents - 1]);
+		g_strfreev(components);
+		return extensionp;
+	}
+	extensionp = components[ncomponents - 1];
+	for (compressed_file_extension = compressed_file_extensions;
+	    compressed_file_extension != NULL;
+	    compressed_file_extension = g_slist_next(compressed_file_extension)) {
+		if (strcmp(extensionp, (char *)compressed_file_extension->data) == 0) {
+			/*
+			 * Yes, it's one of the compressed-file extensions.
+			 * Is there an extension before that?
+			 */
+			if (ncomponents == 2) {
+				g_strfreev(components);
+				return NULL;	/* no, only two components */
+			}
+
+			/*
+			 * Yes, return that extension.
+			 */
+			extensionp = g_strdup(components[ncomponents - 2]);
+			g_strfreev(components);
+			return extensionp;
+		}
+	}
+
+	/*
+	 * The extension isn't one of the compressed-file extensions;
+	 * return it.
+	 */
+	extensionp = g_strdup(extensionp);
+	g_strfreev(components);
+	return extensionp;
+}	
+
+gboolean heuristic_uses_extension(unsigned int i, const char *extension)
+{
+	gchar **extensions_set, **extensionp;
+
+	/*
+	 * Does this file type *have* any extensions?
+	 */
+	if (heuristic_open_info[i].extensions == NULL)
+		return FALSE;	/* no */
+
+	/*
+	 * Get a list of the extensions used by the specified file type.
+	 */
+	extensions_set = g_strsplit(heuristic_open_info[i].extensions, ";", 0);
+
+	/*
+	 * Check each of them against the specified extension.
+	 */
+	for (extensionp = extensions_set; *extensionp != NULL;
+	    extensionp++) {
+		if (strcmp(extension, *extensionp) == 0) {
+			g_strfreev(extensions_set);
+			return TRUE;	/* it's one of them */
+		}
+	}
+	g_strfreev(extensions_set);
+	return FALSE;	/* it's not one of them */
+}
+
 /* Opens a file and prepares a wtap struct.
    If "do_random" is TRUE, it opens the file twice; the second open
    allows the application to do random-access I/O without moving
@@ -444,6 +603,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wtap	*wth;
 	unsigned int	i;
 	gboolean use_stdin = FALSE;
+	gchar *extension;
 
 	/* open standard input if filename is '-' */
 	if (strcmp(filename, "-") == 0)
@@ -559,7 +719,8 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 	wth->priv = NULL;
 
-	init_open_routines();
+	init_magic_number_open_routines();
+	init_heuristic_open_info();
 	if (wth->random_fh) {
 		wth->fast_seek = g_ptr_array_new();
 
@@ -567,8 +728,8 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		file_set_random_access(wth->random_fh, TRUE, wth->fast_seek);
 	}
 
-	/* Try all file types */
-	for (i = 0; i < open_routines_arr->len; i++) {
+	/* Try all file types that support magic numbers */
+	for (i = 0; i < magic_number_open_routines_arr->len; i++) {
 		/* Seek back to the beginning of the file; the open routine
 		   for the previous file type may have left the file
 		   position somewhere other than the beginning, and the
@@ -582,7 +743,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 
-		switch ((*open_routines[i])(wth, err, err_info)) {
+		switch ((*magic_number_open_routines[i])(wth, err, err_info)) {
 
 		case -1:
 			/* I/O error - give up */
@@ -596,6 +757,103 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		case 1:
 			/* We found the file type */
 			goto success;
+		}
+	}
+
+	/* Does this file's name have an extension? */
+	extension = get_file_extension(filename);
+	if (extension != NULL) {
+		/* Yes - try the heuristic types that use that extension first. */
+		for (i = 0; i < heuristic_open_info_arr->len; i++) {
+			/* Does this type use that extension? */
+			if (heuristic_uses_extension(i, extension)) {
+				/* Yes. */
+				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+					/* I/O error - give up */
+					g_free(extension);
+					wtap_close(wth);
+					return NULL;
+				}
+
+				switch ((*heuristic_open_info[i].open_routine)(wth,
+				    err, err_info)) {
+
+				case -1:
+					/* I/O error - give up */
+					g_free(extension);
+					wtap_close(wth);
+					return NULL;
+
+				case 0:
+					/* No I/O error, but not that type of file */
+					break;
+
+				case 1:
+					/* We found the file type */
+					g_free(extension);
+					goto success;
+				}
+			}
+		}
+
+		/* Now try the ones that don't use it. */
+		for (i = 0; i < heuristic_open_info_arr->len; i++) {
+			/* Does this type use that extension? */
+			if (!heuristic_uses_extension(i, extension)) {
+				/* No. */
+				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+					/* I/O error - give up */
+					g_free(extension);
+					wtap_close(wth);
+					return NULL;
+				}
+
+				switch ((*heuristic_open_info[i].open_routine)(wth,
+				    err, err_info)) {
+
+				case -1:
+					/* I/O error - give up */
+					g_free(extension);
+					wtap_close(wth);
+					return NULL;
+
+				case 0:
+					/* No I/O error, but not that type of file */
+					break;
+
+				case 1:
+					/* We found the file type */
+					g_free(extension);
+					goto success;
+				}
+			}
+		}
+		g_free(extension);
+	} else {
+		/* No - try all the heuristics types in order. */
+		for (i = 0; i < heuristic_open_info_arr->len; i++) {
+			if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+				/* I/O error - give up */
+				wtap_close(wth);
+				return NULL;
+			}
+
+			switch ((*heuristic_open_info[i].open_routine)(wth,
+			    err, err_info)) {
+
+			case -1:
+				/* I/O error - give up */
+				wtap_close(wth);
+				return NULL;
+
+			case 0:
+				/* No I/O error, but not that type of file */
+				break;
+
+			case 1:
+				/* We found the file type */
+				goto success;
+			}
 		}
 	}
 
