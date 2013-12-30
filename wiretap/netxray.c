@@ -159,7 +159,7 @@ struct netxray_hdr {
  * XXX - 05/29/07: For Ethernet captype = 0 (NDIS) and timeunit = 2:
  *  Perusal of a number of Sniffer captures
  *  (including those from Wireshark bug reports
- *  and those from the Wireshark 'menagerie)
+ *  and those from the Wireshark 'menagerie')
  *  suggests that 'realtick' for this case
  *  contains the correct ticks/second to be used.
  *  So: we'll use realtick for Ethernet captype=0 and timeunit=2.
@@ -424,7 +424,8 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const guint8 *pd, int *err);
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
-int netxray_open(wtap *wth, int *err, gchar **err_info)
+int
+netxray_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[MAGIC_SIZE];
@@ -625,7 +626,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				XXX: 05/29/07: Use 'realtick' instead of TpS table if timeunit=2;
 					Using 'realtick' in this case results
 					in the correct 'ticks per second' for all the captures that
-					I have of this type (including captures from a number of Wirshark
+					I have of this type (including captures from a number of Wireshark
 					bug reports).
 				*/
 				if (hdr.timeunit == 2) {
@@ -993,8 +994,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean
+netxray_read(wtap *wth, int *err, gchar **err_info,
+	     gint64 *data_offset)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	guint32	packet_size;
@@ -1093,8 +1095,8 @@ reread:
 
 static gboolean
 netxray_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
-    int *err, gchar **err_info)
+		  struct wtap_pkthdr *phdr, Buffer *buf, int length,
+		  int *err, gchar **err_info)
 {
 	union netxrayrec_hdr hdr;
 
@@ -1136,7 +1138,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 
 static int
 netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
-    int *err, gchar **err_info)
+			int *err, gchar **err_info)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	int	bytes_read;
@@ -1701,7 +1703,8 @@ wtap_encap_to_netxray_1_1_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int netxray_dump_can_write_encap_1_1(int encap)
+int
+netxray_dump_can_write_encap_1_1(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)
@@ -1715,7 +1718,8 @@ int netxray_dump_can_write_encap_1_1(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
+gboolean
+netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 {
 	netxray_dump_t *netxray;
 
@@ -1742,9 +1746,10 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_1_1(wtap_dumper *wdh,
-				 const struct wtap_pkthdr *phdr,
-				 const guint8 *pd, int *err)
+static gboolean
+netxray_dump_1_1(wtap_dumper *wdh,
+		 const struct wtap_pkthdr *phdr,
+		 const guint8 *pd, int *err)
 {
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
 	guint64 timestamp;
@@ -1793,7 +1798,8 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
+static gboolean
+netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 {
 	char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
@@ -1861,7 +1867,8 @@ wtap_encap_to_netxray_2_0_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int netxray_dump_can_write_encap_2_0(int encap)
+int
+netxray_dump_can_write_encap_2_0(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)
@@ -1875,7 +1882,8 @@ int netxray_dump_can_write_encap_2_0(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
+gboolean
+netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 {
 	netxray_dump_t *netxray;
 
@@ -1903,9 +1911,10 @@ gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_2_0(wtap_dumper *wdh,
-				 const struct wtap_pkthdr *phdr,
-				 const guint8 *pd, int *err)
+static gboolean
+netxray_dump_2_0(wtap_dumper *wdh,
+		 const struct wtap_pkthdr *phdr,
+		 const guint8 *pd, int *err)
 {
 	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
@@ -1973,7 +1982,8 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
+static gboolean
+netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 {
 	char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
@@ -2033,3 +2043,16 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
