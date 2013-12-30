@@ -51,7 +51,6 @@
 
 /* Helper Functions */
 #ifdef HAVE_LIBGCRYPT
-gboolean zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
 static guint8 *    zbee_sec_key_hash(guint8 *, guint8, guint8 *);
 static void        zbee_sec_make_nonce (zbee_security_packet *, guint8 *);
 static gboolean    zbee_sec_decrypt_payload(zbee_security_packet *, const gchar *, const gchar, guint8 *,
@@ -1217,6 +1216,20 @@ zbee_sec_key_hash(guint8 *key, guint8 input, guint8 *hash_out)
     zbee_sec_hash(hash_in, 2*ZBEE_SEC_CONST_BLOCKSIZE, hash_out);
     return hash_out;
 } /* zbee_sec_key_hash */
+#else   /* HAVE_LIBGCRYPT */
+gboolean
+zbee_sec_ccm_decrypt(const gchar    *key _U_,   /* Input */
+                    const gchar     *nonce _U_, /* Input */
+                    const gchar     *a _U_,     /* Input */
+                    const gchar     *c _U_,     /* Input */
+                    gchar           *m _U_,     /* Output */
+                    guint           l_a _U_,    /* sizeof(a) */
+                    guint           l_m _U_,    /* sizeof(m) */
+                    guint           M _U_)      /* sizeof(c) - sizeof(m) = sizeof(MIC) */
+{
+    /* No libgcrypt, no decryption. */
+    return FALSE;
+}
 #endif  /* HAVE_LIBGCRYPT */
 
 /*FUNCTION:------------------------------------------------------
