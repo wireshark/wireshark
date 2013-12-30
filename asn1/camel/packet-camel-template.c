@@ -124,10 +124,11 @@ static int dissect_camel_CAMEL_AChBillingChargingCharacteristics(gboolean implic
 static int dissect_camel_CAMEL_AChBillingChargingCharacteristicsV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_camel_CAMEL_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
+/* XXX - can we get rid of these and always do the SRT work? */
 static gboolean gcamel_HandleSRT=FALSE;
 static gboolean gcamel_PersistentSRT=FALSE;
 static gboolean gcamel_DisplaySRT=FALSE;
-static gboolean gcamel_StatSRT=FALSE;
+gboolean gcamel_StatSRT=FALSE;
 
 /* Initialize the subtree pointers */
 static gint ett_camel = -1;

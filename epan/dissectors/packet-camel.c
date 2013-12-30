@@ -621,10 +621,11 @@ static int dissect_camel_CAMEL_AChBillingChargingCharacteristics(gboolean implic
 static int dissect_camel_CAMEL_AChBillingChargingCharacteristicsV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_camel_CAMEL_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
+/* XXX - can we get rid of these and always do the SRT work? */
 static gboolean gcamel_HandleSRT=FALSE;
 static gboolean gcamel_PersistentSRT=FALSE;
 static gboolean gcamel_DisplaySRT=FALSE;
-static gboolean gcamel_StatSRT=FALSE;
+gboolean gcamel_StatSRT=FALSE;
 
 /* Initialize the subtree pointers */
 static gint ett_camel = -1;
@@ -837,7 +838,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 145 "../../asn1/camel/packet-camel-template.c"
+#line 146 "../../asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1182,7 +1183,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 305 "../../asn1/camel/packet-camel-template.c"
+#line 306 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1272,7 +1273,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 307 "../../asn1/camel/packet-camel-template.c"
+#line 308 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -7057,7 +7058,7 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 376 "../../asn1/camel/packet-camel-template.c"
+#line 377 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7264,7 +7265,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 378 "../../asn1/camel/packet-camel-template.c"
+#line 379 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8119,7 +8120,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1225 "../../asn1/camel/packet-camel-template.c"
+#line 1226 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10233,7 +10234,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1398 "../../asn1/camel/packet-camel-template.c"
+#line 1399 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10448,7 +10449,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1414 "../../asn1/camel/packet-camel-template.c"
+#line 1415 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
