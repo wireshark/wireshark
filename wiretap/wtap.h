@@ -412,9 +412,9 @@ struct isdn_phdr {
 /*
  * Status bits.
  */
-#define ATM_RAW_CELL    0x01    /* TRUE if the packet is a single cell */
-#define ATM_NO_HEC      0x02    /* TRUE if the cell has HEC stripped out */
-#define ATM_AAL2_NOPHDR 0x04    /* TRUE if the AAL2 PDU has no pseudo-header */
+#define ATM_RAW_CELL         0x01 /* TRUE if the packet is a single cell */
+#define ATM_NO_HEC           0x02 /* TRUE if the cell has HEC stripped out */
+#define ATM_AAL2_NOPHDR      0x04 /* TRUE if the AAL2 PDU has no pseudo-header */
 #define ATM_REASSEMBLY_ERROR 0x08 /* TRUE if this is an incompletely-reassembled PDU */
 
 /*
