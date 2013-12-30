@@ -3212,6 +3212,27 @@ tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset) {
 	return (counter);
 }
 
+int
+tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch)
+{
+	int end, tvb_len;
+
+	/* Get the length remaining */
+	tvb_len = tvb_length(tvb);
+	end     = offset + maxlength;
+	if (end >= tvb_len)
+		end = tvb_len;
+
+	while (offset < end) {
+		guint8 tempch = tvb_get_guint8(tvb, offset);
+
+		if (tempch != ch)
+			break;
+		offset++;
+	}
+
+	return offset;
+}
 
 /*
  * Format a bunch of data from a tvbuff as bytes, returning a pointer

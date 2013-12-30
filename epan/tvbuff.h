@@ -619,6 +619,8 @@ WS_DLL_PUBLIC gint tvb_skip_wsp(tvbuff_t *tvb, const gint offset,
 
 WS_DLL_PUBLIC gint tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset);
 
+int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch);
+
 /**
  * Call strncmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
