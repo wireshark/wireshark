@@ -460,6 +460,7 @@ static const value_string priv_rc_types[] = {
 	{ 43,		"HOSTNAME_ASSOCID" },
 	{ 0,		NULL}
 };
+static value_string_ext priv_rc_types_ext = VALUE_STRING_EXT_INIT(priv_rc_types);
 
 /*
  * Maximum MAC length.
@@ -547,10 +548,10 @@ static gint ett_ntpctrl_data = -1;
 static gint ett_ntpctrl_item = -1;
 static gint ett_ntppriv_auth_seq = -1;
 
-static void dissect_ntp_std(tvbuff_t *, proto_tree *, guint8);
+static void dissect_ntp_std (tvbuff_t *, proto_tree *, guint8);
 static void dissect_ntp_ctrl(tvbuff_t *, proto_tree *, guint8);
 static void dissect_ntp_priv(tvbuff_t *, proto_tree *, guint8);
-static int dissect_ntp_ext(tvbuff_t *, proto_tree *, int);
+static int  dissect_ntp_ext (tvbuff_t *, proto_tree *, int);
 
 static const char *mon_names[12] = {
 	"Jan",
@@ -569,11 +570,11 @@ static const char *mon_names[12] = {
 
 
 /* parser definitions */
-static tvbparse_wanted_t* want;
-static tvbparse_wanted_t* want_ignore;
+static tvbparse_wanted_t *want;
+static tvbparse_wanted_t *want_ignore;
 
 /* NTP_BASETIME is in fact epoch - ntp_start_time */
-#define NTP_BASETIME 2208988800ul
+#define NTP_BASETIME 2208988800u
 #define NTP_FLOAT_DENOM 4294967296.0
 #define NTP_TS_SIZE 100
 
@@ -609,14 +610,14 @@ tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
 		return "NULL";
 	}
 
-	temptime = (time_t)(tempstmp /*- (guint32) NTP_BASETIME*/);
+	temptime = (time_t)(tempstmp /*- NTP_BASETIME*/);
 	bd = gmtime(&temptime);
 	if(!bd){
 		return "Not representable";
 	}
 
 	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
-	buff=(char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
+	buff = (char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
 	g_snprintf(buff, NTP_TS_SIZE,
 		 "%s %2d, %d %02d:%02d:%07.4f UTC",
 		 mon_names[bd->tm_mon],
@@ -651,7 +652,7 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 	 * works correctly (for years > 2036 according to RFC 2030
 	 * chapter 3).
 	 */
-	temptime = tempstmp - (guint32) NTP_BASETIME;
+	temptime = (time_t)(tempstmp - NTP_BASETIME);
 	bd = gmtime(&temptime);
 	if(!bd){
 		return "Not representable";
@@ -681,9 +682,9 @@ ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 	 */
 	tempstmp  = tvb_get_ntohl(tvb, offset);
 	if (tempstmp)
-		nstime->secs = tempstmp - (guint32)NTP_BASETIME;
+		nstime->secs = (time_t)(tempstmp - NTP_BASETIME);
 	else
-		nstime->secs = tempstmp; /* 0 */
+		nstime->secs = (time_t)tempstmp; /* 0 */
 
 	nstime->nsecs = (int)(tvb_get_ntohl(tvb, offset+4)/(NTP_FLOAT_DENOM/1000000000.0));
 }
@@ -758,8 +759,8 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 
 	/* Adding flag subtree and items */
 	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_li, tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_li,   tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn,   tvb, 0, 1, flags);
 	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
 
 	/* Stratum, 1byte field represents distance from primary source
@@ -796,7 +797,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 				   ppoll);
 	}
 
-	/* Precision, 1byte field indicating the precision of the
+	/* Precision, 1 byte field indicating the precision of the
 	 * local clock, in seconds to the nearest power of two.
 	 */
 	precision = tvb_get_guint8(tvb, 3);
@@ -951,10 +952,10 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 			    flags);
 	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1,
 			    flags);
-	offset++;
+	offset += 1;
 
 	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 1;
 
 	proto_tree_add_uint(ext_tree, hf_ntp_ext_len, tvb, offset, 2, extlen);
 	offset += 2;
@@ -1041,8 +1042,8 @@ dissect_ntp_ctrl_peerstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offs
 	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b3, tvb, offset, 2, status);
 	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b4, tvb, offset, 2, status);
 	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_selection, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_count, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_code, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_count,	   tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_code,	   tvb, offset, 2, status);
 }
 
 static void
@@ -1056,10 +1057,10 @@ dissect_ntp_ctrl_systemstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 of
 	 * |LI | ClkSource | Count | Code  |
 	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_li, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_li,     tvb, offset, 2, status);
 	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_clksrc, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_count, tvb, offset, 2, status);
-	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_code, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_count,  tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_code,   tvb, offset, 2, status);
 }
 
 static void
@@ -1087,7 +1088,7 @@ dissect_ntp_ctrl_clockstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 off
 	 * | Clock Status  |  Event Code   |
 	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	 */
-	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status,      tvb, offset, 2, status);
 	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status_code, tvb, offset, 2, status);
 }
 
@@ -1112,19 +1113,19 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 
 	/* Adding flag subtree and items */
 	flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_li, tvb, 0, 1, flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn, tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_li,   tvb, 0, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_flags_vn,   tvb, 0, 1, flags);
 	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
 
 	flags2 = tvb_get_guint8(tvb, 1);
-	tf = proto_tree_add_uint(ntp_tree, hf_ntpctrl_flags2, tvb, 1, 1, flags2);
+	tf = proto_tree_add_uint(ntp_tree, hf_ntpctrl_flags2,     tvb, 1, 1, flags2);
 	flags_tree = proto_item_add_subtree(tf, ett_ntpctrl_flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_r, tvb, 1, 1, flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_error, tvb, 1, 1, flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_more, tvb, 1, 1, flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_r,	  tvb, 1, 1, flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_error,  tvb, 1, 1, flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_more,	  tvb, 1, 1, flags2);
 	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_opcode, tvb, 1, 1, flags2);
 
-	proto_tree_add_uint(ntp_tree, hf_ntpctrl_sequence, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_sequence,    tvb, 2, 2, tvb_get_ntohs(tvb, 2));
 
 	status = tvb_get_ntohs(tvb, 4);
 	associd = tvb_get_ntohs(tvb, 6);
@@ -1160,7 +1161,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		}
 	}
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_associd, tvb, 6, 2, associd);
-	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset, tvb, 8, 2, tvb_get_ntohs(tvb, 8));
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset,  tvb, 8, 2, tvb_get_ntohs(tvb, 8));
 	datalen = tvb_get_ntohs(tvb, 10);
 	proto_tree_add_uint(ntp_tree, hf_ntpctrl_count, tvb, 10, 2, datalen);
 
@@ -1226,18 +1227,18 @@ static void
 init_parser(void)
 {
 	/* specify what counts as character */
-	tvbparse_wanted_t* want_identifier = tvbparse_chars(-1, 1, 0,
+	tvbparse_wanted_t *want_identifier = tvbparse_chars(-1, 1, 0,
 		"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789", NULL, NULL, NULL);
 	/* this is the equal sign used in assignments */
-	tvbparse_wanted_t* want_equalsign = tvbparse_chars(-1, 1, 0, "=", NULL, NULL, NULL);
+	tvbparse_wanted_t *want_equalsign = tvbparse_chars(-1, 1, 0, "=", NULL, NULL, NULL);
 	/* possible characters allowed for values */
-	tvbparse_wanted_t* want_value = tvbparse_set_oneof(0, NULL, NULL, NULL,
+	tvbparse_wanted_t *want_value = tvbparse_set_oneof(0, NULL, NULL, NULL,
 		tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb, '\"', '\\'),
 		tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb, '\'', '\\'),
 		tvbparse_chars(-1, 1, 0, "abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789 ", NULL, NULL, NULL),
 		NULL);
 	/* the following specifies an assignment of the form identifier=value */
-	tvbparse_wanted_t* want_assignment = tvbparse_set_seq(-1, NULL, NULL, NULL,
+	tvbparse_wanted_t *want_assignment = tvbparse_set_seq(-1, NULL, NULL, NULL,
 		want_identifier,
 		want_equalsign,
 		want_value,
@@ -1483,8 +1484,8 @@ proto_register_ntp(void)
 			"Implementation", "ntp.priv.impl", FT_UINT8, BASE_DEC,
 			VALS(priv_impl_types), 0, NULL, HFILL }},
 		{ &hf_ntppriv_reqcode, {
-			"Request code", "ntp.priv.reqcode", FT_UINT8, BASE_DEC,
-			VALS(priv_rc_types), 0, NULL, HFILL }}
+			"Request code", "ntp.priv.reqcode", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+			&priv_rc_types_ext, 0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_ntp,
@@ -1515,3 +1516,16 @@ proto_reg_handoff_ntp(void)
 	dissector_add_uint("udp.port", UDP_PORT_NTP, ntp_handle);
 	dissector_add_uint("tcp.port", TCP_PORT_NTP, ntp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
