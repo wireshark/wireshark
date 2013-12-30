@@ -288,7 +288,92 @@ struct netxrayrec_1_x_hdr {
 	guint8	xxx[16];	/* unknown */
 };
 
-/* NetXRay format version 2.x data record format - followed by frame data. */
+/*
+ * NetXRay format version 2.x data record format - followed by frame data.
+ *
+ * The xxx fields appear to be:
+ *
+ *	xxx[0]: ATM traffic type and subtype in the low 3 bits of
+ *	each nibble, and flags(?) in the upper bit of each nibble.
+ *
+ *	xxx[2], xxx[3]: for Ethernet, 802.11, ISDN LAPD, LAPB,
+ *	Frame Relay, if both are 0xff, there are 4 bytes of stuff
+ *	at the end of the packet data, which might be an FCS or
+ *	which might be junk to discard.
+ *
+ *	xxx[8], xxx[9]: 2 bytes of a flag word?  If treated as
+ *	a 2-byte little-endian flag word:
+ *
+ *		0x0001: Error of some sort, including bad CRC, although
+ *		    in one ISDN capture it's set in some B2 channel
+ *		    packets of unknown content (as opposed to the B1
+ *		    traffic in the capture, which is PPP)
+ *		0x0004: Some particular type of error?
+ *		0x0008: For (Gigabit?) Ethernet (with special probe?),
+ *		    4 bytes at end are junk rather than CRC?
+ *		0x0100: CRC error on ATM?  Protected and Not decrypted
+ *		    for 802.11?
+ *		0x0200: Something for ATM? Something else for 802.11?
+ *		0x0400: raw ATM cell
+ *		0x0800: OAM cell?
+ *		0x2000: port on which the packet was captured?
+ *
+ *	The Sniffer Portable 4.8 User's Guide lists a set of packet status
+ *	flags including:
+ *
+ *		packet is marked;
+ *		packet was captured from Port A on the pod or adapter card;
+ *		packet was captured from Port B on the pod or adapter card;
+ *		packet has a symptom or diagnosis associated with it;
+ *		packet is an event filter trigger;
+ *		CRC error packet with normal packet size;
+ *		CRC error packet with oversize error;
+ *		packet size < 64 bytes (including CRC) but with valid CRC;
+ *		packet size < 64 bytes (including CRC) with CRC error;
+ *		packet size > 1518 bytes (including CRC) but with valid CRC;
+ *		packet damaged by a collision;
+ *		packet length not a multiple of 8 bits;
+ *		address conflict in the ring on Token Ring;
+ *		packet is not copied (received) by the destination host on
+ *		    Token Ring;
+ *		AAL5 length error;
+ *		AAL5 maximum segments error;
+ *		ATM timeout error;
+ *		ATM buffer error;
+ *		ATM unknown error;
+ *		and a ton of AAL2 errors.
+ *
+ *	Not all those bits necessarily correspond to flag bits in the file,
+ *	but some might.
+ *
+ *	In one ATM capture, the 0x2000 bit was set for all frames; in another,
+ *	it's unset for all frames.  This, plus the ATMbook having two ports,
+ *	suggests that it *might* be a "port A vs. port B" flag.
+ *
+ *	The 0x0001 bit appears to be set for CRC errors on Ethernet and 802.11.
+ *	It also appears to be set on ATM for AAL5 PDUs that appear to be
+ *	completely reassembled and that have a CRC error and for frames that
+ *	appear to be part of a full AAL5 PDU.  In at least two files with
+ *	frames of the former type, the 0x0100 and 0x0200 flags are set;
+ *	in at least one file with frames of the latter type, neither of
+ *	those flags are set.
+ *
+ *	The field appears to be somewhat random in some captures,
+ *	however.
+ *
+ *	xxx[11]: for 802.11, 0x05 if the packet is WEP-encrypted(?).
+ *
+ *	xxx[12]: for 802.11, channel number.
+ *
+ *	xxx[13]: for 802.11, data rate.
+ *
+ *	xxx[14]: for 802.11, signal strength.
+ *
+ *	xxx[15]: for 802.11, noise level; 0xFF means none reported,
+ *	    0x7F means 100%.
+ *
+ *	xxx[20-25]: for 802.11, MAC address of sending machine(?).
+ */
 struct netxrayrec_2_x_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp */
 	guint32	timehi;		/* upper 32 bits of time stamp */
@@ -326,7 +411,9 @@ static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err, gchar **err_info);
-static void netxray_set_phdr(wtap *wth, Buffer *buf, int len,
+static void netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr,
+    Buffer *buf);
+static void netxray_set_phdr(wtap *wth, Buffer *buf,
     struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
@@ -993,7 +1080,14 @@ reread:
 	/*
 	 * Fill in the struct wtap_pkthdr.
 	 */
-	netxray_set_phdr(wth, wth->frame_buffer, packet_size, &wth->phdr, &hdr);
+	netxray_set_phdr(wth, wth->frame_buffer, &wth->phdr, &hdr);
+
+	/*
+	 * If it's an ATM packet, and we don't have enough information
+	 * from the packet header to determine its type or subtype,
+	 * attempt to guess them from the packet data.
+	 */
+	netxray_guess_atm_type(wth, &wth->phdr, wth->frame_buffer);
 	return TRUE;
 }
 
@@ -1029,7 +1123,14 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Fill in the struct wtap_pkthdr.
 	 */
-	netxray_set_phdr(wth, buf, length, phdr, &hdr);
+	netxray_set_phdr(wth, buf, phdr, &hdr);
+
+	/*
+	 * If it's an ATM packet, and we don't have enough information
+	 * from the packet header to determine its type or subtype,
+	 * attempt to guess them from the packet data.
+	 */
+	netxray_guess_atm_type(wth, phdr, buf);
 	return TRUE;
 }
 
@@ -1077,8 +1178,8 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 }
 
 static void
-netxray_set_phdr(wtap *wth, Buffer *buf, int len,
-    struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
+netxray_set_phdr(wtap *wth, Buffer *buf, struct wtap_pkthdr *phdr,
+    union netxrayrec_hdr *hdr)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	double	t;
@@ -1097,7 +1198,7 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 
 		case WTAP_ENCAP_ETHERNET:
 			/*
-			 * XXX - if hdr->hdr_1_x.xxx[15] is 1
+			 * XXX - if hdr_1_x.xxx[15] is 1
 			 * the frame appears not to have any extra
 			 * stuff at the end, but if it's 0,
 			 * there appears to be 4 bytes of stuff
@@ -1120,12 +1221,12 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			 * It appears, at least with version 2 captures,
 			 * that we have 4 bytes of stuff (which might be
 			 * a valid FCS or might be junk) at the end of
-			 * the packet if hdr->hdr_2_x.xxx[2] and
-			 * hdr->hdr_2_x.xxx[3] are 0xff, and we don't if
+			 * the packet if hdr_2_x.xxx[2] and
+			 * hdr_2_x.xxx[3] are 0xff, and we don't if
 			 * they don't.
 			 *
 			 * It also appears that if the low-order bit of
-			 * hdr->hdr_2_x.xxx[8] is set, the packet has a
+			 * hdr_2_x.xxx[8] is set, the packet has a
 			 * bad FCS.
 			 */
 			if (hdr->hdr_2_x.xxx[2] == 0xff &&
@@ -1153,8 +1254,8 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			/*
 			 * It appears, in one 802.11 capture, that
 			 * we have 4 bytes of junk at the ends of
-			 * frames in which hdr->hdr_2_x.xxx[2] and
-			 * hdr->hdr_2_x.xxx[3] are 0xff; I haven't
+			 * frames in which hdr_2_x.xxx[2] and
+			 * hdr_2_x.xxx[3] are 0xff; I haven't
 			 * seen any frames where it's an FCS, but,
 			 * for now, we still check the fcs_valid
 			 * flag - I also haven't seen any capture
@@ -1162,7 +1263,7 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			 * value.
 			 *
 			 * It also appears that if the low-order bit of
-			 * hdr->hdr_2_x.xxx[8] is set, the packet has a
+			 * hdr_2_x.xxx[8] is set, the packet has a
 			 * bad FCS.  According to Ken Mann, the 0x4 bit
 			 * is sometimes also set for errors.
 			 *
@@ -1209,10 +1310,10 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			/*
 			 * ISDN.
 			 *
-			 * The bottommost bit of byte 12 of "hdr->hdr_2_x.xxx"
+			 * The bottommost bit of byte 12 of hdr_2_x.xxx
 			 * is the direction flag.
 			 *
-			 * The bottom 5 bits of byte 13 of "hdr->hdr_2_x.xxx"
+			 * The bottom 5 bits of byte 13 of hdr_2_x.xxx
 			 * are the channel number, but some mapping is
 			 * required for PRI.  (Is it really just the time
 			 * slot?)
@@ -1254,11 +1355,11 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			 * It appears, at least with version 2 captures,
 			 * that we have 4 bytes of stuff (which might be
 			 * a valid FCS or might be junk) at the end of
-			 * the packet if hdr->hdr_2_x.xxx[2] and
-			 * hdr->hdr_2_x.xxx[3] are 0xff, and we don't if
+			 * the packet if hdr_2_x.xxx[2] and
+			 * hdr_2_x.xxx[3] are 0xff, and we don't if
 			 * they don't.
 			 *
-			 * XXX - does the low-order bit of hdr->hdr_2_x.xxx[8]
+			 * XXX - does the low-order bit of hdr_2_x.xxx[8]
 			 * indicate a bad FCS, as is the case with
 			 * Ethernet?
 			 */
@@ -1278,7 +1379,7 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			/*
 			 * LAPB/X.25 and Frame Relay.
 			 *
-			 * The bottommost bit of byte 12 of "hdr->hdr_2_x.xxx"
+			 * The bottommost bit of byte 12 of hdr_2_x.xxx
 			 * is the direction flag.  (Probably true for other
 			 * HDLC encapsulations as well.)
 			 */
@@ -1289,11 +1390,11 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			 * It appears, at least with version 2 captures,
 			 * that we have 4 bytes of stuff (which might be
 			 * a valid FCS or might be junk) at the end of
-			 * the packet if hdr->hdr_2_x.xxx[2] and
-			 * hdr->hdr_2_x.xxx[3] are 0xff, and we don't if
+			 * the packet if hdr_2_x.xxx[2] and
+			 * hdr_2_x.xxx[3] are 0xff, and we don't if
 			 * they don't.
 			 *
-			 * XXX - does the low-order bit of hdr->hdr_2_x.xxx[8]
+			 * XXX - does the low-order bit of hdr_2_x.xxx[8]
 			 * indicate a bad FCS, as is the case with
 			 * Ethernet?
 			 */
@@ -1317,9 +1418,66 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
 			pd = buffer_start_ptr(buf);
+			/*
+			 * XXX - the low-order bit of hdr_2_x.xxx[8]
+			 * seems to indicate some sort of error.  In
+			 * at least one capture, a number of packets
+			 * have that flag set, and they appear either
+			 * to be the beginning part of an incompletely
+			 * reassembled AAL5 PDU, with either checksum
+			 * errors at higher levels (possibly due to
+			 * the packet being reported as shorter than
+			 * it actually is, and checksumming failing
+			 * because it doesn't include all the data)
+			 * or "Malformed frame" errors from being
+			 * too short, or appear to be later parts
+			 * of an incompletely reassembled AAL5 PDU
+			 * with the last one in a sequence of errors
+			 * having what looks like an AAL5 trailer,
+			 * with a length and checksum.
+			 *
+			 * Does it just mean "reassembly failed",
+			 * as appears to be the case in those
+			 * packets, or does it mean "CRC error"
+			 * at the AAL5 layer (which would be the
+			 * case if you were treating an incompletely
+			 * reassembled PDU as a completely reassembled
+			 * PDU, although you'd also expect a length
+			 * error in that case), or does it mean
+			 * "generic error", with some other flag
+			 * or flags indicating what particular
+			 * error occurred?  The documentation
+			 * for Sniffer Pro 4.7 indicates a bunch
+			 * of different error types, both in general
+			 * and for ATM in particular.
+			 *
+			 * No obvious bits in hdr_2_x.xxx appear
+			 * to be additional flags of that sort.
+			 *
+			 * XXX - in that capture, I see several
+			 * reassembly errors in a row; should those
+			 * packets be reassembled in the ATM dissector?
+			 * What happens if a reassembly fails because
+			 * a cell is bad?
+			 */
 			phdr->pseudo_header.atm.flags = 0;
 			/*
 			 * XXX - is 0x08 an "OAM cell" flag?
+			 * Are the 0x01 and 0x02 bits error indications?
+			 * Some packets in one capture that have the
+			 * 0x01 bit set in hdr_2_x.xxx[8] and that
+			 * appear to have been reassembled completely
+			 * but have a bad CRC have 0x03 in hdr_2_x.xxx[9]
+			 * (and don't have the 0x20 bit set).
+			 *
+			 * In the capture with incomplete reassemblies,
+			 * all packets have the 0x20 bit set.  In at
+			 * least some of the captures with complete
+			 * reassemblies with CRC errors, no packets
+			 * have the 0x20 bit set.
+			 *
+			 * Are hdr_2_x.xxx[8] and hdr_2_x.xxx[9] a 16-bit
+			 * flag field?
 			 */
 			if (hdr->hdr_2_x.xxx[9] & 0x04)
 				phdr->pseudo_header.atm.flags |= ATM_RAW_CELL;
@@ -1329,73 +1487,122 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 			    (hdr->hdr_2_x.xxx[15] & 0x10)? 1 : 0;
 			phdr->pseudo_header.atm.cells = 0;
 
-			switch (hdr->hdr_2_x.xxx[0] & 0xF0) {
+			/*
+			 * XXX - the uppermost bit of hdr_2_xxx[0]
+			 * looks as if it might be a flag of some sort.
+			 * The remaining 3 bits appear to be an AAL
+			 * type - 5 is, surprise surprise, AAL5.
+			 */
+			switch (hdr->hdr_2_x.xxx[0] & 0x70) {
 
 			case 0x00:	/* Unknown */
-				/*
-				 * Infer the AAL, traffic type, and subtype.
-				 */
-				atm_guess_traffic_type(pd, len,
-				    &phdr->pseudo_header);
+				phdr->pseudo_header.atm.aal = AAL_UNKNOWN;
+				phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
+				phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 				break;
 
-			case 0x50:	/* AAL5 (including signalling) */
-				phdr->pseudo_header.atm.aal = AAL_5;
-				switch (hdr->hdr_2_x.xxx[0] & 0x0F) {
+			case 0x10:	/* XXX - AAL1? */
+				phdr->pseudo_header.atm.aal = AAL_UNKNOWN;
+				phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
+				phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
+				break;
 
-				case 0x09:
-				case 0x0a:	/* Signalling traffic */
+			case 0x20:	/* XXX - AAL2?  */
+				phdr->pseudo_header.atm.aal = AAL_UNKNOWN;
+				phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
+				phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
+				break;
+
+			case 0x40:	/* XXX - AAL3/4? */
+				phdr->pseudo_header.atm.aal = AAL_UNKNOWN;
+				phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
+				phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
+				break;
+
+			case 0x30:	/* XXX - AAL5 cells seen with this */
+			case 0x50:	/* AAL5 (including signalling) */
+			case 0x60:	/* XXX - AAL5 cells seen with this */
+			case 0x70:	/* XXX - AAL5 cells seen with this */
+				phdr->pseudo_header.atm.aal = AAL_5;
+				/*
+				 * XXX - is the 0x08 bit of hdr_2_x.xxx[0]
+				 * a flag?  I've not yet seen a case where
+				 * it matters.
+				 */
+				switch (hdr->hdr_2_x.xxx[0] & 0x07) {
+
+				case 0x01:
+				case 0x02:	/* Signalling traffic */
 					phdr->pseudo_header.atm.aal = AAL_SIGNALLING;
 					phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
 					phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 					break;
 
-				case 0x0b:	/* ILMI */
+				case 0x03:	/* ILMI */
 					phdr->pseudo_header.atm.type = TRAF_ILMI;
 					phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 					break;
 
-				case 0x0c:	/* LANE LE Control */
-					phdr->pseudo_header.atm.type = TRAF_LANE;
-					phdr->pseudo_header.atm.subtype = TRAF_ST_LANE_LE_CTRL;
-					break;
-
-				case 0x0d:
+				case 0x00:
+				case 0x04:
+				case 0x05:
 					/*
-					 * 0x0d is *mostly* LANE 802.3,
-					 * but I've seen an LE Control frame
-					 * with 0x0d.
+					 * I've seen a frame with type
+					 * 0x30 and subtype 0x08 that
+					 * was LANE 802.3, a frame
+					 * with type 0x30 and subtype
+					 * 0x04 that was LANE 802.3,
+					 * and another frame with type
+					 * 0x30 and subtype 0x08 that
+					 * was junk with a string in
+					 * it that had also appeared
+					 * in some CDP and LE Control
+					 * frames, and that was preceded
+					 * by a malformed LE Control
+					 * frame - was that a reassembly
+					 * failure?
+					 *
+					 * I've seen frames with type
+					 * 0x50 and subtype 0x0c, some
+					 * of which were LE Control
+					 * frames, and at least one
+					 * of which was neither an LE
+					 * Control frame nor a LANE
+					 * 802.3 frame, and contained
+					 * the string "ForeThought_6.2.1
+					 * Alpha" - does that imply
+					 * FORE's own encapsulation,
+					 * or was this a reassembly failure?
+					 * The latter frame was preceded
+					 * by a malformed LE Control
+					 * frame.
+					 *
+					 * I've seen a couple of frames
+					 * with type 0x60 and subtype 0x00,
+					 * one of which was LANE 802.3 and
+					 * one of which was LE Control.
+					 * I've seen one frame with type
+					 * 0x60 and subtype 0x0c, which
+					 * was LANE 802.3.
+					 *
+					 * I've seen a couple of frames
+					 * with type 0x70 and subtype 0x00,
+					 * both of which were LANE 802.3.
 					 */
 					phdr->pseudo_header.atm.type = TRAF_LANE;
-					atm_guess_lane_type(pd, len,
-					    &phdr->pseudo_header);
+					phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 					break;
 
-				case 0x0f:	/* LLC multiplexed */
-					phdr->pseudo_header.atm.type = TRAF_LLCMX;	/* XXX */
-					phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;	/* XXX */
-					break;
-
-				default:
-					/*
-					 * XXX - discover the other types.
-					 */
+				case 0x06:	/* XXX - not seen yet */
 					phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
 					phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 					break;
-				}
-				break;
 
-			default:
-				/*
-				 * 0x60 seen, and dissected by Sniffer
-				 * Pro as a raw cell.
-				 *
-				 * XXX - discover what those types are.
-				 */
-				phdr->pseudo_header.atm.aal = AAL_UNKNOWN;
-				phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
-				phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
+				case 0x07:	/* LLC multiplexed */
+					phdr->pseudo_header.atm.type = TRAF_LLCMX;	/* XXX */
+					phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;	/* XXX */
+					break;
+				}
 				break;
 			}
 			break;
@@ -1435,6 +1642,33 @@ netxray_set_phdr(wtap *wth, Buffer *buf, int len,
 		packet_size = pletoh16(&hdr->hdr_1_x.incl_len);
 		phdr->caplen = packet_size - padding;
 		phdr->len = pletoh16(&hdr->hdr_1_x.orig_len) - padding;
+	}
+}
+
+static void
+netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr, Buffer *buf)
+{
+	const guint8 *pd;
+
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS_UNTRUNCATED) {
+		if (phdr->pseudo_header.atm.aal == AAL_UNKNOWN) {
+			/*
+			 * Try to guess the type and subtype based
+			 * on the VPI/VCI and packet contents.
+			 */
+			pd = buffer_start_ptr(buf);
+			atm_guess_traffic_type(pd, phdr->caplen,
+			    &phdr->pseudo_header);
+		} else if (phdr->pseudo_header.atm.aal == AAL_5 &&
+		    phdr->pseudo_header.atm.type == TRAF_LANE) {
+			/*
+			 * Try to guess the subtype based on the
+			 * packet contents.
+			 */
+			pd = buffer_start_ptr(buf);
+			atm_guess_lane_type(pd, phdr->caplen,
+			    &phdr->pseudo_header);
+		}
 	}
 }
 
