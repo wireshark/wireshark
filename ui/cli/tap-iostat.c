@@ -557,7 +557,7 @@ iostat_draw(void *arg)
     gboolean last_row=FALSE;
     io_stat_t *iot;
     column_width *col_w;
-    struct tm * tm_time;
+    struct tm *tm_time;
     time_t the_time;
 
     mit = (io_stat_item_t *)arg;
@@ -713,7 +713,7 @@ iostat_draw(void *arg)
                     if (type==CALC_TYPE_LOAD) {
                         iot->max_vals[j] /= interval;
                     } else if (type != CALC_TYPE_AVG) {
-                        iot->max_vals[j] = (iot->max_vals[j] + 500000000ULL) / NANOSECS_PER_SEC;
+                        iot->max_vals[j] = (iot->max_vals[j] + G_GUINT64_CONSTANT(500000000)) / NANOSECS_PER_SEC;
                     }
                     val_mag = magnitude(iot->max_vals[j], 15);
                     g_snprintf(val_mag_s, 3, "%u", val_mag);
@@ -1059,10 +1059,10 @@ iostat_draw(void *arg)
                   full_fmt = g_strconcat( dur_mag==1 ? "|  " : "| ",
                                           invl_fmt, " <> ", "%-",
                                           dur_mag_s, "s|", NULL);
-                  printf(full_fmt, (guint32)(t/1000000ULL), "Dur");
+                  printf(full_fmt, (guint32)(t/G_GUINT64_CONSTANT(1000000)), "Dur");
               } else {
-              printf(full_fmt, (guint32)(t/1000000ULL),
-                     (guint32)(invl_end/G_GUINT64_CONSTANT(1000000)));
+                  printf(full_fmt, (guint32)(t/G_GUINT64_CONSTANT(1000000)),
+                         (guint32)(invl_end/G_GUINT64_CONSTANT(1000000)));
               }
           } else {
               printf(full_fmt, (guint32)(t/G_GUINT64_CONSTANT(1000000)),
