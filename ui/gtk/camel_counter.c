@@ -35,7 +35,7 @@
 #include <epan/tap.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
-#include <epan/camel-persistentdata.h>
+#include <epan/dissectors/packet-camel.h>
 
 #include "../stat_menu.h"
 

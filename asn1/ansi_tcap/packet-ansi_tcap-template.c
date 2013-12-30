@@ -38,7 +38,6 @@
 #include "packet-ber.h"
 #include "packet-tcap.h"
 #include "packet-ansi_tcap.h"
-#include <epan/tcap-persistentdata.h>
 
 #define PNAME  "ANSI Transaction Capabilities Application Part"
 #define PSNAME "ANSI_TCAP"
@@ -88,6 +87,13 @@ static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation
 extern gboolean gtcap_PersistentSRT;
 extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
+
+/* When several Tcap components are received in a single TCAP message,
+   we have to use several buffers for the stored parameters
+   because else this data are erased during TAP dissector call */
+#define MAX_TCAP_INSTANCE 10
+int tcapsrt_global_current=0;
+struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
 
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;

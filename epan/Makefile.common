@@ -32,7 +32,6 @@ LIBWIRESHARK_SRC =		\
 	app_mem_usage.c		\
 	asn1.c			\
 	atalk-utils.c		\
-	camel-persistentdata.c	\
 	charsets.c		\
 	circuit.c		\
 	column.c		\
@@ -89,7 +88,6 @@ LIBWIRESHARK_SRC =		\
 	stream.c		\
 	t35.c			\
 	tap.c			\
-	tcap-persistentdata.c	\
 	timestamp.c		\
 	timestats.c		\
 	tfs.c			\
@@ -158,7 +156,6 @@ LIBWIRESHARK_INCLUDES =		\
 	atalk-utils.h		\
 	ax25_pids.h		\
 	bridged_pids.h		\
-	camel-persistentdata.h	\
 	charsets.h		\
 	chdlctypes.h		\
 	circuit.h		\
@@ -246,7 +243,6 @@ LIBWIRESHARK_INCLUDES =		\
 	t35.h			\
 	tap.h			\
 	tap-voip.h		\
-	tcap-persistentdata.h	\
 	timestamp.h		\
 	timestats.h		\
 	tfs.h			\

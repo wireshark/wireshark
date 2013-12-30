@@ -37,7 +37,7 @@
 #include "epan/value_string.h"
 #include "epan/stat_cmd_args.h"
 #include "epan/asn1.h"
-#include "epan/camel-persistentdata.h"
+#include "epan/dissectors/packet-camel.h"
 
 void register_tap_listener_camelcounter(void);
 

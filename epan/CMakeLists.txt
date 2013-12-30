@@ -1476,7 +1476,6 @@ set(LIBWIRESHARK_FILES
 	app_mem_usage.c
 	asn1.c
 	atalk-utils.c
-	camel-persistentdata.c
 	charsets.c
 	circuit.c
 	column.c
@@ -1534,7 +1533,6 @@ set(LIBWIRESHARK_FILES
 	stream.c
 	t35.c
 	tap.c
-	tcap-persistentdata.c
 	timestamp.c
 	timestats.c
 	tfs.c

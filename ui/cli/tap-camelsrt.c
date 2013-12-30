@@ -35,7 +35,7 @@
 #include "epan/value_string.h"
 #include "epan/asn1.h"
 #include "epan/dissectors/packet-camel.h"
-#include "epan/camel-persistentdata.h"
+#include "epan/dissectors/packet-tcap.h"
 #include "epan/timestats.h"
 #include "epan/stat_cmd_args.h"
 
