@@ -404,7 +404,10 @@ struct isdn_phdr {
 };
 
 /* Packet "pseudo-header" for ATM capture files.
-   Not all of this information is supplied by all capture types. */
+   Not all of this information is supplied by all capture types.
+   These originally came from the Network General (DOS-based)
+   ATM Sniffer file format, but we've added some additional
+   items. */
 
 /*
  * Status bits.
@@ -412,6 +415,7 @@ struct isdn_phdr {
 #define ATM_RAW_CELL    0x01    /* TRUE if the packet is a single cell */
 #define ATM_NO_HEC      0x02    /* TRUE if the cell has HEC stripped out */
 #define ATM_AAL2_NOPHDR 0x04    /* TRUE if the AAL2 PDU has no pseudo-header */
+#define ATM_REASSEMBLY_ERROR 0x08 /* TRUE if this is an incompletely-reassembled PDU */
 
 /*
  * AAL types.

@@ -1460,6 +1460,8 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * a cell is bad?
 			 */
 			phdr->pseudo_header.atm.flags = 0;
+			if (hdr->hdr_2_x.xxx[8] & 0x01)
+				phdr->pseudo_header.atm.flags |= ATM_REASSEMBLY_ERROR;
 			/*
 			 * XXX - is 0x08 an "OAM cell" flag?
 			 * Are the 0x01 and 0x02 bits error indications?
@@ -1649,7 +1651,8 @@ netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr, Buffer *buf)
 {
 	const guint8 *pd;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS_UNTRUNCATED) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS_UNTRUNCATED &&
+	   !(phdr->pseudo_header.atm.flags & ATM_REASSEMBLY_ERROR)) {
 		if (phdr->pseudo_header.atm.aal == AAL_UNKNOWN) {
 			/*
 			 * Try to guess the type and subtype based

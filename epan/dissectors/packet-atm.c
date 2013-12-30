@@ -30,6 +30,7 @@
 #include <epan/oui.h>
 #include <epan/addr_resolv.h>
 #include <epan/ppptypes.h>
+#include <epan/expert.h>
 
 #include "packet-atm.h"
 #include "packet-snmp.h"
@@ -128,6 +129,8 @@ static gint ett_ilmi = -1;
 static gint ett_aal1 = -1;
 static gint ett_aal3_4 = -1;
 static gint ett_oamaal = -1;
+
+static expert_field ei_atm_reassembly_failed = EI_INIT;
 
 static dissector_handle_t atm_handle;
 static dissector_handle_t atm_untruncated_handle;
@@ -962,6 +965,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint32   crc;
   guint32   calc_crc;
   gint      type;
+  gboolean  decoded;
 
   /*
    * This is reassembled traffic, so the cell headers are missing;
@@ -999,10 +1003,11 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   next_tvb = tvb;
-  if (truncated) {
+  if (truncated || pinfo->pseudo_header->atm.flags & ATM_REASSEMBLY_ERROR) {
     /*
      * The packet data does not include stuff such as the AAL5
-     * trailer.
+     * trailer, either because it was explicitly left out or because
+     * reassembly failed.
      */
     if (pinfo->pseudo_header->atm.cells != 0) {
       /*
@@ -1026,7 +1031,8 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } else {
     /*
      * The packet data includes stuff such as the AAL5 trailer, if
-     * it wasn't cut off by the snapshot length.
+     * it wasn't cut off by the snapshot length, and ATM reassembly
+     * succeeded.
      * Decode the trailer, if present, and then chop it off.
      */
     length = tvb_length(tvb);
@@ -1098,43 +1104,55 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
 
+  decoded = FALSE;
+  /*
+   * Don't try to dissect the payload of PDUs with a reassembly
+   * error.
+   */
   switch (pinfo->pseudo_header->atm.aal) {
 
   case AAL_SIGNALLING:
-    call_dissector(sscop_handle, next_tvb, pinfo, tree);
+    if (!(pinfo->pseudo_header->atm.flags & ATM_REASSEMBLY_ERROR)) {
+      call_dissector(sscop_handle, next_tvb, pinfo, tree);
+      decoded = TRUE;
+    }
     break;
 
   case AAL_5:
-    switch (pinfo->pseudo_header->atm.type) {
+    if (!(pinfo->pseudo_header->atm.flags & ATM_REASSEMBLY_ERROR)) {
+      switch (pinfo->pseudo_header->atm.type) {
 
-    case TRAF_SSCOP:
-      call_dissector(sscop_handle, next_tvb, pinfo, tree);
-      break;
+      case TRAF_SSCOP:
+        call_dissector(sscop_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    case TRAF_FR:
-      call_dissector(fr_handle, next_tvb, pinfo, tree);
-      break;
+      case TRAF_FR:
+        call_dissector(fr_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    case TRAF_LLCMX:
-      call_dissector(llc_handle, next_tvb, pinfo, tree);
-      break;
+      case TRAF_LLCMX:
+        call_dissector(llc_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    case TRAF_LANE:
-      call_dissector(lane_handle, next_tvb, pinfo, tree);
-      break;
+      case TRAF_LANE:
+        call_dissector(lane_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    case TRAF_ILMI:
-      call_dissector(ilmi_handle, next_tvb, pinfo, tree);
-      break;
+      case TRAF_ILMI:
+        call_dissector(ilmi_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    case TRAF_GPRS_NS:
-      call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
-      break;
+      case TRAF_GPRS_NS:
+        call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    default:
-      {
-        gboolean decoded = FALSE;
-
+      default:
         if (tvb_length(next_tvb) > 7) /* sizeof(octet) */
         {
             guint8 octet[8];
@@ -1204,37 +1222,43 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            pinfo->pseudo_header->atm.vci,
                            pinfo->pseudo_header->atm.aal2_cid);
 
-    if (pinfo->pseudo_header->atm.flags & ATM_AAL2_NOPHDR) {
-      next_tvb = tvb;
-    } else {
-          /* Skip first 4 bytes of message
-             - side
-             - length
-             - UUI
-             Ignoring for now... */
-      next_tvb = tvb_new_subset_remaining(tvb, 4);
-    }
+    if (!(pinfo->pseudo_header->atm.flags & ATM_REASSEMBLY_ERROR)) {
+      if (pinfo->pseudo_header->atm.flags & ATM_AAL2_NOPHDR) {
+        next_tvb = tvb;
+      } else {
+        /* Skip first 4 bytes of message
+           - side
+           - length
+           - UUI
+           Ignoring for now... */
+        next_tvb = tvb_new_subset_remaining(tvb, 4);
+      }
 
-    type = pinfo->pseudo_header->atm.type;
-    if (type == TRAF_UNKNOWN) {
-      type = unknown_aal2_type;
-    }
-    switch (type) {
-    case TRAF_UMTS_FP:
-      call_dissector(fp_handle, next_tvb, pinfo, tree);
-      break;
+      type = pinfo->pseudo_header->atm.type;
+      if (type == TRAF_UNKNOWN) {
+        type = unknown_aal2_type;
+      }
+      switch (type) {
+      case TRAF_UMTS_FP:
+        call_dissector(fp_handle, next_tvb, pinfo, tree);
+        decoded = TRUE;
+        break;
 
-    default:
-      /* Dump it as raw data. */
-      call_dissector(data_handle, next_tvb, pinfo, tree);
-      break;
+      default:
+        /* Dump it as raw data. */
+        break;
+      }
     }
     break;
 
   default:
     /* Dump it as raw data. */
-    call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
+  }
+
+  if (tree && !decoded) {
+      /* Dump it as raw data. */
+      call_dissector(data_handle, next_tvb, pinfo, tree);
   }
 }
 
@@ -1837,6 +1861,8 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!pseudowire_mode) {
       proto_tree_add_uint(atm_tree, hf_atm_channel, tvb, 0, 0, pinfo->pseudo_header->atm.channel);
+      if (pinfo->pseudo_header->atm.flags & ATM_REASSEMBLY_ERROR)
+        expert_add_info(pinfo, atm_ti, &ei_atm_reassembly_failed);
     }
 
     proto_tree_add_uint_format_value(atm_tree, hf_atm_aal, tvb, 0, 0,
@@ -2133,6 +2159,12 @@ proto_register_atm(void)
     &ett_atm_lane_lc_tlv,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_atm_reassembly_failed, { "atm.reassembly_failed", PI_REASSEMBLE, PI_ERROR, "PDU reassembly failed", EXPFILL }},
+  };
+
+  expert_module_t* expert_atm;
+
   static const enum_val_t unknown_aal2_options[] = {
     { "raw",     "Raw data", TRAF_UNKNOWN },
     { "umts_fp", "UMTS FP",  TRAF_UMTS_FP },
@@ -2147,6 +2179,8 @@ proto_register_atm(void)
   proto_oamaal = proto_register_protocol("ATM OAM AAL", "OAM AAL", "oamaal");
   proto_register_field_array(proto_atm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_atm = expert_register_protocol(proto_atm);
+  expert_register_field_array(expert_atm, ei, array_length(ei));
 
   proto_ilmi = proto_register_protocol("ILMI", "ILMI", "ilmi");
 
