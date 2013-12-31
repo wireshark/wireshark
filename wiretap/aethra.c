@@ -278,20 +278,24 @@ found:
 
 static gboolean
 aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    Buffer *buf, int length, int *err, gchar **err_info)
+    Buffer *buf, int length _U_, int *err, gchar **err_info)
 {
 	struct aethrarec_hdr hdr;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!aethra_read_rec_header(wth, wth->random_fh, &hdr, phdr, err, err_info))
+	if (!aethra_read_rec_header(wth, wth->random_fh, &hdr, phdr, err,
+	    err_info)) {
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
+	}
 
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err, err_info))
 		return FALSE;	/* failed */
 
 	return TRUE;
