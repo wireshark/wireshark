@@ -748,7 +748,7 @@ again:
 
 static gboolean
 netmon_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
@@ -763,7 +763,8 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err,
+	    err_info))
 		return FALSE;
 
 	/*
