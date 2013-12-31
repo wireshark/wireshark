@@ -78,14 +78,17 @@ static expert_field ei_mp4_box_too_large = EI_INIT;
 #define BOX_TYPE_HDLR  MAKE_TYPE_VAL('h', 'd', 'l', 'r')
 #define BOX_TYPE_MINF  MAKE_TYPE_VAL('m', 'i', 'n', 'f')
 #define BOX_TYPE_VMHD  MAKE_TYPE_VAL('v', 'm', 'h', 'd')
+#define BOX_TYPE_SMHD  MAKE_TYPE_VAL('s', 'm', 'h', 'd')
 #define BOX_TYPE_DINF  MAKE_TYPE_VAL('d', 'i', 'n', 'f')
 #define BOX_TYPE_DREF  MAKE_TYPE_VAL('d', 'r', 'e', 'f')
 #define BOX_TYPE_STBL  MAKE_TYPE_VAL('s', 't', 'b', 'l')
 #define BOX_TYPE_STTS  MAKE_TYPE_VAL('s', 't', 't', 's')
+#define BOX_TYPE_CTTS  MAKE_TYPE_VAL('c', 't', 't', 's')
 #define BOX_TYPE_STSD  MAKE_TYPE_VAL('s', 't', 's', 'd')
 #define BOX_TYPE_STSZ  MAKE_TYPE_VAL('s', 't', 's', 'z')
 #define BOX_TYPE_STSC  MAKE_TYPE_VAL('s', 't', 's', 'c')
 #define BOX_TYPE_STCO  MAKE_TYPE_VAL('s', 't', 'c', 'o')
+#define BOX_TYPE_STSS  MAKE_TYPE_VAL('s', 't', 's', 's')
 #define BOX_TYPE_MVEX  MAKE_TYPE_VAL('m', 'v', 'e', 'x')
 #define BOX_TYPE_MOOF  MAKE_TYPE_VAL('m', 'o', 'o', 'f')
 #define BOX_TYPE_MEHD  MAKE_TYPE_VAL('m', 'e', 'h', 'd')
@@ -109,14 +112,17 @@ static const value_string box_types[] = {
     { BOX_TYPE_HDLR, "Handler Reference Box" },
     { BOX_TYPE_MINF, "Media Information Box" },
     { BOX_TYPE_VMHD, "Video Media Header Box" },
+    { BOX_TYPE_SMHD, "Sound Media Header Box" },
     { BOX_TYPE_DINF, "Data Information Box" },
     { BOX_TYPE_DREF, "Data Reference Box" },
     { BOX_TYPE_STBL, "Sample to Group Box" },
     { BOX_TYPE_STTS, "Decoding Time To Sample Box" },
+    { BOX_TYPE_CTTS, "Composition Time To Sample Box" },
     { BOX_TYPE_STSD, "Sample Description Box" },
     { BOX_TYPE_STSZ, "Sample Size Box" },
     { BOX_TYPE_STSC, "Sample To Chunk Box" },
     { BOX_TYPE_STCO, "Chunk Offset Box" },
+    { BOX_TYPE_STSS, "Sync Sample Table" },
     { BOX_TYPE_MVEX, "Movie Extends Box" },
     { BOX_TYPE_MOOF, "Movie Fragment Box" },
     { BOX_TYPE_MEHD, "Movie Extends Header Box" },
