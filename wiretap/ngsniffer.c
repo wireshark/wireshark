@@ -1224,9 +1224,17 @@ found:
 	/*
 	 * Read the packet data.
 	 */
-	if (!ngsniffer_read_rec_data(wth, FALSE, wth->frame_buffer, length,
+	if (!ngsniffer_read_rec_data(wth, FALSE, wth->frame_buffer, size,
 	    err, err_info))
 		return FALSE;	/* Read error */
+
+	/*
+	 * Skip any extra data in the record.
+	 */
+	if (size < length) {
+		if (!ng_file_skip_seq(wth, length - size, err, err_info))
+			return FALSE;
+	}
 
 	wth->phdr.pkt_encap = fix_pseudo_header(wth->file_encap, wth->frame_buffer, length,
 	    &wth->phdr.pseudo_header);
@@ -1266,7 +1274,7 @@ found:
 
 static gboolean
 ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size,
+    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size _U_,
     int *err, gchar **err_info)
 {
 	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
@@ -1339,10 +1347,10 @@ ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Got the pseudo-header (if any), now get the data.
 	 */
-	if (!ngsniffer_read_rec_data(wth, TRUE, buf, packet_size, err, err_info))
+	if (!ngsniffer_read_rec_data(wth, TRUE, buf, phdr->caplen, err, err_info))
 		return FALSE;
 
-	fix_pseudo_header(wth->file_encap, buf, packet_size, pseudo_header);
+	fix_pseudo_header(wth->file_encap, buf, phdr->caplen, pseudo_header);
 
 	return TRUE;
 }
