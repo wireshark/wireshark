@@ -52,41 +52,41 @@ typedef struct {
 } mpeg_t;
 
 static int
-mpeg_resync(FILE_T fh, int *err)
+mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 {
-	gint64 offset = file_tell(fh);
+	gint64 offset = file_tell(wth->fh);
 	int count = 0;
-	int byte = file_getc(fh);
+	int byte = file_getc(wth->fh);
 
 	while (byte != EOF) {
 		if (byte == 0xff && count > 0) {
-			byte = file_getc(fh);
+			byte = file_getc(wth->fh);
 			if (byte != EOF && (byte & 0xe0) == 0xe0)
 				break;
 		} else
-			byte = file_getc(fh);
+			byte = file_getc(wth->fh);
 		count++;
 	}
-	if (file_seek(fh, offset, SEEK_SET, err) == -1)
+	if (file_seek(wth->fh, offset, SEEK_SET, err) == -1)
 		return 0;
 	return count;
 }
 
 static int
-mpeg_read_header(FILE_T fh, int *err, gchar **err_info, guint32 *n)
+mpeg_read_header(wtap *wth, int *err, gchar **err_info, guint32 *n)
 {
 	int bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(n, sizeof *n, fh);
+	bytes_read = file_read(n, sizeof *n, wth->fh);
 	if (bytes_read != sizeof *n) {
-		*err = file_error(fh, err_info);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 	*n = g_ntohl(*n);
-	if (file_seek(fh, -(gint64)(sizeof *n), SEEK_CUR, err) == -1)
+	if (file_seek(wth->fh, -(gint64)(sizeof *n), SEEK_CUR, err) == -1)
 		return -1;
 	return bytes_read;
 }
@@ -94,28 +94,28 @@ mpeg_read_header(FILE_T fh, int *err, gchar **err_info, guint32 *n)
 #define SCRHZ 27000000
 
 static gboolean
-mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
-    gboolean is_random, int *err, gchar **err_info)
+mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	guint32 n;
-	int bytes_read;
+	int bytes_read = mpeg_read_header(wth, err, err_info, &n);
 	unsigned int packet_size;
 	nstime_t ts = mpeg->now;
 
-	bytes_read = mpeg_read_header(fh, err, err_info, &n);
 	if (bytes_read == -1)
 		return FALSE;
 	if (PES_VALID(n)) {
-		gint64 offset = file_tell(fh);
+		gint64 offset = file_tell(wth->fh);
 		guint8 stream;
 
-		if (file_seek(fh, 3, SEEK_CUR, err) == -1)
+		if (offset == -1)
+			return -1;
+		if (file_seek(wth->fh, 3, SEEK_CUR, err) == -1)
 			return FALSE;
 
-		bytes_read = file_read(&stream, sizeof stream, fh);
+		bytes_read = file_read(&stream, sizeof stream, wth->fh);
 		if (bytes_read != sizeof stream) {
-			*err = file_error(fh, err_info);
+			*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 
@@ -125,16 +125,16 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			guint64 pack;
 			guint8 stuffing;
 
-			bytes_read = file_read(&pack1, sizeof pack1, fh);
+			bytes_read = file_read(&pack1, sizeof pack1, wth->fh);
 			if (bytes_read != sizeof pack1) {
-				*err = file_error(fh, err_info);
+				*err = file_error(wth->fh, err_info);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
 			}
-			bytes_read = file_read(&pack0, sizeof pack0, fh);
+			bytes_read = file_read(&pack0, sizeof pack0, wth->fh);
 			if (bytes_read != sizeof pack0) {
-				*err = file_error(fh, err_info);
+				*err = file_error(wth->fh, err_info);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
@@ -143,18 +143,18 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 			switch (pack >> 62) {
 				case 1:
-					if (file_seek(fh, 1, SEEK_CUR, err) == -1)
+					if (file_seek(wth->fh, 1, SEEK_CUR, err) == -1)
 						return FALSE;
 					bytes_read = file_read(&stuffing,
-							sizeof stuffing, fh);
+							sizeof stuffing, wth->fh);
 					if (bytes_read != sizeof stuffing) {
-						*err = file_error(fh, err_info);
+						*err = file_error(wth->fh, err_info);
 						return FALSE;
 					}
 					stuffing &= 0x07;
 					packet_size = 14 + stuffing;
 
-					if (!is_random) {
+					{
 						guint64 bytes = pack >> 16;
 						guint64 ts_val =
 							(bytes >> 43 & 0x0007) << 30 |
@@ -175,9 +175,9 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			}
 		} else {
 			guint16 length;
-			bytes_read = file_read(&length, sizeof length, fh);
+			bytes_read = file_read(&length, sizeof length, wth->fh);
 			if (bytes_read != sizeof length) {
-				*err = file_error(fh, err_info);
+				*err = file_error(wth->fh, err_info);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
@@ -186,7 +186,7 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			packet_size = 6 + length;
 		}
 
-		if (file_seek(fh, offset, SEEK_SET, err) == -1)
+		if (file_seek(wth->fh, offset, SEEK_SET, err) == -1)
 			return FALSE;
 	} else {
 		struct mpa mpa;
@@ -194,58 +194,38 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		MPA_UNMARSHAL(&mpa, n);
 		if (MPA_VALID(&mpa)) {
 			packet_size = MPA_BYTES(&mpa);
-			if (!is_random) {
-				mpeg->now.nsecs += MPA_DURATION_NS(&mpa);
-				if (mpeg->now.nsecs >= 1000000000) {
-					mpeg->now.secs++;
-					mpeg->now.nsecs -= 1000000000;
-				}
+			mpeg->now.nsecs += MPA_DURATION_NS(&mpa);
+			if (mpeg->now.nsecs >= 1000000000) {
+				mpeg->now.secs++;
+				mpeg->now.nsecs -= 1000000000;
 			}
 		} else {
-			packet_size = mpeg_resync(fh, err);
+			packet_size = mpeg_resync(wth, err, err_info);
 			if (packet_size == 0)
 				return FALSE;
 		}
 	}
-
-	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
-		return FALSE;
-
-	/* XXX - relative, not absolute, time stamps */
-	if (!is_random) {
-		phdr->presence_flags = WTAP_HAS_TS;
-		phdr->ts = ts;
-	}
-	phdr->caplen = packet_size;
-	phdr->len = packet_size;
-
-	return TRUE;
-}
-
-static gboolean 
-mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
-{
 	*data_offset = file_tell(wth->fh);
 
-	return mpeg_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
-	    FALSE, err, err_info);
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+				packet_size, err, err_info))
+		return FALSE;
+	/* XXX - relative, not absolute, time stamps */
+	wth->phdr.presence_flags = WTAP_HAS_TS;
+	wth->phdr.ts = ts;
+	wth->phdr.caplen = packet_size;
+	wth->phdr.len = packet_size;
+	return TRUE;
 }
 
 static gboolean
 mpeg_seek_read(wtap *wth, gint64 seek_off,
-		struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
+		struct wtap_pkthdr *phdr _U_, Buffer *buf, int length,
 		int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-
-	if (!mpeg_read_packet(wth, wth->random_fh, phdr, buf, TRUE, err,
-	    err_info)) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info);
 }
 
 struct _mpeg_magic {
