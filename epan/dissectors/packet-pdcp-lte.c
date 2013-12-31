@@ -1451,11 +1451,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                     return 0;
                 }
             
-                /* Only EIA2 supported at the moment */
-                if (pdu_security_settings->integrity != eia2) {
-                    return 0;
-                }
-
                 /* Can only do if indicated in preferences */
                 if (!global_pdcp_check_integrity) {
                     return 0;
@@ -1506,11 +1501,11 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 g_free(message_data);
 
                 *calculated = TRUE;
-                /* TODO: not sure where MAC will be among this...? */
-                return mac[3];
+                /* 3GPP TS 33.401 C.2 suggests the first word will be the calculated CMAC. */
+                return mac[0];
 #endif
             }
-            /* TODO: just dropping through until GCRY_MAC_CMAC_AES is available! */ 
+            /* Just dropping through until GCRY_MAC_CMAC_AES is available! */ 
 
         case eia1:
         default:
@@ -1562,8 +1557,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gboolean payload_deciphered = FALSE;
 
     /* Initialise security settings */
-    pdu_security_settings.cipherValid = FALSE;
-    pdu_security_settings.integrityValid = FALSE;
+    memset(&pdu_security_settings, 0, sizeof(pdu_security_settings));
 
     /* Set protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
