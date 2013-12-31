@@ -237,6 +237,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-mpeg-audio.c
 	dissectors/packet-mpeg-pes.c
 	dissectors/packet-nbap.c
+	dissectors/packet-novell_pkis.c
 	dissectors/packet-ns_cert_exts.c
 	dissectors/packet-ocsp.c
 	dissectors/packet-p22.c

@@ -79,6 +79,7 @@ set(ASN1_SRC_DIRS
 	mpeg-pes
 	nbap
 	ns_cert_exts
+	novell_pkis
 	ocsp
 	p1
 	p22

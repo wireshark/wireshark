@@ -78,6 +78,7 @@ BER_LIST= \
 	logotypecertextn	\
 	mms			\
 	ns_cert_exts		\
+	novell_pkis			\
 	ocsp			\
 	p1			\
 	p22			\

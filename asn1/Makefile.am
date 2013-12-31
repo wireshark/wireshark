@@ -80,6 +80,7 @@ SUBDIRS =		\
 	mpeg-audio	\
 	mpeg-pes	\
 	nbap		\
+	novell_pkis		\
 	ns_cert_exts	\
 	ocsp		\
 	p1		\

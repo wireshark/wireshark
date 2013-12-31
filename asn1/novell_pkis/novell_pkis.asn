@@ -1,0 +1,283 @@
+-- from pkisv10.pdf
+-- you can find this document at https://web.archive.org/web/19990224174228/http://www.developer.novell.com/repository/attributes/certattrs_v10.htm
+
+PKIS { joint-iso-ccitt(2) country(16) us(840) organization(1) novell (113719) } DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- ASN.1 Definition of Useful Attributes
+
+-- The following are useful Novell OIDs, etc.
+novell OBJECT IDENTIFIER ::= {joint-iso-ccitt(2) country(16) us(840) organization(1) novell (113719)}
+applications OBJECT IDENTIFIER ::= {novell applications(1) }
+pki OBJECT IDENTIFIER ::= {applications pki(9) }
+pkiAttributeType OBJECT IDENTIFIER ::= {pki at(4) }
+pkiAttributeSyntax OBJECT IDENTIFIER ::= {pki at(5) }
+pkiObjectClass OBJECT IDENTIFIER ::= {pki at(6) }
+
+-- The following unique PKI attributes are hereby defined under the novell applications pki arc:
+pa-sa OBJECT IDENTIFIER ::= { pkiAttributeType (1) }
+ -- securityAttributes
+ -- 2.16.840.113719.1.9.4.1
+
+pa-rl OBJECT IDENTIFIER ::= { pkiAttributeType (2) }
+ -- relianceLimit
+ -- 2.16.840.113719.1.9.4.2
+
+SecurityAttributes ::= SEQUENCE {
+ versionNumber OCTET STRING (SIZE (2)),
+  -- The initial value should be (01 00)
+  -- The first octet is the major version,
+  -- the second octet is the minor version number.
+ nSI BOOLEAN (TRUE),
+  -- NSI = “Nonverified Subscriber Information”
+  -- If FALSE, it means that the CA issuing
+  -- a certificate HAS verified the validity
+  -- of ALL of the values contained
+  -- within the Novell Security Attributes
+  -- using appropriate means as defined
+  -- for example in their Certificate Policy
+  -- and/or Certificate Practice Statement
+  -- If TRUE, it means that the subscriber
+  -- requesting the certificate has represented
+  -- to the CA that the extension defined
+  -- is valid and correct, but that the CA
+  -- has not independently validated the accuracy
+  -- of the attribute. Note that in no case may
+  -- the CA issue a certificate containing an
+  -- extension which it has reason to
+  -- believe is not accurate at the time of
+  -- issuance, except for test certificates
+  -- which are identified as such in the
+  -- Certificate class attribute (by setting
+  -- the certificateValid flag to FALSE.)
+ securityTM PrintableString ("Novell Security Attribute(tm)"),
+  -- Note: Since the “Novell Security
+  -- Attribute(tm)” string is trademarked, if
+  -- it is displayed visually to the user it
+  -- must be presented exactly as shown,
+  -- in English, even in non-English
+  -- implementations. A translation of the
+  -- phrase may be displayed to the user
+  -- in addition, if desired.
+  -- Vendors who license the use of the term
+  -- must agree to check for the presence of
+  -- this string in any attribute defined (by its
+  -- OID) as a Novell Security attribute
+ uriReference IA5String,
+  -- The initial value should be set to (“http://developer.novell.com/repository/attributes/certattrs_v10.htm”),
+  -- This attribute will be included in all
+  -- NICI and PKIS certificates.
+  -- Novell will maintain a copy of this
+  -- document or other suitable definition
+  -- at that location.
+ gLBExtensions GLBExtensions
+}
+
+GLBExtensions::=SEQUENCE{
+  -- These are the extensions over which the
+  -- Greatest Lower Bound is computed within NICI.
+ keyQuality [0] IMPLICIT KeyQuality,
+ cryptoProcessQuality [1] IMPLICIT CryptoProcessQuality,
+ certificateClass [2] IMPLICIT CertificateClass,
+ enterpriseId [3] IMPLICIT EnterpriseId
+}
+
+-- ASN.1 Definitions of Key Quality and Crypto Process Quality Attributes:
+KeyQuality ::= Quality
+CryptoProcessQuality ::= Quality
+
+Quality ::= SEQUENCE {
+ enforceQuality BOOLEAN,
+  -- If TRUE, the explicit attributes compusecQuality,
+  -- cryptoQuality, and keyStorageQuality, plus the
+  -- implicit attributes algorithmType and keyLength
+  -- are either enforced at all times, or a dynamic low
+  -- water mark (Greatest Lower Bound)may be maintained.
+  -- I.e., if enforceQuality is TRUE for the
+  -- keyQuality attribute, the key must never be
+  -- allowed to be transported to and/or used on any
+  -- platform that does not meet the minimum
+  -- criteria, and hence enforceQuality must be TRUE for
+  -- the cryptoProcessQuality as well
+  -- If enforceQuality is FALSE for keyQuality, but
+  -- TRUE for cryptoProcessQuality, then the
+  -- operating system has not enforced the criteria
+  -- in any technical sense, but the subscriber
+  -- is nonetheless representing that the minimum
+  -- criteria will be maintained,
+  -- e.g., by manual or procedural controls.
+  -- For PKIS and NICI versions 1.0, enforceQuality
+  -- must be set to FALSE in the keyQuality attribute.
+ compusecQuality     CompusecQuality,
+ cryptoQuality       CryptoQuality,
+ keyStorageQuality   INTEGER (0..255) -- See definitions in Appendix C
+}
+
+CompusecQuality ::= SEQUENCE SIZE (1..1)
+                    OF CompusecQualityPair
+  -- Multiple pairs of {Criteria, Rating} are allowed
+  -- In the first release, only one pair(TCSEC criteria)is provided
+
+CompusecQualityPair ::= SEQUENCE {
+ compusecCriteria INTEGER(0..255),
+  -- The default should be 1, but DEFAULT implies OPTIONAL, which
+  -- is not the intent. So the value has to be coded explicitly.
+  -- 0= Reserved (encoding error)
+  -- 1= Trusted Computer Security Evaluation Criteria (TCSEC)
+  -- 2= International Trusted Security Evaluation Criteria (ITSEC)
+  -- 3= Common Criteria
+  -- all others reserved
+ compusecRating INTEGER (0..255)
+  -- the compusecRating is in accordance with the specified
+  -- compusecCriteria for each pair in the sequence
+  -- Defined values for ratings for components and systems formally
+  -- evaluated in accordance with the Trusted Computer Security
+  -- Evaluation Criteria and the Trusted Network Interpretation
+  -- (Red Book) are provided in Appendix A.
+}
+
+CryptoQuality ::= SEQUENCE SIZE (1..1)
+                  OF CryptoQualityPair
+  -- Multiple pairs of {Criteria, Rating} are allowed.
+  -- In the initial release, only one pair is provided.
+
+CryptoQualityPair ::= SEQUENCE {
+ cryptoModuleCriteria INTEGER(0..255),
+  -- The default should be 1, but DEFAULT implies OPTIONAL, which
+  -- is not the intent. So the value has to be coded explicitly.
+  -- 1 = FIPS 140-1
+  -- all others reserved
+ cryptoModuleRating INTEGER (0..255)
+  -- the cryptoModuleRating value is in accordance with
+  -- the specified cryptoModuleCriteria for each pair
+  -- FIPS 140-1 ratings definitions:
+  -- 0 = Reserved (encoding error)
+  -- 1 = unevaluated/unknown,
+  -- all others—see Appendix B
+}
+
+-- ASN.1 Definition of Certificate Class Attribute:
+
+CertificateClass ::= SEQUENCE {
+ classValue       INTEGER (0..255),
+  -- Defined class values are contained in Appendix C
+ certificateValid       BOOLEAN
+  -- The default should be true, but DEFAULT is OPTIONAL
+  -- which would make the GLB computation awkward.
+  -- See Section 5 and the footnote for a discussion.
+}
+
+-- ASN.1 Definition of Enterprise Identifier Attribute:
+
+EnterpriseId ::= SEQUENCE {
+ rootLabel [0] IMPLICIT SecurityLabelType1,
+ registryLabel [1] IMPLICIT SecurityLabelType1,
+ enterpriseLabel [2] IMPLICIT SEQUENCE SIZE (1..1) OF SecurityLabelType1
+}
+
+SecurityLabelType1 ::= SEQUENCE {
+ labelType1 INTEGER (0..255),
+  -- The default should be 2, but DEFAULT implies OPTIONAL, which
+  -- is not the intent. So the value has to be coded explicitly.
+  -- Note that the label type for Version 1
+  -- of Graded Authentication is 0 or 1.
+  -- Byte sizes and reserved fields are omitted,
+  -- because they are derivable from the ASN.1.
+ secrecyLevel1 INTEGER (0..255),
+  -- The default should be 0, but DEFAULT implies OPTIONAL, which
+  -- is not the intent. So the value has to be coded explicitly.
+  -- 0 = low secrecy, 255 = high secrecy
+  -- It seems highly unlikely anyone would ever
+  -- need more than 255 secrecy levels
+ integrityLevel1      INTEGER (0..255),
+  -- The default should be 0, but DEFAULT implies OPTIONAL, which
+  -- is not the intent. So the value has to be coded explicitly.
+  -- NOTE! 255 = low integrity, 0 = high integrity!
+  -- It seems highly unlikely anyone would ever
+  -- need more than 255 integrity levels
+ secrecyCategories1   BIT STRING (SIZE(96)),
+  -- The default should be FALSE, but DEFAULT implies OPTIONAL,
+  -- which is not the intent. So the value has to be coded
+  -- explicitly.
+  -- 96 secrecy categories, 0 origin indexing
+ integrityCategories1 BIT STRING (SIZE(64)),
+  -- The default should be FALSE, but DEFAULT implies OPTIONAL,
+  -- which is not the intent. So the value has to be coded
+  -- explicitly.
+  -- 64 integrity categories, 0 origin indexing
+ secrecySingletons1 Singletons,
+ integritySingletons1 Singletons
+}
+
+-- (removed the unused definition of SecurityLabelType2)
+
+Singletons ::= SEQUENCE SIZE (1..16) OF SingletonChoice
+  -- Presently up to 16 singletons or singleton ranges
+  -- can be defined within one security label. This
+  -- is completely arbitrary and can be easily changed,
+  -- but it seems reasonable. Note that no more space
+  -- is taken in the ASN.1 DER encoding than is actually
+  -- required.
+
+SingletonChoice ::= CHOICE {
+ uniqueSingleton     INTEGER (0..9223372036854775807),
+  -- The implied value of the singleton being
+  -- specified in this case is TRUE.
+  -- Note that there isn’t any way to set a
+  -- singleton value to FALSE, except by using the
+  -- SingletonRange functions with identical lower
+  -- and upper bounds.
+ singletonRange      SingletonRange
+}
+
+SingletonRange ::= SEQUENCE {
+ singletonLowerBound INTEGER (0..9223372036854775807),
+  -- The default should be 0, but DEFAULT implies OPTIONAL,
+  -- which is not the intent. So the value has to be coded
+  -- explicitly.
+  -- Lower bound of a range of singletons
+  -- to be set to the singletonValue specified
+
+ singletonUpperBound INTEGER (0..9223372036854775807),
+  -- The default should be 9223372036854775807,
+  -- but DEFAULT implies OPTIONAL,
+  -- which is not the intent. So the value has to be coded
+  -- explicitly.
+  -- Upper bound of a range of singletons
+  -- to be set to the singletonValue specified
+ singletonValue BOOLEAN
+  -- An entire range of singletons can be set to
+  -- either TRUE or FALSE.
+  -- Note that singletonRanges are allowed to overlap,
+  -- and in particular that a uniqueSingleton can
+  -- reset a singleton value already set by a
+  -- singletonRange, and vice versa.
+  -- The uniqueSingleton and singletonRanges are applied
+  -- consecutively, from the lower bound of SEQUENCE (1)
+  -- to the upper bound.
+}
+
+-- ASN.1 Definition of Reliance Limit Attribute:
+
+-- relianceLimits EXTENSION ::= { SYNTAX RelianceLimits IDENTIFIED BY {pa-rl) }
+-- 2.16.840.113719.1.9.4.2
+
+RelianceLimits ::= SEQUENCE {
+ perTransactionLimit MonetaryValue,
+ perCertificateLimit MonetaryValue
+}
+
+MonetaryValue ::= SEQUENCE { -- from SET and draft ANSI X9.45
+ currency Currency,
+ amount INTEGER, -- value is amount * (10 ** amtExp10), an exact representation
+ amtExp10 INTEGER
+}
+
+Currency ::= INTEGER (1..999)
+-- currency denomination from ISO 4217
+-- cf. Appendix E for the numeric currency codes and their
+-- alphabetic (display) equivalents.
+-- US Dollar (USD) is 840.
+-- Euro (EUR) is 978.
+
+END

@@ -2801,6 +2801,7 @@ AC_OUTPUT(
   asn1/mpeg-pes/Makefile
   asn1/nbap/Makefile
   asn1/ns_cert_exts/Makefile
+  asn1/novell_pkis/Makefile
   asn1/ocsp/Makefile
   asn1/p1/Makefile
   asn1/p22/Makefile
