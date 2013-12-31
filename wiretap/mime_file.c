@@ -50,11 +50,6 @@
 #include "mime_file.h"
 
 typedef struct {
-	gboolean last_packet;
-
-} mime_file_private_t;
-
-typedef struct {
 	const guint8 *magic;
 	guint magic_len;
 } mime_files_t;
@@ -89,67 +84,82 @@ static const mime_files_t magic_files[] = {
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
 
-static void
-mime_set_pkthdr(struct wtap_pkthdr *phdr, int packet_size)
+/*
+ * Impose a not-too-large limit on the maximum file size, to avoid eating
+ * up 99% of the (address space, swap partition, disk space for swap/page
+ * files); if we were to return smaller chunks and let the dissector do
+ * reassembly, it would *still* have to allocate a buffer the size of
+ * the file, so it's not as if we'd neve try to allocate a buffer the
+ * size of the file.
+ *
+ * For now, go for 16MB.
+ */
+#define MAX_FILE_SIZE	(16*1024*1024)
+
+static gboolean
+mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    Buffer *buf, int *err, gchar **err_info)
 {
-	phdr->presence_flags = 0;
+	gint64 file_size;
+	int packet_size;
+
+	if ((file_size = wtap_file_size(wth, err)) == -1)
+		return FALSE;
+
+	if (file_size > MAX_FILE_SIZE) {
+		/*
+		 * Don't blow up trying to allocate space for an
+		 * immensely-large file.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("mime_file: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
+				file_size, MAX_FILE_SIZE);
+		return FALSE;
+	}
+	packet_size = (int)file_size;
+
+	phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+
+	phdr->caplen = packet_size;
+	phdr->len = packet_size;
 
 	phdr->ts.secs = 0;
 	phdr->ts.nsecs = 0;
-	phdr->caplen = packet_size;
-	phdr->len = packet_size;
+
+	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
 static gboolean
 mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	mime_file_private_t *priv = (mime_file_private_t *) wth->priv;
+	gint64 offset;
 
-	char _buf[WTAP_MAX_PACKET_SIZE];
-	guint8 *buf;
-	int packet_size;
+	*err = 0;
 
-	if (priv->last_packet) {
-		*err = file_error(wth->fh, err_info);
+	offset = file_tell(wth->fh);
+
+	/* there is only ever one packet */
+	if (offset != 0)
 		return FALSE;
-	}
 
-	*data_offset = file_tell(wth->fh);
+	*data_offset = offset;
 
-	/* try to read max WTAP_MAX_PACKET_SIZE bytes */
-	packet_size = file_read(_buf, sizeof(_buf), wth->fh);
-
-	if (packet_size <= 0) {
-		mime_set_pkthdr(&wth->phdr, 0);
-		priv->last_packet = TRUE;
-		/* signal error for packet-mime-encap */
-		if (packet_size < 0)
-			wth->phdr.ts.nsecs = 1000000000;
-		return TRUE;
-	}
-
-	mime_set_pkthdr(&wth->phdr, packet_size);
-
-	/* copy to wth frame buffer */
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	buf = buffer_start_ptr(wth->frame_buffer);
-	memcpy(buf, _buf, packet_size);
-
-	return TRUE;
+	return mime_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
 static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length, int *err, gchar **err_info)
+mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length _U_, int *err, gchar **err_info)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-		*err_info = NULL;
+	/* there is only one packet */
+	if (seek_off > 0) {
+		*err = 0;
 		return FALSE;
 	}
 
-	mime_set_pkthdr(phdr, length);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
 
-	return wtap_read_packet_bytes(wth->random_fh, buf, length, err,
-	    err_info);
+	return mime_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
 int
@@ -199,8 +209,6 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = mime_read;
 	wth->subtype_seek_read = mime_seek_read;
 	wth->snapshot_length = 0;
-
-	wth->priv = g_malloc0(sizeof(mime_file_private_t));
 
 	return 1;
 }
