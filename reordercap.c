@@ -41,20 +41,30 @@
 #endif
 
 /* Show command-line usage */
-static void usage(void)
+static void usage(gboolean is_error)
 {
-    fprintf(stderr, "Reordercap %s"
+    FILE *output;
+
+    if (!is_error) {
+        output = stdout;
+    }
+    else {
+        output = stderr;
+    }
+
+    fprintf(output, "Reordercap %s"
 #ifdef SVNVERSION
-	  " (" SVNVERSION " from " SVNPATH ")"
+                      " (" SVNVERSION " from " SVNPATH ")"
 #endif
-	  "\n", VERSION);
-    fprintf(stderr, "Reorder timestamps of input file frames into output file.\n");
-    fprintf(stderr, "See http://www.wireshark.org for more information.\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Usage: reordercap [options] <infile> <outfile>\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -n        don't write to output file if the input file is ordered.\n");
+                      "\n", VERSION);
+    fprintf(output, "Reorder timestamps of input file frames into output file.\n");
+    fprintf(output, "See http://www.wireshark.org for more information.\n");
+    fprintf(output, "\n");
+    fprintf(output, "Usage: reordercap [options] <infile> <outfile>\n");
+    fprintf(output, "\n");
+    fprintf(output, "Options:\n");
+    fprintf(output, "  -n        don't write to output file if the input file is ordered.\n");
+    fprintf(output, "  -h        display this help and exit.\n");
 }
 
 /* Remember where this frame was in the file */
@@ -188,13 +198,16 @@ int main(int argc, char *argv[])
     char *outfile;
 
     /* Process the options first */
-    while ((opt = getopt(argc, argv, "n")) != -1) {
+    while ((opt = getopt(argc, argv, "hn")) != -1) {
         switch (opt) {
             case 'n':
                 write_output_regardless = FALSE;
                 break;
+            case 'h':
+                usage(FALSE);
+                exit(0);
             case '?':
-                usage();
+                usage(TRUE);
                 exit(1);
         }
     }
@@ -202,11 +215,11 @@ int main(int argc, char *argv[])
     /* Remaining args are file names */
     file_count = argc - optind;
     if (file_count == 2) {
-        infile = argv[optind];
+        infile  = argv[optind];
         outfile = argv[optind+1];
     }
     else {
-        usage();
+        usage(TRUE);
         exit(1);
     }
 
@@ -322,3 +335,15 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
