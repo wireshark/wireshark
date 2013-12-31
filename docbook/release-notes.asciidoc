@@ -98,6 +98,7 @@ Kyoto Tycoon binary protocol
 MBIM
 MiNT
 MP4 / ISOBMFF file format
+Novell PKIS certificate extensions
 NXP PN532 HCI
 OpenFlow
 Picture Transfer Protocol Over IP
