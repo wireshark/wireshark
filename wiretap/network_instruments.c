@@ -312,7 +312,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 
 /* Reads a packet at an offset. */
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
     union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
@@ -334,7 +334,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
-        offset, buf, length, err, err_info);
+        offset, buf, phdr->caplen, err, err_info);
     if (data_bytes_consumed < 0) {
         return FALSE;
     }
