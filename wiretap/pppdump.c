@@ -723,7 +723,7 @@ pppdump_seek_read(wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
 		 Buffer *buf,
-		 int len,
+		 int len _U_,
 		 int *err,
 		 gchar **err_info)
 {
@@ -770,13 +770,6 @@ pppdump_seek_read(wtap *wth,
 			return FALSE;
 		num_bytes_to_skip = 0;
 	} while (direction != pid->dir);
-
-	if (len != num_bytes) {
-		*err = WTAP_ERR_BAD_FILE;	/* XXX - better error? */
-		*err_info = g_strdup_printf("pppdump: requested length %d doesn't match record length %d",
-		    len, num_bytes);
-		return FALSE;
-	}
 
 	pppdump_set_phdr(phdr, num_bytes, pid->dir);
 
