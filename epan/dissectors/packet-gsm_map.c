@@ -4891,7 +4891,7 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:
-	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %s", tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038|ENC_NA));
+	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %s", tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038_7BITS|ENC_NA));
 	break;
     case SMS_ENCODING_8BIT:
         /* XXX - ASCII, or some extended ASCII? */

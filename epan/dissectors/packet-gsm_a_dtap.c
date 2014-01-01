@@ -788,7 +788,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	guint32      curr_offset;
 	const gchar *str;
 	guint8       coding_scheme, num_spare_bits;
-	guint32      num_chars, num_text_bits;
+	guint32      num_text_bits;
 	gchar       *net_name     = NULL;
 	proto_item  *item;
 
@@ -819,24 +819,13 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	switch(coding_scheme)
 	{
 	case 0:
-		num_chars = gsm_sms_char_7bit_unpack(0, len - 1, sizeof(a_bigbuf),
-			tvb_get_ptr(tvb, curr_offset, len - 1), a_bigbuf);
-
 		/* Check if there was a reasonable value for number of spare bits in last octet */
 		num_text_bits = ((len - 1) << 3) - num_spare_bits;
 		if (num_spare_bits && (num_text_bits % 7))
 		{
 			expert_add_info(pinfo, item, &ei_gsm_a_dtap_text_string_not_multiple_of_7);
 		}
-		/*
-		 * If the number of spare bits is 7, then we have unpacked one extra
-		 * character. Disregard this character.
-		 */
-		if (num_spare_bits == 7)
-			num_chars--;
-		a_bigbuf[num_chars] = '\0';
-		net_name = gsm_sms_chars_to_utf8(a_bigbuf, num_chars);
-		proto_tree_add_string(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset, len - 1, net_name);
+		proto_tree_add_ts_23_038_7bits_item(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset<<3, num_text_bits/7);
 		break;
 	case 1:
 		net_name = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset, (len - 1), ENC_UCS_2|ENC_BIG_ENDIAN);

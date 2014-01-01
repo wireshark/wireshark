@@ -499,6 +499,19 @@ WS_DLL_PUBLIC guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
+/**
+ * Given a tvbuff, a bit offset, and a number of characters, allocate
+ * a buffer big enough to hold a non-null-terminated string of no_of_chars
+ * encoded according to 3GPP TS 23.038 7bits encoding at that offset,
+ * plus a trailing zero, copy the string into it, and return a pointer
+ * to the string.
+ *
+ * If scope is set to NULL it is the user's responsibility to g_free()
+ * the memory allocated by tvb_memdup(). Otherwise memory is
+ * automatically freed when the scope lifetime is reached.
+ */
+WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
 
 /**
  * Given a tvbuff and an offset, with the offset assumed to refer to

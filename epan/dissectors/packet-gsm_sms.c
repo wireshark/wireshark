@@ -338,7 +338,6 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     guint32      numdigocts;
     guint32      length, addrlength;
     guint32      i, j;
-    char         addrbuf[MAX_ADDR_SIZE+1];
     gchar       *addrstr;
 
     offset = *offset_p;
@@ -431,10 +430,8 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     {
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
         addrlength = (addrlength << 2) / 7;
-        i = gsm_sms_char_7bit_unpack(0, numdigocts, ((addrlength > MAX_ADDR_SIZE) ? MAX_ADDR_SIZE : addrlength),
-                                     tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
-        addrbuf[i] = '\0';
-        addrstr = gsm_sms_chars_to_utf8(addrbuf, i);
+        addrstr = tvb_get_ts_23_038_7bits_string(wmem_packet_scope(), tvb, offset << 3,
+                                                 (addrlength > MAX_ADDR_SIZE) ? MAX_ADDR_SIZE : addrlength);
         break;
     default:
         addrstr = (gchar *)wmem_alloc(wmem_packet_scope(), numdigocts*2 + 1);
@@ -1606,168 +1603,6 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct _U_)
         "The TP-UD field contains only the"); \
 }
 
-/*
- * FROM GNOKII
- * gsm-encoding.c
- * gsm-sms.c
- */
-#define GN_BYTE_MASK ((1 << bits) - 1)
-
-int
-gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
-                         const guint8 *input, unsigned char *output)
-{
-    unsigned char *out_num = output; /* Current pointer to the output buffer */
-    const guint8  *in_num  = input; /* Current pointer to the input buffer */
-    unsigned char  rest    = 0x00;
-    int            bits;
-
-    bits = offset ? offset : 7;
-
-    while ((unsigned int)(in_num - input) < in_length)
-    {
-        *out_num = ((*in_num & GN_BYTE_MASK) << (7 - bits)) | rest;
-        rest = *in_num >> bits;
-
-        /* If we don't start from 0th bit, we shouldn't go to the
-           next char. Under *out_num we have now 0 and under Rest -
-           _first_ part of the char. */
-        if ((in_num != input) || (bits == 7)) out_num++;
-        in_num++;
-
-        if ((unsigned int)(out_num - output) >= out_length) break;
-
-        /* After reading 7 octets we have read 7 full characters but
-           we have 7 bits as well. This is the next character */
-        if (bits == 1)
-        {
-            *out_num = rest;
-            out_num++;
-            bits = 7;
-            rest = 0x00;
-        }
-        else
-        {
-            bits--;
-        }
-    }
-
-    return (int)(out_num - output);
-}
-
-#define GN_CHAR_ALPHABET_SIZE 128
-
-#define GN_CHAR_ESCAPE 0x1b
-
-static const gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
-
-    /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
-    /* Fixed to use unicode */
-    /* Characters in hex position 10, [12 to 1a] and 24 are not present on
-       latin1 charset, so we cannot reproduce on the screen, however they are
-       greek symbol not present even on my Nokia */
-
-    '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
-    0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
-    0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
-    0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
-    ' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
-    '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
-    '0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
-    '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
-    0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
-    'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
-    'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
-    'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
-    0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
-    'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
-    'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
-    'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
-};
-
-static gboolean
-char_is_escape(unsigned char value)
-{
-    return (value == GN_CHAR_ESCAPE);
-}
-
-static gunichar
-char_def_alphabet_ext_decode(unsigned char value)
-{
-    switch (value)
-    {
-    case 0x0a: return 0x0c; /* form feed */
-    case 0x14: return '^';
-    case 0x28: return '{';
-    case 0x29: return '}';
-    case 0x2f: return '\\';
-    case 0x3c: return '[';
-    case 0x3d: return '~';
-    case 0x3e: return ']';
-    case 0x40: return '|';
-    case 0x65: return 0x20ac; /* euro */
-    default: return '?'; /* invalid character */
-    }
-}
-
-static gunichar
-char_def_alphabet_decode(unsigned char value)
-{
-    if (value < GN_CHAR_ALPHABET_SIZE)
-    {
-        return gsm_default_alphabet[value];
-    }
-    else
-    {
-        return '?';
-    }
-}
-
-gchar *
-gsm_sms_chars_to_utf8(const unsigned char* src, int len)
-{
-    gint      outlen, i, j;
-    gunichar  c;
-    gchar    *outbuf;
-
-    /* Scan the input string to see how long the output string will be */
-    for (outlen = 0, j = 0; j < len;  j++)
-    {
-        if (char_is_escape(src[j])) {
-            j++;
-            if (j == len)
-                c = '?';        /* escape with nothing following it - error */
-            else
-                c = char_def_alphabet_ext_decode(src[j]);
-        }
-        else
-            c = char_def_alphabet_decode(src[j]);
-        outlen += g_unichar_to_utf8(c,NULL);
-    }
-
-    /* Now allocate a buffer for the output string and fill it in */
-    outbuf = (gchar *)wmem_alloc(wmem_packet_scope(), outlen + 1);
-    for (i = 0, j = 0; j < len;  j++)
-    {
-        if (char_is_escape(src[j])) {
-            j++;
-            if (j == len)
-                c = '?';        /* escape with nothing following it - error */
-            else
-                c = char_def_alphabet_ext_decode(src[j]);
-        }
-        else
-            c = char_def_alphabet_decode(src[j]);
-        i += g_unichar_to_utf8(c,&(outbuf[i]));
-    }
-    outbuf[i] = '\0';
-    return outbuf;
-}
-
-/*
- * END FROM GNOKII
- */
-
 /* 9.2.3.24.1 */
 static void
 dis_iei_csm8(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length, gsm_sms_udh_fields_t *p_udh_fields)
@@ -2645,7 +2480,6 @@ dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
 
 /* 9.2.3.24 */
 #define SMS_MAX_MESSAGE_SIZE 160
-static char    messagebuf[SMS_MAX_MESSAGE_SIZE+1];
 static void
 dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
              guint32 length, gboolean udhi, guint8 udl, gboolean seven_bit,
@@ -2656,7 +2490,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     tvbuff_t          *sm_tvb = NULL;
     fragment_head     *fd_sm = NULL;
     guint8             fill_bits;
-    guint32            out_len, total_sms_len, len_sms, length_ucs2, i;
+    guint32            total_sms_len, len_sms, length_ucs2, i;
     proto_item        *ucs2_item;
     gchar             *utf8_text = NULL;
     gchar              save_byte = 0, save_byte2 = 0;
@@ -2782,13 +2616,8 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             if(!(reassembled && pinfo->fd->num == reassembled_in))
             {
                 /* Show unassembled SMS */
-                out_len =
-                    gsm_sms_char_7bit_unpack(fill_bits, length ,
-                                             (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl),
-                                             tvb_get_ptr(tvb , offset , length) , messagebuf);
-                messagebuf[out_len] = '\0';
-                proto_tree_add_string(subtree, hf_gsm_sms_text, tvb, offset, length,
-                                      gsm_sms_chars_to_utf8(messagebuf, out_len));
+                proto_tree_add_ts_23_038_7bits_item(subtree, hf_gsm_sms_text, tvb, (offset<<3)+fill_bits,
+                                                    (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl));
             }
             else
             {
@@ -2803,15 +2632,9 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                                                             GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
 
                     if (p_frag_params) {
-                        out_len =
-                            gsm_sms_char_7bit_unpack(p_frag_params->fill_bits, p_frag_params->length,
-                                (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
-                                tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
-
-                        messagebuf[out_len] = '\0';
-                        proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                              total_sms_len, p_frag_params->length,
-                                              gsm_sms_chars_to_utf8(messagebuf, out_len));
+                        proto_tree_add_ts_23_038_7bits_item(subtree, hf_gsm_sms_text, sm_tvb,
+                            (total_sms_len<<3)+p_frag_params->fill_bits,
+                            (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl));
 
                         total_sms_len += p_frag_params->length;
                     }

@@ -3094,7 +3094,7 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
                 proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_payload_text,
-                                    ussd_tvb, 0, ussd_payload_length, ENC_3GPP_TS_23_038|ENC_NA);
+                                    ussd_tvb, 0, ussd_payload_length, ENC_3GPP_TS_23_038_7BITS|ENC_NA);
                 break;
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
@@ -3146,7 +3146,7 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             case SMS_ENCODING_7BIT:
             case SMS_ENCODING_7BIT_LANG:
                 proto_tree_add_item(subtree, hf_mbim_ussd_info_ussd_payload_text,
-                                    ussd_tvb, 0, ussd_payload_length, ENC_3GPP_TS_23_038|ENC_NA);
+                                    ussd_tvb, 0, ussd_payload_length, ENC_3GPP_TS_23_038_7BITS|ENC_NA);
                 break;
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */

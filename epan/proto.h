@@ -274,31 +274,31 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * Unicode glyphs showing the name of the control character in small
  * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
  */
-#define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
-#define ENC_ASCII		0x00000000
-#define ENC_UTF_8		0x00000002
-#define ENC_UTF_16		0x00000004
-#define ENC_UCS_2		0x00000006
-#define ENC_UCS_4		0x00000008
-#define ENC_ISO_8859_1		0x0000000A
-#define ENC_ISO_8859_2		0x0000000C
-#define ENC_ISO_8859_3		0x0000000E
-#define ENC_ISO_8859_4		0x00000010
-#define ENC_ISO_8859_5		0x00000012
-#define ENC_ISO_8859_6		0x00000014
-#define ENC_ISO_8859_7		0x00000016
-#define ENC_ISO_8859_8		0x00000018
-#define ENC_ISO_8859_9		0x0000001A
-#define ENC_ISO_8859_10		0x0000001C
-#define ENC_ISO_8859_11		0x0000001E
-/* #define ENC_ISO_8859_12		0x00000020 ISO 8859-12 was abandoned */
-#define ENC_ISO_8859_13		0x00000022
-#define ENC_ISO_8859_14		0x00000024
-#define ENC_ISO_8859_15		0x00000026
-#define ENC_ISO_8859_16		0x00000028
-#define ENC_WINDOWS_1250	0x0000002A
-#define ENC_3GPP_TS_23_038	0x0000002C
-#define ENC_EBCDIC		0x0000002E
+#define ENC_CHARENCODING_MASK		0x7FFFFFFE	/* mask out byte-order bits */
+#define ENC_ASCII			0x00000000
+#define ENC_UTF_8			0x00000002
+#define ENC_UTF_16			0x00000004
+#define ENC_UCS_2			0x00000006
+#define ENC_UCS_4			0x00000008
+#define ENC_ISO_8859_1			0x0000000A
+#define ENC_ISO_8859_2			0x0000000C
+#define ENC_ISO_8859_3			0x0000000E
+#define ENC_ISO_8859_4			0x00000010
+#define ENC_ISO_8859_5			0x00000012
+#define ENC_ISO_8859_6			0x00000014
+#define ENC_ISO_8859_7			0x00000016
+#define ENC_ISO_8859_8			0x00000018
+#define ENC_ISO_8859_9			0x0000001A
+#define ENC_ISO_8859_10			0x0000001C
+#define ENC_ISO_8859_11			0x0000001E
+/* #define ENC_ISO_8859_12			0x00000020 ISO 8859-12 was abandoned */
+#define ENC_ISO_8859_13			0x00000022
+#define ENC_ISO_8859_14			0x00000024
+#define ENC_ISO_8859_15			0x00000026
+#define ENC_ISO_8859_16			0x00000028
+#define ENC_WINDOWS_1250		0x0000002A
+#define ENC_3GPP_TS_23_038_7BITS	0x0000002C
+#define ENC_EBCDIC			0x0000002E
 
 /*
  * TODO:
@@ -307,11 +307,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  *
  *	"IBM MS DBCS"
  *	JIS C 6226
- *	7-bit encodings such as ETSI 03.38 (GSM SMS character set -
- *	    used in some files, but packet-ansi_637.c,
- *	    packet-cell_broadcast.c, packet-gmr1_rr.c,
- *	    packet-gsm_a_dtap.c, and packet-gsm_sms.c need some
- *	    work to use it)
+ *	7-bit encodings such as 7 bits ASCII used in packet-ansi_637.c
  *
  * As those are added, change code such as the code in packet-bacapp.c
  * to use them.
@@ -2128,6 +2124,18 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuf
 proto_item *
 proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	float value, const char *format, ...) G_GNUC_PRINTF(7,8);
+
+
+/** Add a FT_STRING with ENC_3GPP_TS_23_038_7BITS encoding to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param bit_offset start of data in tvb expressed in bits
+ @param no_of_chars number of 7bits characters to display
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_ts_23_038_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+	const guint bit_offset, const gint no_of_chars);
 
 /** Check if given string is a valid field name
  @param field_name the field name to check

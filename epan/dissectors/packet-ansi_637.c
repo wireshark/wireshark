@@ -206,7 +206,6 @@ static dissector_handle_t ansi_637_trans_handle;
 
 static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
-static char gsm_637_bigbuf[1024];
 static char ia5_637_bigbuf[1024];
 static dissector_table_t tele_dissector_table;
 static proto_tree *g_tree;
@@ -764,12 +763,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, GSM_7BITS, &bit, &udh_fields);
         }
 
-        out_len = gsm_sms_char_7bit_unpack(bit, required_octs, num_fields,
-                                           tvb_get_ptr(tvb_out, offset, required_octs), gsm_637_bigbuf);
-        gsm_637_bigbuf[out_len] = '\0';
-
-        proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
-                              required_octs, gsm_sms_chars_to_utf8(gsm_637_bigbuf, num_fields));
+        proto_tree_add_ts_23_038_7bits_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, (offset<<3)+bit, num_fields);
     }
     else if (encoding == 0x10)/* KSC5601 (Korean) */
     {

@@ -1065,7 +1065,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			}
 			switch (g8) {
 			case 0x00: /* 7bit */
-				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_3GPP_TS_23_038|ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_3GPP_TS_23_038_7BITS|ENC_NA);
 				break;
 			case 0x04: /* 8bit */
 				/* XXX - ASCII, or some extended ASCII? */

@@ -2251,21 +2251,25 @@ handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
 	return saw_escape;
 }
 
-static gchar *
-tvb_get_ts_23_038_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length)
+gchar *
+tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+	const gint bit_offset, gint no_of_chars)
 {
 	wmem_strbuf_t *strbuf;
-	gint           i;       /* Byte counter for tvbuff */
-	gint           in_offset = offset; /* Current pointer to the input buffer */
+	gint           char_count;                  /* character counter for tvbuff */
+	gint           in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
 	guint8         in_byte, out_byte, rest = 0x00;
 	gboolean       saw_escape = FALSE;
 	int            bits;
 
-	bits = 7;
+	bits = bit_offset & 0x07;
+	if (!bits) {
+		bits = 7;
+	}
 
-	tvb_ensure_bytes_exist(tvb, offset, length);
+	tvb_ensure_bytes_exist(tvb, in_offset, ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3);
 	strbuf = wmem_strbuf_new(scope, NULL);
-	for(i = 0; i < length; i++) {
+	for(char_count = 0; char_count < no_of_chars;) {
 		/* Get the next byte from the string. */
 		in_byte = tvb_get_guint8(tvb, in_offset);
 		in_offset++;
@@ -2286,17 +2290,20 @@ tvb_get_ts_23_038_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 		 * next char. Under *out_num we have now 0 and under Rest -
 		 * _first_ part of the char.
 		 */
-		if ((in_offset != offset) || (bits == 7))
+		if (char_count || (bits == 7)) {
 			saw_escape = handle_ts_23_038_char(strbuf, out_byte,
 			    saw_escape);
+			char_count++;
+		}
 
 		/*
 		 * After reading 7 octets we have read 7 full characters
 		 * but we have 7 bits as well. This is the next character.
 		 */
-		if (bits == 1) {
+		if ((bits == 1) && (char_count < no_of_chars)) {
 			saw_escape = handle_ts_23_038_char(strbuf, rest,
 			    saw_escape);
+			char_count++;
 			bits = 7;
 			rest = 0x00;
 		} else
@@ -2452,8 +2459,12 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
 		break;
 
-	case ENC_3GPP_TS_23_038:
-		strbuf = tvb_get_ts_23_038_string(scope, tvb, offset, length);
+	case ENC_3GPP_TS_23_038_7BITS:
+		{
+			gint bit_offset = offset << 3;
+			gint no_of_chars = (length << 3) / 7;
+			strbuf = tvb_get_ts_23_038_7bits_string(scope, tvb, bit_offset, no_of_chars);
+		}
 		break;
 
 	case ENC_EBCDIC:
@@ -2748,8 +2759,8 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
 		break;
 
-	case ENC_3GPP_TS_23_038:
-		REPORT_DISSECTOR_BUG("TS 23.038 has no null character and doesn't support null-terminated strings");
+	case ENC_3GPP_TS_23_038_7BITS:
+		REPORT_DISSECTOR_BUG("TS 23.038 7bits has no null character and doesn't support null-terminated strings");
 		break;
 
 	case ENC_EBCDIC:

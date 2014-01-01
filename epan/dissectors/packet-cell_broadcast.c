@@ -253,24 +253,18 @@ guint16 dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 
 tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 offset )
 {
    tvbuff_t * tvb_out = NULL;
-   guint8		out_len;
    int			length = tvb_length(tvb) - offset;
    gchar *utf8_text = NULL, *utf8_out;
-   static unsigned char msgbuf[1024];
-   guint8 * input_string = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+   guint8 * input_string;
    GIConv cd;
    GError *l_conv_error = NULL;
 
    switch(sms_encoding){
      case SMS_ENCODING_7BIT:
      case SMS_ENCODING_7BIT_LANG:
-     out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(msgbuf),
-                                        input_string,
-                                        msgbuf);
-     msgbuf[out_len] = '\0';
-     utf8_text = gsm_sms_chars_to_utf8(msgbuf, out_len);
+     utf8_text = tvb_get_ts_23_038_7bits_string(wmem_packet_scope(), tvb, offset<<3, (length*8)/7);
      utf8_out = g_strdup(utf8_text);
-     tvb_out = tvb_new_child_real_data(tvb, utf8_out, out_len, out_len);
+     tvb_out = tvb_new_child_real_data(tvb, utf8_out, strlen(utf8_out), strlen(utf8_out));
      tvb_set_free_cb(tvb_out, g_free);
      add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
      break;
@@ -281,6 +275,7 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
 
      case SMS_ENCODING_UCS2:
      case SMS_ENCODING_UCS2_LANG:
+     input_string = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
      if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
      {
          utf8_text = g_convert_with_iconv(input_string, length, cd, NULL, NULL, &l_conv_error);

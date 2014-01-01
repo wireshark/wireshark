@@ -296,6 +296,14 @@ You do not need to free() this buffer, it will happen automatically once the
 next packet is dissected.  This function is slightly more efficient than the
 others because it does not allocate memory and copy the string.
 
+gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
+
+tvb_get_ts_23_038_7bits_string() returns a string of a given number of characters
+and encoded according to 3GPP TS 23.038 7 bits alphabet. The buffer allocated by
+g_malloc() if scope is set to NULL (in that case memory must be explicitely freed),
+or with the allocator lifetime if scope is not NULL.
+
 Byte Array Accessors:
 
 gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
@@ -1309,6 +1317,10 @@ protocol or field labels to the proto_tree:
     proto_tree_add_float_bits_format_value(tree, id, tvb, bit_offset,
         no_of_bits, value, format, ...);
 
+    proto_item *
+    proto_tree_add_ts_23_038_7bits_item(tree, hf_index, tvb,
+        bit_offset, no_of_chars);
+
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
 extracted; the 'start' argument is the offset from the beginning of that
@@ -1365,12 +1377,26 @@ currently supported are:
     ENC_UTF_16 - UTF-16-encoded Unicode, with surrogate pairs
     ENC_UCS_2 - UCS-2-encoded subset of Unicode, with no surrogate pairs
         and thus no code points above 0xFFFF
+    ENC_UCS_4 - UCS-4-encoded Unicode
     ENC_EBCDIC - EBCDIC
     ENC_WINDOWS_1250 - Windows-1250 code page
     ENC_ISO_8859_1 - ISO 8859-1
     ENC_ISO_8859_2 - ISO 8859-2
+    ENC_ISO_8859_3 - ISO 8859-3
+    ENC_ISO_8859_4 - ISO 8859-4
     ENC_ISO_8859_5 - ISO 8859-5
+    ENC_ISO_8859_6 - ISO 8859-6
+    ENC_ISO_8859_7 - ISO 8859-7
+    ENC_ISO_8859_8 - ISO 8859-8
     ENC_ISO_8859_9 - ISO 8859-9
+    ENC_ISO_8859_10 - ISO 8859-10
+    ENC_ISO_8859_11 - ISO 8859-11
+    ENC_ISO_8859_13 - ISO 8859-13
+    ENC_ISO_8859_14 - ISO 8859-14
+    ENC_ISO_8859_15 - ISO 8859-15
+    ENC_ISO_8859_16 - ISO 8859-16
+    ENC_3GPP_TS_23_038_7BITS - GSM 7 bits alphabet as described
+        in 3GPP TS 23.038
 
 Other encodings will be added in the future.
 
@@ -1685,6 +1711,11 @@ the crumbs and the order of assembly are specified in an array of crumb_spec str
 proto_tree_add_split_bits_crumb()
 ---------------------------------
 Helper function for the above, to add text for each crumb as it is encountered.
+
+proto_tree_add_ts_23_038_7bits_item()
+-------------------------------------
+Adds a string of a given number of characters and encoded according to 3GPP TS 23.038 7 bits
+alphabet.
 
 proto_tree_add_bitmask() et al.
 -------------------------------
