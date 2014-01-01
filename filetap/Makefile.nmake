@@ -1,0 +1,59 @@
+#
+# $Id$
+#
+
+include ..\config.nmake
+include <win32.mak>
+include ..\Makefile.nmake.inc
+
+include Makefile.common
+
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=\
+	$(STANDARD_CFLAGS) \
+	-DYYMALLOC=malloc -DYYFREE=free \
+	/I. /I.. $(GLIB_CFLAGS) \
+	$(ZLIB_CFLAGS) /I$(PCAP_DIR)/include \
+	-DWS_BUILD_DLL
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
+
+.c.obj::
+	$(CC) $(CFLAGS) -Fd.\ -c $<
+
+OBJECTS=$(NONGENERATED_C_FILES:.c=.obj)
+
+filetap_LIBS = \
+	$(GLIB_LIBS)	\
+	..\wsutil\libwsutil.lib \
+	$(ZLIB_LIBS)
+
+all: filetap-$(FTAP_VERSION).dll
+
+filetap-$(FTAP_VERSION).lib: filetap-$(FTAP_VERSION).dll
+filetap-$(FTAP_VERSION).exp: filetap-$(FTAP_VERSION).dll
+
+filetap-$(FTAP_VERSION).dll : $(OBJECTS) ..\image\filetap.res
+	$(link) $(dlllflags) $(conlibsdll) \
+		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
+		/OUT:filetap-$(FTAP_VERSION).dll \
+		/IMPLIB:filetap-$(FTAP_VERSION).lib \
+		..\image\filetap.res \
+		$(OBJECTS) $(filetap_LIBS)
+
+clean :
+	rm -f $(OBJECTS) \
+		filetap-*.lib \
+		filetap-*.exp \
+		filetap-*.dll \
+		filetap-*.dll.manifest \
+		*.pdb *.sbr
+
+distclean: clean
+
+maintainer-clean: distclean
+
+checkapi:
+## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
+##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES)
+	$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(NONGENERATED_C_FILES)
