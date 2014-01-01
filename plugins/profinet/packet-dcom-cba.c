@@ -33,6 +33,8 @@
 #include <epan/dissectors/packet-dcom-dispatch.h>
 #include "packet-dcom-cba-acco.h"
 
+void proto_register_dcom_cba(void);
+void proto_reg_handoff_dcom_cba(void);
 
 static int hf_cba_opnum = -1;
 

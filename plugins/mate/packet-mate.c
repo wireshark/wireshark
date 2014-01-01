@@ -32,6 +32,9 @@
 
 #include "mate.h"
 
+void proto_register_mate(void);
+void proto_reg_handoff_mate(void);
+
 static int mate_tap_data = 0;
 static mate_config* mc = NULL;
 

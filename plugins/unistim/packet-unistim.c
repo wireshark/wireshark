@@ -47,6 +47,8 @@
 #include "uftp.h"
 #include "expansion.h"
 
+void proto_register_unistim(void);
+
 /* Don't set this to 5000 until this dissector is made a heuristic one!
    It collides (at least) with tapa.
    static guint global_unistim_port = 5000; */

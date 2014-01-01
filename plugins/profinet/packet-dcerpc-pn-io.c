@@ -59,7 +59,8 @@
 
 #include "packet-pn.h"
 
-
+void proto_register_pn_io(void);
+void proto_reg_handoff_pn_io(void);
 
 static int proto_pn_io = -1;
 

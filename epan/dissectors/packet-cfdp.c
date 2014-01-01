@@ -36,6 +36,9 @@
  * The Store and Forward Overlay Operations are not included.
  */
 
+void proto_register_cfdp(void);
+void proto_reg_handoff_cfdp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_cfdp = -1;
 static int hf_cfdp_version = -1;

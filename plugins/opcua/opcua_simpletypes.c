@@ -54,8 +54,6 @@
 /* Chosen arbitrarily */
 #define MAX_ARRAY_LEN 10000
 
-void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int TypeId);
-
 static int hf_opcua_diag_mask_symbolicflag = -1;
 static int hf_opcua_diag_mask_namespaceflag = -1;
 static int hf_opcua_diag_mask_localizedtextflag = -1;

@@ -65,8 +65,12 @@
             proto_item_append_text(item, string, sep);    \
         sep = cont_sep;                        \
     }
+
 static const char initial_sep[] = " (";
 static const char cont_sep[] = ", ";
+
+void proto_register_isis_hello(void);
+void proto_reg_handoff_isis_hello(void);
 
 static int proto_isis_hello = -1;
 

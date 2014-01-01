@@ -35,6 +35,9 @@
 #include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"
 
+void proto_register_dcom_cba_acco(void);
+void proto_reg_handoff_dcom_cba_acco(void);
+
 static int hf_cba_acco_opnum = -1;
 
 static int hf_cba_acco_ping_factor = -1;

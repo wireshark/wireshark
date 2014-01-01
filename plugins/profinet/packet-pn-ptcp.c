@@ -33,7 +33,8 @@
 
 #include "packet-pn.h"
 
-
+void proto_register_pn_ptcp(void);
+void proto_reg_handoff_pn_ptcp(void);
 
 static int proto_pn_ptcp = -1;
 

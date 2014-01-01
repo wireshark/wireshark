@@ -118,6 +118,8 @@
 #define IRCOMM_CD               0x80  /* Carrier detect is high */
 #define IRCOMM_DCE_DELTA_ANY    0x0f
 
+void proto_reg_handoff_ircomm(void);
+
 /* Initialize the subtree pointers */
 static gint ett_ircomm = -1;
 static gint ett_ircomm_ctrl = -1;

@@ -48,6 +48,10 @@
 #include <wsutil/crc16-plain.h>
 #include "packet-pn.h"
 
+
+void proto_register_pn_rt(void);
+void proto_reg_handoff_pn_rt(void);
+
 /* Define the pn-rt proto */
 static int proto_pn_rt     = -1;
 static gboolean pnio_desegment = TRUE;

@@ -33,6 +33,8 @@
 
 #include "packet-pn.h"
 
+void proto_register_pn_mrp(void);
+void proto_reg_handoff_pn_mrp(void);
 
 static int proto_pn_mrp = -1;
 

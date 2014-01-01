@@ -105,6 +105,8 @@
 #define FP_HMAC_SSWID_MASK G_GINT64_CONSTANT(0x0000FFFF0000)
 #define FP_HMAC_LID_MASK   G_GINT64_CONSTANT(0x00000000FFFF)
 
+void proto_register_isis_lsp(void);
+void proto_reg_handoff_isis_lsp(void);
 
 static int proto_isis_lsp = -1;
 

@@ -33,6 +33,9 @@
 
 #include "packet-pn.h"
 
+void proto_register_pn_mrrt(void);
+void proto_reg_handoff_pn_mrrt(void);
+
 static int proto_pn_mrrt = -1;
 
 static int hf_pn_mrrt_sequence_id = -1;
