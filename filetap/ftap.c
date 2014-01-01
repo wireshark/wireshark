@@ -475,6 +475,6 @@ ftap_seek_read(ftap *fth, gint64 seek_off,
 	Buffer *buf, int len,
 	int *err, gchar **err_info)
 {
-	return fth->subtype_seek_read(fth, seek_off, /* XXX - phdr*/NULL, buf, len,
+	return fth->subtype_seek_read(fth, seek_off, buf, len,
 		err, err_info);
 }
