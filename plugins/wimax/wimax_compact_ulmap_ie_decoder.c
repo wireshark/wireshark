@@ -43,6 +43,8 @@
 #define CID_TYPE_RCID7       2
 #define CID_TYPE_RCID3       3
 
+void proto_register_wimax_compact_ulmap_ie(void);
+
 /* Global Variables */
 extern guint cid_type;
 extern guint band_amc_subchannel_type;
@@ -375,7 +377,7 @@ static gint hf_extended_uiuc_ie_unknown_uiuc = -1;
 #define COMPACT_UL_MAP_TYPE_EXTENSION		7
 
 /* Compact UL-MAP IE decoder */
-guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint uiuc, byte, length = 0;
 	guint ul_map_type;

@@ -39,6 +39,8 @@
 #include "wimax_tlv.h"
 #include "wimax_bits.h"
 
+void proto_register_wimax(void);
+
 /* Global variables */
 gint    proto_wimax = -1;
 gint8   arq_enabled = 0;
