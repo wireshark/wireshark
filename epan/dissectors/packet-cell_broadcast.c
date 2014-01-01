@@ -264,7 +264,7 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
      case SMS_ENCODING_7BIT_LANG:
      utf8_text = tvb_get_ts_23_038_7bits_string(wmem_packet_scope(), tvb, offset<<3, (length*8)/7);
      utf8_out = g_strdup(utf8_text);
-     tvb_out = tvb_new_child_real_data(tvb, utf8_out, strlen(utf8_out), strlen(utf8_out));
+     tvb_out = tvb_new_child_real_data(tvb, utf8_out, (guint)strlen(utf8_out), (guint)strlen(utf8_out));
      tvb_set_free_cb(tvb_out, g_free);
      add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
      break;
