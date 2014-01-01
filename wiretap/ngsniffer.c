@@ -743,7 +743,11 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* We haven't allocated any uncompression buffers yet. */
 	ngsniffer->seq.buf = NULL;
+	ngsniffer->seq.nbytes = 0;
+	ngsniffer->seq.nextout = 0;
 	ngsniffer->rand.buf = NULL;
+	ngsniffer->rand.nbytes = 0;
+	ngsniffer->rand.nextout = 0;
 
 	/* Set the current file offset; the offset in the compressed file
 	   and in the uncompressed data stream currently the same. */
