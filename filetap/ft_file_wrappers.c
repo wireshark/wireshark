@@ -1,4 +1,4 @@
-/* file_wrappers.c
+/* ft_file_wrappers.c
  *
  * $Id$
  *
@@ -54,7 +54,7 @@
 #endif /* HAVE_FCNTL_H */
 #include <string.h>
 #include "ftap-int.h"
-#include "file_wrappers.h"
+#include "ft_file_wrappers.h"
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBZ

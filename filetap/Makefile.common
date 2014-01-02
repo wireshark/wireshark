@@ -31,12 +31,12 @@
 NONGENERATED_C_FILES = \
 	buffer.c	\
 	file_access.c	\
-	file_wrappers.c	\
+	ft_file_wrappers.c	\
 	ftap.c
 
 # Header files that are not generated from other files
 NONGENERATED_HEADER_FILES = \
 	buffer.h		\
-	file_wrappers.h		\
+	ft_file_wrappers.h	\
 	ftap.h			\
 	ftap-int.h

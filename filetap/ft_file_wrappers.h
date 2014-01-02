@@ -1,4 +1,4 @@
-/* file_wrappers.h
+/* ft_file_wrappers.h
  *
  * $Id$
  *

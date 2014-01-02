@@ -39,7 +39,7 @@
 #include <wsutil/file_util.h>
 
 #include "ftap-int.h"
-#include "file_wrappers.h"
+#include "ft_file_wrappers.h"
 #include "buffer.h"
 
 /*
