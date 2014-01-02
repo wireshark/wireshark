@@ -627,22 +627,22 @@ static gboolean     vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr,
                                   Buffer *, int, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
-static gboolean     vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size,
+static gboolean     vwr_process_rec_data(FILE_T fh, int rec_size,
                                          struct wtap_pkthdr *phdr, Buffer *buf,
                                          vwr_t *vwr, int IS_TX, int *err,
                                          gchar **err_info);
-static void         vwr_read_rec_data_wlan(wtap *, struct wtap_pkthdr *,
+static void         vwr_read_rec_data_wlan(vwr_t *, struct wtap_pkthdr *,
                                            guint8 *, guint8 *, int, int);
 
 static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 
-static int          parse_s1_W_stats(wtap *, struct wtap_pkthdr *, guint8 *,
+static int          parse_s1_W_stats(vwr_t *, struct wtap_pkthdr *, guint8 *,
                                      int, ext_rtap_fields *,
                                      stats_common_fields *);
-static int          parse_s2_W_stats(wtap *, struct wtap_pkthdr *, guint8 *,
+static int          parse_s2_W_stats(vwr_t *, struct wtap_pkthdr *, guint8 *,
                                      int, ext_rtap_fields *,
                                      stats_common_fields *, int);
-static void         vwr_read_rec_data_ethernet(wtap *, struct wtap_pkthdr *,
+static void         vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
                                                guint8 *, guint8 *, int, int);
 
 static int          find_signature(register guint8 *, int, int, register guint32, register guint8);
@@ -711,7 +711,7 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     *data_offset = (file_tell(wth->fh) - 16);           /* set offset for random seek @PLCP */
 
     /* got a frame record; read and process it */
-    if (!vwr_process_rec_data(wth, wth->fh, rec_size, &wth->phdr,
+    if (!vwr_process_rec_data(wth->fh, rec_size, &wth->phdr,
                               wth->frame_buffer, vwr, IS_TX, err, err_info))
        return FALSE;
 
@@ -746,7 +746,7 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
     if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, err, err_info))
         return FALSE;                                  /* Read error or EOF */
 
-    return vwr_process_rec_data(wth, wth->random_fh, rec_size, phdr, buf,
+    return vwr_process_rec_data(wth->random_fh, rec_size, phdr, buf,
                                 vwr, IS_TX, err, err_info);
 }
 
@@ -960,11 +960,10 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 /* The packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /*  MAC octets. */
 
-static void vwr_read_rec_data_wlan(wtap *wth, struct wtap_pkthdr *phdr,
+static void vwr_read_rec_data_wlan(vwr_t *vwr, struct wtap_pkthdr *phdr,
                                    guint8 *data_ptr, guint8 *rec,
                                    int rec_size, int IS_TX)
 {
-    vwr_t               *vwr = (vwr_t *)wth->priv;
     int                  bytes_written = 0; /* bytes output to buf so far */
     ext_rtap_fields      er_fields;         /* extended radiotap fields   */
     stats_common_fields  common_fields;     /* extended radiotap fields   */
@@ -973,11 +972,11 @@ static void vwr_read_rec_data_wlan(wtap *wth, struct wtap_pkthdr *phdr,
     /* Parse the stats block and fill the common and er structs */
     switch (vwr->FPGA_VERSION) {
         case S1_W_FPGA:
-            mpdu_offset = parse_s1_W_stats(wth, phdr, rec, rec_size, &er_fields, &common_fields);
+            mpdu_offset = parse_s1_W_stats(vwr, phdr, rec, rec_size, &er_fields, &common_fields);
             break;
         case S2_W_FPGA:
         case S3_W_FPGA:
-            mpdu_offset = parse_s2_W_stats(wth, phdr, rec, rec_size, &er_fields, &common_fields, IS_TX);
+            mpdu_offset = parse_s2_W_stats(vwr, phdr, rec, rec_size, &er_fields, &common_fields, IS_TX);
             break;
         default:
             return;
@@ -1055,11 +1054,10 @@ static void vwr_read_rec_data_wlan(wtap *wth, struct wtap_pkthdr *phdr,
 }
 
 
-static int parse_s1_W_stats(wtap *wth, struct wtap_pkthdr *phdr, guint8 *rec,
+static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
                             int rec_size, ext_rtap_fields * er_fields,
                             stats_common_fields * common_fields)
 {
-    vwr_t           *vwr = (vwr_t *)wth->priv;
     register int     i;                                   /* temps */
     register guint8 *s_ptr, *m_ptr;                       /* stats pointer */
     guint16          octets, msdu_length;                 /* octets in frame */
@@ -1229,13 +1227,11 @@ static int parse_s1_W_stats(wtap *wth, struct wtap_pkthdr *phdr, guint8 *rec,
 }
 
 
-static int parse_s2_W_stats(wtap *wth, struct wtap_pkthdr *phdr,
+static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
                             guint8 *rec, int rec_size,
                             ext_rtap_fields * er_fields,
                             stats_common_fields * common_fields, int IS_TX)
 {
-    vwr_t           *vwr = (vwr_t *)wth->priv;
-
     register int     i;                                   /* temps */
     register guint8 *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
 
@@ -1508,11 +1504,10 @@ static int parse_s2_W_stats(wtap *wth, struct wtap_pkthdr *phdr,
 /* The packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /*  MAC octets.                                                                          */
 
-static void vwr_read_rec_data_ethernet(wtap *wth, struct wtap_pkthdr *phdr,
+static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
                                        guint8 *data_ptr, guint8 *rec,
                                        int rec_size, int IS_TX)
 {
-    vwr_t           *vwr = (vwr_t *)wth->priv;
     int              bytes_written = 0;                   /* bytes output to buf so far */
     register int     i;                                   /* temps */
     register guint8 *s_ptr, *m_ptr;                       /* stats and MPDU pointers */
@@ -2176,7 +2171,7 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
 }
 
 static gboolean
-vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size,
+vwr_process_rec_data(FILE_T fh, int rec_size,
                      struct wtap_pkthdr *phdr, Buffer *buf, vwr_t *vwr,
                      int IS_TX, int *err, gchar **err_info)
 {
@@ -2215,13 +2210,13 @@ vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size,
         case S1_W_FPGA:
         case S2_W_FPGA:
         case S3_W_FPGA:
-            vwr_read_rec_data_wlan(wth, phdr, data_ptr, rec, rec_size, IS_TX);
+            vwr_read_rec_data_wlan(vwr, phdr, data_ptr, rec, rec_size, IS_TX);
             break;
         case vVW510012_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, phdr, data_ptr, rec, rec_size, IS_TX);
+            vwr_read_rec_data_ethernet(vwr, phdr, data_ptr, rec, rec_size, IS_TX);
             break;
         case vVW510024_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, phdr, data_ptr, rec, rec_size, IS_TX);
+            vwr_read_rec_data_ethernet(vwr, phdr, data_ptr, rec, rec_size, IS_TX);
             break;
     }
     return (TRUE);
