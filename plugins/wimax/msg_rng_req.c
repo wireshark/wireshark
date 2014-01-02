@@ -37,6 +37,9 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
+void proto_register_mac_mgmt_msg_rng_req(void);
+void proto_reg_handoff_mac_mgmt_msg_rng_req(void);
+
 extern gboolean include_cor2_changes;
 
 static gint proto_mac_mgmt_msg_rng_req_decoder = -1;

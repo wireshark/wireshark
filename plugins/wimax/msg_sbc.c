@@ -40,6 +40,10 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
+
+void proto_register_mac_mgmt_msg_sbc(void);
+void proto_reg_handoff_mac_mgmt_msg_sbc(void);
+
 /* This is a global variable declared in mac_hd_generic_decoder.c, which determines whether
  *    or not cor2 changes are included */
 extern guint include_cor2_changes;

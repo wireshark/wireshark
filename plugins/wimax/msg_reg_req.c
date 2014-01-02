@@ -41,6 +41,9 @@
 
 extern gboolean include_cor2_changes;
 
+void proto_register_mac_mgmt_msg_reg_req(void);
+void proto_reg_handoff_mac_mgmt_msg_reg_req(void);
+
 static gint proto_mac_mgmt_msg_reg_req_decoder = -1;
 static gint ett_mac_mgmt_msg_reg_req_decoder = -1;
 

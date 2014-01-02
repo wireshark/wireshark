@@ -41,6 +41,9 @@
 #include "packet-novell_pkis-ett.c"
 #include "packet-novell_pkis-fn.c"
 
+void proto_register_novell_pkis (void);
+void proto_reg_handoff_novell_pkis(void);
+
 static int proto_novell_pkis = -1;
 
 void proto_reg_handoff_novell_pkis(void)

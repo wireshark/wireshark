@@ -33,6 +33,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_wimax_cdma(void);
+
 static int proto_wimax_cdma_code_decoder = -1;
 static gint ett_wimax_cdma_code_decoder = -1;
 

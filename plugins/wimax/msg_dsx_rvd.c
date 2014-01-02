@@ -34,6 +34,9 @@
 #include <epan/packet.h>
 #include "wimax_mac.h"
 
+void proto_register_mac_mgmt_msg_dsx_rvd(void);
+void proto_reg_handoff_mac_mgmt_msg_dsx_rvd(void);
+
 static gint proto_mac_mgmt_msg_dsx_rvd_decoder = -1;
 static gint ett_mac_mgmt_msg_dsx_rvd_decoder = -1;
 

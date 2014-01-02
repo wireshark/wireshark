@@ -41,6 +41,9 @@
 
 extern	gboolean include_cor2_changes;
 
+void proto_register_mac_mgmt_msg_pmc_req(void);
+void proto_register_mac_mgmt_msg_pmc_rsp(void);
+
 static gint proto_mac_mgmt_msg_pmc_req_decoder = -1;
 static gint proto_mac_mgmt_msg_pmc_rsp_decoder = -1;
 

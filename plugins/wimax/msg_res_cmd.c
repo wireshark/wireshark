@@ -40,6 +40,9 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
+void proto_register_mac_mgmt_msg_res_cmd(void);
+void proto_reg_handoff_mac_mgmt_msg_res_cmd(void);
+
 static gint proto_mac_mgmt_msg_res_cmd_decoder = -1;
 static gint ett_mac_mgmt_msg_res_cmd_decoder = -1;
 

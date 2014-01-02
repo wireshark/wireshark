@@ -42,6 +42,9 @@
 /* Delete the following variable as soon as possible */
 extern gboolean include_cor2_changes;
 
+void proto_register_mac_mgmt_msg_dcd(void);
+void proto_reg_handoff_mac_mgmt_msg_dcd(void);
+
 static gint proto_mac_mgmt_msg_dcd_decoder = -1;
 static gint ett_mac_mgmt_msg_dcd_decoder = -1;
 

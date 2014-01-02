@@ -40,6 +40,9 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
+void proto_register_mac_mgmt_msg_reg_rsp(void);
+void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void);
+
 extern gboolean include_cor2_changes;
 
 extern void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry);

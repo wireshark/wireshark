@@ -40,6 +40,8 @@
 #include "wimax_bits.h"
 #include "wimax_utils.h"
 
+void proto_register_wimax_utility_decoders(void);
+
 extern gint proto_mac_mgmt_msg_rng_req_decoder;
 extern gint proto_mac_mgmt_msg_reg_req_decoder;
 

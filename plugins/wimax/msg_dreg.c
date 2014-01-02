@@ -41,6 +41,10 @@
 
 extern	gboolean include_cor2_changes;
 
+void proto_register_mac_mgmt_msg_dreg_req(void);
+void proto_register_mac_mgmt_msg_dreg_cmd(void);
+void proto_reg_handoff_mac_mgmt_msg_dreg(void);
+
 /* Forward reference */
 static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len);
 

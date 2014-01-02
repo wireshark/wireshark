@@ -44,6 +44,10 @@
 #include "packet-zbee-zcl.h"
 #include <wsutil/wsgcrypt.h>
 
+
+void proto_register_zbee_nwk_gp(void);
+void proto_reg_handoff_zbee_nwk_gp(void);
+
 /**************************/
 /* Defines. */
 /**************************/

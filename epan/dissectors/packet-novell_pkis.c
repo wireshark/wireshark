@@ -513,6 +513,9 @@ static void dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 /*--- End of included file: packet-novell_pkis-fn.c ---*/
 #line 43 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 
+void proto_register_novell_pkis (void);
+void proto_reg_handoff_novell_pkis(void);
+
 static int proto_novell_pkis = -1;
 
 void proto_reg_handoff_novell_pkis(void)
@@ -525,7 +528,7 @@ void proto_reg_handoff_novell_pkis(void)
 
 
 /*--- End of included file: packet-novell_pkis-dis-tab.c ---*/
-#line 49 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 52 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 }
 
 void proto_register_novell_pkis (void)
@@ -716,7 +719,7 @@ void proto_register_novell_pkis (void)
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-novell_pkis-hfarr.c ---*/
-#line 55 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 58 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
   };
   static gint *ett[] = {
 
@@ -740,7 +743,7 @@ void proto_register_novell_pkis (void)
     &ett_novell_pkis_MonetaryValue,
 
 /*--- End of included file: packet-novell_pkis-ettarr.c ---*/
-#line 58 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 61 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
   };
 
   /* execute protocol initialization only once */

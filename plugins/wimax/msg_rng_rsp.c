@@ -37,6 +37,9 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
+void proto_register_mac_mgmt_msg_rng_rsp(void);
+void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void);
+
 extern gboolean include_cor2_changes;
 
 /* external reference */
