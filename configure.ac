@@ -2766,7 +2766,6 @@ AC_OUTPUT(
   asn1/dsp/Makefile
   asn1/ess/Makefile
   asn1/ftam/Makefile
-  asn1/gnm/Makefile
   asn1/goose/Makefile
   asn1/gprscdr/Makefile
   asn1/gsm_map/Makefile
