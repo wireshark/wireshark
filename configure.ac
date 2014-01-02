@@ -2882,7 +2882,6 @@ AC_OUTPUT(
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo
   plugins/Makefile
-  plugins/asn1/Makefile
   plugins/docsis/Makefile
   plugins/ethercat/Makefile
   plugins/gryphon/Makefile
