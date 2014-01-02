@@ -105,7 +105,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     char *path = NULL;
     const char *constpath;
     gchar       *message;
-    const char *version;
 #if defined (HAVE_LIBSMI) || defined (HAVE_GEOIP)
     gint i;
     gchar **resultArray;
@@ -144,14 +143,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->label_wireshark->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_wireshark->setText(message);
 
-    /* VERSION_MINOR is const char * with CMake and int with Autofoo.... */
-    version = (const char *)VERSION_MINOR;
-
-    /* Check if Dev release... (VERSION_MINOR is odd) */
-    if ( atoi(version) % 2 == 1)
-    {
+#if VERSION_MINOR & 1
         ui->label_logo->setPixmap( QPixmap( ":/about/wssplash_dev.png" ) );
-    }
+#endif
 
 
     /* Authors */
