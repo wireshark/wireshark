@@ -892,7 +892,6 @@ SectionGroup "Plugins / Extensions" SecPluginsGroup
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION}'
-File "${STAGING_DIR}\plugins\${VERSION}\asn1.dll"
 File "${STAGING_DIR}\plugins\${VERSION}\docsis.dll"
 File "${STAGING_DIR}\plugins\${VERSION}\ethercat.dll"
 File "${STAGING_DIR}\plugins\${VERSION}\gryphon.dll"

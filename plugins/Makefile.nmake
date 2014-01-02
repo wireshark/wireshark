@@ -7,7 +7,6 @@ include ..\config.nmake
 ## To add a plugin: Add entry to PLUGIN_LIST
 
 PLUGIN_LIST = \
-	asn1        \
 	docsis      \
 	ethercat    \
 	gryphon     \

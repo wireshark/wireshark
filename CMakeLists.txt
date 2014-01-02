@@ -617,7 +617,6 @@ if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
 	set(PLUGIN_DIR="${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}")
 	set(PLUGIN_SRC_DIRS
-		plugins/asn1
 		plugins/docsis
 		plugins/ethercat
 		plugins/gryphon

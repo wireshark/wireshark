@@ -24,7 +24,6 @@
 -include Custom.make
 
 SUBDIRS = $(_CUSTOM_SUBDIRS_) \
-	asn1 \
 	docsis \
 	ethercat \
 	gryphon \
