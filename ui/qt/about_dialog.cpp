@@ -143,13 +143,19 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->label_wireshark->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_wireshark->setText(message);
 
+/* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
         ui->label_logo->setPixmap( QPixmap( ":/about/wssplash_dev.png" ) );
 #endif
 
 
     /* Authors */
+#if defined(_WIN32)
+    f_authors.setFileName(get_datafile_path("AUTHORS-SHORT.txt"));
+#else
     f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
+#endif
+
     f_authors.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_authors(&f_authors);
 
