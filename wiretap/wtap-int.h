@@ -45,7 +45,7 @@ int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
                                            struct wtap_pkthdr *, Buffer *buf,
-                                           int, int *, char **);
+                                           int *, char **);
 /**
  * Struct holding data of the currently read file.
  */

@@ -171,8 +171,7 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info);
 static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf,
-	int len, int *err, gchar **err_info);
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	int *err, gchar **err_info);
 static gboolean parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr,
@@ -315,7 +314,7 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 cosine_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-	Buffer *buf, int len _U_, int *err, gchar **err_info)
+	Buffer *buf, int *err, gchar **err_info)
 {
 	int	pkt_len;
 	char	line[COSINE_LINE_LENGTH];

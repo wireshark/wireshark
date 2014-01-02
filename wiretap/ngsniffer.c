@@ -514,8 +514,7 @@ static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
 static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size,
-    int *err, gchar **err_info);
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int ngsniffer_process_record(wtap *wth, gboolean is_random,
     guint *padding, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
     gchar **err_info);
@@ -1126,8 +1125,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size _U_,
-    int *err, gchar **err_info)
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	int	ret;
 

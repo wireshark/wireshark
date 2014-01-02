@@ -3186,7 +3186,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->phdr,
-          &buf, fdata->cap_len, &err, &err_info)) {
+          &buf, &err, &err_info)) {
         if (process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf,
                                        tap_flags)) {
           /* Either there's no read filtering or this packet passed the

@@ -78,8 +78,7 @@ static const char dct3trace_magic_end[]  = "</dump>";
 static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int len,
-	int *err, gchar **err_info);
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 /*
  * Following 3 functions taken from gsmdecode-0.7bis, with permission - http://wiki.thc.org/gsm
@@ -361,8 +360,7 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int len _U_,
-	int *err, gchar **err_info)
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{

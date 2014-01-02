@@ -70,7 +70,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                               struct wtap_pkthdr *phdr, Buffer *buf,
-                              int length, int *err, gchar **err_info);
+                              int *err, gchar **err_info);
 
 static const struct {
   int erf_encap_value;
@@ -309,7 +309,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                               struct wtap_pkthdr *phdr, Buffer *buf,
-                              int length _U_, int *err, gchar **err_info)
+                              int *err, gchar **err_info)
 {
   erf_header_t erf_header;
   guint32      packet_size;

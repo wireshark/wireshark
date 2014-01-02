@@ -1035,9 +1035,7 @@ wtap_buf_ptr(wtap *wth)
 
 gboolean
 wtap_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int len,
-	int *err, gchar **err_info)
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	return wth->subtype_seek_read(wth, seek_off, phdr, buf, len,
-		err, err_info);
+	return wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info);
 }

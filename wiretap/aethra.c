@@ -117,8 +117,7 @@ typedef struct {
 static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
-    int *err, gchar **err_info);
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
@@ -278,7 +277,7 @@ found:
 
 static gboolean
 aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    Buffer *buf, int length _U_, int *err, gchar **err_info)
+    Buffer *buf, int *err, gchar **err_info)
 {
 	struct aethrarec_hdr hdr;
 

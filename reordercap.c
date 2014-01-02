@@ -70,7 +70,6 @@ static void usage(gboolean is_error)
 /* Remember where this frame was in the file */
 typedef struct FrameRecord_t {
     gint64       offset;
-    guint32      length;
     guint        num;
 
     nstime_t     time;
@@ -99,13 +98,12 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
     gchar  *err_info;
     struct wtap_pkthdr phdr;
 
-    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u, length=%u)\n", 
-                frame->offset, frame->length);
+    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u)\n", 
+                frame->offset);
 
     
     /* Re-read the first frame from the stored location */
-    if (!wtap_seek_read(wth, frame->offset, &phdr, buf, frame->length,
-                        &err, &err_info)) {
+    if (!wtap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info)) {
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
             fprintf(stderr,
@@ -267,7 +265,6 @@ int main(int argc, char *argv[])
         newFrameRecord = g_slice_new(FrameRecord_t);
         newFrameRecord->num = frames->len + 1;
         newFrameRecord->offset = data_offset;
-        newFrameRecord->length = phdr->len;
         newFrameRecord->time = phdr->ts;
 
         if (prevFrame && frames_compare(&newFrameRecord, &prevFrame) < 0) {

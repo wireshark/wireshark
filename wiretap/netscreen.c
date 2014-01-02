@@ -73,7 +73,7 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf,
-	int len, int *err, gchar **err_info);
+	int *err, gchar **err_info);
 static int parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	char *cap_int, gboolean *cap_dir, char *cap_dst,
 	int *err, gchar **err_info);
@@ -241,7 +241,7 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 netscreen_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int len _U_,
+	struct wtap_pkthdr *phdr, Buffer *buf,
 	int *err, gchar **err_info)
 {
 	int		pkt_len;

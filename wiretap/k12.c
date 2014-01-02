@@ -687,7 +687,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 }
 
 
-static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length _U_, int *err, gchar **err_info) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info) {
     k12_t *k12 = (k12_t *)wth->priv;
     guint8* buffer;
     gint len;

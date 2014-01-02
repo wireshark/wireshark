@@ -83,7 +83,7 @@ static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 static gboolean tnef_seek_read(wtap *wth, gint64 seek_off,
                                struct wtap_pkthdr *phdr,
-                               Buffer *buf, int length _U_, int *err, gchar **err_info)
+                               Buffer *buf, int *err, gchar **err_info)
 {
   /* there is only one packet */
   if(seek_off > 0) {

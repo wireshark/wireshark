@@ -291,7 +291,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 }
 
 static gboolean
-k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length _U_, int *err, char **err_info)
+k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, char **err_info)
 {
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;

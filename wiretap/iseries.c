@@ -185,8 +185,7 @@ static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
                               gint64 *data_offset);
 static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
                                    struct wtap_pkthdr *phdr,
-                                   Buffer * buf, int len, int *err,
-                                   gchar ** err_info);
+                                   Buffer * buf, int *err, gchar ** err_info);
 static gboolean iseries_check_file_type (wtap * wth, int *err, gchar **err_info,
                                          int format);
 static gint64 iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info);
@@ -462,7 +461,7 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
  */
 static gboolean
 iseries_seek_read (wtap * wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-                   Buffer * buf, int len _U_, int *err, gchar ** err_info)
+                   Buffer * buf, int *err, gchar ** err_info)
 {
 
   /* seek to packet location */

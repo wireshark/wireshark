@@ -577,11 +577,11 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
                                  gint64 *data_offset);
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
                                       struct wtap_pkthdr *phdr,
-                                      Buffer *buf, int length,
+                                      Buffer *buf,
                                       int *err, gchar **err_info);
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
                                       struct wtap_pkthdr *phdr,
-                                      Buffer *buf, int length,
+                                      Buffer *buf,
                                       int *err, gchar **err_info);
 static void nstrace_close(wtap *wth);
 
@@ -1142,8 +1142,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 #undef PACKET_DESCRIBE
 
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
-    int *err, gchar **err_info)
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v10_t hdr;
     int bytes_read;
@@ -1234,8 +1233,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     }while(0)
 
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
-    int *err, gchar **err_info)
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
     int bytes_read;

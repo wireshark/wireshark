@@ -109,8 +109,8 @@ static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                                       gint64 *data_offset);
 static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                            struct wtap_pkthdr *phdr,
-                                           Buffer *buf, int length,
-                                           int *err, gchar **err_info);
+                                           Buffer *buf, int *err,
+                                           gchar **err_info);
 static void catapult_dct2000_close(wtap *wth);
 
 static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -451,7 +451,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
 static gboolean
 catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            struct wtap_pkthdr *phdr, Buffer *buf,
-                           int len _U_, int *err, gchar **err_info)
+                           int *err, gchar **err_info)
 {
     gint64 offset = 0;
     int length;

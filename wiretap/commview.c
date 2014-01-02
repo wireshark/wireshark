@@ -84,8 +84,7 @@ static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
 			      gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   struct wtap_pkthdr *phdr,
-				   Buffer *buf, int length, int *err,
-				   gchar **err_info);
+				   Buffer *buf, int *err, gchar **err_info);
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				     int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
@@ -198,7 +197,7 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-		   Buffer *buf, int length _U_, int *err, gchar **err_info)
+		   Buffer *buf, int *err, gchar **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

@@ -1754,8 +1754,7 @@ cf_read_frame_r(capture_file *cf, const frame_data *fdata,
   }
 #endif
 
-  if (!wtap_seek_read(cf->wth, fdata->file_off, phdr, buf,
-                      fdata->cap_len, &err, &err_info)) {
+  if (!wtap_seek_read(cf->wth, fdata->file_off, phdr, buf, &err, &err_info)) {
     display_basename = g_filename_display_basename(cf->filename);
     switch (err) {
 

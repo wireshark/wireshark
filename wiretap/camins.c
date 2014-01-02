@@ -310,8 +310,7 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 camins_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *pkthdr, Buffer *buf, int length _U_,
-    int *err, gchar **err_info)
+    struct wtap_pkthdr *pkthdr, Buffer *buf, int *err, gchar **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return FALSE;

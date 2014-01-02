@@ -104,8 +104,7 @@ typedef struct
 static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
-    int *err, gchar **err_info);
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
@@ -243,7 +242,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    Buffer *buf, int length _U_, int *err, gchar **err_info)
+    Buffer *buf, int *err, gchar **err_info)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 
