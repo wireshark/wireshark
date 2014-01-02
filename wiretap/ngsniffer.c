@@ -516,22 +516,15 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int packet_size,
     int *err, gchar **err_info);
-static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
-    guint16 *typep, guint16 *lengthp, int *err, gchar **err_info);
-static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
-    struct frame2_rec *frame2, int *err, gchar **err_info);
+static int ngsniffer_process_record(wtap *wth, gboolean is_random,
+    guint *padding, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
+    gchar **err_info);
 static void set_pseudo_header_frame2(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2);
-static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,
-    struct frame4_rec *frame4, int *err, gchar **err_info);
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
-static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
-    struct frame6_rec *frame6, int *err, gchar **err_info);
 static void set_pseudo_header_frame6(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame6_rec *frame6);
-static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
-    Buffer *buf, unsigned int length, int *err, gchar **err_info);
 static int infer_pkt_encap(const guint8 *pd, int len);
 static int fix_pseudo_header(int encap, Buffer *buf, int len,
     union wtap_pseudo_header *pseudo_header);
@@ -1068,13 +1061,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	ngsniffer_t *ngsniffer;
 	int	ret;
-	guint16	type, length;
-	struct frame2_rec frame2;
-	struct frame4_rec frame4;
-	struct frame6_rec frame6;
-	guint16	time_low, time_med, true_size, size;
-	guint8	time_high, time_day;
-	guint64 t, tsecs, tpsecs;
+	guint	padding;
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 	for (;;) {
@@ -1085,107 +1072,33 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		*data_offset = ngsniffer->seq.uncomp_offset;
 
 		/*
-		 * Read the record header.
+		 * Process the record.
 		 */
-		ret = ngsniffer_read_rec_header(wth, FALSE, &type, &length,
-		    err, err_info);
-		if (ret <= 0) {
-			/* Read error or EOF */
+		ret = ngsniffer_process_record(wth, FALSE, &padding,
+		    &wth->phdr, wth->frame_buffer, err, err_info);
+		if (ret < 0) {
+			/* Read error or short read */
 			return FALSE;
 		}
 
-		switch (type) {
+		/*
+		 * ret is the record type.
+		 */
+		switch (ret) {
 
 		case REC_FRAME2:
-			if (ngsniffer->network == NETWORK_ATM) {
-				/*
-				 * We shouldn't get a frame2 record in
-				 * an ATM capture.
-				 */
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
-				return FALSE;
-			}
-
-			/* Read the f_frame2_struct */
-			if (!ngsniffer_read_frame2(wth, FALSE, &frame2, err,
-			    err_info)) {
-				/* Read error */
-				return FALSE;
-			}
-			time_low = pletoh16(&frame2.time_low);
-			time_med = pletoh16(&frame2.time_med);
-			time_high = frame2.time_high;
-			time_day = frame2.time_day;
-			size = pletoh16(&frame2.size);
-			true_size = pletoh16(&frame2.true_size);
-
-			length -= sizeof frame2;	/* we already read that much */
-
-			set_pseudo_header_frame2(wth, &wth->phdr.pseudo_header,
-			    &frame2);
-			goto found;
-
 		case REC_FRAME4:
-			if (ngsniffer->network != NETWORK_ATM) {
-				/*
-				 * We shouldn't get a frame2 record in
-				 * a non-ATM capture.
-				 */
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
-				return FALSE;
-			}
-
-			/* Read the f_frame4_struct */
-			if (!ngsniffer_read_frame4(wth, FALSE, &frame4, err,
-			    err_info)) {
-				/* Read error */
-				return FALSE;
-			}
-			time_low = pletoh16(&frame4.time_low);
-			time_med = pletoh16(&frame4.time_med);
-			time_high = frame4.time_high;
-			time_day = frame4.time_day;
-			size = pletoh16(&frame4.size);
-			true_size = pletoh16(&frame4.true_size);
-
-			/*
-			 * XXX - it looks as if some version 4 captures have
-			 * a bogus record length, based on the assumption
-			 * that the record is a frame2 record.
-			 */
-			if (ngsniffer->maj_vers >= 5)
-				length -= sizeof frame4;	/* we already read that much */
-			else {
-				if (ngsniffer->min_vers >= 95)
-					length -= sizeof frame2;
-				else
-					length -= sizeof frame4;
-			}
-
-			set_pseudo_header_frame4(&wth->phdr.pseudo_header, &frame4);
-			goto found;
-
 		case REC_FRAME6:
-			/* Read the f_frame6_struct */
-			if (!ngsniffer_read_frame6(wth, FALSE, &frame6, err,
-			    err_info)) {
-				/* Read error */
-				return FALSE;
+			/*
+			 * Packet record.
+			 * Skip any extra data in the record.
+			 */
+			if (padding != 0) {
+				if (!ng_file_skip_seq(wth, padding, err,
+				    err_info))
+					return FALSE;
 			}
-			time_low = pletoh16(&frame6.time_low);
-			time_med = pletoh16(&frame6.time_med);
-			time_high = frame6.time_high;
-			time_day = frame6.time_day;
-			size = pletoh16(&frame6.size);
-			true_size = pletoh16(&frame6.true_size);
-
-			length -= sizeof frame6;	/* we already read that much */
-
-			set_pseudo_header_frame6(wth, &wth->phdr.pseudo_header,
-			    &frame6);
-			goto found;
+			return TRUE;
 
 		case REC_EOF:
 			/*
@@ -1195,21 +1108,230 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			return FALSE;
 
 		default:
-			break;	/* unknown type, skip it */
+			/*
+			 * Well, we don't know what it is, or we know what
+			 * it is but can't handle it.  Skip past the data
+			 * portion, the length of which is in padding,
+			 * and keep looping.
+			 */
+			if (padding != 0) {
+				if (!ng_file_skip_seq(wth, padding, err,
+				    err_info))
+					return FALSE;
+			}
+			break;
 		}
+	}
+}
 
-		/*
-		 * Well, we don't know what it is, or we know what
-		 * it is but can't handle it.  Skip past the data
-		 * portion, and keep looping.
-		 */
-		if (!ng_file_skip_seq(wth, length, err, err_info))
-			return FALSE;
+static gboolean
+ngsniffer_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size _U_,
+    int *err, gchar **err_info)
+{
+	int	ret;
+
+	if (!ng_file_seek_rand(wth, seek_off, err, err_info))
+		return FALSE;
+
+	ret = ngsniffer_process_record(wth, TRUE, NULL, phdr, buf, err, err_info);
+	if (ret < 0) {
+		/* Read error or short read */
+		return FALSE;
 	}
 
-found:
 	/*
-	 * OK, is the frame data size greater than than what's left of the
+	 * ret is the record type.
+	 */
+	switch (ret) {
+
+	case REC_FRAME2:
+	case REC_FRAME4:
+	case REC_FRAME6:
+		/* Packet record */
+		break;
+
+	default:
+		/*
+		 * "Can't happen".
+		 */
+		g_assert_not_reached();
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+/*
+ * Returns -1 on error, REC_EOF on end-of-file, record type on success.
+ * If padding is non-null, sets *padding to the amount of padding at
+ * the end of the record.
+ */
+static int
+ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+{
+	ngsniffer_t *ngsniffer;
+	gint64	bytes_read;
+	char	record_type[2];
+	char	record_length[4]; /* only 1st 2 bytes are length */
+	guint16	type, length;
+	struct frame2_rec frame2;
+	struct frame4_rec frame4;
+	struct frame6_rec frame6;
+	guint16	time_low, time_med, true_size, size;
+	guint8	time_high, time_day;
+	guint64 t, tsecs, tpsecs;
+
+	/*
+	 * Read the record header.
+	 */
+	bytes_read = ng_file_read(record_type, 2, wth, is_random, err,
+	    err_info);
+	if (bytes_read != 2) {
+		if (*err != 0)
+			return -1;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		return REC_EOF;
+	}
+	bytes_read = ng_file_read(record_length, 4, wth, is_random, err,
+	    err_info);
+	if (bytes_read != 4) {
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+
+	type = pletoh16(record_type);
+	length = pletoh16(record_length);
+
+	ngsniffer = (ngsniffer_t *)wth->priv;
+	switch (type) {
+
+	case REC_FRAME2:
+		if (ngsniffer->network == NETWORK_ATM) {
+			/*
+			 * We shouldn't get a frame2 record in
+			 * an ATM capture.
+			 */
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
+			return -1;
+		}
+
+		/* Read the f_frame2_struct */
+		bytes_read = ng_file_read(&frame2, (unsigned int)sizeof frame2,
+		   wth, is_random, err, err_info);
+		if (bytes_read != sizeof frame2) {
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		time_low = pletoh16(&frame2.time_low);
+		time_med = pletoh16(&frame2.time_med);
+		time_high = frame2.time_high;
+		time_day = frame2.time_day;
+		size = pletoh16(&frame2.size);
+		true_size = pletoh16(&frame2.true_size);
+
+		length -= sizeof frame2;	/* we already read that much */
+
+		set_pseudo_header_frame2(wth, &phdr->pseudo_header, &frame2);
+		break;
+
+	case REC_FRAME4:
+		if (ngsniffer->network != NETWORK_ATM) {
+			/*
+			 * We shouldn't get a frame2 record in
+			 * a non-ATM capture.
+			 */
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
+			return -1;
+		}
+
+		/* Read the f_frame4_struct */
+		bytes_read = ng_file_read(&frame4, (unsigned int)sizeof frame4,
+		    wth, is_random, err, err_info);
+		if (bytes_read != sizeof frame4) {
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		time_low = pletoh16(&frame4.time_low);
+		time_med = pletoh16(&frame4.time_med);
+		time_high = frame4.time_high;
+		time_day = frame4.time_day;
+		size = pletoh16(&frame4.size);
+		true_size = pletoh16(&frame4.true_size);
+
+		/*
+		 * XXX - it looks as if some version 4 captures have
+		 * a bogus record length, based on the assumption
+		 * that the record is a frame2 record.
+		 */
+		if (ngsniffer->maj_vers >= 5)
+			length -= sizeof frame4;	/* we already read that much */
+		else {
+			if (ngsniffer->min_vers >= 95)
+				length -= sizeof frame2;
+			else
+				length -= sizeof frame4;
+		}
+
+		set_pseudo_header_frame4(&phdr->pseudo_header, &frame4);
+		break;
+
+	case REC_FRAME6:
+		/* Read the f_frame6_struct */
+		bytes_read = ng_file_read(&frame6, (unsigned int)sizeof frame6,
+		    wth, is_random, err, err_info);
+		if (bytes_read != sizeof frame6) {
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		time_low = pletoh16(&frame6.time_low);
+		time_med = pletoh16(&frame6.time_med);
+		time_high = frame6.time_high;
+		time_day = frame6.time_day;
+		size = pletoh16(&frame6.size);
+		true_size = pletoh16(&frame6.true_size);
+
+		length -= sizeof frame6;	/* we already read that much */
+
+		set_pseudo_header_frame6(wth, &phdr->pseudo_header, &frame6);
+		break;
+
+	case REC_EOF:
+		/*
+		 * End of file.  Return an EOF indication.
+		 */
+		*err = 0;	/* EOF, not error */
+		return REC_EOF;
+
+	default:
+		/*
+		 * Unknown record type, or type that's not an EOF or
+		 * a packet record.
+		 */
+		if (padding != NULL) {
+			/*
+			 * Treat the entire record as padding, so we
+			 * skip it.
+			 */
+			*padding = length;
+		}
+		return type;	/* unknown type */
+	}
+
+	/*
+	 * This is a packet record.
+	 *
+	 * Is the frame data size greater than than what's left of the
 	 * record?
 	 */
 	if (size > length) {
@@ -1218,22 +1340,35 @@ found:
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("ngsniffer: Record length is less than packet size");
-		return FALSE;
+		return -1;
 	}
 
-	wth->phdr.presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
-	wth->phdr.len = true_size ? true_size : size;
-	wth->phdr.caplen = size;
+	if (padding != NULL) {
+		/*
+		 * Padding, if the frame data size is less than what's
+		 * left of the record.
+		 */
+		*padding = length - size;
+	}
+
+	phdr->presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
+	phdr->len = true_size ? true_size : size;
+	phdr->caplen = size;
 
 	/*
 	 * Read the packet data.
 	 */
-	if (!ngsniffer_read_rec_data(wth, FALSE, wth->frame_buffer, length,
-	    err, err_info))
-		return FALSE;	/* Read error */
+	buffer_assure_space(buf, size);
+	bytes_read = ng_file_read(buffer_start_ptr(buf), size, wth,
+	    is_random, err, err_info);
+	if (bytes_read != (gint64) size) {
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
 
-	wth->phdr.pkt_encap = fix_pseudo_header(wth->file_encap, wth->frame_buffer, length,
-	    &wth->phdr.pseudo_header);
+	phdr->pkt_encap = fix_pseudo_header(wth->file_encap,
+	    buf, length, &phdr->pseudo_header);
 
 	/*
 	 * 40-bit time stamp, in units of timeunit picoseconds.
@@ -1263,144 +1398,10 @@ found:
 	 */
 	tsecs += ngsniffer->start;
 
-	wth->phdr.ts.secs = (time_t)tsecs;
-	wth->phdr.ts.nsecs = (int)(tpsecs/1000);	/* psecs to nsecs */
-	return TRUE;
-}
+	phdr->ts.secs = (time_t)tsecs;
+	phdr->ts.nsecs = (int)(tpsecs/1000);	/* psecs to nsecs */
 
-static gboolean
-ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size,
-    int *err, gchar **err_info)
-{
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
-	int	ret;
-	guint16	type, length;
-	struct frame2_rec frame2;
-	struct frame4_rec frame4;
-	struct frame6_rec frame6;
-
-	if (!ng_file_seek_rand(wth, seek_off, err, err_info))
-		return FALSE;
-
-	ret = ngsniffer_read_rec_header(wth, TRUE, &type, &length, err,
-	    err_info);
-	if (ret <= 0) {
-		/* Read error or EOF */
-		if (ret == 0) {
-			/* EOF means "short read" in random-access mode */
-			*err = WTAP_ERR_SHORT_READ;
-		}
-		return FALSE;
-	}
-
-	switch (type) {
-
-	case REC_FRAME2:
-		/* Read the f_frame2_struct */
-		if (!ngsniffer_read_frame2(wth, TRUE, &frame2, err, err_info)) {
-			/* Read error */
-			return FALSE;
-		}
-
-		length -= sizeof frame2;	/* we already read that much */
-
-		set_pseudo_header_frame2(wth, pseudo_header, &frame2);
-		break;
-
-	case REC_FRAME4:
-		/* Read the f_frame4_struct */
-		if (!ngsniffer_read_frame4(wth, TRUE, &frame4, err, err_info)) {
-			/* Read error */
-			return FALSE;
-		}
-
-		length -= sizeof frame4;	/* we already read that much */
-
-		set_pseudo_header_frame4(pseudo_header, &frame4);
-		break;
-
-	case REC_FRAME6:
-		/* Read the f_frame6_struct */
-		if (!ngsniffer_read_frame6(wth, TRUE, &frame6, err, err_info)) {
-			/* Read error */
-			return FALSE;
-		}
-
-		length -= sizeof frame6;	/* we already read that much */
-
-		set_pseudo_header_frame6(wth, pseudo_header, &frame6);
-		break;
-
-	default:
-		/*
-		 * "Can't happen".
-		 */
-		g_assert_not_reached();
-		return FALSE;
-	}
-
-	/*
-	 * Got the pseudo-header (if any), now get the data.
-	 */
-	if (!ngsniffer_read_rec_data(wth, TRUE, buf, packet_size, err, err_info))
-		return FALSE;
-
-	fix_pseudo_header(wth->file_encap, buf, packet_size, pseudo_header);
-
-	return TRUE;
-}
-
-static int
-ngsniffer_read_rec_header(wtap *wth, gboolean is_random, guint16 *typep,
-    guint16 *lengthp, int *err, gchar **err_info)
-{
-	gint64	bytes_read;
-	char	record_type[2];
-	char	record_length[4]; /* only 1st 2 bytes are length */
-
-	/*
-	 * Read the record header.
-	 */
-	bytes_read = ng_file_read(record_type, 2, wth, is_random, err,
-	    err_info);
-	if (bytes_read != 2) {
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		return 0;
-	}
-	bytes_read = ng_file_read(record_length, 4, wth, is_random, err,
-	    err_info);
-	if (bytes_read != 4) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
-
-	*typep = pletoh16(record_type);
-	*lengthp = pletoh16(record_length);
-	return 1;	/* success */
-}
-
-static gboolean
-ngsniffer_read_frame2(wtap *wth, gboolean is_random, struct frame2_rec *frame2,
-    int *err, gchar **err_info)
-{
-	gint64 bytes_read;
-
-	/* Read the f_frame2_struct */
-	bytes_read = ng_file_read(frame2, (unsigned int)sizeof *frame2, wth,
-	    is_random, err, err_info);
-	if (bytes_read != sizeof *frame2) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
+	return type;	/* success */
 }
 
 static void
@@ -1494,23 +1495,6 @@ set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			break;
 		}
 	}
-}
-
-static gboolean
-ngsniffer_read_frame4(wtap *wth, gboolean is_random, struct frame4_rec *frame4,
-    int *err, gchar **err_info)
-{
-	gint64 bytes_read;
-
-	/* Read the f_frame4_struct */
-	bytes_read = ng_file_read(frame4, (unsigned int)sizeof *frame4, wth,
-	    is_random, err, err_info);
-	if (bytes_read != sizeof *frame4) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
 }
 
 static void
@@ -1767,23 +1751,6 @@ set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.aal5t_chksum = pntoh32(&frame4->atm_info.Trailer.aal5t_chksum);
 }
 
-static gboolean
-ngsniffer_read_frame6(wtap *wth, gboolean is_random, struct frame6_rec *frame6,
-    int *err, gchar **err_info)
-{
-	gint64 bytes_read;
-
-	/* Read the f_frame6_struct */
-	bytes_read = ng_file_read(frame6, (unsigned int)sizeof *frame6, wth,
-	    is_random, err, err_info);
-	if (bytes_read != sizeof *frame6) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
-}
-
 static void
 set_pseudo_header_frame6(wtap *wth, union wtap_pseudo_header *pseudo_header,
     struct frame6_rec *frame6 _U_)
@@ -1797,24 +1764,6 @@ set_pseudo_header_frame6(wtap *wth, union wtap_pseudo_header *pseudo_header,
 		pseudo_header->eth.fcs_len = -1;
 		break;
 	}
-}
-
-static gboolean
-ngsniffer_read_rec_data(wtap *wth, gboolean is_random, Buffer *buf,
-    unsigned int length, int *err, gchar **err_info)
-{
-	gint64	bytes_read;
-
-	buffer_assure_space(buf, length);
-	bytes_read = ng_file_read(buffer_start_ptr(buf), length, wth,
-	    is_random, err, err_info);
-
-	if (bytes_read != (gint64) length) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
 }
 
 /*
