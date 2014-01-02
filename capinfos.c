@@ -118,11 +118,11 @@ static gboolean continue_after_wtap_open_offline_failure = TRUE;
  * table report variables
  */
 
-static gboolean long_report = TRUE;         /* By default generate long report       */
-static gchar table_report_header = TRUE;    /* Generate column header by default     */
-static gchar field_separator = '\t';        /* Use TAB as field separator by default */
-static gchar quote_char = '\0';             /* Do NOT quote fields by default        */
-static gboolean machine_readable = FALSE;   /* Display machine-readable numbers      */
+static gboolean long_report        = TRUE;  /* By default generate long report       */
+static gchar table_report_header   = TRUE;  /* Generate column header by default     */
+static gchar field_separator       = '\t';  /* Use TAB as field separator by default */
+static gchar quote_char            = '\0';  /* Do NOT quote fields by default        */
+static gboolean machine_readable   = FALSE; /* Display machine-readable numbers      */
 
 /*
  * capinfos has the ability to report on a number of
@@ -135,33 +135,33 @@ static gboolean machine_readable = FALSE;   /* Display machine-readable numbers 
  * individual options.
  */
 
-static gboolean report_all_infos = TRUE;    /* Report all infos           */
+static gboolean report_all_infos   = TRUE;  /* Report all infos           */
 
-static gboolean cap_file_type = TRUE;       /* Report capture type        */
-static gboolean cap_file_encap = TRUE;      /* Report encapsulation       */
-static gboolean cap_snaplen = TRUE;         /* Packet size limit (snaplen)*/
-static gboolean cap_packet_count = TRUE;    /* Report packet count        */
-static gboolean cap_file_size = TRUE;       /* Report file size           */
-static gboolean cap_comment = TRUE;         /* Display the capture comment */
+static gboolean cap_file_type      = TRUE;  /* Report capture type        */
+static gboolean cap_file_encap     = TRUE;  /* Report encapsulation       */
+static gboolean cap_snaplen        = TRUE;  /* Packet size limit (snaplen)*/
+static gboolean cap_packet_count   = TRUE;  /* Report packet count        */
+static gboolean cap_file_size      = TRUE;  /* Report file size           */
+static gboolean cap_comment        = TRUE;  /* Display the capture comment */
 
-static gboolean cap_data_size = TRUE;       /* Report packet byte size    */
-static gboolean cap_duration = TRUE;        /* Report capture duration    */
-static gboolean cap_start_time = TRUE;      /* Report capture start time  */
-static gboolean cap_end_time = TRUE;        /* Report capture end time    */
-static gboolean time_as_secs = FALSE;       /* Report time values as raw seconds */
+static gboolean cap_data_size      = TRUE;  /* Report packet byte size    */
+static gboolean cap_duration       = TRUE;  /* Report capture duration    */
+static gboolean cap_start_time     = TRUE;  /* Report capture start time  */
+static gboolean cap_end_time       = TRUE;  /* Report capture end time    */
+static gboolean time_as_secs       = FALSE; /* Report time values as raw seconds */
 
 static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
-static gboolean cap_data_rate_bit = TRUE;   /* Report data rate bites/sec */
-static gboolean cap_packet_size = TRUE;     /* Report average packet size */
-static gboolean cap_packet_rate = TRUE;     /* Report average packet rate */
-static gboolean cap_order = TRUE;           /* Report if packets are in chronological order (True/False) */
+static gboolean cap_data_rate_bit  = TRUE;  /* Report data rate bites/sec */
+static gboolean cap_packet_size    = TRUE;  /* Report average packet size */
+static gboolean cap_packet_rate    = TRUE;  /* Report average packet rate */
+static gboolean cap_order          = TRUE;  /* Report if packets are in chronological order (True/False) */
 
 #ifdef HAVE_LIBGCRYPT
-static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
+static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 #endif
 
 #ifdef USE_GOPTION
-static gboolean cap_help = FALSE;
+static gboolean cap_help     = FALSE;
 static gboolean table_report = FALSE;
 
 static GOptionEntry general_entries[] =
@@ -258,9 +258,9 @@ GError *parse_err = NULL;
 #endif /* USE_GOPTION */
 
 #ifdef HAVE_LIBGCRYPT
-#define HASH_SIZE_SHA1 20
+#define HASH_SIZE_SHA1   20
 #define HASH_SIZE_RMD160 20
-#define HASH_SIZE_MD5 16
+#define HASH_SIZE_MD5    16
 
 #define HASH_STR_SIZE (41) /* Max hash size * 2 + '\0' */
 #define HASH_BUF_SIZE (1024 * 1024)
@@ -293,60 +293,60 @@ typedef enum {
 
 typedef struct _capture_info {
   const char    *filename;
-  guint16       file_type;
-  gboolean      iscompressed;
-  int           file_encap;
-  gint64        filesize;
+  guint16        file_type;
+  gboolean       iscompressed;
+  int            file_encap;
+  gint64         filesize;
   gchar         *comment;
 
-  guint64       packet_bytes;
-  gboolean      times_known;
-  double        start_time;
-  double        stop_time;
-  guint32       packet_count;
-  gboolean      snap_set;                /* If set in capture file header      */
-  guint32       snaplen;                 /* value from the capture file header */
-  guint32       snaplen_min_inferred;    /* If caplen < len for 1 or more rcds */
-  guint32       snaplen_max_inferred;    /*  ...                               */
-  gboolean      drops_known;
-  guint32       drop_count;
+  guint64        packet_bytes;
+  gboolean       times_known;
+  double         start_time;
+  double         stop_time;
+  guint32        packet_count;
+  gboolean       snap_set;                /* If set in capture file header      */
+  guint32        snaplen;                 /* value from the capture file header */
+  guint32        snaplen_min_inferred;    /* If caplen < len for 1 or more rcds */
+  guint32        snaplen_max_inferred;    /*  ...                               */
+  gboolean       drops_known;
+  guint32        drop_count;
 
-  double        duration;
-  double        packet_rate;
-  double        packet_size;
-  double        data_rate;              /* in bytes */
-  gboolean      know_order;
-  order_t       order;
+  double         duration;
+  double         packet_rate;
+  double         packet_size;
+  double         data_rate;              /* in bytes */
+  gboolean       know_order;
+  order_t        order;
 
-  int          *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
+  int           *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
 } capture_info;
 
 
 static void
 enable_all_infos(void)
 {
-  report_all_infos = TRUE;
+  report_all_infos   = TRUE;
 
-  cap_file_type = TRUE;
-  cap_file_encap = TRUE;
-  cap_snaplen = TRUE;
-  cap_packet_count = TRUE;
-  cap_file_size = TRUE;
-  cap_comment = TRUE;
+  cap_file_type      = TRUE;
+  cap_file_encap     = TRUE;
+  cap_snaplen        = TRUE;
+  cap_packet_count   = TRUE;
+  cap_file_size      = TRUE;
+  cap_comment        = TRUE;
 
-  cap_data_size = TRUE;
-  cap_duration = TRUE;
-  cap_start_time = TRUE;
-  cap_end_time = TRUE;
-  cap_order = TRUE;
+  cap_data_size      = TRUE;
+  cap_duration       = TRUE;
+  cap_start_time     = TRUE;
+  cap_end_time       = TRUE;
+  cap_order          = TRUE;
 
   cap_data_rate_byte = TRUE;
-  cap_data_rate_bit = TRUE;
-  cap_packet_size = TRUE;
-  cap_packet_rate = TRUE;
+  cap_data_rate_bit  = TRUE;
+  cap_packet_size    = TRUE;
+  cap_packet_rate    = TRUE;
 
 #ifdef HAVE_LIBGCRYPT
-  cap_file_hashes = TRUE;
+  cap_file_hashes    = TRUE;
 #endif /* HAVE_LIBGCRYPT */
 }
 
@@ -374,7 +374,7 @@ disable_all_infos(void)
   cap_packet_rate    = FALSE;
 
 #ifdef HAVE_LIBGCRYPT
-  cap_file_hashes = FALSE;
+  cap_file_hashes    = FALSE;
 #endif /* HAVE_LIBGCRYPT */
 }
 
@@ -400,9 +400,9 @@ order_string(order_t order)
 static gchar *
 time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
 {
-  const gchar *lf = want_lf ? "\n" : "";
-  static gchar time_string_buf[20];
-  char *time_string_ctime;
+  const gchar  *lf = want_lf ? "\n" : "";
+  static gchar  time_string_buf[20];
+  char         *time_string_ctime;
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
     if (time_as_secs) {
@@ -450,8 +450,8 @@ static void
 print_stats(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
-  time_t                start_time_t;
-  time_t                stop_time_t;
+  time_t                 start_time_t;
+  time_t                 stop_time_t;
   gchar                 *size_string;
 
   /* Build printable strings for various stats */
@@ -474,7 +474,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
   if (cap_snaplen && cf_info->snap_set)
     printf     ("Packet size limit:   file hdr: %u bytes\n", cf_info->snaplen);
-  else if(cap_snaplen && !cf_info->snap_set)
+  else if (cap_snaplen && !cf_info->snap_set)
     printf     ("Packet size limit:   file hdr: (not set)\n");
   if (cf_info->snaplen_max_inferred > 0) {
     if (cf_info->snaplen_min_inferred == cf_info->snaplen_max_inferred)
@@ -626,8 +626,8 @@ static void
 print_stats_table(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
-  time_t                start_time_t;
-  time_t                stop_time_t;
+  time_t                 start_time_t;
+  time_t                 stop_time_t;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
@@ -663,7 +663,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_snaplen) {
     putsep();
     putquote();
-    if(cf_info->snap_set)
+    if (cf_info->snap_set)
       printf("%u", cf_info->snaplen);
     else
       printf("(not set)");
@@ -843,10 +843,10 @@ process_cap_file(wtap *wth, const char *filename)
     if (phdr->presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
       cur_time = nstime_to_sec(&phdr->ts);
-      if(packet==0) {
+      if (packet == 0) {
         start_time = cur_time;
-        stop_time = cur_time;
-        prev_time = cur_time;
+        stop_time  = cur_time;
+        prev_time  = cur_time;
       }
       if (cur_time < prev_time) {
         order = NOT_IN_ORDER;
@@ -935,7 +935,7 @@ process_cap_file(wtap *wth, const char *filename)
 
   /* Packet size limit (snaplen) */
   cf_info.snaplen = wtap_snapshot_length(wth);
-  if(cf_info.snaplen > 0)
+  if (cf_info.snaplen > 0)
     cf_info.snap_set = TRUE;
   else
     cf_info.snap_set = FALSE;
@@ -981,13 +981,13 @@ process_cap_file(wtap *wth, const char *filename)
        we replace linefeeds with spaces */
     p = cf_info.comment;
     while (*p != '\0') {
-      if (*p=='\n')
-        *p=' ';
+      if (*p == '\n')
+        *p = ' ';
       p++;
     }
   }
 
-  if(long_report) {
+  if (long_report) {
     print_stats(filename, &cf_info);
   } else {
     print_stats_table(filename, &cf_info);
@@ -1143,7 +1143,7 @@ main(int argc, char *argv[])
     /* Register all the plugin types we have. */
     wtap_register_plugin_types(); /* Types known to libwiretap */
 
-    init_report_err(failure_message,NULL,NULL,NULL);
+    init_report_err(failure_message, NULL, NULL, NULL);
 
     /* Scan for plugins.  This does *not* call their registration routines;
        that's done later. */
@@ -1192,17 +1192,22 @@ main(int argc, char *argv[])
   argv[0] = (char *)"capinfos";
 
   /* if we have at least one cmdline option, we disable printing all infos */
-  if (argc>=2 && report_all_infos)
+  if (argc > 2 && report_all_infos)
     disable_all_infos();
 
-  if( !g_option_context_parse(ctx, &argc, &argv, &parse_err) ) {
-    if(parse_err) g_print ("option parsing failed: %s\n", parse_err->message);
-    g_print("%s", g_option_context_get_help (ctx, TRUE, NULL));
+  if ( !g_option_context_parse(ctx, &argc, &argv, &parse_err) ) {
+    if (parse_err)
+      g_printerr ("option parsing failed: %s\n", parse_err->message);
+    g_printerr("%s", g_option_context_get_help (ctx, TRUE, NULL));
     exit(1);
   }
-  if( cap_help || (argc < 2) ) {
+  if ( cap_help ) {
     g_print("%s", g_option_context_get_help (ctx, FALSE, NULL));
     exit(0);
+  }
+  if ( argc < 2 ) {
+    g_printerr("%s", g_option_context_get_help (ctx, FALSE, NULL));
+    exit(1);
   }
   g_option_context_free(ctx);
 
@@ -1351,7 +1356,7 @@ main(int argc, char *argv[])
 
       case 'h':
         usage(FALSE);
-        exit(1);
+        exit(0);
         break;
 
       case '?':              /* Bad flag - print usage message */
@@ -1369,7 +1374,7 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  if(!long_report && table_report_header) {
+  if (!long_report && table_report_header) {
     print_stats_table_header();
   }
 
@@ -1425,11 +1430,11 @@ main(int argc, char *argv[])
           break;
       }
       overall_error_status = 1; /* remember that an error has occurred */
-      if(!continue_after_wtap_open_offline_failure)
+      if (!continue_after_wtap_open_offline_failure)
         exit(1); /* error status */
     }
 
-    if(wth) {
+    if (wth) {
       if ((opt > optind) && (long_report))
         printf("\n");
       status = process_cap_file(wth, argv[opt]);
@@ -1448,10 +1453,10 @@ main(int argc, char *argv[])
  *
  * Local variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab:
- * :indentSize=2:tabSize=2:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
