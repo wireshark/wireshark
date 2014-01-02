@@ -47,7 +47,6 @@ SUBDIRS =		\
 	dsp		\
 	ess		\
 	ftam		\
-	gnm		\
 	goose		\
 	gsm_map		\
 	gprscdr		\
