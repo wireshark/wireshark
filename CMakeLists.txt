@@ -118,6 +118,7 @@ include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/epan
+	${CMAKE_SOURCE_DIR}/filetap
 	${CMAKE_SOURCE_DIR}/tools/lemon
 	${CMAKE_SOURCE_DIR}/wiretap
 )
@@ -649,12 +650,13 @@ endforeach()
 add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( codecs )
 add_subdirectory( epan )
+add_subdirectory( filetap )
 add_subdirectory( tools/lemon )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
-add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil color.h)
+add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libfiletap dumpabi-libwiretap dumpabi-libwsutil color.h)
 
 if(ENABLE_ECHLD)
 	add_subdirectory( echld )
@@ -757,6 +759,7 @@ link_directories(
 	${CMAKE_BINARY_DIR}/ui/qt
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
+	${CMAKE_BINARY_DIR}/filetap
 	${CMAKE_BINARY_DIR}/wiretap
 	${CMAKE_BINARY_DIR}/wsutil
 )

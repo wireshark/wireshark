@@ -77,12 +77,12 @@ What's New
 
    802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData, ELF
    file format, EXPORTED PDU, FINGER, HTTP2, IDRP, ILP, Kafka, Kyoto
-   Tycoon binary protocol, MBIM, MiNT, MP4 / ISOBMFF file format, NXP
-   PN532 HCI, OpenFlow, Picture Transfer Protocol Over IP, QUIC (Quick UDP
-   Internet Connections), SEL RTAC (Real Time Automation Controller)
-   EIA-232 Serial-Line Dissection, Sippy RTPproxy, STANAG 4607, STANAG
-   5066 DTS, STANAG 5066 SIS, Tinkerforge, UDT, URL Encoded Form Data,
-   WHOIS, and Wi-Fi Display
+   Tycoon binary protocol, MBIM, MiNT, MP4 / ISOBMFF file format, Novell
+   PKIS certificate extensions, NXP PN532 HCI, OpenFlow, Picture Transfer
+   Protocol Over IP, QUIC (Quick UDP Internet Connections), SEL RTAC (Real
+   Time Automation Controller) EIA-232 Serial-Line Dissection, Sippy
+   RTPproxy, STANAG 4607, STANAG 5066 DTS, STANAG 5066 SIS, Tinkerforge,
+   UDT, URL Encoded Form Data, WHOIS, and Wi-Fi Display
 
   Updated Protocol Support
 
@@ -162,7 +162,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [21]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-12-13 20:00:51 CET
+   Last updated 2013-12-31 15:25:28 CET
 
 References
 
