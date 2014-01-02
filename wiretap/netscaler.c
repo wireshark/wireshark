@@ -776,9 +776,9 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
     return 0;    /* no version found */
 }
 
-#define nspr_getv10recordtype(hdp) (pletoh16(&hdp->nsprRecordType))
-#define nspr_getv10recordsize(hdp) (pletoh16(&hdp->nsprRecordSize))
-#define nspr_getv20recordtype(hdp) (hdp->phd_RecordType)
+#define nspr_getv10recordtype(hdp) (pletoh16(&(hdp)->nsprRecordType))
+#define nspr_getv10recordsize(hdp) (pletoh16(&(hdp)->nsprRecordSize))
+#define nspr_getv20recordtype(hdp) ((hdp)->phd_RecordType)
 #define nspr_getv20recordsize(hdp) \
     (((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
         (((hdp)->phd_RecordSizeHigh * NSPR_V20RECORDSIZE_2BYTES)+ \
@@ -825,7 +825,6 @@ nstrace_set_start_time_ver(20)
 
 #undef nspr_getv10recordtype
 #undef nspr_getv20recordtype
-#undef nspr_getv10recordsize
 
 /*
 ** Set the start time of the trace file. We look for the first ABSTIME record. We use that
@@ -1143,11 +1142,14 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 #undef PACKET_DESCRIBE
 
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
-    guint8 *pd;
+    nspr_hd_v10_t hdr;
     int bytes_read;
+    guint record_length;
+    guint8 *pd;
+    unsigned int bytes_to_read;
     nspr_pktracefull_v10_t *fp;
     nspr_pktracepart_v10_t *pp;
 
@@ -1157,18 +1159,41 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         return FALSE;
 
     /*
-    ** Read the packet data.
+    ** Read the record header.
     */
-    buffer_assure_space(buf, length);
-    pd = buffer_start_ptr(buf);
-    bytes_read = file_read(pd, length, wth->random_fh);
-    if (bytes_read != length) {
+    bytes_read = file_read((void *)&hdr, sizeof hdr, wth->random_fh);
+    if (bytes_read != sizeof hdr) {
         *err = file_error(wth->random_fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
 
+    /*
+    ** Get the record length.
+    */
+    record_length = nspr_getv10recordsize(&hdr);
+
+    /*
+    ** Copy the header to the buffer and read the rest of the record..
+    */
+    buffer_assure_space(buf, record_length);
+    pd = buffer_start_ptr(buf);
+    memcpy(pd, (void *)&hdr, sizeof hdr);
+    if (record_length > sizeof hdr) {
+    	bytes_to_read = (unsigned int)(record_length - sizeof hdr);
+        bytes_read = file_read(pd + sizeof hdr, bytes_to_read, wth->random_fh);
+        if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
+            *err = file_error(wth->random_fh, err_info);
+            if (*err == 0)
+                *err = WTAP_ERR_SHORT_READ;
+            return FALSE;
+        }
+    }
+
+    /*
+    ** Fill in what part of the struct wtap_pkthdr we can.
+    */
 #define GENERATE_CASE_FULL(phdr,type,acttype) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
@@ -1209,11 +1234,15 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     }while(0)
 
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
-    guint8 *pd;
+    nspr_hd_v20_t hdr;
     int bytes_read;
+    guint record_length;
+    guint hdrlen;
+    guint8 *pd;
+    unsigned int bytes_to_read;
 
     *err = 0;
 
@@ -1221,16 +1250,51 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
         return FALSE;
 
     /*
-    ** Read the packet data.
+    ** Read the first 2 bytes of the record header.
     */
-    buffer_assure_space(buf, length);
-    pd = buffer_start_ptr(buf);
-    bytes_read = file_read(pd, length, wth->random_fh);
-    if (bytes_read != length) {
+    bytes_read = file_read((void *)&hdr, 2, wth->random_fh);
+    if (bytes_read != 2) {
         *err = file_error(wth->random_fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
+    }
+    hdrlen = 2;
+
+    /*
+    ** Is there a third byte?  If so, read it.
+    */
+    if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
+        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wth->random_fh);
+        if (bytes_read != 1) {
+            *err = file_error(wth->random_fh, err_info);
+            if (*err == 0)
+                *err = WTAP_ERR_SHORT_READ;
+            return FALSE;
+        }
+        hdrlen = 3;
+    }
+
+    /*
+    ** Get the record length.
+    */
+    record_length = nspr_getv20recordsize(&hdr);
+
+    /*
+    ** Copy the header to the buffer and read the rest of the record..
+    */
+    buffer_assure_space(buf, record_length);
+    pd = buffer_start_ptr(buf);
+    memcpy(pd, (void *)&hdr, hdrlen);
+    if (record_length > hdrlen) {
+    	bytes_to_read = (unsigned int)(record_length - hdrlen);
+        bytes_read = file_read(pd + hdrlen, bytes_to_read, wth->random_fh);
+        if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
+            *err = file_error(wth->random_fh, err_info);
+            if (*err == 0)
+                *err = WTAP_ERR_SHORT_READ;
+            return FALSE;
+        }
     }
 
 #define GENERATE_CASE_FULL(phdr,type,acttype) \
