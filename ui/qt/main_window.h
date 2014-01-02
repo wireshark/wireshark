@@ -59,6 +59,7 @@
 #include "summary_dialog.h"
 #include "follow_stream_dialog.h"
 #include "capture_interfaces_dialog.h"
+#include "about_dialog.h"
 
 class QAction;
 
@@ -114,6 +115,7 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
+    AboutDialog about_dialog_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -307,6 +309,7 @@ private slots:
     void on_actionHelpDownloads_triggered();
     void on_actionHelpWiki_triggered();
     void on_actionHelpSampleCaptures_triggered();
+    void on_actionHelpAbout_triggered();
 
 #ifdef HAVE_SOFTWARE_UPDATE
     void on_actionHelpCheckForUpdates_triggered();
@@ -354,6 +357,7 @@ private slots:
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();
 };
+
 #endif // MAINWINDOW_H
 
 /*

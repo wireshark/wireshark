@@ -221,6 +221,7 @@ HEADERS_WS_C  = \
     ../../wsutil/privileges.h
 
 FORMS += \
+    about_dialog.ui \
     capture_preferences_frame.ui \
     capture_interfaces_dialog.ui \
     column_preferences_frame.ui \
@@ -258,6 +259,7 @@ FORMS += \
     tcp_stream_dialog.ui
 
 HEADERS += $$HEADERS_WS_C \
+    about_dialog.h \
     accordion_frame.h \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
@@ -467,6 +469,7 @@ win32 {
 }
 
 RESOURCES += \
+    ../../image/about.qrc \
     ../../image/display_filter.qrc \
     ../../image/layout.qrc \
     ../../image/status.qrc \
@@ -551,6 +554,7 @@ HEADERS += \
 
 
 SOURCES += \
+    about_dialog.cpp \
     accordion_frame.cpp \
     byte_view_tab.cpp \
     byte_view_text.cpp \

@@ -560,6 +560,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 {
     wsApp = this;
 
+    Q_INIT_RESOURCE(about);
     Q_INIT_RESOURCE(display_filter);
     Q_INIT_RESOURCE(i18n);
     Q_INIT_RESOURCE(layout);

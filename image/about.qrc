@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/about">
+        <file>wssplash.png</file>
+        <file>wssplash_dev.png</file>
+    </qresource>
+</RCC>

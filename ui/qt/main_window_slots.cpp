@@ -2032,6 +2032,23 @@ void MainWindow::on_actionHelpCheckForUpdates_triggered()
 }
 #endif
 
+void MainWindow::on_actionHelpAbout_triggered()
+{
+    //about_dialog_.UpdateValues();
+
+    if (about_dialog_.isMinimized() == true)
+    {
+        about_dialog_.showNormal();
+    }
+    else
+    {
+        about_dialog_.show();
+    }
+
+    about_dialog_.raise();
+    about_dialog_.activateWindow();
+}
+
 void MainWindow::on_actionGoGoToPacket_triggered() {
     if (packet_list_->model()->rowCount() < 1) {
         return;

@@ -24,6 +24,7 @@
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
 set(WIRESHARK_QT_HEADERS
+	about_dialog.h
 	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
@@ -97,6 +98,7 @@ set(WIRESHARK_QT_HEADERS
 )
 
 set(WIRESHARK_QT_SRC
+	about_dialog.cpp
 	accordion_frame.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
@@ -181,6 +183,7 @@ set(DIRTY_FILES
 )
 
 set(WIRESHARK_QT_UI
+	about_dialog.ui
 	capture_preferences_frame.ui
 	capture_interfaces_dialog.ui
 	column_preferences_frame.ui
@@ -219,6 +222,7 @@ set(WIRESHARK_QT_UI
 )
 
 set(WIRESHARK_QT_QRC
+	../../image/about.qrc
 	../../image/display_filter.qrc
 	../../image/layout.qrc
 	../../image/status.qrc

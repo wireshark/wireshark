@@ -31,6 +31,7 @@ GENERATED_HEADER_FILES =
 
 # Generated header files that we don't want in the distribution.
 NODIST_GENERATED_HEADER_FILES =	\
+	ui_about_dialog.h	\
 	ui_capture_interfaces_dialog.h	\
 	ui_capture_preferences_frame.h	\
 	ui_column_preferences_frame.h	\
@@ -101,6 +102,7 @@ GENERATOR_FILES =
 # Headers that have to be run through moc.
 #
 MOC_HDRS =	\
+	about_dialog.h	\
 	accordion_frame.h	\
 	byte_view_tab.h	\
 	byte_view_text.h	\
@@ -173,6 +175,7 @@ MOC_HDRS =	\
 # .ui files.
 #
 UI_FILES =	\
+	about_dialog.ui	\
 	capture_interfaces_dialog.ui 	\
 	capture_preferences_frame.ui	\
 	column_preferences_frame.ui	\
@@ -221,12 +224,13 @@ MOC_SRC = $(MOC_HDRS:.h=.moc.cpp)
 # .qrc files.
 #
 # Should QRC_FILES or QRC_SRC depend on QRC_IMAGES?
-QRC_FILES = \
-	../../image/display_filter.qrc \
-	../../image/layout.qrc \
-	../../image/status.qrc \
-	../../image/toolbar.qrc \
-	i18n.qrc \
+QRC_FILES =	\
+	../../image/about.qrc	\
+	../../image/display_filter.qrc	\
+	../../image/layout.qrc	\
+	../../image/status.qrc	\
+	../../image/toolbar.qrc	\
+	i18n.qrc	\
 	welcome.qrc
 
 #
@@ -258,6 +262,7 @@ QM_FILES =	\
 QRC_SRC = $(QRC_FILES:.qrc=.rcc.cpp)
 
 WIRESHARK_QT_SRC =	\
+	about_dialog.cpp	\
 	accordion_frame.cpp	\
 	byte_view_tab.cpp	\
 	byte_view_text.cpp	\
