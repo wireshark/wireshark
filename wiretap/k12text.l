@@ -291,7 +291,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 }
 
 static gboolean
-k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length, int *err, char **err_info)
+k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length _U_, int *err, char **err_info)
 {
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
@@ -312,18 +312,10 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 		return FALSE;
 	}
 
-	/* verify frame length parsed this time against original frame length */
-	if (ii != (guint)length) {
-		/* What happened ? This now seems to have a different length than originally */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("Incorrect frame length (program error ?)");
-		return FALSE;
-	}
-
 	k12text_set_headers(phdr);
 
-	buffer_assure_space(buf, wth->phdr.caplen);
-	memcpy(buffer_start_ptr(buf), bb, length);
+	buffer_assure_space(buf, phdr->caplen);
+	memcpy(buffer_start_ptr(buf), bb, phdr->caplen);
 
 	return TRUE;
 }
