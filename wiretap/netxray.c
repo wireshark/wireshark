@@ -409,12 +409,10 @@ static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
 static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
-static int netxray_read_rec_header(wtap *wth, FILE_T fh,
-    union netxrayrec_hdr *hdr, int *err, gchar **err_info);
+static int netxray_process_rec_header(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 static void netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr,
     Buffer *buf);
-static void netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr,
-    union netxrayrec_hdr *hdr);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
@@ -999,9 +997,7 @@ netxray_read(wtap *wth, int *err, gchar **err_info,
 	     gint64 *data_offset)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
-	guint32	packet_size;
-	union netxrayrec_hdr hdr;
-	int	hdr_size;
+	int	padding;
 
 reread:
 	/*
@@ -1017,9 +1013,10 @@ reread:
 		return FALSE;
 	}
 
-	/* Read record header. */
-	hdr_size = netxray_read_rec_header(wth, wth->fh, &hdr, err, err_info);
-	if (hdr_size == 0) {
+	/* Read and process record header. */
+	padding = netxray_process_rec_header(wth, wth->fh, &wth->phdr, err,
+	    err_info);
+	if (padding < 0) {
 		/*
 		 * Error or EOF.
 		 */
@@ -1071,18 +1068,15 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	if (netxray->version_major == 0)
-		packet_size = pletoh16(&hdr.old_hdr.len);
-	else
-		packet_size = pletoh16(&hdr.hdr_1_x.incl_len);
-	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
-	    err, err_info))
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info))
 		return FALSE;
 
 	/*
-	 * Fill in the struct wtap_pkthdr.
+	 * If there's extra stuff at the end of the record, skip it.
 	 */
-	netxray_set_phdr(wth, &wth->phdr, &hdr);
+	if (file_seek(wth->fh, padding, SEEK_CUR, err) == -1)
+		return FALSE;
 
 	/*
 	 * If it's an ATM packet, and we don't have enough information
@@ -1095,16 +1089,14 @@ reread:
 
 static gboolean
 netxray_seek_read(wtap *wth, gint64 seek_off,
-		  struct wtap_pkthdr *phdr, Buffer *buf, int length,
+		  struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
 		  int *err, gchar **err_info)
 {
-	union netxrayrec_hdr hdr;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!netxray_read_rec_header(wth, wth->random_fh, &hdr, err,
-	    err_info)) {
+	if (netxray_process_rec_header(wth, wth->random_fh, phdr, err,
+	    err_info) == -1) {
 		if (*err == 0) {
 			/*
 			 * EOF - we report that as a short read, as
@@ -1119,13 +1111,9 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err,
+	    err_info))
 		return FALSE;
-
-	/*
-	 * Fill in the struct wtap_pkthdr.
-	 */
-	netxray_set_phdr(wth, phdr, &hdr);
 
 	/*
 	 * If it's an ATM packet, and we don't have enough information
@@ -1137,12 +1125,16 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static int
-netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
+netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			int *err, gchar **err_info)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
+	union netxrayrec_hdr hdr;
 	int	bytes_read;
 	int	hdr_size = 0;
+	double	t;
+	int	packet_size;
+	int	padding = 0;
 
 	/* Read record header. */
 	switch (netxray->version_major) {
@@ -1160,32 +1152,22 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 		break;
 	}
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(hdr, hdr_size, fh);
+	bytes_read = file_read((void *)&hdr, hdr_size, fh);
 	if (bytes_read != hdr_size) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
-			return 0;
+			return -1;
 		if (bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
-			return 0;
+			return -1;
 		}
 
 		/*
-		 * We're at EOF.  "*err" is 0; we return FALSE - that
+		 * We're at EOF.  "*err" is 0; we return -1 - that
 		 * combination tells our caller we're at EOF.
 		 */
-		return 0;
+		return -1;
 	}
-	return hdr_size;
-}
-
-static void
-netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
-{
-	netxray_t *netxray = (netxray_t *)wth->priv;
-	double	t;
-	guint32	packet_size;
-	guint padding = 0;
 
 	/*
 	 * If this is Ethernet, 802.11, ISDN, X.25, or ATM, set the
@@ -1229,8 +1211,8 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * hdr_2_x.xxx[8] is set, the packet has a
 			 * bad FCS.
 			 */
-			if (hdr->hdr_2_x.xxx[2] == 0xff &&
-			    hdr->hdr_2_x.xxx[3] == 0xff) {
+			if (hdr.hdr_2_x.xxx[2] == 0xff &&
+			    hdr.hdr_2_x.xxx[3] == 0xff) {
 				/*
 				 * We have 4 bytes of stuff at the
 				 * end of the frame - FCS, or junk?
@@ -1270,8 +1252,8 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * Ken also says that xxx[11] is 0x5 when the
 			 * packet is WEP-encrypted.
 			 */
-			if (hdr->hdr_2_x.xxx[2] == 0xff &&
-			    hdr->hdr_2_x.xxx[3] == 0xff) {
+			if (hdr.hdr_2_x.xxx[2] == 0xff &&
+			    hdr.hdr_2_x.xxx[3] == 0xff) {
 				/*
 				 * We have 4 bytes of stuff at the
 				 * end of the frame - FCS, or junk?
@@ -1293,11 +1275,11 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 
 			phdr->pseudo_header.ieee_802_11.channel =
-			    hdr->hdr_2_x.xxx[12];
+			    hdr.hdr_2_x.xxx[12];
 			phdr->pseudo_header.ieee_802_11.data_rate =
-			    hdr->hdr_2_x.xxx[13];
+			    hdr.hdr_2_x.xxx[13];
 			phdr->pseudo_header.ieee_802_11.signal_level =
-			    hdr->hdr_2_x.xxx[14];
+			    hdr.hdr_2_x.xxx[14];
 			/*
 			 * According to Ken Mann, at least in the captures
 			 * he's seen, xxx[15] is the noise level, which
@@ -1319,9 +1301,9 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * slot?)
 			 */
 			phdr->pseudo_header.isdn.uton =
-			    (hdr->hdr_2_x.xxx[12] & 0x01);
+			    (hdr.hdr_2_x.xxx[12] & 0x01);
 			phdr->pseudo_header.isdn.channel =
-			    hdr->hdr_2_x.xxx[13] & 0x1F;
+			    hdr.hdr_2_x.xxx[13] & 0x1F;
 			switch (netxray->isdn_type) {
 
 			case 1:
@@ -1363,8 +1345,8 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * indicate a bad FCS, as is the case with
 			 * Ethernet?
 			 */
-			if (hdr->hdr_2_x.xxx[2] == 0xff &&
-			    hdr->hdr_2_x.xxx[3] == 0xff) {
+			if (hdr.hdr_2_x.xxx[2] == 0xff &&
+			    hdr.hdr_2_x.xxx[3] == 0xff) {
 				/*
 				 * FCS, or junk, at the end.
 				 * XXX - is it an FCS if "fcs_valid" is
@@ -1384,7 +1366,7 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * HDLC encapsulations as well.)
 			 */
 			phdr->pseudo_header.x25.flags =
-			    (hdr->hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
+			    (hdr.hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
 
 			/*
 			 * It appears, at least with version 2 captures,
@@ -1398,8 +1380,8 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * indicate a bad FCS, as is the case with
 			 * Ethernet?
 			 */
-			if (hdr->hdr_2_x.xxx[2] == 0xff &&
-			    hdr->hdr_2_x.xxx[3] == 0xff) {
+			if (hdr.hdr_2_x.xxx[2] == 0xff &&
+			    hdr.hdr_2_x.xxx[3] == 0xff) {
 				/*
 				 * FCS, or junk, at the end.
 				 * XXX - is it an FCS if "fcs_valid" is
@@ -1413,7 +1395,7 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 		case WTAP_ENCAP_SDLC:
 		case WTAP_ENCAP_CHDLC_WITH_PHDR:
 			phdr->pseudo_header.p2p.sent =
-			    (hdr->hdr_2_x.xxx[12] & 0x01) ? TRUE : FALSE;
+			    (hdr.hdr_2_x.xxx[12] & 0x01) ? TRUE : FALSE;
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
@@ -1460,7 +1442,7 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * a cell is bad?
 			 */
 			phdr->pseudo_header.atm.flags = 0;
-			if (hdr->hdr_2_x.xxx[8] & 0x01)
+			if (hdr.hdr_2_x.xxx[8] & 0x01)
 				phdr->pseudo_header.atm.flags |= ATM_REASSEMBLY_ERROR;
 			/*
 			 * XXX - is 0x08 an "OAM cell" flag?
@@ -1480,12 +1462,12 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * Are hdr_2_x.xxx[8] and hdr_2_x.xxx[9] a 16-bit
 			 * flag field?
 			 */
-			if (hdr->hdr_2_x.xxx[9] & 0x04)
+			if (hdr.hdr_2_x.xxx[9] & 0x04)
 				phdr->pseudo_header.atm.flags |= ATM_RAW_CELL;
-			phdr->pseudo_header.atm.vpi = hdr->hdr_2_x.xxx[11];
-			phdr->pseudo_header.atm.vci = pletoh16(&hdr->hdr_2_x.xxx[12]);
+			phdr->pseudo_header.atm.vpi = hdr.hdr_2_x.xxx[11];
+			phdr->pseudo_header.atm.vci = pletoh16(&hdr.hdr_2_x.xxx[12]);
 			phdr->pseudo_header.atm.channel =
-			    (hdr->hdr_2_x.xxx[15] & 0x10)? 1 : 0;
+			    (hdr.hdr_2_x.xxx[15] & 0x10)? 1 : 0;
 			phdr->pseudo_header.atm.cells = 0;
 
 			/*
@@ -1494,7 +1476,7 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 			 * The remaining 3 bits appear to be an AAL
 			 * type - 5 is, surprise surprise, AAL5.
 			 */
-			switch (hdr->hdr_2_x.xxx[0] & 0x70) {
+			switch (hdr.hdr_2_x.xxx[0] & 0x70) {
 
 			case 0x00:	/* Unknown */
 				phdr->pseudo_header.atm.aal = AAL_UNKNOWN;
@@ -1530,7 +1512,7 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 				 * a flag?  I've not yet seen a case where
 				 * it matters.
 				 */
-				switch (hdr->hdr_2_x.xxx[0] & 0x07) {
+				switch (hdr.hdr_2_x.xxx[0] & 0x07) {
 
 				case 0x01:
 				case 0x02:	/* Signalling traffic */
@@ -1613,8 +1595,8 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 
 	if (netxray->version_major == 0) {
 		phdr->presence_flags = WTAP_HAS_TS;
-		t = (double)pletoh32(&hdr->old_hdr.timelo)
-		    + (double)pletoh32(&hdr->old_hdr.timehi)*4294967296.0;
+		t = (double)pletoh32(&hdr.old_hdr.timelo)
+		    + (double)pletoh32(&hdr.old_hdr.timehi)*4294967296.0;
 		t /= netxray->ticks_per_sec;
 		t -= netxray->start_timestamp;
 		phdr->ts.secs = netxray->start_time + (long)t;
@@ -1624,13 +1606,13 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
 		 */
-		packet_size = pletoh16(&hdr->old_hdr.len);
+		packet_size = pletoh16(&hdr.old_hdr.len);
 		phdr->caplen = packet_size - padding;
 		phdr->len = phdr->caplen;
 	} else {
 		phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-		t = (double)pletoh32(&hdr->hdr_1_x.timelo)
-		    + (double)pletoh32(&hdr->hdr_1_x.timehi)*4294967296.0;
+		t = (double)pletoh32(&hdr.hdr_1_x.timelo)
+		    + (double)pletoh32(&hdr.hdr_1_x.timehi)*4294967296.0;
 		t /= netxray->ticks_per_sec;
 		t -= netxray->start_timestamp;
 		phdr->ts.secs = netxray->start_time + (time_t)t;
@@ -1640,10 +1622,12 @@ netxray_set_phdr(wtap *wth, struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
 		 */
-		packet_size = pletoh16(&hdr->hdr_1_x.incl_len);
+		packet_size = pletoh16(&hdr.hdr_1_x.incl_len);
 		phdr->caplen = packet_size - padding;
-		phdr->len = pletoh16(&hdr->hdr_1_x.orig_len) - padding;
+		phdr->len = pletoh16(&hdr.hdr_1_x.orig_len) - padding;
 	}
+
+	return padding;
 }
 
 static void
