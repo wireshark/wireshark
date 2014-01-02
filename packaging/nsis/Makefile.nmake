@@ -45,7 +45,6 @@ HELP=$(STAGING_DIR)/help/capture_filters.txt \
 	$(STAGING_DIR)/help/toc
 
 PLUGINS= \
-	../../plugins/asn1/asn1.dll \
 	../../plugins/docsis/docsis.dll \
 	../../plugins/ethercat/ethercat.dll \
 	../../plugins/gryphon/gryphon.dll \
