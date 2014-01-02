@@ -14,8 +14,8 @@
    <string>Wireshark</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/toolbar/main/hi48-app-wireshark.png</normaloff>:/toolbar/main/hi48-app-wireshark.png</iconset>
+   <iconset resource="../../image/toolbar.qrc">
+    <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
@@ -28,16 +28,7 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -68,7 +59,7 @@
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
-          <string>900000000</string>
+          <string>900000000; </string>
          </property>
         </widget>
        </item>
@@ -106,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
