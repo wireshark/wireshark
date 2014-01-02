@@ -30,45 +30,45 @@ include Makefile_custom.common
 GENERATED_HEADER_FILES =
 
 # Generated header files that we don't want in the distribution.
-NODIST_GENERATED_HEADER_FILES = \
-	ui_capture_interfaces_dialog.h \
-	ui_capture_preferences_frame.h \
-	ui_column_preferences_frame.h \
-	ui_decode_as_dialog.h \
-	ui_export_object_dialog.h \
-	ui_file_set_dialog.h \
-	ui_filter_expressions_preferences_frame.h \
-	ui_follow_stream_dialog.h \
-	ui_font_color_preferences_frame.h \
-	ui_import_text_dialog.h \
-	ui_layout_preferences_frame.h \
-	ui_main_welcome.h \
-	ui_main_window.h \
-	ui_main_window_preferences_frame.h \
-	ui_module_preferences_scroll_area.h \
-	ui_packet_comment_dialog.h \
-	ui_packet_format_group_box.h \
-	ui_packet_range_group_box.h \
-	ui_preferences_dialog.h \
-	ui_print_dialog.h \
-	ui_profile_dialog.h \
+NODIST_GENERATED_HEADER_FILES =	\
+	ui_capture_interfaces_dialog.h	\
+	ui_capture_preferences_frame.h	\
+	ui_column_preferences_frame.h	\
+	ui_decode_as_dialog.h	\
+	ui_export_object_dialog.h	\
+	ui_file_set_dialog.h	\
+	ui_filter_expressions_preferences_frame.h	\
+	ui_follow_stream_dialog.h	\
+	ui_font_color_preferences_frame.h	\
+	ui_import_text_dialog.h	\
+	ui_layout_preferences_frame.h	\
+	ui_main_welcome.h	\
+	ui_main_window.h	\
+	ui_main_window_preferences_frame.h	\
+	ui_module_preferences_scroll_area.h	\
+	ui_packet_comment_dialog.h	\
+	ui_packet_format_group_box.h	\
+	ui_packet_range_group_box.h	\
+	ui_preferences_dialog.h	\
+	ui_print_dialog.h	\
+	ui_profile_dialog.h	\
 	ui_sctp_all_assocs_dialog.h	\
-	ui_sctp_assoc_analyse_dialog.h  \
-	ui_sctp_chunk_statistics_dialog.h  \
-	ui_sctp_graph_dialog.h  \
-	ui_sctp_graph_arwnd_dialog.h  \
-	ui_sctp_graph_byte_dialog.h  \
-	ui_stats_tree_dialog.h \
-	ui_search_frame.h \
-	ui_sequence_dialog.h \
-	ui_splash_overlay.h \
-	ui_summary_dialog.h \
-	ui_tcp_stream_dialog.h \
-	ui_time_shift_dialog.h \
+	ui_sctp_assoc_analyse_dialog.h	\
+	ui_sctp_chunk_statistics_dialog.h	\
+	ui_sctp_graph_dialog.h	\
+	ui_sctp_graph_arwnd_dialog.h	\
+	ui_sctp_graph_byte_dialog.h	\
+	ui_stats_tree_dialog.h	\
+	ui_search_frame.h	\
+	ui_sequence_dialog.h	\
+	ui_splash_overlay.h	\
+	ui_summary_dialog.h	\
+	ui_tcp_stream_dialog.h	\
+	ui_time_shift_dialog.h	\
 	ui_uat_dialog.h
 
 # Generated C source files that we want in the distribution.
-GENERATED_C_FILES = \
+GENERATED_C_FILES =	\
 	wireshark-tap-register.c
 
 # Generated C source files that we don't want in the distribution.
@@ -78,20 +78,20 @@ NODIST_GENERATED_C_FILES =
 GENERATED_CPP_FILES =
 
 # Generated C++ source files that we don't want in the distribution.
-NODIST_GENERATED_CPP_FILES = \
-	$(MOC_SRC) \
+NODIST_GENERATED_CPP_FILES =	\
+	$(MOC_SRC)	\
 	$(QRC_SRC)
 
 # All the generated files we want in the distribution.
-GENERATED_FILES = \
-	$(GENERATED_HEADER_FILES) \
-	$(GENERATED_C_FILES) \
+GENERATED_FILES =	\
+	$(GENERATED_HEADER_FILES)	\
+	$(GENERATED_C_FILES)	\
 	$(GENERATED_CPP_FILES)
 
 # All the generated files we don't want in the distribution.
-NODIST_GENERATED_FILES = \
-	$(NODIST_GENERATED_HEADER_FILES) \
-	$(NODIST_GENERATED_C_FILES) \
+NODIST_GENERATED_FILES =	\
+	$(NODIST_GENERATED_HEADER_FILES)	\
+	$(NODIST_GENERATED_C_FILES)	\
 	$(NODIST_GENERATED_CPP_FILES)
 
 # Files that generate compileable files
@@ -100,113 +100,113 @@ GENERATOR_FILES =
 #
 # Headers that have to be run through moc.
 #
-MOC_HDRS = \
-	accordion_frame.h \
-	byte_view_tab.h \
-	byte_view_text.h \
-	capture_file_dialog.h \
-	capture_filter_combo.h \
-	capture_filter_edit.h \
-	capture_filter_syntax_worker.h \
-	capture_info_dialog.h \
-	capture_interface_dialog.h \
-	capture_interfaces_dialog.h \
-	color_dialog.h \
-	color_utils.h \
-	capture_preferences_frame.h \
-	column_preferences_frame.h \
-	decode_as_dialog.h \
-	display_filter_combo.h \
-	display_filter_edit.h \
-	elided_label.h \
-	export_dissection_dialog.h \
-	export_object_dialog.h \
-	file_set_dialog.h \
-	filter_expressions_preferences_frame.h \
-	follow_stream_dialog.h \
-	follow_stream_text.h \
-	font_color_preferences_frame.h \
-	import_text_dialog.h \
-	interface_tree.h \
-	label_stack.h \
-	layout_preferences_frame.h \
-	main_status_bar.h \
-	main_welcome.h \
-	main_window.h \
-	main_window_preferences_frame.h \
-	module_preferences_scroll_area.h \
-	packet_comment_dialog.h \
-	packet_format_group_box.h \
-	packet_list.h \
-	packet_list_model.h \
-	packet_range_group_box.h \
-	preferences_dialog.h \
-	print_dialog.h \
-	profile_dialog.h \
-	progress_bar.h \
-	proto_tree.h \
-	qcustomplot.h \
-	recent_file_status.h \
-	related_packet_delegate.h \
-	search_frame.h \
+MOC_HDRS =	\
+	accordion_frame.h	\
+	byte_view_tab.h	\
+	byte_view_text.h	\
+	capture_file_dialog.h	\
+	capture_filter_combo.h	\
+	capture_filter_edit.h	\
+	capture_filter_syntax_worker.h	\
+	capture_info_dialog.h	\
+	capture_interface_dialog.h	\
+	capture_interfaces_dialog.h	\
+	color_dialog.h	\
+	color_utils.h	\
+	capture_preferences_frame.h	\
+	column_preferences_frame.h	\
+	decode_as_dialog.h	\
+	display_filter_combo.h	\
+	display_filter_edit.h	\
+	elided_label.h	\
+	export_dissection_dialog.h	\
+	export_object_dialog.h	\
+	file_set_dialog.h	\
+	filter_expressions_preferences_frame.h	\
+	follow_stream_dialog.h	\
+	follow_stream_text.h	\
+	font_color_preferences_frame.h	\
+	import_text_dialog.h	\
+	interface_tree.h	\
+	label_stack.h	\
+	layout_preferences_frame.h	\
+	main_status_bar.h	\
+	main_welcome.h	\
+	main_window.h	\
+	main_window_preferences_frame.h	\
+	module_preferences_scroll_area.h	\
+	packet_comment_dialog.h	\
+	packet_format_group_box.h	\
+	packet_list.h	\
+	packet_list_model.h	\
+	packet_range_group_box.h	\
+	preferences_dialog.h	\
+	print_dialog.h	\
+	profile_dialog.h	\
+	progress_bar.h	\
+	proto_tree.h	\
+	qcustomplot.h	\
+	recent_file_status.h	\
+	related_packet_delegate.h	\
+	search_frame.h	\
 	sctp_all_assocs_dialog.h	\
-	sctp_assoc_analyse_dialog.h  \
-	sctp_chunk_statistics_dialog.h  \
-	sctp_graph_dialog.h  \
-	sctp_graph_arwnd_dialog.h  \
-	sctp_graph_byte_dialog.h  \
-	sequence_diagram.h \
-	sequence_dialog.h \
-	simple_dialog_qt.h \
-	sparkline_delegate.h \
-	splash_overlay.h \
-	stats_tree_dialog.h \
-	summary_dialog.h \
-	syntax_line_edit.h \
-	tcp_stream_dialog.h \
-	time_shift_dialog.h \
-	uat_dialog.h \
+	sctp_assoc_analyse_dialog.h	\
+	sctp_chunk_statistics_dialog.h	\
+	sctp_graph_dialog.h	\
+	sctp_graph_arwnd_dialog.h	\
+	sctp_graph_byte_dialog.h	\
+	sequence_diagram.h	\
+	sequence_dialog.h	\
+	simple_dialog_qt.h	\
+	sparkline_delegate.h	\
+	splash_overlay.h	\
+	stats_tree_dialog.h	\
+	summary_dialog.h	\
+	syntax_line_edit.h	\
+	tcp_stream_dialog.h	\
+	time_shift_dialog.h	\
+	uat_dialog.h	\
 	wireshark_application.h
 
 
 #
 # .ui files.
 #
-UI_FILES = \
+UI_FILES =	\
 	capture_interfaces_dialog.ui 	\
 	capture_preferences_frame.ui	\
 	column_preferences_frame.ui	\
-	decode_as_dialog.ui		\
-	export_object_dialog.ui		\
-	file_set_dialog.ui		\
+	decode_as_dialog.ui	\
+	export_object_dialog.ui	\
+	file_set_dialog.ui	\
 	filter_expressions_preferences_frame.ui	\
-	follow_stream_dialog.ui \
+	follow_stream_dialog.ui	\
 	font_color_preferences_frame.ui	\
-	import_text_dialog.ui		\
+	import_text_dialog.ui	\
 	layout_preferences_frame.ui	\
-	main_welcome.ui			\
-	main_window.ui			\
+	main_welcome.ui	\
+	main_window.ui	\
 	main_window_preferences_frame.ui	\
 	module_preferences_scroll_area.ui	\
 	packet_format_group_box.ui	\
 	packet_range_group_box.ui	\
 	packet_comment_dialog.ui	\
-	preferences_dialog.ui		\
-	print_dialog.ui			\
-	profile_dialog.ui		\
+	preferences_dialog.ui	\
+	print_dialog.ui	\
+	profile_dialog.ui	\
 	sctp_all_assocs_dialog.ui	\
-	sctp_assoc_analyse_dialog.ui  \
-	sctp_chunk_statistics_dialog.ui  \
-	sctp_graph_dialog.ui  \
-	sctp_graph_arwnd_dialog.ui  \
-	sctp_graph_byte_dialog.ui  \
-	search_frame.ui			\
-	sequence_dialog.ui		\
-	splash_overlay.ui		\
-	stats_tree_dialog.ui		\
-	summary_dialog.ui 		\
-	tcp_stream_dialog.ui		\
-	time_shift_dialog.ui		\
+	sctp_assoc_analyse_dialog.ui	\
+	sctp_chunk_statistics_dialog.ui	\
+	sctp_graph_dialog.ui	\
+	sctp_graph_arwnd_dialog.ui	\
+	sctp_graph_byte_dialog.ui	\
+	search_frame.ui	\
+	sequence_dialog.ui	\
+	splash_overlay.ui	\
+	stats_tree_dialog.ui	\
+	summary_dialog.ui 	\
+	tcp_stream_dialog.ui	\
+	time_shift_dialog.ui	\
 	uat_dialog.ui
 
 #
@@ -233,20 +233,20 @@ QRC_FILES = \
 # .ts files.
 # qtshark_en should be pluralonly.
 #
-TS_FILES = \
-	qtshark_de.ts \
-	qtshark_en.ts \
-	qtshark_fr.ts \
+TS_FILES =	\
+	qtshark_de.ts	\
+	qtshark_en.ts	\
+	qtshark_fr.ts	\
 	qtshark_zh_CN.ts
 
 #
 # .qm files.
 #
 # Should be auto-generated ?
-QM_FILES = \
-	qtshark_de.qm \
-	qtshark_en.qm \
-	qtshark_fr.qm \
+QM_FILES =	\
+	qtshark_de.qm	\
+	qtshark_en.qm	\
+	qtshark_fr.qm	\
 	qtshark_zh_CN.qm
 
 #
@@ -257,84 +257,84 @@ QM_FILES = \
 #
 QRC_SRC = $(QRC_FILES:.qrc=.rcc.cpp)
 
-WIRESHARK_QT_SRC = \
-	accordion_frame.cpp \
-	byte_view_tab.cpp \
-	byte_view_text.cpp \
-	capture_file_dialog.cpp \
-	capture_filter_combo.cpp \
-	capture_filter_edit.cpp \
-	capture_filter_syntax_worker.cpp \
-	capture_info_dialog.cpp \
-	capture_interface_dialog.cpp \
-	capture_interfaces_dialog.cpp \
-	color_dialog.cpp \
-	color_utils.cpp \
-	capture_preferences_frame.cpp \
-	column_preferences_frame.cpp \
-	decode_as_dialog.cpp \
-	display_filter_combo.cpp \
-	display_filter_edit.cpp \
-	elided_label.cpp \
-	export_dissection_dialog.cpp \
-	export_object_dialog.cpp \
-	file_set_dialog.cpp \
-	filter_expressions_preferences_frame.cpp \
-	follow_stream_dialog.cpp \
-	follow_stream_text.cpp \
-	font_color_preferences_frame.cpp \
-	import_text_dialog.cpp \
-	interface_tree.cpp \
-	label_stack.cpp \
-	layout_preferences_frame.cpp \
-	main.cpp \
-	main_status_bar.cpp \
-	main_welcome.cpp \
-	main_window.cpp \
-	main_window_preferences_frame.cpp \
-	main_window_slots.cpp \
-	module_preferences_scroll_area.cpp \
-	packet_comment_dialog.cpp \
-	packet_format_group_box.cpp \
-	packet_list.cpp \
-	packet_list_model.cpp \
-	packet_list_record.cpp \
-	packet_range_group_box.cpp \
-	preferences_dialog.cpp \
-	print_dialog.cpp \
-	profile_dialog.cpp \
-	progress_bar.cpp \
-	proto_tree.cpp \
-	qcustomplot.cpp \
-	qt_ui_utils.cpp \
-	recent_file_status.cpp \
-	related_packet_delegate.cpp \
-	sctp_all_assocs_dialog.cpp  \
-	sctp_assoc_analyse_dialog.cpp  \
-	sctp_chunk_statistics_dialog.cpp  \
-	sctp_graph_dialog.cpp  \
-	sctp_graph_arwnd_dialog.cpp  \
-	sctp_graph_byte_dialog.cpp  \
-	search_frame.cpp \
-	sequence_diagram.cpp \
-	sequence_dialog.cpp \
-	simple_dialog_qt.cpp \
-	sparkline_delegate.cpp \
-	stats_tree_dialog.cpp \
-	summary_dialog.cpp \
-	splash_overlay.cpp \
-	syntax_line_edit.cpp \
-	tcp_stream_dialog.cpp \
-	time_shift_dialog.cpp \
-	uat_dialog.cpp \
+WIRESHARK_QT_SRC =	\
+	accordion_frame.cpp	\
+	byte_view_tab.cpp	\
+	byte_view_text.cpp	\
+	capture_file_dialog.cpp	\
+	capture_filter_combo.cpp	\
+	capture_filter_edit.cpp	\
+	capture_filter_syntax_worker.cpp	\
+	capture_info_dialog.cpp	\
+	capture_interface_dialog.cpp	\
+	capture_interfaces_dialog.cpp	\
+	color_dialog.cpp	\
+	color_utils.cpp	\
+	capture_preferences_frame.cpp	\
+	column_preferences_frame.cpp	\
+	decode_as_dialog.cpp	\
+	display_filter_combo.cpp	\
+	display_filter_edit.cpp	\
+	elided_label.cpp	\
+	export_dissection_dialog.cpp	\
+	export_object_dialog.cpp	\
+	file_set_dialog.cpp	\
+	filter_expressions_preferences_frame.cpp	\
+	follow_stream_dialog.cpp	\
+	follow_stream_text.cpp	\
+	font_color_preferences_frame.cpp	\
+	import_text_dialog.cpp	\
+	interface_tree.cpp	\
+	label_stack.cpp	\
+	layout_preferences_frame.cpp	\
+	main.cpp	\
+	main_status_bar.cpp	\
+	main_welcome.cpp	\
+	main_window.cpp	\
+	main_window_preferences_frame.cpp	\
+	main_window_slots.cpp	\
+	module_preferences_scroll_area.cpp	\
+	packet_comment_dialog.cpp	\
+	packet_format_group_box.cpp	\
+	packet_list.cpp	\
+	packet_list_model.cpp	\
+	packet_list_record.cpp	\
+	packet_range_group_box.cpp	\
+	preferences_dialog.cpp	\
+	print_dialog.cpp	\
+	profile_dialog.cpp	\
+	progress_bar.cpp	\
+	proto_tree.cpp	\
+	qcustomplot.cpp	\
+	qt_ui_utils.cpp	\
+	recent_file_status.cpp	\
+	related_packet_delegate.cpp	\
+	sctp_all_assocs_dialog.cpp	\
+	sctp_assoc_analyse_dialog.cpp	\
+	sctp_chunk_statistics_dialog.cpp	\
+	sctp_graph_dialog.cpp	\
+	sctp_graph_arwnd_dialog.cpp	\
+	sctp_graph_byte_dialog.cpp	\
+	search_frame.cpp	\
+	sequence_diagram.cpp	\
+	sequence_dialog.cpp	\
+	simple_dialog_qt.cpp	\
+	sparkline_delegate.cpp	\
+	stats_tree_dialog.cpp	\
+	summary_dialog.cpp	\
+	splash_overlay.cpp	\
+	syntax_line_edit.cpp	\
+	tcp_stream_dialog.cpp	\
+	time_shift_dialog.cpp	\
+	uat_dialog.cpp	\
 	wireshark_application.cpp
 
-WIRESHARK_QT_TAP_SRC = \
+WIRESHARK_QT_TAP_SRC =	\
 	stats_tree_dialog.cpp
 
-noinst_HEADERS = \
-	$(MOC_HDRS) \
-	packet_list_record.h \
-	qcustomplot.h \
-	qt_ui_utils.h \
+noinst_HEADERS =	\
+	$(MOC_HDRS)	\
+	packet_list_record.h	\
+	qcustomplot.h	\
+	qt_ui_utils.h	\
 	tango_colors.h
