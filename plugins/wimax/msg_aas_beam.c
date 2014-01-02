@@ -47,6 +47,9 @@ extern gint proto_mac_mgmt_msg_aas_fbck_decoder;
 #define AAS_BEAM_BEAM_BIT_MASK_MASK		0xF0
 #define AAS_BEAM_RESERVED_MASK			0x0F
 
+void proto_register_mac_mgmt_msg_aas_beam(void);
+void proto_reg_handoff_mac_mgmt_msg_aas_beam(void);
+
 static gint proto_mac_mgmt_msg_aas_beam_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_beam_select_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_beam_req_decoder = -1;

@@ -36,6 +36,9 @@
 
 extern gint proto_wimax;
 
+void proto_register_wimax_pdu(void);
+void proto_reg_handoff_wimax_pdu(void);
+
 static dissector_handle_t mac_generic_decoder_handle = NULL;
 static dissector_handle_t mac_header_type1_handle = NULL;
 static dissector_handle_t mac_header_type2_handle = NULL;

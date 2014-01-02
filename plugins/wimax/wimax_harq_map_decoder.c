@@ -40,6 +40,8 @@ extern guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo
 
 extern gint proto_wimax;
 
+void proto_register_wimax_harq_map(void);
+
 static gint proto_wimax_harq_map_decoder = -1;
 static gint ett_wimax_harq_map_decoder = -1;
 

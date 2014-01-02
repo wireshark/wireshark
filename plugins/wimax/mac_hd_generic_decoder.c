@@ -48,6 +48,9 @@
 #include "crc.h"
 #include "wimax_utils.h"
 
+void proto_register_mac_header_generic(void);
+void proto_reg_handoff_mac_header_generic(void);
+
 extern gint proto_wimax;
 
 extern gint seen_a_service_type;

@@ -35,6 +35,8 @@
 
 extern gint proto_wimax;
 
+void proto_register_wimax_phy_attributes(void);
+
 static gint proto_wimax_phy_attributes_decoder = -1;
 static gint ett_wimax_phy_attributes_decoder = -1;
 

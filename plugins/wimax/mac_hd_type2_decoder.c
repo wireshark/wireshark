@@ -44,6 +44,8 @@
 
 extern gint proto_mac_header_generic_decoder;
 
+void proto_register_mac_header_type_2(void);
+
 static gint proto_mac_header_type_2_decoder = -1;
 static gint ett_mac_header_type_2_decoder = -1;
 static gint hf_mac_header_type_2_value_bytes = -1;

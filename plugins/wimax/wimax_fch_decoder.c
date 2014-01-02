@@ -38,6 +38,8 @@ extern gint proto_wimax;
 
 extern address bs_address;	/* declared in packet-wmx.c */
 
+void proto_register_wimax_fch(void);
+
 static int proto_wimax_fch_decoder = -1;
 static gint ett_wimax_fch_decoder = -1;
 

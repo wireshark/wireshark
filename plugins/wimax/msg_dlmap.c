@@ -38,6 +38,9 @@
 
 extern	gboolean include_cor2_changes;
 
+void proto_register_mac_mgmt_msg_dlmap(void);
+void proto_reg_handoff_mac_mgmt_msg_dlmap(void);
+
 #define MAC_MGMT_MSG_DLMAP 2
 
 #define XBIT(var, bits, desc) \

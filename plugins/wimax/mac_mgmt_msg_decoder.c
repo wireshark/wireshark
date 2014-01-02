@@ -35,6 +35,9 @@
 #include <epan/expert.h>
 #include "wimax_mac.h"
 
+void proto_register_mac_mgmt_msg(void);
+void proto_reg_handoff_mac_mgmt_msg(void);
+
 static gint proto_mac_mgmt_msg_decoder = -1;
 static gint ett_mac_mgmt_msg_decoder = -1;
 

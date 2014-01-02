@@ -45,6 +45,9 @@
 #define OFDMA_AAS_FBCK_REQ_FB_RSP_COUNTER_MASK	0x1C
 #define OFDMA_AAS_FBCK_REQ_FB_RSP_RESOLUTION_MASK	0x03
 
+void proto_register_mac_mgmt_msg_aas_fbck(void);
+void proto_reg_handoff_mac_mgmt_msg_aas(void);
+
 static gint proto_mac_mgmt_msg_aas_fbck_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_fbck_req_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_fbck_rsp_decoder = -1;
