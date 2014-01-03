@@ -100,18 +100,18 @@ struct select_item {
  */
 typedef struct _fd_hash_t {
     md5_byte_t digest[16];
-    guint32 len;
-    nstime_t time;
+    guint32    len;
+    nstime_t   time;
 } fd_hash_t;
 
-#define DEFAULT_DUP_DEPTH 5     /* Used with -d */
-#define MAX_DUP_DEPTH 1000000   /* the maximum window (and actual size of fd_hash[]) for de-duplication */
+#define DEFAULT_DUP_DEPTH       5   /* Used with -d */
+#define MAX_DUP_DEPTH     1000000   /* the maximum window (and actual size of fd_hash[]) for de-duplication */
 
 static fd_hash_t fd_hash[MAX_DUP_DEPTH];
-static int dup_window = DEFAULT_DUP_DEPTH;
-static int cur_dup_entry = 0;
+static int       dup_window    = DEFAULT_DUP_DEPTH;
+static int       cur_dup_entry = 0;
 
-#define ONE_MILLION 1000000
+#define ONE_MILLION    1000000
 #define ONE_BILLION 1000000000
 
 /* Weights of different errors we can introduce */
@@ -141,29 +141,29 @@ typedef struct _chop_t {
     int off_end_neg;
 } chop_t;
 
-#define MAX_SELECTIONS  512
-static struct select_item selectfrm[MAX_SELECTIONS];
-static int max_selected = -1;
-static int keep_em = 0;
+#define MAX_SELECTIONS 512
+static struct select_item     selectfrm[MAX_SELECTIONS];
+static int                    max_selected              = -1;
+static int                    keep_em                   = 0;
 #ifdef PCAP_NG_DEFAULT
-static int out_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
+static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
 #else
-static int out_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;   /* default to pcap     */
+static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcap     */
 #endif
-static int out_frame_type = -2;              /* Leave frame type alone */
-static int verbose = 0;                      /* Not so verbose         */
-static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
-static nstime_t relative_time_window = {0, 0}; /* de-dup time window */
-static double err_prob = 0.0;
-static time_t starttime = 0;
-static time_t stoptime = 0;
-static gboolean check_startstop = FALSE;
-static gboolean dup_detect = FALSE;
-static gboolean dup_detect_by_time = FALSE;
+static int                    out_frame_type            = -2; /* Leave frame type alone */
+static int                    verbose                   = 0;  /* Not so verbose         */
+static struct time_adjustment time_adj                  = {{0, 0}, 0}; /* no adjustment */
+static nstime_t               relative_time_window      = {0, 0}; /* de-dup time window */
+static double                 err_prob                  = 0.0;
+static time_t                 starttime                 = 0;
+static time_t                 stoptime                  = 0;
+static gboolean               check_startstop           = FALSE;
+static gboolean               dup_detect                = FALSE;
+static gboolean               dup_detect_by_time        = FALSE;
 
-static int do_strict_time_adjustment = FALSE;
-static struct time_adjustment strict_time_adj = {{0, 0}, 0}; /* strict time adjustment */
-static nstime_t previous_time = {0, 0}; /* previous time */
+static int                    do_strict_time_adjustment = FALSE;
+static struct time_adjustment strict_time_adj           = {{0, 0}, 0}; /* strict time adjustment */
+static nstime_t               previous_time             = {0, 0}; /* previous time */
 
 static int find_dct2000_real_data(guint8 *buf);
 static void handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
@@ -174,7 +174,7 @@ static gchar *
 abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
 {
     struct tm *tmp;
-    gchar *buf = (gchar *)g_malloc(16);
+    gchar     *buf = (gchar *)g_malloc(16);
 
 #if (defined _WIN32) && (_MSC_VER < 1500)
     /* calling localtime() on MSVC 2005 with huge values causes it to crash */
@@ -201,11 +201,11 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
     return buf;
 }
 
-static gchar*
+static gchar *
 fileset_get_filename_by_pattern(guint idx, const nstime_t *time_val,
                                 gchar *fprefix, gchar *fsuffix)
 {
-    gchar filenum[5+1];
+    gchar  filenum[5+1];
     gchar *timestr;
     gchar *abs_str;
 
@@ -322,7 +322,7 @@ selected(int recno)
 static gboolean
 check_timestamp(wtap *wth)
 {
-    struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
+    struct wtap_pkthdr *pkthdr = wtap_phdr(wth);
 
     return (pkthdr->ts.secs >= starttime) && (pkthdr->ts.secs < stoptime);
 }
@@ -330,9 +330,9 @@ check_timestamp(wtap *wth)
 static void
 set_time_adjustment(char *optarg_str_p)
 {
-    char *frac, *end;
-    long val;
-    size_t frac_digits;
+    char   *frac, *end;
+    long    val;
+    size_t  frac_digits;
 
     if (!optarg_str_p)
         return;
@@ -400,9 +400,9 @@ set_time_adjustment(char *optarg_str_p)
 static void
 set_strict_time_adj(char *optarg_str_p)
 {
-    char *frac, *end;
-    long val;
-    size_t frac_digits;
+    char   *frac, *end;
+    long    val;
+    size_t  frac_digits;
 
     if (!optarg_str_p)
         return;
@@ -474,9 +474,9 @@ set_strict_time_adj(char *optarg_str_p)
 static void
 set_rel_time(char *optarg_str_p)
 {
-    char *frac, *end;
-    long val;
-    size_t frac_digits;
+    char   *frac, *end;
+    long    val;
+    size_t  frac_digits;
 
     if (!optarg_str_p)
         return;
@@ -848,36 +848,36 @@ failure_message(const char *msg_format _U_, va_list ap _U_)
 int
 main(int argc, char *argv[])
 {
-    wtap *wth;
-    int i, j, err;
-    gchar *err_info;
-    int opt;
+    wtap         *wth;
+    int           i, j, err;
+    gchar        *err_info;
+    int           opt;
 
-    char *p;
-    guint32 snaplen = 0;                /* No limit               */
-    chop_t chop = {0, 0, 0, 0, 0, 0};   /* No chop */
-    gboolean adjlen = FALSE;
-    wtap_dumper *pdh = NULL;
-    unsigned int count = 1;
-    unsigned int duplicate_count = 0;
-    gint64 data_offset;
-    struct wtap_pkthdr snap_phdr;
-    const struct wtap_pkthdr *phdr;
-    int err_type;
-    wtapng_section_t *shb_hdr;
+    char         *p;
+    guint32       snaplen            = 0; /* No limit               */
+    chop_t        chop               = {0, 0, 0, 0, 0, 0}; /* No chop */
+    gboolean      adjlen             = FALSE;
+    wtap_dumper  *pdh                = NULL;
+    unsigned int  count              = 1;
+    unsigned int  duplicate_count    = 0;
+    gint64        data_offset;
+    int           err_type;
+    guint8       *buf;
+    guint32       read_count         = 0;
+    int           split_packet_count = 0;
+    int           written_count      = 0;
+    char         *filename           = NULL;
+    gboolean      ts_okay            = TRUE;
+    int           secs_per_block     = 0;
+    int           block_cnt          = 0;
+    nstime_t      block_start;
+    gchar        *fprefix            = NULL;
+    gchar        *fsuffix            = NULL;
+
+    const struct wtap_pkthdr    *phdr;
+    struct wtap_pkthdr           snap_phdr;
     wtapng_iface_descriptions_t *idb_inf;
-    guint8 *buf;
-    guint32 read_count = 0;
-    int split_packet_count = 0;
-    int written_count = 0;
-    char *filename = NULL;
-    gboolean ts_okay = TRUE;
-    int secs_per_block = 0;
-    int block_cnt = 0;
-    nstime_t block_start;
-    gchar *fprefix = NULL;
-    gchar *fsuffix = NULL;
-    char appname[100];
+    wtapng_section_t            *shb_hdr;
 
 #ifdef HAVE_PLUGINS
     char* init_progfile_dir_error;
@@ -1046,7 +1046,7 @@ main(int argc, char *argv[])
 
         case 'h':
             usage(FALSE);
-            exit(1);
+            exit(0);
             break;
 
         case 'i': /* break capture file based on time interval */
@@ -1222,8 +1222,7 @@ main(int argc, char *argv[])
 
                 /* If we don't have an application name add Editcap */
                 if (shb_hdr->shb_user_appl == NULL) {
-                    g_snprintf(appname, sizeof(appname), "Editcap " VERSION);
-                    shb_hdr->shb_user_appl = appname;
+                    shb_hdr->shb_user_appl = "Editcap " VERSION;
                 }
 
                 pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
@@ -1635,7 +1634,7 @@ find_dct2000_real_data(guint8 *buf)
 }
 
 /*
- * We support up to 2 chopping regions in a single pas, one specified by the
+ * We support up to 2 chopping regions in a single pass: one specified by the
  * positive chop length, and one by the negative chop length.
  */
 static void
@@ -1736,11 +1735,11 @@ handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
 
