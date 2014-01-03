@@ -2586,7 +2586,8 @@ try_dissect_next_protocol(proto_tree *parent, tvbuff_t *next_tvb, gint offset, p
 
                 if (try_heuristics && dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent, usb_conv_info)) {
                     offset += tvb_length(next_tvb);
-                } else if (dissector_try_uint_new(usb_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent, TRUE, usb_conv_info)) {
+                } else if (usb_dissector_table &&
+                        dissector_try_uint_new(usb_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent, TRUE, usb_conv_info)) {
                     offset += tvb_length(next_tvb);
                 }
             }
