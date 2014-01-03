@@ -77,6 +77,11 @@ since version 1.10:
   other filters have been given the "_ws." prefix to note they are Wireshark
   application specific filters and not dissector filters.
 
+=== Removed dissectors
+
+* The ASN1 plugin has been removed as it's deemed obsolete.
+* The GNM dissector has been removed as it was never used.
+
 === New Protocol Support
 
 --sort-and-group--
