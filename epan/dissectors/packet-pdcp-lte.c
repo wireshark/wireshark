@@ -1226,6 +1226,9 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* Read fixed fields */
     p_pdcp_lte_info->no_header_pdu = (gboolean)tvb_get_guint8(tvb, offset++);
     p_pdcp_lte_info->plane = (enum pdcp_plane)tvb_get_guint8(tvb, offset++);
+    if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
+        p_pdcp_lte_info->seqnum_length = PDCP_SN_LENGTH_5_BITS;
+    }
     p_pdcp_lte_info->rohc.rohc_compression = (gboolean)tvb_get_guint8(tvb, offset++);
 
     /* Read optional fields */
@@ -1375,12 +1378,14 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     /* Set the key */
     gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->cipherKey, 16);
     if (gcrypt_err != 0) {
+        gcry_cipher_close(cypher_hd);
         return tvb;
     }
 
     /* Set the CTR */
     gcrypt_err = gcry_cipher_setctr(cypher_hd, ctr_block, 16);
     if (gcrypt_err != 0) {
+        gcry_cipher_close(cypher_hd);
         return tvb;
     }
 
@@ -1397,6 +1402,9 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
                                      decrypted_data, payload_length,
                                      encrypted_data, payload_length);
     if (gcrypt_err != 0) {
+        gcry_cipher_close(cypher_hd);
+        g_free(encrypted_data);
+        g_free(decrypted_data);
         return tvb;
     }
 
@@ -1438,14 +1446,13 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             return 0;
         case eia2:
             {
-#if 0
+#if (defined GCRYPT_VERSION_NUMBER) && (GCRYPT_VERSION_NUMBER >= 0x010600)
                 gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
                 gint message_length;
                 guint8 *message_data;
-                guint32 mac[4];
-                guint8 *p_mac = (guint8*)&mac;
-                ssize_t read_digest_length;
+                guint8  mac[4];
+                ssize_t read_digest_length = 4;
 
                 if (!pdu_security_settings->integrityValid) {
                     return 0;
@@ -1466,10 +1473,9 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* Set the key */
                 gcrypt_err = gcry_mac_setkey(mac_hd, pdu_security_settings->integrityKey, 16);
                 if (gcrypt_err != 0) {
+                    gcry_mac_close(mac_hd);
                     return 0;
                 }
-
-                /* TODO: need to do gcry_mac_setiv() ??? If so what is the IV to use! */
 
                 /* Extract the encrypted data into a buffer */
                 message_length = tvb_length_remaining(tvb, offset) - 4;
@@ -1486,12 +1492,16 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* Pass in the message */
                 gcrypt_err = gcry_mac_write(mac_hd, message_data, message_length+9);
                 if (gcrypt_err != 0) {
+                    gcry_mac_close(mac_hd);
+                    g_free(message_data);
                     return 0;
                 }
 
                 /* Read out the digest */
-                gcrypt_err = gcry_mac_read(mac_hd, p_mac, &read_digest_length);
+                gcrypt_err = gcry_mac_read(mac_hd, mac, &read_digest_length);
                 if (gcrypt_err != 0) {
+                    gcry_mac_close(mac_hd);
+                    g_free(message_data);
                     return 0;
                 }
 
@@ -1502,7 +1512,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 
                 *calculated = TRUE;
                 /* 3GPP TS 33.401 C.2 suggests the first word will be the calculated CMAC. */
-                return mac[0];
+                return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
 #endif
             }
             /* Just dropping through until GCRY_MAC_CMAC_AES is available! */ 
