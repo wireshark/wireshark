@@ -1148,6 +1148,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case M_ME_TD_1:
 		case M_ME_TE_1:
 		case M_ME_TF_1:
+		case M_IT_TB_1:
 		case C_SC_NA_1:
 		case C_DC_NA_1:
 		case C_RC_NA_1:
@@ -1270,6 +1271,10 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_TF_1: /* 36    Measured value, short floating point value with time tag CP56Time2a */
 					get_FLT(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
+				case M_IT_TB_1:
+					offset += 5; /* integrated total counter? */
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
 				case C_SC_NA_1: /* 45	Single command */
@@ -1809,3 +1814,15 @@ proto_reg_handoff_iec104(void)
 	dissector_add_uint("tcp.port", IEC104_PORT, iec104apci_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
