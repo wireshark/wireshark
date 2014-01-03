@@ -65,7 +65,7 @@
 static int
 get_natural_int(const char *string, const char *name)
 {
-  long number;
+  long  number;
   char *p;
 
   number = strtol(string, &p, 10);
@@ -105,32 +105,41 @@ get_positive_int(const char *string, const char *name)
  * Show the usage
  */
 static void
-usage(void)
+usage(gboolean is_error)
 {
-  fprintf(stderr, "Mergecap %s"
+  FILE *output;
+
+  if (!is_error) {
+    output = stdout;
+  }
+  else {
+    output = stderr;
+  }
+
+  fprintf(output, "Mergecap %s"
 #ifdef SVNVERSION
           " (" SVNVERSION " from " SVNPATH ")"
 #endif
           "\n", VERSION);
-  fprintf(stderr, "Merge two or more capture files into one.\n");
-  fprintf(stderr, "See http://www.wireshark.org for more information.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Usage: mergecap [options] -w <outfile>|- <infile> [<infile> ...]\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Output:\n");
-  fprintf(stderr, "  -a                concatenate rather than merge files.\n");
-  fprintf(stderr, "                    default is to merge based on frame timestamps.\n");
-  fprintf(stderr, "  -s <snaplen>      truncate packets to <snaplen> bytes of data.\n");
-  fprintf(stderr, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
-  fprintf(stderr, "  -F <capture type> set the output file type; default is pcapng.\n");
-  fprintf(stderr, "                    an empty \"-F\" option will list the file types.\n");
-  fprintf(stderr, "  -T <encap type>   set the output file encapsulation type;\n");
-  fprintf(stderr, "                    default is the same as the first input file.\n");
-  fprintf(stderr, "                    an empty \"-T\" option will list the encapsulation types.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Miscellaneous:\n");
-  fprintf(stderr, "  -h                display this help and exit.\n");
-  fprintf(stderr, "  -v                verbose output.\n");
+  fprintf(output, "Merge two or more capture files into one.\n");
+  fprintf(output, "See http://www.wireshark.org for more information.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Usage: mergecap [options] -w <outfile>|- <infile> [<infile> ...]\n");
+  fprintf(output, "\n");
+  fprintf(output, "Output:\n");
+  fprintf(output, "  -a                concatenate rather than merge files.\n");
+  fprintf(output, "                    default is to merge based on frame timestamps.\n");
+  fprintf(output, "  -s <snaplen>      truncate packets to <snaplen> bytes of data.\n");
+  fprintf(output, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
+  fprintf(output, "  -F <capture type> set the output file type; default is pcapng.\n");
+  fprintf(output, "                    an empty \"-F\" option will list the file types.\n");
+  fprintf(output, "  -T <encap type>   set the output file encapsulation type;\n");
+  fprintf(output, "                    default is the same as the first input file.\n");
+  fprintf(output, "                    an empty \"-T\" option will list the encapsulation types.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -h                display this help and exit.\n");
+  fprintf(output, "  -v                verbose output.\n");
 }
 
 struct string_elem {
@@ -203,28 +212,28 @@ list_encap_types(void) {
 int
 main(int argc, char *argv[])
 {
-  int          opt;
-  gboolean     do_append = FALSE;
-  gboolean     verbose = FALSE;
-  int          in_file_count = 0;
-  guint        snaplen = 0;
+  int                 opt;
+  gboolean            do_append          = FALSE;
+  gboolean            verbose            = FALSE;
+  int                 in_file_count      = 0;
+  guint               snaplen            = 0;
 #ifdef PCAP_NG_DEFAULT
-  int          file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;    /* default to pcap format */
+  int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcap format */
 #else
-  int          file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;      /* default to pcapng format */
+  int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcapng format */
 #endif
-  int          frame_type = -2;
-  int          out_fd;
-  merge_in_file_t   *in_files = NULL, *in_file;
-  int          i;
+  int                 frame_type         = -2;
+  int                 out_fd;
+  merge_in_file_t    *in_files           = NULL, *in_file;
+  int                 i;
   struct wtap_pkthdr *phdr, snap_phdr;
-  wtap_dumper *pdh;
-  int          open_err, read_err = 0, write_err, close_err;
-  gchar       *err_info;
-  int          err_fileno;
-  char        *out_filename = NULL;
-  gboolean     got_read_error = FALSE, got_write_error = FALSE;
-  int          count;
+  wtap_dumper        *pdh;
+  int                 open_err, read_err = 0, write_err, close_err;
+  gchar              *err_info;
+  int                 err_fileno;
+  char               *out_filename       = NULL;
+  gboolean            got_read_error     = FALSE, got_write_error = FALSE;
+  int                 count;
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -250,7 +259,7 @@ main(int argc, char *argv[])
       break;
 
     case 'h':
-      usage();
+      usage(FALSE);
       exit(0);
       break;
 
@@ -285,7 +294,7 @@ main(int argc, char *argv[])
         list_encap_types();
         break;
       default:
-        usage();
+        usage(TRUE);
       }
       exit(1);
       break;
@@ -515,11 +524,11 @@ main(int argc, char *argv[])
  *
  * Local variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab:
- * :indentSize=2:tabSize=2:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
 
