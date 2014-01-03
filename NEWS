@@ -25,6 +25,7 @@ What's New
    The following features are new (or have been significantly updated)
    since version 1.11.2:
      * Qt port:
+          + The About dialog has been added
           + The Capture Interfaces dialog has been added.
           + The Decode As dialog has been added.
           + Several SCTP dialogs have been added.

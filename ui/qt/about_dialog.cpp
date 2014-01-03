@@ -150,12 +150,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 
     /* Authors */
-#if defined(_WIN32)
-    f_authors.setFileName(get_datafile_path("AUTHORS-SHORT.txt"));
-#else
-    f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
-#endif
 
+    f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
     f_authors.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_authors(&f_authors);
 
@@ -249,11 +245,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     /* License */
 
-    #if defined(_WIN32)
-        f_license.setFileName(get_datafile_path("COPYING.txt"));
-    #else
-        f_license.setFileName(get_datafile_path("COPYING"));
-    #endif
+#if defined(_WIN32)
+    f_license.setFileName(get_datafile_path("COPYING.txt"));
+#else
+    f_license.setFileName(get_datafile_path("COPYING"));
+#endif
 
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);
