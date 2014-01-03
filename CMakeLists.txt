@@ -190,7 +190,6 @@ else()
 		-Wpointer-arith
 		-Warray-bounds
 		-Wformat-security
-		-Wshorten-64-to-32
 		-Wvla
 		-Waddress
 		-Warray-bounds
@@ -213,6 +212,9 @@ else()
 		-Wstrict-prototypes
 		-Wlogical-op
 		-Wjump-misses-init
+		# The Qt headers generate a ton of shortening errors on 64-bit systems
+		# so only enable this for C for now.
+		-Wshorten-64-to-32
 	)
 
 	set(WIRESHARK_EXTRA_C_FLAGS
