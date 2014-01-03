@@ -15735,8 +15735,8 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 1, tvb_get_guint8(tvb, offset));
 		COUNT_BYTES_TRANS_SUBR(1);
 
-		/* label */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, bcp);
+		/* label - not aligned! */
+		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, FALSE, bcp);
 		CHECK_STRING_TRANS_SUBR(fn);
 		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
 			fn);
