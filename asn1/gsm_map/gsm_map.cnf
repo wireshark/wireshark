@@ -49,6 +49,7 @@ CommonComponentId
 SubscriberId
 GuidanceInfo
 SS-InfoList
+SubscriberData
 #.END
 #.PDU_NEW
 LCS-ClientID
