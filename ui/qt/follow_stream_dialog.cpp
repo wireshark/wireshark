@@ -552,6 +552,8 @@ void FollowStreamDialog::setCaptureFile(capture_file *cf)
     if (!cf) { // We only want to know when the file closes.
         cap_file_ = NULL;
         ui->streamNumberSpinBox->setEnabled(false);
+        ui->streamNumberSpinBox->setToolTip(QString());
+        ui->streamNumberLabel->setToolTip(QString());
     }
 }
 
@@ -918,12 +920,17 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     switch (follow_type_)
     {
     case FOLLOW_TCP:
+    {
+        int stream_count = get_tcp_stream_count() - 1;
         ui->streamNumberSpinBox->blockSignals(true);
-        ui->streamNumberSpinBox->setMaximum(get_tcp_stream_count() - 1);
+        ui->streamNumberSpinBox->setMaximum(stream_count);
         ui->streamNumberSpinBox->setValue(get_follow_tcp_index());
         ui->streamNumberSpinBox->blockSignals(false);
+        ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
+        ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
 
         break;
+    }
     case FOLLOW_UDP:
         /* data will be passed via tap callback*/
         msg = register_tap_listener("udp_follow", &follow_info_,
