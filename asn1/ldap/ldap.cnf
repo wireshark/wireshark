@@ -3,6 +3,9 @@
 # Copyright 2005 Anders Broman
 # $Id$
 
+#.OMIT_ASSIGNMENT
+DirSyncFlagsSubEntry
+PasswdModifyResponseValue
 
 #.PDU_NEW
 

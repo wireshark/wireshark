@@ -199,6 +199,7 @@ static gint ett_ldap_payload = -1;
 static gint ett_mscldap_netlogon_flags = -1;
 static gint ett_mscldap_ntver_flags = -1;
 static gint ett_mscldap_ipdetails = -1;
+static gint ett_ldap_DirSyncFlagsSubEntry = -1;
 
 #include "packet-ldap-ett.c"
 
@@ -2260,6 +2261,7 @@ void proto_register_ldap(void) {
     &ett_mscldap_netlogon_flags,
     &ett_mscldap_ntver_flags,
     &ett_mscldap_ipdetails,
+	&ett_ldap_DirSyncFlagsSubEntry,
 
 #include "packet-ldap-ettarr.c"
   };
