@@ -1877,7 +1877,7 @@ real_proto_register_diameter(void)
 	    { "Framed IPv6 Prefix as an IPv6 address", "diameter.framed_ipv6_prefix_ipv6",
 	    FT_IPv6, BASE_NONE, NULL, 0, "This field is present only if the prefix length is 128", HFILL }},
 	{ &hf_diameter_3gpp2_exp_res,
-		{ "Experimental-Result-Code", "diameter.ericsson.exp_res",
+		{ "Experimental-Result-Code", "diameter.3gpp2.exp_res",
 		FT_UINT32, BASE_DEC, VALS(diameter_3gpp2_exp_res_vals), 0x0,	NULL, HFILL }
 		},
 
