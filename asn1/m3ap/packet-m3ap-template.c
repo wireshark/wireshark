@@ -74,7 +74,7 @@ enum{
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint32 ProtocolExtensionID;
+/*static guint32 ProtocolExtensionID; */
 static int global_m3ap_port = M3AP_PORT;
 static guint32 message_type;
 

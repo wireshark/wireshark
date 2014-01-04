@@ -28,6 +28,7 @@ ProtocolIE-ID
 ProtocolIE-FieldPair
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
+ProtocolIE-ContainerList
 Presence
 
 #.TYPE_RENAME
@@ -84,17 +85,17 @@ ProtocolIE-Field/value ie_field_value
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
 #	ProtocolIE-Container {{IEsSetParam}}
 
-#.FN_PARS ProtocolIE-ContainerList
-MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
-MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
-#.FN_HDR ProtocolIE-ContainerList
-  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, (asn1_par_type)0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
-#.END
+# FN_PARS ProtocolIE-ContainerList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerList
+#  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+#    { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, (asn1_par_type)0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+# END
 
 #ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
