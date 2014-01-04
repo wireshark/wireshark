@@ -783,10 +783,15 @@ POD2HTML=$(SH) pod2html
 # command for sed (cygwin's sed recommended)
 SED=sed
 
-# command for lex/flexx (cygwin's flex recommended)
+# command for lex/flexx. Cygwin's flex recommended. Chocolatey has a
+# "Win flex-bison" package but it is currently unusable without some
+# manual adjustments to the win_flex and win_bison wrapper scripts.
+# This is called by tools/runlex.sh and must be a UNIX-style path
+#LEX=win_flex
 LEX=flex
 
-# command for yacc/bison (cygwin's bison recommended)
+# command for yacc/bison (Cygwin's bison recommended, see flex comments above)
+#YACC=win_bison
 YACC=bison
 
 # Commands to convert UNIX line endings to DOS/Windows
