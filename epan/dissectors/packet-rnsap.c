@@ -3099,9 +3099,6 @@ static int hf_rnsap_new_non_serving_RL_selection = -1;  /* New_non_serving_RL_se
 static int hf_rnsap_new_Serving_RL_in_DRNS = -1;  /* NULL */
 static int hf_rnsap_new_Serving_RL_Not_in_DRNS = -1;  /* NULL */
 static int hf_rnsap_new_Serving_RL_in_or_Not_in_DRNS = -1;  /* NULL */
-static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
-static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
-static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
 static int hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item = -1;  /* Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item */
 static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_A = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
 static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_B = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
@@ -4091,7 +4088,6 @@ static gint ett_rnsap_E_DCH_serving_cell_change_unsuccessful = -1;
 static gint ett_rnsap_E_DCH_TTI_Length = -1;
 static gint ett_rnsap_E_DCH_TTI_Length_to_Modify = -1;
 static gint ett_rnsap_EDPCH_Information_FDD = -1;
-static gint ett_rnsap_EDPCH_Information_RLReconfPrepare_FDD = -1;
 static gint ett_rnsap_EDPCH_Information_RLReconfRequest_FDD = -1;
 static gint ett_rnsap_EDCH_Serving_RL = -1;
 static gint ett_rnsap_EDCH_Serving_RL_in_this_DRNS = -1;
@@ -4440,7 +4436,6 @@ static gint ett_rnsap_NotProvidedCellList = -1;
 static gint ett_rnsap_NRTLoadInformationValue = -1;
 static gint ett_rnsap_Non_Serving_RL_Preconfig_Setup = -1;
 static gint ett_rnsap_New_non_serving_RL_setup_selection = -1;
-static gint ett_rnsap_Non_Serving_RL_Preconfig_Info = -1;
 static gint ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList = -1;
 static gint ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item = -1;
 static gint ett_rnsap_OnModification = -1;
@@ -5314,7 +5309,7 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 79 "../../asn1/rnsap/rnsap.cnf"
+#line 83 "../../asn1/rnsap/rnsap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                 val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                            "unknown message"));
@@ -5348,7 +5343,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "../../asn1/rnsap/rnsap.cnf"
+#line 90 "../../asn1/rnsap/rnsap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5356,7 +5351,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 92 "../../asn1/rnsap/rnsap.cnf"
+#line 96 "../../asn1/rnsap/rnsap.cnf"
   ProcedureID = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
                                  val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
@@ -15186,29 +15181,6 @@ dissect_rnsap_EDPCH_Information_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t EDPCH_Information_RLReconfPrepare_FDD_sequence[] = {
-  { &hf_rnsap_maxSet_E_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Max_Set_E_DPDCHs },
-  { &hf_rnsap_punctureLimit , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PunctureLimit },
-  { &hf_rnsap_e_TFCS_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_TFCS_Information },
-  { &hf_rnsap_e_TTI         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_TTI },
-  { &hf_rnsap_e_DPCCH_PO    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_DPCCH_PO },
-  { &hf_rnsap_e_RGCH_2_IndexStepThreshold, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_RGCH_2_IndexStepThreshold },
-  { &hf_rnsap_e_RGCH_3_IndexStepThreshold, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_E_RGCH_3_IndexStepThreshold },
-  { &hf_rnsap_hARQ_Info_for_E_DCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HARQ_Info_for_E_DCH },
-  { &hf_rnsap_hSDSCH_Configured_Indicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_HSDSCH_Configured_Indicator },
-  { &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_rnsap_EDPCH_Information_RLReconfPrepare_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_rnsap_EDPCH_Information_RLReconfPrepare_FDD, EDPCH_Information_RLReconfPrepare_FDD_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t EDPCH_Information_RLReconfRequest_FDD_sequence[] = {
   { &hf_rnsap_maxSet_E_DPDCHs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_Max_Set_E_DPDCHs },
   { &hf_rnsap_punctureLimit , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_PunctureLimit },
@@ -22935,7 +22907,7 @@ dissect_rnsap_List_Of_PLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 105 "../../asn1/rnsap/rnsap.cnf"
+#line 109 "../../asn1/rnsap/rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 
@@ -24316,23 +24288,6 @@ dissect_rnsap_Non_Serving_RL_Preconfig_Setup(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_rnsap_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-static const per_sequence_t Non_Serving_RL_Preconfig_Info_sequence[] = {
-  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
-  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
-  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
-  { &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_rnsap_Non_Serving_RL_Preconfig_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_rnsap_Non_Serving_RL_Preconfig_Info, Non_Serving_RL_Preconfig_Info_sequence);
 
   return offset;
 }
@@ -51021,18 +50976,6 @@ void proto_register_rnsap(void) {
       { "new-Serving-RL-in-or-Not-in-DRNS", "rnsap.new_Serving_RL_in_or_Not_in_DRNS_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A,
-      { "new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-A", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
-    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B,
-      { "new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-B", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
-    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C,
-      { "new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-C", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
     { &hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item,
       { "Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList item", "rnsap.Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -54330,7 +54273,6 @@ void proto_register_rnsap(void) {
     &ett_rnsap_E_DCH_TTI_Length,
     &ett_rnsap_E_DCH_TTI_Length_to_Modify,
     &ett_rnsap_EDPCH_Information_FDD,
-    &ett_rnsap_EDPCH_Information_RLReconfPrepare_FDD,
     &ett_rnsap_EDPCH_Information_RLReconfRequest_FDD,
     &ett_rnsap_EDCH_Serving_RL,
     &ett_rnsap_EDCH_Serving_RL_in_this_DRNS,
@@ -54679,7 +54621,6 @@ void proto_register_rnsap(void) {
     &ett_rnsap_NRTLoadInformationValue,
     &ett_rnsap_Non_Serving_RL_Preconfig_Setup,
     &ett_rnsap_New_non_serving_RL_setup_selection,
-    &ett_rnsap_Non_Serving_RL_Preconfig_Info,
     &ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList,
     &ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item,
     &ett_rnsap_OnModification,

@@ -57,6 +57,8 @@ VBSDataList
 VGCSDataList
 VoiceGroupCallData
 VoiceBroadcastData
+GroupId
+Ext-SS-Info
 # Not yet used Nokia extensions
 SS-DataEmoInExt
 EmoInCategoryKey
@@ -70,6 +72,7 @@ AnyTimePO-BarringRes
 CarrierIdCode
 COS-FeatureList
 GprsBarring
+COS-Feature
 #.END
 #.PDU_NEW
 LCS-ClientID

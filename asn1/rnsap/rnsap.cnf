@@ -8,6 +8,10 @@ PER
 ALIGNED
 #.END
 
+#.OMIT_ASSIGNMENT
+EDPCH-Information-RLReconfPrepare-FDD 
+Non-Serving-RL-Preconfig-Info
+
 #.PDU
 RNSAP-PDU
 
