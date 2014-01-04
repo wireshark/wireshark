@@ -19,6 +19,12 @@ LCSClientIdentity
 LCSQoSInfo
 LocationAreaAndCell
 PositioningData
+MCC-MNC
+NodeAddress
+ServiceContextID
+ChangeLocationV651
+CTEID
+DataVolumeMBMS
 # 6.4 If these are needed MBMS asn1 should be added.
 SGSNMBMSRecord
 GGSNMBMSRecord
