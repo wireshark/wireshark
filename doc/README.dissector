@@ -2140,10 +2140,10 @@ ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
 
 2.2.1 Conversation Routines
 
-There are six routines that you will use to work with a conversation:
-conversation_new, find_conversation, conversation_add_proto_data,
-conversation_get_proto_data, conversation_delete_proto_data,
-and conversation_set_dissector.
+There are seven routines that you will use to work with a conversation:
+conversation_new, find_conversation, find_or_create_conversation,
+conversation_add_proto_data, conversation_get_proto_data,
+conversation_delete_proto_data, and conversation_set_dissector.
 
 
 2.2.1.1 The conversation_init function.
