@@ -6,16 +6,20 @@
 #.IMPORT ../gsm_map/gsm_map-exp.cnf
 #.EXPORTS
 
+#.OMIT_ASSIGNMENT
+DetectionPointType
+EnhancedPrivacyEncryptionReport
+MINExtension
 #.USE_VALS_EXT
-##AnnouncementCode-std-ann
+# AnnouncementCode-std-ann
 TriggerType
 SMS-CauseCode
 SystemMyTypeCode
-##AnnouncementCode-tone
+# AnnouncementCode-tone
 DMH-RedirectionIndicator
 ActionCode
 SignalQuality
-##AlertCode-Cadence
+# AlertCode-Cadence
 TerminalType
 
 #.NO_EMIT
