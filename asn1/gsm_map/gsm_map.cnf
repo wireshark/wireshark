@@ -50,6 +50,20 @@ SubscriberId
 GuidanceInfo
 SS-InfoList
 SubscriberData
+Ext-SS-InfoList
+VlrCamelSubscriptionInfo
+VBSDataList
+VGCSDataList
+# Not yet used Nokia extensions
+SS-DataEmoInExt
+EmoInCategoryKey
+ANSIIsdArgExt
+ANSISriResExt
+PrefCarrierIdList
+USSD-Extension
+CosInfo
+AnyTimePO-BarringArg
+AnyTimePO-BarringRes
 #.END
 #.PDU_NEW
 LCS-ClientID
