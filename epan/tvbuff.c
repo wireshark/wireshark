@@ -765,7 +765,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
  * meaning "to the end of the buffer"?
  *
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  */
@@ -1939,7 +1939,7 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
  * Specify length in bytes
  *
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  *
@@ -1992,7 +1992,7 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * Specify length in bytes
  *
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  *
@@ -2105,7 +2105,7 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
  * Specify length in bytes
  *
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  *
@@ -2333,7 +2333,7 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
  * Throws an exception if the tvbuff ends before the string does.
  *
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  */
@@ -2495,7 +2495,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
  * string (including the terminating null) through a pointer.
  *
  * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitely free it with g_free().
+ * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
  */

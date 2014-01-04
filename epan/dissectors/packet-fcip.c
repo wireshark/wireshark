@@ -518,7 +518,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return (TRUE);
 }
 
-/* This is called for those sessions where we have explicitely said
+/* This is called for those sessions where we have explicitly said
    this to be FCIP using "Decode As..."
    In this case we will not check the port number for sanity and just
    do as the user said.

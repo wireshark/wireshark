@@ -9969,7 +9969,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
   gint        offset, bufferlength;
   guint8      message_type, opt_parameter_pointer;
   gint        opt_part_possible = FALSE; /* default setting - for message types allowing optional
-                                            params explicitely set to TRUE in case statement */
+                                            params explicitly set to TRUE in case statement */
   tap_calling_number            = NULL;
   offset                        = 0;
 

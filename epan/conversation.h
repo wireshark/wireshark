@@ -170,7 +170,7 @@ WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation,
  *
  * This helper uses call_dissector_only which will NOT call the default
  * "data" dissector if the packet was rejected.
- * Our caller is responsible to call the data dissector explicitely in case
+ * Our caller is responsible to call the data dissector explicitly in case
  * this function returns FALSE.
  */
 extern gboolean
