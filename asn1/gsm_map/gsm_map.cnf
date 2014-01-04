@@ -50,6 +50,7 @@ SubscriberId
 GuidanceInfo
 SS-InfoList
 SubscriberData
+SubscriberStatus
 Ext-SS-InfoList
 VlrCamelSubscriptionInfo
 VBSDataList
