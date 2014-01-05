@@ -523,6 +523,8 @@ static const true_false_string tfs_overflow_no_overflow = { "Overflow", "No over
 static const true_false_string tfs_select_execute = { "Select", "Execute" };
 static const true_false_string tfs_local_dst = { "DST", "Local" };
 static const true_false_string tfs_coi_i = { "Initialisation after change of local parameters", "Initialisation with unchanged local parameters" };
+static const true_false_string tfs_overflow = { "No Overflow", "Overflow" };
+static const true_false_string tfs_adjusted = { "Not Adjusted", "Adjusted" };
 
 /* Protocol fields to be filtered */
 static int hf_apdulen = -1;
@@ -591,11 +593,16 @@ static int hf_coi  = -1;
 static int hf_coi_r  = -1;
 static int hf_coi_i  = -1;
 static int hf_qoi  = -1;
+static int hf_bcr_count = -1;
+static int hf_bcr_sq = -1;
+static int hf_bcr_cy = -1;
+static int hf_bcr_ca = -1;
+static int hf_bcr_iv = -1;
 
-static gint hf_asdu_bitstring = -1;
-static gint hf_asdu_float = -1;
-static gint hf_asdu_normval = -1;
-static gint hf_asdu_scalval = -1;
+static int hf_asdu_bitstring = -1;
+static int hf_asdu_float = -1;
+static int hf_asdu_normval = -1;
+static int hf_asdu_scalval = -1;
 
 static gint ett_apci = -1;
 static gint ett_asdu = -1;
@@ -909,9 +916,18 @@ static void get_BSIspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
 }
 
 /* ====================================================================
-    todo  -- BCR: Binary counter reading
+    BCR: Binary counter reading
    ==================================================================== */
-/* void get_BCR(guint8 *offset, proto_tree *iec104_header_tree);  */
+static void get_BCR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	*offset += 4;
+	proto_tree_add_item(iec104_header_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	*offset += 1;
+}
 
 /* ====================================================================
     todo -- SEP: Single event of protection equipment
@@ -1273,8 +1289,8 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					get_QDS(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
-				case M_IT_TB_1:
-					offset += 5; /* integrated total counter? */
+				case M_IT_TB_1: /* 37    integrated totals with time tag CP56Time2a */
+					get_BCR(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
 				case C_SC_NA_1: /* 45	Single command */
@@ -1749,6 +1765,26 @@ proto_register_iec104asdu(void)
 		{ &hf_qoi,
 		  { "QOI", "104asdu.qoi", FT_UINT8, BASE_DEC, VALS(qoi_r_types), 0,
 		    NULL, HFILL }},
+
+		{ &hf_bcr_count,
+		  { "Binary Counter", "104asdu.bcr.count", FT_INT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bcr_sq,
+		  { "SQ", "104asdu.bcr.sq", FT_UINT8, BASE_DEC, NULL, 0x1F,
+		    "Sequence Number", HFILL }},
+
+		{ &hf_bcr_cy,
+		  { "CY", "104asdu.bcr.cy", FT_BOOLEAN, 8, TFS(&tfs_overflow), 0x20,
+		    "Counter Overflow", HFILL }},
+
+		{ &hf_bcr_ca,
+		  { "CA", "104asdu.bcr.ca", FT_BOOLEAN, 8, TFS(&tfs_adjusted), 0x40,
+		    "Counter Adjusted", HFILL }},
+
+		{ &hf_bcr_iv,
+		  { "IV", "104asdu.bcr.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
+		    "Counter Validity", HFILL }},
 
 		{ &hf_asdu_bitstring,
 		  { "Value", "104asdu.bitstring", FT_UINT32, BASE_HEX, NULL, 0x0,
