@@ -37,6 +37,7 @@ Icon "..\..\image\wiresharkinst.ico"
 ;!addplugindir ".\Plugins"
 
 !define MUI_ICON "..\..\image\wiresharkinst.ico"
+BrandingText "Wireshark Installer (tm)"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -51,7 +52,7 @@ Icon "..\..\image\wiresharkinst.ico"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME}.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH_GTK}"
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW myShowCallback
@@ -273,10 +274,10 @@ Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 Var VCREDIST_FLAGS ; silent vs passive, norestart
 !endif
 
-!define PROGRAM_NAME_GTK "${PROGRAM_NAME} (GTK+)"
-!define PROGRAM_NAME_QT "${PROGRAM_NAME} (Qt)"
 !define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (GTK+)"
 !define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer (Qt)"
+!define PROGRAM_NAME_PATH_GTK "${PROGRAM_NAME}.exe"
+!define PROGRAM_NAME_PATH_QT "qtshark.exe"
 
 Section "-Required"
 ;-------------------------------------------
@@ -645,7 +646,7 @@ File "${STAGING_DIR}\help\faq.txt"
 !define UNINSTALL_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}"
 
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Comments" "${DISPLAY_NAME}"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayIcon" "$INSTDIR\${PROGRAM_NAME}.exe,0"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayIcon" "$INSTDIR\${PROGRAM_NAME_PATH_GTK},0"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayName" "${DISPLAY_NAME}"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayVersion" "${VERSION}"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "HelpLink" "http://ask.wireshark.org/"
@@ -663,8 +664,12 @@ WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "UninstallString" '"$INSTDIR\
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "QuietUninstallString" '"$INSTDIR\${UNINSTALLER_NAME}" /S'
 
 ; Write an entry for ShellExecute
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME}.exe" "" '$INSTDIR\${PROGRAM_NAME}.exe'
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME}.exe" "Path" '$INSTDIR'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH_GTK}" "" '$INSTDIR\${PROGRAM_NAME_PATH_GTK}'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH_GTK}" "Path" '$INSTDIR'
+!ifdef QT_DIR
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH_QT}" "" '$INSTDIR\${PROGRAM_NAME_PATH_QT}'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH_QT}" "Path" '$INSTDIR'
+!endif
 
 ; Create start menu entries (depending on additional tasks page)
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State"
@@ -675,7 +680,7 @@ SetOutPath $PROFILE
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
 Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 ;WriteINIStr "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
-CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
+CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Program Directory.lnk" "$INSTDIR"
@@ -691,7 +696,7 @@ StrCmp $R1 "yes" SecRequired_install_DesktopIcon
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
 StrCmp $0 "0" SecRequired_skip_DesktopIcon
 SecRequired_install_DesktopIcon:
-CreateShortCut "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
+CreateShortCut "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 SecRequired_skip_DesktopIcon:
 
 ; is command line option "/quicklaunchicon" set?
@@ -704,21 +709,41 @@ StrCmp $R1 "yes" SecRequired_install_QuickLaunchIcon
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_QuickLaunchIcon
 SecRequired_install_QuickLaunchIcon:
-CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME}.exe" "" "$INSTDIR\${PROGRAM_NAME}.exe" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
+CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 SecRequired_skip_QuickLaunchIcon:
 
 ; Create File Extensions (depending on additional tasks page)
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
-StrCmp $0 "0" SecRequired_skip_FileExtensions
-WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
-WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME}.exe" "%1"'
-WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME}.exe",1'
+; None Associate
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State"
+StrCmp $0 "1" SecRequired_skip_FileExtensions
+; GTK+ Associate
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State"
+StrCmp $0 "1" SecRequired_GTK_FileExtensions
+; Qt Associate
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "State"
+StrCmp $0 "1" SecRequired_QT_FileExtensions
 
+SecRequired_GTK_FileExtensions:
+WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "%1"'
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH_GTK}",1'
+Goto SecRequired_Associate_FileExtensions
+
+SecRequired_QT_FileExtensions:
+WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH_QT}" "%1"'
+WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH_QT}",1'
+Goto SecRequired_Associate_FileExtensions
+
+
+SecRequired_Associate_FileExtensions:
 ; We refresh the icon cache down in -Finally.
 Call Associate
 ; if somethings added here, add it also to the uninstall section and the AdditionalTask page
 
 SecRequired_skip_FileExtensions:
+
+
 
 ; if running as a silent installer, don't try to install winpcap
 IfSilent SecRequired_skip_Winpcap
@@ -755,7 +780,7 @@ SectionEnd ; "Required"
 Section "${PROGRAM_NAME} GTK+ UI (stable)" SecWiresharkGtk
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\${PROGRAM_NAME}.exe"
+File "${STAGING_DIR}\${PROGRAM_NAME_PATH_GTK}"
 File "${STAGING_DIR}\${GDK_DLL}"
 File "${STAGING_DIR}\libgdk_pixbuf-2.0-0.dll"
 File "${STAGING_DIR}\${GTK_DLL}"
@@ -837,9 +862,9 @@ SectionEnd
 !ifdef QT_DIR
 Section "${PROGRAM_NAME} Qt UI (alpha)" SecWiresharkQt
 ;-------------------------------------------
-; by default, QtShark is not installed
+; by default, QtShark is installed but file is always associate with Wireshark GTK+
 SetOutPath $INSTDIR
-File "${QT_DIR}\qtshark.exe"
+File "${QT_DIR}\${PROGRAM_NAME_PATH_QT}"
 !ifdef NEED_QT4_DLL
 File "${QT_DIR}\QtCore4.dll"
 File "${QT_DIR}\QtGui4.dll"
@@ -852,10 +877,18 @@ File "${QT_DIR}\Qt5PrintSupport.dll"
 SetOutPath $INSTDIR\platforms
 File "${QT_DIR}\platforms\qwindows.dll"
 !endif
+
 Push $0
-SectionGetFlags ${SecWiresharkQt} $0
-IntOp  $0 $0 & 1
-CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+;SectionGetFlags ${SecWiresharkQt} $0
+;IntOp  $0 $0 & 1
+;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" "" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+
+; Create start menu entries (depending on additional tasks page)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State"
+StrCmp $0 "0" SecRequired_skip_StartMenuQt
+CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" "" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+SecRequired_skip_StartMenuQt:
+
 
 ; is command line option "/desktopicon" set?
 ${GetParameters} $R0
@@ -864,10 +897,10 @@ StrCmp $R1 "no" SecRequired_skip_DesktopIconQt
 StrCmp $R1 "yes" SecRequired_install_DesktopIconQt
 
 ; Create desktop icon (depending on additional tasks page and command line option)
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
 StrCmp $0 "0" SecRequired_skip_DesktopIconQt
 SecRequired_install_DesktopIconQt:
-CreateShortCut "$DESKTOP\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+CreateShortCut "$DESKTOP\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" "" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
 SecRequired_skip_DesktopIconQt:
 
 ; is command line option "/quicklaunchicon" set?
@@ -877,10 +910,10 @@ StrCmp $R1 "no" SecRequired_skip_QuickLaunchIconQt
 StrCmp $R1 "yes" SecRequired_install_QuickLaunchIconQt
 
 ; Create quick launch icon (depending on additional tasks page and command line option)
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State"
 StrCmp $0 "0" SecRequired_skip_QuickLaunchIconQt
 SecRequired_install_QuickLaunchIconQt:
-CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
+CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" "" "$INSTDIR\${PROGRAM_NAME_PATH_QT}" 0 "" "" "${PROGRAM_FULL_NAME_QT}"
 SecRequired_skip_QuickLaunchIconQt:
 
 Pop $0
@@ -1049,24 +1082,85 @@ SectionEnd
 ; Callback functions
 ; ============================================================================
 !ifdef GTK_DIR
-; Disable File extensions if Wireshark isn't selected
+; Disable File extensions and icon if Wireshark (GTK+ / QT ) isn't selected
 Function .onSelChange
 	Push $0
+	Goto onSelChange.checkgtk
+
+;Check Wireshark GTK+ and after check Qt
+onSelChange.checkgtk:
 	SectionGetFlags ${SecWiresharkGtk} $0
 	IntOp  $0 $0 & 1
-	IntCmp $0 0 onSelChange.unselect
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 1
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 8" "Flags" ""
+	IntCmp $0 0 onSelChange.unselectgtk
+	IntCmp $0 1 onSelChange.selectgtk
+	Goto onSelChange.checkqt
+
+onSelChange.unselectgtk:
+	;GTK Icon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" 0
+	;GTK Association
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" "DISABLED"
+	; Select "None Association"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 1
+	Goto onSelChange.checkqt
+
+onSelChange.selectgtk:
+	;GTK Icon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" 1
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" 1
+	;GTK Association
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State" 1
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" ""
+	; Force None and Qt Association to no selected
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "State" 0
+	Goto onSelChange.checkqt
+
+;Check Wireshark Qt+
+onSelChange.checkqt:
+!ifdef QT_DIR
+	SectionGetFlags ${SecWiresharkQt} $0
+	IntOp  $0 $0 & 1
+	IntCmp $0 0 onSelChange.unselectqt
+	IntCmp $0 1 onSelChange.selectqt
+!endif
 	Goto onSelChange.end
 
-onSelChange.unselect:
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+!ifdef QT_DIR
+onSelChange.unselectqt:
+	;Qt Icon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 0
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 8" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 0
+	;Qt Association
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" "DISABLED"
 	Goto onSelChange.end
+
+onSelChange.selectqt:
+	;Qt Icon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
+	;Qt Association
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
+	Goto onSelChange.end
+!endif
 
 onSelChange.end:
 	Pop $0
@@ -1082,6 +1176,19 @@ Var WINPCAP_NAME ; DisplayName from WinPcap installation
 Var WINWINPCAP_VERSION ; DisplayVersion from WinPcap installation
 
 Function myShowCallback
+
+!ifdef QT_DIR
+	; if Qt is available enable icon and associate from additional tasks
+	;Qt Icon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
+	;Qt Association
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
+!endif
 
 	; Get the Windows version
 	Call GetWindowsVersion
@@ -1159,20 +1266,45 @@ lbl_winpcap_done:
 	; only select Start Menu Group, if previously installed
 	; (we use the "all users" start menu, so select it first)
 	SetShellVarContext all
-	IfFileExists "$SMPROGRAMS\${PROGRAM_NAME}\${PROGRAM_NAME}.lnk" lbl_have_startmenu
-	IfFileExists "$SMPROGRAMS\${PROGRAM_NAME}.lnk" lbl_have_startmenu
+
+	;Set State=1 to Desktop icon (no enable by default)
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "1"
+!ifdef QT_DIR
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" "1"
+!endif
+    IfFileExists "$SMPROGRAMS\${PROGRAM_NAME}\${PROGRAM_NAME}.lnk" lbl_have_gtk_startmenu
+    IfFileExists "$SMPROGRAMS\${PROGRAM_NAME}.lnk" lbl_have_gtk_startmenu
+	IfFileExists "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_startmenu
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" "0"
-lbl_have_startmenu:
+lbl_have_gtk_startmenu:
 
 	; only select Desktop Icon, if previously installed
-	IfFileExists "$DESKTOP\${PROGRAM_NAME}.lnk" lbl_have_desktopicon
+	IfFileExists "$DESKTOP\${PROGRAM_NAME}.lnk" lbl_have_gtk_desktopicon
+	IfFileExists "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_desktopicon
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "0"
-lbl_have_desktopicon:
+lbl_have_gtk_desktopicon:
 
 	; only select Quick Launch Icon, if previously installed
-	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" lbl_have_quicklaunchicon
+	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" lbl_have_gtk_quicklaunchicon
+	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_quicklaunchicon
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" "0"
-lbl_have_quicklaunchicon:
+lbl_have_gtk_quicklaunchicon:
+
+!ifdef QT_DIR
+	IfFileExists "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_startmenu
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" "0"
+lbl_have_qt_startmenu:
+
+	; only select Desktop Icon, if previously installed
+	IfFileExists "$DESKTOP\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_desktopicon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" "0"
+lbl_have_qt_desktopicon:
+
+	; only select Quick Launch Icon, if previously installed
+	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_quicklaunchicon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" "0"
+lbl_have_qt_quicklaunchicon:
+!endif
 
 lbl_wireshark_notinstalled:
 

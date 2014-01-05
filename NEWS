@@ -31,6 +31,8 @@ What's New
           + Several SCTP dialogs have been added.
           + The statistics tree (the backend for many Statistics and
             Telephony menu items) dialog has been added.
+          + In Windows Installer (NSIS), it is possible to associate file with
+            Wireshark Qt and select icons to be installed
 
    The following features are new (or have been significantly updated)
    since version 1.11.1:

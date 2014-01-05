@@ -12,6 +12,9 @@
 !define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 Name "${DISPLAY_NAME}"
 
+!define PROGRAM_NAME_GTK "${PROGRAM_NAME} (GTK+)"
+!define PROGRAM_NAME_QT "${PROGRAM_NAME} (Qt)"
+
 !define UNINSTALLER_NAME "uninstall.exe"
 
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
