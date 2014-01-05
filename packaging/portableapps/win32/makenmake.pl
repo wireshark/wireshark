@@ -21,10 +21,12 @@ COPY	= xcopy
 MOVE    = mv
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y
+PROGRAM_NAME_PATH_GTK = $(PROGRAM_NAME).exe
 
 # XXX This should be defined in config.nmake.
 !IF EXIST("$(TOPDIR)\wireshark-qt-release\qtshark.exe")
 QT_DIR	= "$(TOPDIR)\wireshark-qt-release" 
+PROGRAM_NAME_PATH_QT = "qtshark.exe"
 !ENDIF
 !IF EXIST("$(TOPDIR)\wireshark-qt-release\Qt5Core.dll")
 NEED_QT5_DLL	= USE
