@@ -165,26 +165,26 @@ ShowInstDetails show
 Var EXTENSION
 ; http://msdn.microsoft.com/en-us/library/windows/desktop/cc144148.aspx
 Function Associate
-	Push $R0
+    Push $R0
 !insertmacro PushFileExtensions
 
-	Pop $EXTENSION
+    Pop $EXTENSION
 
-	${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
-		ReadRegStr $R0 HKCR $EXTENSION ""
-		StrCmp $R0 "" Associate.doRegister
-		Goto Associate.end
+    ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
+        ReadRegStr $R0 HKCR $EXTENSION ""
+        StrCmp $R0 "" Associate.doRegister
+        Goto Associate.end
 
 Associate.doRegister:
-		;The extension is not associated to any program, we can do the link
-		WriteRegStr HKCR $EXTENSION "" ${WIRESHARK_ASSOC}
-		DetailPrint "Registered file type: $EXTENSION"
+        ;The extension is not associated to any program, we can do the link
+        WriteRegStr HKCR $EXTENSION "" ${WIRESHARK_ASSOC}
+        DetailPrint "Registered file type: $EXTENSION"
 
 Associate.end:
-		Pop $EXTENSION
-	${Loop}
+        Pop $EXTENSION
+    ${Loop}
 
-	Pop $R0
+    Pop $R0
 FunctionEnd
 
 Var OLD_UNINSTALLER
@@ -392,8 +392,8 @@ File "${MSVCR_DLL}"
 !if ${MSVC_VARIANT} != "MSVC6"
 !error "C-Runtime redistributable for this package not available / not redistributable."
 !endif
-!endif	; MSVCR_DLL
-!endif	; VCREDIST_EXE
+!endif ; MSVCR_DLL
+!endif ; VCREDIST_EXE
 
 
 ; global config files - don't overwrite if already existing
@@ -974,7 +974,7 @@ File "${SMI_DIR}\share\yang\*.yang"
 SectionEnd
 !endif
 
-SectionGroupEnd	; "Plugins / Extensions"
+SectionGroupEnd ; "Plugins / Extensions"
 
 
 SectionGroup "Tools" SecToolsGroup
@@ -1020,7 +1020,7 @@ File "${STAGING_DIR}\rawshark.exe"
 File "..\..\doc\rawshark.html"
 SectionEnd
 
-SectionGroupEnd	; "Tools"
+SectionGroupEnd ; "Tools"
 
 !ifdef HHC_DIR
 Section "User's Guide" SecUsersGuide
@@ -1084,86 +1084,86 @@ SectionEnd
 !ifdef GTK_DIR
 ; Disable File extensions and icon if Wireshark (GTK+ / QT ) isn't selected
 Function .onSelChange
-	Push $0
-	Goto onSelChange.checkgtk
+    Push $0
+    Goto onSelChange.checkgtk
 
 ;Check Wireshark GTK+ and after check Qt
 onSelChange.checkgtk:
-	SectionGetFlags ${SecWiresharkGtk} $0
-	IntOp  $0 $0 & 1
-	IntCmp $0 0 onSelChange.unselectgtk
-	IntCmp $0 1 onSelChange.selectgtk
-	Goto onSelChange.checkqt
+    SectionGetFlags ${SecWiresharkGtk} $0
+    IntOp  $0 $0 & 1
+    IntCmp $0 0 onSelChange.unselectgtk
+    IntCmp $0 1 onSelChange.selectgtk
+    Goto onSelChange.checkqt
 
 onSelChange.unselectgtk:
-	;GTK Icon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" 0
-	;GTK Association
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" "DISABLED"
-	; Select "None Association"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 1
-	Goto onSelChange.checkqt
+    ;GTK Icon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" 0
+    ;GTK Association
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" "DISABLED"
+    ; Select "None Association"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 1
+    Goto onSelChange.checkqt
 
 onSelChange.selectgtk:
-	;GTK Icon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" 1
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" 1
-	;GTK Association
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State" 1
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" ""
-	; Force None and Qt Association to no selected
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "State" 0
-	Goto onSelChange.checkqt
+    ;GTK Icon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" 1
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" 1
+    ;GTK Association
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State" 1
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" ""
+    ; Force None and Qt Association to no selected
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "State" 0
+    Goto onSelChange.checkqt
 
 ;Check Wireshark Qt+
 onSelChange.checkqt:
 !ifdef QT_DIR
-	SectionGetFlags ${SecWiresharkQt} $0
-	IntOp  $0 $0 & 1
-	IntCmp $0 0 onSelChange.unselectqt
-	IntCmp $0 1 onSelChange.selectqt
+    SectionGetFlags ${SecWiresharkQt} $0
+    IntOp  $0 $0 & 1
+    IntCmp $0 0 onSelChange.unselectqt
+    IntCmp $0 1 onSelChange.selectqt
 !endif
-	Goto onSelChange.end
+    Goto onSelChange.end
 
 !ifdef QT_DIR
 onSelChange.unselectqt:
-	;Qt Icon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 0
-	;Qt Association
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" "DISABLED"
-	Goto onSelChange.end
+    ;Qt Icon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 0
+    ;Qt Association
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" "DISABLED"
+    Goto onSelChange.end
 
 onSelChange.selectqt:
-	;Qt Icon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
-	;Qt Association
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
-	Goto onSelChange.end
+    ;Qt Icon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
+    ;Qt Association
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
+    Goto onSelChange.end
 !endif
 
 onSelChange.end:
-	Pop $0
+    Pop $0
 FunctionEnd
 !endif
 
@@ -1178,131 +1178,131 @@ Var WINWINPCAP_VERSION ; DisplayVersion from WinPcap installation
 Function myShowCallback
 
 !ifdef QT_DIR
-	; if Qt is available enable icon and associate from additional tasks
-	;Qt Icon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
-	;Qt Association
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
+    ; if Qt is available enable icon and associate from additional tasks
+    ;Qt Icon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
+    ;Qt Association
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
 !endif
 
-	; Get the Windows version
-	Call GetWindowsVersion
-	Pop $R0 ; Windows Version
+    ; Get the Windows version
+    Call GetWindowsVersion
+    Pop $R0 ; Windows Version
 
-	; Check if we're able to run with this version
-	StrCmp $R0 '95' lbl_winversion_unsupported
-	StrCmp $R0 '98' lbl_winversion_unsupported
-	StrCmp $R0 'ME' lbl_winversion_unsupported
-	StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
-	StrCmp $R0 '2000' lbl_winversion_unsupported_2000
-	Goto lbl_winversion_supported
+    ; Check if we're able to run with this version
+    StrCmp $R0 '95' lbl_winversion_unsupported
+    StrCmp $R0 '98' lbl_winversion_unsupported
+    StrCmp $R0 'ME' lbl_winversion_unsupported
+    StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
+    StrCmp $R0 '2000' lbl_winversion_unsupported_2000
+    Goto lbl_winversion_supported
 lbl_winversion_unsupported:
-	MessageBox MB_OK \
-            "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0." \
-            /SD IDOK
-	Quit
+    MessageBox MB_OK \
+        "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0." \
+        /SD IDOK
+    Quit
 
 lbl_winversion_unsupported_nt4:
-	MessageBox MB_OK \
+    MessageBox MB_OK \
             "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4." \
             /SD IDOK
-	Quit
+    Quit
 
 lbl_winversion_unsupported_2000:
-	MessageBox MB_OK \
-            "Windows $R0 is no longer supported. Please install Wireshark 1.2 or 1.0." \
-            /SD IDOK
-	Quit
+    MessageBox MB_OK \
+        "Windows $R0 is no longer supported. Please install Wireshark 1.2 or 1.0." \
+        /SD IDOK
+    Quit
 
 lbl_winversion_supported:
-	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap ${PCAP_DISPLAY_VERSION}"
-	ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
-	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
-	Goto lbl_winpcap_done
+    ; detect if WinPcap should be installed
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap ${PCAP_DISPLAY_VERSION}"
+    ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
+    IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
+    Goto lbl_winpcap_done
 
 lbl_winpcap_installed:
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
-	; Compare the installed build against the one we have.
-	ReadRegStr $WINWINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
-	StrCmp $WINWINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-	${VersionCompare} $WINWINPCAP_VERSION "4.1.0.2980" $1 ; WinPcap 4.1.3
-	StrCmp $1 "2" lbl_winpcap_do_install
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
+    ; Compare the installed build against the one we have.
+    ReadRegStr $WINWINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
+    StrCmp $WINWINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
+    ${VersionCompare} $WINWINPCAP_VERSION "4.1.0.2980" $1 ; WinPcap 4.1.3
+    StrCmp $1 "2" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
-	; The installed version is >= to what we have, so don't install
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_NAME will be uninstalled first."
-	Goto lbl_winpcap_done
+    ; The installed version is >= to what we have, so don't install
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_NAME will be uninstalled first."
+    Goto lbl_winpcap_done
 
 ;lbl_winpcap_dont_upgrade:
-	; force the user to upgrade by hand
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please uninstall $WINPCAP_NAME manually first."
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
-	Goto lbl_winpcap_done
+    ; force the user to upgrade by hand
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please uninstall $WINPCAP_NAME manually first."
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
+    Goto lbl_winpcap_done
 
 lbl_winpcap_do_install:
-	; seems to be an old version, install newer one
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
+    ; seems to be an old version, install newer one
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
+    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
 
 lbl_winpcap_done:
 
-	; if Wireshark was previously installed, unselect previously not installed icons etc.
-	; detect if Wireshark is already installed ->
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
-	IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, Wireshark is not installed
+    ; if Wireshark was previously installed, unselect previously not installed icons etc.
+    ; detect if Wireshark is already installed ->
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
+    IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, Wireshark is not installed
 
-	; only select Start Menu Group, if previously installed
-	; (we use the "all users" start menu, so select it first)
-	SetShellVarContext all
+    ; only select Start Menu Group, if previously installed
+    ; (we use the "all users" start menu, so select it first)
+    SetShellVarContext all
 
-	;Set State=1 to Desktop icon (no enable by default)
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "1"
+    ;Set State=1 to Desktop icon (no enable by default)
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "1"
 !ifdef QT_DIR
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" "1"
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" "1"
 !endif
     IfFileExists "$SMPROGRAMS\${PROGRAM_NAME}\${PROGRAM_NAME}.lnk" lbl_have_gtk_startmenu
     IfFileExists "$SMPROGRAMS\${PROGRAM_NAME}.lnk" lbl_have_gtk_startmenu
-	IfFileExists "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_startmenu
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" "0"
+    IfFileExists "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_startmenu
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" "0"
 lbl_have_gtk_startmenu:
 
-	; only select Desktop Icon, if previously installed
-	IfFileExists "$DESKTOP\${PROGRAM_NAME}.lnk" lbl_have_gtk_desktopicon
-	IfFileExists "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_desktopicon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "0"
+    ; only select Desktop Icon, if previously installed
+    IfFileExists "$DESKTOP\${PROGRAM_NAME}.lnk" lbl_have_gtk_desktopicon
+    IfFileExists "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_desktopicon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "0"
 lbl_have_gtk_desktopicon:
 
-	; only select Quick Launch Icon, if previously installed
-	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" lbl_have_gtk_quicklaunchicon
-	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_quicklaunchicon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" "0"
+    ; only select Quick Launch Icon, if previously installed
+    IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" lbl_have_gtk_quicklaunchicon
+    IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" lbl_have_gtk_quicklaunchicon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" "0"
 lbl_have_gtk_quicklaunchicon:
 
 !ifdef QT_DIR
-	IfFileExists "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_startmenu
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" "0"
+    IfFileExists "$SMPROGRAMS\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_startmenu
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" "0"
 lbl_have_qt_startmenu:
 
-	; only select Desktop Icon, if previously installed
-	IfFileExists "$DESKTOP\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_desktopicon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" "0"
+    ; only select Desktop Icon, if previously installed
+    IfFileExists "$DESKTOP\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_desktopicon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" "0"
 lbl_have_qt_desktopicon:
 
-	; only select Quick Launch Icon, if previously installed
-	IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_quicklaunchicon
-	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" "0"
+    ; only select Quick Launch Icon, if previously installed
+    IfFileExists "$QUICKLAUNCH\${PROGRAM_NAME_QT}.lnk" lbl_have_qt_quicklaunchicon
+    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" "0"
 lbl_have_qt_quicklaunchicon:
 !endif
 
