@@ -1197,6 +1197,7 @@ static int hf_mpeg_descr_short_event_name_length = -1;
 static int hf_mpeg_descr_short_event_name_encoding = -1;
 static int hf_mpeg_descr_short_event_name = -1;
 static int hf_mpeg_descr_short_event_text_length = -1;
+static int hf_mpeg_descr_short_event_text_encoding = -1;
 static int hf_mpeg_descr_short_event_text = -1;
 
 static void
@@ -1225,8 +1226,12 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    if (text_len>0)
-        proto_tree_add_item(tree, hf_mpeg_descr_short_event_text, tvb, offset, text_len, ENC_ASCII|ENC_NA);
+    if (text_len>0) {
+        enc_len = dvb_analyze_string_charset(tvb, offset, text_len, &encoding);
+        dvb_add_chartbl(tree, hf_mpeg_descr_short_event_text_encoding, tvb, offset, enc_len, encoding);
+        proto_tree_add_item(tree, hf_mpeg_descr_short_event_text,
+                tvb, offset+enc_len, text_len-enc_len, dvb_enc_to_item_enc(encoding));
+    }
 }
 
 /* 0x4E Extended Event Descriptor */
@@ -3531,9 +3536,14 @@ proto_register_mpeg_descriptor(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
         } },
 
+        { &hf_mpeg_descr_short_event_text_encoding, {
+            "Event Text Encoding", "mpeg_descr.short_evt.txt_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
         { &hf_mpeg_descr_short_event_text, {
             "Event Text", "mpeg_descr.short_evt.txt",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x4E Extended Event Descriptor */
