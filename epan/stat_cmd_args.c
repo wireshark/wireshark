@@ -36,8 +36,8 @@
    arguments.
  */
 typedef struct _stat_cmd_arg {
-	const char *cmd;
-	void (*func)(const char *arg, void* userdata);
+    const char *cmd;
+    void (*func)(const char *arg, void* userdata);
     void* userdata;
 } stat_cmd_arg;
 
@@ -47,8 +47,8 @@ static GSList *stat_cmd_arg_list=NULL;
    command line.
  */
 typedef struct {
-	stat_cmd_arg *sca;
-	char *arg;
+    stat_cmd_arg *sca;
+    char *arg;
 } stat_requested;
 static GSList *stats_requested = NULL;
 
@@ -59,20 +59,18 @@ static GSList *stats_requested = NULL;
 static gint
 sort_by_name(gconstpointer a, gconstpointer b)
 {
-	return strcmp(((const stat_cmd_arg *)a)->cmd,
-	    ((const stat_cmd_arg *)b)->cmd);
+    return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
 }
 void
 register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* userdata)
 {
-	stat_cmd_arg *newsca;
+    stat_cmd_arg *newsca;
 
-	newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
-	newsca->cmd=cmd;
-	newsca->func=func;
-	newsca->userdata=userdata;
-	stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca,
-	    sort_by_name);
+    newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
+    newsca->cmd=cmd;
+    newsca->func=func;
+    newsca->userdata=userdata;
+    stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
 }
 
 /* **********************************************************************
@@ -81,21 +79,21 @@ register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* us
 gboolean
 process_stat_cmd_arg(char *optstr)
 {
-	GSList *entry;
-	stat_cmd_arg *sca;
-	stat_requested *tr;
+    GSList *entry;
+    stat_cmd_arg *sca;
+    stat_requested *tr;
 
-	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
-		sca=(stat_cmd_arg *)entry->data;
-		if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
-			tr=(stat_requested *)g_malloc(sizeof (stat_requested));
-			tr->sca = sca;
-			tr->arg=g_strdup(optstr);
-			stats_requested=g_slist_append(stats_requested, tr);
-			return TRUE;
-		}
-	}
-	return FALSE;
+    for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
+        sca=(stat_cmd_arg *)entry->data;
+        if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
+            tr=(stat_requested *)g_malloc(sizeof (stat_requested));
+            tr->sca = sca;
+            tr->arg=g_strdup(optstr);
+            stats_requested=g_slist_append(stats_requested, tr);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* **********************************************************************
@@ -104,13 +102,13 @@ process_stat_cmd_arg(char *optstr)
 void
 list_stat_cmd_args(void)
 {
-	GSList *entry;
-	stat_cmd_arg *sca;
+    GSList *entry;
+    stat_cmd_arg *sca;
 
-	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
-		sca=(stat_cmd_arg *)entry->data;
-		fprintf(stderr,"     %s\n",sca->cmd);
-	}
+    for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
+        sca=(stat_cmd_arg *)entry->data;
+        fprintf(stderr,"     %s\n",sca->cmd);
+    }
 }
 
 /* **********************************************************************
@@ -119,13 +117,26 @@ list_stat_cmd_args(void)
 void
 start_requested_stats(void)
 {
-	stat_requested *sr;
+    stat_requested *sr;
 
-	while(stats_requested){
-		sr=(stat_requested *)stats_requested->data;
-		(*sr->sca->func)(sr->arg,sr->sca->userdata);
-		g_free(sr->arg);
-		g_free(sr);
-		stats_requested=g_slist_remove(stats_requested, sr);
-	}
+    while(stats_requested){
+        sr=(stat_requested *)stats_requested->data;
+        (*sr->sca->func)(sr->arg,sr->sca->userdata);
+        g_free(sr->arg);
+        g_free(sr);
+        stats_requested=g_slist_remove(stats_requested, sr);
+    }
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
