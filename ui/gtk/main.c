@@ -2385,26 +2385,26 @@ main(int argc, char *argv[])
         }
     }
 
-  /* Init the "Open file" dialog directory */
-  /* (do this after the path settings are processed) */
+    /* Init the "Open file" dialog directory */
+    /* (do this after the path settings are processed) */
 
-  /* Read the profile dependent (static part) of the recent file. */
-  /* Only the static part of it will be read, as we don't have the gui now to fill the */
-  /* recent lists which is done in the dynamic part. */
-  /* We have to do this already here, so command line parameters can overwrite these values. */
-  recent_read_profile_static(&rf_path, &rf_open_errno);
-  if (rf_path != NULL && rf_open_errno != 0) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                  "Could not open recent file\n\"%s\": %s.",
-                  rf_path, g_strerror(rf_open_errno));
-  }
+    /* Read the profile dependent (static part) of the recent file. */
+    /* Only the static part of it will be read, as we don't have the gui now to fill the */
+    /* recent lists which is done in the dynamic part. */
+    /* We have to do this already here, so command line parameters can overwrite these values. */
+    recent_read_profile_static(&rf_path, &rf_open_errno);
+    if (rf_path != NULL && rf_open_errno != 0) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open recent file\n\"%s\": %s.",
+                      rf_path, g_strerror(rf_open_errno));
+    }
 
-  if (recent.gui_fileopen_remembered_dir &&
-      test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
-    set_last_open_dir(recent.gui_fileopen_remembered_dir);
-  } else {
-    set_last_open_dir(get_persdatafile_dir());
-  }
+    if (recent.gui_fileopen_remembered_dir &&
+        test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
+        set_last_open_dir(recent.gui_fileopen_remembered_dir);
+    } else {
+        set_last_open_dir(get_persdatafile_dir());
+    }
 
     /* Set getopt index back to initial value, so it will start with the
        first command line parameter again.  Also reset opterr to 1, so that
