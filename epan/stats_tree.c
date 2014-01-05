@@ -113,11 +113,11 @@ free_stat_node(stat_node *node)
 	burst_bucket *bucket;
 
 	if (node->children) {
-        for (child = node->children; child; child = next ) {
-            /* child->next will be gone after free_stat_node, so cache it here */
-            next = child->next;
-			free_stat_node(child);
-        }
+	for (child = node->children; child; child = next ) {
+		/* child->next will be gone after free_stat_node, so cache it here */
+		next = child->next;
+		free_stat_node(child);
+	}
 	}
 
 	if(node->st->cfg->free_node_pr) node->st->cfg->free_node_pr(node);
@@ -223,8 +223,8 @@ stats_tree_reinit(void *p)
 	stat_node *next;
 
 	for (child = st->root.children; child; child = next) {
-        /* child->next will be gone after free_stat_node, so cache it here */
-        next = child->next;
+		/* child->next will be gone after free_stat_node, so cache it here */
+		next = child->next;
 		free_stat_node(child);
 	}
 
@@ -754,40 +754,40 @@ stats_tree_get_abbr(const char *opt_arg)
 static range_pair_t*
 get_range(char *rngstr)
 {
-        gchar **split;
-        range_pair_t *rng;
+	gchar **split;
+	range_pair_t *rng;
 
-        split = g_strsplit((gchar*)rngstr,"-",2);
+	split = g_strsplit((gchar*)rngstr,"-",2);
 
-        /* empty string */
-        if (split[0] == NULL) {
-          g_strfreev(split);
-          return NULL;
-        }
+	/* empty string */
+	if (split[0] == NULL) {
+		g_strfreev(split);
+		return NULL;
+	}
 
-        rng = (range_pair_t *)g_malloc(sizeof(range_pair_t));
+	rng = (range_pair_t *)g_malloc(sizeof(range_pair_t));
 
-        if (split[1] == NULL) {
-          /* means we have a non empty string with no delimiter
-           * so it must be a single number */
-            rng->floor = (gint)strtol(split[0],NULL,10);
-            rng->ceil = rng->floor;
-        } else {
-          /* string == "X-?" */
-          if (*(split[0]) != '\0') {
-              rng->floor = (gint)strtol(split[0],NULL,10);
-          } else
-            /* string == "-?" */
-            rng->floor = G_MININT;
+	if (split[1] == NULL) {
+		/* means we have a non empty string with no delimiter
+		 * so it must be a single number */
+		rng->floor = (gint)strtol(split[0],NULL,10);
+		rng->ceil = rng->floor;
+	} else {
+	  /* string == "X-?" */
+		if (*(split[0]) != '\0') {
+			rng->floor = (gint)strtol(split[0],NULL,10);
+		} else
+		/* string == "-?" */
+		rng->floor = G_MININT;
 
-          /* string != "?-" */
-          if (*(split[1]) != '\0') {
-            rng->ceil  = (gint)strtol(split[1],NULL,10);
-          } else
-            /* string == "?-" */
-            rng->ceil = G_MAXINT;
-        }
-        g_strfreev(split);
+		/* string != "?-" */
+	if (*(split[1]) != '\0') {
+			rng->ceil  = (gint)strtol(split[1],NULL,10);
+	} else
+		/* string == "?-" */
+		rng->ceil = G_MAXINT;
+	}
+	g_strfreev(split);
 
 	return rng;
 }
@@ -994,7 +994,7 @@ stats_tree_get_default_sort_col (stats_tree *st)
 		case ST_SORT_COL_BURSTRATE:	return COL_BURSTRATE;
 	}
 	return COL_COUNT;	/* nothing specific set */
-}					
+}
 
 extern gboolean
 stats_tree_is_default_sort_DESC (stats_tree *st)
@@ -1034,7 +1034,7 @@ stats_tree_get_column_size (gint col_index)
 extern gchar**
 stats_tree_get_values_from_node (const stat_node* node)
 {
-	gchar        **values = (gchar**) g_malloc0(sizeof(gchar*)*(node->st->num_columns));
+	gchar **values = (gchar**) g_malloc0(sizeof(gchar*)*(node->st->num_columns));
 
 	values[COL_NAME]= (node->st_flags&ST_FLG_ROOTCHILD)?stats_tree_get_displayname(node->name):g_strdup(node->name);
 	values[COL_COUNT]= g_strdup_printf("%u",node->counter);
@@ -1353,5 +1353,15 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 	}
 }
 
-
-
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: ex: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */

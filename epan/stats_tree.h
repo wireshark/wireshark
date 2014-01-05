@@ -236,3 +236,16 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 (stats_tree_manip_node(MN_CLEAR_FLAGS,(st),(name),(parent_id),(with_children),flags))
 
 #endif /* __STATS_TREE_H */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: ex: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
