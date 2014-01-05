@@ -9538,6 +9538,7 @@ ramp             7227/tcp # Registry A & M Protocol [John_Havard] [John_Havard] 
 ramp             7227/udp # Registry A $ M Protocol [John_Havard] [John_Havard] 2003-11
 citrixupp        7228/tcp # Citrix Universal Printing Port [Gary_Barton] [Gary_Barton] 2011-02-24
 citrixuppg       7229/tcp # Citrix UPP Gateway [Gary_Barton] [Gary_Barton] 2011-02-24
+aspcoordination  7235/udp # ASP Coordination Protocol [Wi-Fi_Alliance_2] [Mick_Conley] 2013-12-31
 display          7236/tcp # Wi-Fi Alliance Wi-Fi Display Protocol [Wi-Fi_Alliance] [Thomas_Sciorilli] 2012-04-09 Defined TXT keys: _display.tcp. Display Protocol
 pads             7237/tcp # PADS (Public Area Display System) Server [Willie_Jan_Bons] [Willie_Jan_Bons] 2011-03-10
 cnap             7262/tcp # Calypso Network Access Protocol [Scott_Halberg] [Scott_Halberg] 2009-06-02
