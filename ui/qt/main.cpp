@@ -398,10 +398,10 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 static void
 get_qt_compiled_info(GString *str)
 {
-  g_string_append(str, "with ");
-  g_string_append_printf(str,
+    g_string_append(str, "with ");
+    g_string_append_printf(str,
 #ifdef QT_VERSION
-                     "Qt %s ", QT_VERSION_STR);
+                    "Qt %s ", QT_VERSION_STR);
 #else
                     "Qt (version unknown) ");
 #endif
@@ -411,16 +411,16 @@ get_qt_compiled_info(GString *str)
 static void
 get_gui_compiled_info(GString *str)
 {
-  epan_get_compiled_version_info(str);
+    epan_get_compiled_version_info(str);
 
-  g_string_append(str, ", ");
-  g_string_append(str, "without PortAudio");
+    g_string_append(str, ", ");
+    g_string_append(str, "without PortAudio");
 
   g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
-  get_compiled_airpcap_version(str);
+    get_compiled_airpcap_version(str);
 #else
-  g_string_append(str, "without AirPcap");
+    g_string_append(str, "without AirPcap");
 #endif
 }
 
@@ -428,18 +428,18 @@ get_gui_compiled_info(GString *str)
 static void
 get_gui_runtime_info(GString *str)
 {
-  epan_get_runtime_version_info(str);
+    epan_get_runtime_version_info(str);
 
 #ifdef HAVE_AIRPCAP
-  g_string_append(str, ", ");
-  get_runtime_airpcap_version(str);
+    g_string_append(str, ", ");
+    get_runtime_airpcap_version(str);
 #endif
 
 
-  if(u3_active()) {
-    g_string_append(str, ", ");
-    u3_runtime_info(str);
-  }
+    if(u3_active()) {
+        g_string_append(str, ", ");
+        u3_runtime_info(str);
+    }
 
 }
 
@@ -865,9 +865,9 @@ int main(int argc, char *argv[])
             by stats_tree_stat.c and need to registered before that */
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "plugin_dir: %s", get_plugin_dir());
-  #ifdef HAVE_PLUGINS
+#ifdef HAVE_PLUGINS
     register_all_plugin_tap_listeners();
-  #endif
+#endif
 
     register_all_tap_listeners();
 
@@ -955,12 +955,12 @@ int main(int argc, char *argv[])
 ////////
 
     /* Read the dynamic part of the recent file, as we have the gui now ready for
-  it. */
+       it. */
     recent_read_dynamic(&rf_path, &rf_open_errno);
     if (rf_path != NULL && rf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                    "Could not open recent file\n\"%s\": %s.",
-                    rf_path, g_strerror(rf_open_errno));
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open recent file\n\"%s\": %s.",
+                      rf_path, g_strerror(rf_open_errno));
     }
 
     color_filters_enable(recent.packet_list_colorize);
@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
     if (!start_capture && !global_capture_opts.default_options.cfilter) {
-      global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
+        global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
     }
 #else /* HAVE_LIBPCAP */
     ////////
