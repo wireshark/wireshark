@@ -54,8 +54,8 @@ static GtkWidget *export_pdu_dlg = NULL;
 
 
 typedef struct _exp_pdu_t {
-	GtkWidget   *filter_widget;
-	GtkWidget   *tap_name_widget;
+    GtkWidget   *filter_widget;
+    GtkWidget   *tap_name_widget;
     int          pkt_encap;
     wtap_dumper* wdh;
 } exp_pdu_t;
@@ -226,30 +226,30 @@ end:
 static void
 export_pdu_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  /* Note that we no longer have a export_pdu dialog box. */
-  export_pdu_dlg = NULL;
+    /* Note that we no longer have a export_pdu dialog box. */
+    export_pdu_dlg = NULL;
 }
 
 void
 do_export_pdu(gpointer data)
 {
-  const char *filter = NULL;
-  GString    *error_string;
-  exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)data;
-  gchar      *tap_name = NULL;
+    const char *filter = NULL;
+    GString    *error_string;
+    exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)data;
+    gchar      *tap_name = NULL;
 
-  filter = gtk_entry_get_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget));
-  tap_name = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget));
+    filter = gtk_entry_get_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget));
+    tap_name = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget));
 
-  /* Register this tap listener now */
-  error_string = register_tap_listener(tap_name,            /* The name of the tap we want to listen to */
-                                       exp_pdu_tap_data,    /* instance identifier/pointer to a struct holding
+    /* Register this tap listener now */
+    error_string = register_tap_listener(tap_name,            /* The name of the tap we want to listen to */
+                                         exp_pdu_tap_data,    /* instance identifier/pointer to a struct holding
                                                              * all state variables */
-                                       filter,              /* pointer to a filter string */
-                                       TL_REQUIRES_NOTHING, /* flags for the tap listener */
-                                       export_pdu_reset,
-                                       export_pdu_packet,
-                                       export_pdu_draw);
+                                         filter,              /* pointer to a filter string */
+                                         TL_REQUIRES_NOTHING, /* flags for the tap listener */
+                                         export_pdu_reset,
+                                         export_pdu_packet,
+                                         export_pdu_draw);
     if (error_string){
         /* Error.  We failed to attach to the tap. Clean up */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -258,8 +258,8 @@ do_export_pdu(gpointer data)
         return;
     }
 
-   exp_pdu_file_open(exp_pdu_tap_data);
-   window_destroy(export_pdu_dlg);
+    exp_pdu_file_open(exp_pdu_tap_data);
+    window_destroy(export_pdu_dlg);
 }
 
 
@@ -267,94 +267,107 @@ void
 export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 
-  GtkWidget  *main_vb, *bbox, *close_bt, *ok_bt;
-  GtkWidget  *grid, *filter_bt;
-  exp_pdu_t  *exp_pdu_tap_data;
-  const char *filter = NULL;
-  guint         row;
+    GtkWidget  *main_vb, *bbox, *close_bt, *ok_bt;
+    GtkWidget  *grid, *filter_bt;
+    exp_pdu_t  *exp_pdu_tap_data;
+    const char *filter = NULL;
+    guint         row;
 
-  static construct_args_t args = {
-    "Wireshark: Export PDUs Filter",
-    TRUE,                         /* dialog should have an Apply button */
-    FALSE,                        /* if parent text widget should be activated on "Ok" or "Apply" */
-    FALSE                         /* dialog is modal and transient to the parent window */
-};
+    static construct_args_t args = {
+        "Wireshark: Export PDUs Filter",
+        TRUE,                         /* dialog should have an Apply button */
+        FALSE,                        /* if parent text widget should be activated on "Ok" or "Apply" */
+        FALSE                         /* dialog is modal and transient to the parent window */
+    };
 
-  if (export_pdu_dlg != NULL) {
-    /* There's already a export_pdu dialog box; reactivate it. */
-    reactivate_window(export_pdu_dlg);
-    return;
-  }
+    if (export_pdu_dlg != NULL) {
+        /* There's already a export_pdu dialog box; reactivate it. */
+        reactivate_window(export_pdu_dlg);
+        return;
+    }
 
-  exp_pdu_tap_data = (exp_pdu_t *)g_malloc(sizeof(exp_pdu_t));
-  exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU); 
+    exp_pdu_tap_data = (exp_pdu_t *)g_malloc(sizeof(exp_pdu_t));
+    exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU); 
 
-  export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDU:s to pcap-ng file");
+    export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDU:s to pcap-ng file");
 
-  g_signal_connect(export_pdu_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-  g_signal_connect(export_pdu_dlg, "destroy", G_CALLBACK(export_pdu_destroy_cb), NULL);
+    g_signal_connect(export_pdu_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(export_pdu_dlg, "destroy", G_CALLBACK(export_pdu_destroy_cb), NULL);
 
-  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 3);
-  gtk_container_add(GTK_CONTAINER(export_pdu_dlg), main_vb);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 3);
+    gtk_container_add(GTK_CONTAINER(export_pdu_dlg), main_vb);
 
-  /* grid */
-  grid = ws_gtk_grid_new();
-  ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
-  ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
-  gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
-  row = 0;
+    /* grid */
+    grid = ws_gtk_grid_new();
+    ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+    ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
+    gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
+    row = 0;
 
-  /* Filter button */
-  filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-  g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
-  ws_gtk_grid_attach_defaults(GTK_GRID(grid), filter_bt, 0, row, 1, 1);
-  gtk_widget_show(filter_bt);
+    /* Filter button */
+    filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+    g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), filter_bt, 0, row, 1, 1);
+    gtk_widget_show(filter_bt);
 
-  /* Entry */
-  exp_pdu_tap_data->filter_widget=gtk_entry_new();
-  g_signal_connect(exp_pdu_tap_data->filter_widget, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-  g_object_set_data(G_OBJECT(grid), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-  g_signal_connect(exp_pdu_tap_data->filter_widget, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, exp_pdu_tap_data->filter_widget);
+    /* Entry */
+    exp_pdu_tap_data->filter_widget=gtk_entry_new();
+    g_signal_connect(exp_pdu_tap_data->filter_widget, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+    g_object_set_data(G_OBJECT(grid), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+    g_signal_connect(exp_pdu_tap_data->filter_widget, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+    g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, exp_pdu_tap_data->filter_widget);
 
-  filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-  if(filter){
-      gtk_entry_set_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget), filter);
-  } else {
-      colorize_filter_te_as_empty(exp_pdu_tap_data->filter_widget);
-  }
+    filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    if(filter){
+        gtk_entry_set_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget), filter);
+    } else {
+        colorize_filter_te_as_empty(exp_pdu_tap_data->filter_widget);
+    }
 
-  ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->filter_widget, 1, row, 1, 1);
-  gtk_widget_show(exp_pdu_tap_data->filter_widget);
-  row++;
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->filter_widget, 1, row, 1, 1);
+    gtk_widget_show(exp_pdu_tap_data->filter_widget);
+    row++;
 
-  /* Select which tap to run */
-  /* Combo box */
-  exp_pdu_tap_data->tap_name_widget = gtk_combo_box_text_new();
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_7);
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_3);
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_DVB_CI);
-  gtk_combo_box_set_active(GTK_COMBO_BOX(exp_pdu_tap_data->tap_name_widget), 0);
+    /* Select which tap to run */
+    /* Combo box */
+    exp_pdu_tap_data->tap_name_widget = gtk_combo_box_text_new();
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_7);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_3);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_DVB_CI);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(exp_pdu_tap_data->tap_name_widget), 0);
 
-  ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->tap_name_widget, 0, row, 1, 1);
-  gtk_widget_show(exp_pdu_tap_data->tap_name_widget);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->tap_name_widget, 0, row, 1, 1);
+    gtk_widget_show(exp_pdu_tap_data->tap_name_widget);
 
-  /* Setup the button row */
+    /* Setup the button row */
 
-  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-  gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+    gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
 
-  close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  window_set_cancel_button(export_pdu_dlg, close_bt, window_cancel_button_cb);
-  gtk_widget_set_tooltip_text(close_bt, "Close this dialog");
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+    window_set_cancel_button(export_pdu_dlg, close_bt, window_cancel_button_cb);
+    gtk_widget_set_tooltip_text(close_bt, "Close this dialog");
 
-  ok_bt =  (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-  g_signal_connect(ok_bt, "clicked", G_CALLBACK(file_export_pdu_ok_cb), exp_pdu_tap_data);
-  gtk_widget_grab_default(ok_bt);
-  gtk_widget_set_tooltip_text(ok_bt, "Export PDU:s to a temporary capture file");
+    ok_bt =  (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(file_export_pdu_ok_cb), exp_pdu_tap_data);
+    gtk_widget_grab_default(ok_bt);
+    gtk_widget_set_tooltip_text(ok_bt, "Export PDU:s to a temporary capture file");
 
-  gtk_widget_show_all(export_pdu_dlg);
-  window_present(export_pdu_dlg);
+    gtk_widget_show_all(export_pdu_dlg);
+    window_present(export_pdu_dlg);
 
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
