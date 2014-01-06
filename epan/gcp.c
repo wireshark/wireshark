@@ -97,11 +97,14 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
     address* hi_addr;
 
     if (keep_persistent_data) {
-        wmem_tree_key_t key[] = {
-            {1,&(framenum)},
-            {1,&offset},
-            {0,NULL}
-        };
+		wmem_tree_key_t key[3];
+
+		key[0].length = 1;
+		key[0].key = &(framenum);
+		key[1].length = 1;
+		key[1].key = &offset;
+		key[2].length = 0;
+		key[2].key =NULL;
 
         if (( m = (gcp_msg_t *)wmem_tree_lookup32_array(msgs,key) )) {
             m->commited = TRUE;
@@ -169,12 +172,16 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
             }
             DISSECTOR_ASSERT_NOT_REACHED();
         } else {
-            wmem_tree_key_t key[] = {
-                {1,&(m->hi_addr)},
-                {1,&(m->lo_addr)},
-                {1,&(t_id)},
-                {0,NULL}
-            };
+            wmem_tree_key_t key[4];
+
+            key[0].length = 1;
+            key[0].key = &(m->hi_addr);
+            key[1].length = 1;
+            key[1].key = &(m->lo_addr);
+            key[2].length = 1;
+            key[2].key = &(t_id);
+            key[3].length = 0;
+            key[3].key = NULL;
 
             trxmsg = wmem_new(wmem_file_scope(), gcp_trx_msg_t);
             t = (gcp_trx_t *)wmem_tree_lookup32_array(trxs,key);
@@ -236,19 +243,26 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
 
     if (persistent) {
 
-        wmem_tree_key_t ctx_key[] = {
-            {1,&(m->hi_addr)},
-            {1,&(m->lo_addr)},
-            {1,&(c_id)},
-            {0,NULL}
-        };
+        wmem_tree_key_t ctx_key[4];
+        wmem_tree_key_t trx_key[4];
 
-        wmem_tree_key_t trx_key[] = {
-            {1,&(m->hi_addr)},
-            {1,&(m->lo_addr)},
-            {1,&(t->id)},
-            {0,NULL}
-        };
+        ctx_key[0].length = 1;
+        ctx_key[0].key = &(m->hi_addr);
+        ctx_key[1].length = 1;
+        ctx_key[1].key = &(m->lo_addr);
+        ctx_key[2].length = 1;
+        ctx_key[2].key = &(c_id);
+        ctx_key[3].length = 0;
+        ctx_key[3].key = NULL;
+
+        trx_key[0].length = 1;
+        trx_key[0].key = &(m->hi_addr);
+        trx_key[1].length = 1;
+        trx_key[1].key = &(m->lo_addr);
+        trx_key[2].length = 1;
+        trx_key[2].key = &(t->id);
+        trx_key[3].length = 0;
+        trx_key[3].key = NULL;
 
         if (m->commited) {
             if (( context = (gcp_ctx_t *)wmem_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
