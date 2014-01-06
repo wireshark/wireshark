@@ -247,7 +247,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 
 	if((tags_bit_field & EXP_PDU_TAG_SS7_OPC_BIT) == EXP_PDU_TAG_SS7_OPC_BIT){
 		if(pinfo->src.type == AT_SS7PC){
-			mtp3_addr_pc_t *mtp3_addr = (mtp3_addr_pc_t *)(pinfo->src.data);
+			const mtp3_addr_pc_t *mtp3_addr = (const mtp3_addr_pc_t *)(pinfo->src.data);
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SS7_OPC;
@@ -269,7 +269,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 
 	if((tags_bit_field & EXP_PDU_TAG_SS7_DPC_BIT) == EXP_PDU_TAG_SS7_DPC_BIT){
 		if(pinfo->dst.type == AT_SS7PC){
-			mtp3_addr_pc_t *mtp3_addr = (mtp3_addr_pc_t *)(pinfo->dst.data);
+			const mtp3_addr_pc_t *mtp3_addr = (const mtp3_addr_pc_t *)(pinfo->dst.data);
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SS7_DPC;
