@@ -216,6 +216,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 
 FILE_DISSECTOR_SRC = \
 	file-elf.c \
+	file-file.c \
 	file-mp4.c
 
 #
@@ -1280,6 +1281,12 @@ DIRTY_DISSECTOR_SRC = \
 	packet-x11.c
 
 #
+# Headers for file dissectors.
+#
+FILE_DISSECTOR_INCLUDES = \
+	file-file.h
+
+#
 # Headers for dissectors.
 #
 DISSECTOR_INCLUDES =	\
@@ -1674,7 +1681,8 @@ DISSECTOR_SUPPORT_SRC =	\
 
 # this target needed for distribution only
 noinst_HEADERS =	\
-	$(DISSECTOR_INCLUDES)
+	$(DISSECTOR_INCLUDES) \
+	$(FILE_DISSECTOR_INCLUDES)
 
 ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC) \

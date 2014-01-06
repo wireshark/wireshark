@@ -300,6 +300,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 
 set(DISSECTOR_SRC
 	dissectors/file-elf.c
+	dissectors/file-file.c
 	dissectors/file-mp4.c
 	dissectors/packet-2dparityfec.c
 	dissectors/packet-3com-njack.c
