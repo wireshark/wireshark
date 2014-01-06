@@ -59,6 +59,10 @@ VoiceGroupCallData
 VoiceBroadcastData
 GroupId
 Ext-SS-Info
+EMLPP-Info
+Ext-ForwInfo
+Ext-CallBarInfo
+Ext-SS-Data
 # Not yet used Nokia extensions
 SS-DataEmoInExt
 EmoInCategoryKey
@@ -73,6 +77,9 @@ CarrierIdCode
 COS-FeatureList
 GprsBarring
 COS-Feature
+CustomerGroupID
+SubGroupID
+ClassOfServiceID
 #.END
 #.PDU_NEW
 LCS-ClientID
