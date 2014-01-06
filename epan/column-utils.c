@@ -1972,8 +1972,8 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
 
 /*
  * Fill in columns if we got an error reading the packet.
- * We set most columns to "???", and set the Info column to an error
- * message.
+ * We set most columns to "???", fill in columns that don't need data read
+ * from the file, and set the Info column to an error message.
  */
 void
 col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums)
