@@ -703,7 +703,7 @@ static void register_mibs(void) {
 				for(; key; key = key->next) {
 					hf_register_info hf;
 
-					hf.p_id                     = &(key->hfid;
+					hf.p_id                     = &(key->hfid);
 					hf.hfinfo.name              = key->name;
 					hf.hfinfo.abbrev            = alnumerize(key->name);
 					hf.hfinfo.type              = key->ft_type;
