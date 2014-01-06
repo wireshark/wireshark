@@ -374,7 +374,7 @@ struct _header_field_info {
 	const char		*name;           /**< [FIELDNAME] full name of this field */
 	const char		*abbrev;         /**< [FIELDABBREV] abbreviated name of this field */
 	enum ftenum		 type;           /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
-	int			 display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
+	int			     display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
 	const void		*strings;        /**< [FIELDCONVERT] value_string, range_string or true_false_string,
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the

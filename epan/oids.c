@@ -623,15 +623,21 @@ static void register_mibs(void) {
 
 			if ( typedata && oid_data->value_hfid == -2 ) {
 				SmiNamedNumber* smiEnum;
-				hf_register_info hf = { &(oid_data->value_hfid), {
-					oid_data->name,
-					alnumerize(oid_data->name),
-					typedata->ft_type,
-					typedata->display,
-					NULL,
-					0,
-					smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL),
-					HFILL }};
+				hf_register_info hf;
+
+                hf.p_id                     = &(oid_data->value_hfid);
+                hf.hfinfo.name              = oid_data->name;
+                hf.hfinfo.abbrev            = alnumerize(oid_data->name);
+                hf.hfinfo.type              = typedata->ft_type;
+                hf.hfinfo.display           = typedata->display;
+                hf.hfinfo.strings           = NULL;
+                hf.hfinfo.bitmask           = 0;
+                hf.hfinfo.blurb             = smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL);
+                hf.hfinfo.id                = -1;
+                hf.hfinfo.parent            = 0;
+                hf.hfinfo.ref_type          = HF_REF_TYPE_NONE;
+                hf.hfinfo.same_name_prev_id = -1;
+                hf.hfinfo.same_name_next    = NULL;
 
 				/* Don't allow duplicate blurb/name */
 				if (strcmp(hf.hfinfo.blurb, hf.hfinfo.name) == 0) {
@@ -646,7 +652,9 @@ static void register_mibs(void) {
 
 					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum)) {
 						if (smiEnum->name) {
-							value_string val = {(guint32)smiEnum->value.value.integer32,g_strdup(smiEnum->name)};
+                            value_string val;
+                            val.value  = (guint32)smiEnum->value.value.integer32;
+                            val.strptr = g_strdup(smiEnum->name);
 							g_array_append_val(vals,val);
 						}
 					}
@@ -693,15 +701,22 @@ static void register_mibs(void) {
 
 			if ((key = oid_data->key)) {
 				for(; key; key = key->next) {
-					hf_register_info hf = { &(key->hfid), {
-						key->name,
-						alnumerize(key->name),
-						key->ft_type,
-						key->display,
-						NULL,
-						0,
-						NULL,
-						HFILL }};
+					hf_register_info hf;
+
+					hf.p_id                     = &(key->hfid;
+					hf.hfinfo.name              = key->name;
+					hf.hfinfo.abbrev            = alnumerize(key->name);
+					hf.hfinfo.type              = key->ft_type;
+					hf.hfinfo.display           = key->display;
+					hf.hfinfo.strings           = NULL;
+					hf.hfinfo.bitmask           = 0;
+					hf.hfinfo.blurb             = NULL;
+					hf.hfinfo.id                = -1;
+					hf.hfinfo.parent            = 0;
+					hf.hfinfo.ref_type          = HF_REF_TYPE_NONE;
+					hf.hfinfo.same_name_prev_id = -1;
+					hf.hfinfo.same_name_next    = NULL;
+
 
 					D(5,("\t\t\tIndex: name=%s subids=%d key_type=%d",
 						 key->name, key->num_subids, key->key_type ));
