@@ -1339,7 +1339,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     unsigned char ctr_block[16];
     gcry_cipher_hd_t cypher_hd;
     int gcrypt_err;
-    guint8* encrypted_data;
     guint8* decrypted_data;
     gint payload_length;
     tvbuff_t *decrypted_tvb;
@@ -1391,19 +1390,15 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
     /* Extract the encrypted data into a buffer */
     payload_length = tvb_length_remaining(tvb, *offset);
-    encrypted_data = (guint8 *)g_malloc0(payload_length);
-    tvb_memcpy(tvb, encrypted_data, *offset, payload_length);
-
-    /* Allocate memory to receive decrypted payload */
     decrypted_data = (guint8 *)g_malloc0(payload_length);
+    tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
 
     /* Decrypt the actual data */
     gcrypt_err = gcry_cipher_decrypt(cypher_hd,
                                      decrypted_data, payload_length,
-                                     encrypted_data, payload_length);
+                                     NULL, 0);
     if (gcrypt_err != 0) {
         gcry_cipher_close(cypher_hd);
-        g_free(encrypted_data);
         g_free(decrypted_data);
         return tvb;
     }
@@ -1415,9 +1410,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, payload_length, payload_length);
     tvb_set_free_cb(decrypted_tvb, g_free);
     add_new_data_source(pinfo, decrypted_tvb, "Deciphered Payload");
-
-    /* Free temp buffer */
-    g_free(encrypted_data);
 
     /* Return deciphered data, i.e. beginning of new tvb */
     *offset = 0;
