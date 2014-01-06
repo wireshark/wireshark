@@ -1322,19 +1322,32 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 /* Called from control protocol to configure security algorithms for the given UE */
 void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info)
 {
+    /* Use for this frame so can check integrity on SecurityCommandRequest frame */
+    /* N.B. won't work for internal, non-RRC signalling methods... */
+    pdcp_security_info_t *p_frame_security;
+
     /* Copy security struct */
     pdcp_security_info_t *p_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
     *p_security = *security_info;
 
     /* And add into security table */
     g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), p_security);
+
+    /* Add an entry for this PDU already to use these settings, as otherwise it won't be present
+       when we query it on the first pass. */
+    p_frame_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
+    *p_frame_security = *p_security;
+            g_hash_table_insert(pdcp_security_result_hash,
+                                get_ueid_frame_hash_key(ueid, security_info->configuration_frame, TRUE),
+                                p_frame_security);
 }
 
 #if HAVE_LIBGCRYPT
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset,
                                   pdu_security_settings_t *pdu_security_settings,
-                                  enum pdcp_plane plane, gboolean *deciphered)
+                                  enum pdcp_plane plane, gboolean will_be_deciphered,
+                                  gboolean *deciphered)
 {
     unsigned char ctr_block[16];
     gcry_cipher_hd_t cypher_hd;
@@ -1356,6 +1369,11 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     /* Don't decipher if turned off in preferences */
     if (((plane == SIGNALING_PLANE) &&  !global_pdcp_decipher_signalling) ||
         ((plane == USER_PLANE) &&       !global_pdcp_decipher_userplane)) {
+        return tvb;
+    }
+
+    /* Don't decipher if not yet past SecurityModeResponse */
+    if (!will_be_deciphered) {
         return tvb;
     }
 
@@ -1419,7 +1437,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 #else
 static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset _U_,
                                   pdu_security_settings_t *pdu_security_settings _U_,
-                                  enum pdcp_plane plane _U_, gboolean *deciphered _U_)
+                                  enum pdcp_plane plane _U_, gboolean will_be_deciphered _U_,
+                                  gboolean *deciphered _U_)
 {
     return tvb;
 }
@@ -1608,10 +1627,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (!pinfo->fd->flags.visited) {
         /* Look up current state by UEID */
         current_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_hash,
-                                                                                            GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
+                                                                      GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
         if (current_security != NULL) {
             /* Store any result for this frame in the result table */
             pdcp_security_info_t *security_to_store = wmem_new(wmem_file_scope(), pdcp_security_info_t);
+            /* Take a deep copy of the settings */
             *security_to_store = *current_security;
             g_hash_table_insert(pdcp_security_result_hash,
                                 get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, TRUE),
@@ -1887,7 +1907,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Check pdu_security_settings - may need to do deciphering before calling
        further dissectors on payload */
-    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info->plane, &payload_deciphered);
+    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info->plane,
+                                   pdu_security ? pdu_security->seen_next_ul_pdu: FALSE, &payload_deciphered);
 
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
         guint32 data_length;
@@ -1903,7 +1924,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
 
         /* RRC data is all but last 4 bytes.
-           Call lte-rrc dissector (according to direction and channel type) */
+           Call lte-rrc dissector (according to direction and channel type) if we have valid data */
         if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
             ((pdu_security == NULL) || (pdu_security->ciphering == 0) || payload_deciphered || !pdu_security->seen_next_ul_pdu)){
             /* Get appropriate dissector handle */
@@ -1959,6 +1980,9 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 expert_add_info_format(pinfo, mac_ti, &ei_pdcp_lte_digest_wrong,
                                        "MAC-I Digest wrong expected %08x but found %08x",
                                        calculated_digest, mac);
+            }
+            else {
+                proto_item_append_text(mac_ti, " [Matches calculated result]");
             }
         }
 

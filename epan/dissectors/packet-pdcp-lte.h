@@ -60,7 +60,7 @@ enum security_ciphering_algorithm_e { eea0, eea1, eea2 };
 typedef struct pdcp_security_info_t
 {
     guint32                             configuration_frame;
-    gboolean                            seen_next_ul_pdu;
+    gboolean                            seen_next_ul_pdu; /* i.e. have we seen SecurityModeResponse */
     enum security_integrity_algorithm_e integrity;
     enum security_ciphering_algorithm_e ciphering;
 } pdcp_security_info_t;
