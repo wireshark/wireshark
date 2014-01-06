@@ -1876,108 +1876,96 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
     return;
 
   for (i = 0; i < pinfo->cinfo->num_cols; i++) {
-    switch (pinfo->cinfo->col_fmt[i]) {
-    case COL_NUMBER:
-    case COL_CLS_TIME:
-    case COL_ABS_TIME:
-    case COL_ABS_YMD_TIME:
-    case COL_ABS_YDOY_TIME:
-    case COL_UTC_TIME:
-    case COL_UTC_YMD_TIME:
-    case COL_UTC_YDOY_TIME:
-    case COL_REL_TIME:
-    case COL_DELTA_TIME:
-    case COL_DELTA_TIME_DIS:
-    case COL_PACKET_LENGTH:
-    case COL_CUMULATIVE_BYTES:
+    if (col_based_on_frame_data(pinfo->cinfo, i)) {
       if (fill_fd_colums)
         col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i, fill_col_exprs);
-      break;
+    } else {
+      switch (pinfo->cinfo->col_fmt[i]) {
+      case COL_DEF_SRC:
+      case COL_RES_SRC:   /* COL_DEF_SRC is currently just like COL_RES_SRC */
+        col_set_addr(pinfo, i, &pinfo->src, TRUE, fill_col_exprs, TRUE);
+        break;
 
-    case COL_DEF_SRC:
-    case COL_RES_SRC:   /* COL_DEF_SRC is currently just like COL_RES_SRC */
-      col_set_addr(pinfo, i, &pinfo->src, TRUE, fill_col_exprs, TRUE);
-      break;
+      case COL_UNRES_SRC:
+        col_set_addr(pinfo, i, &pinfo->src, TRUE, fill_col_exprs, FALSE);
+        break;
 
-    case COL_UNRES_SRC:
-      col_set_addr(pinfo, i, &pinfo->src, TRUE, fill_col_exprs, FALSE);
-      break;
+      case COL_DEF_DL_SRC:
+      case COL_RES_DL_SRC:
+        col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, fill_col_exprs, TRUE);
+        break;
 
-    case COL_DEF_DL_SRC:
-    case COL_RES_DL_SRC:
-      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, fill_col_exprs, TRUE);
-      break;
+      case COL_UNRES_DL_SRC:
+        col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, fill_col_exprs, FALSE);
+        break;
 
-    case COL_UNRES_DL_SRC:
-      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, fill_col_exprs, FALSE);
-      break;
+      case COL_DEF_NET_SRC:
+      case COL_RES_NET_SRC:
+        col_set_addr(pinfo, i, &pinfo->net_src, TRUE, fill_col_exprs, TRUE);
+        break;
 
-    case COL_DEF_NET_SRC:
-    case COL_RES_NET_SRC:
-      col_set_addr(pinfo, i, &pinfo->net_src, TRUE, fill_col_exprs, TRUE);
-      break;
+      case COL_UNRES_NET_SRC:
+        col_set_addr(pinfo, i, &pinfo->net_src, TRUE, fill_col_exprs, FALSE);
+        break;
 
-    case COL_UNRES_NET_SRC:
-      col_set_addr(pinfo, i, &pinfo->net_src, TRUE, fill_col_exprs, FALSE);
-      break;
+      case COL_DEF_DST:
+      case COL_RES_DST:   /* COL_DEF_DST is currently just like COL_RES_DST */
+        col_set_addr(pinfo, i, &pinfo->dst, FALSE, fill_col_exprs, TRUE);
+        break;
 
-    case COL_DEF_DST:
-    case COL_RES_DST:   /* COL_DEF_DST is currently just like COL_RES_DST */
-      col_set_addr(pinfo, i, &pinfo->dst, FALSE, fill_col_exprs, TRUE);
-      break;
+      case COL_UNRES_DST:
+        col_set_addr(pinfo, i, &pinfo->dst, FALSE, fill_col_exprs, FALSE);
+        break;
 
-    case COL_UNRES_DST:
-      col_set_addr(pinfo, i, &pinfo->dst, FALSE, fill_col_exprs, FALSE);
-      break;
+      case COL_DEF_DL_DST:
+      case COL_RES_DL_DST:
+        col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, fill_col_exprs, TRUE);
+        break;
 
-    case COL_DEF_DL_DST:
-    case COL_RES_DL_DST:
-      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, fill_col_exprs, TRUE);
-      break;
+      case COL_UNRES_DL_DST:
+        col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, fill_col_exprs, FALSE);
+        break;
 
-    case COL_UNRES_DL_DST:
-      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, fill_col_exprs, FALSE);
-      break;
+      case COL_DEF_NET_DST:
+      case COL_RES_NET_DST:
+        col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, fill_col_exprs, TRUE);
+        break;
 
-    case COL_DEF_NET_DST:
-    case COL_RES_NET_DST:
-      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, fill_col_exprs, TRUE);
-      break;
+      case COL_UNRES_NET_DST:
+        col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, fill_col_exprs, FALSE);
+        break;
 
-    case COL_UNRES_NET_DST:
-      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, fill_col_exprs, FALSE);
-      break;
+      case COL_DEF_SRC_PORT:
+      case COL_RES_SRC_PORT:  /* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
+        col_set_port(pinfo, i, TRUE, TRUE, fill_col_exprs);
+        break;
 
-    case COL_DEF_SRC_PORT:
-    case COL_RES_SRC_PORT:  /* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
-      col_set_port(pinfo, i, TRUE, TRUE, fill_col_exprs);
-      break;
+      case COL_UNRES_SRC_PORT:
+        col_set_port(pinfo, i, FALSE, TRUE, fill_col_exprs);
+        break;
 
-    case COL_UNRES_SRC_PORT:
-      col_set_port(pinfo, i, FALSE, TRUE, fill_col_exprs);
-      break;
+      case COL_DEF_DST_PORT:
+      case COL_RES_DST_PORT:  /* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
+        col_set_port(pinfo, i, TRUE, FALSE, fill_col_exprs);
+        break;
 
-    case COL_DEF_DST_PORT:
-    case COL_RES_DST_PORT:  /* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
-      col_set_port(pinfo, i, TRUE, FALSE, fill_col_exprs);
-      break;
+      case COL_UNRES_DST_PORT:
+        col_set_port(pinfo, i, FALSE, FALSE, fill_col_exprs);
+        break;
 
-    case COL_UNRES_DST_PORT:
-      col_set_port(pinfo, i, FALSE, FALSE, fill_col_exprs);
-      break;
-
-    case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
-      g_assert_not_reached();
-      break;
-    default:
-      if (pinfo->cinfo->col_fmt[i] >= NUM_COL_FMTS) {
+      case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
         g_assert_not_reached();
+        break;
+      default:
+        if (pinfo->cinfo->col_fmt[i] >= NUM_COL_FMTS) {
+          g_assert_not_reached();
+        }
+        /*
+         * Formatting handled by col_custom_set_edt() (COL_CUSTOM), expert.c
+         * (COL_EXPERT), or individual dissectors.
+         */
+        break;
       }
-      /*
-       * Formatting handled by col_custom_set_edt() (COL_CUSTOM), expert.c
-       * (COL_EXPERT), or individual dissectors.
-       */
-      break;
     }
   }
 }
@@ -1996,33 +1984,13 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
     return;
 
   for (i = 0; i < cinfo->num_cols; i++) {
-    switch (cinfo->col_fmt[i]) {
-    case COL_NUMBER:
-    case COL_CLS_TIME:
-    case COL_ABS_TIME:
-    case COL_ABS_YMD_TIME:
-    case COL_ABS_YDOY_TIME:
-    case COL_UTC_TIME:
-    case COL_UTC_YMD_TIME:
-    case COL_UTC_YDOY_TIME:
-    case COL_REL_TIME:
-    case COL_DELTA_TIME:
-    case COL_DELTA_TIME_DIS:
-    case COL_PACKET_LENGTH:
-    case COL_CUMULATIVE_BYTES:
+    if (col_based_on_frame_data(cinfo, i)) {
       if (fill_fd_colums)
         col_fill_in_frame_data(fdata, cinfo, i, fill_col_exprs);
-      break;
-
-    case COL_INFO:
+    } else if (cinfo->col_fmt[i] == COL_INFO) {
       /* XXX - say more than this */
       cinfo->col_data[i] = "Read error";
-      break;
-
-    case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
-      g_assert_not_reached();
-      break;
-    default:
+    } else {
       if (cinfo->col_fmt[i] >= NUM_COL_FMTS) {
         g_assert_not_reached();
       }
