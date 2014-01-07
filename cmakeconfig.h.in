@@ -228,9 +228,6 @@
 /* Define to 1 if you have the `pcap_set_datalink' function. */
 #cmakedefine HAVE_PCAP_SET_DATALINK 1
 
-/* Define if plugins are enabled */
-#cmakedefine HAVE_PLUGINS 1
-
 /* Define to 1 if you have the <portaudio.h> header file. */
 #cmakedefine HAVE_PORTAUDIO_H 1
 
