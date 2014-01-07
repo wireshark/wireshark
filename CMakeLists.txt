@@ -217,6 +217,9 @@ else()
 		-Wshorten-64-to-32
 	)
 
+	set(WIRESHARK_CPP_ONLY_FLAGS
+	)
+
 	set(WIRESHARK_EXTRA_C_FLAGS
 		-pedantic
 		-Woverflow
@@ -242,6 +245,9 @@ else()
 		-Wmissing-prototypes
 	)
 
+	set(WIRESHARK_EXTRA_CPP_ONLY_FLAGS
+	)
+
 	# With clang some tests don't fail properly during testing but only
 	# during real compiles
 
@@ -262,6 +268,7 @@ else()
 	if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
 		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
 		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
+		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_CPP_ONLY_FLAGS})
 	endif()
 
 	add_definitions(
@@ -269,6 +276,9 @@ else()
 		-DG_DISABLE_SINGLE_INCLUDES
 	)
 endif()
+
+set( C_FLAG_TESTS ${WIRESHARK_C_FLAGS} ${WIRESHARK_C_ONLY_FLAGS} )
+set( CPP_FLAG_TESTS ${WIRESHARK_C_FLAGS} ${WIRESHARK_CPP_ONLY_FLAGS} )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
@@ -286,41 +296,26 @@ if(WERR_UNKNOWN)
 	set(CMAKE_REQUIRED_FLAGS -Werror=unknown-warning-option )
 endif()
 
-set(C 0)
 # Sigh: Have to use THIS_FLAG instead of ${F} for some reason
-foreach(THIS_FLAG ${WIRESHARK_C_FLAGS})
-	set(F WS_C_FLAG_${C})
+foreach(THIS_FLAG ${C_FLAG_TESTS})
+	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
 	set(${F} ${THIS_FLAG})
-	set(V WS_C_FLAG_VALID${C})
-	message(STATUS "Checking for c-compiler flag: ${${F}}")
+	set(V C_${F}_VALID)
+	message(STATUS "Checking for c-compiler flag: ${THIS_FLAG}")
 	check_c_compiler_flag(${${F}} ${V})
 	if (${${V}})
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${F}}")
 	endif()
-	math(EXPR C "${C} + 1")
 endforeach()
-foreach(THIS_FLAG ${WIRESHARK_C_FLAGS})
-	set(F WS_C_FLAG_${C})
+foreach(THIS_FLAG ${CPP_FLAG_TESTS})
+	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
 	set(${F} ${THIS_FLAG})
-	set(V WS_C_FLAG_VALID${C})
-	message(STATUS "Checking for c++-compiler flag: ${${F}}")
+	set(V CPP_${F}_VALID)
+	message(STATUS "Checking for c++-compiler flag: ${THIS_FLAG}")
 	check_cxx_compiler_flag(${${F}} ${V})
 	if (${${V}})
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${F}}")
 	endif()
-	math(EXPR C "${C} + 1")
-endforeach()
-# Continue increasing C from previous loop
-foreach(THIS_FLAG ${WIRESHARK_C_ONLY_FLAGS})
-	set(F WS_C_FLAG_${C})
-	set(${F} ${THIS_FLAG})
-	set(V WS_C_FLAG_VALID${C})
-	message(STATUS "Checking for flag: ${${F}}")
-	check_c_compiler_flag(${${F}} ${V})
-	if (${${V}})
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${F}}")
-	endif()
-	math(EXPR C "${C} + 1")
 endforeach()
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}\nCXX-Flags: ${CMAKE_CXX_FLAGS}")
 
