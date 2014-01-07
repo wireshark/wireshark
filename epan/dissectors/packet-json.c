@@ -37,6 +37,8 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 
+#include <wsutil/unicode-utils.h>
+
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
 
@@ -247,20 +249,6 @@ static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 	wmem_stack_pop(data->stack);
 }
 
-/*
- * defines for helping with UTF-16 surrogate pairs
- */
-
-#define LEAD_SURROGATE_START    0xd800
-#define LEAD_SURROGATE_END      0xdbff
-#define TRAIL_SURROGATE_START   0xdc00
-#define TRAIL_SURROGATE_END     0xdfff
-
-#define IS_LEAD_SURROGATE(l)    (((l)>=LEAD_SURROGATE_START)&&((l)<=LEAD_SURROGATE_END))
-#define IS_TRAIL_SURROGATE(t)   (((t)>=TRAIL_SURROGATE_START)&&((t)<=TRAIL_SURROGATE_END))
-
-#define GET_UNICHAR_FROM_SURROGATES(l,t)    (0x10000+(((l-LEAD_SURROGATE_START)<<10)|(t-TRAIL_SURROGATE_START)))
-
 static char *json_string_unescape(tvbparse_elem_t *tok)
 {
 	char *str = (char *)wmem_alloc(wmem_packet_scope(), tok->len - 1);
@@ -350,7 +338,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 								}
 
 								if ((IS_TRAIL_SURROGATE(trail_surrogate))) {
-									unicode_hex = GET_UNICHAR_FROM_SURROGATES(lead_surrogate,trail_surrogate);
+									unicode_hex = SURROGATE_VALUE(lead_surrogate,trail_surrogate);
 								} else {
 									valid = FALSE;
 								}

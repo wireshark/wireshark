@@ -84,4 +84,15 @@ void arg_list_utf_16to8(int argc, char *argv[]);
 
 #endif /* _WIN32 */
 
+/*
+ * defines for helping with UTF-16 surrogate pairs
+ */
+
+#define IS_LEAD_SURROGATE(uchar2) \
+	((uchar2) >= 0xd800 && (uchar2) < 0xdc00)
+#define IS_TRAIL_SURROGATE(uchar2) \
+	((uchar2) >= 0xdc00 && (uchar2) < 0xe000)
+#define SURROGATE_VALUE(lead, trail) \
+	(((((lead) - 0xd800) << 10) | ((trail) - 0xdc00)) + 0x100000)
+
 #endif /* __UNICODEUTIL_H__ */

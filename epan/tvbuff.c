@@ -41,6 +41,7 @@
 
 #include "wsutil/pint.h"
 #include "wsutil/sign_ext.h"
+#include "wsutil/unicode-utils.h"
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -2001,13 +2002,6 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * XXX - if there are an odd number of bytes, should put a
  * REPLACEMENT CHARACTER at the end.
  */
-
-#define IS_LEAD_SURROGATE(uchar2) \
-	((uchar2) >= 0xd800 && (uchar2) < 0xdc00)
-#define IS_TRAIL_SURROGATE(uchar2) \
-	((uchar2) >= 0xdc00 && (uchar2) < 0xe000)
-#define SURROGATE_VALUE(lead, trail) \
-	(((((lead) - 0xd800) << 10) + ((trail) - 0xdc00)) + 0x100000)
 
 static wmem_strbuf_t *
 tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint size, const guint encoding)
