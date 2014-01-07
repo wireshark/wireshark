@@ -78,7 +78,7 @@ show how to restrict access using setcap and setuid respectively:
 # groupadd -g packetcapture
 # chmod 750 /usr/bin/dumpcap
 # chgrp packetcapture /usr/bin/dumpcap
-# setcap cap_net_raw,cap_net_admin+eip /usr/bin/dumpcap
+# setcap cap_net_raw,cap_net_admin+ep /usr/bin/dumpcap
 
 # groupadd -g packetcapture
 # chgrp packetcapture /usr/bin/dumpcap
