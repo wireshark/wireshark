@@ -109,7 +109,7 @@ utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...)
     dst = g_strdup_vprintf(fmt, ap);
     va_end(ap);
 
-    _snwprintf(utf16buf, utf16buf_len, _T("%s"), utf_8to16(dst));
+    StringCchPrintf(utf16buf, utf16buf_len, _T("%s"), utf_8to16(dst));
 
     g_free(dst);
 }
