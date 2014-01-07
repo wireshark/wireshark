@@ -1157,7 +1157,6 @@ static void dissect_zcl_part_cmd_id                 (proto_tree* tree, tvbuff_t*
 /*************************/
 /* Global Variables      */
 /*************************/
-extern const value_string zbee_aps_cid_names[];
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_part = -1;

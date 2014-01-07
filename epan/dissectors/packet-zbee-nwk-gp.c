@@ -270,12 +270,6 @@ typedef struct {
 #define ZBEE_NWK_GP_MANUF_GREENPEAK_IZRHS   0x0003
 
 /*********************/
-/* Extern Constants. */
-/*********************/
-
-extern const value_string zbee_aps_cid_names[];
-
-/*********************/
 /* Global variables. */
 /*********************/
 

@@ -194,7 +194,4 @@ extern GHashTable *zbee_table_link_keyring;
 #define ZBEE_NWK_BEACON_NETWORK_DEPTH          0x78
 #define ZBEE_NWK_BEACON_END_DEVICE_CAPACITY    0x80
 
-/* Function declarations. */
-guint zbee_get_bit_field(guint input, guint mask);
-
 #endif /* PACKET_ZBEE_NWK_H */
