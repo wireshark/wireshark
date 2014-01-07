@@ -21,6 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
 #include "about_dialog.h"
 #include "ui_about_dialog.h"
 
@@ -71,7 +73,7 @@ void AboutDialog::about_folders_row(const char *name, const char *dir, const cha
 
 void plugins_add_description(const char *name, const char *version,
                         const char *types, const char *filename,
-                        void *user_data _U_ )
+                        void *user_data )
 {
 
     QTableWidget *tbPlugins = (QTableWidget *)user_data;

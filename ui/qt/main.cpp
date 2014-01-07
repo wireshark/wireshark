@@ -21,10 +21,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
 #include "wireshark_application.h"
 #include "main_window.h"
 
-#include "config.h"
 #include <ctype.h>
 #include "globals.h"
 
