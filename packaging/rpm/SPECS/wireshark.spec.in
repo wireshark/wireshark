@@ -241,7 +241,7 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %else
 %if %{use_wireshark_group} && %{setcap_dumpcap}
 # Setcap but only executable by members of the 'wireshark' group
-%attr(0750, root, wireshark) %caps(cap_net_raw,cap_net_admin=eip) %{_bindir}/dumpcap
+%attr(0750, root, wireshark) %caps(cap_net_raw,cap_net_admin=ep) %{_bindir}/dumpcap
 %else
 %if %{setuid_dumpcap}
 # Setuid and executable by all
@@ -249,7 +249,7 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %else
 %if %{setcap_dumpcap}
 # Setcap and executable by all
-%attr(0755, root, root) %caps(cap_net_raw,cap_net_admin=eip) %{_bindir}/dumpcap
+%attr(0755, root, root) %caps(cap_net_raw,cap_net_admin=ep) %{_bindir}/dumpcap
 %else
 # Executable by all but with no special permissions
 %attr(0755, root, root) %{_bindir}/dumpcap
