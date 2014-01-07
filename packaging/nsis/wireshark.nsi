@@ -274,11 +274,6 @@ Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 Var VCREDIST_FLAGS ; silent vs passive, norestart
 !endif
 
-!define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (GTK+)"
-!define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer (Qt)"
-!define PROGRAM_NAME_PATH_GTK "${PROGRAM_NAME}.exe"
-!define PROGRAM_NAME_PATH_QT "qtshark.exe"
-
 Section "-Required"
 ;-------------------------------------------
 

@@ -14,6 +14,10 @@ Name "${DISPLAY_NAME}"
 
 !define PROGRAM_NAME_GTK "${PROGRAM_NAME} (GTK+)"
 !define PROGRAM_NAME_QT "${PROGRAM_NAME} (Qt)"
+!define PROGRAM_FULL_NAME_GTK "The ${PROGRAM_NAME} Network Protocol Analyzer (GTK+)"
+!define PROGRAM_FULL_NAME_QT "The ${PROGRAM_NAME} Network Protocol Analyzer (Qt)"
+!define PROGRAM_NAME_PATH_GTK "${PROGRAM_NAME}.exe"
+!define PROGRAM_NAME_PATH_QT "qtshark.exe"
 
 !define UNINSTALLER_NAME "uninstall.exe"
 
