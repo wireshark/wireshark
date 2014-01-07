@@ -518,6 +518,8 @@ extern value_string_ext ext_usb_com_subclass_vals;
 /* XXX - move into HID dissector */
 #define USB_DT_RPIPE                          34
 
+/* There are only Standard Descriptor Types, Class-specific types are
+   provided by "usb.descriptor" descriptors table*/
 static const value_string std_descriptor_type_vals[] = {
     {USB_DT_DEVICE,                         "DEVICE"},
     {USB_DT_CONFIG,                         "CONFIGURATION"},
@@ -525,11 +527,15 @@ static const value_string std_descriptor_type_vals[] = {
     {USB_DT_INTERFACE,                      "INTERFACE"},
     {USB_DT_ENDPOINT,                       "ENDPOINT"},
     {USB_DT_DEVICE_QUALIFIER,               "DEVICE QUALIFIER"},
-    {USB_DT_OTHER_SPEED_CONFIG,             "OTHER_SPEED CONFIG"},
+    {USB_DT_OTHER_SPEED_CONFIG,             "OTHER SPEED CONFIG"},
     {USB_DT_INTERFACE_POWER,                "INTERFACE POWER"},
     {USB_DT_OTG,                            "OTG"},
     {USB_DT_DEBUG,                          "DEBUG"},
     {USB_DT_INTERFACE_ASSOCIATION,          "INTERFACE ASSOCIATION"},
+    { 0x0F,                                 "BOS"},
+    { 0x10,                                 "DEVICE CAPABILITY"},
+    { 0x30,                                 "SUPERSPEED USB ENDPOINT COMPANION"},
+    { 0x31,                                 "SUPERSPEED PLUS ISOCHRONOUS ENDPOINT COMPANION"},
     {0,NULL}
 };
 static value_string_ext std_descriptor_type_vals_ext =
