@@ -68,6 +68,7 @@ static void lua_frame_end(void)
     clear_outstanding_Columns();
     clear_outstanding_PrivateTable();
     clear_outstanding_TreeItem();
+    clear_outstanding_FieldInfo();
 }
 
 static int wslua_not_register_menu(lua_State* LS) {

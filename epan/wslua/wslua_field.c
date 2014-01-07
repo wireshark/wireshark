@@ -36,17 +36,30 @@
 
 #include "wslua.h"
 
-WSLUA_CLASS_DEFINE(FieldInfo,NOP,NOP);
+WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL("null FieldInfo"),NOP);
 /*
    An extracted Field
    */
+
+static GPtrArray* outstanding_FieldInfo = NULL;
+
+#define PUSH_FIELDINFO(L,fi) {g_ptr_array_add(outstanding_FieldInfo,fi);pushFieldInfo(L,fi);}
+
+CLEAR_OUTSTANDING(FieldInfo,expired,TRUE)
 
 WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
     /*
        Obtain the Length of the field
        */
     FieldInfo fi = checkFieldInfo(L,1);
-    lua_pushnumber(L,fi->length);
+
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    lua_pushnumber(L,fi->ws_fi->length);
     return 1;
 }
 
@@ -55,7 +68,14 @@ WSLUA_METAMETHOD FieldInfo__unm(lua_State* L) {
        Obtain the Offset of the field
        */
     FieldInfo fi = checkFieldInfo(L,1);
-    lua_pushnumber(L,fi->start);
+
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    lua_pushnumber(L,fi->ws_fi->start);
     return 1;
 }
 
@@ -65,81 +85,87 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    switch(fi->hfinfo->type) {
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    switch(fi->ws_fi->hfinfo->type) {
         case FT_BOOLEAN:
-                lua_pushboolean(L,(int)fvalue_get_uinteger(&(fi->value)));
+                lua_pushboolean(L,(int)fvalue_get_uinteger(&(fi->ws_fi->value)));
                 return 1;
         case FT_UINT8:
         case FT_UINT16:
         case FT_UINT24:
         case FT_UINT32:
         case FT_FRAMENUM:
-                lua_pushnumber(L,(lua_Number)fvalue_get_uinteger(&(fi->value)));
+                lua_pushnumber(L,(lua_Number)fvalue_get_uinteger(&(fi->ws_fi->value)));
                 return 1;
         case FT_INT8:
         case FT_INT16:
         case FT_INT24:
         case FT_INT32:
-                lua_pushnumber(L,(lua_Number)fvalue_get_sinteger(&(fi->value)));
+                lua_pushnumber(L,(lua_Number)fvalue_get_sinteger(&(fi->ws_fi->value)));
                 return 1;
         case FT_FLOAT:
         case FT_DOUBLE:
-                lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
+                lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->ws_fi->value)));
                 return 1;
         case FT_INT64: {
                 Int64 num = (Int64)g_malloc(sizeof(gint64));
-                *num = fvalue_get_integer64(&(fi->value));
+                *num = fvalue_get_integer64(&(fi->ws_fi->value));
                 pushInt64(L,num);
                 return 1;
             }
         case FT_UINT64: {
                 UInt64 num = (UInt64)g_malloc(sizeof(guint64));
-                *num = fvalue_get_integer64(&(fi->value));
+                *num = fvalue_get_integer64(&(fi->ws_fi->value));
                 pushUInt64(L,num);
                 return 1;
             }
         case FT_ETHER: {
                 Address eth = (Address)g_malloc(sizeof(address));
                 eth->type = AT_ETHER;
-                eth->len = fi->length;
-                eth->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
+                eth->len = fi->ws_fi->length;
+                eth->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
                 pushAddress(L,eth);
                 return 1;
             }
         case FT_IPv4:{
                 Address ipv4 = (Address)g_malloc(sizeof(address));
                 ipv4->type = AT_IPv4;
-                ipv4->len = fi->length;
-                ipv4->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
+                ipv4->len = fi->ws_fi->length;
+                ipv4->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
                 pushAddress(L,ipv4);
                 return 1;
             }
         case FT_IPv6: {
                 Address ipv6 = (Address)g_malloc(sizeof(address));
                 ipv6->type = AT_IPv6;
-                ipv6->len = fi->length;
-                ipv6->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
+                ipv6->len = fi->ws_fi->length;
+                ipv6->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
                 pushAddress(L,ipv6);
                 return 1;
             }
         case FT_IPXNET:{
                 Address ipx = (Address)g_malloc(sizeof(address));
                 ipx->type = AT_IPX;
-                ipx->len = fi->length;
-                ipx->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
+                ipx->len = fi->ws_fi->length;
+                ipx->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
                 pushAddress(L,ipx);
                 return 1;
             }
         case FT_ABSOLUTE_TIME:
         case FT_RELATIVE_TIME: {
                 NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
-                *nstime = *(NSTime)fvalue_get(&(fi->value));
+                *nstime = *(NSTime)fvalue_get(&(fi->ws_fi->value));
                 pushNSTime(L,nstime);
                 return 1;
             }
         case FT_STRING:
         case FT_STRINGZ: {
-                gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+                gchar* repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,NULL);
                 if (repr)
                     lua_pushstring(L,repr);
                 else
@@ -148,7 +174,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_NONE:
-                if (fi->length == 0) {
+                if (fi->ws_fi->length == 0) {
                         lua_pushnil(L);
                         return 1;
                 }
@@ -161,7 +187,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_SYSTEM_ID:
         case FT_OID: {
                 ByteArray ba = g_byte_array_new();
-                g_byte_array_append(ba, (const guint8 *)tvb_memdup(wmem_packet_scope(),fi->ds_tvb,fi->start,fi->length),fi->length);
+                g_byte_array_append(ba, (const guint8 *)tvb_memdup(wmem_packet_scope(),fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length),fi->ws_fi->length);
                 pushByteArray(L,ba);
                 return 1;
             }
@@ -175,12 +201,14 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     /* The string representation of the field */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    if (!fi) {
-        return luaL_error(L,"Missing FieldInfo object");
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
     }
 
-    if (fi->value.ftype->val_to_string_repr) {
-        gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+    if (fi->ws_fi->value.ftype->val_to_string_repr) {
+        gchar* repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,NULL);
         if (repr) {
             lua_pushstring(L,repr);
         }
@@ -188,7 +216,7 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
             lua_pushstring(L,"(unknown)");
         }
     }
-    else if (fi->hfinfo->type == FT_NONE) {
+    else if (fi->ws_fi->hfinfo->type == FT_NONE) {
         lua_pushstring(L, "(none)");
     }
     else {
@@ -206,12 +234,16 @@ static int FieldInfo_display(lua_State* L) {
     gchar        *value_ptr;
 
     if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
 
-    if (!fi->rep) {
+    if (!fi->ws_fi->rep) {
         label_ptr = label_str;
-        proto_item_fill_label(fi, label_str);
+        proto_item_fill_label(fi->ws_fi, label_str);
     } else 
-        label_ptr = fi->rep->representation;
+        label_ptr = fi->ws_fi->rep->representation;
 
     if (!label_ptr) return 0;
 
@@ -230,7 +262,14 @@ static int FieldInfo_display(lua_State* L) {
 static int FieldInfo_get_range(lua_State* L) {
     /* The TvbRange covering this field */
     FieldInfo fi = checkFieldInfo(L,1);
-    if (push_TvbRange (L, fi->ds_tvb, fi->start, fi->length)) {
+    
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    if (push_TvbRange (L, fi->ws_fi->ds_tvb, fi->ws_fi->start, fi->ws_fi->length)) {
         return 1;
     }
 
@@ -240,14 +279,28 @@ static int FieldInfo_get_range(lua_State* L) {
 static int FieldInfo_get_generated(lua_State* L) {
     /* Whether this field was marked as generated. */
     FieldInfo fi = checkFieldInfo(L,1);
-    lua_pushboolean(L,FI_GET_FLAG(fi, FI_GENERATED));
+    
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    lua_pushboolean(L,FI_GET_FLAG(fi->ws_fi, FI_GENERATED));
     return 1;
 }
 
 static int FieldInfo_get_name(lua_State* L) {
     /* The filter name of this field. */
     FieldInfo fi = checkFieldInfo(L,1);
-    lua_pushstring(L,fi->hfinfo->abbrev);
+    
+    if (!fi) return 0;
+    if (fi->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    lua_pushstring(L,fi->ws_fi->hfinfo->abbrev);
     return 1;
 }
 
@@ -281,7 +334,7 @@ static int FieldInfo__index(lua_State* L) {
     const gchar* idx = luaL_checkstring(L,2);
     const luaL_Reg* r;
 
-    checkFieldInfo(L,1);
+    if (!idx) return 0;
 
     for (r = FieldInfo_get; r->name; r++) {
         if (g_str_equal(r->name, idx)) {
@@ -297,10 +350,16 @@ WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (l->ds_tvb != r->ds_tvb)
+    if (!l || !r) return 0;
+    if (l->expired || r->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
 
-    if (l->start <= r->start && r->start + r->length <= l->start + r->length) {
+    if (l->ws_fi->start <= r->ws_fi->start && r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + r->ws_fi->length) {
         lua_pushboolean(L,1);
         return 1;
     } else {
@@ -313,10 +372,16 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (l->ds_tvb != r->ds_tvb)
+    if (!l || !r) return 0;
+    if (l->expired || r->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__le,"Data source must be the same for both fields");
 
-    if (r->start + r->length <= l->start + r->length) {
+    if (r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + r->ws_fi->length) {
         lua_pushboolean(L,1);
         return 1;
     } else {
@@ -329,10 +394,16 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (l->ds_tvb != r->ds_tvb)
+    if (!l || !r) return 0;
+    if (l->expired || r->expired) {
+        luaL_error(L, "expired FieldInfo");
+        return 0;
+    }
+
+    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__lt,"Data source must be the same for both fields");
 
-    if ( r->start + r->length < l->start ) {
+    if (r->ws_fi->start + r->ws_fi->length < l->ws_fi->start) {
         lua_pushboolean(L,1);
         return 1;
     } else {
@@ -340,8 +411,18 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     }
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_META */
 static int FieldInfo__gc(lua_State* L _U_) {
-    /* do NOT free FieldInfo */
+    FieldInfo fi = checkFieldInfo(L,1);
+
+    if (!fi) return 0;
+
+    if (!fi->expired)
+        fi->expired = TRUE;
+    else
+        /* do NOT free fi->ws_fi */
+        g_free(fi);
+
     return 0;
 }
 
@@ -382,7 +463,11 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 
     if (found) {
         for (i=0; i<found->len; i++) {
-            pushFieldInfo(L,(FieldInfo)g_ptr_array_index(found,i));
+            FieldInfo fi = (FieldInfo)g_malloc(sizeof(struct _wslua_field_info));
+            fi->ws_fi = (field_info *)g_ptr_array_index(found,i);
+            fi->expired = FALSE;
+            
+            PUSH_FIELDINFO(L,fi);
             items_found++;
         }
 
@@ -515,7 +600,11 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
         guint i;
         if (found) {
             for (i=0; i<found->len; i++) {
-                pushFieldInfo(L,(FieldInfo)g_ptr_array_index(found,i));
+                FieldInfo fi = (FieldInfo)g_malloc(sizeof(struct _wslua_field_info));
+                fi->ws_fi = (field_info *)g_ptr_array_index(found,i);
+                fi->expired = FALSE;
+            
+                PUSH_FIELDINFO(L,fi);
                 items_found++;
             }
         }
@@ -564,6 +653,7 @@ int Field_register(lua_State* L) {
     wanted_fields = g_ptr_array_new();
 
     WSLUA_REGISTER_CLASS(Field);
+    outstanding_FieldInfo = g_ptr_array_new();
 
     return 1;
 }

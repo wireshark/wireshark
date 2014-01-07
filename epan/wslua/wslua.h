@@ -184,6 +184,11 @@ struct _wslua_treeitem {
     gboolean expired;
 };
 
+struct _wslua_field_info {
+    field_info *ws_fi;
+    gboolean expired;
+};
+
 typedef void (*tap_extractor_t)(lua_State*,const void*);
 
 struct _wslua_tap {
@@ -238,7 +243,7 @@ typedef nstime_t* NSTime;
 typedef gint64* Int64;
 typedef guint64* UInt64;
 typedef header_field_info** Field;
-typedef field_info* FieldInfo;
+typedef struct _wslua_field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
 typedef struct _wslua_tw* TextWindow;
 typedef struct _wslua_progdlg* ProgDlg;
@@ -457,6 +462,8 @@ extern void clear_outstanding_PrivateTable(void);
 
 extern TreeItem* push_TreeItem(lua_State* L, TreeItem ti);
 extern void clear_outstanding_TreeItem(void);
+
+extern void clear_outstanding_FieldInfo(void);
 
 extern void wslua_print_stack(char* s, lua_State* L);
 
