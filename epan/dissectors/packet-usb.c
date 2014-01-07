@@ -142,10 +142,14 @@ static int hf_usb_bInterfaceClass = -1;
 static int hf_usb_bInterfaceSubClass = -1;
 static int hf_usb_bInterfaceSubClass_cdc = -1;
 static int hf_usb_bInterfaceSubClass_hid = -1;
+static int hf_usb_bInterfaceSubClass_app = -1;
 static int hf_usb_bInterfaceProtocol = -1;
 static int hf_usb_bInterfaceProtocol_cdc = -1;
 static int hf_usb_bInterfaceProtocol_cdc_data = -1;
 static int hf_usb_bInterfaceProtocol_hid_boot = -1;
+static int hf_usb_bInterfaceProtocol_app_dfu = -1;
+static int hf_usb_bInterfaceProtocol_app_irda = -1;
+static int hf_usb_bInterfaceProtocol_app_usb_test_and_measurement = -1;
 static int hf_usb_iInterface = -1;
 static int hf_usb_bEndpointAddress = -1;
 static int hf_usb_bmAttributes = -1;
@@ -908,6 +912,7 @@ static const value_string usb_hid_subclass_vals[] = {
     {1, "Boot Interface"},
     {0, NULL}
 };
+static value_string_ext usb_hid_subclass_vals_ext = VALUE_STRING_EXT_INIT(usb_hid_subclass_vals);
 
 static const value_string usb_hid_boot_protocol_vals[] = {
     {0, "None"},
@@ -915,6 +920,36 @@ static const value_string usb_hid_boot_protocol_vals[] = {
     {2, "Mouse"},
     {0, NULL}
 };
+static value_string_ext usb_hid_boot_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_hid_boot_protocol_vals);
+
+static const value_string usb_app_subclass_vals[] = {
+    {0x01, "Device Firmware Upgrade"},
+    {0x02, "IRDA Bridge"},
+    {0x03, "USB Test and Measurement Device"},
+    {0, NULL}
+};
+static value_string_ext usb_app_subclass_vals_ext = VALUE_STRING_EXT_INIT(usb_app_subclass_vals);
+
+
+static const value_string usb_app_dfu_protocol_vals[] = {
+    {0x01, "Runtime protocol"},
+    {0x02, "DFU mode protocol"},
+    {0, NULL}
+};
+static value_string_ext usb_app_dfu_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_app_dfu_protocol_vals);
+
+static const value_string usb_app_irda_protocol_vals[] = {
+    {0x00, "IRDA Bridge device"},
+    {0, NULL}
+};
+static value_string_ext usb_app_irda_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_app_irda_protocol_vals);
+
+static const value_string usb_app_usb_test_and_measurement_protocol_vals[] = {
+    {0x00, "USB Test and Measurement Device"},
+    {0x01, "USB Test and Measurement Device conforming to the USBTMC USB488 Subclass Specification"},
+    {0, NULL}
+};
+static value_string_ext usb_app_usb_test_and_measurement_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_app_usb_test_and_measurement_protocol_vals);
 
 void proto_register_usb(void);
 void proto_reg_handoff_usb(void);
@@ -1524,6 +1559,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     case IF_CLASS_HID:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_hid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
+    case IF_CLASS_APPLICATION_SPECIFIC:
+        proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_app, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
     default:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
@@ -1540,11 +1578,30 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     case IF_CLASS_CDC_DATA:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_cdc_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
+    case IF_CLASS_APPLICATION_SPECIFIC:
+        switch (usb_conv_info->interfaceSubclass) {
+        case 0x01:
+            proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_app_dfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
+        case 0x02:
+            proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_app_irda, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
+        case 0x03:
+            proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_app_usb_test_and_measurement, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
+        default:
+            proto_tree_add_item(tree, hf_usb_bInterfaceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
+        break;
     case IF_CLASS_HID:
         if (usb_conv_info->interfaceSubclass == 1) {
             proto_tree_add_item(tree, hf_usb_bInterfaceProtocol_hid_boot, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             break;
-        } /* else default */
+        }
+
+        proto_tree_add_item(tree, hf_usb_bInterfaceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+        break;
     default:
         proto_tree_add_item(tree, hf_usb_bInterfaceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
@@ -3847,7 +3904,12 @@ proto_register_usb(void)
 
         { &hf_usb_bInterfaceSubClass_hid,
           { "bInterfaceSubClass", "usb.bInterfaceSubClass",
-            FT_UINT8, BASE_HEX, VALS(usb_hid_subclass_vals), 0x0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_hid_subclass_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceSubClass_app,
+          { "bInterfaceProtocol", "usb.bInterfaceSubClass",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_app_subclass_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceProtocol,
@@ -3867,8 +3929,24 @@ proto_register_usb(void)
 
         { &hf_usb_bInterfaceProtocol_hid_boot,
           { "bInterfaceProtocol", "usb.bInterfaceProtocol",
-            FT_UINT8, BASE_HEX, VALS(usb_hid_boot_protocol_vals), 0x0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_hid_boot_protocol_vals_ext, 0x0,
             NULL, HFILL }},
+
+        { &hf_usb_bInterfaceProtocol_app_dfu,
+          { "bInterfaceProtocol", "usb.bInterfaceProtocol",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_app_dfu_protocol_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceProtocol_app_irda,
+          { "bInterfaceProtocol", "usb.bInterfaceProtocol",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_app_irda_protocol_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceProtocol_app_usb_test_and_measurement,
+          { "bInterfaceProtocol", "usb.bInterfaceProtocol",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_app_usb_test_and_measurement_protocol_vals_ext, 0x0,
+            NULL, HFILL }},
+
 
         { &hf_usb_iInterface,
           { "iInterface", "usb.iInterface",
