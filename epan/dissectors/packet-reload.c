@@ -752,7 +752,7 @@ static kind_t * getKindFromId(guint32 id) {
 
 static void* uat_kindid_copy_cb(void* n, const void* o, size_t siz _U_) {
   kind_t * new_record = (kind_t *)n;
-  const kind_t* old_record = (kind_t *)o;
+  const kind_t* old_record = (const kind_t *)o;
 
   if (old_record->name) {
     new_record->name = g_strdup(old_record->name);
