@@ -30,7 +30,6 @@ IF(WIN32)
     inet_ntop.c
     inet_pton.c
     strptime.c
-    unicode-utils.c
     wsgetopt.c
   )
 ENDIF(WIN32)
@@ -69,6 +68,7 @@ set(WSUTIL_FILES
   tempfile.c
   type_util.c
   u3.c
+  unicode-utils.c
   ${WSUTIL_PLATFORM_FILES}
 )
 

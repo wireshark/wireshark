@@ -28,7 +28,6 @@ OBJECTS = file_util.obj		\
 	inet_pton.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
 	strptime.obj		\
-	unicode-utils.obj	\
 	wsgetopt.obj
 
 # For use when making libwsutil.dll

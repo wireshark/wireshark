@@ -25,20 +25,24 @@
 #ifndef __UNICODEUTIL_H__
 #define __UNICODEUTIL_H__
 
-#include "ws_symbol_export.h"
-
-#ifdef _WIN32
-
 #include "config.h"
 
+#include "ws_symbol_export.h"
+
 #include <glib.h>
-#include <windows.h>
-#include <tchar.h>
-#include <wchar.h>
 
 /**
  * @file Unicode convenience routines.
  */
+
+WS_DLL_PUBLIC
+int ws_utf8_char_len(guint8 ch);
+
+#ifdef _WIN32
+
+#include <windows.h>
+#include <tchar.h>
+#include <wchar.h>
 
 /** Given a UTF-8 string, convert it to UTF-16.  This is meant to be used
  * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).

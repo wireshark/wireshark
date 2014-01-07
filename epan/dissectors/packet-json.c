@@ -249,6 +249,30 @@ static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 	wmem_stack_pop(data->stack);
 }
 
+static int
+json_tvb_memcpy_utf8(char *buf, tvbuff_t *tvb, int offset, int offset_max)
+{
+	int len = ws_utf8_char_len((guint8) *buf);
+
+	/* XXX, before moving to core API check if it's off-by-one safe.
+	 * For JSON analyzer it's not a problem 
+	 * (string always terminated by ", which is not valid UTF-8 continuation character) */
+	if (len == -1 || ((guint) (offset + len)) >= (guint) offset_max) {
+		*buf = '?';
+		return 1;
+	}
+
+	/* assume it's valid UTF-8 */
+	tvb_memcpy(tvb, buf + 1, offset + 1, len - 1);
+
+	if (!g_utf8_validate(buf, len, NULL)) {
+		*buf = '?';
+		return 1;
+	}
+
+	return len;
+}
+
 static char *json_string_unescape(tvbparse_elem_t *tok)
 {
 	char *str = (char *)wmem_alloc(wmem_packet_scope(), tok->len - 1);
@@ -266,7 +290,6 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 				case '\"':
 				case '\\':
 				case '/':
-				default:
 					str[j++] = ch;
 					break;
 
@@ -361,10 +384,22 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 						str[j++] = '?';
 					break;
 				}
+
+				default:
+					/* not valid by JSON grammar (also tvbparse rules should not allow it) */
+					DISSECTOR_ASSERT_NOT_REACHED();
+					break;
 			}
 
-		} else
-			str[j++] = ch;
+		} else {
+			int utf_len;
+
+			str[j] = ch;
+			/* XXX if it's not valid UTF-8 character, add some expert info? (it violates JSON grammar) */
+			utf_len = json_tvb_memcpy_utf8(&str[j], tok->tvb, i, tok->len);
+			j += utf_len;
+			i += (utf_len - 1);
+		}
 
 	}
 	str[j] = '\0';

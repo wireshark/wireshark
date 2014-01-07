@@ -99,8 +99,6 @@ EXTRA_DIST =		\
 	Makefile.nmake	\
 	file_util.c	\
 	file_util.h 	\
-	unicode-utils.c	\
-	unicode-utils.h \
 	wsgcrypt.h
 
 CLEANFILES = \
