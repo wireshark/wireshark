@@ -27,7 +27,6 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 include Makefile.common
 
-noinst_LTLIBRARIES = libfiletap_generated.la
 lib_LTLIBRARIES = libfiletap.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libfiletap_la_LDFLAGS = -version-info 0:3:0 @LDFLAGS_SHAREDLIB@
@@ -43,8 +42,6 @@ AM_CPPFLAGS = -I$(srcdir)/..
 CLEANFILES = \
 	libfiletap.a		\
 	libfiletap.la		\
-	libfiletap_generated.a	\
-	libfiletap_generated.la	\
 	*~
 
 MAINTAINERCLEANFILES = \
@@ -62,8 +59,8 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	libfiletap.vcproj
 
-libfiletap_la_LIBADD = libfiletap_generated.la ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
-libfiletap_la_DEPENDENCIES = libfiletap_generated.la ${top_builddir}/wsutil/libwsutil.la
+libfiletap_la_LIBADD = ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
+libfiletap_la_DEPENDENCIES = ${top_builddir}/wsutil/libwsutil.la
 
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
