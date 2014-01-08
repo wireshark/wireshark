@@ -1783,6 +1783,14 @@ main(int argc, char *argv[])
       /*
        * "-r" wasn't specified, so we're doing a live capture.
        */
+      if (perform_two_pass_analysis) {
+        /* Two-pass analysis doesn't work with live capture since it requires us
+         * to buffer packets until we've read all of them, but a live capture
+         * has no useful/meaningful definition of "all" */
+        cmdarg_err("Live captures do not support two-pass analysis.");
+        return 1;
+      }
+
       if (global_capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
 
