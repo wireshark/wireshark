@@ -1,7 +1,3 @@
-/* c-basic-offset: 4; tab-width: 8; indent-tabs-mode: nil
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */
 /* packet-asterix.c
  * Routines for ASTERIX decoding
  * By Marko Hrastovec <marko.hrastovec@sloveniacontrol.si>
