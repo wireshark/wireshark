@@ -66,7 +66,5 @@ void dissect_x509af_Certificate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 /*--- End of included file: packet-x509af-exp.h ---*/
 #line 30 "../../asn1/x509af/packet-x509af-template.h"
 
-extern const char* x509af_get_last_algorithm_id(void);
-
 #endif  /* PACKET_X509AF_H */
 

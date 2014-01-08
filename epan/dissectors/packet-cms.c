@@ -1530,7 +1530,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
   if(content_tvb)
-    cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
+    cms_verify_msg_digest(pi, content_tvb, actx->external.direct_reference, tvb, old_offset);
 
 
 

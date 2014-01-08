@@ -53,13 +53,7 @@ static int hf_x509af_extension_id = -1;
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
 #include "packet-x509af-ett.c"
-static const char *algorithm_id;
 #include "packet-x509af-fn.c"
-
-const char *x509af_get_last_algorithm_id(void) {
-  return algorithm_id;
-}
-
 
 static int
 dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)

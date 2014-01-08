@@ -177,7 +177,6 @@ static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
 #line 56 "../../asn1/x509af/packet-x509af-template.c"
-static const char *algorithm_id;
 
 /*--- Included file: packet-x509af-fn.c ---*/
 #line 1 "../../asn1/x509af/packet-x509af-fn.c"
@@ -215,13 +214,13 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 71 "../../asn1/x509af/x509af.cnf"
   const char *name;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_algorithm_id, &actx->external.direct_reference);
 
 
-  if(algorithm_id) {
-    name = oid_resolved_from_string(algorithm_id);
+  if(actx->external.direct_reference) {
+    name = oid_resolved_from_string(actx->external.direct_reference);
 
-    proto_item_append_text(tree, " (%s)", name ? name : algorithm_id); 
+    proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference); 
   }
 
 
@@ -234,7 +233,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_x509af_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 82 "../../asn1/x509af/x509af.cnf"
-  offset=call_ber_oid_callback(algorithm_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
 
@@ -887,12 +886,7 @@ static void dissect_DSS_Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 58 "../../asn1/x509af/packet-x509af-template.c"
-
-const char *x509af_get_last_algorithm_id(void) {
-  return algorithm_id;
-}
-
+#line 57 "../../asn1/x509af/packet-x509af-template.c"
 
 static int
 dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -1229,7 +1223,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 99 "../../asn1/x509af/packet-x509af-template.c"
+#line 93 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1272,7 +1266,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 105 "../../asn1/x509af/packet-x509af-template.c"
+#line 99 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1315,7 +1309,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 133 "../../asn1/x509af/packet-x509af-template.c"
+#line 127 "../../asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time
