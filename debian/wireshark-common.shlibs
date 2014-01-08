@@ -1,3 +1,4 @@
+libfiletap 0 wireshark-common
 libwireshark 0 wireshark-common
 libwiretap 0 wireshark-common
 libwsutil 0 wireshark-common
