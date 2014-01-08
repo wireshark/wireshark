@@ -1042,7 +1042,6 @@ if(BUILD_tfshark)
 		tfshark.c
 #		tfshark-tap-register.c
 		${TSHARK_TAP_SRC}
-		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
 	)
 	add_executable(tfshark ${tfshark_FILES})
