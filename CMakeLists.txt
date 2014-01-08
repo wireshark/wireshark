@@ -792,13 +792,13 @@ ADD_CUSTOM_COMMAND(
 )
 
 if(UNIX)
-	set(PLATFORM_CAPTURE_SRC
+	set(PLATFORM_PCAP_SRC
 		capture-pcap-util-unix.c
 	)
 endif()
 
 if(WIN32)
-	set(PLATFORM_CAPTURE_SRC
+	set(PLATFORM_PCAP_SRC
 		capture_win_ifnames.c
 		capture-wpcap.c
 		capture_wpcap_packet.c
@@ -812,6 +812,7 @@ endif()
 
 # sources common for wireshark, tshark, and rawshark
 set(SHARK_COMMON_SRC
+	${PLATFORM_PCAP_SRC}
 	capture-pcap-util.c
 	cfutils.c
 	clopts_common.c
@@ -824,7 +825,6 @@ set(SHARK_COMMON_SRC
 # sources common for wireshark and tshark, but not rawshark;
 # these are for programs that capture traffic by running dumpcap
 set(SHARK_COMMON_CAPTURE_SRC
-	${PLATFORM_CAPTURE_SRC}
 	capture_ifinfo.c
 	capture_sync.c
 	capture_ui_utils.c
@@ -1252,7 +1252,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		sync_pipe_write.c
 		version_info.c
 		ws80211_utils.c
-		${PLATFORM_CAPTURE_SRC}
+		${PLATFORM_PCAP_SRC}
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
 	add_dependencies(dumpcap svnversion)
