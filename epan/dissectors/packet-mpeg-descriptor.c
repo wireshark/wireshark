@@ -1244,7 +1244,8 @@ static int hf_mpeg_descr_extended_event_item_description_char = -1;
 static int hf_mpeg_descr_extended_event_item_length = -1;
 static int hf_mpeg_descr_extended_event_item_char = -1;
 static int hf_mpeg_descr_extended_event_text_length = -1;
-static int hf_mpeg_descr_extended_event_text_char = -1;
+static int hf_mpeg_descr_extended_event_text_encoding = -1;
+static int hf_mpeg_descr_extended_event_text = -1;
 
 #define MPEG_DESCR_EXTENDED_EVENT_DESCRIPTOR_NUMBER_MASK    0xF0
 #define MPEG_DESCR_EXTENDED_EVENT_LAST_DESCRIPTOR_NUMBER_MASK   0x0F
@@ -1255,11 +1256,12 @@ static void
 proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-    guint8 items_len, item_descr_len, item_len, text_len;
-    guint  items_end;
-
-    proto_item *ii;
-    proto_tree *item_tree;
+    guint8          items_len, item_descr_len, item_len, text_len;
+    guint           items_end;
+    proto_item     *ii;
+    proto_tree     *item_tree;
+    guint           enc_len;
+    dvb_encoding_e  encoding;
 
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_descriptor_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_last_descriptor_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1297,7 +1299,12 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_mpeg_descr_extended_event_text_char, tvb, offset, text_len, ENC_ASCII|ENC_NA);
+    if (text_len>0) {
+        enc_len = dvb_analyze_string_charset(tvb, offset, text_len, &encoding);
+        dvb_add_chartbl(tree, hf_mpeg_descr_extended_event_text_encoding, tvb, offset, enc_len, encoding);
+        proto_tree_add_item(tree, hf_mpeg_descr_extended_event_text,
+                tvb, offset+enc_len, text_len-enc_len, dvb_enc_to_item_enc(encoding));
+    }
 
 }
 
@@ -3592,9 +3599,14 @@ proto_register_mpeg_descriptor(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
         } },
 
-        { &hf_mpeg_descr_extended_event_text_char, {
+        { &hf_mpeg_descr_extended_event_text_encoding, {
+            "Text Encoding", "mpeg_descr.ext_evt.txt_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_extended_event_text, {
             "Text", "mpeg_descr.ext_evt.txt",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x50 Component Descriptor */
