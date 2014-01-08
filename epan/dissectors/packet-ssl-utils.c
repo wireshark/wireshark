@@ -42,6 +42,7 @@
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
 #include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
 
 /*
  * Lookup tables
@@ -1356,6 +1357,7 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
 
 static guint8
 from_hex_char(gchar c) {
+    /* XXX, ws_xton() */
     if ((c >= '0') && (c <= '9'))
         return c - '0';
     if ((c >= 'A') && (c <= 'F'))
@@ -1377,9 +1379,9 @@ static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
     out->data_len = (guint)hex_len/2;
     out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
     for (i = 0; i < out->data_len; i++) {
-        guint8 a = from_hex_char(in[i*2]);
-        guint8 b = from_hex_char(in[i*2 + 1]);
-        if (a == 16 || b == 16)
+        int a = ws_xton(in[i*2]);
+        int b = ws_xton(in[i*2 + 1]);
+        if (a == -1 || b == -1)
             return FALSE;
         out->data[i] = a << 4 | b;
     }

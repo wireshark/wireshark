@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 
+#include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>
 
 void proto_register_json(void);
@@ -281,6 +282,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 	j = 0;
 	for (i = 1; i < tok->len - 1; i++) {
 		guint8 ch = tvb_get_guint8(tok->tvb, tok->offset + i);
+		int bin;
 
 		if (ch == '\\') {
 			i++;
@@ -320,16 +322,12 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 						unicode_hex <<= 4;
 
 						ch = tvb_get_guint8(tok->tvb, tok->offset + i);
-						if (ch >= '0' && ch <= '9')
-							unicode_hex |= (ch - '0');
-						else if (ch >= 'a' && ch <= 'f')
-							unicode_hex |= (10 + (ch - 'a'));
-						else if (ch >= 'A' && ch <= 'F')
-							unicode_hex |= (10 + (ch - 'A'));
-						else {
+						bin = ws_xton(ch);
+						if (bin == -1) {
 							valid = FALSE;
 							break;
 						}
+						unicode_hex |= bin;
 					}
 
 					if ((IS_LEAD_SURROGATE(unicode_hex))) {
@@ -348,16 +346,12 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 									trail_surrogate <<= 4;
 
 									ch = tvb_get_guint8(tok->tvb, tok->offset + i);
-									if (ch >= '0' && ch <= '9')
-										trail_surrogate |= (ch - '0');
-									else if (ch >= 'a' && ch <= 'f')
-										trail_surrogate |= (10 + (ch - 'a'));
-									else if (ch >= 'A' && ch <= 'F')
-										trail_surrogate |= (10 + (ch - 'A'));
-									else {
+									bin = ws_xton(ch);
+									if (bin == -1) {
 										valid = FALSE;
 										break;
 									}
+									trail_surrogate |= bin;
 								}
 
 								if ((IS_TRAIL_SURROGATE(trail_surrogate))) {

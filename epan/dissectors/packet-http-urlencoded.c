@@ -30,6 +30,7 @@
 
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
+#include <wsutil/str_util.h>
 
 void proto_register_http_urlencoded(void);
 void proto_reg_handoff_http_urlencoded(void);
@@ -52,19 +53,6 @@ static header_field_info hfi_form_value URLENCODED_HFI_INIT =
 static gint ett_form_urlencoded = -1;
 static gint ett_form_keyvalue = -1;
 
-static guint8
-get_hexa(guint8 a)
-{
-	if (a >= '0' && a <= '9')
-		return a - '0';
-	if (a >= 'A' && a <= 'F')
-		return (a - 'A') + 10;
-	if (a >= 'a' && a <= 'f')
-		return (a - 'a') + 10;
-
-	return 0xff;
-}
-
 static int
 get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 {
@@ -84,12 +72,12 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 		if (ch == '%') {
 			offset++;
 			ch = tvb_get_guint8(tvb, offset);
-			if (get_hexa(ch) > 15)
+			if (ws_xton(ch) == -1)
 				return -1;
 
 			offset++;
 			ch = tvb_get_guint8(tvb, offset);
-			if (get_hexa(ch) > 15)
+			if (ws_xton(ch) == -1)
 				return -1;
 		}
 
@@ -120,7 +108,7 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 			offset++;
 			ch2 = tvb_get_guint8(tvb, offset);
 
-			tmp[len] = get_hexa(ch1) << 4 | get_hexa(ch2);
+			tmp[len] = ws_xton(ch1) << 4 | ws_xton(ch2);
 
 		} else if (ch == '+')
 			tmp[len] = ' ';

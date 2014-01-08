@@ -4140,6 +4140,7 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 static guint8
 hex2dec(guint8 x)
 {
+    /* XXX, ws_xton() */
     if ((x >= 'a') && (x <= 'f'))
         x = x - 'a' + 10;
     else if ((x >= 'A') && (x <= 'F'))

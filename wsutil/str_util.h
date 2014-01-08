@@ -83,6 +83,9 @@ gboolean isprint_string(const gchar *string);
 WS_DLL_PUBLIC
 gboolean isdigit_string(guchar *string);
 
+WS_DLL_PUBLIC
+int ws_xton(char ch);
+
 typedef enum {
     format_size_unit_none    = 0,       /**< No unit will be appended. You must supply your own. */
     format_size_unit_bytes   = 1,       /**< "bytes" for un-prefixed sizes, "B" otherwise. */

@@ -31,6 +31,7 @@
 #include "strutil.h"
 #include "emem.h"
 
+#include <wsutil/str_util.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -899,22 +900,12 @@ convert_string_to_hex(const char *string, size_t *nbytes)
         if (c==':' || c=='.' || c=='-')
             continue; /* skip any ':', '.', or '-' between bytes */
         /* From the loop above, we know this is a hex digit */
-        if (isdigit(c))
-            byte_val = c - '0';
-        else if (c >= 'a')
-            byte_val = (c - 'a') + 10;
-        else
-            byte_val = (c - 'A') + 10;
+        byte_val = ws_xton(c);
         byte_val <<= 4;
 
         /* We also know this is a hex digit */
         c = *p++;
-        if (isdigit(c))
-            byte_val |= c - '0';
-        else if (c >= 'a')
-            byte_val |= (c - 'a') + 10;
-        else if (c >= 'A')
-            byte_val |= (c - 'A') + 10;
+        byte_val |= ws_xton(c);
 
         *q++ = byte_val;
     }

@@ -574,28 +574,6 @@ gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const vo
     }
 }
 
-static int xton(char d) {
-    switch(d) {
-        case '0': return 0;
-        case '1': return 1;
-        case '2': return 2;
-        case '3': return 3;
-        case '4': return 4;
-        case '5': return 5;
-        case '6': return 6;
-        case '7': return 7;
-        case '8': return 8;
-        case '9': return 9;
-        case 'a':  case 'A': return 10;
-        case 'b':  case 'B': return 11;
-        case 'c':  case 'C': return 12;
-        case 'd':  case 'D': return 13;
-        case 'e':  case 'E': return 14;
-        case 'f':  case 'F': return 15;
-        default: return -1;
-    }
-}
-
 char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
     guint8* buf;
     guint len = in_len/2;
@@ -610,8 +588,8 @@ char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
     if (len_p) *len_p = len;
 
     while(in_len) {
-        d1 = xton(*(si++));
-        d0 = xton(*(si++));
+        d1 = ws_xton(*(si++));
+        d0 = ws_xton(*(si++));
 
         buf[i++] = (d1 * 16) + d0;
 
@@ -679,7 +657,7 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p) {
                         char c0 = *(s+2);
 
                         if (isxdigit((guchar)c1) && isxdigit((guchar)c0)) {
-                            *(p++) = (xton(c1) * 0x10) + xton(c0);
+                            *(p++) = (ws_xton(c1) * 0x10) + ws_xton(c0);
                             s += 2;
                         } else {
                             *(p++) = *s;
