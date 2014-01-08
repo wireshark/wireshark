@@ -40,6 +40,7 @@ ws_utf8_char_len(guint8 ch)
 #ifdef _WIN32
 
 #include <shellapi.h>
+#include <strsafe.h>
 
 /** @file
  * Unicode utilities (internal interface)
