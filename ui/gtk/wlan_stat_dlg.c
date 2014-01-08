@@ -757,7 +757,8 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
     GtkTreeIter       iter;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));
-    gtk_tree_selection_get_selected (sel, &model, &iter);
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+        return;
     gtk_tree_model_get (model, &iter, TABLE_COLUMN, &ep, -1);
 
     value = FILTER_EXTRA(callback_action);
@@ -797,7 +798,8 @@ wlan_details_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, gui
     GtkTreeIter        iter;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->details));
-    gtk_tree_selection_get_selected (sel, &model, &iter);
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+        return;
     gtk_tree_model_get (model, &iter, DETAILS_COLUMN, &ep, -1);
 
     str = g_strdup_printf("wlan.addr==%s", ep_address_to_str(&ep->addr));
