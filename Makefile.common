@@ -43,7 +43,7 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC =	\
-	$(PLATFORM_SRC)		\
+	$(PLATFORM_CAPTURE_SRC)	\
 	capture-pcap-util.c	\
 	cfutils.c		\
 	clopts_common.c		\
@@ -179,7 +179,7 @@ randpkt_SOURCES = \
 
 # dumpcap specifics
 dumpcap_SOURCES =	\
-	$(PLATFORM_SRC) \
+	$(PLATFORM_CAPTURE_SRC) \
 	capture_opts.c	\
 	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
