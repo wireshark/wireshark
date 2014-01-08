@@ -53,11 +53,8 @@ libfiletap_la_SOURCES = \
 libfiletap_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
 
 EXTRA_DIST = \
-	README.airmagnet	\
-	README.developer	\
 	Makefile.common		\
-	Makefile.nmake		\
-	libfiletap.vcproj
+	Makefile.nmake
 
 libfiletap_la_LIBADD = ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
 libfiletap_la_DEPENDENCIES = ${top_builddir}/wsutil/libwsutil.la
