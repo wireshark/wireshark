@@ -434,9 +434,8 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             val_to_str (opcode, opcode_vals, "Opcode %d"),
             request ? "Request" : "Response");
   } else if (missing) {
-    proto_tree_add_expert_format(tree, pinfo, &ei_key_missing, tvb, offset, 0, "%s %s must have Key",
-                            val_to_str (opcode, opcode_vals, "Opcode %d"),
-                            request ? "Request" : "Response");
+    proto_tree_add_expert_format(tree, pinfo, &ei_key_missing, tvb, offset, 0, "%s Request must have Key",
+                            val_to_str (opcode, opcode_vals, "Opcode %d"));
   }
 }
 
