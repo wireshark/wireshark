@@ -1753,8 +1753,8 @@ AC_SUBST(tshark_man)
 # Enable/disable tfshark
 AC_ARG_ENABLE(tfshark,
   AC_HELP_STRING( [--enable-tfshark],
-                  [build TFShark @<:@default=yes@:>@]),
-    tfshark=$enableval,enable_tfshark=yes)
+                  [build TFShark @<:@default=no@:>@]),
+    tfshark=$enableval,enable_tfshark=no)
 
 if test "x$enable_tfshark" = "xyes" ; then
 	tfshark_bin="tfshark\$(EXEEXT)"
