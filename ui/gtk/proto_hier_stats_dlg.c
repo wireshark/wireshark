@@ -80,7 +80,8 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
     GtkTreePath *path;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(tree));
-    gtk_tree_selection_get_selected (sel, &model, &iter);
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+        return;
     path = gtk_tree_model_get_path(model,&iter);
 
     gtk_tree_model_get (model, &iter, FILTER_NAME, &filter, -1);
