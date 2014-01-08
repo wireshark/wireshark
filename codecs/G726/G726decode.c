@@ -29,39 +29,29 @@
 #include "telephony.h"
 #include "bitstream.h"
 #include "g726.h"
-#endif
 #include "G726decode.h"
 
-#ifdef HAVE_SPANDSP
 /* this isn't reentrant. Making it might involve quite a few changes to be able to pass a g726 state
  * variable to the various functions involved in G.726 decoding.
  */
 static g726_state_t state;
-#endif
 
 /* Currently, only G.726-32, linear encoding, left packed is supported */
 void initG726_32(void)
 {
-#ifdef HAVE_SPANDSP
     memset (&state, 0, sizeof (state));
     g726_init(&state, 32000, 0, 1);
-#endif
 }
 
 /* Packing should be user defined (via the decode dialog) since due to historical reasons two diverging
  * de facto standards are in use today (see RFC3551).
  */
-#ifdef HAVE_SPANDSP
-#define _U_NOSPANDSP_
-#else
-#define _U_NOSPANDSP_ _U_
-#endif
 int
-decodeG726_32(void *input _U_NOSPANDSP_, int inputSizeBytes _U_NOSPANDSP_,
-              void *output _U_NOSPANDSP_, int *outputSizeBytes _U_NOSPANDSP_)
+decodeG726_32(void *input, int inputSizeBytes,
+              void *output, int *outputSizeBytes)
 {
-#ifdef HAVE_SPANDSP
     *outputSizeBytes = 2 * g726_decode(&state, output, (void*) input, inputSizeBytes);
-#endif
     return 0;
 }
+
+#endif

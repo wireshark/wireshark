@@ -29,33 +29,23 @@
 #ifdef HAVE_SPANDSP
 #include "telephony.h"
 #include "g722.h"
-#endif
 #include "G722decode.h"
 
-#ifdef HAVE_SPANDSP
 static g722_decode_state_t state;
-#endif
 
 void
 initG722(void)
 {
-#ifdef HAVE_SPANDSP
     memset (&state, 0, sizeof (state));
     g722_decode_init(&state, 64000, 0);
-#endif
 }
 
-#ifdef HAVE_SPANDSP
-#define _U_NOSPANDSP_
-#else
-#define _U_NOSPANDSP_ _U_
-#endif
 int
 decodeG722(void *input _U_NOSPANDSP_, int inputSizeBytes _U_NOSPANDSP_,
            void *output _U_NOSPANDSP_, int *outputSizeBytes _U_NOSPANDSP_)
 {
-#ifdef HAVE_SPANDSP
     *outputSizeBytes = g722_decode(&state, output, input, inputSizeBytes);
-#endif
     return 0;
 }
+
+#endif
