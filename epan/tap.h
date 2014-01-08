@@ -226,7 +226,7 @@ WS_DLL_PUBLIC void remove_tap_listener(void *tapdata);
 WS_DLL_PUBLIC gboolean tap_listeners_require_dissection(void);
 
 /** Returns TRUE there is an active tap listener for the specified tap id. */
-extern gboolean have_tap_listener(int tap_id);
+WS_DLL_PUBLIC gboolean have_tap_listener(int tap_id);
 
 /** Return TRUE if we have any tap listeners with filters, FALSE otherwise. */
 WS_DLL_PUBLIC gboolean have_filtering_tap_listeners(void);
