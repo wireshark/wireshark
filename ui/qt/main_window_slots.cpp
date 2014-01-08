@@ -2034,19 +2034,19 @@ void MainWindow::on_actionHelpCheckForUpdates_triggered()
 
 void MainWindow::on_actionHelpAbout_triggered()
 {
-    //about_dialog_.UpdateValues();
+    AboutDialog *about_dialog = new AboutDialog(this);;
 
-    if (about_dialog_.isMinimized() == true)
+    if (about_dialog->isMinimized() == true)
     {
-        about_dialog_.showNormal();
+        about_dialog->showNormal();
     }
     else
     {
-        about_dialog_.show();
+        about_dialog->show();
     }
 
-    about_dialog_.raise();
-    about_dialog_.activateWindow();
+    about_dialog->raise();
+    about_dialog->activateWindow();
 }
 
 void MainWindow::on_actionGoGoToPacket_triggered() {

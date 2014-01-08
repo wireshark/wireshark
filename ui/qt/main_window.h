@@ -115,7 +115,6 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
-    AboutDialog about_dialog_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
