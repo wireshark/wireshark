@@ -1749,9 +1749,23 @@ else
 fi
 AC_SUBST(tshark_bin)
 AC_SUBST(tshark_man)
-AC_SUBST(wiresharkfilter_man)
 
+# Enable/disable tfshark
+AC_ARG_ENABLE(tfshark,
+  AC_HELP_STRING( [--enable-tfshark],
+                  [build TFShark @<:@default=yes@:>@]),
+    tfshark=$enableval,enable_tfshark=yes)
 
+if test "x$enable_tfshark" = "xyes" ; then
+	tfshark_bin="tfshark\$(EXEEXT)"
+	tfshark_man="tfshark.1"
+	wiresharkfilter_man="wireshark-filter.4"
+else
+	tfshark_bin=""
+	tfshark_man=""
+fi
+AC_SUBST(tfshark_bin)
+AC_SUBST(tfshark_man)
 
 # Enable/disable editcap
 
@@ -1769,8 +1783,6 @@ else
 fi
 AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
-
-
 
 # Enable/disable echld
 
@@ -1793,7 +1805,6 @@ fi
 AC_SUBST(echld_test_bin)
 AC_SUBST(echld_dir)
 
-
 # Enabling/disabling of dumpcap is done later (after we know if we have PCAP
 # or not)
 
@@ -1814,7 +1825,6 @@ fi
 AC_SUBST(capinfos_bin)
 AC_SUBST(capinfos_man)
 
-
 # Enable/disable captype
 
 AC_ARG_ENABLE(captype,
@@ -1831,7 +1841,6 @@ else
 fi
 AC_SUBST(captype_bin)
 AC_SUBST(captype_man)
-
 
 # Enable/disable mergecap
 
@@ -1850,7 +1859,6 @@ fi
 AC_SUBST(mergecap_bin)
 AC_SUBST(mergecap_man)
 
-
 # Enable/disable reordercap
 
 AC_ARG_ENABLE(reordercap,
@@ -1867,7 +1875,6 @@ else
 fi
 AC_SUBST(reordercap_bin)
 AC_SUBST(reordercap_man)
-
 
 # Enable/disable text2pcap
 
@@ -1886,7 +1893,6 @@ fi
 AC_SUBST(text2pcap_bin)
 AC_SUBST(text2pcap_man)
 
-
 # Enable/disable dftest
 
 AC_ARG_ENABLE(dftest,
@@ -1903,7 +1909,6 @@ else
 fi
 AC_SUBST(dftest_bin)
 AC_SUBST(dftest_man)
-
 
 # Enable/disable randpkt
 
@@ -1922,7 +1927,7 @@ fi
 AC_SUBST(randpkt_bin)
 AC_SUBST(randpkt_man)
 
-
+AC_SUBST(wiresharkfilter_man)
 
 dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
 dnl "gethostbyname()".
@@ -3014,6 +3019,7 @@ echo "The Wireshark package has been configured with the following options."
 echo "             Build wireshark (Gtk+) : $have_gtk""$gtk_lib_message"
 echo "                 Build wireshark-qt : $enable_qtshark"
 echo "                       Build tshark : $enable_tshark"
+echo "                      Build tfshark : $enable_tfshark"
 echo "                     Build capinfos : $enable_capinfos"
 echo "                      Build captype : $enable_captype"
 echo "                      Build editcap : $enable_editcap"
