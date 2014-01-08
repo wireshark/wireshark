@@ -208,6 +208,11 @@ GSList *ftap_get_all_file_extensions_list(void)
 	return extensions;
 }
 
+int empty_open(ftap *wth, int *err, gchar **err_info)
+{
+	return 0;
+}
+
 /* The open_file_* routines should return:
  *
  *	-1 on an I/O error;
@@ -232,7 +237,7 @@ GSList *ftap_get_all_file_extensions_list(void)
  * are easy to identify.  Only an open routine is needed.
  */
 static const ftap_open_routine_t magic_number_open_routines_base[] = {
-	NULL/* libpcap_open, */
+	empty_open/* libpcap_open, */
 };
 #define	N_MAGIC_FILE_TYPES	(sizeof magic_number_open_routines_base / sizeof magic_number_open_routines_base[0])
 

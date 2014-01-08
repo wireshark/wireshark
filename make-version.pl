@@ -442,7 +442,7 @@ sub update_debian_wcf
 	while ($line = <DWCF>) {
 		# /usr/lib/wireshark/libwireshark.so.1.1.0
 
-		if ($line =~ qr{^(/usr/lib/wireshark/lib(wireshark|wiretap).so\.\d+\.\d+\.)\d+$}) {
+		if ($line =~ qr{^(/usr/lib/wireshark/lib(wireshark|wiretap|filetap).so\.\d+\.\d+\.)\d+$}) {
 			$line = sprintf("$1%d\n", $version_pref{"version_micro"});
 		}
 		$contents .= $line
@@ -469,10 +469,10 @@ sub update_lib_releases
 	#   "If the library source code has changed at all since the last
 	#    update, then increment revision (‘c:r:a’ becomes ‘c:r+1:a’)."
 	# epan changes with each minor release, almost by definition. wiretap
-	# changes with *most* releases.
+	# and filetap changes with *most* releases.
 	#
 	# http://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
-	for $filedir ("epan", "wiretap") {	# "wsutil"
+	for $filedir ("epan", "wiretap", "filetap") {	# "wsutil"
 		$contents = "";
 		$filepath = $filedir . "/Makefile.am";
 		open(MAKEFILE_AM, "< $filepath") || die "Can't read $filepath!";

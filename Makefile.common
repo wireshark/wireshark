@@ -45,7 +45,6 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 SHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC)		\
 	capture-pcap-util.c	\
-	cfile.c			\
 	cfutils.c		\
 	clopts_common.c		\
 	frame_tvbuff.c		\
@@ -91,6 +90,7 @@ WIRESHARK_COMMON_SRC =	\
 	capture.c	\
 	capture_info.c	\
 	capture_opts.c	\
+	cfile.c			\
 	color_filters.c	\
 	file.c		\
 	fileset.c	\
@@ -122,12 +122,20 @@ WIRESHARK_COMMON_INCLUDES =	\
 tshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
+	cfile.c			\
 	capture_opts.c		\
 	tshark.c
+
+# tfshark specifics
+tfshark_SOURCES =	\
+	$(SHARK_COMMON_SRC)	\
+	cfile.c			\
+	tfshark.c
 
 # rawshark specifics
 rawshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
+	cfile.c			\
 	rawshark.c
 
 # text2pcap specifics

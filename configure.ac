@@ -2860,6 +2860,7 @@ AC_OUTPUT(
   epan/wmem/Makefile
   epan/wslua/Makefile
   epan/wspython/Makefile
+  filetap/Makefile
   codecs/Makefile
   ui/Makefile
   ui/doxygen.cfg

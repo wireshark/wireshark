@@ -177,6 +177,17 @@ void
 epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
 
+/** run a single file packet dissection */
+WS_DLL_PUBLIC
+void
+epan_dissect_file_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+        tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
+
+WS_DLL_PUBLIC
+void
+epan_dissect_file_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+        tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
+
 /** Prime a proto_tree using the fields/protocols used in a dfilter. */
 WS_DLL_PUBLIC
 void

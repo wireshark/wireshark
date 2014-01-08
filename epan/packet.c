@@ -60,6 +60,7 @@
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
+static dissector_handle_t file_handle = NULL;
 static dissector_handle_t data_handle = NULL;
 
 /**
@@ -153,6 +154,9 @@ packet_cache_proto_handles(void)
 {
 	frame_handle = find_dissector("frame");
 	g_assert(frame_handle != NULL);
+
+	file_handle = find_dissector("file");
+	g_assert(file_handle != NULL);
 
 	data_handle = find_dissector("data");
 	g_assert(data_handle != NULL);
@@ -461,6 +465,71 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	ENDTRY;
 
 	EP_CHECK_CANARY(("after dissecting frame %d",fd->num));
+
+	fd->flags.visited = 1;
+}
+
+/* Creates the top-most tvbuff and calls dissect_file() */
+void
+dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+	       tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+{
+	if (cinfo != NULL)
+		col_init(cinfo, edt->session);
+	edt->pi.epan = edt->session;
+	/* edt->pi.pool created in epan_dissect_init() */
+	edt->pi.current_proto = "<Missing Filetype Name>";
+	edt->pi.cinfo = cinfo;
+	edt->pi.fd    = fd;
+	edt->pi.phdr  = phdr;
+	edt->pi.pseudo_header = &phdr->pseudo_header;
+	edt->pi.dl_src.type   = AT_NONE;
+	edt->pi.dl_dst.type   = AT_NONE;
+	edt->pi.net_src.type  = AT_NONE;
+	edt->pi.net_dst.type  = AT_NONE;
+	edt->pi.src.type = AT_NONE;
+	edt->pi.dst.type = AT_NONE;
+	edt->pi.ctype = CT_NONE;
+	edt->pi.noreassembly_reason = "";
+	edt->pi.ptype = PT_NONE;
+	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
+	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
+	edt->pi.link_dir = LINK_DIR_UNKNOWN;
+	edt->pi.layers = wmem_list_new(edt->pi.pool);
+	edt->tvb = tvb;
+
+
+	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
+
+	/* pkt comment use first user, later from phdr */
+	if (fd->flags.has_user_comment) 
+		edt->pi.pkt_comment = epan_get_user_comment(edt->session, fd);
+	else if (fd->flags.has_phdr_comment)
+		edt->pi.pkt_comment = phdr->opt_comment;
+
+	EP_CHECK_CANARY(("before dissecting file %d",fd->num));
+
+	TRY {
+		/* Add this tvbuffer into the data_src list */
+		add_new_data_source(&edt->pi, edt->tvb, "File");
+
+		/* Even though dissect_file() catches all the exceptions a
+		 * sub-dissector can throw, dissect_frame() itself may throw
+		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
+		 * in this function. */
+		call_dissector(file_handle, edt->tvb, &edt->pi, edt->tree);
+
+	}
+	CATCH(BoundsError) {
+		g_assert_not_reached();
+	}
+	CATCH2(FragmentBoundsError, ReportedBoundsError) {
+		proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
+					       "[Malformed Record: Packet Length]" );
+	}
+	ENDTRY;
+
+	EP_CHECK_CANARY(("after dissecting file %d",fd->num));
 
 	fd->flags.visited = 1;
 }

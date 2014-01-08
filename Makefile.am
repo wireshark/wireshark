@@ -38,6 +38,7 @@ endif
 bin_PROGRAMS = \
 	@wireshark_bin@		\
 	@tshark_bin@		\
+	@tfshark_bin@		\
 	@text2pcap_bin@		\
 	@mergecap_bin@		\
 	@capinfos_bin@		\
@@ -50,7 +51,7 @@ bin_PROGRAMS = \
 	@rawshark_bin@		\
 	@echld_test_bin@
 
-EXTRA_PROGRAMS = wireshark wireshark-qt tshark capinfos captype editcap \
+EXTRA_PROGRAMS = wireshark wireshark-qt tshark tfshark capinfos captype editcap \
 	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark \
 	wireshark_cxx echld_test
 
@@ -361,6 +362,7 @@ wireshark_ldadd = \
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
+	filetap/libfiletap.la		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -446,6 +448,33 @@ tshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 tshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+
+if ENABLE_STATIC
+tfshark_LDFLAGS = -Wl,-static -all-static
+else
+tfshark_LDFLAGS = -export-dynamic
+endif
+
+# Libraries and plugin flags with which to link tfshark.
+tfshark_LDADD = \
+	ui/cli/libcliui.a		\
+	ui/libui.a			\
+	filetap/libfiletap.la		\
+	epan/libwireshark.la		\
+	wsutil/libwsutil.la		\
+	@SSL_LIBS@			\
+	$(plugin_ldadd)			\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@			\
+	@SOCKET_LIBS@			\
+	@NSL_LIBS@			\
+	@KRB5_LIBS@			\
+	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
+	@COREFOUNDATION_FRAMEWORKS@	\
+	@PY_LIBS@			\
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
+tfshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if ENABLE_STATIC
 rawshark_LDFLAGS = -Wl,-static -all-static
@@ -722,6 +751,7 @@ EXTRA_DIST = \
 	dumpcap.c	\
 	editcap.c		\
 	epan/print.ps		\
+	filetap/CMakeLists.txt	\
 	fix/FIX.xml		\
 	fix/FIX40.xml		\
 	fix/FIX41.xml		\
@@ -802,6 +832,7 @@ EXTRA_DIST = \
 	image/expert_note.png	\
 	image/expert_warn.png	\
 	image/file_dlg_win32.rc \
+	image/filetap.rc.in	\
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
 	image/hi48-app-wireshark.png	\
@@ -1037,12 +1068,12 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan echld ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = asn1 codecs doc epan echld filetap ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap epan @echld_dir@ plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
+SUBDIRS = tools wsutil wiretap filetap epan @echld_dir@ plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
 else
-SUBDIRS = tools wsutil wiretap epan @echld_dir@ packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
+SUBDIRS = tools wsutil wiretap filetap epan @echld_dir@ packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
 endif
 
 help/faq.txt: $(srcdir)/help/faq.py
@@ -1177,6 +1208,7 @@ clean-local:
 	rm -rf $(top_stagedir)
 
 dumpabi:
+	$(MAKE) -C filetap dumpabi-libfiletap
 	$(MAKE) -C wiretap dumpabi-libwiretap
 	$(MAKE) -C epan dumpabi-libwireshark
 	$(MAKE) -C wsutil dumpabi-libwsutil
@@ -1189,6 +1221,7 @@ checkapi_local:
 
 checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
+	cd filetap && $(MAKE) checkapi
 	cd codecs && $(MAKE) checkapi
 	cd ui && $(MAKE) checkapi
 	cd ui/gtk && $(MAKE) checkapi

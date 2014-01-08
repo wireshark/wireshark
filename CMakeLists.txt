@@ -818,7 +818,6 @@ set(SHARK_COMMON_CAPTURE_SRC
 set(WIRESHARK_COMMON_SRC
 	${PLATFORM_CAPTURE_SRC}
 	capture-pcap-util.c
-	cfile.c
 	cfutils.c
 	clopts_common.c
 	frame_tvbuff.c
@@ -944,6 +943,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		proto_hier_stats.c
 		summary.c
 		ws80211_utils.c
+		cfile.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
@@ -1016,6 +1016,7 @@ if(BUILD_tshark)
 		capture_sync.c
 		tshark-tap-register.c
 		tshark.c
+		cfile.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
@@ -1028,6 +1029,28 @@ if(BUILD_tshark)
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+if(BUILD_tfshark)
+	set(tfshark_LIBS
+		ui
+		${LIBEPAN_LIBS}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+	)
+	set(tfshark_FILES
+		tfshark.c
+#		tfshark-tap-register.c
+		${TSHARK_TAP_SRC}
+		${SHARK_COMMON_CAPTURE_SRC}
+		${WIRESHARK_COMMON_SRC}
+	)
+	add_executable(tfshark ${tfshark_FILES})
+	add_dependencies(tfshark svnversion)
+	set_target_properties(tfshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	set_target_properties(tfshark PROPERTIES FOLDER "Executables")
+	target_link_libraries(tfshark ${tfshark_LIBS})
+	install(TARGETS tfshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
 if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_LIBS
 		${LIBEPAN_LIBS}
@@ -1035,6 +1058,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(rawshark_FILES
+		cfile.c
 		${WIRESHARK_COMMON_SRC}
 		rawshark.c
 		ui/util.c

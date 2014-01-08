@@ -2547,7 +2547,7 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 
 
 static int
-dissect_file(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+dissect_ndmp_file(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item* item = NULL;
 	proto_tree* tree = NULL;
@@ -2585,7 +2585,7 @@ dissect_fh_add_file_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	/* files */
 	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
-			dissect_file, hf_ndmp_files);
+			dissect_ndmp_file, hf_ndmp_files);
 
 	return offset;
 }

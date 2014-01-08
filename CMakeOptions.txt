@@ -5,6 +5,7 @@
 option(BUILD_wireshark   "Build the GTK+-GUI version of Wireshark" ON)
 option(BUILD_qtshark     "Build the Qt-GUI version of Wireshark" ON)
 option(BUILD_tshark      "Build tshark" ON)
+option(BUILD_tfshark     "Build tfshark" ON)
 option(BUILD_rawshark    "Build rawshark" ON)
 option(BUILD_dumpcap     "Build dumpcap" ON)
 option(BUILD_text2pcap   "Build text2pcap" ON)

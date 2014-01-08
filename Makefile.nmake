@@ -57,6 +57,7 @@ include Makefile.common
 
 wireshark_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
+tfshark_OBJECTS = $(tfshark_SOURCES:.c=.obj)
 rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
 ###text2pcap_OBJECTS = $(text2pcap_SOURCES:.c=.obj)
 mergecap_OBJECTS = $(mergecap_SOURCES:.c=.obj)
@@ -110,6 +111,24 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
+!ENDIF
+
+tfshark_LIBS= filetap\filetap-$(FTAP_VERSION).lib \
+	wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib psapi.lib \
+	$(GLIB_LIBS) \
+	$(GTHREAD_LIBS) \
+	wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
+!IFDEF ENABLE_LIBWIRESHARK
+	epan\libwireshark.lib \
+!ELSE
+	epan\dissectors\dissectors.lib \
+	epan\wireshark.lib \
+	epan\dfilter\dfilter.lib \
+	epan\ftypes\ftypes.lib \
+	epan\wmem\wmem.lib
 !ENDIF
 
 rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -190,7 +209,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
-EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
+EXECUTABLES=wireshark.exe tshark.exe tfshark.exe rawshark.exe \
 	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
 	randpkt.exe reordercap.exe dumpcap.exe dftest.exe
 
@@ -199,13 +218,13 @@ EXECUTABLES=$(EXECUTABLES) qtshark.exe
 !ENDIF
 
 RESOURCES=image\wireshark.res image\file_dlg_win32.res \
-	image\libwireshark.res image\tshark.res image\capinfos.res \
+	image\libwireshark.res image\tshark.res image\tfshark.res image\capinfos.res \
 	image\captype.res image\editcap.res image\mergecap.res \
-	image\text2pcap.res image\wiretap.res image\dumpcap.res \
+	image\text2pcap.res image\wiretap.res image\filetap.res image\dumpcap.res \
 	image\rawshark.res image\reordercap.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap filetap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -257,6 +276,7 @@ wireshark.bsc: \
 	epan\dissectors\*.sbr		\
 	epan\ftypes\*.sbr		\
 	epan\wslua\*.sbr		\
+	filetap\*.sbr			\
 	plugins\asn1\*.sbr		\
 	plugins\docsis\*.sbr		\
 	plugins\ethercat\*.sbr		\
@@ -295,6 +315,7 @@ $(RESOURCES): image
 ## Note: The proper "SUBSYSTEM" link option to be used for linking each of the Wireshark executables
 ##       is specified in '$(guiflags)' or '$(conflags)' as used as part of the link options.
 ##       (These variables are defined in win32.mak).
+filetap\filetap-$(FTAP_VERSION).lib: image $(ZLIB_DLL) filetap
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
 wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
@@ -315,6 +336,15 @@ tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui cli image\tshark.r
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
+!ENDIF
+
+tfshark.exe	: $(LIBS_CHECK) config.h $(tfshark_OBJECTS) epan ui cli image\tfshark.res wsutil\libwsutil.lib filetap\filetap-$(FTAP_VERSION).lib plugins
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:tfshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(tfshark_LIBS) $(tfshark_OBJECTS) ui\cli\libcliui.lib ui\libui.lib image\tfshark.res
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "tfshark.exe.manifest" -outputresource:tfshark.exe;1
 !ENDIF
 
 rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan ui image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
@@ -530,7 +560,7 @@ text2pcap.obj mergecap.obj capinfos.obj captype.obj editcap.obj reordercap.obj v
 
 
 clean-local:
-	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
+	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
 		capinfos.obj capinfos.exp capinfos.lib \
 		captype.obj captype.exp captype.lib \
@@ -553,6 +583,8 @@ clean: clean-local
 	cd ../wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../wsutil
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -604,6 +636,8 @@ distclean-local: clean-local
 distclean: distclean-local
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../filetap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../wsutil
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
@@ -648,6 +682,8 @@ maintainer-clean-local: distclean-local
 
 maintainer-clean: maintainer-clean-local
 	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../wsutil
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -759,6 +795,11 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+filetap::
+	cd filetap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 codecs::
 	cd codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -799,7 +840,7 @@ cli:: help config.h svnversion.h doxygen
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcliui.lib
 	cd ../..
 
-epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
+epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib filetap\filetap-$(FTAP_VERSION).lib $(BUILT_SOURCES) doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
@@ -1080,6 +1121,9 @@ debug-wireshark: wireshark.exe install-generated-files
 # prepare debugging of tshark in INSTALL_DIR
 debug-tshark: tshark.exe install-generated-files
 
+# prepare debugging of tfshark in INSTALL_DIR
+debug-tfshark: tfshark.exe install-generated-files
+
 # prepare debugging of rawshark in INSTALL_DIR
 debug-rawshark: rawshark.exe install-generated-files
 
@@ -1102,6 +1146,9 @@ install-generated-files: doc
 	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR) /d
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).lib" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).lib" $(INSTALL_DIR) /d
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).pdb" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).pdb" $(INSTALL_DIR) /d
+	xcopy ".\filetap\filetap-$(FTAP_VERSION).dll" $(INSTALL_DIR) /d
+	if exist ".\filetap\filetap-$(FTAP_VERSION).lib" xcopy ".\filetap\filetap-$(FTAP_VERSION).lib" $(INSTALL_DIR) /d
+	if exist ".\filetap\filetap-$(FTAP_VERSION).pdb" xcopy ".\filetap\filetap-$(FTAP_VERSION).pdb" $(INSTALL_DIR) /d
 	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.lib" xcopy ".\wsutil\libwsutil.lib" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.pdb" xcopy ".\wsutil\libwsutil.pdb" $(INSTALL_DIR) /d
@@ -1125,6 +1172,8 @@ install-generated-files: doc
 	if exist rawshark.pdb xcopy rawshark.pdb $(INSTALL_DIR) /d
 	if exist text2pcap.exe xcopy text2pcap.exe $(INSTALL_DIR) /d
 	if exist text2pcap.pdb xcopy text2pcap.pdb $(INSTALL_DIR) /d
+	if exist tfshark.exe xcopy tfshark.exe $(INSTALL_DIR) /d
+	if exist tfshark.pdb xcopy tfshark.pdb $(INSTALL_DIR) /d
 	if exist tshark.exe xcopy tshark.exe $(INSTALL_DIR) /d
 	if exist tshark.pdb xcopy tshark.pdb $(INSTALL_DIR) /d
 	xcopy "doc\AUTHORS-SHORT" $(INSTALL_DIR) /d
@@ -1333,12 +1382,15 @@ install-all: install-generated-files
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl -build \
+	cfile.c
 	$(WIRESHARK_COMMON_SRC) \
 	$(TSHARK_TAP_SRC) \
 #	$(EXTRA_wireshark_SOURCES)
 
 checkapi: checkapi_local
 	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../filetap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi

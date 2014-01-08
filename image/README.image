@@ -43,6 +43,7 @@ editcap.rc.in
 mergecap.rc.in
 rawshark.rc.in
 tshark.rc.in
+tfshark.rc.in
 text2pcap.rc.in
 
 stock_dialog_error_48.xpm		GTK2 default icons for simple_dialog, from:

@@ -20,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __FILE_H__
-#define __FILE_H__
+#ifndef __WTAP_FILE_WRAPPERS_H__
+#define __WTAP_FILE_WRAPPERS_H__
 
 #include <glib.h>
 #include <wtap.h>

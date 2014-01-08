@@ -2435,6 +2435,9 @@ proto_reg_handoff_elf(void)
     dissector_add_string("media_type", "application/x-object", elf_handle);
     dissector_add_string("media_type", "application/x-sharedlib", elf_handle);
 
+    /* XXX - TEMPORARY HACK */
+    dissector_add_uint("ftap_encap", 1234, elf_handle);
+
     heur_dissector_add("wtap_file", dissect_elf_heur, proto_elf);
 }
 
