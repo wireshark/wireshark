@@ -1110,23 +1110,22 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 static void
 dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item  *iax2_item         = NULL;
-  proto_tree  *iax2_tree         = NULL;
+  proto_item  *iax2_item;
+  proto_tree  *iax2_tree;
   proto_tree  *full_mini_subtree = NULL;
   guint32      offset            = 0, len;
   guint16      scallno           = 0;
   guint16      stmp;
   packet_type  type;
+  proto_item *full_mini_base;
 
   /* set up the protocol and info fields in the summary pane */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_IAX2);
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* add the 'iax2' tree to the main tree */
-  if (tree) {
-    iax2_item = proto_tree_add_item(tree, proto_iax2, tvb, offset, -1, ENC_NA);
-    iax2_tree = proto_item_add_subtree(iax2_item, ett_iax2);
-  }
+  iax2_item = proto_tree_add_item(tree, proto_iax2, tvb, offset, -1, ENC_NA);
+  iax2_tree = proto_item_add_subtree(iax2_item, ett_iax2);
 
   stmp = tvb_get_ntohs(tvb, offset);
   if (stmp == 0) {
@@ -1155,15 +1154,11 @@ dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     scallno &= 0x7FFF;
   }
 
-  if (tree) {
-    proto_item *full_mini_base;
+  full_mini_base = proto_tree_add_uint(iax2_tree, hf_iax2_packet_type, tvb, 0, offset, type);
+  full_mini_subtree = proto_item_add_subtree(full_mini_base, ett_iax2_full_mini_subtree);
 
-    full_mini_base = proto_tree_add_uint(iax2_tree, hf_iax2_packet_type, tvb, 0, offset, type);
-    full_mini_subtree = proto_item_add_subtree(full_mini_base, ett_iax2_full_mini_subtree);
-
-    if (scallno != 0)
-      proto_tree_add_item(full_mini_subtree, hf_iax2_scallno, tvb, offset-2, 2, ENC_BIG_ENDIAN);
-  }
+  if (scallno != 0)
+    proto_tree_add_item(full_mini_subtree, hf_iax2_scallno, tvb, offset-2, 2, ENC_BIG_ENDIAN);
 
   iax2_info->ptype = type;
   iax2_info->scallno = 0;
