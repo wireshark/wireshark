@@ -398,10 +398,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (key_len) {
     ti = proto_tree_add_item (tree, hf_key, tvb, offset, key_len, ENC_ASCII|ENC_NA);
     offset += key_len;
-  }
 
-  /* Sanity check */
-  if (key_len) {
     if ((opcode == OP_QUIT) || (opcode == OP_QUIT_Q) || (opcode == OP_NO_OP) || (opcode == OP_VERSION)) {
       /* Request and Response must not have key */
       illegal = TRUE;
