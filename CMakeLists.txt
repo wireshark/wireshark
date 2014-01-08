@@ -810,13 +810,8 @@ if(WIN32)
 	)
 endif()
 
-set(SHARK_COMMON_CAPTURE_SRC
-	capture_ifinfo.c
-	capture_ui_utils.c
-)
-
-set(WIRESHARK_COMMON_SRC
-	${PLATFORM_CAPTURE_SRC}
+# sources common for wireshark, tshark, and rawshark
+set(SHARK_COMMON_SRC
 	capture-pcap-util.c
 	cfutils.c
 	clopts_common.c
@@ -824,6 +819,15 @@ set(WIRESHARK_COMMON_SRC
 	svnversion.h
 	sync_pipe_write.c
 	version_info.c
+)
+
+# sources common for wireshark and tshark, but not rawshark;
+# these are for programs that capture traffic by running dumpcap
+set(SHARK_COMMON_CAPTURE_SRC
+	${PLATFORM_CAPTURE_SRC}
+	capture_ifinfo.c
+	capture_sync.c
+	capture_ui_utils.c
 )
 
 set(TSHARK_TAP_SRC
@@ -934,7 +938,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		capture.c
 		capture_info.c
 		capture_opts.c
-		capture_sync.c
 		color_filters.c
 		file.c
 		fileset.c
@@ -945,7 +948,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		ws80211_utils.c
 		cfile.c
 		${SHARK_COMMON_CAPTURE_SRC}
-		${WIRESHARK_COMMON_SRC}
+		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
 	)
 endif()
@@ -1013,13 +1016,12 @@ if(BUILD_tshark)
 	)
 	set(tshark_FILES
 		capture_opts.c
-		capture_sync.c
 		tshark-tap-register.c
 		tshark.c
 		cfile.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
-		${WIRESHARK_COMMON_SRC}
+		${SHARK_COMMON_SRC}
 	)
 	add_executable(tshark ${tshark_FILES})
 	add_dependencies(tshark svnversion)
@@ -1041,7 +1043,7 @@ if(BUILD_tfshark)
 #		tfshark-tap-register.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
-		${WIRESHARK_COMMON_SRC}
+		${SHARK_COMMON_SRC}
 	)
 	add_executable(tfshark ${tfshark_FILES})
 	add_dependencies(tfshark svnversion)
@@ -1059,7 +1061,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	)
 	set(rawshark_FILES
 		cfile.c
-		${WIRESHARK_COMMON_SRC}
+		${SHARK_COMMON_SRC}
 		rawshark.c
 		ui/util.c
 	)
