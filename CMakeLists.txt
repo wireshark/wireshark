@@ -1033,14 +1033,16 @@ endif()
 
 if(BUILD_tfshark)
 	set(tfshark_LIBS
+		filetap
 		ui
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(tfshark_FILES
+		cfile.c
 		tfshark.c
-#		tfshark-tap-register.c
+		tshark-tap-register.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
 	)
