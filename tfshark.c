@@ -1675,18 +1675,18 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
 gboolean
 local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar **err_info, gint64 *data_offset, guint8** data_buffer)
 {
-    int	bytes_read;
+    int bytes_read;
     gint64 packet_size = wtap_file_size(cf->wth, err);
 
     *data_buffer = (guint8*)g_malloc((gsize)packet_size);
-    bytes_read = file_read(*data_buffer, (gsize)packet_size, cf->wth->fh);
+    bytes_read = file_read(*data_buffer, (unsigned int)packet_size, cf->wth->fh);
 
-	if (bytes_read < 0) {
-		*err = file_error(cf->wth->fh, err_info);
-		if (*err == 0)
-			*err = FTAP_ERR_SHORT_READ;
-		return FALSE;
-	} else if (bytes_read == 0) {
+    if (bytes_read < 0) {
+        *err = file_error(cf->wth->fh, err_info);
+        if (*err == 0)
+            *err = FTAP_ERR_SHORT_READ;
+        return FALSE;
+    } else if (bytes_read == 0) {
         /* Done with file, no error */
         return FALSE;
     }
@@ -1697,48 +1697,48 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar
     file_phdr->len = (guint32)packet_size;
 
 #if 0
-	/*
-	 * Set the packet encapsulation to the file's encapsulation
-	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
-	 * right answer (and means that the read routine for this
-	 * capture file type doesn't have to set it), and if it
-	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
-	 * anyway.
-	 */
-	wth->phdr.pkt_encap = wth->file_encap;
+    /*
+     * Set the packet encapsulation to the file's encapsulation
+     * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
+     * right answer (and means that the read routine for this
+     * capture file type doesn't have to set it), and if it
+     * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
+     * anyway.
+     */
+    wth->phdr.pkt_encap = wth->file_encap;
 
-	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
-		/*
-		 * If we didn't get an error indication, we read
-		 * the last packet.  See if there's any deferred
-		 * error, as might, for example, occur if we're
-		 * reading a compressed file, and we got an error
-		 * reading compressed data from the file, but
-		 * got enough compressed data to decompress the
-		 * last packet of the file.
-		 */
-		if (*err == 0)
-			*err = file_error(wth->fh, err_info);
-		return FALSE;	/* failure */
-	}
+    if (!wth->subtype_read(wth, err, err_info, data_offset)) {
+        /*
+         * If we didn't get an error indication, we read
+         * the last packet.  See if there's any deferred
+         * error, as might, for example, occur if we're
+         * reading a compressed file, and we got an error
+         * reading compressed data from the file, but
+         * got enough compressed data to decompress the
+         * last packet of the file.
+         */
+        if (*err == 0)
+            *err = file_error(wth->fh, err_info);
+        return FALSE;    /* failure */
+    }
 
-	/*
-	 * It makes no sense for the captured data length to be bigger
-	 * than the actual data length.
-	 */
-	if (wth->phdr.caplen > wth->phdr.len)
-		wth->phdr.caplen = wth->phdr.len;
+    /*
+     * It makes no sense for the captured data length to be bigger
+     * than the actual data length.
+     */
+    if (wth->phdr.caplen > wth->phdr.len)
+        wth->phdr.caplen = wth->phdr.len;
 
-	/*
-	 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
-	 * probably means the file has that encapsulation type
-	 * but the read routine didn't set this packet's
-	 * encapsulation type.
-	 */
-	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
+    /*
+     * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
+     * probably means the file has that encapsulation type
+     * but the read routine didn't set this packet's
+     * encapsulation type.
+     */
+    g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
 #endif
 
-	return TRUE;	/* success */
+    return TRUE; /* success */
 }
 
 static int
