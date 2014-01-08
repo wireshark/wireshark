@@ -208,7 +208,7 @@ GSList *ftap_get_all_file_extensions_list(void)
 	return extensions;
 }
 
-int empty_open(ftap *wth, int *err, gchar **err_info)
+int empty_open(ftap *wth _U_, int *err _U_, gchar **err_info _U_)
 {
 	return 0;
 }
