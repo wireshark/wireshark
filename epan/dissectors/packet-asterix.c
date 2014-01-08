@@ -772,6 +772,21 @@ static gint hf_062_510 = -1;
 static gint hf_062_510_SID = -1;
 static gint hf_062_510_STN = -1;
 static gint hf_062_RE = -1;
+static gint hf_062_RE_FIELD_LEN = -1;
+static gint hf_062_RE_CST = -1;
+static gint hf_062_RE_CST_SAC = -1;
+static gint hf_062_RE_CST_SIC = -1;
+static gint hf_062_RE_CST_TYP = -1;
+static gint hf_062_RE_CST_TRK_NUM = -1;
+static gint hf_062_RE_CSNT = -1;
+static gint hf_062_RE_CSNT_SAC = -1;
+static gint hf_062_RE_CSNT_SIC = -1;
+static gint hf_062_RE_CSNT_TYP = -1;
+static gint hf_062_RE_TVS = -1;
+static gint hf_062_RE_TVS_VX = -1;
+static gint hf_062_RE_TVS_VY = -1;
+static gint hf_062_RE_STS = -1;
+static gint hf_062_RE_STS_FDR = -1;
 static gint hf_062_SP = -1;
 /* Category 063 */
 static gint hf_063_010 = -1;
@@ -1527,6 +1542,10 @@ static gint ett_062_510 = -1;
 static gint ett_062_510_SID = -1;
 static gint ett_062_510_STN = -1;
 static gint ett_062_RE = -1;
+static gint ett_062_RE_CST = -1;
+static gint ett_062_RE_CSN = -1;
+static gint ett_062_RE_TVS = -1;
+static gint ett_062_RE_STS = -1;
 static gint ett_062_SP = -1;
 /* Category 063 */
 static gint ett_063_010 = -1;
@@ -1558,9 +1577,10 @@ static dissector_handle_t asterix_handle;
 #define FIXED       0x01
 #define REPETITIVE  0x02
 #define FX          0x04
-#define VAR         0x08
+#define RE          0x08
 #define COMPOUND    0x10
 #define UAP         0x20
+#define SP          0x40
 
 #define FIELD_PART_INT        0
 #define FIELD_PART_UINT       1
@@ -1900,8 +1920,8 @@ static const AsterixField I001_161 = { FIXED, 2, 0, 0, &hf_001_161, I001_161_PAR
 static const AsterixField I001_170 = { FX, 1, 0, 0, &hf_001_170, I001_170_PARTS, { NULL } };
 static const AsterixField I001_200 = { FIXED, 4, 0, 0, &hf_001_200, NULL, { NULL } };
 static const AsterixField I001_210 = { FIXED, 1, 0, 0, &hf_001_210, NULL, { NULL } };
-static const AsterixField I001_RE = { VAR, 0, 0, 1, &hf_001_RE, NULL, { NULL } };
-static const AsterixField I001_SP = { VAR, 0, 0, 1, &hf_001_SP, NULL, { NULL } };
+static const AsterixField I001_RE = { RE, 0, 0, 1, &hf_001_RE, NULL, { NULL } };
+static const AsterixField I001_SP = { SP, 0, 0, 1, &hf_001_SP, NULL, { NULL } };
 
 static const AsterixField *I001_PLOT[] = { &I001_010, &I001_020, &I001_040, &I001_070, &I001_090, &I001_130, &I001_141,
                                            &I001_050, &I001_120, &I001_131, &I001_080, &I001_100, &I001_060, &I001_030,
@@ -1982,8 +2002,8 @@ static const AsterixField I002_070 = { REPETITIVE, 2, 1, 0, &hf_002_070, I002_07
 static const AsterixField I002_080 = { FIXED, 2, 0, 0, &hf_002_080, I002_080_PARTS, { NULL } };
 static const AsterixField I002_090 = { FIXED, 2, 0, 0, &hf_002_090, I002_090_PARTS, { NULL } };
 static const AsterixField I002_100 = { FIXED, 8, 0, 0, &hf_002_100, I002_100_PARTS, { NULL } };
-static const AsterixField I002_RE = { VAR, 0, 0, 1, &hf_002_RE, NULL, { NULL } };
-static const AsterixField I002_SP = { VAR, 0, 0, 1, &hf_002_SP, NULL, { NULL } };
+static const AsterixField I002_RE = { RE, 0, 0, 1, &hf_002_RE, NULL, { NULL } };
+static const AsterixField I002_SP = { SP, 0, 0, 1, &hf_002_SP, NULL, { NULL } };
 
 static const AsterixField *I002[] = { &I002_010, &I002_000, &I002_020, &I002_030, &I002_041, &I002_050, &I002_060,
                                       &I002_070, &I002_100, &I002_090, &I002_080, &IX_SPARE, &I002_SP,  &I002_RE, NULL };
@@ -2113,8 +2133,8 @@ static const AsterixField I008_090 = { FIXED, 3, 0, 0, &hf_008_090, IXXX_TOD, { 
 static const AsterixField I008_100 = { FX, 3, 0, 0, &hf_008_100, I008_100_PARTS, { NULL } };
 static const AsterixField I008_110 = { FX, 1, 0, 0, &hf_008_110, I008_110_PARTS, { NULL } };
 static const AsterixField I008_120 = { FIXED, 2, 0, 0, &hf_008_120, I008_120_PARTS, { NULL } };
-static const AsterixField I008_SP = { VAR, 0, 0, 1, &hf_008_SP, NULL, { NULL } };
-static const AsterixField I008_RFS = { VAR, 0, 0, 1, &hf_008_RFS, NULL, { NULL } };
+static const AsterixField I008_SP = { SP, 0, 0, 1, &hf_008_SP, NULL, { NULL } };
+static const AsterixField I008_RFS = { RE, 0, 0, 1, &hf_008_RFS, NULL, { NULL } };
 
 static const AsterixField *I008[] = { &I008_010, &I008_000, &I008_020, &I008_036, &I008_034, &I008_040, &I008_050,
                                       &I008_090, &I008_100, &I008_110, &I008_120, &I008_038, &I008_SP,  &I008_RFS, NULL };
@@ -2513,8 +2533,8 @@ static const AsterixField I034_090 = { FIXED, 2, 0, 0, &hf_034_090, I034_090_PAR
 static const AsterixField I034_100 = { FIXED, 8, 0, 0, &hf_034_100, I034_100_PARTS, { NULL } };
 static const AsterixField I034_110 = { FIXED, 1, 0, 0, &hf_034_110, I034_110_PARTS, { NULL } };
 static const AsterixField I034_120 = { FIXED, 8, 0, 0, &hf_034_120, I034_120_PARTS, { NULL } };
-static const AsterixField I034_RE = { VAR, 0, 0, 1, &hf_034_RE, NULL, { NULL } };
-static const AsterixField I034_SP = { VAR, 0, 0, 1, &hf_034_SP, NULL, { NULL } };
+static const AsterixField I034_RE = { RE, 0, 0, 1, &hf_034_RE, NULL, { NULL } };
+static const AsterixField I034_SP = { SP, 0, 0, 1, &hf_034_SP, NULL, { NULL } };
 
 static const AsterixField *I034[] = { &I034_010, &I034_000, &I034_030, &I034_020, &I034_041, &I034_050, &I034_060,
                                       &I034_070, &I034_100, &I034_110, &I034_120, &I034_090, &I034_RE,  &I034_SP, NULL };
@@ -2913,8 +2933,8 @@ static const AsterixField I048_230 = { FIXED, 2, 0, 0, &hf_048_230, I048_230_PAR
 static const AsterixField I048_240 = { FIXED, 6, 0, 0, &hf_048_240, IXXX_AI_PARTS, { NULL } };
 static const AsterixField I048_250 = { REPETITIVE, 8, 1, 0, &hf_048_250, IXXX_MB, { NULL } };
 static const AsterixField I048_260 = { FIXED, 7, 0, 0, &hf_048_260, NULL, { NULL } };
-static const AsterixField I048_RE = { VAR, 0, 0, 1, &hf_048_RE, NULL, { NULL } };
-static const AsterixField I048_SP = { VAR, 0, 0, 1, &hf_048_SP, NULL, { NULL } };
+static const AsterixField I048_RE = { RE, 0, 0, 1, &hf_048_RE, NULL, { NULL } };
+static const AsterixField I048_SP = { SP, 0, 0, 1, &hf_048_SP, NULL, { NULL } };
 
 static const AsterixField *I048[] = { &I048_010, &I048_140, &I048_020, &I048_040, &I048_070, &I048_090, &I048_130,
                                       &I048_220, &I048_240, &I048_250, &I048_161, &I048_042, &I048_200, &I048_170,
@@ -4078,6 +4098,51 @@ static const FieldPart I062_510_SID = { 8, 1.0, FIELD_PART_UINT, &hf_062_510_SID
 static const FieldPart I062_510_STN = { 15, 1.0, FIELD_PART_UINT, &hf_062_510_STN, NULL };
 static const FieldPart *I062_510_PARTS[] = { &I062_510_SID, &I062_510_STN, &IXXX_3FX, NULL };
 
+/*Reserved Expansion*/
+static const value_string valstr_062_RE_CST_TYPE[] = {
+    { 0, "No Detection"},
+    { 1, "Single PSR Detection"},
+    { 2, "Single SSR Detection"},
+    { 3, "SSR+PSR Detection"},
+    { 4, "Single Mode S All-Call"},
+    { 5, "Single Mode S Roll-Call"},
+    { 6, "Mode S All-Call + PSR"},
+    { 7, "Mode S Roll-Call + PSR"},
+    { 8, "ADS-B"},
+    { 9, "WAM"},
+    { 0, NULL}
+};
+
+static const value_string valstr_062_RE_STS_FDR[] = {
+    { 0, "Flight Plan Data From Active FDPS"},
+    { 1, "Flight Plan Data Retained From No Longer Active FDPS"},
+    { 0, NULL}
+};
+
+/*Contributing Sensors with Local Track Numbers*/
+static const FieldPart I062_RE_CST_SAC = { 8, 1.0, FIELD_PART_UINT, &hf_062_RE_CST_SAC, NULL };
+static const FieldPart I062_RE_CST_SIC = { 8, 1.0, FIELD_PART_UINT, &hf_062_RE_CST_SIC, NULL };
+static const FieldPart I062_RE_CST_TYPE = { 8, 1.0, FIELD_PART_UINT, &hf_062_RE_CST_TYP, NULL };
+static const FieldPart I062_RE_CST_TRK_NUM = { 16, 1.0, FIELD_PART_UINT, &hf_062_RE_CST_TRK_NUM, NULL };
+static const FieldPart *I062_RE_CST_PARTS[] = { &I062_RE_CST_SAC, &I062_RE_CST_SIC, &I062_RE_CST_TYPE, &I062_RE_CST_TRK_NUM, NULL };
+
+/*Contributing Sensors with No Local Track Numbers*/
+static const FieldPart I062_RE_CSNT_SAC = { 8, 1.0, FIELD_PART_UINT, &hf_062_RE_CSNT_SAC, NULL };
+static const FieldPart I062_RE_CSNT_SIC = { 8, 1.0, FIELD_PART_UINT, &hf_062_RE_CSNT_SIC, NULL };
+static const FieldPart I062_RE_CSNT_TYPE = { 8, 1.0, FIELD_PART_UINT, &hf_062_RE_CSNT_TYP, NULL };
+static const FieldPart *I062_RE_CSNT_PARTS[] = { &I062_RE_CSNT_SAC, &I062_RE_CSNT_SIC, &I062_RE_CSNT_TYPE, NULL };
+
+/*Calculated Track Velocity Relative to System Reference Point*/
+static const FieldPart I062_RE_TVS_VX = { 16, 0.25, FIELD_PART_FLOAT, &hf_062_RE_TVS_VX, NULL };
+static const FieldPart I062_RE_TVS_VY = { 16, 0.25, FIELD_PART_FLOAT, &hf_062_RE_TVS_VY, NULL };
+static const FieldPart *I062_RE_TVS_PARTS[] = { &I062_RE_TVS_VX, &I062_RE_TVS_VY, NULL };
+
+/*Supplementary Track Status*/
+static const FieldPart I062_RE_STS_FDR = { 1, 1.0, FIELD_PART_UINT, &hf_062_RE_STS_FDR, NULL };
+static const FieldPart *I062_RE_STS_PARTS[] = { &I062_RE_STS_FDR, NULL };
+
+
+
 /* Items */
 static const AsterixField I062_010 = { FIXED, 2, 0, 0, &hf_062_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I062_015 = { FIXED, 1, 0, 0, &hf_062_015, I062_015_PARTS, { NULL } };
@@ -4322,8 +4387,13 @@ static const AsterixField I062_500 = { COMPOUND, 0, 0, 0, &hf_062_500, NULL, { &
                                                                                &I062_500_08,
                                                                                NULL } };
 static const AsterixField I062_510 = { FX, 3, 0, 0, &hf_062_510, I062_510_PARTS, { NULL } };
-static const AsterixField I062_RE = { VAR, 0, 0, 1, &hf_062_RE, NULL, { NULL } };
-static const AsterixField I062_SP = { VAR, 0, 0, 1, &hf_062_SP, NULL, { NULL } };
+/*RE Field*/
+static const AsterixField I062_RE_CST = { REPETITIVE, 5, 1, 0, &hf_062_RE_CST, I062_RE_CST_PARTS, { NULL } };
+static const AsterixField I062_RE_CSNT = { REPETITIVE, 3, 1, 0, &hf_062_RE_CSNT, I062_RE_CSNT_PARTS, { NULL } };
+static const AsterixField I062_RE_TVS = { FIXED, 4, 0, 0, &hf_062_RE_TVS, I062_RE_TVS_PARTS, { NULL } };
+static const AsterixField I062_RE_STS = { FX, 1, 0, 0, &hf_062_RE_STS, I062_RE_STS_PARTS, { NULL } };
+static const AsterixField I062_RE = { RE, 0, 0, 1, &hf_062_RE, NULL, { &I062_RE_CST, &I062_RE_CSNT, &I062_RE_TVS, &I062_RE_STS, NULL } };
+static const AsterixField I062_SP = { SP, 0, 0, 1, &hf_062_SP, NULL, { NULL } };
 
 static const AsterixField *I062[] = { &I062_010, &IX_SPARE, &I062_015, &I062_070, &I062_105, &I062_100, &I062_185,
                                       &I062_210, &I062_060, &I062_245, &I062_380, &I062_040, &I062_080, &I062_290,
@@ -4349,8 +4419,8 @@ static const AsterixField I063_081 = { FIXED, 2, 0, 0, &hf_063_081, NULL, { NULL
 static const AsterixField I063_090 = { FIXED, 4, 0, 0, &hf_063_090, NULL, { NULL } };
 static const AsterixField I063_091 = { FIXED, 2, 0, 0, &hf_063_091, NULL, { NULL } };
 static const AsterixField I063_092 = { FIXED, 2, 0, 0, &hf_063_092, NULL, { NULL } };
-static const AsterixField I063_RE = { VAR, 0, 0, 1, &hf_063_RE, NULL, { NULL } };
-static const AsterixField I063_SP = { VAR, 0, 0, 1, &hf_063_SP, NULL, { NULL } };
+static const AsterixField I063_RE = { RE, 0, 0, 1, &hf_063_RE, NULL, { NULL } };
+static const AsterixField I063_SP = { SP, 0, 0, 1, &hf_063_SP, NULL, { NULL } };
 
 static const AsterixField *I063[] = { &I063_010, &I063_015, &I063_030, &I063_050, &I063_060, &I063_070, &I063_080,
                                       &I063_081, &I063_090, &I063_091, &I063_092, &IX_SPARE, &I063_RE,  &I063_SP, NULL };
@@ -4369,8 +4439,8 @@ static const AsterixField I065_020 = { FIXED, 1, 0, 0, &hf_065_020, NULL, { NULL
 static const AsterixField I065_030 = { FIXED, 3, 0, 0, &hf_065_030, IXXX_TOD, { NULL } };
 static const AsterixField I065_040 = { FIXED, 1, 0, 0, &hf_065_040, NULL, { NULL } };
 static const AsterixField I065_050 = { FIXED, 1, 0, 0, &hf_065_050, NULL, { NULL } };
-static const AsterixField I065_RE = { VAR, 0, 0, 1, &hf_065_RE, NULL, { NULL } };
-static const AsterixField I065_SP = { VAR, 0, 0, 1, &hf_065_SP, NULL, { NULL } };
+static const AsterixField I065_RE = { RE, 0, 0, 1, &hf_065_RE, NULL, { NULL } };
+static const AsterixField I065_SP = { SP, 0, 0, 1, &hf_065_SP, NULL, { NULL } };
 
 static const AsterixField *I065[] = { &I065_010, &I065_000, &I065_015, &I065_030, &I065_020, &I065_040, &I065_050,
                                       &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I065_RE,  &I065_SP, NULL };
@@ -4737,6 +4807,15 @@ static gint dissect_asterix_fields (tvbuff_t *tvb, guint offset, proto_tree *tre
                     asterix_build_subtree (tvb, offset + start + current_uap[i]->repetition_counter_size + inner_offset, asterix_field_tree2, current_uap[i]);
                 }
             }
+            else if (current_uap[i]->type & RE) {
+                asterix_field_item = proto_tree_add_item (tree, *current_uap[i]->hf, tvb, offset + start, len, ENC_NA);
+                asterix_field_tree = proto_item_add_subtree (asterix_field_item, ett_asterix_subtree);
+                proto_tree_add_item(asterix_field_tree, hf_062_RE_FIELD_LEN, tvb, offset + start, 1, ENC_NA);
+                start++;
+                fspec_len = asterix_fspec_len (tvb, offset + start);
+                proto_tree_add_item (asterix_field_tree, hf_asterix_fspec, tvb, offset + start, fspec_len, ENC_NA);
+                dissect_asterix_fields (tvb, offset + start, asterix_field_tree, category, (const AsterixField **)current_uap[i]->field);
+            }
             else {
                 asterix_field_item = proto_tree_add_item (tree, *current_uap[i]->hf, tvb, offset + start, len, ENC_NA);
                 asterix_field_tree = proto_item_add_subtree (asterix_field_item, ett_asterix_subtree);
@@ -4857,7 +4936,12 @@ static int asterix_field_length (tvbuff_t *tvb, guint offset, const AsterixField
     else if (field->type & FX) {
         for (size = field->length; tvb_get_guint8 (tvb, offset + size - 1) & 1; size += field->length);
     }
-    else if (field->type & VAR) {
+    else if (field->type & RE) {
+        for (i = 0, size = 0; i < field->header_length; i++) {
+            size = (size << 8) + tvb_get_guint8 (tvb, offset + i);
+        }
+    }
+    else if (field->type & SP) {
         for (i = 0, size = 0; i < field->header_length; i++) {
             size = (size << 8) + tvb_get_guint8 (tvb, offset + i);
         }
@@ -5660,6 +5744,21 @@ void proto_register_asterix (void)
         { &hf_062_510_SID, { "SID", "asterix.062_510_SID", FT_UINT24, BASE_DEC, NULL, 0xfffffe, NULL, HFILL } },
         { &hf_062_510_STN, { "STN", "asterix.062_510_STN", FT_UINT24, BASE_DEC, NULL, 0xfffffe, NULL, HFILL } },
         { &hf_062_RE, { "Reserved Expansion Field", "asterix.062_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_FIELD_LEN, { "LEN", "asterix.062_RE_LEN", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CST, {"CST", "asterix.062_RE_CST", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CST_SAC, {"Sensor SAC", "asterix.062_RE_SAC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CST_SIC, {"Sensor SIC", "asterix.062_RE_SIC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CST_TYP, {"TYP", "asterix.062_RE_CST_TYP", FT_UINT8, BASE_DEC, VALS(valstr_062_RE_CST_TYPE), 0x0F, NULL, HFILL } },
+        { &hf_062_RE_CST_TRK_NUM, {"TRK NUM", "asterix.062_RE_CST_TRK_NUM", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CSNT, {"CSNT", "asterix.062_RE_CSNT", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CSNT_SAC, {"Sensor SAC", "asterix.062_RE_CSNT_SAC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CSNT_SIC, {"Sensor SIC", "asterix.062_RE_CSNT_SIC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_CSNT_TYP, {"TYP", "asterix.062_RE_CSNT_TYP", FT_UINT8, BASE_DEC, VALS(valstr_062_RE_CST_TYPE), 0x0F, NULL, HFILL } },
+        { &hf_062_RE_TVS, {"TVS", "asterix.062_RE_TVS", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_TVS_VX, {"VX[m/s]", "asterix.062_RE_TVS_VX", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_TVS_VY, {"VY[m/s]", "asterix.062_RE_TVS_VY", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_STS, {"STS", "asterix.062_RE_STS", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_RE_STS_FDR, {"FDR", "asterix.062_RE_STS_FDR", FT_UINT8, BASE_DEC, VALS(valstr_062_RE_STS_FDR), 0x80, NULL, HFILL } },
         { &hf_062_SP, { "Special Purpose Field", "asterix.062_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         /* Category 063 */
         { &hf_063_010, { "010, Data Source Identifier", "asterix.063_010", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -6417,6 +6516,10 @@ void proto_register_asterix (void)
         &ett_062_510_SID,
         &ett_062_510_STN,
         &ett_062_RE,
+        &ett_062_RE_CST,
+        &ett_062_RE_CSN,
+        &ett_062_RE_TVS,
+        &ett_062_RE_STS,
         &ett_062_SP,
         /* Category 063 */
         &ett_063_010,
