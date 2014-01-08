@@ -1,9 +1,13 @@
 /usr/bin/asn2deb
 /usr/bin/idl2deb
 /usr/bin/idl2wrs
+/usr/lib/wireshark/libfiletap.so
+/usr/lib/wireshark/libfiletap.la
 /usr/lib/wireshark/libwireshark.so
 /usr/lib/wireshark/libwireshark.la
 /usr/lib/wireshark/libwiretap.so
 /usr/lib/wireshark/libwiretap.la
+/usr/lib/wireshark/libwsutil.so
+/usr/lib/wireshark/libwsutil.la
 /usr/lib/python2.3/*
 /usr/include/wireshark/*
