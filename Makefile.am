@@ -293,7 +293,7 @@ dist_wimaxasncp_DATA = \
 	wimaxasncp/dictionary.xml \
 	wimaxasncp/dictionary.dtd
 
-PLATFORM_CAPTURE_SRC = \
+PLATFORM_PCAP_SRC = \
 	capture-pcap-util-unix.c
 
 if HAVE_PLUGINS
