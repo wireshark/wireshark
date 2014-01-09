@@ -45,6 +45,7 @@ static gint hf_asterix_category = -1;
 static gint hf_asterix_length = -1;
 static gint hf_asterix_message = -1;
 static gint hf_asterix_fspec = -1;
+static gint hf_re_field_len = -1;
 static gint hf_spare = -1;
 static gint hf_counter = -1;
 static gint hf_XXX_SAC = -1;
@@ -768,7 +769,6 @@ static gint hf_062_510 = -1;
 static gint hf_062_510_SID = -1;
 static gint hf_062_510_STN = -1;
 static gint hf_062_RE = -1;
-static gint hf_062_RE_FIELD_LEN = -1;
 static gint hf_062_RE_CST = -1;
 static gint hf_062_RE_CST_SAC = -1;
 static gint hf_062_RE_CST_SIC = -1;
@@ -4806,7 +4806,7 @@ static gint dissect_asterix_fields (tvbuff_t *tvb, guint offset, proto_tree *tre
             else if (current_uap[i]->type & RE) {
                 asterix_field_item = proto_tree_add_item (tree, *current_uap[i]->hf, tvb, offset + start, len, ENC_NA);
                 asterix_field_tree = proto_item_add_subtree (asterix_field_item, ett_asterix_subtree);
-                proto_tree_add_item(asterix_field_tree, hf_062_RE_FIELD_LEN, tvb, offset + start, 1, ENC_NA);
+                proto_tree_add_item (asterix_field_tree, hf_re_field_len, tvb, offset + start, 1, ENC_NA);
                 start++;
                 fspec_len = asterix_fspec_len (tvb, offset + start);
                 proto_tree_add_item (asterix_field_tree, hf_asterix_fspec, tvb, offset + start, fspec_len, ENC_NA);
@@ -5017,6 +5017,7 @@ void proto_register_asterix (void)
         { &hf_asterix_length, { "Length", "asterix.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_asterix_message, { "Asterix message", "asterix.message", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_asterix_fspec, { "FSPEC", "asterix.fspec", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_re_field_len, { "RE LEN", "asterix.re_field_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_spare, { "Spare", "asterix.spare", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_counter, { "Counter", "asterix.counter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_XXX_SAC, { "SAC", "asterix.SAC", FT_UINT8, BASE_DEC, NULL, 0x0, "SAC code of the source", HFILL } },
@@ -5740,7 +5741,6 @@ void proto_register_asterix (void)
         { &hf_062_510_SID, { "SID", "asterix.062_510_SID", FT_UINT24, BASE_DEC, NULL, 0xfffffe, NULL, HFILL } },
         { &hf_062_510_STN, { "STN", "asterix.062_510_STN", FT_UINT24, BASE_DEC, NULL, 0xfffffe, NULL, HFILL } },
         { &hf_062_RE, { "Reserved Expansion Field", "asterix.062_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_062_RE_FIELD_LEN, { "LEN", "asterix.062_RE_LEN", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_062_RE_CST, {"CST", "asterix.062_RE_CST", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_062_RE_CST_SAC, {"Sensor SAC", "asterix.062_RE_SAC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_062_RE_CST_SIC, {"Sensor SIC", "asterix.062_RE_SIC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
