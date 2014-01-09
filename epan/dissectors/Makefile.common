@@ -1181,6 +1181,7 @@ DISSECTOR_SRC = \
 	packet-usb-audio.c	\
 	packet-usb-ccid.c	\
 	packet-usb-com.c	\
+	packet-usb-dfu.c	\
 	packet-usb-hid.c	\
 	packet-usb-hub.c	\
 	packet-usb-masstorage.c	\

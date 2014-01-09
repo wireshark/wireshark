@@ -684,6 +684,8 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             wmem_tree_insert32_array(command_info, key, command_data);
         }
 
+        pinfo->p2p_dir = p2p_dir_save;
+
         return offset;
     }
 
@@ -702,6 +704,8 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         col_append_str(pinfo->cinfo, COL_INFO, "Response: Unknown");
 
         proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_length_remaining(tvb, offset));
+
+        pinfo->p2p_dir = p2p_dir_save;
 
         return tvb_length(tvb);
     }

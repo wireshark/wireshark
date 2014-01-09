@@ -1261,6 +1261,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-usb-audio.c
 	dissectors/packet-usb-ccid.c
 	dissectors/packet-usb-com.c
+	dissectors/packet-usb-dfu.c
 	dissectors/packet-usb-hid.c
 	dissectors/packet-usb-hub.c
 	dissectors/packet-usb-masstorage.c

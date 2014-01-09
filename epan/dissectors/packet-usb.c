@@ -2446,8 +2446,8 @@ static const value_string bmrequesttype_recipient_vals[] = {
 };
 
 static gint
-try_dissect_next_protocol(proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
-        usb_conv_info_t *usb_conv_info, gint type, guint16 bus_id, guint8 device_address,
+try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
+        usb_conv_info_t *usb_conv_info, gint type, gint type_2, guint8 urb_type, guint16 bus_id, guint8 device_address,
         device_product_data_t *device_product_data, device_protocol_data_t *device_protocol_data)
 {
     wmem_tree_key_t          key[4];
@@ -2498,9 +2498,59 @@ try_dissect_next_protocol(proto_tree *parent, tvbuff_t *next_tvb, gint offset, p
                     heur_subdissector_list = heur_interrupt_subdissector_list;
                     usb_dissector_table = usb_interrupt_dissector_table;
                     break;
-                case URB_CONTROL:
+                case URB_CONTROL: {
+                    usb_trans_info_t  *usb_trans_info = usb_conv_info->usb_trans_info;
+                    gboolean           is_request = usb_conv_info->is_request;
+
                     heur_subdissector_list = heur_control_subdissector_list;
                     usb_dissector_table = usb_control_dissector_table;
+
+                    /* Make sure we have the proper conversation */
+                    if (usb_trans_info && ((is_request && usb_conv_info->is_setup && type_2 == RQT_SETUP_TYPE_CLASS) ||
+                            (!is_request && USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS))) {
+                        usb_tap_data_t  *tap_data;
+                        proto_item      *sub_item;
+
+                        if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
+                            guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
+
+                            usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
+                            usb_conv_info->usb_trans_info = usb_trans_info;
+                        } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
+                            static address        endpoint_addr;
+                            gint                  endpoint;
+                            static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
+                            guint32               src_endpoint, dst_endpoint;
+                            conversation_t       *conversation;
+
+                            endpoint = usb_trans_info->setup.wIndex & 0x0f;
+
+                            if (is_request) {
+                                dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
+                                SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+
+                                conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
+                            } else {
+                                src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
+                                SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+
+                                conversation  = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
+                            }
+
+                            usb_conv_info = get_usb_conv_info(conversation);
+                            usb_conv_info->usb_trans_info = usb_trans_info;
+                        }
+
+                        tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
+                        tap_data->urb_type      = urb_type;
+                        tap_data->transfer_type = (guint8)type;
+                        tap_data->conv_info     = usb_conv_info;
+                        tap_data->trans_info    = usb_trans_info;
+                        tap_queue_packet(usb_tap, pinfo, tap_data);
+                        sub_item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
+                        PROTO_ITEM_SET_GENERATED(sub_item);
+                    }
+                    }
                     break;
                 default:
                     heur_subdissector_list = NULL;
@@ -2701,6 +2751,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     gint                  offset = 0;
     gint                  new_offset;
     int                   type, endpoint, endpoint_with_dir;
+    gint                  type_2 = 0;
     guint8                urb_type, usbpcap_control_stage = 0;
     guint8                setup_flag;
     guint16               hdr_len;
@@ -2921,7 +2972,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         usb_setup_dissector dissector;
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
-        int type_2 = 0;
 
         if (is_request) {
             if (setup_flag == 0) {
@@ -2981,33 +3031,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                         offset += 2;
                     }
                     break;
-
-                case RQT_SETUP_TYPE_CLASS:
-                    /* Make sure we have the proper conversation */
-                    if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-                        guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
-                        usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
-                        usb_conv_info->usb_trans_info = usb_trans_info;
-                    } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
-                        static address endpoint_addr;
-                        endpoint = usb_trans_info->setup.wIndex & 0x0f;
-
-                        dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
-                        SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
-
-                        conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
-                        usb_conv_info = get_usb_conv_info(conversation);
-                        usb_conv_info->usb_trans_info = usb_trans_info;
-                    }
-
-                    tap_data->conv_info  = usb_conv_info;
-                    tap_data->trans_info = usb_trans_info;
-                    tap_queue_packet(usb_tap, pinfo, tap_data);
-
-                    ti = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
-                    PROTO_ITEM_SET_GENERATED(ti);
-
-                    /* NOTE: No break */
                 default:
                     /* To dissector found - display generic fields */
                     proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3056,7 +3079,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
                 }
 
-                offset = try_dissect_next_protocol(parent, next_tvb, offset, pinfo, usb_conv_info, type, bus_id, device_address, NULL, NULL);
+                offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type, type_2, urb_type, bus_id, device_address, NULL, NULL);
             }
         } else {
             /* this is a response */
@@ -3066,33 +3089,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
             }
-
-            /* Make sure we have the proper conversation */
-            if (usb_trans_info) {
-                if (USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS) {
-                    if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-                        guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
-                        usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
-                        usb_conv_info->usb_trans_info = usb_trans_info;
-                    } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
-                        static address endpoint_addr;
-                        endpoint = usb_trans_info->setup.wIndex & 0x0f;
-
-                        src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
-                        SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
-
-                        conversation  = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
-                        usb_conv_info = get_usb_conv_info(conversation);
-                        usb_conv_info->usb_trans_info = usb_trans_info;
-                    }
-                }
-            }
-
-            tap_data->conv_info  = usb_conv_info;
-            tap_data->trans_info = usb_trans_info;
-            tap_queue_packet(usb_tap, pinfo, tap_data);
-            ti = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
-            PROTO_ITEM_SET_GENERATED(ti);
 
             /*
              * If this has a 64-byte header, process the extra 16 bytes of
@@ -3149,7 +3145,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     /* Try to find a non-standard specific dissector */
                     if (tvb_reported_length_remaining(tvb, offset) != 0) {
                             next_tvb = tvb_new_subset_remaining(tvb, offset);
-                            new_offset = try_dissect_next_protocol(parent, next_tvb, offset, pinfo, usb_conv_info, type, bus_id, device_address, NULL, NULL);
+                            new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type, type_2, urb_type, bus_id, device_address, NULL, NULL);
                             if (new_offset > offset)
                                 offset = new_offset;
                     }
@@ -3188,7 +3184,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if (setup_flag == 0) {
                 proto_item *ti;
                 proto_tree *setup_tree;
-                int         type_2;
 
                 /* Dissect the setup header - it's applicable */
 
@@ -3380,7 +3375,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         if (setup_flag == 0) {
             proto_item *ti;
             proto_tree *setup_tree;
-            int         type_2;
 
             /* Dissect the setup header - it's applicable */
 
@@ -3455,7 +3449,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (tvb_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-        offset = try_dissect_next_protocol(parent, next_tvb, offset, pinfo, usb_conv_info, type, bus_id, device_address, device_product_data, device_protocol_data);
+        offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type, type_2, urb_type, bus_id, device_address, device_product_data, device_protocol_data);
     }
 
     if (tvb_length_remaining(tvb, offset) > 0) {
