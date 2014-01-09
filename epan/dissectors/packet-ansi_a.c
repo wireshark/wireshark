@@ -3432,7 +3432,7 @@ static const value_string ansi_a_is2000_chan_id_chan_rev_pilot_gating_rate_vals[
 };
 
 static guint8
-elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
+elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct;
     guint8      num_chans;
