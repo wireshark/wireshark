@@ -814,6 +814,7 @@ endif()
 set(SHARK_COMMON_SRC
 	${PLATFORM_PCAP_SRC}
 	capture-pcap-util.c
+	cfile.c
 	cfutils.c
 	clopts_common.c
 	frame_tvbuff.c
@@ -946,7 +947,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		proto_hier_stats.c
 		summary.c
 		ws80211_utils.c
-		cfile.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
@@ -1018,7 +1018,6 @@ if(BUILD_tshark)
 		capture_opts.c
 		tshark-tap-register.c
 		tshark.c
-		cfile.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
 		${SHARK_COMMON_SRC}
@@ -1040,7 +1039,6 @@ if(BUILD_tfshark)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(tfshark_FILES
-		cfile.c
 		tfshark.c
 		tshark-tap-register.c
 		${TSHARK_TAP_SRC}
@@ -1061,7 +1059,6 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(rawshark_FILES
-		cfile.c
 		${SHARK_COMMON_SRC}
 		rawshark.c
 		ui/util.c

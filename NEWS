@@ -31,8 +31,6 @@ What's New
           + Several SCTP dialogs have been added.
           + The statistics tree (the backend for many Statistics and
             Telephony menu items) dialog has been added.
-          + In Windows Installer (NSIS), it is possible to associate file with
-            Wireshark Qt and select icons to be installed
 
    The following features are new (or have been significantly updated)
    since version 1.11.1:
@@ -75,6 +73,11 @@ What's New
        handful of other filters have been given the "_ws." prefix to note
        they are Wireshark application specific filters and not dissector
        filters.
+
+  Removed dissectors
+
+     * The ASN1 plugin has been removed as it's deemed obsolete.
+     * The GNM dissector has been removed as it was never used.
 
   New Protocol Support
 
@@ -165,7 +168,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [21]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2013-12-31 15:25:28 CET
+   Last updated 2014-01-03 11:21:56 CET
 
 References
 
