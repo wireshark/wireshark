@@ -946,9 +946,6 @@ value_string_ext ansi_tsb58_srvc_cat_vals_ext = VALUE_STRING_EXT_INIT(ansi_tsb58
 static int proto_a_bsmap = -1;
 static int proto_a_dtap = -1;
 
-/* Used to add the service option to the message name */
-static proto_item *ansi_a_message_item = NULL;
-
 const ext_value_string_t *ansi_a_bsmap_strings = NULL;
 const ext_value_string_t *ansi_a_dtap_strings = NULL;
 const ext_value_string_t *ansi_a_elem_1_strings = NULL;
@@ -1377,13 +1374,40 @@ static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
-static proto_tree *g_tree;
-static address rtp_src_addr;
-static guint32 rtp_ipv4_addr;
-static struct e_in6_addr rtp_ipv6_addr;
-static guint16 rtp_port;
-static gboolean a_meid_configured = FALSE;
 
+typedef struct ansi_a_shared_data_t
+{
+    /*
+     * top level tree
+     */
+    proto_tree          *g_tree;
+
+    /*
+     * item pointer for BSMAP or DTAP message
+     * (may be NULL in the case that the IS41 MAP dissector called dissect_cdma2000_a1_elements())
+     */
+    proto_item          *message_item;
+    proto_item          *elem_item;
+
+    /*
+     * message direction
+     *  TRUE means from the BSC to MSC
+     */
+    gboolean            is_reverse;
+
+    /*
+     * IOS message was carried in SIP
+     */
+    gboolean            from_sip;
+
+    address             rtp_src_addr;
+    guint32             rtp_ipv4_addr;
+    struct e_in6_addr   rtp_ipv6_addr;
+    guint16             rtp_port;
+
+    gboolean            meid_configured;
+}
+ansi_a_shared_data_t;
 
 typedef struct ansi_a_dgt_set_t
 {
@@ -1440,14 +1464,14 @@ static ansi_a_dgt_set_t Dgt_dtmf = {
  */
 static int
 my_dgt_tbcd_unpack(
-    char        *out,           /* ASCII pattern out */
-    guchar      *in,            /* packed pattern in */
-    int         num_octs,       /* Number of octets to unpack */
-    ansi_a_dgt_set_t   *dgt            /* Digit definitions */
+    char                *out,           /* ASCII pattern out */
+    guchar              *in,            /* packed pattern in */
+    int                 num_octs,       /* Number of octets to unpack */
+    ansi_a_dgt_set_t    *dgt            /* Digit definitions */
     )
 {
-    int cnt = 0;
-    unsigned char i;
+    int                 cnt = 0;
+    unsigned char       i;
 
     while (num_octs)
     {
@@ -1689,16 +1713,16 @@ static const gchar *ansi_a_so_int_to_str(gint32 so)
 
 static void
 content_fill_aux(
-    tvbuff_t    *tvb,
-    proto_tree  *tree,
-    guint32     offset,
-    guint8      content_len,
-    guint8      fill_bits,
-    int         hf_content,
-    int         hf_content_fill_bits)
+    tvbuff_t            *tvb,
+    proto_tree          *tree,
+    guint32             offset,
+    guint8              content_len,
+    guint8              fill_bits,
+    int                 hf_content,
+    int                 hf_content_fill_bits)
 {
-    static guint8   lo_masks[8] = { 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
-    guint8      oct;
+    static guint8       lo_masks[8] = { 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
+    guint8              oct;
 
     proto_tree_add_item(tree, hf_content, tvb, offset, content_len, ENC_NA);
 
@@ -1736,15 +1760,6 @@ content_fill_aux(
         return(curr_offset - offset); \
     }
 
-#define EXACT_DATA_CHECK(edc_len, edc_eq_len) \
-    if ((edc_len) != (edc_eq_len)) \
-    { \
-        proto_tree_add_text(tree, tvb, \
-            asn1->offset, (edc_len), "Unexpected Data Length"); \
-        asn1->offset += (edc_len); \
-        return; \
-    }
-
 #define NO_MORE_DATA_CHECK(nmdc_len) \
     if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
 
@@ -1753,7 +1768,7 @@ content_fill_aux(
  * IOS 6.2.2.6
  */
 static guint8
-elem_chan_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_chan_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -1767,14 +1782,14 @@ elem_chan_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
     case A_VARIANT_IOS401:
         proto_tree_add_item(tree, hf_ansi_a_channel_number, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-        g_snprintf(add_string, string_len, " - (%u)", value);
+        proto_item_append_text(data_p->elem_item, " - (%u)", value);
         break;
 
     case A_VARIANT_IOS501:
         proto_tree_add_item(tree, hf_ansi_a_reserved_bits_16_f800, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_IOS5_channel_number, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-        g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
+        proto_item_append_text(data_p->elem_item, " - (ARFCN: %u)", value & 0x07ff);
         break;
     }
 
@@ -1818,7 +1833,7 @@ static const value_string ansi_a_speech_enc_or_data_rate_vals[] = {
 };
 
 static guint8
-elem_chan_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_chan_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -1829,7 +1844,7 @@ elem_chan_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%s)",
+    proto_item_append_text(data_p->elem_item, " - (%s)",
         val_to_str_const(oct, ansi_a_speech_or_data_indicator_vals, "Unknown"));
 
     curr_offset++;
@@ -1875,7 +1890,7 @@ static const value_string ansi_a_return_cause_vals[] = {
 };
 
 static guint8
-elem_return_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_return_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -1904,7 +1919,7 @@ static const value_string ansi_a_rf_chan_id_timeslot_number_vals[] = {
 };
 
 static guint8
-elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -1931,7 +1946,7 @@ elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
+    proto_item_append_text(data_p->elem_item, " - (ARFCN: %u)", value & 0x07ff);
 
     curr_offset += 2;
 
@@ -1944,7 +1959,7 @@ elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 5 4.2.86
  */
 static guint8
-elem_sr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_sr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -1956,7 +1971,7 @@ elem_sr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", oct);
+    proto_item_append_text(data_p->elem_item, " - (%u)", oct);
 
     curr_offset++;
 
@@ -1969,7 +1984,7 @@ elem_sr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
  * IOS 6.2.2.9
  */
 static guint8
-elem_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -1981,7 +1996,7 @@ elem_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (SID: %u)", value & 0x7fff);
+    proto_item_append_text(data_p->elem_item, " - (SID: %u)", value & 0x7fff);
 
     curr_offset += 2;
 
@@ -1994,7 +2009,7 @@ elem_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 6.2.2.10
  */
 static guint8
-elem_is95_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_is95_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint8      num_chans;
@@ -2047,11 +2062,11 @@ elem_is95_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
             /*
              * only use the first channel number
              */
-            if (add_string[0] == '\0')
+            if (chan_num == 0)
             {
                 value = tvb_get_ntohs(tvb, curr_offset + 1);
 
-                g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
+                proto_item_append_text(data_p->elem_item, " - (ARFCN: %u)", value & 0x07ff);
             }
 
             curr_offset += 3;
@@ -2100,7 +2115,7 @@ static const value_string ansi_a_enc_info_available_vals[] = {
 };
 
 static guint8
-elem_enc_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_enc_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset, saved_offset;
@@ -2160,8 +2175,7 @@ elem_enc_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
         num_recs++;
     }
 
-    g_snprintf(add_string, string_len, " - %u record%s",
-        num_recs, plurality(num_recs, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u record%s", num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2235,7 +2249,7 @@ static const value_string ansi_a_cm2_scm_power_class_vals[] = {
 };
 
 static guint8
-elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint8      num_bands, band_class_count, band_class_entry_len, p_rev;
@@ -2253,7 +2267,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - P_REV (%u)", (oct & 0xe0) >> 5);
+    proto_item_append_text(data_p->elem_item, " - P_REV (%u)", (oct & 0xe0) >> 5);
 
     curr_offset++;
 
@@ -2313,8 +2327,8 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     if (oct & 0x10)
     {
-        g_strlcat(add_string, " (MEID configured)", string_len);
-        a_meid_configured = TRUE;
+        proto_item_append_text(data_p->elem_item, " (MEID configured)");
+        data_p->meid_configured = TRUE;
     }
 
     curr_offset++;
@@ -2435,7 +2449,7 @@ static const value_string ansi_a_mid_broadcast_priority_vals[] = {
 };
 
 static guint8
-elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint8      *poctets;
@@ -2469,8 +2483,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
             "%s",
             a_bigbuf);
 
-        g_snprintf(add_string, string_len, " - MEID (%s)",
-            a_bigbuf);
+        proto_item_append_text(data_p->elem_item, " - MEID (%s)", a_bigbuf);
         break;
 
     case 2:     /* Broadcast Address */
@@ -2488,7 +2501,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
         oct = tvb_get_guint8(tvb, curr_offset);
 
-        g_snprintf(add_string, string_len, " - Broadcast (Zone ID: %u)", oct);
+        proto_item_append_text(data_p->elem_item, " - Broadcast (Zone ID: %u)", oct);
 
         curr_offset++;
 
@@ -2530,8 +2543,8 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
             tvb, curr_offset, 4,
             value);
 
-        g_snprintf(add_string, string_len, " - %sESN (0x%04x)",
-            a_meid_configured ? "p" : "",
+        proto_item_append_text(data_p->elem_item, " - %sESN (0x%04x)",
+            data_p->meid_configured ? "p" : "",
             value);
 
         curr_offset += 4;
@@ -2557,8 +2570,9 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
             "BCD Digits: %s",
             a_bigbuf);
 
-        g_snprintf(add_string, string_len, " - IMSI (%s)", a_bigbuf);
-        proto_item_append_text(ansi_a_message_item, " MID=%s", a_bigbuf);
+        proto_item_append_text(data_p->elem_item, " - IMSI (%s)", a_bigbuf);
+        proto_item_append_text(data_p->message_item, " MID=%s", a_bigbuf);
+
         if (global_a_info_display)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "MID=%s ", a_bigbuf);
@@ -2572,7 +2586,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
             "Mobile Identity ID type, %u, unknown/unsupported",
             (oct & 0x07));
 
-        g_snprintf(add_string, string_len, " - Format Unknown/Unsupported");
+        proto_item_append_text(data_p->elem_item, " - Format Unknown/Unsupported");
 
         curr_offset += len;
         break;
@@ -2589,7 +2603,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 5 4.2.14
  */
 static guint8
-elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2604,7 +2618,7 @@ elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
     proto_tree_add_uint_format_value(tree, hf_ansi_a_sci, tvb, curr_offset, 1,
         oct, "%s%u", (oct & 0x08) ? "-" : "", oct & 0x07);
 
-    g_snprintf(add_string, string_len, " - (%s%u)",
+    proto_item_append_text(data_p->elem_item, " - (%s%u)",
         (oct & 0x08) ? "-" : "", oct & 0x07);
 
     curr_offset++;
@@ -2620,7 +2634,7 @@ elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 5 4.2.15
  */
 static guint8
-elem_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2637,7 +2651,7 @@ elem_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offse
     proto_tree_add_item(tree, hf_ansi_a_prio_queue_allowed, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_prio_preempt_allowed, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
+    proto_item_append_text(data_p->elem_item, " - (%u)", (oct & 0x3c) >> 2);
 
     curr_offset++;
 
@@ -2650,7 +2664,7 @@ elem_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offse
  * IOS 5 4.2.79
  */
 static guint8
-elem_p_rev(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_p_rev(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2661,7 +2675,7 @@ elem_p_rev(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", oct);
+    proto_item_append_text(data_p->elem_item, " - (%u)", oct);
 
     curr_offset++;
 
@@ -2776,7 +2790,7 @@ static const value_string ansi_a_elem_cause_vals[] = {
 static value_string_ext ansi_a_elem_cause_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_elem_cause_vals);
 
 static guint8
-elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2804,7 +2818,7 @@ elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
         proto_tree_add_uint_format_value(tree, hf_ansi_a_cause_1, tvb, curr_offset, 1, oct,
             "%s (%u)", str, oct & 0x7f);
 
-        g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
+        proto_item_append_text(data_p->elem_item, " - (%u) %s", oct & 0x7f, str);
 
         curr_offset++;
     }
@@ -2819,7 +2833,7 @@ elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
  * Formats everything after the discriminator, shared function.
  */
 static guint8
-elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
+elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, guint8 disc, proto_item *parent_item_p)
 {
     guint32     value;
     guint32     market_id;
@@ -2833,23 +2847,21 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     case 0x02:
         value = tvb_get_ntohs(tvb, curr_offset);
 
-        proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb,
-            curr_offset, 2, value);
+        proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb, curr_offset, 2, value);
 
         curr_offset += 2;
 
-        g_snprintf(add_string, string_len, " - CI (%u)", value);
+        proto_item_append_text(parent_item_p, " - CI (%u)", value);
         break;
 
     case 0x05:
         value = tvb_get_ntohs(tvb, curr_offset);
 
-        proto_tree_add_uint(tree, hf_ansi_a_cell_lac, tvb,
-            curr_offset, 2, value);
+        proto_tree_add_uint(tree, hf_ansi_a_cell_lac, tvb, curr_offset, 2, value);
 
         curr_offset += 2;
 
-        g_snprintf(add_string, string_len, " - LAC (%u)", value);
+        proto_item_append_text(parent_item_p, " - LAC (%u)", value);
         break;
 
     case 0x07:
@@ -2858,8 +2870,8 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
         value = tvb_get_ntoh24(tvb, curr_offset);
 
-        proto_tree_add_uint_format(tree, hf_ansi_a_cell_mscid, tvb,
-            curr_offset, 3, value,
+        proto_tree_add_uint_format(tree, hf_ansi_a_cell_mscid, tvb, curr_offset, 3,
+            value,
             "Market ID %u  Switch Number %u",
             market_id, switch_num);
 
@@ -2867,15 +2879,12 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
         value = tvb_get_ntohs(tvb, curr_offset);
 
-        proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb,
-            curr_offset, 2, value);
+        proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb, curr_offset, 2, value);
 
         curr_offset += 2;
 
-        g_snprintf(add_string, string_len, " - Market ID (%u) Switch Number (%u) CI (%u)",
-            market_id,
-            switch_num,
-            value);
+        proto_item_append_text(parent_item_p, " - Market ID (%u) Switch Number (%u) CI (%u)",
+                market_id, switch_num, value);
         break;
 
     default:
@@ -2890,7 +2899,7 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 }
 
 static guint8
-elem_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2901,10 +2910,10 @@ elem_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    curr_offset++;
+    curr_offset += 1;
 
     curr_offset +=
-        elem_cell_id_aux(tvb, pinfo, tree, curr_offset, len - (curr_offset - offset), add_string, string_len, oct);
+        elem_cell_id_aux(tvb, pinfo, tree, curr_offset, len - (curr_offset - offset), oct, data_p->elem_item);
 
     /* no length check possible */
 
@@ -2915,7 +2924,7 @@ elem_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 6.2.2.21
  */
 static guint8
-elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint16     consumed;
@@ -2945,14 +2954,8 @@ elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
         subtree = proto_item_add_subtree(item, ett_cell_list);
 
-        add_string[0] = '\0';
         consumed =
-            elem_cell_id_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len, oct);
-
-        if (add_string[0] != '\0')
-        {
-            proto_item_append_text(item, "%s", add_string);
-        }
+            elem_cell_id_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), oct, item);
 
         proto_item_set_len(item, consumed);
 
@@ -2962,8 +2965,7 @@ elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     }
     while ((len - (curr_offset - offset)) > 0);
 
-    g_snprintf(add_string, string_len, " - %u cell%s",
-        num_cells, plurality(num_cells, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u cell%s", num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2974,7 +2976,7 @@ elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.2.2.22
  */
 static guint8
-elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -2993,7 +2995,7 @@ elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
+    proto_item_append_text(data_p->elem_item, " - (%u) (0x%04x)", value, value);
 
     curr_offset += 2;
 
@@ -3006,7 +3008,7 @@ elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 6.2.2.23
  */
 static guint8
-elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     value;
@@ -3027,7 +3029,7 @@ elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
+    proto_item_append_text(data_p->elem_item, " - (%u) (0x%04x)", value, value);
 
     curr_offset += 2;
 
@@ -3057,7 +3059,7 @@ elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
  * IOS 5 4.2.21
  */
 static guint8
-elem_ssci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_ssci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -3086,7 +3088,7 @@ elem_ssci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offse
  * Formats everything no length check
  */
 static guint8
-elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, proto_item *parent_item_p)
 {
     guint8      disc;
     guint16     consumed;
@@ -3102,7 +3104,7 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     num_cells = tvb_get_guint8(tvb, curr_offset);
 
-    curr_offset++;
+    curr_offset += 1;
 
     NO_MORE_DATA_CHECK(len);
 
@@ -3110,7 +3112,7 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     disc = tvb_get_guint8(tvb, curr_offset);
 
-    curr_offset++;
+    curr_offset += 1;
 
     NO_MORE_DATA_CHECK(len);
 
@@ -3127,15 +3129,8 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
         subtree = proto_item_add_subtree(item, ett_cell_list);
 
-        add_string[0] = '\0';
         consumed =
-            elem_cell_id_aux(tvb, pinfo, subtree, curr_offset,
-                len - (curr_offset - offset), add_string, string_len, disc);
-
-        if (add_string[0] != '\0')
-        {
-            proto_item_append_text(item, "%s", add_string);
-        }
+            elem_cell_id_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), disc, item);
 
         proto_item_set_len(item, consumed);
 
@@ -3144,7 +3139,7 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_c0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_downlink_re_sig_str_raw, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        curr_offset++;
+        curr_offset += 1;
 
         proto_tree_add_item(tree, hf_ansi_a_downlink_re_cdma_towd, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
@@ -3154,8 +3149,7 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
     }
     while (curr_cell < num_cells);
 
-    g_snprintf(add_string, string_len, " - %u cell%s",
-        num_cells, plurality(num_cells, "", "s"));
+    proto_item_append_text(parent_item_p, " - %u cell%s", num_cells, plurality(num_cells, "", "s"));
 
     return(curr_offset - offset);
 }
@@ -3164,14 +3158,14 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.2.2.25
  */
 static guint8
-elem_downlink_re(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_downlink_re(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
 
     curr_offset = offset;
 
     curr_offset +=
-        elem_downlink_re_aux(tvb, pinfo, tree, offset, len, add_string, string_len);
+        elem_downlink_re_aux(tvb, pinfo, tree, offset, len, data_p->elem_item);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3182,7 +3176,7 @@ elem_downlink_re(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.2.2.140
  */
 static guint8
-elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint8      num_envs;
@@ -3207,14 +3201,8 @@ elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
         curr_offset++;
 
-        add_string[0] = '\0';
         consumed =
-            elem_downlink_re_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len);
-
-        if (add_string[0] != '\0')
-        {
-            proto_item_append_text(item, "%s", add_string);
-        }
+            elem_downlink_re_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), item);
 
         /*
          * +1 is for environment length
@@ -3226,8 +3214,7 @@ elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         num_envs++;
     }
 
-    g_snprintf(add_string, string_len, " - %u environment%s",
-        num_envs, plurality(num_envs, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u environment%s", num_envs, plurality(num_envs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3258,7 +3245,7 @@ elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.2.2.30
  */
 static guint8
-elem_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -3277,7 +3264,7 @@ elem_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
  * IOS 5 4.2.24
  */
 static guint8
-elem_s_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_s_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -3298,7 +3285,7 @@ elem_s_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
  * IOS 5 4.2.25
  */
 static guint8
-elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint8      num_cells;
@@ -3326,15 +3313,8 @@ elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     subtree = proto_item_add_subtree(item, ett_cell_list);
 
-    add_string[0] = '\0';
     consumed =
-        elem_cell_id_aux(tvb, pinfo, subtree, curr_offset,
-            len - (curr_offset - offset), add_string, string_len, 0x7);
-
-    if (add_string[0] != '\0')
-    {
-        proto_item_append_text(item, "%s", add_string);
-    }
+        elem_cell_id_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), 0x7, item);
 
     proto_item_set_len(item, consumed);
 
@@ -3356,15 +3336,8 @@ elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
         subtree = proto_item_add_subtree(item, ett_cell_list);
 
-        add_string[0] = '\0';
         consumed =
-            elem_cell_id_aux(tvb, pinfo, subtree, curr_offset,
-                len - (curr_offset - offset), add_string, string_len, 0x2);
-
-        if (add_string[0] != '\0')
-        {
-            proto_item_append_text(item, "%s", add_string);
-        }
+            elem_cell_id_aux(tvb, pinfo, subtree, curr_offset, len - (curr_offset - offset), 0x2, item);
 
         proto_item_set_len(item, consumed);
 
@@ -3373,8 +3346,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
         num_cells++;
     }
 
-    g_snprintf(add_string, string_len, " - %u cell%s",
-        num_cells, plurality(num_cells, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u cell%s", num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3385,7 +3357,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.2.2.32
  */
 static guint8
-elem_uz_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_uz_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -3396,7 +3368,7 @@ elem_uz_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", value);
+    proto_item_append_text(data_p->elem_item, " - (%u)", value);
 
     curr_offset += 2;
 
@@ -3414,7 +3386,7 @@ elem_uz_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
  * IOS 5 4.2.77
  */
 static guint8
-elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3434,17 +3406,14 @@ elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
         proto_tree_add_uint_format(tree, hf_ansi_a_info_rec_req, tvb, curr_offset, 1,
             oct,
             "Information Record Type - %u: %s (%u)",
-            num_recs + 1,
-            str,
-            oct);
+            num_recs + 1, str, oct);
 
         curr_offset++;
 
         num_recs++;
     }
 
-    g_snprintf(add_string, string_len, " - %u request%s",
-        num_recs, plurality(num_recs, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u request%s", num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3463,7 +3432,7 @@ static const value_string ansi_a_is2000_chan_id_chan_rev_pilot_gating_rate_vals[
 };
 
 static guint8
-elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint8      num_chans;
@@ -3609,7 +3578,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
  * IOS 5 4.2.29
  */
 static guint8
-elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
 
@@ -3618,7 +3587,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_item(tree, hf_ansi_a_is95_ms_meas_chan_id_band_class, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_is95_ms_meas_chan_id_channel_number, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-    g_snprintf(add_string, string_len, " - (ARFCN: %u)", tvb_get_ntohs(tvb, curr_offset) & 0x07ff);
+    proto_item_append_text(data_p->elem_item, " - (ARFCN: %u)", tvb_get_ntohs(tvb, curr_offset) & 0x07ff);
 
     curr_offset += 2;
 
@@ -3631,7 +3600,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
  * IOS 5 4.2.33
  */
 static guint8
-elem_auth_conf_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_auth_conf_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -3682,7 +3651,7 @@ static const value_string ansi_a_clg_party_ascii_num_plan_vals[] = {
 };
 
 static guint8
-elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3717,7 +3686,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         "Digits: %s",
         (gchar *) format_text(poctets, len - (curr_offset - offset)));
 
-    g_snprintf(add_string, string_len, " - (%s)", poctets);
+    proto_item_append_text(data_p->elem_item, " - (%s)", poctets);
 
     curr_offset += len - (curr_offset - offset);
 
@@ -3730,7 +3699,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  * IOS 6.2.2.38
  */
 static guint8
-elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     tvbuff_t    *l3_tvb;
@@ -3745,7 +3714,7 @@ elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
      */
     l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-    call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
+    call_dissector(dtap_handle, l3_tvb, pinfo, data_p->g_tree);
 
     curr_offset += len;
 
@@ -3779,7 +3748,7 @@ elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 6.2.2.43
  */
 static guint8
-elem_lai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_lai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3849,7 +3818,7 @@ static const value_string ansi_a_rej_cause_vals[] = {
 };
 
 static guint8
-elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3863,7 +3832,7 @@ elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
     proto_tree_add_uint_format_value(tree, hf_ansi_a_rej_cause, tvb, curr_offset, 1,
         oct, "%s (%u)", str, oct);
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->message_item, " - (%s)", str);
 
     curr_offset++;
 
@@ -3876,7 +3845,7 @@ elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
  * IOS 5 4.2.78
  */
 static guint8
-elem_anchor_pdsn_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_anchor_pdsn_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -3895,7 +3864,7 @@ elem_anchor_pdsn_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
  * IOS 5 4.2.80
  */
 static guint8
-elem_anchor_pp_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_anchor_pp_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -3922,7 +3891,7 @@ static const value_string ansi_a_auth_chlg_param_rand_num_type_vals[] = {
 };
 
 static guint8
-elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3938,7 +3907,7 @@ elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
     proto_tree_add_uint_format_value(tree, hf_ansi_a_auth_chlg_param_rand_num_type, tvb, curr_offset, 1,
         oct, "%s (%u)", str, oct & 0x0f);
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset++;
 
@@ -3962,7 +3931,7 @@ static const value_string ansi_a_auth_resp_param_sig_type_vals[] = {
 };
 
 static guint8
-elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3978,7 +3947,7 @@ elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
     proto_tree_add_uint_format_value(tree, hf_ansi_a_auth_resp_param_sig_type, tvb, curr_offset, 1,
         oct, "%s (%u)", str, oct & 0x0f);
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset++;
 
@@ -3995,7 +3964,7 @@ elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
  * IOS 6.2.2.47
  */
 static guint8
-elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4007,7 +3976,7 @@ elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", oct & 0x3f);
+    proto_item_append_text(data_p->elem_item, " - (%u)", oct & 0x3f);
 
     curr_offset++;
 
@@ -4020,7 +3989,7 @@ elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
  * IOS 6.2.2.48
  */
 static guint8
-elem_mwi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_mwi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4031,7 +4000,7 @@ elem_mwi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", oct);
+    proto_item_append_text(data_p->elem_item, " - (%u)", oct);
 
     curr_offset++;
 
@@ -4089,7 +4058,7 @@ static const value_string ansi_a_signal_alert_pitch_vals[] = {
 };
 
 static guint8
-elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4102,7 +4071,7 @@ elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
     str = val_to_str_const(oct, ansi_a_signal_signal_vals, "Unknown");
     proto_tree_add_item(tree, hf_ansi_a_signal_signal_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset++;
 
@@ -4167,7 +4136,7 @@ static const value_string ansi_a_cld_party_bcd_num_plan_vals[] = {
 };
 
 static guint8
-elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      *poctets;
     guint32     curr_offset;
@@ -4185,7 +4154,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset), &Dgt_tbcd);
     proto_tree_add_string(tree, hf_ansi_a_cld_party_bcd_num, tvb, curr_offset, len - (curr_offset - offset), a_bigbuf);
 
-    g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+    proto_item_append_text(data_p->elem_item, " - (%s)", a_bigbuf);
 
     curr_offset += len - (curr_offset - offset);
 
@@ -4198,7 +4167,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  * IOS 6.2.2.54
  */
 static guint8
-elem_qos_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_qos_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4210,7 +4179,7 @@ elem_qos_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", oct & 0x0f);
+    proto_item_append_text(data_p->elem_item, " - (%u)", oct & 0x0f);
 
     curr_offset++;
 
@@ -4313,7 +4282,7 @@ static const value_string ansi_a_cause_l3_value_vals[] = {
 static value_string_ext ansi_a_cause_l3_value_vals_ext = VALUE_STRING_EXT_INIT(ansi_a_cause_l3_value_vals);
 
 static guint8
-elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4339,7 +4308,7 @@ elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
     proto_tree_add_uint_format_value(tree, hf_ansi_a_cause_l3_value, tvb, curr_offset, 1,
         oct & 0x7f, "%s (%u)", str, oct & 0x7f);
 
-    g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
+    proto_item_append_text(data_p->elem_item, " - (%u) %s", oct & 0x7f, str);
 
     curr_offset++;
 
@@ -4362,7 +4331,7 @@ elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
  * IOS 6.2.2.58
  */
 static guint8
-elem_xmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_xmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4375,7 +4344,7 @@ elem_xmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
 
     proto_tree_add_item(tree, hf_ansi_a_xmode_tfo_mode, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    g_snprintf(add_string, string_len, " - (%s)",
+    proto_item_append_text(data_p->elem_item, " - (%s)",
         (oct & 0x01) ? tfs_ansi_a_xmode_tfo_mode.true_string : tfs_ansi_a_xmode_tfo_mode.false_string);
 
     curr_offset++;
@@ -4414,7 +4383,7 @@ static const value_string ansi_a_reg_type_type_vals[] = {
 };
 
 static guint8
-elem_reg_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_reg_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4428,7 +4397,7 @@ elem_reg_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
     proto_tree_add_uint_format_value(tree, hf_ansi_a_reg_type_type, tvb, curr_offset, 1,
         oct, "%s", str);
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset++;
 
@@ -4443,7 +4412,7 @@ elem_reg_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
  * IOS 5 4.2.46
  */
 static guint8
-elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -4454,7 +4423,7 @@ elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     value = tvb_get_ntohl(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", value);
+    proto_item_append_text(data_p->elem_item, " - (%u)", value);
 
     curr_offset += 4;
 
@@ -4469,7 +4438,7 @@ elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
  * IOS 5 4.2.47
  */
 static guint8
-elem_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4484,7 +4453,7 @@ elem_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     str = val_to_str_const(oct & 0x1f, ansi_a_band_class_vals, "Reserved");
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset++;
 
@@ -4539,7 +4508,7 @@ elem_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 6.2.2.65
  */
 static guint8
-elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      major, minor, point;
     guint32     curr_offset;
@@ -4562,7 +4531,7 @@ elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
     point = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (IOS %u.%u.%u)", major, minor, point);
+    proto_item_append_text(data_p->elem_item, " - (IOS %u.%u.%u)", major, minor, point);
 
     curr_offset++;
 
@@ -4583,33 +4552,38 @@ elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
  * IOS 6.2.2.66
  */
 static guint8
-elem_so(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_so_aux(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, guint16 *value_p)
+{
+    proto_tree_add_item(tree, hf_ansi_a_so_proprietary_ind, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_so_revision, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_so_base_so_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    *value_p = tvb_get_ntohs(tvb, offset);
+
+    proto_tree_add_uint_format(tree, hf_ansi_a_so, tvb, offset, 2,
+        *value_p,
+        "%s",
+        ansi_a_so_int_to_str(*value_p));
+
+    /* no length check possible */
+
+    return(2);
+}
+
+static guint8
+elem_so(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     value;
     guint32     curr_offset;
 
-    curr_offset = offset;
+    curr_offset = offset + elem_so_aux(tvb, pinfo, tree, offset, len, &value);
 
-    proto_tree_add_item(tree, hf_ansi_a_so_proprietary_ind, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_so_revision, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_so_base_so_num, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-
-    value = tvb_get_ntohs(tvb, curr_offset);
-
-    g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
-    proto_item_append_text(ansi_a_message_item, "%s", add_string);
+    proto_item_append_text(data_p->elem_item, " - (%u) %s", value, ansi_a_so_int_to_str(value));
+    proto_item_append_text(data_p->message_item, " - SO (%u)", value);
     if (global_a_info_display)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", &add_string[1]);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "- SO (%u)", value);
     }
-
-    proto_tree_add_uint_format(tree, hf_ansi_a_so, tvb, curr_offset, 2,
-        value,
-        "%s %s",
-        &add_string[3],
-        ansi_a_so_int_to_str(value));
-
-    curr_offset += 2;
 
     /* no length check possible */
 
@@ -4620,7 +4594,7 @@ elem_so(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset,
  * IOS 5 4.2.73
  */
 static guint8
-elem_soci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_soci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4632,7 +4606,7 @@ elem_soci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offse
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%u)", oct);
+    proto_item_append_text(data_p->elem_item, " - (%u)", oct);
 
     curr_offset++;
 
@@ -4645,7 +4619,7 @@ elem_soci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offse
  * IOS 5 4.2.74
  */
 static guint8
-elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      num_so;
     guint8      inst;
@@ -4659,13 +4633,9 @@ elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     num_so = tvb_get_guint8(tvb, curr_offset);
 
-    /*
-     * this is in case we leave the function before the
-     * loop through the instances
-     */
-    g_snprintf(add_string, string_len, " - %u service options", num_so);
+    proto_item_append_text(data_p->elem_item, " - %u service options", num_so);
 
-    curr_offset++;
+    curr_offset += 1;
 
     NO_MORE_DATA_CHECK(len);
 
@@ -4675,9 +4645,11 @@ elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     do
     {
+        guint16         value;
+
         item =
             proto_tree_add_text(tree, tvb, curr_offset, 3,
-                "Service Option Instance [%u]",
+                "Service Option [%u]",
                 inst + 1);
 
         subtree = proto_item_add_subtree(item, ett_so_list);
@@ -4686,20 +4658,16 @@ elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         proto_tree_add_item(tree, hf_ansi_a_so_list_sr_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_so_list_soci, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        curr_offset++;
+        curr_offset += 1;
 
-        curr_offset += elem_so(tvb, pinfo, subtree, curr_offset, len, add_string, string_len);
-        add_string[0] = '\0';
+        curr_offset += elem_so_aux(tvb, pinfo, subtree, curr_offset, len, &value);
+
+        proto_item_append_text(item, " - (%u) %s", value, ansi_a_so_int_to_str(value));
 
         inst++;
     }
     while (((len - (curr_offset - offset)) >= 3) &&
         (inst < num_so));
-
-    /*
-     * this is because 'add_string' was used by 'elem_so()'
-     */
-    g_snprintf(add_string, string_len, " - %u service options", num_so);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -4710,7 +4678,7 @@ elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 5 4.2.70
  */
 static guint8
-elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     sid, nid, pzid;
     guint32     curr_offset;
@@ -4732,7 +4700,7 @@ elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     pzid = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (SID/NID/PZID: %u/%u/%u)", sid, nid, pzid);
+    proto_item_append_text(data_p->elem_item, " - (SID/NID/PZID: %u/%u/%u)", sid, nid, pzid);
 
     curr_offset += 1;
 
@@ -4771,11 +4739,10 @@ static const value_string ansi_a_adds_vals[] = {
  * IOS 6.2.2.67
  */
 static guint8
-elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
-    const gchar *str;
     tvbuff_t    *adds_tvb;
     proto_item  *item;
     proto_tree  *subtree;
@@ -4787,8 +4754,8 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    str = val_to_str_const(oct & 0x3f, ansi_a_adds_vals, "Reserved");
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)",
+        val_to_str_const(oct & 0x3f, ansi_a_adds_vals, "Reserved"));
 
     curr_offset++;
 
@@ -4800,15 +4767,14 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     case ADDS_APP_SMS:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-        dissector_try_uint(is637_dissector_table, 0, adds_tvb, pinfo, g_tree);
+        dissector_try_uint(is637_dissector_table, 0, adds_tvb, pinfo, data_p->g_tree);
         curr_offset += (len - 1);
         break;
 
     case ADDS_APP_OTA:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-        dissector_try_uint(is683_dissector_table,
-            (pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, pinfo, g_tree);
+        dissector_try_uint(is683_dissector_table, data_p->is_reverse, adds_tvb, pinfo, data_p->g_tree);
 
         curr_offset += (len - 1);
         break;
@@ -4816,8 +4782,7 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     case ADDS_APP_PDS:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-        dissector_try_uint(is801_dissector_table,
-            (pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, pinfo, g_tree);
+        dissector_try_uint(is801_dissector_table, data_p->is_reverse, adds_tvb, pinfo, data_p->g_tree);
 
         curr_offset += (len - 1);
         break;
@@ -4866,7 +4831,7 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 5 4.2.75
  */
 static guint8
-elem_amps_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_amps_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -4900,7 +4865,7 @@ static const value_string ansi_a_is2000_scr_socr_rev_chan_type_vals[] = {
 };
 
 static guint8
-elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct, num_con_rec, ii;
     guint8      bit_mask, bit_offset;
@@ -4963,10 +4928,8 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
         proto_tree_add_uint_format_value(subtree, hf_ansi_a_is2000_scr_socr_so, tvb, curr_offset, 2,
             value,
-            "%s (%u) (0x%04x)",
-            ansi_a_so_int_to_str(value),
-            value,
-            value);
+            "%s (%u)",
+            ansi_a_so_int_to_str(value), value);
 
         curr_offset += 2;
 
@@ -5153,7 +5116,7 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 6.2.2.69
  */
 static guint8
-elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
     guint       is2000_portion_len;
@@ -5208,7 +5171,7 @@ static const value_string ansi_a_is2000_mob_cap_fch_info_geo_loc_type_vals[] = {
 };
 
 static guint8
-elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct;
     guint8      oct_len;
@@ -5404,7 +5367,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
  * IOS 6.2.2.71
  */
 static guint8
-elem_ptype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ptype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     value;
     guint32     curr_offset;
@@ -5426,10 +5389,9 @@ elem_ptype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
     proto_tree_add_uint_format(tree, hf_ansi_a_protocol_type, tvb, curr_offset, 2,
         value,
         "%s (%u)",
-        str,
-        value);
+        str, value);
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset += 2;
 
@@ -5564,7 +5526,7 @@ static const value_string ansi_a_ms_info_rec_clg_pn_si_vals[] = {
 };
 
 static guint8
-elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint8      oct_len;
@@ -5761,8 +5723,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
         num_recs++;
     }
 
-    g_snprintf(add_string, string_len, " - %u record%s",
-        num_recs, plurality(num_recs, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u record%s", num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -5773,7 +5734,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
  * IOS 6.2.2.72
  */
 static guint8
-elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint8      oct_len;
@@ -5975,8 +5936,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
         num_recs++;
     }
 
-    g_snprintf(add_string, string_len, " - %u record%s",
-        num_recs, plurality(num_recs, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u record%s", num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -5997,7 +5957,7 @@ static const value_string ansi_a_ext_ho_dir_params_target_bs_values_incl_vals[] 
 };
 
 static guint8
-elem_ext_ho_dir_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_ext_ho_dir_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct;
     guint32     value;
@@ -6127,14 +6087,21 @@ static const value_string ansi_a_cdma_sowd_resolution_vals[] = {
 };
 
 static guint8
-elem_cdma_sowd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cdma_sowd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
+    guint8      disc;
     guint32     curr_offset;
 
     curr_offset = offset;
 
-    curr_offset += elem_cell_id(tvb, pinfo, tree, offset, len, add_string, string_len);
-    add_string[0] = '\0';
+    proto_tree_add_item(tree, hf_ansi_a_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+    disc = tvb_get_guint8(tvb, curr_offset);
+
+    curr_offset += 1;
+
+    curr_offset +=
+        elem_cell_id_aux(tvb, pinfo, tree, curr_offset, len - (curr_offset - offset), disc, NULL);
 
     proto_tree_add_item(tree, hf_ansi_a_cdma_sowd_sowd, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset += 2;
@@ -6177,7 +6144,7 @@ static const value_string ansi_a_re_res_vals[] = {
 };
 
 static guint8
-elem_re_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_re_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -6313,7 +6280,7 @@ elem_re_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
  * IOS 5 4.2.59
  */
 static guint8
-elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint8      *poctets;
@@ -6333,7 +6300,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         "Digits: %s",
         (gchar *) format_text(poctets, len - (curr_offset - offset)));
 
-    g_snprintf(add_string, string_len, " - (%s)", poctets);
+    proto_item_append_text(data_p->elem_item, " - (%s)", poctets);
 
     curr_offset += len - (curr_offset - offset);
 
@@ -6346,11 +6313,10 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  * IOS 6.2.2.106
  */
 static guint8
-elem_band_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_band_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
-    const gchar *str;
 
     curr_offset = offset;
 
@@ -6359,9 +6325,8 @@ elem_band_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    str = val_to_str_const(oct & 0x1f, ansi_a_band_class_vals, "Reserved");
-
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    proto_item_append_text(data_p->elem_item, " - (%s)",
+        val_to_str_const(oct & 0x1f, ansi_a_band_class_vals, "Reserved"));
 
     curr_offset++;
 
@@ -6391,7 +6356,7 @@ elem_band_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 5 4.2.60
  */
 static guint8
-elem_is2000_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -6425,7 +6390,7 @@ elem_is2000_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
  * IOS 6.2.2.114
  */
 static guint8
-elem_auth_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_auth_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     const guint8        *bytes_p;
     guint8              oct;
@@ -6588,7 +6553,7 @@ elem_auth_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 6.2.2.138
  */
 static guint8
-elem_psmm_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_psmm_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -6608,7 +6573,7 @@ elem_psmm_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 6.2.2.139
  */
 static guint8
-elem_geo_loc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_geo_loc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -6667,7 +6632,7 @@ elem_geo_loc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
  * IOS 6.2.2.148
  */
 static guint8
-elem_cct_group(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cct_group(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -6692,8 +6657,7 @@ elem_cct_group(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
         oct,
         plurality(oct, "", "s"));
 
-    g_snprintf(add_string, string_len, " - %u circuit%s",
-        oct, plurality(oct, "", "s"));
+    proto_item_append_text(data_p->elem_item, " - %u circuit%s", oct, plurality(oct, "", "s"));
 
     curr_offset++;
 
@@ -6721,7 +6685,7 @@ elem_cct_group(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
  * IOS 6.2.2.149
  */
 static guint8
-elem_paca_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_paca_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -6752,7 +6716,7 @@ static const value_string ansi_a_paca_order_action_reqd_vals[] = {
 };
 
 static guint8
-elem_paca_order(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_paca_order(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -6764,7 +6728,7 @@ elem_paca_order(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%s)",
+    proto_item_append_text(data_p->elem_item, " - (%s)",
         val_to_str_const(oct & 0x07, ansi_a_paca_order_action_reqd_vals, "Reserved"));
 
     curr_offset++;
@@ -6778,7 +6742,7 @@ elem_paca_order(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
  * IOS 6.2.2.151
  */
 static guint8
-elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -6790,7 +6754,7 @@ elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    g_snprintf(add_string, string_len, " - (%sReorigination)", (oct & 0x01) ? "" : "Not ");
+    proto_item_append_text(data_p->elem_item, " - (%sReorigination)", (oct & 0x01) ? "" : "Not ");
 
     curr_offset++;
 
@@ -6803,7 +6767,7 @@ elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
  * IOS 5 4.2.89
  */
 static guint8
-elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -6829,11 +6793,11 @@ elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
             proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_sess_ipv6_addr, tvb, curr_offset, 16, ENC_NA);
 
-            rtp_src_addr.type = AT_IPv6;
-            rtp_src_addr.len = 16;
-            rtp_src_addr.data = (guint8 *) &rtp_ipv6_addr;
+            data_p->rtp_src_addr.type = AT_IPv6;
+            data_p->rtp_src_addr.len = 16;
+            data_p->rtp_src_addr.data = (guint8 *) &data_p->rtp_ipv6_addr;
 
-            tvb_get_ipv6(tvb, curr_offset, &rtp_ipv6_addr);
+            tvb_get_ipv6(tvb, curr_offset, &data_p->rtp_ipv6_addr);
 
             curr_offset += 16;
         }
@@ -6843,18 +6807,18 @@ elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
             proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_sess_ipv4_addr, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 
-            rtp_src_addr.type = AT_IPv4;
-            rtp_src_addr.len = 4;
-            rtp_src_addr.data = (guint8 *) &rtp_ipv4_addr;
+            data_p->rtp_src_addr.type = AT_IPv4;
+            data_p->rtp_src_addr.len = 4;
+            data_p->rtp_src_addr.data = (guint8 *) &data_p->rtp_ipv4_addr;
 
-            rtp_ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
+            data_p->rtp_ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
 
             curr_offset += 4;
         }
 
         proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_sess_udp_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-        rtp_port = tvb_get_ntohs(tvb, curr_offset);
+        data_p->rtp_port = tvb_get_ntohs(tvb, curr_offset);
 
         curr_offset += 2;
     }
@@ -6909,7 +6873,7 @@ static const value_string ansi_a_a2p_bearer_form_format_format_id_vals[] = {
 };
 
 static guint8
-elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8                              oct;
     proto_item                          *item;
@@ -7022,11 +6986,11 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
                 if (format_assigned)
                 {
-                    rtp_src_addr.type = AT_IPv6;
-                    rtp_src_addr.len = 16;
-                    rtp_src_addr.data = (guint8 *) &rtp_ipv6_addr;
+                    data_p->rtp_src_addr.type = AT_IPv6;
+                    data_p->rtp_src_addr.len = 16;
+                    data_p->rtp_src_addr.data = (guint8 *) &data_p->rtp_ipv6_addr;
 
-                    tvb_get_ipv6(tvb, curr_offset, &rtp_ipv6_addr);
+                    tvb_get_ipv6(tvb, curr_offset, &data_p->rtp_ipv6_addr);
                 }
 
                 curr_offset += 16;
@@ -7039,11 +7003,11 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
                 if (format_assigned)
                 {
-                    rtp_src_addr.type = AT_IPv4;
-                    rtp_src_addr.len = 4;
-                    rtp_src_addr.data = (guint8 *) &rtp_ipv4_addr;
+                    data_p->rtp_src_addr.type = AT_IPv4;
+                    data_p->rtp_src_addr.len = 4;
+                    data_p->rtp_src_addr.data = (guint8 *) &data_p->rtp_ipv4_addr;
 
-                    rtp_ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
+                    data_p->rtp_ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
                 }
 
                 curr_offset += 4;
@@ -7053,7 +7017,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
             if (format_assigned)
             {
-                rtp_port = tvb_get_ntohs(tvb, curr_offset);
+                data_p->rtp_port = tvb_get_ntohs(tvb, curr_offset);
             }
 
             curr_offset += 2;
@@ -7098,7 +7062,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
-            rtp_add_address(pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
+            rtp_add_address(pinfo, &data_p->rtp_src_addr, data_p->rtp_port, 0, "IOS5",
                 pinfo->fd->num, FALSE, rtp_dyn_payload);
         }
 
@@ -7132,9 +7096,8 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  * IOS 5 4.2.88
  */
 static guint8
-elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
-    guint32     value;
     guint32     curr_offset;
 
     curr_offset = offset;
@@ -7142,9 +7105,8 @@ elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
     proto_tree_add_item(tree, hf_ansi_a_ms_des_freq_band_class, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_ms_des_freq_cdma_channel, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-    value = tvb_get_ntohs(tvb, curr_offset) & 0x07ff;
-
-    g_snprintf(add_string, string_len, " - (CDMA Channel: %u)", value);
+    proto_item_append_text(data_p->elem_item, " - (CDMA Channel: %u)",
+        tvb_get_ntohs(tvb, curr_offset) & 0x07ff);
 
     curr_offset++;
 
@@ -7165,7 +7127,7 @@ static const value_string ansi_a_plcm_id_plcm_type_vals[] = {
 };
 
 static guint8
-elem_plcm_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_plcm_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7238,7 +7200,7 @@ static const value_string ansi_a_bdtmf_trans_info_dtmf_on_len_vals[] = {
 };
 
 static guint8
-elem_bdtmf_trans_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_bdtmf_trans_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
     guint32     curr_offset;
 
@@ -7258,7 +7220,7 @@ elem_bdtmf_trans_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
  * IS-634.400A 6.2.2.57
  */
 static guint8
-elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7292,7 +7254,7 @@ elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
     proto_tree_add_string(tree, hf_ansi_a_bdtmf_chars_digits, tvb, curr_offset, packed_len,
         a_bigbuf);
 
-    g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+    proto_item_append_text(data_p->elem_item, " - (%s)", a_bigbuf);
 
     curr_offset += packed_len;
 
@@ -7409,7 +7371,7 @@ static elem_idx_t ansi_a_elem_1_max = (elem_idx_t) 0;
 #define MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
 #define MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
 static gint ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
-static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) =
+static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p) =
 {
     elem_acc_net_id,                /* Access Network Identifiers */
     elem_adds_user_part,            /* ADDS User Part */
@@ -7511,13 +7473,12 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * Type Length Value (TLV) element dissector
  */
 static guint16
-elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
+elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add, ansi_a_shared_data_t *data_p)
 {
     guint8      oct, parm_len;
     guint16     consumed;
     guint32     curr_offset;
     proto_tree  *subtree;
-    proto_item  *item;
     gint        dec_idx;
 
     curr_offset = offset;
@@ -7537,13 +7498,13 @@ elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gu
 
         parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
-        item =
+        data_p->elem_item =
             proto_tree_add_text(tree, tvb, curr_offset, parm_len + 2,
                 "%s%s",
                 ansi_a_elem_1_strings[idx].strptr,
                 (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-        subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
+        subtree = proto_item_add_subtree(data_p->elem_item, ett_ansi_elem_1[idx]);
 
         proto_tree_add_uint(subtree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct);
 
@@ -7560,18 +7521,7 @@ elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gu
             }
             else
             {
-                gchar *a_add_string;
-
-                a_add_string = (gchar *) wmem_alloc(wmem_packet_scope(), 1024);
-                a_add_string[0] = '\0';
-                consumed =
-                    (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 2,
-                        parm_len, a_add_string, 1024);
-
-                if (a_add_string[0] != '\0')
-                {
-                    proto_item_append_text(item, "%s", a_add_string);
-                }
+                consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 2, parm_len, data_p);
             }
         }
 
@@ -7588,13 +7538,12 @@ elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gu
  * is not defined for these.
  */
 static guint16
-elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
+elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
     guint16     consumed;
     guint32     curr_offset;
     proto_tree  *subtree;
-    proto_item  *item;
     gint        dec_idx;
 
 
@@ -7613,14 +7562,14 @@ elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
     {
         dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
-        item =
+        data_p->elem_item =
             proto_tree_add_text(tree,
                 tvb, curr_offset, -1,
                 "%s%s",
                 ansi_a_elem_1_strings[idx].strptr,
                 (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-        subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
+        subtree = proto_item_add_subtree(data_p->elem_item, ett_ansi_elem_1[idx]);
 
         proto_tree_add_uint(subtree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct);
 
@@ -7635,21 +7584,12 @@ elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
         }
         else
         {
-            gchar *a_add_string;
-
-            a_add_string = (gchar *) wmem_alloc(wmem_packet_scope(), 1024);
-            a_add_string[0] = '\0';
-            consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 1, -1, a_add_string, 1024);
-
-            if (a_add_string[0] != '\0')
-            {
-                proto_item_append_text(item, "%s", a_add_string);
-            }
+            consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 1, -1, data_p);
         }
 
         consumed++;
 
-        proto_item_set_len(item, consumed);
+        proto_item_set_len(data_p->elem_item, consumed);
     }
 
     return(consumed);
@@ -7662,7 +7602,7 @@ elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
  * is not defined for these.
  */
 static guint16
-elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
+elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add, ansi_a_shared_data_t *data_p _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7697,13 +7637,12 @@ elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, 
  * Length Value (LV) element dissector
  */
 static guint16
-elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
+elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add, ansi_a_shared_data_t *data_p)
 {
     guint8      parm_len;
     guint16     consumed;
     guint32     curr_offset;
     proto_tree  *subtree;
-    proto_item  *item;
     gint        dec_idx;
 
 
@@ -7720,13 +7659,13 @@ elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
 
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
-    item =
+    data_p->elem_item =
         proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1,
             "%s%s",
             ansi_a_elem_1_strings[idx].strptr,
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-    subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
+    subtree = proto_item_add_subtree(data_p->elem_item, ett_ansi_elem_1[idx]);
 
     proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
         curr_offset, 1, parm_len);
@@ -7742,18 +7681,7 @@ elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
         }
         else
         {
-            gchar *a_add_string;
-
-            a_add_string = (gchar *) wmem_alloc(wmem_packet_scope(), 1024);
-            a_add_string[0] = '\0';
-            consumed =
-                (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 1,
-                    parm_len, a_add_string, 1024);
-
-            if (a_add_string[0] != '\0')
-            {
-                proto_item_append_text(item, "%s", a_add_string);
-            }
+            consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 1, parm_len, data_p);
         }
     }
 
@@ -7767,7 +7695,7 @@ elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
  * is not defined for these.
  */
 static guint16
-elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset)
+elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -7783,6 +7711,8 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
+    data_p->elem_item = NULL;
+
     if (elem_1_fcn[dec_idx] == NULL)
     {
         /* BAD THING, CANNOT DETERMINE LENGTH */
@@ -7794,11 +7724,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     }
     else
     {
-        gchar *a_add_string;
-
-        a_add_string = (gchar *) wmem_alloc(wmem_packet_scope(), 1024);
-        a_add_string[0] = '\0';
-        consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, tree, curr_offset, -1, a_add_string, 1024);
+        consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, tree, curr_offset, -1, data_p);
     }
 
     return(consumed);
@@ -7807,7 +7733,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_MAND_TLV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition, data_p)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7827,7 +7753,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_OPT_TLV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition, data_p)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7837,7 +7763,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_MAND_TV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
+    if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition, data_p)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7857,7 +7783,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_OPT_TV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
+    if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition, data_p)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7867,7 +7793,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_OPT_T(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_t(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
+    if ((consumed = elem_t(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition, data_p)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7875,11 +7801,11 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_MAND_LV(elem_idx, elem_name_addition, from_sip) \
+#define ELEM_MAND_LV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = (from_sip ? \
-                         elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition) : \
-                         elem_lv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition))) > 0) \
+    if ((consumed = (data_p->from_sip ? \
+                         elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition, data_p) : \
+                         elem_lv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition, data_p))) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7891,11 +7817,11 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     if (curr_len <= 0) return; \
 }
 
-#define ELEM_MAND_V(elem_idx, from_sip) \
+#define ELEM_MAND_V(elem_idx) \
 {\
-    if ((consumed = (from_sip ? \
-                         elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, "") : \
-                         elem_v(tvb, pinfo, tree, elem_idx, curr_offset))) > 0) \
+    if ((consumed = (data_p->from_sip ? \
+                         elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, "", data_p) : \
+                         elem_v(tvb, pinfo, tree, elem_idx, curr_offset, data_p))) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -7912,7 +7838,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
  * IOS 6.1.2.1
  */
 static void
-bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint16     consumed;
@@ -7921,7 +7847,7 @@ bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    if (!from_sip)
+    if (!data_p->from_sip)
     {
         /*
          * With femtoInterfaceMsg application, the Information Elements for the
@@ -7947,7 +7873,7 @@ static const value_string dtap_cm_service_type_vals[] = {
 };
 
 static void
-dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -7973,9 +7899,9 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
 
@@ -8041,7 +7967,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.1.3
  */
 static void
-dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8063,7 +7989,7 @@ dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.1.2.3
  */
 static void
-bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8106,7 +8032,7 @@ bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.2.4
  */
 static void
-dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8115,9 +8041,9 @@ dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_CM_INFO_TYPE_2, "");
 
-    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -8169,7 +8095,7 @@ dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.2.12
  */
 static void
-dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8191,7 +8117,7 @@ dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 5 3.8.1
  */
 static void
-dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8219,7 +8145,7 @@ dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.1.11
  */
 static void
-dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8241,7 +8167,7 @@ dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.1.12
  */
 static void
-dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8259,7 +8185,7 @@ dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * IOS 6.1.2.15
  */
 static void
-bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -8312,7 +8238,7 @@ bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.2.16
  */
 static void
-bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -8347,7 +8273,7 @@ bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.2.17
  */
 static void
-bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -8367,7 +8293,7 @@ bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.2.20
  */
 static void
-bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -8387,7 +8313,7 @@ bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.2.21
  */
 static void
-bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -8407,7 +8333,7 @@ bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.2.22
  */
 static void
-bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint16     consumed;
     guint32     curr_offset;
@@ -8427,7 +8353,7 @@ bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.2.24
  */
 static void
-dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8447,7 +8373,7 @@ dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.1.2.28
  */
 static void
-bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8477,7 +8403,7 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.2.29
  */
 static void
-bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8503,7 +8429,7 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 5 3.1.19
  */
 static void
-bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8525,7 +8451,7 @@ bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 5 3.1.20
  */
 static void
-dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8559,7 +8485,7 @@ dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.1.10
  */
 static void
-dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8577,7 +8503,7 @@ dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 6.1.3.7
  */
 static void
-dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8596,7 +8522,7 @@ dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    if (pinfo->p2p_dir == P2P_DIR_RECV)
+    if (data_p->is_reverse)
     {
         ELEM_OPT_TLV(ANSI_A_E_REV_MS_INFO_RECS, "");
     }
@@ -8616,7 +8542,7 @@ dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.1.3.8
  */
 static void
-dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8636,7 +8562,7 @@ dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
  * IOS 6.1.3.9
  */
 static void
-bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8676,7 +8602,7 @@ bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.3.10
  */
 static void
-bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8696,7 +8622,7 @@ bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.3.11
  */
 static void
-bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8716,7 +8642,7 @@ bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.3.12
  */
 static void
-bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8734,7 +8660,7 @@ bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 6.1.3.13
  */
 static void
-bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8772,7 +8698,7 @@ bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.3.14
  */
 static void
-bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8794,7 +8720,7 @@ bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.2.9
  */
 static void
-bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8812,7 +8738,7 @@ bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.2.10
  */
 static void
-bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8836,7 +8762,7 @@ bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.4.1
  */
 static void
-bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8867,7 +8793,7 @@ bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 }
 
 static void
-dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8876,7 +8802,7 @@ dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
@@ -8887,7 +8813,7 @@ dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.4.2
  */
 static void
-bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8914,7 +8840,7 @@ bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * Section 3.1.21
  */
 static void
-bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8935,7 +8861,7 @@ bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * Section 3.1.22
  */
 static void
-bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8958,7 +8884,7 @@ bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * Section 3.1.23
  */
 static void
-bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8977,7 +8903,7 @@ bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static void
-dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -8986,7 +8912,7 @@ dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -8995,7 +8921,7 @@ dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.4.3
  */
 static void
-bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9013,7 +8939,7 @@ bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 5 3.3.16
  */
 static void
-dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9031,7 +8957,7 @@ dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
  * IOS 5 3.3.17
  */
 static void
-dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9049,7 +8975,7 @@ dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IS-634.400A 6.1.3.1
  */
 static void
-dtap_send_burst_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_send_burst_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9058,9 +8984,9 @@ dtap_send_burst_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_BDTMF_TRANS_INFO, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_BDTMF_TRANS_INFO, "");
 
-    ELEM_MAND_LV(ANSI_A_E_DTMF_CHARS, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_DTMF_CHARS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9069,7 +8995,7 @@ dtap_send_burst_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IS-634.400A 6.1.3.2
  */
 static void
-dtap_send_burst_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_send_burst_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9087,7 +9013,7 @@ dtap_send_burst_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
  * IS-634.400A 6.1.3.3
  */
 static void
-dtap_start_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_start_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9096,7 +9022,7 @@ dtap_start_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_DTMF_CHARS, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_DTMF_CHARS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9105,7 +9031,7 @@ dtap_start_dtmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IS-634.400A 6.1.3.4
  */
 static void
-dtap_start_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_start_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9123,7 +9049,7 @@ dtap_start_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IS-634.400A 6.1.3.6
  */
 static void
-dtap_stop_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_stop_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9141,7 +9067,7 @@ dtap_stop_dtmf_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 5 3.3.18
  */
 static void
-bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9173,7 +9099,7 @@ bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 5 3.3.18
  */
 static void
-dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9191,7 +9117,7 @@ dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 5 3.3.19
  */
 static void
-bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9221,7 +9147,7 @@ bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 5 3.3.20
  */
 static void
-bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9239,7 +9165,7 @@ bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.3.21
  */
 static void
-bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9257,7 +9183,7 @@ bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.3.22
  */
 static void
-bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9275,7 +9201,7 @@ bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.1.4.4
  */
 static void
-dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9284,7 +9210,7 @@ dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9293,7 +9219,7 @@ dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.4.5
  */
 static void
-dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9302,7 +9228,7 @@ dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_AUTH_CHLG_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9311,7 +9237,7 @@ dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.4.6
  */
 static void
-dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9320,7 +9246,7 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9329,7 +9255,7 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  * IOS 6.1.4.7
  */
 static void
-dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9347,7 +9273,7 @@ dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
  * IOS 6.1.4.8
  */
 static void
-dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9356,7 +9282,7 @@ dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_MID, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_MID, "");
 
     ELEM_OPT_TV(ANSI_A_E_LAI, "");
 
@@ -9397,7 +9323,7 @@ dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
  * IOS 6.1.4.9
  */
 static void
-dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9428,7 +9354,7 @@ dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.4.10
  */
 static void
-dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9437,7 +9363,7 @@ dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(ANSI_A_E_REJ_CAUSE, from_sip);
+    ELEM_MAND_V(ANSI_A_E_REJ_CAUSE);
 
     switch (global_a_variant)
     {
@@ -9455,7 +9381,7 @@ dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
  * IOS 6.1.4.18
  */
 static void
-bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9473,7 +9399,7 @@ bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  * IOS 6.1.4.19
  */
 static void
-bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9493,7 +9419,7 @@ bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
  * IOS 5 3.3.14
  */
 static void
-bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9531,7 +9457,7 @@ bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.3.14
  */
 static void
-dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9540,7 +9466,7 @@ dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_IE_REQD, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_IE_REQD, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9550,7 +9476,7 @@ dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 5 3.3.15
  */
 static void
-bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9576,7 +9502,7 @@ bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 5 3.3.15
  */
 static void
-dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9585,7 +9511,7 @@ dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_REV_MS_INFO_RECS, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_REV_MS_INFO_RECS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -9594,7 +9520,7 @@ dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.1.5.4
  */
 static void
-bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9677,7 +9603,7 @@ bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.5.5
  */
 static void
-bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9771,7 +9697,7 @@ bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
  * IOS 6.1.5.6
  */
 static void
-bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9820,7 +9746,7 @@ bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.1.5.7
  */
 static void
-bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9838,7 +9764,7 @@ bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 6.1.5.8
  */
 static void
-bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9891,7 +9817,7 @@ bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
  * IOS 5 3.4.6
  */
 static void
-bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9909,7 +9835,7 @@ bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.5.9
  */
 static void
-bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9927,7 +9853,7 @@ bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.5.12
  */
 static void
-bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9953,7 +9879,7 @@ bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
  * IOS 6.1.6.2
  */
 static void
-bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9975,7 +9901,7 @@ bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
  * IOS 6.1.6.3
  */
 static void
-bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9993,7 +9919,7 @@ bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.4
  */
 static void
-bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10013,7 +9939,7 @@ bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
  * IOS 6.1.6.5
  */
 static void
-bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10031,7 +9957,7 @@ bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.6.6
  */
 static void
-bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10051,7 +9977,7 @@ bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
  * IOS 6.1.6.7
  */
 static void
-bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10069,7 +9995,7 @@ bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.8
  */
 static void
-bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10091,7 +10017,7 @@ bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.9
  */
 static void
-bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10109,7 +10035,7 @@ bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.6.10
  */
 static void
-bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10127,7 +10053,7 @@ bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.6.11
  */
 static void
-bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10145,7 +10071,7 @@ bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.7.1
  */
 static void
-bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10179,7 +10105,7 @@ bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
  * IOS 6.1.7.2
  */
 static void
-bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10233,7 +10159,7 @@ bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 5 3.6.4
  */
 static void
-bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10255,7 +10181,7 @@ bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  * IOS 6.1.7.3
  */
 static void
-dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip)
+dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10264,7 +10190,7 @@ dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(ANSI_A_E_ADDS_USER_PART, "", from_sip);
+    ELEM_MAND_LV(ANSI_A_E_ADDS_USER_PART, "");
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
@@ -10277,7 +10203,7 @@ dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
  * IOS 6.1.7.4
  */
 static void
-bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10305,7 +10231,7 @@ bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
  * IOS 6.1.7.5
  */
 static void
-dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10325,7 +10251,7 @@ dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  * IOS 6.1.8.1
  */
 static void
-bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10346,7 +10272,7 @@ bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 }
 
 static void
-dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip _U_)
+dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10369,7 +10295,7 @@ dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 #define ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
 #define ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
 static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
-static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip) =
+static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p) =
 {
     bsmap_add_srvc_noti,            /* Additional Service Notification */
     bsmap_adds_page,                /* ADDS Page */
@@ -10439,7 +10365,7 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 #define ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
 #define ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
 static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
-static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gboolean from_sip) =
+static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p) =
 {
     dtap_add_srvc_req,              /* Additional Service Request */
     dtap_adds_deliver,              /* ADDS Deliver */
@@ -10483,13 +10409,20 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* Utillity function to dissect CDMA200 A1 elements in ANSI MAP messages */
 void
-dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32     curr_offset;
-    guint32     consumed;
-    guint       curr_len;
-    unsigned    idx;
-    guint8      oct;
+    guint32                     curr_offset;
+    guint32                     consumed;
+    guint                       curr_len;
+    unsigned                    idx;
+    guint8                      oct;
+    ansi_a_shared_data_t        shared_data;
+    ansi_a_shared_data_t        *data_p;
+
+    memset((void *) &shared_data, 0, sizeof(shared_data));
+    data_p = &shared_data;
+
+    shared_data.g_tree = tree;
 
     curr_offset = offset;
     curr_len = len;
@@ -10508,7 +10441,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
         {
             if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
             {
-                ELEM_OPT_TLV((elem_idx_t)idx, "");
+                ELEM_OPT_TLV((elem_idx_t) idx, "");
                 break;
             }
         }
@@ -10537,13 +10470,23 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     static ansi_a_tap_rec_t     *tap_p;
     static int                  tap_current = 0;
     guint8                      oct;
-    guint32                     offset, saved_offset;
+    guint32                     offset;
     guint32                     len;
     gint                        dec_idx;
     proto_item                  *bsmap_item = NULL;
     proto_tree                  *bsmap_tree = NULL;
     const gchar                 *msg_str;
+    ansi_a_shared_data_t        shared_data;
 
+    memset((void *) &shared_data, 0, sizeof(shared_data));
+
+    shared_data.g_tree = tree;
+    shared_data.from_sip = from_sip;
+
+    /*
+     * determine if this is a REVERSE link message (from BSC/mobile)
+     */
+    shared_data.is_reverse = (pinfo->p2p_dir == P2P_DIR_RECV);
 
     col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
 
@@ -10557,18 +10500,13 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
     tap_p = &tap_rec[tap_current];
 
-
-    offset = 0;
-    saved_offset = offset;
-
-    g_tree = tree;
-
     len = tvb_length(tvb);
+    offset = 0;
 
     /*
      * add BSMAP message name
      */
-    oct = tvb_get_guint8(tvb, offset++);
+    oct = tvb_get_guint8(tvb, offset);
 
     msg_str = my_try_val_to_str_idx((guint32) oct, ansi_a_bsmap_strings, &dec_idx);
 
@@ -10596,12 +10534,11 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
-    ansi_a_message_item = bsmap_item;
+    shared_data.message_item = bsmap_item;
 
-    /*
-     * add BSMAP message name
-     */
-    proto_tree_add_item(bsmap_tree, hf_ansi_a_bsmap_msgtype, tvb, saved_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(bsmap_tree, hf_ansi_a_bsmap_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_BSMAP;
     tap_p->message_type = oct;
@@ -10611,8 +10548,6 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     if (msg_str == NULL) return;
 
     if ((len - offset) <= 0) return;
-
-    a_meid_configured = FALSE;
 
     /*
      * decode elements
@@ -10624,7 +10559,7 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
     else
     {
-        (*bsmap_msg_fcn[dec_idx])(tvb, pinfo, bsmap_tree, offset, len - offset, from_sip);
+        (*bsmap_msg_fcn[dec_idx])(tvb, pinfo, bsmap_tree, offset, len - offset, &shared_data);
     }
 }
 
@@ -10641,7 +10576,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     static ansi_a_tap_rec_t     *tap_p;
     static int                  tap_current = 0;
     guint8                      oct, oct_1 = 0;
-    guint32                     offset, saved_offset;
+    guint32                     offset;
     guint32                     len;
     gint                        dec_idx;
     proto_item                  *dtap_item = NULL;
@@ -10650,6 +10585,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     proto_tree                  *oct_1_tree = NULL;
     const gchar                 *msg_str;
     const gchar                 *str;
+    ansi_a_shared_data_t        shared_data;
 
     len = tvb_length(tvb);
 
@@ -10661,6 +10597,16 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         call_dissector(data_handle, tvb, pinfo, tree);
         return;
     }
+
+    memset((void *) &shared_data, 0, sizeof(shared_data));
+
+    shared_data.g_tree = tree;
+    shared_data.from_sip = from_sip;
+
+    /*
+     * determine if this is a REVERSE link message (from BSC/mobile)
+     */
+    shared_data.is_reverse = (pinfo->p2p_dir == P2P_DIR_RECV);
 
     col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
 
@@ -10674,25 +10620,22 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
     tap_p = &tap_rec[tap_current];
 
-
     offset = 0;
-
-    g_tree = tree;
 
     /*
      * get protocol discriminator
      */
     if (!from_sip)
     {
-        oct_1 = tvb_get_guint8(tvb, offset++);
+        oct_1 = tvb_get_guint8(tvb, offset);
+        offset++;
         offset++;       /* octet '2' */
     }
 
     /*
      * add DTAP message name
      */
-    saved_offset = offset;
-    oct = tvb_get_guint8(tvb, offset++);
+    oct = tvb_get_guint8(tvb, offset);
 
     msg_str = my_try_val_to_str_idx((guint32) oct, ansi_a_dtap_strings, &dec_idx);
 
@@ -10720,7 +10663,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
-    ansi_a_message_item = dtap_item;
+    shared_data.message_item = dtap_item;
 
     if (!from_sip)
     {
@@ -10768,10 +10711,9 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         }
     }
 
-    /*
-     * add DTAP message name
-     */
-    proto_tree_add_item(dtap_tree, hf_ansi_a_dtap_msgtype, tvb, saved_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dtap_tree, hf_ansi_a_dtap_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_DTAP;
     tap_p->message_type = oct;
@@ -10781,8 +10723,6 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (msg_str == NULL) return;
 
     if ((len - offset) <= 0) return;
-
-    a_meid_configured = FALSE;
 
     /*
      * decode elements
@@ -10794,7 +10734,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
     else
     {
-        (*dtap_msg_fcn[dec_idx])(tvb, pinfo, dtap_tree, offset, len - offset, from_sip);
+        (*dtap_msg_fcn[dec_idx])(tvb, pinfo, dtap_tree, offset, len - offset, &shared_data);
     }
 }
 
@@ -12825,7 +12765,7 @@ proto_register_ansi_a(void)
         },
         { &ei_ansi_a_unknown_bsmap_msg,
             { "ansi_a.unknown_bsmap_msg", PI_PROTOCOL, PI_WARN,
-            "DTAP Message Unknown/Unsupported - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)",
+            "BSMAP Message Unknown/Unsupported - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)",
             EXPFILL }
         }
     };
@@ -12943,7 +12883,7 @@ proto_register_ansi_a(void)
         register_dissector_table("ansi_a.pld", "IS-801 (PLD)",
         FT_UINT8, BASE_DEC);
 
-    proto_register_subtree_array(ett, ett_len / (int)sizeof(gint *));
+    proto_register_subtree_array(ett, ett_len / (int) sizeof(gint *));
 
     ansi_a_tap = register_tap("ansi_a");
 
