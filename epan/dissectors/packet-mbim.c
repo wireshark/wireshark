@@ -2837,6 +2837,7 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
                                      pdu_data_size, pdu_data_size);
+            pinfo->p2p_dir = P2P_DIR_SENT;
             call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
         } else {
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
