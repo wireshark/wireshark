@@ -2571,8 +2571,10 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
             a_bigbuf);
 
         proto_item_append_text(data_p->elem_item, " - IMSI (%s)", a_bigbuf);
-        proto_item_append_text(data_p->message_item, " MID=%s", a_bigbuf);
-
+        if (data_p->message_item)
+        {
+            proto_item_append_text(data_p->message_item, " MID=%s", a_bigbuf);
+        }
         if (global_a_info_display)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "MID=%s ", a_bigbuf);
@@ -2851,7 +2853,10 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
         curr_offset += 2;
 
-        proto_item_append_text(parent_item_p, " - CI (%u)", value);
+        if (parent_item_p)
+        {
+            proto_item_append_text(parent_item_p, " - CI (%u)", value);
+        }
         break;
 
     case 0x05:
@@ -2861,7 +2866,10 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
         curr_offset += 2;
 
-        proto_item_append_text(parent_item_p, " - LAC (%u)", value);
+        if (parent_item_p)
+        {
+            proto_item_append_text(parent_item_p, " - LAC (%u)", value);
+        }
         break;
 
     case 0x07:
@@ -2883,8 +2891,11 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
         curr_offset += 2;
 
-        proto_item_append_text(parent_item_p, " - Market ID (%u) Switch Number (%u) CI (%u)",
+        if (parent_item_p)
+        {
+            proto_item_append_text(parent_item_p, " - Market ID (%u) Switch Number (%u) CI (%u)",
                 market_id, switch_num, value);
+        }
         break;
 
     default:
@@ -3832,7 +3843,10 @@ elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
     proto_tree_add_uint_format_value(tree, hf_ansi_a_rej_cause, tvb, curr_offset, 1,
         oct, "%s (%u)", str, oct);
 
-    proto_item_append_text(data_p->message_item, " - (%s)", str);
+    if (data_p->message_item)
+    {
+        proto_item_append_text(data_p->message_item, " - (%s)", str);
+    }
 
     curr_offset++;
 
@@ -4579,7 +4593,10 @@ elem_so(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gui
     curr_offset = offset + elem_so_aux(tvb, pinfo, tree, offset, len, &value);
 
     proto_item_append_text(data_p->elem_item, " - (%u) %s", value, ansi_a_so_int_to_str(value));
-    proto_item_append_text(data_p->message_item, " - SO (%u)", value);
+    if (data_p->message_item)
+    {
+        proto_item_append_text(data_p->message_item, " - SO (%u)", value);
+    }
     if (global_a_info_display)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "- SO (%u)", value);
