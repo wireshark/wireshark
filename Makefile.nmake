@@ -1385,7 +1385,6 @@ install-all: install-generated-files
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl -build \
-	cfile.c
 	$(WIRESHARK_COMMON_SRC) \
 	$(TSHARK_TAP_SRC) \
 #	$(EXTRA_wireshark_SOURCES)
