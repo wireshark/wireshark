@@ -5369,7 +5369,7 @@ proto_register_dvbci(void)
             FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }
         },
         { &hf_dvbci_uri_rct,
-          { "Redistribution control trigger (RCT)", "dvb-ci.cc.uri.ict",
+          { "Redistribution control trigger (RCT)", "dvb-ci.cc.uri.rct",
             FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL }
         },
         { &hf_dvbci_cc_key_register,
