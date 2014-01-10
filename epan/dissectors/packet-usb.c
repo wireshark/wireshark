@@ -2591,12 +2591,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
     return ++offset;
 }
 
-/* Adds the Linux USB pseudo header fields to the tree.
- * NOTE: The multi-byte fields in this header, and the pseudo-header
- *       extension, are in host-endian format so we can't
- *       use proto_tree_add_item() nor the tvb_get_xyz() routines and is
- *       the reason for the tvb_memcpy() and proto_tree_add_uint[64]()
- *       pairs below. */
+/* Adds the Linux USB pseudo header fields to the tree. */
 static void
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint *bus_id, guint *device_address)
@@ -2606,19 +2601,15 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8  transfer_type_and_direction;
     guint8  type;
     guint8  flag[2];
-    guint16 val16;
-    guint32 val32;
-    guint64 val64;
 
-    tvb_memcpy(tvb, (guint8 *)&val64, 0, 8);
-    proto_tree_add_uint64(tree, hf_usb_urb_id, tvb, 0, 8, val64);
+    proto_tree_add_item(tree, hf_usb_urb_id, tvb, 0, 8, ENC_HOST_ENDIAN);
 
     /* show the event type of this URB as string and as a character */
     type = tvb_get_guint8(tvb, 8);
     proto_tree_add_uint_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
         type, "%s ('%c')", val_to_str(type, usb_urb_type_vals, "Unknown %d"),
         g_ascii_isprint(type) ? type : '.');
-    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_NA);
 
     transfer_type   = tvb_get_guint8(tvb, 9);
     endpoint_number = tvb_get_guint8(tvb, 10);
@@ -2626,13 +2617,12 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     col_append_str(pinfo->cinfo, COL_INFO,
                     val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
-    proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_NA);
     *device_address = tvb_get_guint8(tvb, 11);
 
-    tvb_memcpy(tvb, (guint8 *)&val16, 12, 2);
-    proto_tree_add_uint(tree, hf_usb_bus_id, tvb, 12, 2, val16);
-    *bus_id = tvb_get_letohs(tvb, 12);
+    proto_tree_add_item(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN);
+    tvb_memcpy(tvb, bus_id, 12, 2);
 
     /* Right after the pseudo header we always have
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
@@ -2656,20 +2646,11 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             15, 1, flag, "not present ('%c')", g_ascii_isprint(flag[0]) ? flag[0] : '.');
     }
 
-    tvb_memcpy(tvb, (guint8 *)&val64, 16, 8);
-    proto_tree_add_uint64(tree, hf_usb_urb_ts_sec, tvb, 16, 8, val64);
-
-    tvb_memcpy(tvb, (guint8 *)&val32, 24, 4);
-    proto_tree_add_uint(tree, hf_usb_urb_ts_usec, tvb, 24, 4, val32);
-
-    tvb_memcpy(tvb, (guint8 *)&val32, 28, 4);
-    proto_tree_add_int(tree, hf_usb_urb_status, tvb, 28, 4, val32);
-
-    tvb_memcpy(tvb, (guint8 *)&val32, 32, 4);
-    proto_tree_add_uint(tree, hf_usb_urb_len, tvb, 32, 4, val32);
-
-    tvb_memcpy(tvb, (guint8 *)&val32, 36, 4);
-    proto_tree_add_uint(tree, hf_usb_urb_data_len, tvb, 36, 4, val32);
+    proto_tree_add_item(tree, hf_usb_urb_ts_sec, tvb, 16, 8, ENC_HOST_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_ts_usec, tvb, 24, 4, ENC_HOST_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_status, tvb, 28, 4, ENC_HOST_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_len, tvb, 32, 4, ENC_HOST_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_data_len, tvb, 36, 4, ENC_HOST_ENDIAN);
 }
 
 static int
@@ -2677,17 +2658,16 @@ dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo _U_,
                                     proto_tree *tree)
 {
-
-    proto_tree_add_item(tree, hf_usb_urb_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_interval, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_usb_urb_start_frame, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_start_frame, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_usb_urb_copy_of_transfer_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_urb_copy_of_transfer_flags, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
 
     return offset;

@@ -239,6 +239,13 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_BIG_ENDIAN		0x00000000
 #define ENC_LITTLE_ENDIAN	0x80000000
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+    #define ENC_HOST_ENDIAN ENC_LITTLE_ENDIAN
+#else
+    #define ENC_HOST_ENDIAN ENC_BIG_ENDIAN
+#endif
+
+
 /*
  * Historically FT_TIMEs were only timespecs; the only question was whether
  * they were stored in big- or little-endian format.
@@ -1956,7 +1963,7 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
         FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
         FT_integer fields that have a value_string attached will have the
         matched string displayed on the expansion line.
- @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
+ @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
@@ -1981,7 +1988,7 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
         matched string displayed on the expansion line.
  @param exp expert info field used when decodable_len < len.  This also means this function
         should be called even when tree == NULL
- @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
+ @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
@@ -1996,7 +2003,7 @@ proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, 
  @param fallback field name if none of bitfields were usable
  @param ett subtree index
  @param fields NULL-terminated array of bitfield indexes
- @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
+ @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
  @param flags bitmask field
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
