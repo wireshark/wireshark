@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-
+#include <stdio.h>
 #include <string.h>
 
 #include <epan/packet.h>
@@ -2580,9 +2580,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /*************************************/
     /* Data                              */
 
-    reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
-                                                                         get_report_hash_key((guint16)sn, pinfo->fd->num,
-                                                                                             p_rlc_lte_info, FALSE));
+    if (!first_includes_start) {
+    	    reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
+                                                                                 get_report_hash_key((guint16)sn, pinfo->fd->num,
+                                                                                                     p_rlc_lte_info, FALSE));
+    }
 
     if (s_number_of_extensions > 0) {
         /* Show each data segment separately */
@@ -2841,6 +2843,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Append highlights to top-level item */
     if (p_rlc_lte_info->ueid != 0) {
         proto_item_append_text(top_ti, "   UEId=%u", p_rlc_lte_info->ueid);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%-4u ", p_rlc_lte_info->ueid);
     }
     
     /* Append context highlights to info column */
@@ -2848,9 +2851,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                              " [%s] [%s] ",
                              (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
                              val_to_str_const(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
-    if (p_rlc_lte_info->ueid != 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%-4u ", p_rlc_lte_info->ueid);
-    }
+
     if (p_rlc_lte_info->channelId == 0) {
         write_pdu_label_and_info(top_ti, NULL, pinfo, "%s   ",
                                  val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
