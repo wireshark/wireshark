@@ -810,6 +810,9 @@ static void rlc_lte_stat_draw(void *phs)
     }
 
     /* Reselect UE? */
+    /* Note that this no longer works well, as we now get spurious UE selection callbacks
+       while packets are being retapped (seen with Gtk 3.4.4 at least), leading to the wrong
+       UE being reselected! */
     if (hs->reselect_ue != 0) {
         GtkTreeIter *ue_iter = NULL;
         rlc_lte_ep_t *ep = hs->ep_list;
