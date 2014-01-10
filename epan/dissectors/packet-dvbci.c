@@ -1,6 +1,6 @@
 /* packet-dvbci.c
  * Routines for DVB-CI (Common Interface) dissection
- * Copyright 2011-2013, Martin Kaiser <martin@kaiser.cx>
+ * Copyright 2011-2014, Martin Kaiser <martin@kaiser.cx>
  *
  * $Id$
  *
@@ -303,6 +303,11 @@ void proto_reg_handoff_dvbci(void);
 #define CC_ID_REC_START_STATUS   0x28
 #define CC_ID_MODE_CHG_STATUS    0x29
 #define CC_ID_REC_STOP_STATUS    0x2A
+
+#define CC_EMI_FREE    0x00
+#define CC_EMI_NO_MORE 0x01
+#define CC_EMI_ONCE    0x02
+#define CC_EMI_NEVER   0x03
 
 #define CC_KEY_EVEN 0x0
 #define CC_KEY_ODD  0x1
@@ -1414,6 +1419,13 @@ static const value_string dvbci_cc_dat_id[] = {
     { CC_ID_REC_STOP_STATUS,    "Record stop status" },
     { 0, NULL }
 };
+static const value_string dvbci_cc_uri_emi[] = {
+    { CC_EMI_FREE,    "Copy free" },
+    { CC_EMI_NO_MORE, "Copy no more" },
+    { CC_EMI_ONCE,    "Copy once" },
+    { CC_EMI_NEVER,   "Copy never" },
+    { 0, NULL }
+};
 static const value_string dvbci_cc_key_register[] = {
     { CC_KEY_EVEN,  "Even" },
     { CC_KEY_ODD,   "Odd" },
@@ -2002,21 +2014,22 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             emi = (tvb_get_guint8(tvb, offset+1) & 0x30) >> 4;
             proto_tree_add_item(cc_item_tree, hf_dvbci_uri_emi,
                     tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "EMI 0x%x", emi);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                    val_to_str_const(emi, dvbci_cc_uri_emi, "unknown"));
             proto_tree_add_item(cc_item_tree, hf_dvbci_uri_ict,
                     tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            if (emi==0) {
+            if (emi==CC_EMI_FREE) {
                 proto_tree_add_item(cc_item_tree, hf_dvbci_uri_rct,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
             }
-            if (emi!=0x03)
+            if (emi!=CC_EMI_NEVER)
                 break;
             if (uri_ver==1)
                 rl = tvb_get_guint8(tvb, offset+2) & 0x3F;
             else {
-                rl = tvb_get_guint8(tvb, offset+2);
                 proto_tree_add_item(cc_item_tree, hf_dvbci_uri_dot,
-                        tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                        tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                rl = tvb_get_guint8(tvb, offset+2);
             }
             proto_tree_add_uint(cc_item_tree, hf_dvbci_uri_rl,
                     tvb, offset+2, 1, rl);
@@ -5375,7 +5388,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_uri_emi,
           { "EMI", "dvb-ci.cc.uri.emi",
-            FT_UINT8, BASE_HEX, NULL, 0x30, NULL, HFILL }
+            FT_UINT8, BASE_HEX, VALS(dvbci_cc_uri_emi), 0x30, NULL, HFILL }
         },
         { &hf_dvbci_uri_ict,
           { "Image constraint token", "dvb-ci.cc.uri.ict",
