@@ -208,7 +208,7 @@ GSList *ftap_get_all_file_extensions_list(void)
 	return extensions;
 }
 
-int empty_open(ftap *wth _U_, int *err _U_, gchar **err_info _U_)
+static int empty_open(ftap *wth _U_, int *err _U_, gchar **err_info _U_)
 {
 	return 0;
 }
@@ -423,7 +423,7 @@ static char *get_file_extension(const char *pathname)
 	return extensionp;
 }	
 
-gboolean heuristic_uses_extension(unsigned int i, const char *extension)
+static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
 {
 	gchar **extensions_set, **extensionp;
 

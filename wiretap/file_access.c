@@ -559,7 +559,7 @@ static char *get_file_extension(const char *pathname)
 	return extensionp;
 }	
 
-gboolean heuristic_uses_extension(unsigned int i, const char *extension)
+static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
 {
 	gchar **extensions_set, **extensionp;
 

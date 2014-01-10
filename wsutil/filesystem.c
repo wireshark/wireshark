@@ -363,7 +363,7 @@ static gboolean running_in_build_directory_flag = FALSE;
  * use realpath() if they want the real thing, but that's also true of
  * something obtained by looking at argv[0].
  */
-const char *
+static const char *
 get_executable_path(void)
 {
 #if defined(__APPLE__)
