@@ -967,6 +967,8 @@ static int hf_dvbci_uri_aps = -1;
 static int hf_dvbci_uri_emi = -1;
 static int hf_dvbci_uri_ict = -1;
 static int hf_dvbci_uri_rct = -1;
+static int hf_dvbci_uri_dot = -1;
+static int hf_dvbci_uri_rl = -1;
 static int hf_dvbci_cc_key_register = -1;
 static int hf_dvbci_cc_status_field = -1;
 static int hf_dvbci_cc_op_mode = -1;
@@ -1953,7 +1955,7 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
     guint8      dat_id;
     asn1_ctx_t  asn1_ctx;
     int         hf_cert_index;
-    guint8      emi;
+    guint8      uri_ver, emi, rl;
     guint16     prog_num;
     guint8      status;
 
@@ -1992,6 +1994,7 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             break;
         case CC_ID_URI:
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "URI");
+            uri_ver = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(cc_item_tree, hf_dvbci_uri_ver,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(cc_item_tree, hf_dvbci_uri_aps,
@@ -2006,7 +2009,17 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
                 proto_tree_add_item(cc_item_tree, hf_dvbci_uri_rct,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
             }
-            /* digital only token and retention limit will be added */
+            if (emi!=0x03)
+                break;
+            if (uri_ver==1)
+                rl = tvb_get_guint8(tvb, offset+2) & 0x3F;
+            else {
+                rl = tvb_get_guint8(tvb, offset+2);
+                proto_tree_add_item(cc_item_tree, hf_dvbci_uri_dot,
+                        tvb, offset+2, 1, ENC_BIG_ENDIAN);
+            }
+            proto_tree_add_uint(cc_item_tree, hf_dvbci_uri_rl,
+                    tvb, offset+2, 1, rl);
             break;
         case CC_ID_PROG_NUM:
             prog_num = tvb_get_ntohs(tvb, offset);
@@ -5371,6 +5384,16 @@ proto_register_dvbci(void)
         { &hf_dvbci_uri_rct,
           { "Redistribution control trigger (RCT)", "dvb-ci.cc.uri.rct",
             FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL }
+        },
+        { &hf_dvbci_uri_dot,
+          { "Digital only token (DOT)", "dvb-ci.cc.uri.dot",
+            FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }
+        },
+        /* retention limit is 6bit in URIv1 and 8bit in URIv2 and later
+           the position depends on the version, we can't define a mask here */
+        { &hf_dvbci_uri_rl,
+          { "Retention limit", "dvb-ci.cc.uri.rl",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cc_key_register,
           { "Key register", "dvb-ci.cc.key_register",
