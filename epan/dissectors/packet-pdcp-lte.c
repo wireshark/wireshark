@@ -1337,9 +1337,9 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
        when we query it on the first pass. */
     p_frame_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
     *p_frame_security = *p_security;
-            g_hash_table_insert(pdcp_security_result_hash,
-                                get_ueid_frame_hash_key(ueid, security_info->configuration_frame, TRUE),
-                                p_frame_security);
+    g_hash_table_insert(pdcp_security_result_hash,
+                        get_ueid_frame_hash_key(ueid, security_info->configuration_frame, TRUE),
+                        p_frame_security);
 }
 
 #if HAVE_LIBGCRYPT
@@ -1526,7 +1526,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
 #endif
             }
-            /* Just dropping through until GCRY_MAC_CMAC_AES is available! */ 
+            /* Just dropping through if gcrypt version doesn't support GCRY_MAC_CMAC_AES! */ 
 
         case eia1:
         default:
