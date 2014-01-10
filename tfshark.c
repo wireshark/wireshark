@@ -168,6 +168,7 @@ static void write_failure_message(const char *filename, int err);
 
 capture_file cfile;
 
+#if 0
 struct string_elem {
   const char *sstr;   /* The short string */
   const char *lstr;   /* The long string */
@@ -187,6 +188,7 @@ string_elem_print(gpointer data, gpointer not_used _U_)
           ((struct string_elem *)data)->sstr,
           ((struct string_elem *)data)->lstr);
 }
+#endif
 
 static void
 print_usage(gboolean print_ver)
@@ -1673,7 +1675,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
 }
 
 gboolean
-local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar **err_info, gint64 *data_offset, guint8** data_buffer)
+local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar **err_info, gint64 *data_offset _U_, guint8** data_buffer)
 {
     int bytes_read;
     gint64 packet_size = wtap_file_size(cf->wth, err);
