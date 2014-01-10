@@ -25,7 +25,7 @@ use strict;
 
 my $in = shift;
 
-$in = "http://www.iana.org/assignments/enterprise-numbers" unless(defined $in);
+$in = "http://www.iana.org/assignments/enterprise-numbers/enterprise-numbers" unless(defined $in);
 
 my @in_lines;
 
