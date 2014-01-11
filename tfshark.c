@@ -784,7 +784,7 @@ main(int argc, char *argv[])
 /* the leading - ensures that getopt() does not permute the argv[] entries
    we have to make sure that the first getopt() preserves the content of argv[]
    for the subsequent getopt_long() call */
-#define OPTSTRING "-2:C:d:e:E:G:h:K:l:o:O:qQr:R:S:t:T:u:vV:xX:Y:z:"
+#define OPTSTRING "-2C:d:e:E:hK:lo:O:qQr:R:S:t:T:u:vVxX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
