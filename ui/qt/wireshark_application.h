@@ -141,6 +141,11 @@ private slots:
 
 extern WiresharkApplication *wsApp;
 
+/** Global compile time version string */
+extern GString *comp_info_str;
+/** Global runtime version string */
+extern GString *runtime_info_str;
+
 #endif // WIRESHARK_APPLICATION_H
 
 /*

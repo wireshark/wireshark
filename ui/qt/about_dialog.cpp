@@ -27,7 +27,6 @@
 #include "ui_about_dialog.h"
 
 #include "wireshark_application.h"
-#include "main.cpp"
 #include <wsutil/filesystem.h>
 
 #ifdef HAVE_LIBSMI
@@ -58,7 +57,6 @@
 #include <QTextStream>
 
 // To do:
-// - Found better solution to reuse comp_info_str and runtime_info_str (Remove ugly hack...)
 // - Tweat and enhance ui...
 
 void AboutDialog::about_folders_row(const char *name, const char *dir, const char *typ_file)
@@ -114,17 +112,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 
     /* Wireshark tab */
-
-    /* Assemble the compile-time version information string */
-    comp_info_str = g_string_new("Compiled ");
-
-    // Ugly hack... copy from ui/qt/main.cpp */
-    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
-
-    /* Assemble the run-time version information string */
-    runtime_info_str = g_string_new("Running ");
-
-    get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
     /* Construct the message string */
     message = g_strdup_printf(
