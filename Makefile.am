@@ -460,6 +460,7 @@ tfshark_LDADD = \
 	ui/cli/libcliui.a		\
 	ui/libui.a			\
 	filetap/libfiletap.la		\
+	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@			\
